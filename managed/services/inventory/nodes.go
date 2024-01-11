@@ -233,7 +233,7 @@ func (s *NodesService) AddRemoteNode(ctx context.Context, req *inventorypb.AddRe
 	return invNode.(*inventorypb.RemoteNode), nil //nolint:forcetypeassert
 }
 
-// AddRemoteRDSNode adds a new RDS node
+// AddRemoteRDSNode adds a new RDS node.
 func (s *NodesService) AddRemoteRDSNode(ctx context.Context, req *inventorypb.AddRemoteRDSNodeRequest) (*inventorypb.RemoteRDSNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:     req.NodeName,

@@ -1,0 +1,37 @@
+---
+- name: Get plugin list
+  find:
+    paths: /usr/share/percona-dashboards/panels/
+    depth: 2
+    file_type: directory
+  register: plugin_list
+
+- name: Delete older plugins
+  file:
+    path: "/srv/grafana/plugins/{{ item['path'].split('/')[-1] }}"
+    state: absent
+  loop: "{{ plugin_list['files'] }}"
+
+- name: Copy plugins to the plugin directory
+  synchronize:
+    src: /usr/share/percona-dashboards/panels/
+    dest: /srv/grafana/plugins/
+
+- name: Set permissions for the plugin directory
+  file:
+    path: /srv/grafana/plugins
+    state: directory
+    owner: pmm
+    group: pmm
+    mode: 0775
+    recurse: yes
+
+- name: Restart grafana with new plugins
+  shell: "supervisorctl {{ item }} grafana"
+  become: true
+  become_user: pmm
+  become_method: su
+  loop:
+    - stop
+    - remove
+    - add

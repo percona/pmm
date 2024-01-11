@@ -35,11 +35,9 @@ import (
 	grpcstatus "google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/percona/pmm/agent/client/cache"
 	"github.com/percona/pmm/agent/client/channel"
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionuptime"
-	"github.com/percona/pmm/agent/models"
 	"github.com/percona/pmm/agent/runner"
 	"github.com/percona/pmm/agent/runner/actions" // TODO https://jira.percona.com/browse/PMM-7206
 	"github.com/percona/pmm/agent/runner/jobs"
@@ -74,6 +72,7 @@ type Client struct {
 
 	l       *logrus.Entry
 	backoff *backoff.Backoff
+	done    chan struct{}
 
 	// for unit tests only
 	dialTimeout time.Duration
@@ -86,16 +85,13 @@ type Client struct {
 
 	cus      *connectionuptime.Service
 	logStore *tailog.Store
-
-	wg    sync.WaitGroup
-	cache models.Cache
 }
 
 // New creates new client.
 //
 // Caller should call Run.
 func New(cfg configGetter, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, sib serviceInfoBroker, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
-	out := &Client{
+	return &Client{
 		cfg:               cfg,
 		supervisor:        supervisor,
 		connectionChecker: connectionChecker,
@@ -108,20 +104,22 @@ func New(cfg configGetter, supervisor supervisor, r *runner.Runner, connectionCh
 		cus:               cus,
 		logStore:          logStore,
 	}
-
-	var err error
-	if out.cache, err = cache.New(cfg.Get().Cache); err != nil {
-		out.l.Infof("Failed to init cache: %s. Initializing cachelless client.", err)
-		out.cache = &cache.Dummy{}
-	}
-	return out
 }
 
-// Connect connects to the server, processes requests and sends responses.
+// Run connects to the server, processes requests and sends responses.
+//
+// Once Run exits, connection is closed, and caller should cancel supervisor's context.
+// Then caller should wait until Done() channel is closed.
+// That Client instance can't be reused after that.
 //
 // Returned error is already logged and should be ignored. It is returned only for unit tests.
-func (c *Client) Connect(ctx context.Context) error {
+func (c *Client) Run(ctx context.Context) error {
 	c.l.Info("Starting...")
+
+	c.rw.Lock()
+	c.done = make(chan struct{})
+	c.rw.Unlock()
+
 	cfg := c.cfg.Get()
 
 	// do nothing until ctx is canceled if config misses critical info
@@ -135,6 +133,7 @@ func (c *Client) Connect(ctx context.Context) error {
 	if missing != "" {
 		c.l.Errorf("%s is not provided, halting.", missing)
 		<-ctx.Done()
+		close(c.done)
 		return errors.Wrap(ctx.Err(), "missing "+missing)
 	}
 
@@ -159,11 +158,13 @@ func (c *Client) Connect(ctx context.Context) error {
 		}
 	}
 	if ctx.Err() != nil {
+		close(c.done)
 		if dialErr != nil {
 			return dialErr
 		}
 		return ctx.Err()
 	}
+
 	defer func() {
 		if err := dialResult.conn.Close(); err != nil {
 			c.l.Errorf("Connection closed: %s.", err)
@@ -171,16 +172,65 @@ func (c *Client) Connect(ctx context.Context) error {
 		}
 		c.l.Info("Connection closed.")
 	}()
-	c.supervisor.ClearChangesChannel()
-	c.SendActualStatuses()
-	c.cache.SetSender(dialResult.channel)
 
 	c.rw.Lock()
 	c.md = dialResult.md
 	c.channel = dialResult.channel
 	c.rw.Unlock()
 
-	c.processChannelRequests(ctx)
+	// Once the client is connected, ctx cancellation is ignored by it.
+	//
+	// We start goroutines, and terminate the gRPC connection and exit Run when any of them exits:
+	//
+	// 1. processActionResults reads action results from action runner and sends them to the channel.
+	//    It exits when the action runner is stopped by cancelling ctx.
+	//
+	// 2. processSupervisorRequests reads requests (status changes and QAN data) from the supervisor and sends them to the channel.
+	//    It exits when the supervisor is stopped by the caller.
+	//    Caller stops supervisor when Run is left and gRPC connection is closed.
+	//
+	// 3. processChannelRequests reads requests from the channel and processes them.
+	//    It exits when an unexpected message is received from the channel, or when can't be received at all.
+	//    When Run is left, caller stops supervisor, and that allows processSupervisorRequests to exit.
+	//
+	// Done() channel is closed when all three goroutines exited.
+
+	// TODO Make 2 and 3 behave more like 1 - that seems to be simpler.
+	// https://jira.percona.com/browse/PMM-4245
+
+	c.supervisor.ClearChangesChannel()
+	c.SendActualStatuses()
+
+	oneDone := make(chan struct{}, 4)
+	go func() {
+		c.processActionResults(ctx)
+		c.l.Debug("processActionResults is finished")
+		oneDone <- struct{}{}
+	}()
+	go func() {
+		c.processJobsResults(ctx)
+		c.l.Debug("processJobsResults is finished")
+		oneDone <- struct{}{}
+	}()
+	go func() {
+		c.processSupervisorRequests(ctx)
+		c.l.Debug("processSupervisorRequests is finished")
+		oneDone <- struct{}{}
+	}()
+	go func() {
+		c.processChannelRequests(ctx)
+		c.l.Debug("processChannelRequests is finished")
+		oneDone <- struct{}{}
+	}()
+
+	<-oneDone
+	go func() {
+		<-oneDone
+		<-oneDone
+		<-oneDone
+		c.l.Info("Done.")
+		close(c.done)
+	}()
 	return nil
 }
 
@@ -188,7 +238,7 @@ func (c *Client) Connect(ctx context.Context) error {
 func (c *Client) SendActualStatuses() {
 	for _, agent := range c.supervisor.AgentsList() {
 		c.l.Infof("Sending status: %s (port %d).", agent.Status, agent.ListenPort)
-		resp, err := c.sendAndWaitResponse(
+		resp, err := c.channel.SendAndWaitResponse(
 			&agentpb.StateChangedRequest{
 				AgentId:         agent.AgentId,
 				Status:          agent.Status,
@@ -205,6 +255,11 @@ func (c *Client) SendActualStatuses() {
 	}
 }
 
+// Done is closed when all supervisors's requests are sent (if possible) and connection is closed.
+func (c *Client) Done() <-chan struct{} {
+	return c.done
+}
+
 func (c *Client) processActionResults(ctx context.Context) {
 	for {
 		select {
@@ -212,7 +267,7 @@ func (c *Client) processActionResults(ctx context.Context) {
 			if result == nil {
 				continue
 			}
-			resp, err := c.sendAndWaitResponse(result)
+			resp, err := c.channel.SendAndWaitResponse(result)
 			if err != nil {
 				c.l.Error(err)
 				continue
@@ -234,7 +289,7 @@ func (c *Client) processJobsResults(ctx context.Context) {
 			if message == nil {
 				continue
 			}
-			c.send(&models.AgentResponse{
+			c.channel.Send(&channel.AgentResponse{
 				ID:      0, // Jobs send messages that don't require any responses, so we can leave message ID blank.
 				Payload: message,
 			})
@@ -246,47 +301,59 @@ func (c *Client) processJobsResults(ctx context.Context) {
 }
 
 func (c *Client) processSupervisorRequests(ctx context.Context) {
-	for {
-		select {
-		case state := <-c.supervisor.Changes():
-			if state == nil {
-				continue
-			}
-			resp, err := c.sendAndWaitResponse(state)
-			if err != nil {
-				c.l.Error(err)
-				continue
-			}
-			if resp == nil {
-				c.l.Warn("Failed to send StateChanged request.")
-			}
-		case <-ctx.Done():
-			c.l.Infof("Supervisor Changes() channel drained.")
-			return
-		}
-	}
-}
+	var wg sync.WaitGroup
 
-func (c *Client) processQANRequests(ctx context.Context) {
-	for {
-		select {
-		case collect := <-c.supervisor.QANRequests():
-			if collect == nil {
-				continue
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		for {
+			select {
+			case state := <-c.supervisor.Changes():
+				if state == nil {
+					continue
+				}
+				resp, err := c.channel.SendAndWaitResponse(state)
+				if err != nil {
+					c.l.Error(err)
+					continue
+				}
+				if resp == nil {
+					c.l.Warn("Failed to send StateChanged request.")
+				}
+			case <-ctx.Done():
+				c.l.Infof("Supervisor Changes() channel drained.")
+				return
 			}
-			resp, err := c.sendAndWaitResponse(collect)
-			if err != nil {
-				c.l.Error(err)
-				continue
-			}
-			if resp == nil {
-				c.l.Warn("Failed to send QanCollect request.")
-			}
-		case <-ctx.Done():
-			c.l.Infof("Supervisor QANRequests() channel drained.")
-			return
 		}
-	}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		for {
+			select {
+			case collect := <-c.supervisor.QANRequests():
+				if collect == nil {
+					continue
+				}
+				resp, err := c.channel.SendAndWaitResponse(collect)
+				if err != nil {
+					c.l.Error(err)
+					continue
+				}
+				if resp == nil {
+					c.l.Warn("Failed to send QanCollect request.")
+				}
+			case <-ctx.Done():
+				c.l.Infof("Supervisor QANRequests() channel drained.")
+				return
+			}
+		}
+	}()
+
+	wg.Wait()
 }
 
 func (c *Client) processChannelRequests(ctx context.Context) {
@@ -360,24 +427,23 @@ LOOP:
 			}
 			c.cus.RegisterConnectionStatus(time.Now(), true)
 
-			response := &models.AgentResponse{
+			response := &channel.AgentResponse{
 				ID:      req.ID,
 				Payload: responsePayload,
 			}
 			if status != nil {
 				response.Status = status
 			}
-			c.send(response)
+			c.channel.Send(response)
 		case <-ctx.Done():
 			break LOOP
 		}
 	}
 	if err := c.channel.Wait(); err != nil {
 		c.l.Debugf("Channel closed: %s.", err)
-	} else {
-		c.l.Debug("Channel closed.")
+		return
 	}
-	c.l.Debug("processChannelRequests is finished")
+	c.l.Debug("Channel closed.")
 }
 
 func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
@@ -667,8 +733,29 @@ type dialResult struct {
 // dial tries to connect to the server once.
 // State changes are logged via l. Returned error is not user-visible.
 func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialResult, error) {
+	opts := []grpc.DialOption{
+		grpc.WithBlock(),
+		grpc.WithUserAgent("pmm-agent/" + version.Version),
+	}
+	if cfg.Server.WithoutTLS {
+		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	} else {
+		host, _, _ := net.SplitHostPort(cfg.Server.Address)
+		tlsConfig := tlsconfig.Get()
+		tlsConfig.ServerName = host
+		tlsConfig.InsecureSkipVerify = cfg.Server.InsecureTLS
+		opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
+	}
+
+	if cfg.Server.Username != "" {
+		opts = append(opts, grpc.WithPerRPCCredentials(&basicAuth{
+			username: cfg.Server.Username,
+			password: cfg.Server.Password,
+		}))
+	}
+
 	l.Infof("Connecting to %s ...", cfg.Server.FilteredURL())
-	conn, err := grpc.DialContext(dialCtx, cfg.Server.Address, getGRPCOps(cfg)...)
+	conn, err := grpc.DialContext(dialCtx, cfg.Server.Address, opts...)
 	if err != nil {
 		msg := err.Error()
 
@@ -900,73 +987,6 @@ func convertAgentErrorToGrpcStatus(agentErr error) *grpcstatus.Status {
 		status = grpcstatus.New(codes.Unimplemented, agentErr.Error())
 	}
 	return status
-}
-
-func getGRPCOps(cfg *config.Config) []grpc.DialOption {
-	opts := []grpc.DialOption{
-		grpc.WithBlock(),
-		grpc.WithUserAgent("pmm-agent/" + version.Version),
-	}
-	if cfg.Server.WithoutTLS {
-		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	} else {
-		host, _, _ := net.SplitHostPort(cfg.Server.Address)
-		tlsConfig := tlsconfig.Get()
-		tlsConfig.ServerName = host
-		tlsConfig.InsecureSkipVerify = cfg.Server.InsecureTLS
-		opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
-	}
-
-	return opts
-}
-
-// Start starts client processes that handle requests and sends responses.
-func (c *Client) Start(ctx context.Context) {
-	if _, ok := c.cache.(*cache.Cache); ok {
-		c.wg.Add(1)
-		go func() {
-			defer c.wg.Done()
-			<-ctx.Done()
-			c.cache.Close()
-		}()
-	}
-	c.wg.Add(4)
-	go func() {
-		defer c.wg.Done()
-		c.processActionResults(ctx)
-		c.l.Debug("processActionResults is finished")
-	}()
-	go func() {
-		defer c.wg.Done()
-		c.processJobsResults(ctx)
-		c.l.Debug("processJobsResults is finished")
-	}()
-	go func() {
-		defer c.wg.Done()
-		c.processSupervisorRequests(ctx)
-		c.l.Debug("processSupervisorRequests is finished")
-	}()
-	go func() {
-		defer c.wg.Done()
-		c.processQANRequests(ctx)
-		c.l.Debug("processQANRequests is finished")
-	}()
-}
-
-// Wait waits for client processes to stop.
-func (c *Client) Wait() {
-	c.wg.Wait()
-}
-
-func (c *Client) sendAndWaitResponse(msg agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error) { //nolint:ireturn
-	return c.cache.SendAndWaitResponse(msg)
-}
-
-func (c *Client) send(msg *models.AgentResponse) {
-	err := c.cache.Send(msg)
-	if err != nil {
-		c.l.Error(err)
-	}
 }
 
 // check interface.

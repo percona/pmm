@@ -18,6 +18,7 @@ package config
 import (
 	"fmt"
 	"io/fs"
+	"log"
 	"net"
 	"net/url"
 	"os"
@@ -37,10 +38,8 @@ import (
 )
 
 const (
-	pathBaseDefault        = "/usr/local/percona/pmm"
-	agentTmpPath           = "tmp"             // temporary directory to keep exporters' config files, relative to pathBase
-	prioritizedCacheSize   = 100 * 1024 * 1024 // 100 MB TODO: R&D on median daily amount
-	unprioritizedCacheSize = 500 * 1024 * 1024 // 500 MB TODO: R&D on median daily amount
+	pathBaseDefault = "/usr/local/percona/pmm"
+	agentTmpPath    = "tmp" // temporary directory to keep exporters' config files, relative to pathBase
 )
 
 // Server represents PMM Server configuration.
@@ -142,18 +141,6 @@ type Setup struct {
 	ExposeExporter   bool
 }
 
-// Cache represent cache settings.
-type Cache struct {
-	// Dir represent file to store valuable agent messages
-	Dir string `yaml:"dir"`
-	// PrioritizedSize represent cache size for high priority agent messages e.g., job, action results
-	PrioritizedSize uint32 `yaml:"prioritized_size"`
-	// UnprioritizedSize represent cache size for low priority agent messages e.g., qan metrics
-	UnprioritizedSize uint32 `yaml:"unprioritized_size"`
-	// Disable disables cache
-	Disable bool `yaml:"disable"`
-}
-
 // Config represents pmm-agent's configuration.
 //
 //nolint:maligned
@@ -176,7 +163,6 @@ type Config struct { //nolint:musttag
 	LogLinesCount uint `json:"log-lines-count"`
 
 	WindowConnectedTime time.Duration `yaml:"window-connected-time"`
-	Cache               Cache         `yaml:"cache"`
 
 	Setup Setup `yaml:"-"`
 }
@@ -223,12 +209,6 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 		if cfg.WindowConnectedTime == 0 {
 			cfg.WindowConnectedTime = time.Hour
 		}
-		if cfg.Cache.PrioritizedSize == 0 {
-			cfg.Cache.PrioritizedSize = prioritizedCacheSize
-		}
-		if cfg.Cache.UnprioritizedSize == 0 {
-			cfg.Cache.UnprioritizedSize = unprioritizedCacheSize
-		}
 
 		for sp, v := range map[*string]string{
 			&cfg.Paths.NodeExporter:     "node_exporter",
@@ -243,7 +223,6 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 			&cfg.Paths.PTPGSummary:      "tools/pt-pg-summary",
 			&cfg.Paths.PTMongoDBSummary: "tools/pt-mongodb-summary",
 			&cfg.Paths.PTMySQLSummary:   "tools/pt-mysql-summary",
-			&cfg.Cache.Dir:              "cache",
 		} {
 			if *sp == "" {
 				*sp = v
@@ -286,9 +265,6 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 		if !filepath.IsAbs(cfg.Paths.PTMySQLSummary) {
 			cfg.Paths.PTMySQLSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTMySQLSummary)
 		}
-		if !filepath.IsAbs(cfg.Cache.Dir) {
-			cfg.Cache.Dir = filepath.Join(cfg.Paths.PathsBase, cfg.Cache.Dir)
-		}
 
 		for _, sp := range []*string{
 			&cfg.Paths.NodeExporter,
@@ -326,25 +302,25 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 	// parse command-line flags and environment variables
 	app, cfgFileF := Application(cfg)
 	if _, err = app.Parse(args); err != nil {
-		return
+		return //nolint:nakedret
 	}
 	if *cfgFileF == "" {
-		return
+		return //nolint:nakedret
 	}
 
 	if configFileF, err = filepath.Abs(*cfgFileF); err != nil {
-		return
+		return //nolint:nakedret
 	}
 	l.Infof("Loading configuration file %s.", configFileF)
 	fileCfg, err := loadFromFile(configFileF)
 	if err != nil {
-		return
+		return //nolint:nakedret
 	}
 
 	// re-parse flags into configuration from file
 	app, _ = Application(fileCfg)
 	if _, err = app.Parse(args); err != nil {
-		return
+		return //nolint:nakedret
 	}
 
 	*cfg = *fileCfg
@@ -412,14 +388,6 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PATHS_PT_MYSQL_SUMMARY").StringVar(&cfg.Paths.PTMySQLSummary)
 	app.Flag("paths-tempdir", "Temporary directory for exporters [PMM_AGENT_PATHS_TEMPDIR]").
 		Envar("PMM_AGENT_PATHS_TEMPDIR").StringVar(&cfg.Paths.TempDir)
-	app.Flag("cache-dir", "Directory for cache [PMM_AGENT_CACHE_DIR]").
-		Envar("PMM_AGENT_CACHE_DIR").StringVar(&cfg.Cache.Dir)
-	app.Flag("cache-prioritized-size", "Cache size for high priority agent messages e.g., job, action results [PMM_AGENT_CACHE_PRIORITIZED_SIZE]").
-		Envar("PMM_AGENT_CACHE_PRIORITIZED_SIZE").Uint32Var(&cfg.Cache.PrioritizedSize)
-	app.Flag("cache-unprioritized-size", "Cache for low priority agent messages e.g., qan metrics [PMM_AGENT_CACHE_UNPRIORITIZED_SIZE]").
-		Envar("PMM_AGENT_CACHE_UNPRIORITIZED_SIZE").Uint32Var(&cfg.Cache.UnprioritizedSize)
-	app.Flag("cache-disable", "Disables cache [PMM_AGENT_CACHE_DISABLE]").
-		Envar("PMM_AGENT_CACHE_DISABLE").BoolVar(&cfg.Cache.Disable)
 	// no flag for SlowLogFilePrefix - it is only for development and testing
 
 	app.Flag("ports-min", "Minimal allowed port number for listening sockets [PMM_AGENT_PORTS_MIN]").
@@ -445,9 +413,9 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 
 	app.Flag("version", "Show application version").Short('v').Action(func(*kingpin.ParseContext) error {
 		if *jsonF {
-			fmt.Println(version.FullInfoJSON())
+			log.Println(version.FullInfoJSON())
 		} else {
-			fmt.Println(version.FullInfo())
+			log.Println(version.FullInfo())
 		}
 		os.Exit(0)
 

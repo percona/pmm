@@ -128,7 +128,7 @@ func (s *ArtifactsService) DeleteArtifact(
 	return &backuppb.DeleteArtifactResponse{}, nil
 }
 
-// ListPitrTimeranges lists available PITR timelines/time-ranges (for MongoDB)
+// ListPitrTimeranges lists available PITR timelines/time-ranges (for MongoDB).
 func (s *ArtifactsService) ListPitrTimeranges(
 	ctx context.Context,
 	req *backuppb.ListPitrTimerangesRequest,

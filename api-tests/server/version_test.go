@@ -34,7 +34,6 @@ import (
 func TestVersion(t *testing.T) {
 	t.Parallel()
 	paths := []string{
-		"managed/v1/version",
 		"v1/version",
 	}
 	for _, path := range paths {
@@ -50,7 +49,7 @@ func TestVersion(t *testing.T) {
 			req, _ := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 			resp, err := http.DefaultClient.Do(req)
 			require.NoError(t, err)
-			defer resp.Body.Close() //nolint:gosec,errcheck
+			defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 			b, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)

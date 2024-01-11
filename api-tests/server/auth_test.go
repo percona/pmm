@@ -67,7 +67,7 @@ func TestAuth(t *testing.T) {
 				req, _ := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				resp, err := http.DefaultClient.Do(req)
 				require.NoError(t, err)
-				defer resp.Body.Close() //nolint:gosec,errcheck
+				defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 				b, err := httputil.DumpResponse(resp, true)
 				require.NoError(t, err)
@@ -124,7 +124,7 @@ func TestSetup(t *testing.T) {
 		req.Header.Set("X-Test-Must-Setup", "1")
 
 		resp, b := doRequest(t, client, req)
-		defer resp.Body.Close() //nolint:gosec,errcheck
+		defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 		assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
 		assert.True(t, strings.HasPrefix(string(b), `<!doctype html>`), string(b))
@@ -158,7 +158,7 @@ func TestSetup(t *testing.T) {
 				req.Header.Set("X-Test-Must-Setup", "1")
 
 				resp, b := doRequest(t, client, req)
-				defer resp.Body.Close() //nolint:gosec,errcheck
+				defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 				assert.Equal(t, code, resp.StatusCode, "response:\n%s", b)
 				if code == 303 {
@@ -184,7 +184,7 @@ func TestSetup(t *testing.T) {
 		req.Header.Set("X-Test-Must-Setup", "1")
 
 		resp, b := doRequest(t, client, req)
-		defer resp.Body.Close() //nolint:gosec,errcheck
+		defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 		assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
 		assert.Equal(t, "{}", string(b), "response:\n%s", b)
@@ -219,7 +219,7 @@ func TestSwagger(t *testing.T) {
 				require.NoError(t, err)
 
 				resp, _ := doRequest(t, http.DefaultClient, req)
-				defer resp.Body.Close() //nolint:gosec,errcheck
+				defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 				require.NoError(t, err)
 				assert.Equal(t, 200, resp.StatusCode)
@@ -236,7 +236,7 @@ func TestSwagger(t *testing.T) {
 				require.NoError(t, err)
 
 				resp, _ := doRequest(t, http.DefaultClient, req)
-				defer resp.Body.Close() //nolint:gosec,errcheck
+				defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 				require.NoError(t, err)
 				assert.Equal(t, 200, resp.StatusCode)
@@ -320,7 +320,7 @@ func TestBasicAuthPermissions(t *testing.T) {
 
 					resp, err := http.DefaultClient.Do(req)
 					require.NoError(t, err)
-					defer resp.Body.Close() //nolint:gosec,errcheck
+					defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 					assert.Equal(t, user.statusCode, resp.StatusCode)
 				})
@@ -347,7 +347,7 @@ func deleteUser(t *testing.T, userID int) {
 	require.NoError(t, err)
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete user, status code: %d, response: %s", resp.StatusCode, b)
 }
@@ -373,7 +373,7 @@ func createUser(t *testing.T, login string) int {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create user, status code: %d, response: %s", resp.StatusCode, b)
 
 	var m map[string]interface{}
@@ -400,7 +400,7 @@ func setRole(t *testing.T, userID int, role string) {
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to set role for user, response: %s", b)
 }
@@ -563,7 +563,7 @@ func deleteServiceAccount(t *testing.T, serviceAccountID int) {
 	require.NoError(t, err)
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete service account, status code: %d, response: %s", resp.StatusCode, b)
 }
@@ -586,7 +586,7 @@ func createServiceToken(t *testing.T, serviceAccountID int, nodeName string) (in
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create Service account, status code: %d, response: %s", resp.StatusCode, b)
 

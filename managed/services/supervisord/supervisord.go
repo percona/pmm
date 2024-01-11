@@ -368,7 +368,7 @@ func (s *Service) UpdateLog(offset uint32) ([]string, uint32, error) {
 	if err != nil {
 		return nil, 0, errors.WithStack(err)
 	}
-	defer f.Close() //nolint:errcheck,gosec
+	defer f.Close() //nolint:errcheck,gosec,nolintlint
 
 	if _, err = f.Seek(int64(offset), io.SeekStart); err != nil {
 		return nil, 0, errors.WithStack(err)
@@ -607,22 +607,6 @@ func (s *Service) StopSupervisedService(serviceName string) error {
 //nolint:lll
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
 
-{{define "prometheus"}}
-[program:prometheus]
-command = /bin/echo Prometheus is substituted by VictoriaMetrics
-user = pmm
-autorestart = false
-autostart = false
-startretries = 10
-startsecs = 1
-stopsignal = TERM
-stopwaitsecs = 300
-stdout_logfile = /srv/logs/prometheus.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
-
 {{define "victoriametrics"}}
 {{- if not .ExternalVM }}
 [program:victoriametrics]
@@ -642,7 +626,6 @@ command =
 		--search.logSlowQueryDuration=30s
 		--search.maxQueryDuration=90s
 		--promscrape.streamParse=true
-		--prometheusDataPath=/srv/prometheus/data
 		--http.pathPrefix=/prometheus
 		--envflag.enable
 		--envflag.prefix=VM_

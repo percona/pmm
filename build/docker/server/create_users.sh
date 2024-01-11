@@ -2,8 +2,7 @@
 
 users=(
   "pmm:1000:/bin/false:/home/pmm:pmm"
-  "nginx:999:/sbin/nologin:/var/cache/nginx:nginx"
-  "clickhouse:997:/sbin/nologin:/var/lib/clickhouse:clickhouse"
+  "nginx:1001:/sbin/nologin:/var/cache/nginx:nginx"
 )
 
 for user in "${users[@]}"; do
