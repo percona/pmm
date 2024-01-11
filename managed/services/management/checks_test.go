@@ -218,7 +218,7 @@ func TestListFailedServices(t *testing.T) {
 		t.Parallel()
 
 		var checksService mockChecksService
-		checksService.On("GetSecurityCheckResults", mock.Anything).Return(nil, errors.New("random error"))
+		checksService.On("GetChecksResults", mock.Anything, mock.Anything).Return(nil, errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
@@ -293,7 +293,7 @@ func TestListFailedServices(t *testing.T) {
 			},
 		}
 		var checksService mockChecksService
-		checksService.On("GetSecurityCheckResults", mock.Anything).Return(checkResult, nil)
+		checksService.On("GetChecksResults", mock.Anything, mock.Anything).Return(checkResult, nil)
 
 		s := NewChecksAPIService(&checksService)
 
