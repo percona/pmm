@@ -246,20 +246,6 @@ func (s *Service) runChecksLoop(ctx context.Context) {
 	}
 }
 
-// GetSecurityCheckResults returns the results of the advisors checks that were run. It returns services.ErrAdvisorsDisabled if advisors checks are disabled.
-func (s *Service) GetSecurityCheckResults() ([]services.CheckResult, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IsAdvisorsEnabled() {
-		return nil, services.ErrAdvisorsDisabled
-	}
-
-	return s.alertsRegistry.getCheckResults(""), nil
-}
-
 // GetChecksResults returns the failed checks for a given service.
 func (s *Service) GetChecksResults(_ context.Context, serviceID string) ([]services.CheckResult, error) {
 	settings, err := models.GetSettings(s.db)

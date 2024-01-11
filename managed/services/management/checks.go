@@ -47,8 +47,8 @@ func NewChecksAPIService(checksService checksService) *ChecksAPIService {
 }
 
 // ListFailedServices returns a list of services with failed checks and their summaries.
-func (s *ChecksAPIService) ListFailedServices(_ context.Context, _ *managementv1.ListFailedServicesRequest) (*managementv1.ListFailedServicesResponse, error) {
-	results, err := s.checksService.GetSecurityCheckResults()
+func (s *ChecksAPIService) ListFailedServices(ctx context.Context, _ *managementv1.ListFailedServicesRequest) (*managementv1.ListFailedServicesResponse, error) {
+	results, err := s.checksService.GetChecksResults(ctx, "")
 	if err != nil {
 		if errors.Is(err, services.ErrAdvisorsDisabled) {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)

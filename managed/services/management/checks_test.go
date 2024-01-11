@@ -58,65 +58,6 @@ func TestStartSecurityChecks(t *testing.T) {
 	})
 }
 
-func TestGetSecurityCheckResults(t *testing.T) {
-	t.Run("internal error", func(t *testing.T) {
-		var checksService mockChecksService
-		checksService.On("GetSecurityCheckResults", mock.Anything).Return(nil, errors.New("random error"))
-
-		s := NewChecksAPIService(&checksService)
-
-		resp, err := s.GetSecurityCheckResults(context.Background(), nil)
-		assert.EqualError(t, err, "failed to get security check results: random error")
-		assert.Nil(t, resp)
-	})
-
-	t.Run("STT disabled error", func(t *testing.T) {
-		var checksService mockChecksService
-		checksService.On("GetSecurityCheckResults", mock.Anything).Return(nil, services.ErrAdvisorsDisabled)
-
-		s := NewChecksAPIService(&checksService)
-
-		resp, err := s.GetSecurityCheckResults(context.Background(), nil)
-		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Advisor checks are disabled."), err)
-		assert.Nil(t, resp)
-	})
-
-	t.Run("STT enabled", func(t *testing.T) {
-		checkResult := []services.CheckResult{
-			{
-				Result: check.Result{
-					Summary:     "Check summary",
-					Description: "Check Description",
-					ReadMoreURL: "https://www.example.com",
-					Severity:    1,
-					Labels:      map[string]string{"label_key": "label_value"},
-				},
-				Target: services.Target{ServiceName: "svc"},
-			},
-		}
-		response := &managementv1.GetSecurityCheckResultsResponse{ //nolint:staticcheck
-			Results: []*managementv1.SecurityCheckResult{
-				{
-					Summary:     "Check summary",
-					Description: "Check Description",
-					ReadMoreUrl: "https://www.example.com",
-					Severity:    1,
-					Labels:      map[string]string{"label_key": "label_value"},
-					ServiceName: "svc",
-				},
-			},
-		}
-		var checksService mockChecksService
-		checksService.On("GetSecurityCheckResults", mock.Anything).Return(checkResult, nil)
-
-		s := NewChecksAPIService(&checksService)
-
-		resp, err := s.GetSecurityCheckResults(context.Background(), nil)
-		require.NoError(t, err)
-		assert.Equal(t, resp, response)
-	})
-}
-
 func TestGetFailedChecks(t *testing.T) {
 	t.Parallel()
 

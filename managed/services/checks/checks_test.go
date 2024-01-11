@@ -381,38 +381,6 @@ func TestChangeInterval(t *testing.T) {
 	})
 }
 
-func TestGetSecurityCheckResults(t *testing.T) {
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-	t.Cleanup(func() {
-		require.NoError(t, sqlDB.Close())
-	})
-
-	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
-
-	t.Run("STT enabled", func(t *testing.T) {
-		s := New(db, nil, nil, vmClient, clickhouseDB)
-
-		results, err := s.GetSecurityCheckResults()
-		assert.Empty(t, results)
-		require.NoError(t, err)
-	})
-
-	t.Run("STT disabled", func(t *testing.T) {
-		s := New(db, nil, nil, vmClient, clickhouseDB)
-
-		settings, err := models.GetSettings(db)
-		require.NoError(t, err)
-
-		settings.SaaS.Enabled = pointer.ToBool(false)
-		err = models.SaveSettings(db, settings)
-		require.NoError(t, err)
-
-		results, err := s.GetSecurityCheckResults()
-		assert.Nil(t, results)
-		assert.ErrorIs(t, err, services.ErrAdvisorsDisabled)
-	})
-}
-
 func TestStartChecks(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
