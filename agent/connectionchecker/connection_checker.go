@@ -31,6 +31,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/expfmt"
 	"github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/percona/pmm/agent/config"
@@ -40,6 +41,7 @@ import (
 	agent_version "github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/version"
 )
 
 // configGetter allows for getting a config.
@@ -145,6 +147,8 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 }
 
 func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn string, files *agentpb.TextFiles, id uint32) *agentpb.CheckConnectionResponse {
+	const helloCommandVersion = "4.2.10"
+
 	var res agentpb.CheckConnectionResponse
 	var err error
 
@@ -177,11 +181,37 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 		return &res
 	}
 
-	_, err = agent_version.GetMongoDBVersion(ctx, client)
+	mongoVersion, err := agent_version.GetMongoDBVersion(ctx, client)
 	if err != nil {
 		cc.l.Debugf("checkMongoDBConnection: failed to get MongoDB version: %s", err)
 		res.Error = err.Error()
 		return &res
+	}
+
+	serverInfo := struct {
+		ArbiterOnly bool `bson:"arbiterOnly"`
+	}{}
+
+	// use hello command for newer MongoDB versions
+	command := "hello"
+	if mongoVersion.Less(version.MustParse(helloCommandVersion)) {
+		command = "isMaster"
+	}
+
+	err = client.Database("admin").RunCommand(ctx, bson.D{{Key: command, Value: 1}}).Decode(&serverInfo)
+	if err != nil {
+		cc.l.Debugf("checkMongoDBConnection: failed to runCommand %s: %s", command, err)
+		res.Error = err.Error()
+		return &res
+	}
+
+	if !serverInfo.ArbiterOnly {
+		resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: "getDiagnosticData", Value: 1}})
+		if err = resp.Err(); err != nil {
+			cc.l.Debugf("checkMongoDBConnection: failed to runCommand getDiagnosticData: %s", err)
+			res.Error = err.Error()
+			return &res
+		}
 	}
 
 	return &res

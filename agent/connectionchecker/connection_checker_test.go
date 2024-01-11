@@ -99,6 +99,9 @@ func TestConnectionChecker(t *testing.T) {
 				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
 			},
+			expectedErr: `\(Unauthorized\) (?:command getDiagnosticData requires authentication|` +
+				`there are no users authenticated|` +
+				`not authorized on admin to execute command \{ getDiagnosticData\: 1 \})`,
 		},
 		{
 			name: "MongoDB wrong params",
