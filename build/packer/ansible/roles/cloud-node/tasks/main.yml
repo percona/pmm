@@ -104,7 +104,7 @@
   user:
     name: admin
     comment: Cloud User
-    groups: wheel,adm,systemd-journal,docker
+    groups: wheel,adm,systemd-journal
     shell: /bin/bash
 
 - name: add user                   | Add sudo for admin user
