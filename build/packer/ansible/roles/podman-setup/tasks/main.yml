@@ -1,9 +1,3 @@
-- name: Start Docker service
-  service:
-    name: docker
-    state: started
-    enabled: yes
-
 - name: pull the PMM image
   command: podman pull {{ pmm_server_image_name }}
 
