@@ -31,7 +31,7 @@ require (
 	github.com/charmbracelet/lipgloss v0.9.1
 	github.com/davecgh/go-spew v1.1.1
 	github.com/docker/docker v24.0.7+incompatible
-	github.com/docker/go-connections v0.4.0
+	github.com/docker/go-connections v0.5.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.2
 	github.com/go-co-op/gocron v1.37.0
 	github.com/go-openapi/errors v0.21.0
