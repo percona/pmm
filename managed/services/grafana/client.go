@@ -345,18 +345,21 @@ type serviceAccountSearch struct {
 
 func (c *Client) getServiceAccountIDFromName(ctx context.Context, nodeName string, authHeaders http.Header) (int, error) {
 	var res serviceAccountSearch
-	if err := c.do(ctx, http.MethodGet, "/api/serviceaccounts/search", fmt.Sprintf("query=%s", url.QueryEscape(nodeName)), authHeaders, nil, &res); err != nil {
+	// TODO add prefix serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)?
+	serviceAccountName := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
+	if err := c.do(ctx, http.MethodGet, "/api/serviceaccounts/search", fmt.Sprintf("query=%s", serviceAccountName), authHeaders, nil, &res); err != nil {
 		return 0, err
 	}
-
-	switch {
-	case res.TotalCount < 1:
-		return 0, errors.Errorf("service account %s not found", nodeName)
-	case res.TotalCount > 1:
-		return 0, errors.Errorf("service account %s has more results", nodeName)
+	fmt.Println(res.TotalCount)
+	for _, serviceAccount := range res.ServiceAccounts {
+		fmt.Println(serviceAccount.Name + "!=" + serviceAccountName)
+		if serviceAccount.Name != serviceAccountName {
+			continue
+		}
+		return serviceAccount.ID, nil
 	}
 
-	return res.ServiceAccounts[0].ID, nil
+	return 0, errors.Errorf("service account %s not found", serviceAccountName)
 }
 
 func (c *Client) getNotPMMAgentTokenCountForServiceAccount(ctx context.Context, nodeName string) (int, error) {
