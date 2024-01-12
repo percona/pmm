@@ -1,0 +1,53 @@
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: pull the PMM image
+  command: podman pull {{ pmm_server_image_name }}
+
+- name: get srv directory path
+  command: podman inspect -f '{{ .GraphDriver.Data.UpperDir }}' {{ pmm_server_image_name }}
+  register: image_path
+
+- name:
+  copy:
+    src: "{{ image_path.stdout }}/srv/"
+    dest: /srv/
+    mode: preserve
+    remote_src: yes
+
+- name: Copy content of 'srv' directory from image
+  synchronize:
+    src: "{{ image_path.stdout }}/srv/"
+    dest:  /srv/
+    recursive: yes
+  delegate_to: "{{ inventory_hostname }}"
+
+- name: Set AMI distribution
+  copy:
+    content: |
+      ami
+    dest: /srv/pmm-distribution
+
+- name: Create user-specific systemd directory
+  file:
+    path: /home/admin/.config/systemd/user/
+    state: directory
+    owner: admin
+    group: admin
+    mode: '0755'
+
+- name: Copy systemd service file to user-specific directory
+  template:
+    src: pmm-server.service
+    dest: /home/admin/.config/systemd/user/
+    owner: admin
+    group: admin
+    mode: '0644'
+
+- name: Enable and start PMM container as a user service
+  command: systemctl --user enable --now pmm-server
+  become: true
+  become_user: admin

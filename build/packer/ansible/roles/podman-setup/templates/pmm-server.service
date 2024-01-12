@@ -1,0 +1,19 @@
+[Unit]
+Description=pmm-server
+Wants=network-online.target
+After=network-online.target
+After=nss-user-lookup.target nss-lookup.target
+After=time-sync.target
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+
+ExecStart=/usr/bin/podman run --volume /srv/:/srv/ --rm --name %N \
+    -p 8443:8443/tcp --ulimit=host {{ pmm_server_image_name }}
+
+ExecStop=/usr/bin/podman stop -t 10 %N
+
+[Install]
+Alias=%N
+WantedBy=default.target

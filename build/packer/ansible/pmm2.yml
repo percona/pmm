@@ -6,7 +6,7 @@
   roles:
     - cloud-node
     - lvm-init
-    - docker-setup
+    - podman-setup
     - ami-ovf
   tasks:
     # - name: Install required packages
