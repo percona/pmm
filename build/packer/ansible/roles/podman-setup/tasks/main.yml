@@ -2,7 +2,7 @@
   command: podman pull {{ pmm_server_image_name }}
 
 - name: get srv directory path
-  command: podman inspect -f '{{ .GraphDriver.Data.UpperDir }}' {{ pmm_server_image_name }}
+  shell: podman image inspect {{ pmm_server_image_name }} | jq -r .[0].GraphDriver.Data.UpperDir
   register: image_path
 
 - name:
