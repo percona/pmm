@@ -114,7 +114,7 @@
       "type": "shell",
       "inline": [
         "sudo yum -y update",
-        "sudo dnf install -y jq podman",
+        "sudo dnf install -y rsync jq podman",
         "sudo yum -y install epel-release",
         "sudo yum -y install ansible-core",
         "sudo yum -y install ansible-collection-community-general ansible-collection-community-postgresql ansible-collection-ansible-posix ansible-collection-community-docker"
