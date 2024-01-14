@@ -40,8 +40,3 @@
     owner: admin
     group: admin
     mode: '0644'
-
-- name: Enable and start PMM container as a user service
-  command: systemctl --user --no-pager enable --now pmm-server
-  become: true
-  become_user: admin

@@ -137,6 +137,14 @@
       ]
     },
     {
+      "type": "ansible-local",
+      "playbook_file": "packer/ansible/start-container.yml",
+      "extra_arguments": [
+        "-vvv",
+        "-u admin",
+      ]
+    },
+    {
       "type": "file",
       "only": ["digitalocean"],
       "destination": "/home/admin/digitalocean_add_dbaas",
