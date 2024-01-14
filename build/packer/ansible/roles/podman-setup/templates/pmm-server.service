@@ -8,6 +8,7 @@ After=time-sync.target
 [Service]
 TimeoutStartSec=0
 Restart=always
+User=%i
 
 ExecStart=/usr/bin/podman run --volume /srv/:/srv/ --rm --name %N \
     -p 8443:8443/tcp --ulimit=host {{ pmm_server_image_name }}
