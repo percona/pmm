@@ -141,7 +141,7 @@
       "playbook_file": "packer/ansible/start-container.yml",
       "extra_arguments": [
         "-vvv",
-        "-u admin",
+        "-u admin"
       ]
     },
     {
