@@ -40,3 +40,11 @@
     owner: admin
     group: admin
     mode: '0644'
+
+- name: Enable linger for a specific user
+  command: sudo loginctl enable-linger $(id -u admin)
+
+- name: Enable and start PMM container as a user service
+  command: systemctl enable --now pmm-server
+  become: true
+  become_user: admin
