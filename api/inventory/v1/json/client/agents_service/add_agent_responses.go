@@ -1636,8 +1636,6 @@ type AddAgentOKBodyAzureDatabaseExporter struct {
 	AzureDatabaseResourceType string `json:"azure_database_resource_type,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -1919,8 +1917,6 @@ type AddAgentOKBodyMongodbExporter struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
-	//
-	// Status fields below.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
@@ -2159,8 +2155,6 @@ type AddAgentOKBodyMysqldExporter struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
-	//
-	// Status fields below.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
@@ -2366,8 +2360,6 @@ type AddAgentOKBodyNodeExporter struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
-	//
-	// Status fields below.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
@@ -2561,8 +2553,6 @@ type AddAgentOKBodyPMMAgent struct {
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// True if Agent is running and connected to pmm-managed.
@@ -2850,8 +2840,6 @@ type AddAgentOKBodyProxysqlExporter struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
-	//
-	// Status fields below.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
@@ -3060,14 +3048,9 @@ type AddAgentOKBodyQANMongodbProfilerAgent struct {
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Limit query length in QAN (default: server-defined; -1: no limit).
-	//
-	// True if query examples are disabled.
-	//  bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650
 	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -3288,8 +3271,6 @@ type AddAgentOKBodyQANMysqlPerfschemaAgent struct {
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -3513,8 +3494,6 @@ type AddAgentOKBodyQANMysqlSlowlogAgent struct {
 	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -3723,8 +3702,6 @@ type AddAgentOKBodyQANPostgresqlPgstatementsAgent struct {
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -3936,8 +3913,6 @@ type AddAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -4134,8 +4109,6 @@ type AddAgentOKBodyRDSExporter struct {
 	AWSAccessKey string `json:"aws_access_key,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -4150,8 +4123,6 @@ type AddAgentOKBodyRDSExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
-	//
-	// Metric collections flags below.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// Basic metrics are disabled.

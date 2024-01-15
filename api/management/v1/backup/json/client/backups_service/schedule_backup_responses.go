@@ -132,6 +132,10 @@ type ScheduleBackupBody struct {
 	LocationID string `json:"location_id,omitempty"`
 
 	// How often backup should be run in cron format.
+	// Folder on storage for artifact.
+	Folder string `json:"folder,omitempty"`
+
+	// cron expression
 	CronExpression string `json:"cron_expression,omitempty"`
 
 	// First backup wouldn't happen before this time.
@@ -144,17 +148,14 @@ type ScheduleBackupBody struct {
 	// Human-readable description.
 	Description string `json:"description,omitempty"`
 
-	// Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
-	RetryInterval string `json:"retry_interval,omitempty"`
+	// If scheduling is enabled.
+	Enabled bool `json:"enabled,omitempty"`
 
 	// How many times to retry a failed backup before giving up.
 	Retries int64 `json:"retries,omitempty"`
 
-	// If scheduling is enabled.
-	Enabled bool `json:"enabled,omitempty"`
-
-	// How many artifacts keep. 0 - unlimited.
-	Retention int64 `json:"retention,omitempty"`
+	// Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
+	RetryInterval string `json:"retry_interval,omitempty"`
 
 	// BackupMode specifies backup mode.
 	// Enum: [BACKUP_MODE_UNSPECIFIED BACKUP_MODE_SNAPSHOT BACKUP_MODE_INCREMENTAL BACKUP_MODE_PITR]
@@ -164,8 +165,8 @@ type ScheduleBackupBody struct {
 	// Enum: [DATA_MODEL_UNSPECIFIED DATA_MODEL_PHYSICAL DATA_MODEL_LOGICAL]
 	DataModel *string `json:"data_model,omitempty"`
 
-	// Folder on storage for artifact.
-	Folder string `json:"folder,omitempty"`
+	// How many artifacts keep. 0 - unlimited.
+	Retention int64 `json:"retention,omitempty"`
 }
 
 // Validate validates this schedule backup body

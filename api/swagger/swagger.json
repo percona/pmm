@@ -1275,15 +1275,10 @@
                   "type": "string",
                   "x-order": 1
                 },
-                "query": {
-                  "description": "Deprecated: should not be used.\nWill be removed in 2.42.",
-                  "type": "string",
-                  "x-order": 2
-                },
                 "query_id": {
                   "description": "Query ID of query.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 2
                 },
                 "placeholders": {
                   "type": "array",
@@ -1291,12 +1286,12 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 4
+                  "x-order": 3
                 },
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 4
                 }
               }
             }
@@ -1381,15 +1376,10 @@
                   "type": "string",
                   "x-order": 1
                 },
-                "query": {
-                  "description": "Deprecated: should not be used.\nWill be removed in 2.42.",
-                  "type": "string",
-                  "x-order": 2
-                },
                 "query_id": {
                   "description": "Query ID of query.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 2
                 },
                 "placeholders": {
                   "type": "array",
@@ -1397,12 +1387,12 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 4
+                  "x-order": 3
                 },
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 4
                 }
               }
             }
@@ -1487,15 +1477,10 @@
                   "type": "string",
                   "x-order": 1
                 },
-                "query": {
-                  "description": "Deprecated: should not be used.\nWill be removed in 2.42.",
-                  "type": "string",
-                  "x-order": 2
-                },
                 "query_id": {
                   "description": "Query ID of query.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 2
                 },
                 "placeholders": {
                   "type": "array",
@@ -1503,12 +1488,12 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 4
+                  "x-order": 3
                 },
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 4
                 }
               }
             }
@@ -3439,7 +3424,7 @@
                   "x-order": 14
                 },
                 "skip_connection_check": {
-                  "description": "Skip connection check.\n\nDisable query examples.\n bool disable_query_examples = 16; TODO https://jira.percona.com/browse/PMM-4650",
+                  "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 15
                 },
@@ -3676,7 +3661,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.\n\nStatus fields below.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -3791,13 +3776,13 @@
                       "x-order": 6
                     },
                     "max_query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 7
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -4295,7 +4280,7 @@
                       "x-order": 12
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.\n\nStatus fields below.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -4427,7 +4412,7 @@
                       "x-order": 12
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -4549,7 +4534,7 @@
                       "x-order": 13
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -4894,7 +4879,7 @@
                       "x-order": 1
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -5479,7 +5464,7 @@
                       "x-order": 8
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -5580,7 +5565,7 @@
                       "x-order": 9
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -6004,7 +5989,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.\n\nStatus fields below.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -6371,7 +6356,7 @@
                       "x-order": 4
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -6394,7 +6379,7 @@
                       "x-order": 6
                     },
                     "listen_port": {
-                      "description": "Listen port for scraping metrics (the same for several configurations).\n\nMetric collections flags below.",
+                      "description": "Listen port for scraping metrics (the same for several configurations).",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
@@ -6583,7 +6568,7 @@
                       "x-order": 12
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.\n\nStatus fields below.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -6715,7 +6700,7 @@
                       "x-order": 12
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -7009,7 +6994,7 @@
                       "x-order": 8
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -7486,120 +7471,6 @@
         }
       }
     },
-    "/v1/management/SecurityChecks/GetCheckResults": {
-      "post": {
-        "description": "Returns Security Thread Tool's latest checks results.",
-        "tags": [
-          "SecurityChecksService"
-        ],
-        "summary": "Get Security Check Results",
-        "operationId": "GetSecurityCheckResults",
-        "deprecated": true,
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "results": {
-                  "type": "array",
-                  "items": {
-                    "description": "SecurityCheckResult represents the check result returned from pmm-managed after running the check.",
-                    "type": "object",
-                    "properties": {
-                      "summary": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "description": {
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "severity": {
-                        "description": "Severity represents severity level of the check result or alert.",
-                        "type": "string",
-                        "default": "SEVERITY_UNSPECIFIED",
-                        "enum": [
-                          "SEVERITY_UNSPECIFIED",
-                          "SEVERITY_EMERGENCY",
-                          "SEVERITY_ALERT",
-                          "SEVERITY_CRITICAL",
-                          "SEVERITY_ERROR",
-                          "SEVERITY_WARNING",
-                          "SEVERITY_NOTICE",
-                          "SEVERITY_INFO",
-                          "SEVERITY_DEBUG"
-                        ],
-                        "x-order": 2
-                      },
-                      "labels": {
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        },
-                        "x-order": 3
-                      },
-                      "read_more_url": {
-                        "description": "URL containing information on how to resolve an issue detected by an STT check.",
-                        "type": "string",
-                        "x-order": 4
-                      },
-                      "service_name": {
-                        "description": "Name of the monitored service on which the check ran.",
-                        "type": "string",
-                        "x-order": 5
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/management/SecurityChecks/List": {
       "post": {
         "description": "Returns a list of checks available to the user.",
@@ -7864,78 +7735,6 @@
                     "type": "string"
                   },
                   "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/SecurityChecks/ToggleCheckAlert": {
-      "post": {
-        "description": "Silence/Unsilence alerts for a specific check result.",
-        "tags": [
-          "SecurityChecksService"
-        ],
-        "summary": "Toggle Check Alert",
-        "operationId": "ToggleCheckAlert",
-        "deprecated": true,
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "alert_id": {
-                  "description": "Alert ID of the check result.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "silence": {
-                  "description": "Silence the check result if set to true, unsilence otherwise.",
-                  "type": "boolean",
-                  "x-order": 1
                 }
               }
             }
@@ -9177,16 +8976,16 @@
                   "x-nullable": true,
                   "x-order": 5
                 },
-                "retry_interval": {
-                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
-                  "type": "string",
-                  "x-order": 6
-                },
                 "retries": {
                   "description": "How many times to retry a failed backup before giving up.",
                   "type": "integer",
                   "format": "int64",
                   "x-nullable": true,
+                  "x-order": 6
+                },
+                "retry_interval": {
+                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
+                  "type": "string",
                   "x-order": 7
                 },
                 "retention": {
@@ -9603,42 +9402,47 @@
                         "type": "string",
                         "x-order": 4
                       },
+                      "folder": {
+                        "description": "Folder on storage for artifact.",
+                        "type": "string",
+                        "x-order": 5
+                      },
                       "cron_expression": {
                         "description": "How often backup will be run in cron format.",
                         "type": "string",
-                        "x-order": 5
+                        "x-order": 6
                       },
                       "start_time": {
                         "description": "First backup wouldn't happen before this time.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 6
+                        "x-order": 7
                       },
                       "name": {
                         "description": "Artifact name.",
                         "type": "string",
-                        "x-order": 7
+                        "x-order": 8
                       },
                       "description": {
                         "description": "Description.",
                         "type": "string",
-                        "x-order": 8
-                      },
-                      "retry_interval": {
-                        "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
-                        "type": "string",
                         "x-order": 9
+                      },
+                      "enabled": {
+                        "description": "If scheduling is enabled.",
+                        "type": "boolean",
+                        "x-order": 10
                       },
                       "retries": {
                         "description": "How many times to retry a failed backup before giving up.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 10
-                      },
-                      "enabled": {
-                        "description": "If scheduling is enabled.",
-                        "type": "boolean",
                         "x-order": 11
+                      },
+                      "retry_interval": {
+                        "description": "Delay between each retry. Should have a suffix in JSON: 2s, 1m, 1h.",
+                        "type": "string",
+                        "x-order": 12
                       },
                       "data_model": {
                         "description": "DataModel is a model used for performing a backup.",
@@ -9649,30 +9453,7 @@
                           "DATA_MODEL_PHYSICAL",
                           "DATA_MODEL_LOGICAL"
                         ],
-                        "x-order": 12
-                      },
-                      "vendor": {
-                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
-                        "type": "string",
                         "x-order": 13
-                      },
-                      "last_run": {
-                        "description": "Last run.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 14
-                      },
-                      "next_run": {
-                        "description": "Next run.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 15
-                      },
-                      "retention": {
-                        "description": "How many artifacts keep. 0 - unlimited.",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 16
                       },
                       "mode": {
                         "description": "BackupMode specifies backup mode.",
@@ -9684,11 +9465,29 @@
                           "BACKUP_MODE_INCREMENTAL",
                           "BACKUP_MODE_PITR"
                         ],
+                        "x-order": 14
+                      },
+                      "vendor": {
+                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
+                        "type": "string",
+                        "x-order": 15
+                      },
+                      "last_run": {
+                        "description": "Last run.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 16
+                      },
+                      "next_run": {
+                        "description": "Next run.",
+                        "type": "string",
+                        "format": "date-time",
                         "x-order": 17
                       },
-                      "folder": {
-                        "description": "Folder on storage for artifact.",
-                        "type": "string",
+                      "retention": {
+                        "description": "How many artifacts keep. 0 - unlimited.",
+                        "type": "integer",
+                        "format": "int64",
                         "x-order": 18
                       }
                     }
@@ -9905,47 +9704,45 @@
                   "type": "string",
                   "x-order": 1
                 },
-                "cron_expression": {
-                  "description": "How often backup should be run in cron format.",
+                "folder": {
+                  "description": "How often backup should be run in cron format.\nFolder on storage for artifact.",
                   "type": "string",
                   "x-order": 2
+                },
+                "cron_expression": {
+                  "type": "string",
+                  "x-order": 3
                 },
                 "start_time": {
                   "description": "First backup wouldn't happen before this time.",
                   "type": "string",
                   "format": "date-time",
-                  "x-order": 3
+                  "x-order": 4
                 },
                 "name": {
                   "description": "Name of backup.",
                   "type": "string",
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "description": {
                   "description": "Human-readable description.",
                   "type": "string",
-                  "x-order": 5
-                },
-                "retry_interval": {
-                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
-                  "type": "string",
                   "x-order": 6
+                },
+                "enabled": {
+                  "description": "If scheduling is enabled.",
+                  "type": "boolean",
+                  "x-order": 7
                 },
                 "retries": {
                   "description": "How many times to retry a failed backup before giving up.",
                   "type": "integer",
                   "format": "int64",
-                  "x-order": 7
-                },
-                "enabled": {
-                  "description": "If scheduling is enabled.",
-                  "type": "boolean",
                   "x-order": 8
                 },
-                "retention": {
-                  "description": "How many artifacts keep. 0 - unlimited.",
-                  "type": "integer",
-                  "format": "int64",
+                "retry_interval": {
+                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
+                  "type": "string",
                   "x-order": 9
                 },
                 "mode": {
@@ -9971,9 +9768,10 @@
                   ],
                   "x-order": 11
                 },
-                "folder": {
-                  "description": "Folder on storage for artifact.",
-                  "type": "string",
+                "retention": {
+                  "description": "How many artifacts keep. 0 - unlimited.",
+                  "type": "integer",
+                  "format": "int64",
                   "x-order": 12
                 }
               }

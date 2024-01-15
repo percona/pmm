@@ -87,27 +87,22 @@ curl -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to"
   "query_examples": [
     {
       "example": "Ping",
-      "example_format": "EXAMPLE",
       "example_type": "RANDOM"
     },
     {
       "example": "Ping",
-      "example_format": "EXAMPLE",
       "example_type": "RANDOM"
     },
     {
       "example": "Ping",
-      "example_format": "EXAMPLE",
       "example_type": "RANDOM"
     },
     {
       "example": "Ping",
-      "example_format": "EXAMPLE",
       "example_type": "RANDOM"
     },
     {
       "example": "Ping",
-      "example_format": "EXAMPLE",
       "example_type": "RANDOM"
     }
   ]

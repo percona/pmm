@@ -281,7 +281,7 @@
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 4
                 },
                 "placeholders": {
                   "type": "array",
@@ -289,22 +289,17 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 4
+                  "x-order": 3
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
                 },
-                "query": {
-                  "description": "Deprecated: should not be used.\nWill be removed in 2.42.",
-                  "type": "string",
-                  "x-order": 2
-                },
                 "query_id": {
                   "description": "Query ID of query.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 2
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
@@ -387,7 +382,7 @@
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 4
                 },
                 "placeholders": {
                   "type": "array",
@@ -395,22 +390,17 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 4
+                  "x-order": 3
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
                 },
-                "query": {
-                  "description": "Deprecated: should not be used.\nWill be removed in 2.42.",
-                  "type": "string",
-                  "x-order": 2
-                },
                 "query_id": {
                   "description": "Query ID of query.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 2
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
@@ -493,7 +483,7 @@
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 4
                 },
                 "placeholders": {
                   "type": "array",
@@ -501,22 +491,17 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 4
+                  "x-order": 3
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
                 },
-                "query": {
-                  "description": "Deprecated: should not be used.\nWill be removed in 2.42.",
-                  "type": "string",
-                  "x-order": 2
-                },
                 "query_id": {
                   "description": "Query ID of query.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 2
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
@@ -2513,7 +2498,7 @@
                   "x-order": 3
                 },
                 "skip_connection_check": {
-                  "description": "Skip connection check.\n\nDisable query examples.\n bool disable_query_examples = 16; TODO https://jira.percona.com/browse/PMM-4650",
+                  "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 15
                 },
@@ -2599,7 +2584,7 @@
                       "x-order": 2
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.\n\nStatus fields below.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -2708,7 +2693,7 @@
                       "x-order": 0
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -2736,7 +2721,7 @@
                       "x-order": 11
                     },
                     "max_query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 7
@@ -3191,7 +3176,7 @@
                       "x-order": 2
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.\n\nStatus fields below.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -3313,7 +3298,7 @@
                       "x-order": 0
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -3429,7 +3414,7 @@
                       "x-order": 0
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -3907,7 +3892,7 @@
                       "x-order": 3
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -4374,7 +4359,7 @@
                       "x-order": 0
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -4470,7 +4455,7 @@
                       "x-order": 0
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -4921,7 +4906,7 @@
                       "x-order": 2
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.\n\nStatus fields below.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -5398,7 +5383,7 @@
                       "x-order": 2
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.\n\nStatus fields below.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -5757,7 +5742,7 @@
                       "x-order": 0
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -5873,7 +5858,7 @@
                       "x-order": 0
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -5985,7 +5970,7 @@
                       "x-order": 8
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -6003,7 +5988,7 @@
                       "x-order": 9
                     },
                     "listen_port": {
-                      "description": "Listen port for scraping metrics (the same for several configurations).\n\nMetric collections flags below.",
+                      "description": "Listen port for scraping metrics (the same for several configurations).",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
@@ -6499,120 +6484,6 @@
         }
       }
     },
-    "/v1/management/SecurityChecks/GetCheckResults": {
-      "post": {
-        "description": "Returns Security Thread Tool's latest checks results.",
-        "tags": [
-          "SecurityChecksService"
-        ],
-        "summary": "Get Security Check Results",
-        "operationId": "GetSecurityCheckResults",
-        "deprecated": true,
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "results": {
-                  "type": "array",
-                  "items": {
-                    "description": "SecurityCheckResult represents the check result returned from pmm-managed after running the check.",
-                    "type": "object",
-                    "properties": {
-                      "description": {
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "labels": {
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        },
-                        "x-order": 3
-                      },
-                      "read_more_url": {
-                        "description": "URL containing information on how to resolve an issue detected by an STT check.",
-                        "type": "string",
-                        "x-order": 4
-                      },
-                      "service_name": {
-                        "description": "Name of the monitored service on which the check ran.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "severity": {
-                        "description": "Severity represents severity level of the check result or alert.",
-                        "type": "string",
-                        "default": "SEVERITY_UNSPECIFIED",
-                        "enum": [
-                          "SEVERITY_UNSPECIFIED",
-                          "SEVERITY_EMERGENCY",
-                          "SEVERITY_ALERT",
-                          "SEVERITY_CRITICAL",
-                          "SEVERITY_ERROR",
-                          "SEVERITY_WARNING",
-                          "SEVERITY_NOTICE",
-                          "SEVERITY_INFO",
-                          "SEVERITY_DEBUG"
-                        ],
-                        "x-order": 2
-                      },
-                      "summary": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/management/SecurityChecks/List": {
       "post": {
         "description": "Returns a list of checks available to the user.",
@@ -6877,78 +6748,6 @@
                     "type": "string"
                   },
                   "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/SecurityChecks/ToggleCheckAlert": {
-      "post": {
-        "description": "Silence/Unsilence alerts for a specific check result.",
-        "tags": [
-          "SecurityChecksService"
-        ],
-        "summary": "Toggle Check Alert",
-        "operationId": "ToggleCheckAlert",
-        "deprecated": true,
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "alert_id": {
-                  "description": "Alert ID of the check result.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "silence": {
-                  "description": "Silence the check result if set to true, unsilence otherwise.",
-                  "type": "boolean",
-                  "x-order": 1
                 }
               }
             }

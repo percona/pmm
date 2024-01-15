@@ -866,9 +866,6 @@ type GetMetricsOKBodySparklineItems0 struct {
 	// Total Size in bytes for all temporary tables used in the query.
 	MTmpTableSizesSumPerSec float32 `json:"m_tmp_table_sizes_sum_per_sec,omitempty"`
 
-	// Boolean metrics:
-	// - *_sum_per_sec - how many times this matric was true.
-	//
 	// Query Cache hits.
 	MQcHitSumPerSec float32 `json:"m_qc_hit_sum_per_sec,omitempty"`
 
@@ -914,8 +911,6 @@ type GetMetricsOKBodySparklineItems0 struct {
 	// The number of queries without good index.
 	MNoGoodIndexUsedSumPerSec float32 `json:"m_no_good_index_used_sum_per_sec,omitempty"`
 
-	// MongoDB metrics.
-	//
 	// The number of returned documents.
 	MDocsReturnedSumPerSec float32 `json:"m_docs_returned_sum_per_sec,omitempty"`
 
@@ -925,8 +920,6 @@ type GetMetricsOKBodySparklineItems0 struct {
 	// The number of scanned documents.
 	MDocsScannedSumPerSec float32 `json:"m_docs_scanned_sum_per_sec,omitempty"`
 
-	// PostgreSQL metrics.
-	//
 	// Total number of shared block cache hits by the statement.
 	MSharedBlksHitSumPerSec float32 `json:"m_shared_blks_hit_sum_per_sec,omitempty"`
 
@@ -969,8 +962,6 @@ type GetMetricsOKBodySparklineItems0 struct {
 	// Total time system spent in query.
 	MCPUSysTimeSumPerSec float32 `json:"m_cpu_sys_time_sum_per_sec,omitempty"`
 
-	// pg_stat_monitor 0.9 metrics
-	//
 	// Total number of planned calls.
 	MPlansCallsSumPerSec float32 `json:"m_plans_calls_sum_per_sec,omitempty"`
 

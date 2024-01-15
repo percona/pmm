@@ -54,7 +54,6 @@ func (s *ActionsService) StartMySQLExplainAction(
 	pmmAgentID string,
 	serviceID string,
 	dsn string,
-	query string,
 	queryID string,
 	placeholders []string,
 	format agentv1.MysqlExplainOutputFormat,
@@ -62,35 +61,26 @@ func (s *ActionsService) StartMySQLExplainAction(
 	tdp *models.DelimiterPair,
 	tlsSkipVerify bool,
 ) error {
-	if query == "" && queryID == "" {
+	if queryID == "" {
 		return status.Error(codes.FailedPrecondition, "query or query_id is required")
 	}
 
 	var q, schema string
-	switch {
-	case queryID != "":
-		res, err := s.qanClient.ExplainFingerprintByQueryID(ctx, serviceID, queryID)
-		if err != nil {
-			return err
-		}
-
-		if res.PlaceholdersCount != uint32(len(placeholders)) {
-			return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
-		}
-		q = res.ExplainFingerprint
-
-		s, err := s.qanClient.SchemaByQueryID(ctx, serviceID, queryID)
-		if err != nil {
-			return err
-		}
-		schema = s.Schema
-	default:
-		err := s.qanClient.QueryExists(ctx, serviceID, query)
-		if err != nil {
-			return err
-		}
-		q = query
+	res, err := s.qanClient.ExplainFingerprintByQueryID(ctx, serviceID, queryID)
+	if err != nil {
+		return err
 	}
+
+	if res.PlaceholdersCount != uint32(len(placeholders)) {
+		return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
+	}
+	q = res.ExplainFingerprint
+
+	sc, err := s.qanClient.SchemaByQueryID(ctx, serviceID, queryID)
+	if err != nil {
+		return err
+	}
+	schema = sc.Schema
 
 	agent, err := s.r.get(pmmAgentID)
 	if err != nil {

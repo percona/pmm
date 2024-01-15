@@ -138,7 +138,7 @@ type ListAgentsBody struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentType describes supported Agent types.
-	// Enum: [AGENT_TYPE_UNSPECIFIED AGENT_TYPE_PMM_AGENT AGENT_TYPE_VM_AGENT AGENT_TYPE_NODE_EXPORTER AGENT_TYPE_MYSQLD_EXPORTER AGENT_TYPE_MONGODB_EXPORTER AGENT_TYPE_POSTGRES_EXPORTER AGENT_TYPE_PROXYSQL_EXPORTER AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT AGENT_TYPE_RDS_EXPORTER AGENT_TYPE_EXTERNAL_EXPORTER AGENT_TYPE_AZURE_DATABASE_EXPORTER]
+	// Enum: [AGENT_TYPE_UNSPECIFIED AGENT_TYPE_PMM_AGENT AGENT_TYPE_VM_AGENT AGENT_TYPE_NODE_EXPORTER AGENT_TYPE_MYSQLD_EXPORTER AGENT_TYPE_MONGODB_EXPORTER AGENT_TYPE_POSTGRES_EXPORTER AGENT_TYPE_PROXYSQL_EXPORTER AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT AGENT_TYPE_EXTERNAL_EXPORTER AGENT_TYPE_RDS_EXPORTER AGENT_TYPE_AZURE_DATABASE_EXPORTER]
 	AgentType *string `json:"agent_type,omitempty"`
 }
 
@@ -160,7 +160,7 @@ var listAgentsBodyTypeAgentTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_TYPE_UNSPECIFIED","AGENT_TYPE_PMM_AGENT","AGENT_TYPE_VM_AGENT","AGENT_TYPE_NODE_EXPORTER","AGENT_TYPE_MYSQLD_EXPORTER","AGENT_TYPE_MONGODB_EXPORTER","AGENT_TYPE_POSTGRES_EXPORTER","AGENT_TYPE_PROXYSQL_EXPORTER","AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT","AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT","AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT","AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT","AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT","AGENT_TYPE_RDS_EXPORTER","AGENT_TYPE_EXTERNAL_EXPORTER","AGENT_TYPE_AZURE_DATABASE_EXPORTER"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_TYPE_UNSPECIFIED","AGENT_TYPE_PMM_AGENT","AGENT_TYPE_VM_AGENT","AGENT_TYPE_NODE_EXPORTER","AGENT_TYPE_MYSQLD_EXPORTER","AGENT_TYPE_MONGODB_EXPORTER","AGENT_TYPE_POSTGRES_EXPORTER","AGENT_TYPE_PROXYSQL_EXPORTER","AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT","AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT","AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT","AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT","AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT","AGENT_TYPE_EXTERNAL_EXPORTER","AGENT_TYPE_RDS_EXPORTER","AGENT_TYPE_AZURE_DATABASE_EXPORTER"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -209,11 +209,11 @@ const (
 	// ListAgentsBodyAgentTypeAGENTTYPEQANPOSTGRESQLPGSTATMONITORAGENT captures enum value "AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT"
 	ListAgentsBodyAgentTypeAGENTTYPEQANPOSTGRESQLPGSTATMONITORAGENT string = "AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT"
 
-	// ListAgentsBodyAgentTypeAGENTTYPERDSEXPORTER captures enum value "AGENT_TYPE_RDS_EXPORTER"
-	ListAgentsBodyAgentTypeAGENTTYPERDSEXPORTER string = "AGENT_TYPE_RDS_EXPORTER"
-
 	// ListAgentsBodyAgentTypeAGENTTYPEEXTERNALEXPORTER captures enum value "AGENT_TYPE_EXTERNAL_EXPORTER"
 	ListAgentsBodyAgentTypeAGENTTYPEEXTERNALEXPORTER string = "AGENT_TYPE_EXTERNAL_EXPORTER"
+
+	// ListAgentsBodyAgentTypeAGENTTYPERDSEXPORTER captures enum value "AGENT_TYPE_RDS_EXPORTER"
+	ListAgentsBodyAgentTypeAGENTTYPERDSEXPORTER string = "AGENT_TYPE_RDS_EXPORTER"
 
 	// ListAgentsBodyAgentTypeAGENTTYPEAZUREDATABASEEXPORTER captures enum value "AGENT_TYPE_AZURE_DATABASE_EXPORTER"
 	ListAgentsBodyAgentTypeAGENTTYPEAZUREDATABASEEXPORTER string = "AGENT_TYPE_AZURE_DATABASE_EXPORTER"
@@ -445,11 +445,11 @@ type ListAgentsOKBody struct {
 	// qan postgresql pgstatmonitor agent
 	QANPostgresqlPgstatmonitorAgent []*ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0 `json:"qan_postgresql_pgstatmonitor_agent"`
 
-	// rds exporter
-	RDSExporter []*ListAgentsOKBodyRDSExporterItems0 `json:"rds_exporter"`
-
 	// external exporter
 	ExternalExporter []*ListAgentsOKBodyExternalExporterItems0 `json:"external_exporter"`
+
+	// rds exporter
+	RDSExporter []*ListAgentsOKBodyRDSExporterItems0 `json:"rds_exporter"`
 
 	// azure database exporter
 	AzureDatabaseExporter []*ListAgentsOKBodyAzureDatabaseExporterItems0 `json:"azure_database_exporter"`
@@ -507,11 +507,11 @@ func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateRDSExporter(formats); err != nil {
+	if err := o.validateExternalExporter(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateExternalExporter(formats); err != nil {
+	if err := o.validateRDSExporter(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -837,32 +837,6 @@ func (o *ListAgentsOKBody) validateQANPostgresqlPgstatmonitorAgent(formats strfm
 	return nil
 }
 
-func (o *ListAgentsOKBody) validateRDSExporter(formats strfmt.Registry) error {
-	if swag.IsZero(o.RDSExporter) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.RDSExporter); i++ {
-		if swag.IsZero(o.RDSExporter[i]) { // not required
-			continue
-		}
-
-		if o.RDSExporter[i] != nil {
-			if err := o.RDSExporter[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOk" + "." + "rds_exporter" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("listAgentsOk" + "." + "rds_exporter" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
 func (o *ListAgentsOKBody) validateExternalExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.ExternalExporter) { // not required
 		return nil
@@ -879,6 +853,32 @@ func (o *ListAgentsOKBody) validateExternalExporter(formats strfmt.Registry) err
 					return ve.ValidateName("listAgentsOk" + "." + "external_exporter" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("listAgentsOk" + "." + "external_exporter" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBody) validateRDSExporter(formats strfmt.Registry) error {
+	if swag.IsZero(o.RDSExporter) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.RDSExporter); i++ {
+		if swag.IsZero(o.RDSExporter[i]) { // not required
+			continue
+		}
+
+		if o.RDSExporter[i] != nil {
+			if err := o.RDSExporter[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listAgentsOk" + "." + "rds_exporter" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listAgentsOk" + "." + "rds_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -967,11 +967,11 @@ func (o *ListAgentsOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 		res = append(res, err)
 	}
 
-	if err := o.contextValidateRDSExporter(ctx, formats); err != nil {
+	if err := o.contextValidateExternalExporter(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.contextValidateExternalExporter(ctx, formats); err != nil {
+	if err := o.contextValidateRDSExporter(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1189,14 +1189,14 @@ func (o *ListAgentsOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx co
 	return nil
 }
 
-func (o *ListAgentsOKBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
-	for i := 0; i < len(o.RDSExporter); i++ {
-		if o.RDSExporter[i] != nil {
-			if err := o.RDSExporter[i].ContextValidate(ctx, formats); err != nil {
+func (o *ListAgentsOKBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.ExternalExporter); i++ {
+		if o.ExternalExporter[i] != nil {
+			if err := o.ExternalExporter[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOk" + "." + "rds_exporter" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "external_exporter" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("listAgentsOk" + "." + "rds_exporter" + "." + strconv.Itoa(i))
+					return ce.ValidateName("listAgentsOk" + "." + "external_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -1206,14 +1206,14 @@ func (o *ListAgentsOKBody) contextValidateRDSExporter(ctx context.Context, forma
 	return nil
 }
 
-func (o *ListAgentsOKBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
-	for i := 0; i < len(o.ExternalExporter); i++ {
-		if o.ExternalExporter[i] != nil {
-			if err := o.ExternalExporter[i].ContextValidate(ctx, formats); err != nil {
+func (o *ListAgentsOKBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.RDSExporter); i++ {
+		if o.RDSExporter[i] != nil {
+			if err := o.RDSExporter[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOk" + "." + "external_exporter" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "rds_exporter" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("listAgentsOk" + "." + "external_exporter" + "." + strconv.Itoa(i))
+					return ce.ValidateName("listAgentsOk" + "." + "rds_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -1282,8 +1282,6 @@ type ListAgentsOKBodyAzureDatabaseExporterItems0 struct {
 	AzureDatabaseResourceType string `json:"azure_database_resource_type,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -1565,8 +1563,6 @@ type ListAgentsOKBodyMongodbExporterItems0 struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
-	//
-	// Status fields below.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
@@ -1805,8 +1801,6 @@ type ListAgentsOKBodyMysqldExporterItems0 struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
-	//
-	// Status fields below.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
@@ -2012,8 +2006,6 @@ type ListAgentsOKBodyNodeExporterItems0 struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
-	//
-	// Status fields below.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
@@ -2207,8 +2199,6 @@ type ListAgentsOKBodyPMMAgentItems0 struct {
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// True if Agent is running and connected to pmm-managed.
@@ -2496,8 +2486,6 @@ type ListAgentsOKBodyProxysqlExporterItems0 struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
-	//
-	// Status fields below.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
@@ -2706,14 +2694,9 @@ type ListAgentsOKBodyQANMongodbProfilerAgentItems0 struct {
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Limit query length in QAN (default: server-defined; -1: no limit).
-	//
-	// True if query examples are disabled.
-	//  bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650
 	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -2934,8 +2917,6 @@ type ListAgentsOKBodyQANMysqlPerfschemaAgentItems0 struct {
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -3159,8 +3140,6 @@ type ListAgentsOKBodyQANMysqlSlowlogAgentItems0 struct {
 	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -3369,8 +3348,6 @@ type ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0 struct {
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -3582,8 +3559,6 @@ type ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0 struct {
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -3780,8 +3755,6 @@ type ListAgentsOKBodyRDSExporterItems0 struct {
 	AWSAccessKey string `json:"aws_access_key,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -3796,8 +3769,6 @@ type ListAgentsOKBodyRDSExporterItems0 struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
-	//
-	// Metric collections flags below.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// Basic metrics are disabled.
@@ -3985,8 +3956,6 @@ type ListAgentsOKBodyVMAgentItems0 struct {
 	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	//
-	// Status fields below.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.

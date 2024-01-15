@@ -105,35 +105,35 @@ message UniversalAgent {
   // True if query examples are disabled.
   bool query_examples_disabled = 25;
   // True if query comments parsing is disabled.
-  bool comments_parsing_disabled = 39;
+  bool comments_parsing_disabled = 26;
   // True if RDS basic metrics are disdabled.
-  bool rds_basic_metrics_disabled = 26;
+  bool rds_basic_metrics_disabled = 27;
   // True if RDS enhanced metrics are disdabled.
-  bool rds_enhanced_metrics_disabled = 27;
+  bool rds_enhanced_metrics_disabled = 28;
   // Node identifier where this instance runs.
-  string runs_on_node_id = 28;
+  string runs_on_node_id = 29;
   // Service identifier.
-  string service_id = 29;
+  string service_id = 30;
   // Actual Agent status.
-  string status = 30;
+  string status = 31;
   // Last known table count.
-  int32 table_count = 31;
+  int32 table_count = 32;
   // Tablestats group collectors are disabled if there are more than that number of tables.
   // 0 means tablestats group collectors are always enabled (no limit).
   // Negative value means tablestats group collectors are always disabled.
-  int32 table_count_tablestats_group_limit = 32;
+  int32 table_count_tablestats_group_limit = 33;
   // Use TLS for database connections.
-  bool tls = 33;
+  bool tls = 34;
   // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 34;
+  bool tls_skip_verify = 35;
   // HTTP basic auth username for collecting metrics.
-  string username = 35;
+  string username = 36;
   // Last update timestamp.
-  google.protobuf.Timestamp updated_at = 36;
+  google.protobuf.Timestamp updated_at = 37;
   // Agent version.
-  string version = 37;
+  string version = 38;
   // True if Agent is running and connected to pmm-managed.
-  bool is_connected = 38;
+  bool is_connected = 39;
   // True if an exporter agent is exposed on all host addresses.
   bool expose_exporter = 40;
 }

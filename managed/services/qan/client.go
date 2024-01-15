@@ -226,7 +226,6 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 			PeriodStartUnixSecs:  m.Common.PeriodStartUnixSecs,
 			PeriodLengthSecs:     m.Common.PeriodLengthSecs,
 			Example:              m.Common.Example,
-			ExampleFormat:        convertExampleFormat(m.Common.ExampleFormat), //nolint:staticcheck
 			ExampleType:          convertExampleType(m.Common.ExampleType),
 			IsTruncated:          m.Common.IsTruncated,
 			NumQueriesWithErrors: m.Common.NumQueriesWithErrors,
@@ -316,18 +315,6 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 	}
 
 	return nil
-}
-
-//nolint:staticcheck
-func convertExampleFormat(exampleFormat agentv1.ExampleFormat) qanpb.ExampleFormat {
-	switch exampleFormat {
-	case agentv1.ExampleFormat_EXAMPLE_FORMAT_EXAMPLE:
-		return qanpb.ExampleFormat_EXAMPLE_FORMAT_EXAMPLE
-	case agentv1.ExampleFormat_EXAMPLE_FORMAT_FINGERPRINT:
-		return qanpb.ExampleFormat_EXAMPLE_FORMAT_FINGERPRINT
-	default:
-		return qanpb.ExampleFormat_EXAMPLE_FORMAT_UNSPECIFIED
-	}
 }
 
 func convertExampleType(exampleType agentv1.ExampleType) qanpb.ExampleType {

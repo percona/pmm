@@ -432,12 +432,12 @@
                   "type": "integer",
                   "format": "int64",
                   "x-nullable": true,
-                  "x-order": 7
+                  "x-order": 6
                 },
                 "retry_interval": {
                   "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
                   "type": "string",
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "scheduled_backup_id": {
                   "type": "string",
@@ -834,7 +834,7 @@
                       "cron_expression": {
                         "description": "How often backup will be run in cron format.",
                         "type": "string",
-                        "x-order": 5
+                        "x-order": 6
                       },
                       "data_model": {
                         "description": "DataModel is a model used for performing a backup.",
@@ -845,28 +845,28 @@
                           "DATA_MODEL_PHYSICAL",
                           "DATA_MODEL_LOGICAL"
                         ],
-                        "x-order": 12
+                        "x-order": 13
                       },
                       "description": {
                         "description": "Description.",
                         "type": "string",
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "enabled": {
                         "description": "If scheduling is enabled.",
                         "type": "boolean",
-                        "x-order": 11
+                        "x-order": 10
                       },
                       "folder": {
                         "description": "Folder on storage for artifact.",
                         "type": "string",
-                        "x-order": 18
+                        "x-order": 5
                       },
                       "last_run": {
                         "description": "Last run.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 14
+                        "x-order": 16
                       },
                       "location_id": {
                         "description": "Machine-readable location ID.",
@@ -888,35 +888,35 @@
                           "BACKUP_MODE_INCREMENTAL",
                           "BACKUP_MODE_PITR"
                         ],
-                        "x-order": 17
+                        "x-order": 14
                       },
                       "name": {
                         "description": "Artifact name.",
                         "type": "string",
-                        "x-order": 7
+                        "x-order": 8
                       },
                       "next_run": {
                         "description": "Next run.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 15
+                        "x-order": 17
                       },
                       "retention": {
                         "description": "How many artifacts keep. 0 - unlimited.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 16
+                        "x-order": 18
                       },
                       "retries": {
                         "description": "How many times to retry a failed backup before giving up.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "retry_interval": {
-                        "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
+                        "description": "Delay between each retry. Should have a suffix in JSON: 2s, 1m, 1h.",
                         "type": "string",
-                        "x-order": 9
+                        "x-order": 12
                       },
                       "scheduled_backup_id": {
                         "description": "Machine-readable ID.",
@@ -937,12 +937,12 @@
                         "description": "First backup wouldn't happen before this time.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 6
+                        "x-order": 7
                       },
                       "vendor": {
                         "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
                         "type": "string",
-                        "x-order": 13
+                        "x-order": 15
                       }
                     }
                   },
@@ -1149,9 +1149,8 @@
               "type": "object",
               "properties": {
                 "cron_expression": {
-                  "description": "How often backup should be run in cron format.",
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 3
                 },
                 "data_model": {
                   "description": "DataModel is a model used for performing a backup.",
@@ -1167,17 +1166,17 @@
                 "description": {
                   "description": "Human-readable description.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 6
                 },
                 "enabled": {
                   "description": "If scheduling is enabled.",
                   "type": "boolean",
-                  "x-order": 8
+                  "x-order": 7
                 },
                 "folder": {
-                  "description": "Folder on storage for artifact.",
+                  "description": "How often backup should be run in cron format.\nFolder on storage for artifact.",
                   "type": "string",
-                  "x-order": 12
+                  "x-order": 2
                 },
                 "location_id": {
                   "description": "Machine-readable location ID.",
@@ -1199,24 +1198,24 @@
                 "name": {
                   "description": "Name of backup.",
                   "type": "string",
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "retention": {
                   "description": "How many artifacts keep. 0 - unlimited.",
                   "type": "integer",
                   "format": "int64",
-                  "x-order": 9
+                  "x-order": 12
                 },
                 "retries": {
                   "description": "How many times to retry a failed backup before giving up.",
                   "type": "integer",
                   "format": "int64",
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "retry_interval": {
                   "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
                   "type": "string",
-                  "x-order": 6
+                  "x-order": 9
                 },
                 "service_id": {
                   "description": "Service identifier where backup should be performed.",
@@ -1227,7 +1226,7 @@
                   "description": "First backup wouldn't happen before this time.",
                   "type": "string",
                   "format": "date-time",
-                  "x-order": 3
+                  "x-order": 4
                 }
               }
             }

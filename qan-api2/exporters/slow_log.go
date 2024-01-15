@@ -160,7 +160,6 @@ func main() {
 					PeriodStartUnixSecs:  uint32(periodStart.Truncate(1 * time.Minute).Unix()),
 					PeriodLengthSecs:     uint32(60),
 					Example:              v.Example.Query,
-					ExampleFormat:        1,
 					ExampleType:          1,
 					NumQueries:           float32(v.TotalQueries),
 				}

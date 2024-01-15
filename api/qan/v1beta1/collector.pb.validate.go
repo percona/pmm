@@ -253,8 +253,6 @@ func (m *MetricsBucket) validate(all bool) error {
 
 	// no validation rules for Example
 
-	// no validation rules for ExampleFormat
-
 	// no validation rules for IsTruncated
 
 	// no validation rules for ExampleType

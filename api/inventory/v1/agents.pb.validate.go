@@ -2588,40 +2588,6 @@ func (m *ListAgentsResponse) validate(all bool) error {
 
 	}
 
-	for idx, item := range m.GetRdsExporter() {
-		_, _ = idx, item
-
-		if all {
-			switch v := interface{}(item).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, ListAgentsResponseValidationError{
-						field:  fmt.Sprintf("RdsExporter[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, ListAgentsResponseValidationError{
-						field:  fmt.Sprintf("RdsExporter[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return ListAgentsResponseValidationError{
-					field:  fmt.Sprintf("RdsExporter[%v]", idx),
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
-		}
-
-	}
-
 	for idx, item := range m.GetExternalExporter() {
 		_, _ = idx, item
 
@@ -2648,6 +2614,40 @@ func (m *ListAgentsResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return ListAgentsResponseValidationError{
 					field:  fmt.Sprintf("ExternalExporter[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	for idx, item := range m.GetRdsExporter() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("RdsExporter[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("RdsExporter[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListAgentsResponseValidationError{
+					field:  fmt.Sprintf("RdsExporter[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -3396,47 +3396,6 @@ func (m *GetAgentResponse) validate(all bool) error {
 			}
 		}
 
-	case *GetAgentResponse_RdsExporter:
-		if v == nil {
-			err := GetAgentResponseValidationError{
-				field:  "Agent",
-				reason: "oneof value cannot be a typed-nil",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		}
-
-		if all {
-			switch v := interface{}(m.GetRdsExporter()).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, GetAgentResponseValidationError{
-						field:  "RdsExporter",
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, GetAgentResponseValidationError{
-						field:  "RdsExporter",
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(m.GetRdsExporter()).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return GetAgentResponseValidationError{
-					field:  "RdsExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
-		}
-
 	case *GetAgentResponse_ExternalExporter:
 		if v == nil {
 			err := GetAgentResponseValidationError{
@@ -3472,6 +3431,47 @@ func (m *GetAgentResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "ExternalExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *GetAgentResponse_RdsExporter:
+		if v == nil {
+			err := GetAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRdsExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "RdsExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "RdsExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRdsExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetAgentResponseValidationError{
+					field:  "RdsExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}

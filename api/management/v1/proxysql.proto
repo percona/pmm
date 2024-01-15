@@ -33,39 +33,39 @@ message AddProxySQLRequest {
   uint32 port = 6;
   // Service Access socket.
   // Address (and port) or socket is required.
-  string socket = 17;
+  string socket = 7;
   // The "pmm-agent" identifier which should run agents. Required.
-  string pmm_agent_id = 7 [(validate.rules).string.min_len = 1];
+  string pmm_agent_id = 8 [(validate.rules).string.min_len = 1];
   // Environment name.
-  string environment = 8;
+  string environment = 9;
   // Cluster name.
-  string cluster = 9;
+  string cluster = 10;
   // Replication set name.
-  string replication_set = 10;
+  string replication_set = 11;
   // ProxySQL username for scraping metrics.
-  string username = 11 [(validate.rules).string.min_len = 1];
+  string username = 12 [(validate.rules).string.min_len = 1];
   // ProxySQL password for scraping metrics.
-  string password = 12;
+  string password = 13;
   // Custom user-assigned labels for Service.
-  map<string, string> custom_labels = 13;
+  map<string, string> custom_labels = 14;
   // Skip connection check.
-  bool skip_connection_check = 14;
+  bool skip_connection_check = 15;
   // Use TLS for database connections.
-  bool tls = 15;
+  bool tls = 16;
   // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 16;
+  bool tls_skip_verify = 17;
   // Defines metrics flow model for this exporter.
   // Metrics could be pushed to the server with vmagent,
   // pulled by the server, or the server could choose behavior automatically.
-  MetricsMode metrics_mode = 18;
+  MetricsMode metrics_mode = 19;
   // List of collector names to disable in this exporter.
-  repeated string disable_collectors = 19;
+  repeated string disable_collectors = 20;
   // Custom password for exporter endpoint /metrics.
-  string agent_password = 20;
+  string agent_password = 21;
   // Exporter log level
-  inventory.v1.LogLevel log_level = 21;
+  inventory.v1.LogLevel log_level = 22;
   // Optionally expose the exporter process on all public interfaces
-  bool expose_exporter = 22;
+  bool expose_exporter = 23;
 }
 
 message AddProxySQLResponse {

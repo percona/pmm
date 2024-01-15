@@ -145,7 +145,6 @@ func TestClient(t *testing.T) {
 					PeriodLengthSecs:    60,
 					AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 					Example:             "SELECT /* AllCities */ * FROM city",
-					ExampleFormat:       agentv1.ExampleFormat_EXAMPLE_FORMAT_EXAMPLE, //nolint:staticcheck
 					ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
 					NumQueries:          1,
 					MQueryTimeCnt:       1,
@@ -178,7 +177,6 @@ func TestClient(t *testing.T) {
 				PeriodLengthSecs:    60,
 				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 				Example:             "SELECT /* AllCities */ * FROM city",
-				ExampleFormat:       qanpb.ExampleFormat_EXAMPLE_FORMAT_EXAMPLE, //nolint:staticcheck
 				ExampleType:         qanpb.ExampleType_EXAMPLE_TYPE_RANDOM,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,

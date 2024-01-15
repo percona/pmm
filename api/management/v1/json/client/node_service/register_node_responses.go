@@ -782,8 +782,6 @@ type RegisterNodeOKBodyPMMAgent struct {
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// True if Agent is running and connected to pmm-managed.

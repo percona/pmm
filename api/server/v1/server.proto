@@ -125,8 +125,6 @@ message STTCheckIntervals {
 
 // Settings represents PMM Server settings.
 message Settings {
-  reserved 7, 8, 13, 14; // Removed fields
-
   // True if updates are enabled.
   bool updates_enabled = 1;
   // True if telemetry is enabled.
@@ -136,27 +134,27 @@ message Settings {
   string ssh_key = 5;
   repeated string aws_partitions = 6;
   // True if Security Threat Tool is enabled.
-  bool stt_enabled = 9;
+  bool stt_enabled = 7;
   // Percona Platform user's email, if this PMM instance is linked to the Platform.
-  string platform_email = 10;
+  string platform_email = 8;
   // True if Alerting is enabled.
-  bool alerting_enabled = 12;
+  bool alerting_enabled = 10;
   // PMM Server public address.
-  string pmm_public_address = 15;
+  string pmm_public_address = 11;
   // Intervals between STT check runs.
-  STTCheckIntervals stt_check_intervals = 16;
+  STTCheckIntervals stt_check_intervals = 12;
   // True if Backup Management is enabled.
-  bool backup_management_enabled = 18;
+  bool backup_management_enabled = 13;
   // True if Azure Discover is enabled.
-  bool azurediscover_enabled = 17;
+  bool azurediscover_enabled = 14;
   // True if the PMM instance is connected to Platform
-  bool connected_to_platform = 19;
+  bool connected_to_platform = 15;
   // Includes list of collected telemetry
-  repeated string telemetry_summaries = 20;
+  repeated string telemetry_summaries = 16;
   // True if Access Control is enabled.
-  bool enable_access_control = 21;
+  bool enable_access_control = 17;
   // Default Access Control role ID for new users.
-  uint32 default_role_id = 22;
+  uint32 default_role_id = 18;
 }
 
 message GetSettingsRequest {}
@@ -166,29 +164,27 @@ message GetSettingsResponse {
 }
 
 message ChangeSettingsRequest {
-  reserved 7, 8, 9, 10, 15, 16, 17, 18; //Removed fields
-
-  optional bool enable_updates = 28;
-  optional bool enable_telemetry = 1;
+  optional bool enable_updates = 1;
+  optional bool enable_telemetry = 2;
   MetricsResolutions metrics_resolutions = 3;
   // A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
   google.protobuf.Duration data_retention = 4;
   optional string ssh_key = 5;
   optional common.StringArray aws_partitions = 6;
   // Enable Security Threat Tool.
-  optional bool enable_stt = 11;
+  optional bool enable_stt = 7;
   // Enable Alerting.
-  optional bool enable_alerting = 13;
+  optional bool enable_alerting = 8;
   // PMM Server public address.
-  optional string pmm_public_address = 19;
+  optional string pmm_public_address = 9;
   // Intervals between STT check runs.
-  STTCheckIntervals stt_check_intervals = 21;
+  STTCheckIntervals stt_check_intervals = 10;
   // Enable Azure Discover.
-  optional bool enable_azurediscover = 22;
+  optional bool enable_azurediscover = 11;
   // Enable Backup Management.
-  optional bool enable_backup_management = 24;
+  optional bool enable_backup_management = 12;
   // Enable Access Control
-  optional bool enable_access_control = 30;
+  optional bool enable_access_control = 13;
 }
 
 message ChangeSettingsResponse {

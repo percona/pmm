@@ -71,7 +71,6 @@ const insertSQL = `
     period_length,
     fingerprint,
     example,
-    example_format,
     is_truncated,
     example_type,
     example_metrics,
@@ -297,7 +296,6 @@ const insertSQL = `
     :period_length_secs,
     :fingerprint,
     :example,
-    CAST( :example_format_s AS Enum8('EXAMPLE' = 0, 'FINGERPRINT' = 1)) AS example_format,
     :is_query_truncated,
     CAST( :example_type_s AS Enum8('RANDOM' = 0, 'SLOWEST' = 1, 'FASTEST' = 2, 'WITH_ERROR' = 3)) AS example_type,
     :example_metrics,
@@ -498,7 +496,6 @@ type MetricsBucketExtended struct {
 	PeriodStart      time.Time `json:"period_start_ts"`
 	AgentType        string    `json:"agent_type_s"`
 	ExampleType      string    `json:"example_type_s"`
-	ExampleFormat    string    `json:"example_format_s"`
 	LabelsKey        []string  `json:"labels_key"`
 	LabelsValues     []string  `json:"labels_value"`
 	WarningsCode     []uint64  `json:"warnings_code"`
@@ -681,8 +678,6 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
 				time.Unix(int64(metricsBucket.GetPeriodStartUnixSecs()), 0).UTC(),
 				agentTypeToClickHouseEnum(metricsBucket.GetAgentType()),
 				metricsBucket.GetExampleType().String(),
-				// TODO should we remove this field since it's deprecated?
-				metricsBucket.GetExampleFormat().String(), //nolint:staticcheck
 				lk,
 				lv,
 				wk,
