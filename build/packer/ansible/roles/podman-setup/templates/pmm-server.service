@@ -16,5 +16,4 @@ ExecStart=/usr/bin/podman run --volume /srv/:/srv/ --rm --name %N \
 ExecStop=/usr/bin/podman stop -t 10 %N
 
 [Install]
-Alias=%N
 WantedBy=default.target
