@@ -36,7 +36,7 @@ require (
 	github.com/go-co-op/gocron v1.37.0
 	github.com/go-openapi/errors v0.21.0
 	github.com/go-openapi/runtime v0.26.0
-	github.com/go-openapi/strfmt v0.21.8
+	github.com/go-openapi/strfmt v0.22.0
 	github.com/go-openapi/swag v0.22.3
 	github.com/go-openapi/validate v0.22.1
 	github.com/go-sql-driver/mysql v1.7.1
@@ -74,7 +74,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/objx v0.5.0
 	github.com/stretchr/testify v1.8.4
-	go.mongodb.org/mongo-driver v1.12.0
+	go.mongodb.org/mongo-driver v1.13.1
 	go.starlark.net v0.0.0-20230717150657-8a3343210976
 	golang.org/x/crypto v0.18.0
 	golang.org/x/sync v0.6.0
