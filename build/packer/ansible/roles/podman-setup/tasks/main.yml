@@ -52,3 +52,5 @@
   command: systemctl --user enable --now pmm-server
   become: true
   become_user: admin
+  environment:
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ admin_user_id.stdout }}/bus"
