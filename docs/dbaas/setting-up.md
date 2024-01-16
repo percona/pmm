@@ -53,6 +53,9 @@ alias kubectl='minikube kubectl --'
     - Add the option `--network minikube` if you run PMM Server and minikube in the same Docker instance. (This will share a single network and the kubeconfig will work.)
     - Add the options `--env PMM_DEBUG=1` and/or `--env PMM_TRACE=1` if you need extended debug details
 
+To start PMM server and activate DBaaS:
+{.power-number}
+
 1. Start PMM server:
 
     ```sh

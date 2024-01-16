@@ -54,7 +54,10 @@ To install the dependencies:
     trousers xdg-utils xkeyboard-config alsa-lib
     ```
 
-To render the image: 
+## Render Dashboard image
+
+To Render the dashboard image:
+{.power-number}
 
 1. Go to the dashboard that you want to share.
 2. Click at the top of the dashboard to display the panel menu.

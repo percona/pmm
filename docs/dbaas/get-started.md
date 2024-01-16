@@ -8,8 +8,9 @@ The DBaaS dashboard is where you add, remove, and operate on Kubernetes and data
 ## Activate DBaaS
 
 The DBaaS feature is turned off by default. To turn it on:
+{.power-number}
 
-1. Go to {{icon.configuration}} *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
+1. Go to <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
 
 2. Click the <i class="uil uil-toggle-off"></i> toggle in the *Technical preview features* section of the page.
 
@@ -32,6 +33,9 @@ In order to simplify DBaaS, k8s clusters can now be automatically added to PMM a
 
 **Prerequisites:** Helm Chart/Manifest installed
 
+To add add a kubernetes cluster automatically to PMM:
+{.power-number}
+
 1. Use [Helm](https://github.com/helm/helm) to install PMM server on Kubernetes clusters. For more information, see [documentation](../setting-up/server/helm.md).
     ```sh
     helm install pmm --set service.type="LoadBalancer" --set image.repository=percona/pmm-server --set image.tag=2.34.0 --set secret.pmm_password=admin percona/pmm
@@ -48,13 +52,16 @@ In order to simplify DBaaS, k8s clusters can now be automatically added to PMM a
 ## Add a Kubernetes cluster
 
 !!! caution alert alert-warning "Caution"
-    Ensure that you set PMM *Public Address* under {{icon.configuration}} *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings* before creating a Kubernetes cluster. Otherwise, PMM would **not** monitor the Kubernetes cluster along with the associated database clusters.
+    Ensure that you set PMM *Public Address* under <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings* before creating a Kubernetes cluster. Otherwise, PMM would **not** monitor the Kubernetes cluster along with the associated database clusters.
 
 
 !!! note alert alert-primary ""
     [Percona Operator for MySQL](https://docs.percona.com/percona-operator-for-mysql/pxc/index.html) and [Percona Operator for MongoDB](https://docs.percona.com/percona-operator-for-mongodb/index.html are installed as part of the Kubernetes cluster registration process. It enables you to deploy database clusters into the Kubernetes cluster.
 
     If a public address is set the [VictoriaMetrics Operator](https://docs.victoriametrics.com/operator/) is also installed as part of the Kubernetes cluster registration process. It lets you monitor a kubernetes cluster via PMM.
+
+To add a Kubernetes cluster:
+{.power-number}
 
 1. Click *Register new Kubernetes Cluster*.
 
@@ -91,33 +98,40 @@ In order to simplify DBaaS, k8s clusters can now be automatically added to PMM a
 !!! caution alert alert-warning "Important"
     You can't unregister a Kubernetes cluster if there DB clusters associated with it.
 
-1. Click *Unregister*.
+To Unregister a Kubernetes cluster
+{.power-number}
 
-2. Confirm the action by clicking *Proceed*, or abandon by clicking *Cancel*.
+1. Click **Unregister**.
+
+2. Confirm the action by clicking **Proceed**, or abandon by clicking **Cancel**.
 
 ## View a Kubernetes cluster's configuration
 
+To check the configuration of your Kubernetes cluster:
+{.power-number}
+
 1. Find the row with the Kubernetes cluster you want to see.
 
-2. In the *Actions* column, open the <i class="uil uil-ellipsis-v"></i> menu and click *Show configuration*.
+2. In the **Actions** column, open the <i class="uil uil-ellipsis-v"></i> menu and click **Show configuration**.
 
 ## Manage allowed component versions
 
 Administrators can select allowed and default versions of components for each cluster.
+{.power-number}
 
 1. Find the row with the Kubernetes cluster you want to manage.
 
-2. In the *Actions* column, open the <i class="uil uil-ellipsis-v"></i> menu and click *Manage versions*.
+2. In the **Actions** column, open the <i class="uil uil-ellipsis-v"></i> menu and click **Manage versions**.
 
     ![!](../_images/PMM_DBaaS_Kubernetes_Manage_Versions.png)
 
-3. Select an *Operator* and *Component* from the drop-down menus.
+3. Select an **Operator** and **Component** from the drop-down menus.
 
     ![!](../_images/PMM_DBaaS_Kubernetes_Manage_Components_Versions.png)
 
-4. Activate or deactivate allowed versions, and select a default in the *Default* menu.
+4. Activate or deactivate allowed versions, and select a default in the **Default** menu.
 
-5. Click *Save*.
+5. Click **Save**.
 
 ## Kubernetes operator status
 
@@ -128,17 +142,18 @@ The Kubernetes Cluster tab shows the status of operators.
 
 ## Kubernetes operator update
 
-When a new version of the operator is available the *Operators* column shows a message with this information. Click the message to go to the operator release notes to find out more about the update.
+When a new version of the operator is available the **Operators** column shows a message with this information. Click the message to go to the operator release notes to find out more about the update.
 
 ![!](../_images/PMM_DBaaS_Kubernetes_Cluster_Operator_Update.png)
 
 To update the cluster:
+{.power-number}
 
 1. Find the row with the operator you want to update.
 
-2. Click the *Update* button in front of the operator.
+2. Click the **Update** button in front of the operator.
 
-3. Confirm the action by clicking *Update*, or abandon by clicking *Cancel*.
+3. Confirm the action by clicking **Update**, or abandon by clicking **Cancel**.
 
     ![!](../_images/PMM_DBaaS_Kubernetes_Cluster_Operator_Update_Confirmation.png)
 

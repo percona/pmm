@@ -1,9 +1,9 @@
-Markdown~=3.5.2
+Markdown==3.3.7
 mkdocs
 mkdocs-macros-plugin
 mkdocs-exclude
 markdown-include
-mkdocs-material~=9.4.0
+mkdocs-material==9.2.7
 mkdocs-with-pdf
 mkdocs-git-revision-date-plugin
 mkdocs-material-extensions

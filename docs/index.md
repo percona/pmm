@@ -1,14 +1,14 @@
-# Welcome
+# About PMM
 
-Percona Monitoring and Management (PMM) is an open-source database monitoring, management, and observability solution for MySQL, PostgreSQL, and MongoDB.
+Percona Monitoring and Management (PMM) is an open source database monitoring, management, and observability solution for MySQL, PostgreSQL, and MongoDB.
 
 It allows you to observe the health of your database systems, explore new patterns in their behavior, troubleshoot them and perform database management operations no matter where they are located on-prem or in the cloud.
 
 - PMM **collects** thousands of out-of-the-box performance **metrics** from databases and their hosts.
 
-- The PMM [web UI](get-started/interface.md) **visualizes data** in [dashboards](details/dashboards/).
+- The PMM [web UI](reference/ui/log_in.md) **visualizes data** in [dashboards](use/dashboards-panels/index.md).
 
-- Additional features include [advisors for database health assessments](details/develop-checks/index.md).
+- Additional features include [advisors for database health assessments](reference/develop_advisor_checks.md).
 
 !!! alert alert-info ""
     This is the documentation for the latest release, **PMM {{release}}** ([Release Notes](release-notes/{{release}}.md)).
@@ -21,7 +21,7 @@ Here's how the home page looks on our <a href='https://pmmdemo.percona.com/' tar
 
 PMM runs in the cloud, on-prem, or across hybrid platforms. It's supported by our [legendary expertise][percona_services] in open source databases, and by a vibrant developer and user [community].
 
-A minimal PMM set-up comprises one [server](details/architecture.md#pmm-server) and a [client agent](details/architecture.md#pmm-client) on every system you want to monitor.
+A minimal PMM set-up comprises one [server](reference/index.md#pmm-server) and a [client agent](reference/index.md#pmm-client) on every system you want to monitor.
 
 ## Start here
 
@@ -176,7 +176,7 @@ A minimal PMM set-up comprises one [server](details/architecture.md#pmm-server) 
 
 [percona_services]: https://www.percona.com/services
 [community]: https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management
-[Technical Preview]: details/glossary.md#technical-preview
+[Technical Preview]: reference/glossary.md#technical-preview
 [easy install]: setting-up/server/easy-install.md
-[Setting Up]: setting-up/index.md
+[Setting Up]: install-pmm/index.md
 [Quickstart install guide]: https://www.percona.com/software/pmm/quickstart

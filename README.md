@@ -181,7 +181,7 @@ Here's how it's done.
 
     4. Navigate to `pmm-doc/docs/_images` and select `PMM_Home_Dashboard_Overlay.drawio`
 
-    5. If the dashboard layout has changed, replace the *Guide* Layer with a new screenshot and adjust the elements on the *Overlay* layer as required (To show layers, click View --> Layers). Untick the *Guide* Layer so it is not exported.
+    5. If the dashboard layout has changed, replace the *Guide* Layer with a new screenshot and adjust the elements on the *Overlay* layer as needed (To show layers, click View --> Layers). Untick the *Guide* Layer so it is not exported.
 
     6. Click File --> Export as --> PNG
 

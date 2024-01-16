@@ -3,6 +3,10 @@
 When you need to share a dashboard with your team members, you can either send them a direct link to the dashboard, or render and send the dashboard as a .PNG image.
 
 ## Share as direct link
+
+To share the dashboard as a direct link:
+{.power-number}
+
 1. Go to the dashboard that you want to share.
 2. Click at the top of the dashboard to display the panel menu.
 3. Select **Share** to reveal the **Share Panel** and either:  
@@ -19,6 +23,7 @@ Rendering images requires the Image Renderer plug-in. If your PMM Admin has not 
 ![!image](../_images/No_Image_Render_Plugin.png)
 
 To install the dependencies:
+{.power-number}
 
 1. Connect to your PMM Server Docker container.
 
@@ -55,6 +60,7 @@ To install the dependencies:
     ```
 
 To render the image: 
+{.power-number}
 
 1. Go to the dashboard that you want to share.
 2. Click at the top of the dashboard to display the panel menu.

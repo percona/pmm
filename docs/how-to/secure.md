@@ -1,29 +1,35 @@
 # Secure
 
-By Default, PMM ships with a self-signed certificate to enable usage out of the box.  While this does enable users to have encrypted connections between clients (database clients and web/API clients) and the PMM server, it shouldn't be considered a properly secured connection.  Taking the following precautions will ensure that you are truly secure:
+You can improve the security of your PMM installation with:
 
-- [SSL encryption with trusted certificates](#ssl-encryption) to secure traffic between clients and server;
+- [SSL encryption](#ssl-encryption) to secure traffic between client and server;
 
 - [Grafana HTTPS secure cookies](#grafana-https-secure-cookies)
 
+To see which security features are enabled:
+
+```sh
+pmm-admin status
+```
+
+!!! hint alert alert-success "Tip"
+    You can gain an extra level of security by keeping PMM Server isolated from the internet, if possible.
+
 ## SSL encryption
 
-Valid and trusted SSL certificates are needed to encrypt traffic between the client and server.  Certificates can be purchased online from various sources, or some organizations generate their own trusted certificates.  Regardless of which path you choose for enabling maximum security, the process to secure PMM consists of the following components:
+You need valid SSL certificates to encrypt traffic between client and server.
 
-1. Staging the files in the proper locations:
+With our Docker, OVF and AMI images, self-signed certificates are in `/srv/nginx`.
 
-    - You can [directly mount](#mounting-certificates) to a local directory containing the required certificates or
-    - You can [copy the files](#copying-certificates) to the appropriate directory in your Container|AMI|OVF
+To use your own, you can either:
 
-2. Restarting PMM
-3. Ensuring the client(s) trust the certificate issuer ([Ubuntu](https://ubuntu.com/server/docs/security-trust-store) | [RedHat](https://www.redhat.com/sysadmin/configure-ca-trust-list) can get you started but this is somewhat OS specific)
+- mount the local certificate directory to the same location, or,
 
-
-With our Docker, OVF and AMI images, certificates are stored in `/srv/nginx` and our self-signed certificates are staged there by default.
+- copy your certificates to a running PMM Server container.
 
 ### Mounting certificates
 
-For container-based installation, if your certificates are in a directory called `/etc/pmm-certs` on the container host, run the following to mount that directory in the proper location so that PMM can find it when the container starts:
+For example, if your own certificates are in `/etc/pmm-certs`:
 
 ```sh
 docker run -d -p 443:443 --volumes-from pmm-data \
@@ -32,9 +38,9 @@ docker run -d -p 443:443 --volumes-from pmm-data \
 ```
 
 !!! note alert alert-primary ""
-    - All certificates must be owned by root. You can do this with: `chown 0:0 /etc/pmm-certs/*`
-    - The mounted certificate directory (`/etc/pmm-certs` in this example) must contain the files named `certificate.crt`, `certificate.key`, `ca-certs.pem`, and `dhparam.pem`.
-    - For SSL encryption, the container should publish on port 443 instead of 80.
+    - The certificates must be owned by root. You can do this with: `chown 0:0 /etc/pmm-certs/*`
+    - The mounted certificate directory (`/etc/pmm-certs` in this example) must contain the files `certificate.crt`, `certificate.key`, `ca-certs.pem` and `dhparam.pem`.
+    - For SSL encryption, the container must publish on port 443 instead of 80.
 
 ### Copying certificates
 
@@ -45,36 +51,12 @@ docker cp certificate.crt pmm-server:/srv/nginx/certificate.crt
 docker cp certificate.key pmm-server:/srv/nginx/certificate.key
 docker cp ca-certs.pem pmm-server:/srv/nginx/ca-certs.pem
 docker cp dhparam.pem pmm-server:/srv/nginx/dhparam.pem
-docker exec -it pmm-server chown root.root /srv/nginx/*
 ```
 
-### Use trusted SSL when connecting PMM Client to PMM Server
+### Enabling SSL when connecting PMM Client to PMM Server
 
-For the new trusted certificates to take effect, you'll just need to restart the PMM server (or advanced users can restart just nginx from a shell: supervisorctl restart nginx). 
-
-You can now register clients to the PMM Server using the following:
 ```sh
 pmm-admin config --server-url=https://<user>:<password>@<server IP>
-```
-
-!!! hint alert alert-success "Remember"
-    Your client machine(s) must trust the issuer of the certificate, or you will still see "untrusted connections" messages when accessing the web interface. Thus, your client will need the `--server-insecure-tls` parameter when running the `pmm-admin config` command. Follow the instructions on your operating system to install the issuer certificate (ca-certs.pem). 
-
-In case of pmm-client running in the container, mount certificates to `/etc/pki/tls/certs`:
-
-```sh
-PMM_SERVER=X.X.X.X:443
-docker run \
---rm \
---name pmm-client \
--e PMM_AGENT_SERVER_ADDRESS=${PMM_SERVER} \
--e PMM_AGENT_SERVER_USERNAME=admin \
--e PMM_AGENT_SERVER_PASSWORD=admin \
--e PMM_AGENT_SETUP=1 \
--e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
--v /your_directory_with/certs:/etc/pki/tls/certs \
---volumes-from pmm-client-data \
-percona/pmm-client:2
 ```
 
 ## Grafana HTTPS secure cookies
