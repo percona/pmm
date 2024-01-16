@@ -1,5 +1,5 @@
 %global debug_package   %{nil}
-%global commit          7ff49f34a3998067fa1ea480c07e0c74939ea306
+%global commit          93891204fab2b2be06011638422d3bd9869a1603
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
 %define release         103
