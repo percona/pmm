@@ -23,6 +23,41 @@ PMM runs in the cloud, on-prem, or across hybrid platforms. It's supported by ou
 
 A minimal PMM set-up comprises one [server](reference/index.md#pmm-server) and a [client agent](reference/index.md#pmm-client) on every system you want to monitor.
 
+<div data-grid markdown><div data-banner markdown>
+
+## :material-progress-download: Installation { .title }
+
+Want to see it for yourself? Get started quickly with our step-by-step installation instructions.
+
+[Quickstart guides :material-arrow-right:](quickstart.md){ .md-button }
+
+</div><div data-banner markdown>
+
+## :material-configure: Configuration { .title }
+
+Rest assured! Learn more about our security features designed to protect your valuable data.
+
+[Security measures :material-arrow-right:](configure.md){ .md-button }
+</div><div data-banner markdown>
+
+### :material-administration: Administration { .title }
+
+Learn what you can do to maintain regular backups of your PostgrgeSQL cluster.
+
+[Backup management :material-arrow-right:](pmm-admin/index.md){ .md-button }
+
+</div><div data-banner markdown>
+
+### :material-frequently-asked-questions: Troubleshooting { .title }
+
+Our comprehensive resources will help you overcome challenges, from everyday issues to specific doubts.
+
+[Diagnostics :material-arrow-right:](debug.md){.md-button}
+
+</div>
+</div>
+
+
 ## Start here
 
 - An [easy install] script, which you download, make executable and run. The script installs Docker and runs PMM Server as a container.
@@ -30,6 +65,8 @@ A minimal PMM set-up comprises one [server](reference/index.md#pmm-server) and a
 - The [Quickstart install guide] shows how to run PMM Server as a Docker container, and how to install PMM Client on Ubuntu or Red Hat Linux hosts.
 
 - [Setting Up] explains in detail how to set up PMM Server, clients, and how to add services.
+
+
 
 ## Read more
 
