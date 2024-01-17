@@ -37,7 +37,7 @@ func TestRunExplain(t *testing.T) {
 			Body: actions.StartMySQLExplainActionBody{
 				// PMMAgentID: "/agent_id/f235005b-9cca-4b73-bbbd-1251067c3138",
 				ServiceID: "/service_id/5a9a7aa6-7af4-47be-817c-6d88e955bff2",
-				Query:     "SELECT `t` . * FROM `test` . `key_value` `t`",
+				QueryID:   "3923dace316a86643fcf87cb45e0558a",
 			},
 		})
 		require.NoError(t, err)

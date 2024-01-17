@@ -60,7 +60,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 		toggleAdvisorChecks(t, true)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-		results, err := managementClient.Default.SecurityChecksService.GetSecurityCheckResults(nil)
+		results, err := managementClient.Default.SecurityChecksService.GetFailedChecks(nil)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Advisor checks are disabled.`)
 		assert.Nil(t, results)
 	})
@@ -73,7 +73,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
 
-		results, err := managementClient.Default.SecurityChecksService.GetSecurityCheckResults(nil)
+		results, err := managementClient.Default.SecurityChecksService.GetFailedChecks(nil)
 		require.NoError(t, err)
 		assert.NotNil(t, results)
 	})
