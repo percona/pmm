@@ -1,29 +1,8 @@
 - name: pull the PMM image
   command: podman pull {{ pmm_server_image_name }}
 
-- name: get srv directory path
-  shell: podman image inspect {{ pmm_server_image_name }} | jq -r .[0].GraphDriver.Data.UpperDir
-  register: image_path
-
-- name:
-  copy:
-    src: "{{ image_path.stdout }}/srv/"
-    dest: /srv/
-    mode: preserve
-    remote_src: yes
-
-- name: Copy content of 'srv' directory from image
-  synchronize:
-    src: "{{ image_path.stdout }}/srv/"
-    dest:  /srv/
-    recursive: yes
-  delegate_to: "{{ inventory_hostname }}"
-
-- name: Set AMI distribution
-  copy:
-    content: |
-      ami
-    dest: /srv/pmm-distribution
+- name: Create a volume on the host
+  command: podman volume create pmm-data
 
 - name: Create user-specific systemd directory
   file:
