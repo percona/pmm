@@ -277,11 +277,12 @@ func TestBasicAuthPermissions(t *testing.T) {
 	adminID := createUserWithRole(t, admin, "Admin")
 	defer deleteUser(t, adminID)
 
-	_, viewerAPIKey := createAPIKeyWithRole(t, "api-"+viewer, "Viewer")
-	_, editorAPIKey := createAPIKeyWithRole(t, "api-"+editor, "Editor")
-	_, adminAPIKey := createAPIKeyWithRole(t, "api-"+admin, "Admin")
+	const apiPrefix = "api"
+	_, viewerAPIKey := createAPIKeyWithRole(t, fmt.Sprintf("%s-%s", apiPrefix, viewer), "Viewer")
+	_, editorAPIKey := createAPIKeyWithRole(t, fmt.Sprintf("%s-%s", apiPrefix, editor), "Editor")
+	_, adminAPIKey := createAPIKeyWithRole(t, fmt.Sprintf("%s-%s", apiPrefix, admin), "Admin")
 	defer func() {
-		// After auth API keys becames Service Accounts/Tokens
+		// After auth API keys becomes Service Accounts/Tokens
 		deleteServiceAccountsMirgatedFromAPIKeys(t)
 	}()
 
@@ -618,7 +619,7 @@ func createServiceAccountWithRole(t *testing.T, role, nodeName string) int {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck
+	defer resp.Body.Close() //nolint:errcheck
 
 	require.Equalf(t, http.StatusCreated, resp.StatusCode, "failed to create Service account, status code: %d, response: %s", resp.StatusCode, b)
 
@@ -639,7 +640,7 @@ func createServiceAccountWithRole(t *testing.T, role, nodeName string) int {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 	resp1, b := doRequest(t, http.DefaultClient, req)
-	defer resp1.Body.Close() //nolint:gosec,errcheck
+	defer resp1.Body.Close() //nolint:errcheck
 
 	require.Equalf(t, http.StatusCreated, resp.StatusCode, "failed to set orgId=1 to Service account, status code: %d, response: %s", resp.StatusCode, b)
 
@@ -733,7 +734,7 @@ func deleteServiceToken(t *testing.T, serviceAccountID, serviceTokenID int) {
 	require.NoError(t, err)
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck
+	defer resp.Body.Close() //nolint:errcheck
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete service token, status code: %d, response: %s", resp.StatusCode, b)
 }
