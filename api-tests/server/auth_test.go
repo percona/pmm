@@ -278,14 +278,12 @@ func TestBasicAuthPermissions(t *testing.T) {
 	defer deleteUser(t, adminID)
 
 	_, viewerAPIKey := createAPIKeyWithRole(t, "api-"+viewer, "Viewer")
-	// TO DO after auth API key becames Service Account/Token
-	//defer deleteAPIKey(t, viewerAPIKeyID)
-
 	_, editorAPIKey := createAPIKeyWithRole(t, "api-"+editor, "Editor")
-	//defer deleteAPIKey(t, editorAPIKeyID)
-
 	_, adminAPIKey := createAPIKeyWithRole(t, "api-"+admin, "Admin")
-	//defer deleteAPIKey(t, adminAPIKeyID)
+	defer func() {
+		// After auth API keys becames Service Accounts/Tokens
+		deleteServiceAccountsMirgatedFromAPIKeys(t)
+	}()
 
 	type userCase struct {
 		userType   string
@@ -553,24 +551,6 @@ func TestServiceAccountPermissions(t *testing.T) {
 	}
 }
 
-// XX
-
-func deleteAPIKey(t *testing.T, apiKeyID int) {
-	t.Helper()
-	// https://grafana.com/docs/grafana/latest/http_api/auth/#delete-api-key
-	u, err := url.Parse(pmmapitests.BaseURL.String())
-	require.NoError(t, err)
-	u.Path = "/graph/api/auth/keys/" + strconv.Itoa(apiKeyID)
-
-	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodDelete, u.String(), nil)
-	require.NoError(t, err)
-
-	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
-
-	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete API Key, status code: %d, response: %s", resp.StatusCode, b)
-}
-
 func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
 	t.Helper()
 	u, err := url.Parse(pmmapitests.BaseURL.String())
@@ -679,6 +659,39 @@ func deleteServiceAccount(t *testing.T, serviceAccountID int) {
 	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete service account, status code: %d, response: %s", resp.StatusCode, b)
+}
+
+func deleteServiceAccountsMirgatedFromAPIKeys(t *testing.T) {
+	t.Helper()
+	type serviceAccount struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+	}
+	type serviceAccountSearch struct {
+		ServiceAccounts []serviceAccount `json:"serviceAccounts"`
+	}
+	var res serviceAccountSearch
+
+	u, err := url.Parse(pmmapitests.BaseURL.String())
+	require.NoError(t, err)
+	u.Path = "/graph/api/serviceaccounts/search"
+	migratedServiceAccountKeyword := "autogen"
+	u.RawQuery = url.QueryEscape(fmt.Sprintf("query=%s", migratedServiceAccountKeyword))
+
+	u.ForceQuery = true
+	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, u.String(), nil)
+	require.NoError(t, err)
+
+	resp, b := doRequest(t, http.DefaultClient, req)
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+	require.NoError(t, json.Unmarshal(b, &res))
+
+	for _, serviceAccount := range res.ServiceAccounts {
+		if !strings.Contains(serviceAccount.Name, migratedServiceAccountKeyword) {
+			continue
+		}
+		deleteServiceAccount(t, serviceAccount.ID)
+	}
 }
 
 func createServiceToken(t *testing.T, serviceAccountID int, nodeName string) (int, string) {

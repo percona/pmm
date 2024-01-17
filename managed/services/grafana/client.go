@@ -345,14 +345,11 @@ type serviceAccountSearch struct {
 
 func (c *Client) getServiceAccountIDFromName(ctx context.Context, nodeName string, authHeaders http.Header) (int, error) {
 	var res serviceAccountSearch
-	// TODO add prefix serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)?
 	serviceAccountName := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
 	if err := c.do(ctx, http.MethodGet, "/api/serviceaccounts/search", fmt.Sprintf("query=%s", serviceAccountName), authHeaders, nil, &res); err != nil {
 		return 0, err
 	}
-	fmt.Println(res.TotalCount)
 	for _, serviceAccount := range res.ServiceAccounts {
-		fmt.Println(serviceAccount.Name + "!=" + serviceAccountName)
 		if serviceAccount.Name != serviceAccountName {
 			continue
 		}
