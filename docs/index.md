@@ -33,14 +33,14 @@ Want to see it for yourself? Get started quickly with our step-by-step installat
 
 </div><div data-banner markdown>
 
-## :material-configure: Configuration { .title }
+## :octicons-sliders-16: Configuration { .title }
 
 Rest assured! Learn more about our security features designed to protect your valuable data.
 
 [Security measures :material-arrow-right:](configure.md){ .md-button }
 </div><div data-banner markdown>
 
-### :material-administration: Administration { .title }
+### :material-sitemap: Administration { .title }
 
 Learn what you can do to maintain regular backups of your PostgrgeSQL cluster.
 
