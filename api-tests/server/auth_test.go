@@ -250,7 +250,7 @@ func doRequest(tb testing.TB, client *http.Client, req *http.Request) (*http.Res
 	resp, err := client.Do(req)
 	require.NoError(tb, err)
 
-	defer resp.Body.Close() //nolint:gosec,errcheck
+	defer resp.Body.Close() //nolint:errcheck
 
 	b, err := io.ReadAll(resp.Body)
 	require.NoError(tb, err)
@@ -526,7 +526,7 @@ func TestServiceAccountPermissions(t *testing.T) {
 
 					resp, err := http.DefaultClient.Do(req)
 					require.NoError(t, err)
-					defer resp.Body.Close() //nolint:gosec,errcheck
+					defer resp.Body.Close() //nolint:errcheck
 
 					assert.Equal(t, user.statusCode, resp.StatusCode)
 				})
@@ -542,7 +542,7 @@ func TestServiceAccountPermissions(t *testing.T) {
 
 					resp, err := http.DefaultClient.Do(req)
 					require.NoError(t, err)
-					defer resp.Body.Close() //nolint:gosec,errcheck
+					defer resp.Body.Close() //nolint:errcheck
 
 					assert.Equal(t, user.statusCode, resp.StatusCode)
 				})

@@ -142,7 +142,7 @@ func UnregisterNodes(t TestingT, nodeIDs ...string) {
 		}
 
 		res, err := client.Default.Node.UnregisterNode(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, res)
 		assert.NotNil(t, res.Payload)
 		assert.Empty(t, res.Payload.Warning)
