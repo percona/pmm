@@ -4,6 +4,9 @@
 - name: Create a volume on the host
   command: podman volume create pmm-data
 
+- name: Enable privileged port
+  command: sysctl net.ipv4.ip_unprivileged_port_start=443
+
 - name: Create user-specific systemd directory
   file:
     path: /home/admin/.config/systemd/user/
@@ -21,11 +24,11 @@
     mode: '0644'
 
 - name: Get user ID of admin user
-  command: sudo id -u admin
+  command: id -u admin
   register: admin_user_id
 
 - name: Enable linger for the admin user
-  command: sudo loginctl enable-linger {{ admin_user_id.stdout }} 
+  command: loginctl enable-linger {{ admin_user_id.stdout }} 
 
 - name: Enable and start PMM container as a user service
   command: systemctl --user enable --now pmm-server
