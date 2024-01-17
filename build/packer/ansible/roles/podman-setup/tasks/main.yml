@@ -5,7 +5,10 @@
   command: podman volume create pmm-data
 
 - name: Enable privileged port
-  command: sysctl net.ipv4.ip_unprivileged_port_start=443
+  become: yes
+  sysctl:
+    name: net.ipv4.ip_unprivileged_port_start
+    value: 443
 
 - name: Create user-specific systemd directory
   file:
