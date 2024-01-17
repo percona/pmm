@@ -668,7 +668,7 @@ telemetry:
 
   - id: PMMClinetNodeOSVersion
     source: VM
-    query: node_uname_info{node_id=!"pmm-server"}
+    query: node_uname_info{node_id!="pmm-server"}
     summary: "PMM Clinet node OS version"
     data:
       - metric_name: "pmm_clinet_node_os_version"
