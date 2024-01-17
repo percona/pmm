@@ -227,3 +227,4 @@
   file:
     state: absent
     path: /usr/share/pmm-server/maintenance/maintenance.html
+  when: not ui_upgrade

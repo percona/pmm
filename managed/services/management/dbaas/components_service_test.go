@@ -85,7 +85,7 @@ func TestComponentService(t *testing.T) {
 		kubeClient.On("GetServerVersion").Return(nil, nil)
 		cs = NewComponentsService(db, dbaasClient, vsc, kubeStorage)
 
-		return
+		return //nolint:nakedret
 	}
 
 	t.Run("PXC", func(t *testing.T) {

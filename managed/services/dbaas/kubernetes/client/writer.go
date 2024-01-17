@@ -30,7 +30,7 @@ type PrefixWriter interface {
 	Flush()
 }
 
-// prefixWriter implements PrefixWriter
+// prefixWriter implements PrefixWriter.
 type prefixWriter struct {
 	out io.Writer
 }
