@@ -115,11 +115,9 @@ func TestNodeRegister(t *testing.T) {
 		})
 
 		t.Run("Reregister with different node name (no re-register - should fail)", func(t *testing.T) {
-			nodeName := pmmapitests.TestString(t, "node-name-for-all-fields")
-			//TODO too long, grafana limit 190?
-			fmt.Println(nodeName[:50])
+			nodeName := pmmapitests.TestString(t, "all-fields")
 			nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
-				NodeName: nodeName[:50],
+				NodeName: nodeName,
 				NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
 				Address:  "node-address-3",
 				Region:   "region-3",
@@ -128,7 +126,7 @@ func TestNodeRegister(t *testing.T) {
 			defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 			body := node.RegisterNodeBody{
-				NodeName: nodeName[:50] + "_new",
+				NodeName: nodeName + "_new",
 				NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
 				Address:  "node-address-3",
 				Region:   "region-3",
