@@ -161,6 +161,7 @@ func (s *NodeService) Unregister(ctx context.Context, req *managementpb.Unregist
 
 	warning, err := s.ap.DeleteServiceAccount(ctx, node.NodeName, req.Force)
 	if err != nil {
+		s.l.WithError(err).Error("deleting service account")
 		return &managementpb.UnregisterNodeResponse{
 			Warning: err.Error(),
 		}, nil
