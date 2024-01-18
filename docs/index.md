@@ -18,7 +18,7 @@ Here's how the home page looks on our <a href='https://pmmdemo.percona.com/' tar
 Unleash the full power of your monitoring experience with PMM's amazing set of features. Discover how PMM can help you monitor your systems like a pro and make informed decisions.
 
 [Discover PMM :material-arrow-right:](discover-pmm/features.md){ .md-button }
-<div data-grid markdown><div data-banner markdown>
+
 
 </div><div data-banner markdown>
 
