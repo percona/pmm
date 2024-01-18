@@ -36,6 +36,9 @@ import (
 )
 
 func TestNodeService(t *testing.T) {
+	getTestNodeName := func() string {
+		return "test-node"
+	}
 	t.Run("Register/Unregister", func(t *testing.T) {
 		setup := func(t *testing.T) (ctx context.Context, s *NodeService, teardown func(t *testing.T)) {
 			t.Helper()
@@ -54,7 +57,7 @@ func TestNodeService(t *testing.T) {
 			}
 
 			serviceAccountID := int(0)
-			nodeName := "test-node"
+			nodeName := getTestNodeName()
 			reregister := false
 			force := true
 
@@ -105,7 +108,7 @@ func TestNodeService(t *testing.T) {
 
 			t.Run("Reregister", func(t *testing.T) {
 				serviceAccountID := int(0)
-				nodeName := "test-node"
+				nodeName := getTestNodeName()
 				reregister := true
 
 				var authProvider mockAuthProvider
@@ -175,7 +178,7 @@ func TestNodeService(t *testing.T) {
 
 			t.Run("Unregister", func(t *testing.T) {
 				serviceAccountID := int(0)
-				nodeName := "test-node"
+				nodeName := getTestNodeName()
 				reregister := true
 				force := true
 
