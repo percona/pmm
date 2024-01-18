@@ -307,63 +307,6 @@ func TestNodeRegister(t *testing.T) {
 				defer pmmapitests.RemoveAgents(t, nodeExporterAgentID)
 			}
 		})
-
-		t.Run("Re-register", func(t *testing.T) {
-			t.Skip("Re-register logic is not defined yet. https://jira.percona.com/browse/PMM-3717")
-
-			nodeName := pmmapitests.TestString(t, "node-name")
-			nodeID, pmmAgentID := registerContainerNode(t, node.RegisterNodeBody{
-				NodeName: nodeName,
-				NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeCONTAINERNODE),
-			})
-			defer pmmapitests.UnregisterNodes(t, nodeID)
-			defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
-
-			// Check Node is created
-			assertNodeCreated(t, nodeID, nodes.GetNodeOKBody{
-				Generic: &nodes.GetNodeOKBodyGeneric{
-					NodeID:   nodeID,
-					NodeName: nodeName,
-				},
-			})
-
-			// Re-register node
-			nodeModel := pmmapitests.TestString(t, "node-model")
-			containerID := pmmapitests.TestString(t, "container-id")
-			containerName := pmmapitests.TestString(t, "container-name")
-			newNodeID, newPMMAgentID := registerContainerNode(t, node.RegisterNodeBody{
-				NodeName:      nodeName,
-				NodeType:      pointer.ToString(node.RegisterNodeBodyNodeTypeCONTAINERNODE),
-				ContainerID:   containerID,
-				ContainerName: containerName,
-				NodeModel:     nodeModel,
-				Az:            "eu",
-				Region:        "us-west",
-				Address:       "10.10.10.10",
-				CustomLabels:  map[string]string{"foo": "bar"},
-			})
-			if !assert.Equal(t, nodeID, newNodeID) {
-				defer pmmapitests.UnregisterNodes(t, newNodeID)
-			}
-			if !assert.Equal(t, pmmAgentID, newPMMAgentID) {
-				defer pmmapitests.RemoveAgents(t, newPMMAgentID)
-			}
-
-			// Check Node fields is updated
-			assertNodeCreated(t, nodeID, nodes.GetNodeOKBody{
-				Container: &nodes.GetNodeOKBodyContainer{
-					NodeID:        nodeID,
-					NodeName:      nodeName,
-					ContainerID:   containerID,
-					ContainerName: containerName,
-					NodeModel:     nodeModel,
-					Az:            "eu",
-					Region:        "us-west",
-					Address:       "10.10.10.10",
-					CustomLabels:  map[string]string{"foo": "bar"},
-				},
-			})
-		})
 	})
 
 	t.Run("Empty node name", func(t *testing.T) {
