@@ -225,7 +225,7 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.Add
 }
 
 // ChangeNodeExporter updates node_exporter Agent with given parameters.
-func (as *AgentsService) ChangeNodeExporter(ctx context.Context, req *inventoryv1.ChangeNodeExporterRequest) (*inventoryv1.NodeExporter, error) {
+func (as *AgentsService) ChangeNodeExporter(ctx context.Context, req *inventoryv1.ChangeNodeExporterParams) (*inventoryv1.NodeExporter, error) {
 	agent, err := as.changeAgent(req.AgentId, req.Common)
 	if err != nil {
 		return nil, err
@@ -293,7 +293,7 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 }
 
 // ChangeMySQLdExporter updates mysqld_exporter Agent with given parameters.
-func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, req *inventoryv1.ChangeMySQLdExporterRequest) (*inventoryv1.MySQLdExporter, error) {
+func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, req *inventoryv1.ChangeMySQLdExporterParams) (*inventoryv1.MySQLdExporter, error) {
 	agent, err := as.changeAgent(req.AgentId, req.Common)
 	if err != nil {
 		return nil, err
@@ -358,7 +358,7 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 }
 
 // ChangeMongoDBExporter updates mongo_exporter Agent with given parameters.
-func (as *AgentsService) ChangeMongoDBExporter(ctx context.Context, req *inventoryv1.ChangeMongoDBExporterRequest) (*inventoryv1.MongoDBExporter, error) {
+func (as *AgentsService) ChangeMongoDBExporter(ctx context.Context, req *inventoryv1.ChangeMongoDBExporterParams) (*inventoryv1.MongoDBExporter, error) {
 	agent, err := as.changeAgent(req.AgentId, req.Common)
 	if err != nil {
 		return nil, err
@@ -420,7 +420,7 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inve
 }
 
 // ChangeQANMySQLPerfSchemaAgent updates MySQL PerfSchema QAN Agent with given parameters.
-func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, req *inventoryv1.ChangeQANMySQLPerfSchemaAgentRequest) (*inventoryv1.QANMySQLPerfSchemaAgent, error) { //nolint:lll
+func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, req *inventoryv1.ChangeQANMySQLPerfSchemaAgentParams) (*inventoryv1.QANMySQLPerfSchemaAgent, error) { //nolint:lll
 	agent, err := as.changeAgent(req.AgentId, req.Common)
 	if err != nil {
 		return nil, err
@@ -487,7 +487,7 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *invento
 }
 
 // ChangeQANMySQLSlowlogAgent updates MySQL Slowlog QAN Agent with given parameters.
-func (as *AgentsService) ChangeQANMySQLSlowlogAgent(ctx context.Context, req *inventoryv1.ChangeQANMySQLSlowlogAgentRequest) (*inventoryv1.QANMySQLSlowlogAgent, error) {
+func (as *AgentsService) ChangeQANMySQLSlowlogAgent(ctx context.Context, req *inventoryv1.ChangeQANMySQLSlowlogAgentParams) (*inventoryv1.QANMySQLSlowlogAgent, error) {
 	agent, err := as.changeAgent(req.AgentId, req.Common)
 	if err != nil {
 		return nil, err
@@ -552,7 +552,7 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1
 }
 
 // ChangePostgresExporter updates postgres_exporter Agent with given parameters.
-func (as *AgentsService) ChangePostgresExporter(ctx context.Context, req *inventoryv1.ChangePostgresExporterRequest) (*inventoryv1.PostgresExporter, error) {
+func (as *AgentsService) ChangePostgresExporter(ctx context.Context, req *inventoryv1.ChangePostgresExporterParams) (*inventoryv1.PostgresExporter, error) {
 	agent, err := as.changeAgent(req.AgentId, req.Common)
 	if err != nil {
 		return nil, err
@@ -616,7 +616,7 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, p *inve
 // ChangeQANMongoDBProfilerAgent updates MongoDB Profiler QAN Agent with given parameters.
 //
 //nolint:lll,dupl
-func (as *AgentsService) ChangeQANMongoDBProfilerAgent(ctx context.Context, req *inventoryv1.ChangeQANMongoDBProfilerAgentRequest) (*inventoryv1.QANMongoDBProfilerAgent, error) {
+func (as *AgentsService) ChangeQANMongoDBProfilerAgent(ctx context.Context, req *inventoryv1.ChangeQANMongoDBProfilerAgentParams) (*inventoryv1.QANMongoDBProfilerAgent, error) {
 	agent, err := as.changeAgent(req.AgentId, req.Common)
 	if err != nil {
 		return nil, err
@@ -680,7 +680,7 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1
 }
 
 // ChangeProxySQLExporter updates proxysql_exporter Agent with given parameters.
-func (as *AgentsService) ChangeProxySQLExporter(ctx context.Context, req *inventoryv1.ChangeProxySQLExporterRequest) (*inventoryv1.ProxySQLExporter, error) {
+func (as *AgentsService) ChangeProxySQLExporter(ctx context.Context, req *inventoryv1.ChangeProxySQLExporterParams) (*inventoryv1.ProxySQLExporter, error) {
 	agent, err := as.changeAgent(req.AgentId, req.Common)
 	if err != nil {
 		return nil, err
@@ -741,7 +741,7 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, 
 }
 
 // ChangeQANPostgreSQLPgStatementsAgent updates PostgreSQL Pg stat statements QAN Agent with given parameters.
-func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, req *inventoryv1.ChangeQANPostgreSQLPgStatementsAgentRequest) (*inventoryv1.QANPostgreSQLPgStatementsAgent, error) { //nolint:lll
+func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, req *inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.QANPostgreSQLPgStatementsAgent, error) { //nolint:lll
 	agent, err := as.changeAgent(req.AgentId, req.Common)
 	if err != nil {
 		return nil, err
@@ -803,7 +803,7 @@ func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context,
 }
 
 // ChangeQANPostgreSQLPgStatMonitorAgent updates PostgreSQL Pg stat monitor QAN Agent with given parameters.
-func (as *AgentsService) ChangeQANPostgreSQLPgStatMonitorAgent(ctx context.Context, req *inventoryv1.ChangeQANPostgreSQLPgStatMonitorAgentRequest) (*inventoryv1.QANPostgreSQLPgStatMonitorAgent, error) { //nolint:lll
+func (as *AgentsService) ChangeQANPostgreSQLPgStatMonitorAgent(ctx context.Context, req *inventoryv1.ChangeQANPostgreSQLPgStatMonitorAgentParams) (*inventoryv1.QANPostgreSQLPgStatMonitorAgent, error) { //nolint:lll
 	agent, err := as.changeAgent(req.AgentId, req.Common)
 	if err != nil {
 		return nil, err
@@ -855,7 +855,7 @@ func (as *AgentsService) AddRDSExporter(ctx context.Context, p *inventoryv1.AddR
 }
 
 // ChangeRDSExporter updates rds_exporter Agent with given parameters.
-func (as *AgentsService) ChangeRDSExporter(ctx context.Context, req *inventoryv1.ChangeRDSExporterRequest) (*inventoryv1.RDSExporter, error) {
+func (as *AgentsService) ChangeRDSExporter(ctx context.Context, req *inventoryv1.ChangeRDSExporterParams) (*inventoryv1.RDSExporter, error) {
 	agent, err := as.changeAgent(req.AgentId, req.Common)
 	if err != nil {
 		return nil, err
@@ -912,7 +912,7 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 }
 
 // ChangeExternalExporter updates external-exporter Agent with given parameters.
-func (as *AgentsService) ChangeExternalExporter(req *inventoryv1.ChangeExternalExporterRequest) (*inventoryv1.ExternalExporter, error) {
+func (as *AgentsService) ChangeExternalExporter(req *inventoryv1.ChangeExternalExporterParams) (*inventoryv1.ExternalExporter, error) {
 	agent, err := as.changeAgent(req.AgentId, req.Common)
 	if err != nil {
 		return nil, err
@@ -961,7 +961,7 @@ func (as *AgentsService) AddAzureDatabaseExporter(ctx context.Context, p *invent
 // ChangeAzureDatabaseExporter updates azure_exporter Agent with given parameters.
 func (as *AgentsService) ChangeAzureDatabaseExporter(
 	ctx context.Context,
-	req *inventoryv1.ChangeAzureDatabaseExporterRequest,
+	req *inventoryv1.ChangeAzureDatabaseExporterParams,
 ) (*inventoryv1.AzureDatabaseExporter, error) {
 	agent, err := as.changeAgent(req.AgentId, req.Common)
 	if err != nil {

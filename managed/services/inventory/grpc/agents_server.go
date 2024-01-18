@@ -224,6 +224,40 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 	}
 }
 
+// ChangeAgent allows to change some Agent attributes.
+func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeAgentRequest) (*inventoryv1.ChangeAgentResponse, error) {
+	switch req.Agent.(type) {
+	case *inventoryv1.ChangeAgentRequest_NodeExporter:
+		return s.changeNodeExporter(ctx, req.GetNodeExporter())
+	case *inventoryv1.ChangeAgentRequest_MysqldExporter:
+		return s.changeMySQLdExporter(ctx, req.GetMysqldExporter())
+	case *inventoryv1.ChangeAgentRequest_MongodbExporter:
+		return s.changeMongoDBExporter(ctx, req.GetMongodbExporter())
+	case *inventoryv1.ChangeAgentRequest_PostgresExporter:
+		return s.changePostgresExporter(ctx, req.GetPostgresExporter())
+	case *inventoryv1.ChangeAgentRequest_ProxysqlExporter:
+		return s.changeProxySQLExporter(ctx, req.GetProxysqlExporter())
+	case *inventoryv1.ChangeAgentRequest_RdsExporter:
+		return s.changeRDSExporter(ctx, req.GetRdsExporter())
+	case *inventoryv1.ChangeAgentRequest_ExternalExporter:
+		return s.changeExternalExporter(ctx, req.GetExternalExporter())
+	case *inventoryv1.ChangeAgentRequest_AzureDatabaseExporter:
+		return s.changeAzureDatabaseExporter(ctx, req.GetAzureDatabaseExporter())
+	case *inventoryv1.ChangeAgentRequest_QanMysqlPerfschemaAgent:
+		return s.changeQANMySQLPerfSchemaAgent(ctx, req.GetQanMysqlPerfschemaAgent())
+	case *inventoryv1.ChangeAgentRequest_QanMysqlSlowlogAgent:
+		return s.changeQANMySQLSlowlogAgent(ctx, req.GetQanMysqlSlowlogAgent())
+	case *inventoryv1.ChangeAgentRequest_QanMongodbProfilerAgent:
+		return s.changeQANMongoDBProfilerAgent(ctx, req.GetQanMongodbProfilerAgent())
+	case *inventoryv1.ChangeAgentRequest_QanPostgresqlPgstatementsAgent:
+		return s.changeQANPostgreSQLPgStatementsAgent(ctx, req.GetQanPostgresqlPgstatementsAgent())
+	case *inventoryv1.ChangeAgentRequest_QanPostgresqlPgstatmonitorAgent:
+		return s.changeQANPostgreSQLPgStatMonitorAgent(ctx, req.GetQanPostgresqlPgstatmonitorAgent())
+	default:
+		return nil, fmt.Errorf("invalid request %v", req.Agent)
+	}
+}
+
 // addNodeExporter adds node_exporter Agent.
 func (s *agentsServer) addNodeExporter(ctx context.Context, params *inventoryv1.AddNodeExporterParams) (*inventoryv1.AddAgentResponse, error) {
 	agent, err := s.s.AddNodeExporter(ctx, params)
@@ -240,14 +274,16 @@ func (s *agentsServer) addNodeExporter(ctx context.Context, params *inventoryv1.
 }
 
 // ChangeNodeExporter changes disabled flag and custom labels of node_exporter Agent.
-func (s *agentsServer) ChangeNodeExporter(ctx context.Context, req *inventoryv1.ChangeNodeExporterRequest) (*inventoryv1.ChangeNodeExporterResponse, error) {
-	agent, err := s.s.ChangeNodeExporter(ctx, req)
+func (s *agentsServer) changeNodeExporter(ctx context.Context, params *inventoryv1.ChangeNodeExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
+	agent, err := s.s.ChangeNodeExporter(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.ChangeNodeExporterResponse{
-		NodeExporter: agent,
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_NodeExporter{
+			NodeExporter: agent,
+		},
 	}
 	return res, nil
 }
@@ -269,14 +305,16 @@ func (s *agentsServer) addMySQLdExporter(ctx context.Context, params *inventoryv
 }
 
 // ChangeMySQLdExporter changes disabled flag and custom labels of mysqld_exporter Agent.
-func (s *agentsServer) ChangeMySQLdExporter(ctx context.Context, req *inventoryv1.ChangeMySQLdExporterRequest) (*inventoryv1.ChangeMySQLdExporterResponse, error) {
-	agent, err := s.s.ChangeMySQLdExporter(ctx, req)
+func (s *agentsServer) changeMySQLdExporter(ctx context.Context, params *inventoryv1.ChangeMySQLdExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
+	agent, err := s.s.ChangeMySQLdExporter(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.ChangeMySQLdExporterResponse{
-		MysqldExporter: agent,
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_MysqldExporter{
+			MysqldExporter: agent,
+		},
 	}
 	return res, nil
 }
@@ -297,14 +335,16 @@ func (s *agentsServer) addMongoDBExporter(ctx context.Context, params *inventory
 }
 
 // ChangeMongoDBExporter changes disabled flag and custom labels of mongo_exporter Agent.
-func (s *agentsServer) ChangeMongoDBExporter(ctx context.Context, req *inventoryv1.ChangeMongoDBExporterRequest) (*inventoryv1.ChangeMongoDBExporterResponse, error) {
-	agent, err := s.s.ChangeMongoDBExporter(ctx, req)
+func (s *agentsServer) changeMongoDBExporter(ctx context.Context, params *inventoryv1.ChangeMongoDBExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
+	agent, err := s.s.ChangeMongoDBExporter(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.ChangeMongoDBExporterResponse{
-		MongodbExporter: agent,
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_MongodbExporter{
+			MongodbExporter: agent,
+		},
 	}
 	return res, nil
 }
@@ -312,8 +352,8 @@ func (s *agentsServer) ChangeMongoDBExporter(ctx context.Context, req *inventory
 // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
 //
 //nolint:lll
-func (s *agentsServer) addQANMySQLPerfSchemaAgent(ctx context.Context, req *inventoryv1.AddQANMySQLPerfSchemaAgentParams) (*inventoryv1.AddAgentResponse, error) {
-	agent, err := s.s.AddQANMySQLPerfSchemaAgent(ctx, req)
+func (s *agentsServer) addQANMySQLPerfSchemaAgent(ctx context.Context, params *inventoryv1.AddQANMySQLPerfSchemaAgentParams) (*inventoryv1.AddAgentResponse, error) {
+	agent, err := s.s.AddQANMySQLPerfSchemaAgent(ctx, params)
 	if err != nil {
 		return nil, err
 	}
@@ -329,14 +369,16 @@ func (s *agentsServer) addQANMySQLPerfSchemaAgent(ctx context.Context, req *inve
 // ChangeQANMySQLPerfSchemaAgent changes disabled flag and custom labels of MySQL PerfSchema QAN Agent.
 //
 //nolint:lll
-func (s *agentsServer) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, req *inventoryv1.ChangeQANMySQLPerfSchemaAgentRequest) (*inventoryv1.ChangeQANMySQLPerfSchemaAgentResponse, error) {
-	agent, err := s.s.ChangeQANMySQLPerfSchemaAgent(ctx, req)
+func (s *agentsServer) changeQANMySQLPerfSchemaAgent(ctx context.Context, params *inventoryv1.ChangeQANMySQLPerfSchemaAgentParams) (*inventoryv1.ChangeAgentResponse, error) {
+	agent, err := s.s.ChangeQANMySQLPerfSchemaAgent(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.ChangeQANMySQLPerfSchemaAgentResponse{
-		QanMysqlPerfschemaAgent: agent,
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_QanMysqlPerfschemaAgent{
+			QanMysqlPerfschemaAgent: agent,
+		},
 	}
 	return res, nil
 }
@@ -361,14 +403,16 @@ func (s *agentsServer) addQANMySQLSlowlogAgent(ctx context.Context, params *inve
 // ChangeQANMySQLSlowlogAgent changes disabled flag and custom labels of MySQL Slowlog QAN Agent.
 //
 //nolint:lll
-func (s *agentsServer) ChangeQANMySQLSlowlogAgent(ctx context.Context, req *inventoryv1.ChangeQANMySQLSlowlogAgentRequest) (*inventoryv1.ChangeQANMySQLSlowlogAgentResponse, error) {
-	agent, err := s.s.ChangeQANMySQLSlowlogAgent(ctx, req)
+func (s *agentsServer) changeQANMySQLSlowlogAgent(ctx context.Context, params *inventoryv1.ChangeQANMySQLSlowlogAgentParams) (*inventoryv1.ChangeAgentResponse, error) {
+	agent, err := s.s.ChangeQANMySQLSlowlogAgent(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.ChangeQANMySQLSlowlogAgentResponse{
-		QanMysqlSlowlogAgent: agent,
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_QanMysqlSlowlogAgent{
+			QanMysqlSlowlogAgent: agent,
+		},
 	}
 	return res, nil
 }
@@ -389,14 +433,16 @@ func (s *agentsServer) addPostgresExporter(ctx context.Context, params *inventor
 }
 
 // ChangePostgresExporter changes disabled flag and custom labels of postgres_exporter Agent.
-func (s *agentsServer) ChangePostgresExporter(ctx context.Context, req *inventoryv1.ChangePostgresExporterRequest) (*inventoryv1.ChangePostgresExporterResponse, error) {
-	agent, err := s.s.ChangePostgresExporter(ctx, req)
+func (s *agentsServer) changePostgresExporter(ctx context.Context, params *inventoryv1.ChangePostgresExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
+	agent, err := s.s.ChangePostgresExporter(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.ChangePostgresExporterResponse{
-		PostgresExporter: agent,
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_PostgresExporter{
+			PostgresExporter: agent,
+		},
 	}
 	return res, nil
 }
@@ -421,14 +467,16 @@ func (s *agentsServer) addQANMongoDBProfilerAgent(ctx context.Context, params *i
 // ChangeQANMongoDBProfilerAgent changes disabled flag and custom labels of MongoDB Profiler QAN Agent.
 //
 //nolint:lll
-func (s *agentsServer) ChangeQANMongoDBProfilerAgent(ctx context.Context, req *inventoryv1.ChangeQANMongoDBProfilerAgentRequest) (*inventoryv1.ChangeQANMongoDBProfilerAgentResponse, error) {
-	agent, err := s.s.ChangeQANMongoDBProfilerAgent(ctx, req)
+func (s *agentsServer) changeQANMongoDBProfilerAgent(ctx context.Context, params *inventoryv1.ChangeQANMongoDBProfilerAgentParams) (*inventoryv1.ChangeAgentResponse, error) {
+	agent, err := s.s.ChangeQANMongoDBProfilerAgent(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.ChangeQANMongoDBProfilerAgentResponse{
-		QanMongodbProfilerAgent: agent,
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_QanMongodbProfilerAgent{
+			QanMongodbProfilerAgent: agent,
+		},
 	}
 	return res, nil
 }
@@ -449,14 +497,16 @@ func (s *agentsServer) addProxySQLExporter(ctx context.Context, params *inventor
 }
 
 // ChangeProxySQLExporter changes disabled flag and custom labels of proxysql_exporter Agent.
-func (s *agentsServer) ChangeProxySQLExporter(ctx context.Context, req *inventoryv1.ChangeProxySQLExporterRequest) (*inventoryv1.ChangeProxySQLExporterResponse, error) {
-	agent, err := s.s.ChangeProxySQLExporter(ctx, req)
+func (s *agentsServer) changeProxySQLExporter(ctx context.Context, params *inventoryv1.ChangeProxySQLExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
+	agent, err := s.s.ChangeProxySQLExporter(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.ChangeProxySQLExporterResponse{
-		ProxysqlExporter: agent,
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_ProxysqlExporter{
+			ProxysqlExporter: agent,
+		},
 	}
 	return res, nil
 }
@@ -477,14 +527,16 @@ func (s *agentsServer) addQANPostgreSQLPgStatementsAgent(ctx context.Context, pa
 }
 
 // ChangeQANPostgreSQLPgStatementsAgent changes disabled flag and custom labels of PostgreSQL Pg stat statements QAN Agent.
-func (s *agentsServer) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, req *inventoryv1.ChangeQANPostgreSQLPgStatementsAgentRequest) (*inventoryv1.ChangeQANPostgreSQLPgStatementsAgentResponse, error) { //nolint:lll
-	agent, err := s.s.ChangeQANPostgreSQLPgStatementsAgent(ctx, req)
+func (s *agentsServer) changeQANPostgreSQLPgStatementsAgent(ctx context.Context, params *inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
+	agent, err := s.s.ChangeQANPostgreSQLPgStatementsAgent(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.ChangeQANPostgreSQLPgStatementsAgentResponse{
-		QanPostgresqlPgstatementsAgent: agent,
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_QanPostgresqlPgstatementsAgent{
+			QanPostgresqlPgstatementsAgent: agent,
+		},
 	}
 	return res, nil
 }
@@ -505,14 +557,16 @@ func (s *agentsServer) addQANPostgreSQLPgStatMonitorAgent(ctx context.Context, p
 }
 
 // ChangeQANPostgreSQLPgStatMonitorAgent changes disabled flag and custom labels of PostgreSQL Pg stat monitor QAN Agent.
-func (s *agentsServer) ChangeQANPostgreSQLPgStatMonitorAgent(ctx context.Context, req *inventoryv1.ChangeQANPostgreSQLPgStatMonitorAgentRequest) (*inventoryv1.ChangeQANPostgreSQLPgStatMonitorAgentResponse, error) { //nolint:lll
-	agent, err := s.s.ChangeQANPostgreSQLPgStatMonitorAgent(ctx, req)
+func (s *agentsServer) changeQANPostgreSQLPgStatMonitorAgent(ctx context.Context, params *inventoryv1.ChangeQANPostgreSQLPgStatMonitorAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
+	agent, err := s.s.ChangeQANPostgreSQLPgStatMonitorAgent(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.ChangeQANPostgreSQLPgStatMonitorAgentResponse{
-		QanPostgresqlPgstatmonitorAgent: agent,
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_QanPostgresqlPgstatmonitorAgent{
+			QanPostgresqlPgstatmonitorAgent: agent,
+		},
 	}
 	return res, nil
 }
@@ -533,14 +587,16 @@ func (s *agentsServer) addRDSExporter(ctx context.Context, params *inventoryv1.A
 }
 
 // ChangeRDSExporter changes disabled flag and custom labels of rds_exporter Agent.
-func (s *agentsServer) ChangeRDSExporter(ctx context.Context, req *inventoryv1.ChangeRDSExporterRequest) (*inventoryv1.ChangeRDSExporterResponse, error) {
-	agent, err := s.s.ChangeRDSExporter(ctx, req)
+func (s *agentsServer) changeRDSExporter(ctx context.Context, params *inventoryv1.ChangeRDSExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
+	agent, err := s.s.ChangeRDSExporter(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.ChangeRDSExporterResponse{
-		RdsExporter: agent,
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_RdsExporter{
+			RdsExporter: agent,
+		},
 	}
 	return res, nil
 }
@@ -560,14 +616,16 @@ func (s *agentsServer) addExternalExporter(ctx context.Context, params *inventor
 	return res, nil
 }
 
-func (s *agentsServer) ChangeExternalExporter(ctx context.Context, req *inventoryv1.ChangeExternalExporterRequest) (*inventoryv1.ChangeExternalExporterResponse, error) {
-	agent, err := s.s.ChangeExternalExporter(req)
+func (s *agentsServer) changeExternalExporter(ctx context.Context, params *inventoryv1.ChangeExternalExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
+	agent, err := s.s.ChangeExternalExporter(params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.ChangeExternalExporterResponse{
-		ExternalExporter: agent,
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_ExternalExporter{
+			ExternalExporter: agent,
+		},
 	}
 	return res, nil
 }
@@ -591,17 +649,19 @@ func (s *agentsServer) addAzureDatabaseExporter(
 }
 
 // ChangeAzureDatabaseExporter changes disabled flag and custom labels of azure_database_exporter Agent.
-func (s *agentsServer) ChangeAzureDatabaseExporter(
+func (s *agentsServer) changeAzureDatabaseExporter(
 	ctx context.Context,
-	req *inventoryv1.ChangeAzureDatabaseExporterRequest,
-) (*inventoryv1.ChangeAzureDatabaseExporterResponse, error) {
-	agent, err := s.s.ChangeAzureDatabaseExporter(ctx, req)
+	params *inventoryv1.ChangeAzureDatabaseExporterParams,
+) (*inventoryv1.ChangeAgentResponse, error) {
+	agent, err := s.s.ChangeAzureDatabaseExporter(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.ChangeAzureDatabaseExporterResponse{
-		AzureDatabaseExporter: agent,
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_AzureDatabaseExporter{
+			AzureDatabaseExporter: agent,
+		},
 	}
 	return res, nil
 }

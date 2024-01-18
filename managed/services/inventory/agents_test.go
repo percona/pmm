@@ -78,7 +78,7 @@ func TestAgents(t *testing.T) {
 		}
 		assert.Equal(t, expectedNodeExporter, actualNodeExporter)
 
-		actualNodeExporter, err = as.ChangeNodeExporter(ctx, &inventoryv1.ChangeNodeExporterRequest{
+		actualNodeExporter, err = as.ChangeNodeExporter(ctx, &inventoryv1.ChangeNodeExporterParams{
 			AgentId: "/agent_id/00000000-0000-4000-8000-000000000006",
 			Common: &inventoryv1.ChangeCommonAgentParams{
 				Disable: true,

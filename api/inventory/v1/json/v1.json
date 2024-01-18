@@ -17,7 +17,7 @@
   "paths": {
     "/v1/inventory/Agents/Add": {
       "post": {
-        "description": "Adds an Agent from Inventory.",
+        "description": "Adds an Agent to Inventory.",
         "tags": [
           "AgentsService"
         ],
@@ -2659,14 +2659,14 @@
         }
       }
     },
-    "/v1/inventory/Agents/ChangeAzureDatabaseExporter": {
+    "/v1/inventory/Agents/Change": {
       "post": {
-        "description": "Changes azure_database_exporter Agent.",
+        "description": "Updates an Agent in Inventory.",
         "tags": [
           "AgentsService"
         ],
-        "summary": "Change Azure Database Exporter",
-        "operationId": "ChangeAzureDatabaseExporter",
+        "summary": "Update an Agent in Inventory",
+        "operationId": "ChangeAgent",
         "parameters": [
           {
             "name": "body",
@@ -2675,49 +2675,655 @@
             "schema": {
               "type": "object",
               "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                "azure_database_exporter": {
                   "type": "object",
                   "properties": {
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    },
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
+                    "agent_id": {
+                      "type": "string",
                       "x-order": 0
                     },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "custom_labels": {
+                          "description": "Replace all custom user-assigned labels.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 2
+                        },
+                        "disable": {
+                          "description": "Disable this Agent. Can't be used with enabled.",
+                          "type": "boolean",
+                          "x-order": 1
+                        },
+                        "disable_push_metrics": {
+                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 5
+                        },
+                        "enable": {
+                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 4
+                        },
+                        "remove_custom_labels": {
+                          "description": "Remove all custom user-assigned labels.",
+                          "type": "boolean",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 7
+                },
+                "external_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
                     },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "custom_labels": {
+                          "description": "Replace all custom user-assigned labels.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 2
+                        },
+                        "disable": {
+                          "description": "Disable this Agent. Can't be used with enabled.",
+                          "type": "boolean",
+                          "x-order": 1
+                        },
+                        "disable_push_metrics": {
+                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 5
+                        },
+                        "enable": {
+                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 4
+                        },
+                        "remove_custom_labels": {
+                          "description": "Remove all custom user-assigned labels.",
+                          "type": "boolean",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 5
+                },
+                "mongodb_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "custom_labels": {
+                          "description": "Replace all custom user-assigned labels.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 2
+                        },
+                        "disable": {
+                          "description": "Disable this Agent. Can't be used with enabled.",
+                          "type": "boolean",
+                          "x-order": 1
+                        },
+                        "disable_push_metrics": {
+                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 5
+                        },
+                        "enable": {
+                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 4
+                        },
+                        "remove_custom_labels": {
+                          "description": "Remove all custom user-assigned labels.",
+                          "type": "boolean",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 2
+                },
+                "mysqld_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "custom_labels": {
+                          "description": "Replace all custom user-assigned labels.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 2
+                        },
+                        "disable": {
+                          "description": "Disable this Agent. Can't be used with enabled.",
+                          "type": "boolean",
+                          "x-order": 1
+                        },
+                        "disable_push_metrics": {
+                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 5
+                        },
+                        "enable": {
+                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 4
+                        },
+                        "remove_custom_labels": {
+                          "description": "Remove all custom user-assigned labels.",
+                          "type": "boolean",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 1
                     }
                   },
                   "x-order": 1
+                },
+                "node_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "custom_labels": {
+                          "description": "Replace all custom user-assigned labels.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 2
+                        },
+                        "disable": {
+                          "description": "Disable this Agent. Can't be used with enabled.",
+                          "type": "boolean",
+                          "x-order": 1
+                        },
+                        "disable_push_metrics": {
+                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 5
+                        },
+                        "enable": {
+                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 4
+                        },
+                        "remove_custom_labels": {
+                          "description": "Remove all custom user-assigned labels.",
+                          "type": "boolean",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 0
+                },
+                "postgres_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "custom_labels": {
+                          "description": "Replace all custom user-assigned labels.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 2
+                        },
+                        "disable": {
+                          "description": "Disable this Agent. Can't be used with enabled.",
+                          "type": "boolean",
+                          "x-order": 1
+                        },
+                        "disable_push_metrics": {
+                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 5
+                        },
+                        "enable": {
+                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 4
+                        },
+                        "remove_custom_labels": {
+                          "description": "Remove all custom user-assigned labels.",
+                          "type": "boolean",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 3
+                },
+                "proxysql_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "custom_labels": {
+                          "description": "Replace all custom user-assigned labels.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 2
+                        },
+                        "disable": {
+                          "description": "Disable this Agent. Can't be used with enabled.",
+                          "type": "boolean",
+                          "x-order": 1
+                        },
+                        "disable_push_metrics": {
+                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 5
+                        },
+                        "enable": {
+                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 4
+                        },
+                        "remove_custom_labels": {
+                          "description": "Remove all custom user-assigned labels.",
+                          "type": "boolean",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 4
+                },
+                "qan_mongodb_profiler_agent": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "custom_labels": {
+                          "description": "Replace all custom user-assigned labels.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 2
+                        },
+                        "disable": {
+                          "description": "Disable this Agent. Can't be used with enabled.",
+                          "type": "boolean",
+                          "x-order": 1
+                        },
+                        "disable_push_metrics": {
+                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 5
+                        },
+                        "enable": {
+                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 4
+                        },
+                        "remove_custom_labels": {
+                          "description": "Remove all custom user-assigned labels.",
+                          "type": "boolean",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 10
+                },
+                "qan_mysql_perfschema_agent": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "custom_labels": {
+                          "description": "Replace all custom user-assigned labels.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 2
+                        },
+                        "disable": {
+                          "description": "Disable this Agent. Can't be used with enabled.",
+                          "type": "boolean",
+                          "x-order": 1
+                        },
+                        "disable_push_metrics": {
+                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 5
+                        },
+                        "enable": {
+                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 4
+                        },
+                        "remove_custom_labels": {
+                          "description": "Remove all custom user-assigned labels.",
+                          "type": "boolean",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 8
+                },
+                "qan_mysql_slowlog_agent": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "custom_labels": {
+                          "description": "Replace all custom user-assigned labels.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 2
+                        },
+                        "disable": {
+                          "description": "Disable this Agent. Can't be used with enabled.",
+                          "type": "boolean",
+                          "x-order": 1
+                        },
+                        "disable_push_metrics": {
+                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 5
+                        },
+                        "enable": {
+                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 4
+                        },
+                        "remove_custom_labels": {
+                          "description": "Remove all custom user-assigned labels.",
+                          "type": "boolean",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 9
+                },
+                "qan_postgresql_pgstatements_agent": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "custom_labels": {
+                          "description": "Replace all custom user-assigned labels.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 2
+                        },
+                        "disable": {
+                          "description": "Disable this Agent. Can't be used with enabled.",
+                          "type": "boolean",
+                          "x-order": 1
+                        },
+                        "disable_push_metrics": {
+                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 5
+                        },
+                        "enable": {
+                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 4
+                        },
+                        "remove_custom_labels": {
+                          "description": "Remove all custom user-assigned labels.",
+                          "type": "boolean",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 11
+                },
+                "qan_postgresql_pgstatmonitor_agent": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "custom_labels": {
+                          "description": "Replace all custom user-assigned labels.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 2
+                        },
+                        "disable": {
+                          "description": "Disable this Agent. Can't be used with enabled.",
+                          "type": "boolean",
+                          "x-order": 1
+                        },
+                        "disable_push_metrics": {
+                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 5
+                        },
+                        "enable": {
+                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 4
+                        },
+                        "remove_custom_labels": {
+                          "description": "Remove all custom user-assigned labels.",
+                          "type": "boolean",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 12
+                },
+                "rds_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "custom_labels": {
+                          "description": "Replace all custom user-assigned labels.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 2
+                        },
+                        "disable": {
+                          "description": "Disable this Agent. Can't be used with enabled.",
+                          "type": "boolean",
+                          "x-order": 1
+                        },
+                        "disable_push_metrics": {
+                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 5
+                        },
+                        "enable": {
+                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "type": "boolean",
+                          "x-order": 4
+                        },
+                        "remove_custom_labels": {
+                          "description": "Remove all custom user-assigned labels.",
+                          "type": "boolean",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 6
                 }
               }
             }
@@ -2818,115 +3424,8 @@
                       "x-order": 7
                     }
                   },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
+                  "x-order": 7
                 },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeExternalExporter": {
-      "post": {
-        "description": "Changes external_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change External Exporter",
-        "operationId": "ChangeExternalExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    },
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
-                      "x-order": 0
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
                 "external_exporter": {
                   "description": "ExternalExporter runs on any Node type, including Remote Node.",
                   "type": "object",
@@ -2991,115 +3490,8 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
+                  "x-order": 5
                 },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeMongoDBExporter": {
-      "post": {
-        "description": "Changes mongodb_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change MongoDB Exporter",
-        "operationId": "ChangeMongoDBExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    },
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
-                      "x-order": 0
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
                 "mongodb_exporter": {
                   "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
                   "type": "object",
@@ -3226,115 +3618,8 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
                   "x-order": 2
                 },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeMySQLdExporter": {
-      "post": {
-        "description": "Changes mysqld_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change mysqld Exporter",
-        "operationId": "ChangeMySQLdExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    },
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
-                      "x-order": 0
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
                 "mysqld_exporter": {
                   "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
                   "type": "object",
@@ -3468,115 +3753,8 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
                   "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeNodeExporter": {
-      "post": {
-        "description": "Changes node_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change Node Exporter",
-        "operationId": "ChangeNodeExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
                 },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    },
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
-                      "x-order": 0
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
                 "node_exporter": {
                   "description": "NodeExporter runs on Generic or Container Node and exposes its metrics.",
                   "type": "object",
@@ -3665,114 +3843,7 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
                 },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangePostgresExporter": {
-      "post": {
-        "description": "Changes postgres_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change Postgres Exporter",
-        "operationId": "ChangePostgresExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    },
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
-                      "x-order": 0
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
                 "postgres_exporter": {
                   "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.",
                   "type": "object",
@@ -3886,115 +3957,8 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
+                  "x-order": 3
                 },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeProxySQLExporter": {
-      "post": {
-        "description": "Changes proxysql_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change ProxySQL Exporter",
-        "operationId": "ChangeProxySQLExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    },
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
-                      "x-order": 0
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
                 "proxysql_exporter": {
                   "description": "ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.",
                   "type": "object",
@@ -4102,115 +4066,8 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
+                  "x-order": 4
                 },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent": {
-      "post": {
-        "description": "Changes 'Query Analytics MongoDB Profiler' Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change 'QAN MongoDB Profiler' Agent",
-        "operationId": "ChangeQANMongoDBProfilerAgent",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    },
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
-                      "x-order": 0
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
                 "qan_mongodb_profiler_agent": {
                   "description": "QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
                   "type": "object",
@@ -4300,115 +4157,8 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
+                  "x-order": 10
                 },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent": {
-      "post": {
-        "description": "Changes 'Query Analytics MySQL PerfSchema' Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change 'QAN MySQL PerfSchema' Agent",
-        "operationId": "ChangeQANMySQLPerfSchemaAgent",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    },
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
-                      "x-order": 0
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
                 "qan_mysql_perfschema_agent": {
                   "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
                   "type": "object",
@@ -4523,115 +4273,8 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
+                  "x-order": 8
                 },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent": {
-      "post": {
-        "description": "Changes 'Query Analytics MySQL Slowlog' Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change 'QAN MySQL Slowlog' Agent",
-        "operationId": "ChangeQANMySQLSlowlogAgent",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    },
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
-                      "x-order": 0
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
                 "qan_mysql_slowlog_agent": {
                   "description": "QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
                   "type": "object",
@@ -4752,115 +4395,104 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
+                  "x-order": 9
                 },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatMonitorAgent": {
-      "post": {
-        "description": "Changes 'Query Analytics PostgreSQL pg_stat_monitor' Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change 'QAN PostgreSQL pg_stat_monitor' Agent",
-        "operationId": "ChangeQANPostgreSQLPgStatMonitorAgent",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                "qan_postgresql_pgstatements_agent": {
+                  "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
                   "type": "object",
                   "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
                     "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 2
+                      "x-order": 9
                     },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                    "disable_comments_parsing": {
+                      "description": "Disable parsing comments from queries and showing them in QAN.",
                       "type": "boolean",
                       "x-order": 5
                     },
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "x-order": 0
+                      "x-order": 2
                     },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 12
                     },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 6
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 11
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
                       "x-order": 3
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 10
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 7
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for getting pg stat statements data.",
+                      "type": "string",
+                      "x-order": 4
                     }
                   },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
+                  "x-order": 11
+                },
                 "qan_postgresql_pgstatmonitor_agent": {
                   "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
                   "type": "object",
@@ -4960,318 +4592,8 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
+                  "x-order": 12
                 },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent": {
-      "post": {
-        "description": "Changes 'Query Analytics PostgreSQL pg_stat_statements' Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change 'QAN PostgreSQL pg_stat_statements' Agent",
-        "operationId": "ChangeQANPostgreSQLPgStatementsAgent",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    },
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
-                      "x-order": 0
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "qan_postgresql_pgstatements_agent": {
-                  "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 9
-                    },
-                    "disable_comments_parsing": {
-                      "description": "Disable parsing comments from queries and showing them in QAN.",
-                      "type": "boolean",
-                      "x-order": 5
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "x-order": 2
-                    },
-                    "log_level": {
-                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
-                      "type": "string",
-                      "title": "Log level for exporters",
-                      "default": "LOG_LEVEL_UNSPECIFIED",
-                      "enum": [
-                        "LOG_LEVEL_UNSPECIFIED",
-                        "LOG_LEVEL_FATAL",
-                        "LOG_LEVEL_ERROR",
-                        "LOG_LEVEL_WARN",
-                        "LOG_LEVEL_INFO",
-                        "LOG_LEVEL_DEBUG"
-                      ],
-                      "x-order": 12
-                    },
-                    "max_query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 6
-                    },
-                    "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "process_exec_path": {
-                      "description": "Path to exec process.",
-                      "type": "string",
-                      "x-order": 11
-                    },
-                    "service_id": {
-                      "description": "Service identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_UNSPECIFIED",
-                      "enum": [
-                        "AGENT_STATUS_UNSPECIFIED",
-                        "AGENT_STATUS_STARTING",
-                        "AGENT_STATUS_RUNNING",
-                        "AGENT_STATUS_WAITING",
-                        "AGENT_STATUS_STOPPING",
-                        "AGENT_STATUS_DONE",
-                        "AGENT_STATUS_UNKNOWN"
-                      ],
-                      "x-order": 10
-                    },
-                    "tls": {
-                      "description": "Use TLS for database connections.",
-                      "type": "boolean",
-                      "x-order": 7
-                    },
-                    "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation.",
-                      "type": "boolean",
-                      "x-order": 8
-                    },
-                    "username": {
-                      "description": "PostgreSQL username for getting pg stat statements data.",
-                      "type": "string",
-                      "x-order": 4
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeRDSExporter": {
-      "post": {
-        "description": "Changes rds_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change RDS Exporter",
-        "operationId": "ChangeRDSExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    },
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
-                      "x-order": 0
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
                 "rds_exporter": {
                   "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
                   "type": "object",
@@ -5372,7 +4694,13 @@
                       "x-order": 6
                     }
                   },
-                  "x-order": 0
+                  "x-order": 6
+                },
+                "table_count": {
+                  "description": "Actual table count for SQL databases at the moment of adding.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 13
                 }
               }
             }

@@ -585,7 +585,6 @@ message ChangeCommonAgentParams {
   // Remove all custom user-assigned labels.
   bool remove_custom_labels = 4;
   // Enables push metrics with vmagent, can't be used with disable_push_metrics.
-  // Can't be used with agent version lower then 2.12 and unsupported agents.
   bool enable_push_metrics = 5;
   // Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
   bool disable_push_metrics = 6;
