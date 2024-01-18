@@ -122,7 +122,7 @@
     },
     {
       "type": "ansible-local",
-      "playbook_file": "packer/ansible/pmm2.yml",
+      "playbook_file": "packer/ansible/pmm.yml",
       "extra_arguments": [
         "-vvv",
         "-u root",
