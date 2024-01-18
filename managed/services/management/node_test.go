@@ -23,6 +23,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -55,6 +56,10 @@ func TestNodeService(t *testing.T) {
 
 				require.NoError(t, sqlDB.Close())
 			}
+			md := metadata.New(map[string]string{
+				"Authorization": "Basic username:password",
+			})
+			ctx = metadata.NewIncomingContext(ctx, md)
 
 			serviceAccountID := int(0)
 			nodeName := getTestNodeName()

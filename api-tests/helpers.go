@@ -21,6 +21,7 @@ import (
 	"math/rand"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -50,7 +51,10 @@ type TestingT interface {
 func TestString(t TestingT, name string) string {
 	t.Helper()
 
-	n := rand.Int() //nolint:gosec
+	// Without proper seed parallel tests can generate same "random" number.
+	// Since 1.20 rand.Seed is deprecated.
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	n := r.Int() //nolint:gosec
 	return fmt.Sprintf("pmm-api-tests/%s/%s/%s/%d", Hostname, t.Name(), name, n)
 }
 
