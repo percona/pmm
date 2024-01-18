@@ -26,7 +26,7 @@ Unleash the full power of your monitoring experience with PMM's amazing set of f
 
 Ready to dive into PMM? We've got you covered! Follow our simple, step-by-step installation instructions to get started in no time!
 
-[Quickstart guides :material-arrow-right:](quickstart.md){ .md-button }
+[Quickstart guide :material-arrow-right:](quickstart.md){ .md-button }
 
 </div><div data-banner markdown>
 
@@ -34,7 +34,7 @@ Ready to dive into PMM? We've got you covered! Follow our simple, step-by-step i
 
 Are you ready to begin configuring PMM  but need help figuring out how to begin? Let's dive in together and get you to speed up.
 
-[Configure :material-arrow-right:](configure.md){ .md-button }
+[Configure PMM :material-arrow-right:](configure-pmm/configure.md){ .md-button }
 
 </div><div data-banner markdown>
 
@@ -42,7 +42,7 @@ Are you ready to begin configuring PMM  but need help figuring out how to begin?
 
 Our comprehensive resources will help you overcome challenges, from everyday issues to specific doubts.
 
-[Diagnostics :material-arrow-right:](debug.md){.md-button}
+[Diagnostics :material-arrow-right:](troubleshoot/index.md){.md-button}
 
 </div>
 </div>
