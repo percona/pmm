@@ -399,6 +399,7 @@ func TestAddPostgreSQL(t *testing.T) {
 
 		newNodeID := addPostgreSQLOK.Payload.Service.NodeID
 		require.NotEqual(t, nodeID, newNodeID)
+		defer pmmapitests.RemoveNodes(t, newNodeID)
 		defer pmmapitests.RemoveServices(t, serviceID)
 		defer removeServiceAgents(t, serviceID)
 
@@ -457,6 +458,7 @@ func TestAddPostgreSQL(t *testing.T) {
 
 		remoteNodeOKBody := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote Node for wrong type test"))
 		remoteNodeID := remoteNodeOKBody.Remote.NodeID
+		defer pmmapitests.RemoveNodes(t, remoteNodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
 		params := &postgresql.AddPostgreSQLParams{
@@ -483,7 +485,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			NodeName: nodeName,
 			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
 		})
-		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer pmmapitests.UnregisterNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		params := &postgresql.AddPostgreSQLParams{
@@ -501,7 +503,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			NodeName: nodeName,
 			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
 		})
-		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer pmmapitests.UnregisterNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
@@ -525,7 +527,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			NodeName: nodeName,
 			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
 		})
-		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer pmmapitests.UnregisterNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
@@ -550,7 +552,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			NodeName: nodeName,
 			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
 		})
-		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer pmmapitests.UnregisterNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
