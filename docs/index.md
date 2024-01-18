@@ -38,8 +38,6 @@ Are you ready to begin configuring PMM  but need help figuring out how to begin?
 
 </div><div data-banner markdown>
 
-</div><div data-banner markdown>
-
 ### :material-frequently-asked-questions: Troubleshooting { .title }
 
 Our comprehensive resources will help you overcome challenges, from everyday issues to specific doubts.
