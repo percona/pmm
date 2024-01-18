@@ -21,7 +21,7 @@ Unleash the full power of your monitoring experience with PMM's amazing set of f
 
 ## :material-progress-download: Installation { .title }
 
-Want to see it for yourself? Get started quickly with our step-by-step installation instructions.
+Ready to dive into PMM? We've got you covered! Follow our simple, step-by-step installation instructions to get started in no time!
 
 [Quickstart guides :material-arrow-right:](quickstart.md){ .md-button }
 
@@ -29,16 +29,10 @@ Want to see it for yourself? Get started quickly with our step-by-step installat
 
 ## :octicons-sliders-16: Configuration { .title }
 
-Rest assured! Learn more about our security features designed to protect your valuable data.
+Are you ready to begin configuring PMM  but need help figuring out how to begin? Let's dive in together and get you to speed up.
 
 [Security measures :material-arrow-right:](configure.md){ .md-button }
 </div><div data-banner markdown>
-
-### :material-sitemap: Administration { .title }
-
-Learn what you can do to maintain regular backups of your PostgrgeSQL cluster.
-
-[Backup management :material-arrow-right:](pmm-admin/index.md){ .md-button }
 
 </div><div data-banner markdown>
 
