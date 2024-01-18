@@ -4,7 +4,7 @@
     "pmm2_server_repo": "testing",
     "pmm_client_repos": "original testing",
     "pmm_client_repo_name": "percona-testing-x86_64",
-    "pmm_server_image_name": "docker.io/perconalab/pmm-server-fb:PR-3500-ad4d57a"
+    "pmm_server_image_name": "docker.io/perconalab/pmm-server:3-dev-latest"
   },
   "builders": [
     {
