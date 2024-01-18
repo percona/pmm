@@ -616,6 +616,7 @@ func (s *agentsServer) addExternalExporter(ctx context.Context, params *inventor
 	return res, nil
 }
 
+//nolint:unparam
 func (s *agentsServer) changeExternalExporter(ctx context.Context, params *inventoryv1.ChangeExternalExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
 	agent, err := s.s.ChangeExternalExporter(params)
 	if err != nil {
