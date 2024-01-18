@@ -554,21 +554,23 @@ func TestQanAgentExporter(t *testing.T) {
 		}, getAgentRes)
 
 		// Test change API.
-		changeQANMySQLPerfSchemaAgentOK, err := client.Default.AgentsService.ChangeQANMySQLPerfSchemaAgent(
-			&agents.ChangeQANMySQLPerfSchemaAgentParams{
-				Body: agents.ChangeQANMySQLPerfSchemaAgentBody{
-					AgentID: agentID,
-					Common: &agents.ChangeQANMySQLPerfSchemaAgentParamsBodyCommon{
-						Disable:            true,
-						RemoveCustomLabels: true,
+		changeQANMySQLPerfSchemaAgentOK, err := client.Default.AgentsService.ChangeAgent(
+			&agents.ChangeAgentParams{
+				Body: agents.ChangeAgentBody{
+					QANMysqlPerfschemaAgent: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgent{
+						AgentID: agentID,
+						Common: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon{
+							Disable:            true,
+							RemoveCustomLabels: true,
+						},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
 		assert.NoError(t, err)
-		assert.Equal(t, &agents.ChangeQANMySQLPerfSchemaAgentOK{
-			Payload: &agents.ChangeQANMySQLPerfSchemaAgentOKBody{
-				QANMysqlPerfschemaAgent: &agents.ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent{
+		assert.Equal(t, &agents.ChangeAgentOK{
+			Payload: &agents.ChangeAgentOKBody{
+				QANMysqlPerfschemaAgent: &agents.ChangeAgentOKBodyQANMysqlPerfschemaAgent{
 					AgentID:      agentID,
 					ServiceID:    serviceID,
 					Username:     "username",
@@ -581,23 +583,25 @@ func TestQanAgentExporter(t *testing.T) {
 			},
 		}, changeQANMySQLPerfSchemaAgentOK)
 
-		changeQANMySQLPerfSchemaAgentOK, err = client.Default.AgentsService.ChangeQANMySQLPerfSchemaAgent(
-			&agents.ChangeQANMySQLPerfSchemaAgentParams{
-				Body: agents.ChangeQANMySQLPerfSchemaAgentBody{
-					AgentID: agentID,
-					Common: &agents.ChangeQANMySQLPerfSchemaAgentParamsBodyCommon{
-						Enable: true,
-						CustomLabels: map[string]string{
-							"new_label": "QANMysqlPerfschemaAgent",
+		changeQANMySQLPerfSchemaAgentOK, err = client.Default.AgentsService.ChangeAgent(
+			&agents.ChangeAgentParams{
+				Body: agents.ChangeAgentBody{
+					QANMysqlPerfschemaAgent: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgent{
+						AgentID: agentID,
+						Common: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon{
+							Enable: true,
+							CustomLabels: map[string]string{
+								"new_label": "QANMysqlPerfschemaAgent",
+							},
 						},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
 		assert.NoError(t, err)
-		assert.Equal(t, &agents.ChangeQANMySQLPerfSchemaAgentOK{
-			Payload: &agents.ChangeQANMySQLPerfSchemaAgentOKBody{
-				QANMysqlPerfschemaAgent: &agents.ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent{
+		assert.Equal(t, &agents.ChangeAgentOK{
+			Payload: &agents.ChangeAgentOKBody{
+				QANMysqlPerfschemaAgent: &agents.ChangeAgentOKBodyQANMysqlPerfschemaAgent{
 					AgentID:    agentID,
 					ServiceID:  serviceID,
 					Username:   "username",
@@ -811,21 +815,23 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		}, getAgentRes)
 
 		// Test change API.
-		changeQANPostgreSQLPgStatementsAgentOK, err := client.Default.AgentsService.ChangeQANPostgreSQLPgStatementsAgent(
-			&agents.ChangeQANPostgreSQLPgStatementsAgentParams{
-				Body: agents.ChangeQANPostgreSQLPgStatementsAgentBody{
-					AgentID: agentID,
-					Common: &agents.ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommon{
-						Disable:            true,
-						RemoveCustomLabels: true,
+		changeQANPostgreSQLPgStatementsAgentOK, err := client.Default.AgentsService.ChangeAgent(
+			&agents.ChangeAgentParams{
+				Body: agents.ChangeAgentBody{
+					QANPostgresqlPgstatementsAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent{
+						AgentID: agentID,
+						Common: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon{
+							Disable:            true,
+							RemoveCustomLabels: true,
+						},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
 		assert.NoError(t, err)
-		assert.Equal(t, &agents.ChangeQANPostgreSQLPgStatementsAgentOK{
-			Payload: &agents.ChangeQANPostgreSQLPgStatementsAgentOKBody{
-				QANPostgresqlPgstatementsAgent: &agents.ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent{
+		assert.Equal(t, &agents.ChangeAgentOK{
+			Payload: &agents.ChangeAgentOKBody{
+				QANPostgresqlPgstatementsAgent: &agents.ChangeAgentOKBodyQANPostgresqlPgstatementsAgent{
 					AgentID:      agentID,
 					ServiceID:    serviceID,
 					Username:     "username",
@@ -838,23 +844,25 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 			},
 		}, changeQANPostgreSQLPgStatementsAgentOK)
 
-		changeQANPostgreSQLPgStatementsAgentOK, err = client.Default.AgentsService.ChangeQANPostgreSQLPgStatementsAgent(
-			&agents.ChangeQANPostgreSQLPgStatementsAgentParams{
-				Body: agents.ChangeQANPostgreSQLPgStatementsAgentBody{
-					AgentID: agentID,
-					Common: &agents.ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommon{
-						Enable: true,
-						CustomLabels: map[string]string{
-							"new_label": "QANPostgreSQLPgStatementsAgent",
+		changeQANPostgreSQLPgStatementsAgentOK, err = client.Default.AgentsService.ChangeAgent(
+			&agents.ChangeAgentParams{
+				Body: agents.ChangeAgentBody{
+					QANPostgresqlPgstatementsAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent{
+						AgentID: agentID,
+						Common: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon{
+							Enable: true,
+							CustomLabels: map[string]string{
+								"new_label": "QANPostgreSQLPgStatementsAgent",
+							},
 						},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
 		assert.NoError(t, err)
-		assert.Equal(t, &agents.ChangeQANPostgreSQLPgStatementsAgentOK{
-			Payload: &agents.ChangeQANPostgreSQLPgStatementsAgentOKBody{
-				QANPostgresqlPgstatementsAgent: &agents.ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent{
+		assert.Equal(t, &agents.ChangeAgentOK{
+			Payload: &agents.ChangeAgentOKBody{
+				QANPostgresqlPgstatementsAgent: &agents.ChangeAgentOKBodyQANPostgresqlPgstatementsAgent{
 					AgentID:    agentID,
 					ServiceID:  serviceID,
 					Username:   "username",
@@ -1068,21 +1076,23 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		}, getAgentRes)
 
 		// Test change API.
-		changeQANPostgreSQLPgStatMonitorAgentOK, err := client.Default.AgentsService.ChangeQANPostgreSQLPgStatMonitorAgent(
-			&agents.ChangeQANPostgreSQLPgStatMonitorAgentParams{
-				Body: agents.ChangeQANPostgreSQLPgStatMonitorAgentBody{
-					AgentID: agentID,
-					Common: &agents.ChangeQANPostgreSQLPgStatMonitorAgentParamsBodyCommon{
-						Disable:            true,
-						RemoveCustomLabels: true,
+		changeQANPostgreSQLPgStatMonitorAgentOK, err := client.Default.AgentsService.ChangeAgent(
+			&agents.ChangeAgentParams{
+				Body: agents.ChangeAgentBody{
+					QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent{
+						AgentID: agentID,
+						Common: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon{
+							Disable:            true,
+							RemoveCustomLabels: true,
+						},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
 		assert.NoError(t, err)
-		assert.Equal(t, &agents.ChangeQANPostgreSQLPgStatMonitorAgentOK{
-			Payload: &agents.ChangeQANPostgreSQLPgStatMonitorAgentOKBody{
-				QANPostgresqlPgstatmonitorAgent: &agents.ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent{
+		assert.Equal(t, &agents.ChangeAgentOK{
+			Payload: &agents.ChangeAgentOKBody{
+				QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentOKBodyQANPostgresqlPgstatmonitorAgent{
 					AgentID:      agentID,
 					ServiceID:    serviceID,
 					Username:     "username",
@@ -1095,23 +1105,25 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 			},
 		}, changeQANPostgreSQLPgStatMonitorAgentOK)
 
-		changeQANPostgreSQLPgStatMonitorAgentOK, err = client.Default.AgentsService.ChangeQANPostgreSQLPgStatMonitorAgent(
-			&agents.ChangeQANPostgreSQLPgStatMonitorAgentParams{
-				Body: agents.ChangeQANPostgreSQLPgStatMonitorAgentBody{
-					AgentID: agentID,
-					Common: &agents.ChangeQANPostgreSQLPgStatMonitorAgentParamsBodyCommon{
-						Enable: true,
-						CustomLabels: map[string]string{
-							"new_label": "QANPostgreSQLPgStatMonitorAgent",
+		changeQANPostgreSQLPgStatMonitorAgentOK, err = client.Default.AgentsService.ChangeAgent(
+			&agents.ChangeAgentParams{
+				Body: agents.ChangeAgentBody{
+					QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent{
+						AgentID: agentID,
+						Common: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon{
+							Enable: true,
+							CustomLabels: map[string]string{
+								"new_label": "QANPostgreSQLPgStatMonitorAgent",
+							},
 						},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
 		assert.NoError(t, err)
-		assert.Equal(t, &agents.ChangeQANPostgreSQLPgStatMonitorAgentOK{
-			Payload: &agents.ChangeQANPostgreSQLPgStatMonitorAgentOKBody{
-				QANPostgresqlPgstatmonitorAgent: &agents.ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent{
+		assert.Equal(t, &agents.ChangeAgentOK{
+			Payload: &agents.ChangeAgentOKBody{
+				QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentOKBodyQANPostgresqlPgstatmonitorAgent{
 					AgentID:    agentID,
 					ServiceID:  serviceID,
 					Username:   "username",

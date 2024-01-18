@@ -96,20 +96,23 @@ func TestProxySQLExporter(t *testing.T) {
 		}, getAgentRes)
 
 		// Test change API.
-		changeProxySQLExporterOK, err := client.Default.AgentsService.ChangeProxySQLExporter(&agents.ChangeProxySQLExporterParams{
-			Body: agents.ChangeProxySQLExporterBody{
-				AgentID: agentID,
-				Common: &agents.ChangeProxySQLExporterParamsBodyCommon{
-					Disable:            true,
-					RemoveCustomLabels: true,
+		changeProxySQLExporterOK, err := client.Default.AgentsService.ChangeAgent(
+			&agents.ChangeAgentParams{
+				Body: agents.ChangeAgentBody{
+					ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
+						AgentID: agentID,
+						Common: &agents.ChangeAgentParamsBodyProxysqlExporterCommon{
+							Disable:            true,
+							RemoveCustomLabels: true,
+						},
+					},
 				},
-			},
-			Context: pmmapitests.Context,
-		})
+				Context: pmmapitests.Context,
+			})
 		assert.NoError(t, err)
-		assert.Equal(t, &agents.ChangeProxySQLExporterOK{
-			Payload: &agents.ChangeProxySQLExporterOKBody{
-				ProxysqlExporter: &agents.ChangeProxySQLExporterOKBodyProxysqlExporter{
+		assert.Equal(t, &agents.ChangeAgentOK{
+			Payload: &agents.ChangeAgentOKBody{
+				ProxysqlExporter: &agents.ChangeAgentOKBodyProxysqlExporter{
 					AgentID:            agentID,
 					ServiceID:          serviceID,
 					Username:           "username",
@@ -123,22 +126,25 @@ func TestProxySQLExporter(t *testing.T) {
 			},
 		}, changeProxySQLExporterOK)
 
-		changeProxySQLExporterOK, err = client.Default.AgentsService.ChangeProxySQLExporter(&agents.ChangeProxySQLExporterParams{
-			Body: agents.ChangeProxySQLExporterBody{
-				AgentID: agentID,
-				Common: &agents.ChangeProxySQLExporterParamsBodyCommon{
-					Enable: true,
-					CustomLabels: map[string]string{
-						"new_label": "proxysql_exporter",
+		changeProxySQLExporterOK, err = client.Default.AgentsService.ChangeAgent(
+			&agents.ChangeAgentParams{
+				Body: agents.ChangeAgentBody{
+					ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
+						AgentID: agentID,
+						Common: &agents.ChangeAgentParamsBodyProxysqlExporterCommon{
+							Enable: true,
+							CustomLabels: map[string]string{
+								"new_label": "proxysql_exporter",
+							},
+						},
 					},
 				},
-			},
-			Context: pmmapitests.Context,
-		})
+				Context: pmmapitests.Context,
+			})
 		assert.NoError(t, err)
-		assert.Equal(t, &agents.ChangeProxySQLExporterOK{
-			Payload: &agents.ChangeProxySQLExporterOKBody{
-				ProxysqlExporter: &agents.ChangeProxySQLExporterOKBodyProxysqlExporter{
+		assert.Equal(t, &agents.ChangeAgentOK{
+			Payload: &agents.ChangeAgentOKBody{
+				ProxysqlExporter: &agents.ChangeAgentOKBodyProxysqlExporter{
 					AgentID:    agentID,
 					ServiceID:  serviceID,
 					Username:   "username",
@@ -341,19 +347,21 @@ func TestProxySQLExporter(t *testing.T) {
 		}, getAgentRes)
 
 		// Test change API.
-		changeProxySQLExporterOK, err := client.Default.AgentsService.ChangeProxySQLExporter(&agents.ChangeProxySQLExporterParams{
-			Body: agents.ChangeProxySQLExporterBody{
-				AgentID: agentID,
-				Common: &agents.ChangeProxySQLExporterParamsBodyCommon{
-					EnablePushMetrics: true,
+		changeProxySQLExporterOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			Body: agents.ChangeAgentBody{
+				ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
+					AgentID: agentID,
+					Common: &agents.ChangeAgentParamsBodyProxysqlExporterCommon{
+						EnablePushMetrics: true,
+					},
 				},
 			},
 			Context: pmmapitests.Context,
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, &agents.ChangeProxySQLExporterOK{
-			Payload: &agents.ChangeProxySQLExporterOKBody{
-				ProxysqlExporter: &agents.ChangeProxySQLExporterOKBodyProxysqlExporter{
+		assert.Equal(t, &agents.ChangeAgentOK{
+			Payload: &agents.ChangeAgentOKBody{
+				ProxysqlExporter: &agents.ChangeAgentOKBodyProxysqlExporter{
 					AgentID:    agentID,
 					ServiceID:  serviceID,
 					Username:   "username",
@@ -369,19 +377,22 @@ func TestProxySQLExporter(t *testing.T) {
 			},
 		}, changeProxySQLExporterOK)
 
-		changeProxySQLExporterOK, err = client.Default.AgentsService.ChangeProxySQLExporter(&agents.ChangeProxySQLExporterParams{
-			Body: agents.ChangeProxySQLExporterBody{
-				AgentID: agentID,
-				Common: &agents.ChangeProxySQLExporterParamsBodyCommon{
-					DisablePushMetrics: true,
+		changeProxySQLExporterOK, err = client.Default.AgentsService.ChangeAgent(
+			&agents.ChangeAgentParams{
+				Body: agents.ChangeAgentBody{
+					ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
+						AgentID: agentID,
+						Common: &agents.ChangeAgentParamsBodyProxysqlExporterCommon{
+							DisablePushMetrics: true,
+						},
+					},
 				},
-			},
-			Context: pmmapitests.Context,
-		})
+				Context: pmmapitests.Context,
+			})
 		assert.NoError(t, err)
-		assert.Equal(t, &agents.ChangeProxySQLExporterOK{
-			Payload: &agents.ChangeProxySQLExporterOKBody{
-				ProxysqlExporter: &agents.ChangeProxySQLExporterOKBodyProxysqlExporter{
+		assert.Equal(t, &agents.ChangeAgentOK{
+			Payload: &agents.ChangeAgentOKBody{
+				ProxysqlExporter: &agents.ChangeAgentOKBodyProxysqlExporter{
 					AgentID:    agentID,
 					ServiceID:  serviceID,
 					Username:   "username",
@@ -396,16 +407,19 @@ func TestProxySQLExporter(t *testing.T) {
 			},
 		}, changeProxySQLExporterOK)
 
-		_, err = client.Default.AgentsService.ChangeProxySQLExporter(&agents.ChangeProxySQLExporterParams{
-			Body: agents.ChangeProxySQLExporterBody{
-				AgentID: agentID,
-				Common: &agents.ChangeProxySQLExporterParamsBodyCommon{
-					EnablePushMetrics:  true,
-					DisablePushMetrics: true,
+		_, err = client.Default.AgentsService.ChangeAgent(
+			&agents.ChangeAgentParams{
+				Body: agents.ChangeAgentBody{
+					ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
+						AgentID: agentID,
+						Common: &agents.ChangeAgentParamsBodyProxysqlExporterCommon{
+							EnablePushMetrics:  true,
+							DisablePushMetrics: true,
+						},
+					},
 				},
-			},
-			Context: pmmapitests.Context,
-		})
+				Context: pmmapitests.Context,
+			})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "expected one of  param: enable_push_metrics or disable_push_metrics")
 	})
 }

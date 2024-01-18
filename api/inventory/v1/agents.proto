@@ -1328,19 +1328,19 @@ service AgentsService {
     };
   }
 
-  // rpc ChangeNodeExporter(ChangeNodeExporterRequest) returns (ChangeNodeExporterResponse) {
-  // rpc ChangeMySQLdExporter(ChangeMySQLdExporterRequest) returns (ChangeMySQLdExporterResponse) {
-  // rpc ChangeMongoDBExporter(ChangeMongoDBExporterRequest) returns (ChangeMongoDBExporterResponse) {
-  // rpc ChangePostgresExporter(ChangePostgresExporterRequest) returns (ChangePostgresExporterResponse) {
-  // rpc ChangeProxySQLExporter(ChangeProxySQLExporterRequest) returns (ChangeProxySQLExporterResponse) {
-  // rpc ChangeQANMySQLPerfSchemaAgent(ChangeQANMySQLPerfSchemaAgentRequest) returns (ChangeQANMySQLPerfSchemaAgentResponse) {
-  // rpc ChangeQANMySQLSlowlogAgent(ChangeQANMySQLSlowlogAgentRequest) returns (ChangeQANMySQLSlowlogAgentResponse) {
-  // rpc ChangeQANMongoDBProfilerAgent(ChangeQANMongoDBProfilerAgentRequest) returns (ChangeQANMongoDBProfilerAgentResponse) {
-  // rpc ChangeQANPostgreSQLPgStatementsAgent(ChangeQANPostgreSQLPgStatementsAgentRequest) returns (ChangeQANPostgreSQLPgStatementsAgentResponse) {
-  // rpc ChangeQANPostgreSQLPgStatMonitorAgent(ChangeQANPostgreSQLPgStatMonitorAgentRequest) returns (ChangeQANPostgreSQLPgStatMonitorAgentResponse) {
-  // rpc ChangeRDSExporter(ChangeRDSExporterRequest) returns (ChangeRDSExporterResponse) {
-  // rpc ChangeExternalExporter(ChangeExternalExporterRequest) returns (ChangeExternalExporterResponse) {
-  // rpc ChangeAzureDatabaseExporter(ChangeAzureDatabaseExporterRequest) returns (ChangeAzureDatabaseExporterResponse) {
+  // ChangeNodeExporter
+  // ChangeMySQLdExporter
+  // ChangeMongoDBExporter
+  // ChangePostgresExporter
+  // ChangeProxySQLExporter
+  // ChangeQANMySQLPerfSchemaAgent
+  // ChangeQANMySQLSlowlogAgent
+  // ChangeQANMongoDBProfilerAgent
+  // ChangeQANPostgreSQLPgStatementsAgent
+  // ChangeQANPostgreSQLPgStatMonitorAgent
+  // ChangeRDSExporter
+  // ChangeExternalExporter
+  // ChangeAzureDatabaseExporter
 
   // RemoveAgent removes an Agent.
   rpc RemoveAgent(RemoveAgentRequest) returns (RemoveAgentResponse) {

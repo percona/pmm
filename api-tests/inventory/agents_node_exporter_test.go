@@ -48,10 +48,11 @@ func TestNodeExporter(t *testing.T) {
 		agentID := res.Payload.NodeExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-			Body:    agents.GetAgentBody{AgentID: agentID},
-			Context: pmmapitests.Context,
-		})
+		getAgentRes, err := client.Default.AgentsService.GetAgent(
+			&agents.GetAgentParams{
+				Body:    agents.GetAgentBody{AgentID: agentID},
+				Context: pmmapitests.Context,
+			})
 		require.NoError(t, err)
 		assert.Equal(t, &agents.GetAgentOK{
 			Payload: &agents.GetAgentOKBody{
@@ -68,20 +69,23 @@ func TestNodeExporter(t *testing.T) {
 		}, getAgentRes)
 
 		// Test change API.
-		changeNodeExporterOK, err := client.Default.AgentsService.ChangeNodeExporter(&agents.ChangeNodeExporterParams{
-			Body: agents.ChangeNodeExporterBody{
-				AgentID: agentID,
-				Common: &agents.ChangeNodeExporterParamsBodyCommon{
-					Disable:            true,
-					RemoveCustomLabels: true,
+		changeNodeExporterOK, err := client.Default.AgentsService.ChangeAgent(
+			&agents.ChangeAgentParams{
+				Body: agents.ChangeAgentBody{
+					NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
+						AgentID: agentID,
+						Common: &agents.ChangeAgentParamsBodyNodeExporterCommon{
+							Disable:            true,
+							RemoveCustomLabels: true,
+						},
+					},
 				},
-			},
-			Context: pmmapitests.Context,
-		})
+				Context: pmmapitests.Context,
+			})
 		assert.NoError(t, err)
-		assert.Equal(t, &agents.ChangeNodeExporterOK{
-			Payload: &agents.ChangeNodeExporterOKBody{
-				NodeExporter: &agents.ChangeNodeExporterOKBodyNodeExporter{
+		assert.Equal(t, &agents.ChangeAgentOK{
+			Payload: &agents.ChangeAgentOKBody{
+				NodeExporter: &agents.ChangeAgentOKBodyNodeExporter{
 					AgentID:            agentID,
 					PMMAgentID:         pmmAgentID,
 					Disabled:           true,
@@ -93,22 +97,25 @@ func TestNodeExporter(t *testing.T) {
 			},
 		}, changeNodeExporterOK)
 
-		changeNodeExporterOK, err = client.Default.AgentsService.ChangeNodeExporter(&agents.ChangeNodeExporterParams{
-			Body: agents.ChangeNodeExporterBody{
-				AgentID: agentID,
-				Common: &agents.ChangeNodeExporterParamsBodyCommon{
-					Enable: true,
-					CustomLabels: map[string]string{
-						"new_label": "node_exporter",
+		changeNodeExporterOK, err = client.Default.AgentsService.ChangeAgent(
+			&agents.ChangeAgentParams{
+				Body: agents.ChangeAgentBody{
+					NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
+						AgentID: agentID,
+						Common: &agents.ChangeAgentParamsBodyNodeExporterCommon{
+							Enable: true,
+							CustomLabels: map[string]string{
+								"new_label": "node_exporter",
+							},
+						},
 					},
 				},
-			},
-			Context: pmmapitests.Context,
-		})
+				Context: pmmapitests.Context,
+			})
 		assert.NoError(t, err)
-		assert.Equal(t, &agents.ChangeNodeExporterOK{
-			Payload: &agents.ChangeNodeExporterOKBody{
-				NodeExporter: &agents.ChangeNodeExporterOKBodyNodeExporter{
+		assert.Equal(t, &agents.ChangeAgentOK{
+			Payload: &agents.ChangeAgentOKBody{
+				NodeExporter: &agents.ChangeAgentOKBodyNodeExporter{
 					AgentID:    agentID,
 					PMMAgentID: pmmAgentID,
 					Disabled:   false,
@@ -209,19 +216,21 @@ func TestNodeExporter(t *testing.T) {
 		}, getAgentRes)
 
 		// Test change API.
-		changeNodeExporterOK, err := client.Default.AgentsService.ChangeNodeExporter(&agents.ChangeNodeExporterParams{
-			Body: agents.ChangeNodeExporterBody{
-				AgentID: agentID,
-				Common: &agents.ChangeNodeExporterParamsBodyCommon{
-					DisablePushMetrics: true,
+		changeNodeExporterOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			Body: agents.ChangeAgentBody{
+				NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
+					AgentID: agentID,
+					Common: &agents.ChangeAgentParamsBodyNodeExporterCommon{
+						DisablePushMetrics: true,
+					},
 				},
 			},
 			Context: pmmapitests.Context,
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, &agents.ChangeNodeExporterOK{
-			Payload: &agents.ChangeNodeExporterOKBody{
-				NodeExporter: &agents.ChangeNodeExporterOKBodyNodeExporter{
+		assert.Equal(t, &agents.ChangeAgentOK{
+			Payload: &agents.ChangeAgentOKBody{
+				NodeExporter: &agents.ChangeAgentOKBodyNodeExporter{
 					AgentID:            agentID,
 					PMMAgentID:         pmmAgentID,
 					Disabled:           false,
@@ -233,19 +242,22 @@ func TestNodeExporter(t *testing.T) {
 			},
 		}, changeNodeExporterOK)
 
-		changeNodeExporterOK, err = client.Default.AgentsService.ChangeNodeExporter(&agents.ChangeNodeExporterParams{
-			Body: agents.ChangeNodeExporterBody{
-				AgentID: agentID,
-				Common: &agents.ChangeNodeExporterParamsBodyCommon{
-					EnablePushMetrics: true,
+		changeNodeExporterOK, err = client.Default.AgentsService.ChangeAgent(
+			&agents.ChangeAgentParams{
+				Body: agents.ChangeAgentBody{
+					NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
+						AgentID: agentID,
+						Common: &agents.ChangeAgentParamsBodyNodeExporterCommon{
+							EnablePushMetrics: true,
+						},
+					},
 				},
-			},
-			Context: pmmapitests.Context,
-		})
+				Context: pmmapitests.Context,
+			})
 		assert.NoError(t, err)
-		assert.Equal(t, &agents.ChangeNodeExporterOK{
-			Payload: &agents.ChangeNodeExporterOKBody{
-				NodeExporter: &agents.ChangeNodeExporterOKBodyNodeExporter{
+		assert.Equal(t, &agents.ChangeAgentOK{
+			Payload: &agents.ChangeAgentOKBody{
+				NodeExporter: &agents.ChangeAgentOKBodyNodeExporter{
 					AgentID:            agentID,
 					PMMAgentID:         pmmAgentID,
 					Disabled:           false,
@@ -257,12 +269,14 @@ func TestNodeExporter(t *testing.T) {
 				},
 			},
 		}, changeNodeExporterOK)
-		_, err = client.Default.AgentsService.ChangeNodeExporter(&agents.ChangeNodeExporterParams{
-			Body: agents.ChangeNodeExporterBody{
-				AgentID: agentID,
-				Common: &agents.ChangeNodeExporterParamsBodyCommon{
-					EnablePushMetrics:  true,
-					DisablePushMetrics: true,
+		_, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			Body: agents.ChangeAgentBody{
+				NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
+					AgentID: agentID,
+					Common: &agents.ChangeAgentParamsBodyNodeExporterCommon{
+						EnablePushMetrics:  true,
+						DisablePushMetrics: true,
+					},
 				},
 			},
 			Context: pmmapitests.Context,
