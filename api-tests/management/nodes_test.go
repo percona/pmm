@@ -58,7 +58,7 @@ func TestNodeRegister(t *testing.T) {
 		})
 
 		t.Run("Reregister with same node name (no re-register - should fail)", func(t *testing.T) {
-			nodeName := pmmapitests.TestString(t, "node-name-for-all-fields")
+			nodeName := pmmapitests.TestString(t, "all-fields")
 			nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
 				NodeName: nodeName,
 				NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
@@ -84,7 +84,7 @@ func TestNodeRegister(t *testing.T) {
 		})
 
 		t.Run("Reregister with same node name (re-register)", func(t *testing.T) {
-			nodeName := pmmapitests.TestString(t, "node-name-for-all-fields")
+			nodeName := pmmapitests.TestString(t, "all-fields")
 			nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
 				NodeName: nodeName,
 				NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
@@ -141,7 +141,7 @@ func TestNodeRegister(t *testing.T) {
 		})
 
 		t.Run("Reregister with different node name (re-register)", func(t *testing.T) {
-			nodeName := pmmapitests.TestString(t, "node-name-for-all-fields")
+			nodeName := pmmapitests.TestString(t, "all-fields")
 			nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
 				NodeName: nodeName,
 				NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
