@@ -30,9 +30,6 @@
   command: id -u admin
   register: admin_user_id
 
-- name: Enable linger for the admin user
-  command: loginctl enable-linger {{ admin_user_id.stdout }} 
-
 - name: Enable and start PMM container as a user service
   command: systemctl --user enable --now pmm-server
   become: true

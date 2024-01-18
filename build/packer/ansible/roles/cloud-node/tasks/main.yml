@@ -38,8 +38,6 @@
   with_items:
     - 80/tcp
     - 443/tcp
-    - 8080/tcp
-    - 8443/tcp
 
 - name: cleanup cache              | Cleanup cache
   file: path={{ item }} state=absent
