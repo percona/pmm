@@ -19,6 +19,9 @@ Unleash the full power of your monitoring experience with PMM's amazing set of f
 
 [Discover PMM :material-arrow-right:](discover-pmm/features.md){ .md-button }
 
+
+<div data-grid markdown><div data-banner markdown>
+
 ## :material-progress-download: Installation { .title }
 
 Ready to dive into PMM? We've got you covered! Follow our simple, step-by-step installation instructions to get started in no time!
@@ -31,7 +34,8 @@ Ready to dive into PMM? We've got you covered! Follow our simple, step-by-step i
 
 Are you ready to begin configuring PMM  but need help figuring out how to begin? Let's dive in together and get you to speed up.
 
-[Security measures :material-arrow-right:](configure.md){ .md-button }
+[Configure :material-arrow-right:](configure.md){ .md-button }
+
 </div><div data-banner markdown>
 
 </div><div data-banner markdown>
