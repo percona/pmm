@@ -715,12 +715,12 @@ func errListsToMap(k, v []uint64) map[uint64]uint64 {
 }
 
 // Describe implements prometheus.Collector.
-func (s *SlowLog) Describe(ch chan<- *prometheus.Desc) {{//nolint:revive
+func (s *SlowLog) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (s *SlowLog) Collect(ch chan<- prometheus.Metric) {//nolint:revive
+func (s *SlowLog) Collect(ch chan<- prometheus.Metric) { //nolint:revive
 	// This method is needed to satisfy interface.
 }
 
