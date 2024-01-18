@@ -440,7 +440,7 @@ func ChangeStandardLabels(q *reform.Querier, serviceID string, labels ServiceSta
 		s.ExternalGroup = *labels.ExternalGroup
 	}
 
-	if err = q.UpdateColumns(s, columns...); err != nil {
+	if err = q.UpdateColumns(s, columns...); err != nil {//nolint:revive
 		return err
 	}
 

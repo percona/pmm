@@ -125,23 +125,23 @@ type AddMySQLCommand struct {
 	AddCommonFlags
 	AddLogLevelNoFatalFlags
 }
-
+// GetServiceName returns the service name for AddMySQLCommand.
 func (cmd *AddMySQLCommand) GetServiceName() string {
 	return cmd.ServiceName
 }
-
+// GetAddress returns the address for AddMySQLCommand.
 func (cmd *AddMySQLCommand) GetAddress() string {
 	return cmd.Address
 }
-
+// GetDefaultAddress returns the default address for AddMySQLCommand.
 func (cmd *AddMySQLCommand) GetDefaultAddress() string {
 	return "127.0.0.1:3306"
 }
-
+// GetSocket returns the socket for AddMySQLCommand.
 func (cmd *AddMySQLCommand) GetSocket() string {
 	return cmd.Socket
 }
-
+// RunCmd runs the command for AddMySQLCommand
 func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 

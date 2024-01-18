@@ -87,7 +87,7 @@ func (b *Base) Install(ctx context.Context) error {
 	extractedPath := path.Join(os.TempDir(), fmt.Sprintf("pmm2-client-%s", b.Version))
 	defer os.RemoveAll(extractedPath) //nolint:errcheck
 
-	if err := b.installTarball(ctx, extractedPath); err != nil {
+	if err := b.installTarball(ctx, extractedPath); err != nil {//nolint:revive
 		return err
 	}
 
@@ -195,7 +195,7 @@ func (b *Base) extractTarball(tarPath string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	if err := cmd.Run(); err != nil {
+	if err := cmd.Run(); err != nil {//nolint:revive
 		return err
 	}
 
@@ -228,7 +228,7 @@ func (b *Base) installTarball(ctx context.Context, extractedPath string) error {
 		cmd.Env = append(cmd.Env, "PMM_DIR="+b.InstallPath)
 	}
 
-	if err := cmd.Run(); err != nil {
+	if err := cmd.Run(); err != nil {//nolint:revive
 		return err
 	}
 

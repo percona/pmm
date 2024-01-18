@@ -22,7 +22,7 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
-
+// PMMAgentMinVersionForPostgreSQLSSLSni is the minimum required version of PMM Agent
 var PMMAgentMinVersionForPostgreSQLSSLSni = version.Must(version.NewVersion("2.41.0-0"))
 
 // AgentNotSupportedError is used when the target PMM agent doesn't support the requested functionality.
@@ -70,7 +70,7 @@ func IsAgentSupported(agentModel *Agent, functionalityPrefix string, pmmMinVersi
 	}
 	return nil
 }
-
+// IsPostgreSQLSSLSniSupported checks if PostgreSQL SSL SNI is supported by the PMM Agent.
 func IsPostgreSQLSSLSniSupported(q *reform.Querier, pmmAgentID string) (bool, error) {
 	err := PMMAgentSupported(q, pmmAgentID, "postgresql SSL sni check", PMMAgentMinVersionForPostgreSQLSSLSni)
 	switch {

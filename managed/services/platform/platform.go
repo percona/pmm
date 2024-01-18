@@ -202,7 +202,7 @@ func (s *Service) forceDisconnect(ctx context.Context) error {
 	}
 	return nil
 }
-
+// UpdateSupervisordConfigurations updates supervisord configurations for the service.
 func (s *Service) UpdateSupervisordConfigurations(ctx context.Context) error {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
@@ -377,7 +377,7 @@ func (s *Service) GetContactInformation(ctx context.Context, _ *platformpb.GetCo
 
 	return response, nil
 }
-
+// ServerInfo retrieves server information based on the provided context and request.
 func (s *Service) ServerInfo(ctx context.Context, _ *platformpb.ServerInfoRequest) (*platformpb.ServerInfoResponse, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {

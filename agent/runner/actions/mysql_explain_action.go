@@ -85,7 +85,7 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 
 	// You cant run Explain on trimmed queries.
 	if strings.HasSuffix(a.params.Query, "...") {
-		return nil, errors.New("EXPLAIN failed because the query was too long and trimmed. Set max-query-length to a larger value.")
+		return nil, errors.New("EXPLAIN failed because the query was too long and trimmed. Set max-query-length to a larger value.")//nolint:revive
 	}
 
 	// Explain is supported only for DML queries.

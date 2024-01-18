@@ -60,7 +60,7 @@ func (s *ChannelsService) Enabled() bool {
 
 // ListChannels returns list of available channels.
 // Deprecated. Do not use.
-func (s *ChannelsService) ListChannels(ctx context.Context, req *iav1beta1.ListChannelsRequest) (*iav1beta1.ListChannelsResponse, error) { //nolint:staticcheck
+func (s *ChannelsService) ListChannels(ctx context.Context, req *iav1beta1.ListChannelsRequest) (*iav1beta1.ListChannelsResponse, error) { //nolint:staticcheck,revive
 	var pageIndex int
 	var pageSize int
 	if req.PageParams != nil {
@@ -161,7 +161,7 @@ func (s *ChannelsService) getNotificationChannelsPage(pageIndex, pageSize int) (
 
 // AddChannel adds new notification channel.
 // Deprecated. Do not use.
-func (s *ChannelsService) AddChannel(ctx context.Context, req *iav1beta1.AddChannelRequest) (*iav1beta1.AddChannelResponse, error) { //nolint:staticcheck
+func (s *ChannelsService) AddChannel(ctx context.Context, req *iav1beta1.AddChannelRequest) (*iav1beta1.AddChannelResponse, error) { //nolint:staticcheck,revive
 	params := &models.CreateChannelParams{
 		Summary:  req.Summary,
 		Disabled: req.Disabled,
@@ -212,7 +212,7 @@ func (s *ChannelsService) AddChannel(ctx context.Context, req *iav1beta1.AddChan
 
 // ChangeChannel changes existing notification channel.
 // Deprecated. Do not use.
-func (s *ChannelsService) ChangeChannel(ctx context.Context, req *iav1beta1.ChangeChannelRequest) (*iav1beta1.ChangeChannelResponse, error) { //nolint:staticcheck
+func (s *ChannelsService) ChangeChannel(ctx context.Context, req *iav1beta1.ChangeChannelRequest) (*iav1beta1.ChangeChannelResponse, error) { //nolint:staticcheck,revive
 	params := &models.ChangeChannelParams{
 		Summary:  req.Summary,
 		Disabled: req.Disabled,
@@ -261,7 +261,7 @@ func (s *ChannelsService) ChangeChannel(ctx context.Context, req *iav1beta1.Chan
 
 // RemoveChannel removes notification channel.
 // Deprecated. Do not use.
-func (s *ChannelsService) RemoveChannel(ctx context.Context, req *iav1beta1.RemoveChannelRequest) (*iav1beta1.RemoveChannelResponse, error) { //nolint:staticcheck
+func (s *ChannelsService) RemoveChannel(ctx context.Context, req *iav1beta1.RemoveChannelRequest) (*iav1beta1.RemoveChannelResponse, error) { //nolint:staticcheck,,revive
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		return models.RemoveChannel(tx.Querier, req.ChannelId)
 	})

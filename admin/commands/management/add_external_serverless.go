@@ -87,7 +87,7 @@ if you specify --host you must provide all other parameters needed to build the 
 or even you can specify --address instead of host and port as individual parameters.
 `
 }
-
+// GetCredentials returns the credentials for AddExternalServerlessCommand.
 func (cmd *AddExternalServerlessCommand) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
@@ -99,7 +99,7 @@ func (cmd *AddExternalServerlessCommand) GetCredentials() error {
 
 	return nil
 }
-
+// RunCmd runs the command for AddExternalServerlessCommand.
 func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 

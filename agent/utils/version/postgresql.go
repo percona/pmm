@@ -23,7 +23,7 @@ import (
 var (
 	postgresDBRegexp = regexp.MustCompile(`PostgreSQL ([\d\.]+)`)
 )
-
+// ParsePostgreSQLVersion parses the given PostgreSQL version string.
 func ParsePostgreSQLVersion(v string) string {
 	m := postgresDBRegexp.FindStringSubmatch(v)
 	if len(m) != 2 {

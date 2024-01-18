@@ -19,20 +19,20 @@ import (
 	"context"
 	"sync"
 )
-
+// LeaderService represents a leader service in the high-availability setup.
 type LeaderService interface {
 	Start(ctx context.Context) error
 	Stop()
 	ID() string
 }
-
+// StandardService represents a standard service in the high-availability setup.
 type StandardService struct {
 	id string
 
 	startFunc func(context.Context) error
 	stopFunc  func()
 }
-
+// NewStandardService creates a new standard service.
 func NewStandardService(id string, startFunc func(context.Context) error, stopFunc func()) *StandardService {
 	return &StandardService{
 		id:        id,
@@ -40,19 +40,19 @@ func NewStandardService(id string, startFunc func(context.Context) error, stopFu
 		stopFunc:  stopFunc,
 	}
 }
-
+// ID returns the ID of the standard service.
 func (s *StandardService) ID() string {
 	return s.id
 }
-
+// Start starts the standard service.
 func (s *StandardService) Start(ctx context.Context) error {
 	return s.startFunc(ctx)
 }
-
+// Stop stops the standard service.
 func (s *StandardService) Stop() {
 	s.stopFunc()
 }
-
+// ContextService represents a context service.
 type ContextService struct {
 	id string
 
@@ -61,25 +61,25 @@ type ContextService struct {
 	m      sync.Mutex
 	cancel context.CancelFunc
 }
-
+// NewContextService creates a new context service.
 func NewContextService(id string, startFunc func(context.Context) error) *ContextService {
 	return &ContextService{
 		id:        id,
 		startFunc: startFunc,
 	}
 }
-
+// ID returns the ID of the context service.
 func (s *ContextService) ID() string {
 	return s.id
 }
-
+// Start starts the context service.
 func (s *ContextService) Start(ctx context.Context) error {
 	s.m.Lock()
 	ctx, s.cancel = context.WithCancel(ctx)
 	s.m.Unlock()
 	return s.startFunc(ctx)
 }
-
+// Stop stops the context service.
 func (s *ContextService) Stop() {
 	s.m.Lock()
 	defer s.m.Unlock()

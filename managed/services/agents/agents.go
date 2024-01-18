@@ -143,7 +143,7 @@ func ensureAuthParams(exporter *models.Agent, params *agentpb.SetStateRequest_Ag
 }
 
 // getExporterListenAddress returns the appropriate listen address to use for a given exporter.
-func getExporterListenAddress(node *models.Node, exporter *models.Agent) string {
+func getExporterListenAddress(node *models.Node, exporter *models.Agent) string {//nolint:revive
 	switch {
 	case exporter.ExposeExporter:
 		return "0.0.0.0"

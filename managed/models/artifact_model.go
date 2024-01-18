@@ -141,7 +141,7 @@ type Metadata struct {
 	RestoreTo      *time.Time      `json:"restore_to"`
 	BackupToolData *BackupToolData `json:"backup_tool_data"`
 }
-
+// MetadataList is a list of metadata associated with artifacts.
 type MetadataList []Metadata
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.

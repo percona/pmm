@@ -50,7 +50,7 @@ type AddAgentNodeExporterCommand struct {
 	DisableCollectors []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	LogLevel          string            `enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [debug, info, warn, error]"`
 }
-
+// RunCmd runs the command for AddAgentNodeExporterCommand.
 func (cmd *AddAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &agents.AddNodeExporterParams{

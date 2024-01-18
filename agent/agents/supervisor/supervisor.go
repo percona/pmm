@@ -425,7 +425,7 @@ func filter(existing, ap map[string]agentpb.AgentParams) ([]string, []string, []
 	return toStart, toRestart, toStop
 }
 
-//nolint:golint,stylecheck
+//nolint:golint,stylecheck,revive
 const (
 	type_TEST_SLEEP inventorypb.AgentType = 998 // process
 	type_TEST_NOOP  inventorypb.AgentType = 999 // built-in
@@ -671,11 +671,11 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 		templateParams["tmp_dir"] = cfg.Paths.TempDir
 		processParams.Path = cfg.Paths.VMAgent
 	default:
-		return nil, errors.Errorf("unhandled agent type %[1]s (%[1]d).", agentProcess.Type)
+		return nil, errors.Errorf("unhandled agent type %[1]s (%[1]d).", agentProcess.Type)//nolint:revive
 	}
 
 	if processParams.Path == "" {
-		return nil, errors.Errorf("no path for agent type %[1]s (%[1]d).", agentProcess.Type)
+		return nil, errors.Errorf("no path for agent type %[1]s (%[1]d).", agentProcess.Type)//nolint:revive
 	}
 
 	tr := &templates.TemplateRenderer{

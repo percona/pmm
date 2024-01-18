@@ -228,7 +228,7 @@ func (j *MySQLRestoreJob) restoreMySQLFromS3(ctx context.Context, targetDirector
 	}
 
 	wrapError := func(err error) error {
-		return errors.Wrapf(err, "stderr: %s\n stdout: %s\n", stderr.String(), stdout.String())
+		return errors.Wrapf(err, "stderr: %s\n stdout: %s\n", stderr.String(), stdout.String())//nolint:revive
 	}
 
 	if err := xbcloudCmd.Start(); err != nil {

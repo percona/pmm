@@ -1,3 +1,4 @@
+// Package models provides functionality for handling database models and related tasks.
 // Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -1153,7 +1154,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			return err
 		}
 
-		if err = setupFixture1(tx.Querier, params); err != nil {
+		if err = setupFixture1(tx.Querier, params); err != nil {//nolint:revive
 			return err
 		}
 		if err = setupFixture2(tx.Querier, params.Username, params.Password); err != nil {
@@ -1246,7 +1247,7 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	return nil
 }
 
-func setupFixture2(q *reform.Querier, username, password string) error {
+func setupFixture2(q *reform.Querier, username, password string) error {//nolint:revive
 	// TODO add clickhouse_exporter
 
 	return nil

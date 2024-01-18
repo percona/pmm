@@ -168,10 +168,11 @@ type ReportingConfig struct {
 
 //go:embed config.default.yml
 var defaultConfig string
-
+// ExtensionType represents the type of telemetry extension.
 type ExtensionType string
 
 const (
+	// UIEventsExtension is a constant for the UI events telemetry extension.
 	UIEventsExtension = ExtensionType("UIEventsExtension")
 )
 

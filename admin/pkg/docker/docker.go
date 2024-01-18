@@ -35,7 +35,7 @@ import (
 
 	"github.com/percona/pmm/admin/pkg/common"
 )
-
+// ErrPasswordChangeFailed represents an error indicating that password change failed.
 var ErrPasswordChangeFailed = errors.New("ErrPasswordChangeFailed")
 
 // Base contains methods to interact with Docker.

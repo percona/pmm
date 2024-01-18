@@ -73,10 +73,10 @@ func (d *dsQanDBSelect) FetchMetrics(ctx context.Context, config Config) ([]*pmm
 	return fetchMetricsFromDB(ctx, d.l, d.config.Timeout, d.db, config)
 }
 
-func (d *dsQanDBSelect) Init(ctx context.Context) error {
+func (d *dsQanDBSelect) Init(ctx context.Context) error {//nolint:revive
 	return nil
 }
 
-func (d *dsQanDBSelect) Dispose(ctx context.Context) error {
+func (d *dsQanDBSelect) Dispose(ctx context.Context) error {//nolint:revive
 	return nil
 }

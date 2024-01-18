@@ -59,7 +59,7 @@ type AddAgentExternalExporterCommand struct {
 	CustomLabels map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	PushMetrics  bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 }
-
+// RunCmd executes the AddAgentExternalExporterCommand and returns the result.
 func (cmd *AddAgentExternalExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 

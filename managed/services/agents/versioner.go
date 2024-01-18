@@ -57,7 +57,9 @@ type Software interface {
 type Mysqld struct{}
 
 func (*Mysqld) isSoftware()               {}
+// Name returns the software name for Mysqld.{}
 func (*Mysqld) Name() models.SoftwareName { return models.MysqldSoftwareName }
+// GetVersionRequest returns the GetVersionsRequest_Software for Mysqld.
 func (*Mysqld) GetVersionRequest() *agentpb.GetVersionsRequest_Software {
 	return &agentpb.GetVersionsRequest_Software{
 		Software: &agentpb.GetVersionsRequest_Software_Mysqld{},
@@ -68,7 +70,9 @@ func (*Mysqld) GetVersionRequest() *agentpb.GetVersionsRequest_Software {
 type Xtrabackup struct{}
 
 func (*Xtrabackup) isSoftware()               {}
+// Name returns the software name for Xtrabackup.
 func (*Xtrabackup) Name() models.SoftwareName { return models.XtrabackupSoftwareName }
+// GetVersionRequest returns the GetVersionsRequest_Software for Xtrabackup.
 func (*Xtrabackup) GetVersionRequest() *agentpb.GetVersionsRequest_Software {
 	return &agentpb.GetVersionsRequest_Software{
 		Software: &agentpb.GetVersionsRequest_Software_Xtrabackup{},
@@ -79,7 +83,9 @@ func (*Xtrabackup) GetVersionRequest() *agentpb.GetVersionsRequest_Software {
 type Xbcloud struct{}
 
 func (*Xbcloud) isSoftware()               {}
+// Name returns the software name for Qpress.
 func (*Xbcloud) Name() models.SoftwareName { return models.XbcloudSoftwareName }
+// GetVersionRequest returns the GetVersionsRequest_Software for Qpress.
 func (*Xbcloud) GetVersionRequest() *agentpb.GetVersionsRequest_Software {
 	return &agentpb.GetVersionsRequest_Software{
 		Software: &agentpb.GetVersionsRequest_Software_Xbcloud{},
@@ -101,7 +107,9 @@ func (*Qpress) GetVersionRequest() *agentpb.GetVersionsRequest_Software {
 type MongoDB struct{}
 
 func (*MongoDB) isSoftware()               {}
+// Name returns the software name for MongoDB.{}
 func (*MongoDB) Name() models.SoftwareName { return models.MongoDBSoftwareName }
+// GetVersionRequest returns the GetVersionsRequest_Software for Qpress.
 func (*MongoDB) GetVersionRequest() *agentpb.GetVersionsRequest_Software {
 	return &agentpb.GetVersionsRequest_Software{
 		Software: &agentpb.GetVersionsRequest_Software_Mongod{},

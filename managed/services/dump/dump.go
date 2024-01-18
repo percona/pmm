@@ -36,14 +36,14 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 )
-
+// ErrDumpAlreadyRunning is an exported error indicating that pmm-dump is already running.
 var ErrDumpAlreadyRunning = status.Error(codes.FailedPrecondition, "pmm-dump already running.")
 
 const (
 	pmmDumpBin = "pmm-dump"
 	dumpsDir   = "/srv/dump"
 )
-
+// Service represents the dump service.
 type Service struct {
 	l *logrus.Entry
 
@@ -54,14 +54,14 @@ type Service struct {
 	rw     sync.RWMutex
 	cancel context.CancelFunc
 }
-
+// New creates a new instance of the dump service..
 func New(db *reform.DB) *Service {
 	return &Service{
 		l:  logrus.WithField("component", "management/backup/backup"),
 		db: db,
 	}
 }
-
+// Params represents the parameters for configuring the dump service.
 type Params struct {
 	APIKey       string
 	Cookie       string
@@ -73,7 +73,7 @@ type Params struct {
 	ExportQAN    bool
 	IgnoreLoad   bool
 }
-
+// StartDump initiates the process of creating and managing dumps in the dump service.
 func (s *Service) StartDump(params *Params) (string, error) {
 	// Check if some pmm-dump already running.
 	if !s.running.CompareAndSwap(false, true) {
@@ -174,7 +174,7 @@ func (s *Service) StartDump(params *Params) (string, error) {
 
 	return dump.ID, nil
 }
-
+// DeleteDump removes a specific dump associated with the dump service.
 func (s *Service) DeleteDump(dumpID string) error {
 	dump, err := models.FindDumpByID(s.db.Querier, dumpID)
 	if err != nil {
@@ -198,7 +198,7 @@ func (s *Service) DeleteDump(dumpID string) error {
 
 	return nil
 }
-
+// GetFilePathsForDumps retrieves the file paths associated with the dumps managed by the dump service.
 func (s *Service) GetFilePathsForDumps(dumpIDs []string) (map[string]string, error) {
 	dumps, err := models.FindDumpsByIDs(s.db.Querier, dumpIDs)
 	if err != nil {
@@ -271,7 +271,7 @@ func (s *Service) saveLogChunk(dumpID string, chunkN uint32, text string, last b
 
 	return nil
 }
-
+// StopDump stops the ongoing dump process in the dump service.
 func (s *Service) StopDump() {
 	s.rw.RLock()
 	defer s.rw.RUnlock()

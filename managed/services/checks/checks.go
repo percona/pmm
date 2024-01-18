@@ -369,7 +369,7 @@ func (s *Service) GetAdvisors() ([]check.Advisor, error) {
 	}
 	return res, nil
 }
-
+// GetChecks retrieves a map of checks from the service.
 func (s *Service) GetChecks() (map[string]check.Check, error) {
 	cs, err := models.FindCheckSettings(s.db.Querier)
 	if err != nil {
@@ -1438,7 +1438,7 @@ func (s *Service) loadLocalChecks(file string) ([]check.Check, error) {
 
 	for _, c := range checks {
 		if c.Advisor != "dev" {
-			return nil, errors.Errorf("Local checks are supposed to be linked to the 'dev' advisor.")
+			return nil, errors.Errorf("Local checks are supposed to be linked to the 'dev' advisor.")//nolint:revive
 		}
 	}
 

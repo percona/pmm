@@ -23,5 +23,6 @@ import "embed"
 //go:embed iatemplates/*
 var IATemplates embed.FS
 
+// OLMCRDs ...
 //go:embed crds/*
 var OLMCRDs embed.FS

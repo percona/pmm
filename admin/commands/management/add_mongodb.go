@@ -87,23 +87,23 @@ type AddMongoDBCommand struct {
 	AddCommonFlags
 	AddLogLevelFatalFlags
 }
-
+// GetServiceName returns the service name for AddMongoDBCommand.
 func (cmd *AddMongoDBCommand) GetServiceName() string {
 	return cmd.ServiceName
 }
-
+// GetAddress returns the address for AddMongoDBCommand.
 func (cmd *AddMongoDBCommand) GetAddress() string {
 	return cmd.Address
 }
-
+// GetDefaultAddress returns the default address for AddMongoDBCommand.
 func (cmd *AddMongoDBCommand) GetDefaultAddress() string {
 	return "127.0.0.1:27017"
 }
-
+// GetSocket returns the socket for AddMongoDBCommand.
 func (cmd *AddMongoDBCommand) GetSocket() string {
 	return cmd.Socket
 }
-
+// GetCredentials returns the credentials for AddMongoDBCommand.
 func (cmd *AddMongoDBCommand) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
@@ -116,7 +116,7 @@ func (cmd *AddMongoDBCommand) GetCredentials() error {
 
 	return nil
 }
-
+// RunCmd runs the command for AddMongoDBCommand.
 func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 

@@ -72,7 +72,7 @@ type AddExternalCommand struct {
 	Group               string            `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
 	SkipConnectionCheck bool              `help:"Skip exporter connection checks"`
 }
-
+// GetCredentials returns the credentials for AddExternalCommand.
 func (cmd *AddExternalCommand) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
@@ -84,7 +84,7 @@ func (cmd *AddExternalCommand) GetCredentials() error {
 
 	return nil
 }
-
+// RunCmd runs the command for AddExternalCommand.
 func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 

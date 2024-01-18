@@ -59,7 +59,7 @@ type AddServiceMongoDBCommand struct {
 	ReplicationSet string            `help:"Replication set name"`
 	CustomLabels   map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 }
-
+// RunCmd executes the AddServiceMongoDBCommand and returns the result.
 func (cmd *AddServiceMongoDBCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &services.AddMongoDBServiceParams{
