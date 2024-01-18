@@ -431,6 +431,7 @@ nav:
         - optimize/disable_table_stats.md
         - optimize/change_number_tables.md
   - Troubleshoot:
+      - troubleshoot/index.md
       - troubleshoot/checklist.md
       - troubleshoot/upgrade_issues.md
       - troubleshoot/config_issues.md
