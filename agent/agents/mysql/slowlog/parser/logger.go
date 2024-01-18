@@ -13,6 +13,7 @@
 // limitations under the License.
 
 package parser
+
 // Logger defines the interface for a MySQL slow log parser logger.
 type Logger interface {
 	Warnf(format string, v ...interface{})

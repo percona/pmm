@@ -61,6 +61,7 @@ type AddAgentQANPostgreSQLPgStatementsAgentCommand struct {
 	TLSKeyFile          string            `help:"TLS certificate key file"`
 	LogLevel            string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
 }
+
 // RunCmd executes the AddAgentQANPostgreSQLPgStatementsAgentCommand and returns the result.
 func (cmd *AddAgentQANPostgreSQLPgStatementsAgentCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)

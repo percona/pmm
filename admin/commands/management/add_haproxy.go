@@ -62,6 +62,7 @@ type AddHAProxyCommand struct {
 	MetricsMode         string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	SkipConnectionCheck bool              `help:"Skip connection check"`
 }
+
 // GetCredentials returns the credentials for AddHAProxyCommand.
 func (cmd *AddHAProxyCommand) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
@@ -74,6 +75,7 @@ func (cmd *AddHAProxyCommand) GetCredentials() error {
 
 	return nil
 }
+
 // RunCmd runs the command for AddHAProxyCommand.
 func (cmd *AddHAProxyCommand) RunCmd() (commands.Result, error) {
 	isSupported, err := helpers.IsHAProxySupported()

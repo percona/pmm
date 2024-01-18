@@ -230,10 +230,11 @@ const (
 	Bool   = ParamType("bool")
 	String = ParamType("string")
 )
+
 // ParamUnit represents the unit of a parameter.
 type ParamUnit string
 
 const (
-	Percent = ParamUnit("%")//noiint:revive
+	Percent = ParamUnit("%") //noiint:revive
 	Seconds = ParamUnit("s")
 )

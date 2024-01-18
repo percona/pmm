@@ -281,6 +281,7 @@ func (c *Client) makeRequest(ctx context.Context, accessToken, method, path stri
 
 	return bodyBytes, nil
 }
+
 // SsoDetails represents the Single Sign-On details containing information
 type SsoDetails struct {
 	GrafanaClientID        string `json:"grafana_client_id"`
@@ -289,15 +290,18 @@ type SsoDetails struct {
 	Scope                  string `json:"scope"`
 	IssuerURL              string `json:"issuer_url"`
 }
+
 // ConnectPMMResponse represents the response structure for the ConnectPMM API.
 type ConnectPMMResponse struct {
 	SSODetails     *SsoDetails `json:"sso_details"`
 	OrganizationID string      `json:"org_id"`
 }
+
 // SearchOrganizationEntitlementsResponse represents the response structure
 type SearchOrganizationEntitlementsResponse struct {
 	Entitlement []*EntitlementResponse `json:"entitlements"`
 }
+
 // EntitlementResponse represents the response structure for entitlement-related APIs.
 type EntitlementResponse struct {
 	Number           string   `json:"number"`
@@ -312,15 +316,18 @@ type EntitlementResponse struct {
 	EndDate          string   `json:"end_date"`
 	Platform         Response `json:"platform"`
 }
+
 // Response represents a generic API response structure.
 type Response struct {
 	SecurityAdvisor string `json:"security_advisor"`
 	ConfigAdvisor   string `json:"config_advisor"`
 }
+
 // SearchOrganizationTicketsResponse represents the response structure
 type SearchOrganizationTicketsResponse struct {
 	Tickets []*TicketResponse `json:"tickets"`
 }
+
 // TicketResponse represents the response structure for ticket-related APIs.
 type TicketResponse struct {
 	Number           string `json:"number"`
@@ -333,6 +340,7 @@ type TicketResponse struct {
 	TaskType         string `json:"task_type"`
 	URL              string `json:"url"`
 }
+
 // ContactInformation represents information about a contact.
 type ContactInformation struct {
 	Contacts struct {

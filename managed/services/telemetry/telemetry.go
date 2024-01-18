@@ -411,6 +411,7 @@ func (s *Service) send(ctx context.Context, report *reporter.ReportRequest) erro
 		}
 	}
 }
+
 // Format returns the formatted representation of the provided server metric.
 func (s *Service) Format(report *pmmv1.ServerMetric) string {
 	var builder strings.Builder

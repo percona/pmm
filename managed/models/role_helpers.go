@@ -33,7 +33,7 @@ var (
 
 // CreateRole creates a new role.
 func CreateRole(q *reform.Querier, role *Role) error {
-	if err := q.Insert(role); err != nil {//nolint:revive
+	if err := q.Insert(role); err != nil { //nolint:revive
 		return err
 	}
 

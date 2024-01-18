@@ -1,4 +1,3 @@
-
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -122,6 +121,7 @@ func convertTabs(template string) (string, error) {
 type ListCommand struct {
 	NodeID string `help:"Node ID (default is autodetected)"`
 }
+
 // RunCmd executes the List command and returns the result.
 func (cmd *ListCommand) RunCmd() (Result, error) {
 	if cmd.NodeID == "" {

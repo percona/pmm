@@ -83,6 +83,7 @@ type AddAgentQANMySQLSlowlogAgentCommand struct {
 	TLSKeyFile           string            `name:"tls-key" help:"Path to client key file"`
 	LogLevel             string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
 }
+
 // RunCmd executes the AddAgentQANMySQLSlowlogAgentCommand and returns the result.
 func (cmd *AddAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)

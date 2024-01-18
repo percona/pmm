@@ -416,6 +416,7 @@ func (r *Registry) Collect(ch chan<- prom.Metric) {
 	r.mRoundTrip.Collect(ch)
 	r.mClockDrift.Collect(ch)
 }
+
 // KickAll sends a signal to all registered agents in the registry to perform a kick action.
 func (r *Registry) KickAll(ctx context.Context) {
 	for _, agentInfo := range r.agents {

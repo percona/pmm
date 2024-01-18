@@ -64,6 +64,7 @@ type AddAgentQANMongoDBProfilerAgentCommand struct {
 	AuthenticationMechanism       string            `help:"Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates"`
 	LogLevel                      string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
 }
+
 // RunCmd executes the AddAgentQANMongoDBProfilerAgentCommand and returns the result.
 func (cmd *AddAgentQANMongoDBProfilerAgentCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)

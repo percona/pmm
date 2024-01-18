@@ -49,6 +49,7 @@ type DumpFilters struct {
 	// Return only dumps by specified status.
 	Status DumpStatus
 }
+
 // CreateDumpParams represents the parameters for creating a dump.
 type CreateDumpParams struct {
 	ServiceNames []string
@@ -57,6 +58,7 @@ type CreateDumpParams struct {
 	ExportQAN    bool
 	IgnoreLoad   bool
 }
+
 // Validate checks the validity of CreateDumpParams.
 func (p *CreateDumpParams) Validate() error {
 	if p.StartTime != nil && p.EndTime != nil && p.StartTime.After(*p.EndTime) {
@@ -65,6 +67,7 @@ func (p *CreateDumpParams) Validate() error {
 
 	return nil
 }
+
 // CreateDump creates a dump using the specified parameters.
 func CreateDump(q *reform.Querier, params CreateDumpParams) (*Dump, error) {
 	if err := params.Validate(); err != nil {
@@ -164,6 +167,7 @@ func FindDumpByID(q *reform.Querier, id string) (*Dump, error) {
 
 	return dump, nil
 }
+
 // UpdateDumpStatus updates the status of a dump with the given ID.
 func UpdateDumpStatus(q *reform.Querier, id string, status DumpStatus) error {
 	dump, err := FindDumpByID(q, id)

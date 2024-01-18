@@ -335,7 +335,7 @@ func findPITRRestoreName(ctx context.Context, dbURL *string, restoreInfo *pbmRes
 					return "", errors.Errorf("failed to start restore")
 				}
 				continue
-			} else {//nolint:revive
+			} else { //nolint:revive
 				return entry.Name, nil
 			}
 		case <-ctx.Done():
@@ -379,7 +379,7 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *string,
 					maxRetryCount--
 					l.Warnf("PMM failed to get backup restore status and will retry: %s", err)
 					continue
-				} else {//nolint:revive
+				} else { //nolint:revive
 					return errors.Wrap(err, "failed to get restore status")
 				}
 			}

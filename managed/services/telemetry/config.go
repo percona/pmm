@@ -168,6 +168,7 @@ type ReportingConfig struct {
 
 //go:embed config.default.yml
 var defaultConfig string
+
 // ExtensionType represents the type of telemetry extension.
 type ExtensionType string
 

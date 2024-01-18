@@ -110,16 +110,19 @@ func ReadFromSource(src string) (*Credentials, error) {
 
 	return &creds, nil
 }
+
 // ErrorResponse defines the interface for error responses.
 type ErrorResponse interface {
 	error
 	Code() int
 }
+
 // Error represents an error with additional information.
 type Error struct {
 	Code  int    `json:"code"`
 	Error string `json:"error"`
 }
+
 // GetError converts an ErrorResponse to an Error.
 func GetError(err ErrorResponse) Error {
 	v := reflect.ValueOf(err)
@@ -130,6 +133,7 @@ func GetError(err ErrorResponse) Error {
 		Error: e.String(),
 	}
 }
+
 // ParseTemplate parses the input text into a template.Template.
 func ParseTemplate(text string) *template.Template {
 	t := template.New("").Option("missingkey=error")

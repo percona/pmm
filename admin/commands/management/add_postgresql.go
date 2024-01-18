@@ -79,22 +79,27 @@ type AddPostgreSQLCommand struct {
 	AddCommonFlags
 	AddLogLevelNoFatalFlags
 }
+
 // GetServiceName returns the service name for AddPostgreSQLCommand.
 func (cmd *AddPostgreSQLCommand) GetServiceName() string {
 	return cmd.ServiceName
 }
+
 // GetAddress returns the address for AddPostgreSQLCommand.
 func (cmd *AddPostgreSQLCommand) GetAddress() string {
 	return cmd.Address
 }
+
 // GetDefaultAddress returns the default address for AddPostgreSQLCommand.
 func (cmd *AddPostgreSQLCommand) GetDefaultAddress() string {
 	return "127.0.0.1:5432"
 }
+
 // GetSocket returns the socket for AddPostgreSQLCommand
 func (cmd *AddPostgreSQLCommand) GetSocket() string {
 	return cmd.Socket
 }
+
 // GetCredentials returns the credentials for AddPostgreSQLCommand.
 func (cmd *AddPostgreSQLCommand) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
@@ -108,6 +113,7 @@ func (cmd *AddPostgreSQLCommand) GetCredentials() error {
 
 	return nil
 }
+
 // RunCmd runs the command for AddPostgreSQLCommand.
 func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)

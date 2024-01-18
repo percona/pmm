@@ -100,6 +100,7 @@ type AddAgentMysqldExporterCommand struct {
 	DisableCollectors         []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	LogLevel                  string            `enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [debug, info, warn, error]"`
 }
+
 // RunCmd executes the AddAgentMysqldExporterCommand and returns the result.
 func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)

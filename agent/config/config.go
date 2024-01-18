@@ -169,7 +169,7 @@ type Config struct { //nolint:musttag
 
 // ConfigFileDoesNotExistError error is returned from Get method if configuration file is expected,
 // but does not exist.
-type ConfigFileDoesNotExistError string//nolint:revive
+type ConfigFileDoesNotExistError string //nolint:revive
 
 func (e ConfigFileDoesNotExistError) Error() string {
 	return fmt.Sprintf("configuration file %s does not exist", string(e))

@@ -44,6 +44,7 @@ type UnregisterCommand struct {
 	Force    bool   `help:"Remove this node with all dependencies"`
 	NodeName string `help:"Node name (autodetected default: ${hostname})"`
 }
+
 // RunCmd runs the command for UnregisterCommand.
 func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 	var nodeName string

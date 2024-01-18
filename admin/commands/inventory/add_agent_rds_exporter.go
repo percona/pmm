@@ -57,6 +57,7 @@ type AddAgentRDSExporterCommand struct {
 	PushMetrics            bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	LogLevel               string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
 }
+
 // RunCmd executes the AddAgentRDSExporterCommand and returns the result.
 func (cmd *AddAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)

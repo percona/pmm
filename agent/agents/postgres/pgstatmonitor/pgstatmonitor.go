@@ -43,7 +43,7 @@ import (
 const defaultWaitTime = 60 * time.Second
 
 // PGStatMonitorQAN QAN services connects to PostgreSQL and extracts stats.
-type PGStatMonitorQAN struct {//nolint:revive
+type PGStatMonitorQAN struct { //nolint:revive
 	q                      *reform.Querier
 	dbCloser               io.Closer
 	agentID                string
@@ -715,12 +715,12 @@ func (m *PGStatMonitorQAN) Changes() <-chan agents.Change {
 }
 
 // Describe implements prometheus.Collector.
-func (m *PGStatMonitorQAN) Describe(ch chan<- *prometheus.Desc) {//nolint:revive
+func (m *PGStatMonitorQAN) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) {//nolint:revive
+func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) { //nolint:revive
 	// This method is needed to satisfy interface.
 }
 

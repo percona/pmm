@@ -31,6 +31,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 )
+
 // Service represents the high-availability service.
 type Service struct {
 	params           *models.HAParams
@@ -49,21 +50,25 @@ type Service struct {
 	raftNode   *raft.Raft
 	memberlist *memberlist.Memberlist
 }
+
 // Apply applies a log entry to the high-availability service.
 func (s *Service) Apply(logEntry *raft.Log) interface{} {
 	s.l.Printf("raft: got a message: %s", string(logEntry.Data))
 	s.receivedMessages <- logEntry.Data
 	return nil
 }
+
 // Snapshot returns a snapshot of the high-availability service.
 func (s *Service) Snapshot() (raft.FSMSnapshot, error) { //nolint:ireturn
 	return nil, nil
 }
+
 // Restore restores the high availability service to a previous state.
 func (s *Service) Restore(_ io.ReadCloser) error {
 	return nil
 }
-//Service provides new instance of the high availability service.
+
+// Service provides new instance of the high availability service.
 func New(params *models.HAParams) *Service {
 	return &Service{
 		params:           params,
@@ -76,6 +81,7 @@ func New(params *models.HAParams) *Service {
 		wg:               &sync.WaitGroup{},
 	}
 }
+
 // Run runs the high availability service.
 func (s *Service) Run(ctx context.Context) error {
 	s.wg.Add(1)
@@ -289,6 +295,7 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 		}
 	}
 }
+
 // AddLeaderService adds a leader service to the high availability service.
 func (s *Service) AddLeaderService(leaderService LeaderService) {
 	err := s.services.Add(leaderService)
@@ -296,6 +303,7 @@ func (s *Service) AddLeaderService(leaderService LeaderService) {
 		s.l.Errorf("couldn't add HA service: +%v", err)
 	}
 }
+
 // BroadcastMessage broadcasts a message from the high availability service.
 func (s *Service) BroadcastMessage(message []byte) {
 	if s.params.Enabled {
@@ -306,12 +314,14 @@ func (s *Service) BroadcastMessage(message []byte) {
 		s.receivedMessages <- message
 	}
 }
+
 // IsLeader checks if the current instance of the high availability service is the leader.
 func (s *Service) IsLeader() bool {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 	return (s.raftNode != nil && s.raftNode.State() == raft.Leader) || !s.params.Enabled
 }
+
 // Bootstrap performs the necessary steps to initialize the high availability service.
 func (s *Service) Bootstrap() bool {
 	return s.params.Bootstrap || !s.params.Enabled

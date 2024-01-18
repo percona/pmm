@@ -671,11 +671,11 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 		templateParams["tmp_dir"] = cfg.Paths.TempDir
 		processParams.Path = cfg.Paths.VMAgent
 	default:
-		return nil, errors.Errorf("unhandled agent type %[1]s (%[1]d).", agentProcess.Type)//nolint:revive
+		return nil, errors.Errorf("unhandled agent type %[1]s (%[1]d).", agentProcess.Type) //nolint:revive
 	}
 
 	if processParams.Path == "" {
-		return nil, errors.Errorf("no path for agent type %[1]s (%[1]d).", agentProcess.Type)//nolint:revive
+		return nil, errors.Errorf("no path for agent type %[1]s (%[1]d).", agentProcess.Type) //nolint:revive
 	}
 
 	tr := &templates.TemplateRenderer{

@@ -62,6 +62,7 @@ func (res *listNodesResult) String() string {
 type ListNodesCommand struct {
 	NodeType string `help:"Filter by Node type"`
 }
+
 // RunCmd executes the ListNodesCommand and returns the result.
 func (cmd *ListNodesCommand) RunCmd() (commands.Result, error) {
 	nodeType, err := formatTypeValue(acceptableNodeTypes, cmd.NodeType)

@@ -37,6 +37,7 @@ type RemoveServiceCommand struct {
 	ServiceID string `arg:"" optional:"" help:"Service ID"`
 	Force     bool   `help:"Remove service with all dependencies"`
 }
+
 // RunCmd executes the RemoveServiceCommand and returns the result.
 func (cmd *RemoveServiceCommand) RunCmd() (commands.Result, error) {
 	params := &services.RemoveServiceParams{

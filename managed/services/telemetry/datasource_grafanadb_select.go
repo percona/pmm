@@ -52,7 +52,7 @@ func NewDsGrafanaDBSelect(config DSConfigGrafanaDB, l *logrus.Entry) DataSource 
 	}
 }
 
-func (d *dsGrafanaDBSelect) Init(ctx context.Context) error {//nolint:revive
+func (d *dsGrafanaDBSelect) Init(ctx context.Context) error { //nolint:revive
 	db, err := openGrafanaDBConnection(d.config, d.l)
 	if err != nil {
 		return err
@@ -99,6 +99,6 @@ func (d *dsGrafanaDBSelect) FetchMetrics(ctx context.Context, config Config) ([]
 	return fetchMetricsFromDB(ctx, d.l, d.config.Timeout, d.db, config)
 }
 
-func (d *dsGrafanaDBSelect) Dispose(ctx context.Context) error {//nolint:revive
+func (d *dsGrafanaDBSelect) Dispose(ctx context.Context) error { //nolint:revive
 	return d.db.Close()
 }

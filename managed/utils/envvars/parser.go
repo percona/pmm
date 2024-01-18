@@ -43,7 +43,7 @@ const (
 	envPlatformAPITimeout     = "PERCONA_PLATFORM_API_TIMEOUT"
 	defaultPlatformAPITimeout = 30 * time.Second
 	// ENVvmAgentPrefix is the prefix for environment variables related to the VM agent.
-	ENVvmAgentPrefix          = "VMAGENT_"
+	ENVvmAgentPrefix = "VMAGENT_"
 )
 
 // InvalidDurationError invalid duration error.
@@ -316,6 +316,7 @@ func GetPlatformPublicKeys() []string {
 
 	return nil
 }
+
 // GetInterfaceToBind retrieves the network interface to bind based on environment variables.
 func GetInterfaceToBind() string {
 	return GetEnv(evnInterfaceToBind, "127.0.0.1")

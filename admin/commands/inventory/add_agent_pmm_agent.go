@@ -43,6 +43,7 @@ type AddPMMAgentCommand struct {
 	RunsOnNodeID string            `arg:"" help:"Node identifier where this instance runs"`
 	CustomLabels map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 }
+
 // RunCmd executes the AddPMMAgentCommand and returns the result.
 func (cmd *AddPMMAgentCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)

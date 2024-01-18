@@ -251,7 +251,7 @@ func (t testJob) Timeout() time.Duration {
 	return t.timeout
 }
 
-func (t testJob) Run(ctx context.Context, send jobs.Send) error {//nolint:revive
+func (t testJob) Run(ctx context.Context, send jobs.Send) error { //nolint:revive
 	<-ctx.Done()
 	return nil
 }

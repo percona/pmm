@@ -56,6 +56,7 @@ type AddNodeGenericCommand struct {
 	Az           string            `help:"Node availability zone"`
 	NodeModel    string            `help:"Node mddel"`
 }
+
 // RunCmd executes the AddNodeGenericCommand and returns the result.
 func (cmd *AddNodeGenericCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
