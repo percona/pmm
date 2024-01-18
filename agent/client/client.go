@@ -747,13 +747,6 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 		opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
 	}
 
-	// if cfg.Server.Username != "" {
-	// 	opts = append(opts, grpc.WithPerRPCCredentials(&basicAuth{
-	// 		username: cfg.Server.Username,
-	// 		password: cfg.Server.Password,
-	// 	}))
-	// }
-
 	l.Infof("Connecting to %s ...", cfg.Server.FilteredURL())
 	conn, err := grpc.DialContext(dialCtx, cfg.Server.Address, opts...)
 	if err != nil {
