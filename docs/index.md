@@ -32,7 +32,7 @@ Ready to dive into PMM? We've got you covered! Follow our simple, step-by-step i
 
 </div><div data-banner markdown>
 
-## :fontawesome-solid-gears: Configuration { .title }
+## :fontawesome-solid-gear: Configuration { .title }
 
 Are you ready to begin configuring PMM  but need help figuring out how to begin? Let's dive in together and get you to speed up.
 
