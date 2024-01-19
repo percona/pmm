@@ -225,14 +225,21 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.Add
 }
 
 // ChangeNodeExporter updates node_exporter Agent with given parameters.
-func (as *AgentsService) ChangeNodeExporter(ctx context.Context, req *inventoryv1.ChangeNodeExporterParams) (*inventoryv1.NodeExporter, error) {
-	agent, err := as.changeAgent(req.AgentId, req.Common)
+func (as *AgentsService) ChangeNodeExporter(ctx context.Context, p *inventoryv1.ChangeNodeExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
+	ag, err := as.changeAgent(p.AgentId, p.Common)
 	if err != nil {
 		return nil, err
 	}
 
-	res := agent.(*inventoryv1.NodeExporter) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, res.PmmAgentId)
+	agent := ag.(*inventoryv1.NodeExporter) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_NodeExporter{
+			NodeExporter: agent,
+		},
+	}
+
 	return res, nil
 }
 
@@ -293,14 +300,21 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 }
 
 // ChangeMySQLdExporter updates mysqld_exporter Agent with given parameters.
-func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, req *inventoryv1.ChangeMySQLdExporterParams) (*inventoryv1.MySQLdExporter, error) {
-	agent, err := as.changeAgent(req.AgentId, req.Common)
+func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, p *inventoryv1.ChangeMySQLdExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
+	ag, err := as.changeAgent(p.AgentId, p.Common)
 	if err != nil {
 		return nil, err
 	}
 
-	res := agent.(*inventoryv1.MySQLdExporter) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, res.PmmAgentId)
+	agent := ag.(*inventoryv1.MySQLdExporter) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_MysqldExporter{
+			MysqldExporter: agent,
+		},
+	}
+
 	return res, nil
 }
 
@@ -358,14 +372,21 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 }
 
 // ChangeMongoDBExporter updates mongo_exporter Agent with given parameters.
-func (as *AgentsService) ChangeMongoDBExporter(ctx context.Context, req *inventoryv1.ChangeMongoDBExporterParams) (*inventoryv1.MongoDBExporter, error) {
-	agent, err := as.changeAgent(req.AgentId, req.Common)
+func (as *AgentsService) ChangeMongoDBExporter(ctx context.Context, p *inventoryv1.ChangeMongoDBExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
+	ag, err := as.changeAgent(p.AgentId, p.Common)
 	if err != nil {
 		return nil, err
 	}
 
-	res := agent.(*inventoryv1.MongoDBExporter) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, res.PmmAgentId)
+	agent := ag.(*inventoryv1.MongoDBExporter) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_MongodbExporter{
+			MongodbExporter: agent,
+		},
+	}
+
 	return res, nil
 }
 
@@ -420,14 +441,20 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inve
 }
 
 // ChangeQANMySQLPerfSchemaAgent updates MySQL PerfSchema QAN Agent with given parameters.
-func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, req *inventoryv1.ChangeQANMySQLPerfSchemaAgentParams) (*inventoryv1.QANMySQLPerfSchemaAgent, error) { //nolint:lll
-	agent, err := as.changeAgent(req.AgentId, req.Common)
+func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, p *inventoryv1.ChangeQANMySQLPerfSchemaAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
+	ag, err := as.changeAgent(p.AgentId, p.Common)
 	if err != nil {
 		return nil, err
 	}
 
-	res := agent.(*inventoryv1.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, res.PmmAgentId)
+	agent := ag.(*inventoryv1.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_QanMysqlPerfschemaAgent{
+			QanMysqlPerfschemaAgent: agent,
+		},
+	}
 	return res, nil
 }
 
@@ -487,14 +514,20 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *invento
 }
 
 // ChangeQANMySQLSlowlogAgent updates MySQL Slowlog QAN Agent with given parameters.
-func (as *AgentsService) ChangeQANMySQLSlowlogAgent(ctx context.Context, req *inventoryv1.ChangeQANMySQLSlowlogAgentParams) (*inventoryv1.QANMySQLSlowlogAgent, error) {
-	agent, err := as.changeAgent(req.AgentId, req.Common)
+func (as *AgentsService) ChangeQANMySQLSlowlogAgent(ctx context.Context, p *inventoryv1.ChangeQANMySQLSlowlogAgentParams) (*inventoryv1.ChangeAgentResponse, error) {
+	ag, err := as.changeAgent(p.AgentId, p.Common)
 	if err != nil {
 		return nil, err
 	}
 
-	res := agent.(*inventoryv1.QANMySQLSlowlogAgent) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, res.PmmAgentId)
+	agent := ag.(*inventoryv1.QANMySQLSlowlogAgent) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_QanMysqlSlowlogAgent{
+			QanMysqlSlowlogAgent: agent,
+		},
+	}
 	return res, nil
 }
 
@@ -552,14 +585,20 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1
 }
 
 // ChangePostgresExporter updates postgres_exporter Agent with given parameters.
-func (as *AgentsService) ChangePostgresExporter(ctx context.Context, req *inventoryv1.ChangePostgresExporterParams) (*inventoryv1.PostgresExporter, error) {
-	agent, err := as.changeAgent(req.AgentId, req.Common)
+func (as *AgentsService) ChangePostgresExporter(ctx context.Context, p *inventoryv1.ChangePostgresExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
+	ag, err := as.changeAgent(p.AgentId, p.Common)
 	if err != nil {
 		return nil, err
 	}
 
-	res := agent.(*inventoryv1.PostgresExporter) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, res.PmmAgentId)
+	agent := ag.(*inventoryv1.PostgresExporter) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_PostgresExporter{
+			PostgresExporter: agent,
+		},
+	}
 	return res, nil
 }
 
@@ -616,14 +655,20 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, p *inve
 // ChangeQANMongoDBProfilerAgent updates MongoDB Profiler QAN Agent with given parameters.
 //
 //nolint:lll,dupl
-func (as *AgentsService) ChangeQANMongoDBProfilerAgent(ctx context.Context, req *inventoryv1.ChangeQANMongoDBProfilerAgentParams) (*inventoryv1.QANMongoDBProfilerAgent, error) {
-	agent, err := as.changeAgent(req.AgentId, req.Common)
+func (as *AgentsService) ChangeQANMongoDBProfilerAgent(ctx context.Context, p *inventoryv1.ChangeQANMongoDBProfilerAgentParams) (*inventoryv1.ChangeAgentResponse, error) {
+	ag, err := as.changeAgent(p.AgentId, p.Common)
 	if err != nil {
 		return nil, err
 	}
 
-	res := agent.(*inventoryv1.QANMongoDBProfilerAgent) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, res.PmmAgentId)
+	agent := ag.(*inventoryv1.QANMongoDBProfilerAgent) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_QanMongodbProfilerAgent{
+			QanMongodbProfilerAgent: agent,
+		},
+	}
 	return res, nil
 }
 
@@ -680,42 +725,48 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1
 }
 
 // ChangeProxySQLExporter updates proxysql_exporter Agent with given parameters.
-func (as *AgentsService) ChangeProxySQLExporter(ctx context.Context, req *inventoryv1.ChangeProxySQLExporterParams) (*inventoryv1.ProxySQLExporter, error) {
-	agent, err := as.changeAgent(req.AgentId, req.Common)
+func (as *AgentsService) ChangeProxySQLExporter(ctx context.Context, p *inventoryv1.ChangeProxySQLExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
+	ag, err := as.changeAgent(p.AgentId, p.Common)
 	if err != nil {
 		return nil, err
 	}
 
-	res := agent.(*inventoryv1.ProxySQLExporter) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, res.PmmAgentId)
+	agent := ag.(*inventoryv1.ProxySQLExporter) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_ProxysqlExporter{
+			ProxysqlExporter: agent,
+		},
+	}
 	return res, nil
 }
 
 // AddQANPostgreSQLPgStatementsAgent adds PostgreSQL Pg stat statements QAN Agent.
 //
 //nolint:lll
-func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, req *inventoryv1.AddQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.QANPostgreSQLPgStatementsAgent, error) {
+func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, p *inventoryv1.AddQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.QANPostgreSQLPgStatementsAgent, error) {
 	var res *inventoryv1.QANPostgreSQLPgStatementsAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:              req.PmmAgentId,
-			ServiceID:               req.ServiceId,
-			Username:                req.Username,
-			Password:                req.Password,
-			CustomLabels:            req.CustomLabels,
-			MaxQueryLength:          req.MaxQueryLength,
-			CommentsParsingDisabled: req.DisableCommentsParsing,
-			TLS:                     req.Tls,
-			TLSSkipVerify:           req.TlsSkipVerify,
-			PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(req),
-			LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			PMMAgentID:              p.PmmAgentId,
+			ServiceID:               p.ServiceId,
+			Username:                p.Username,
+			Password:                p.Password,
+			CustomLabels:            p.CustomLabels,
+			MaxQueryLength:          p.MaxQueryLength,
+			CommentsParsingDisabled: p.DisableCommentsParsing,
+			TLS:                     p.Tls,
+			TLSSkipVerify:           p.TlsSkipVerify,
+			PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(p),
+			LogLevel:                services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, params)
 		if err != nil {
 			return err
 		}
-		if !req.SkipConnectionCheck {
-			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+		if !p.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
 			if err != nil {
 				return err
 			}
@@ -736,19 +787,25 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, 
 		return res, e
 	}
 
-	as.state.RequestStateUpdate(ctx, req.PmmAgentId)
+	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 	return res, e
 }
 
 // ChangeQANPostgreSQLPgStatementsAgent updates PostgreSQL Pg stat statements QAN Agent with given parameters.
-func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, req *inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.QANPostgreSQLPgStatementsAgent, error) { //nolint:lll
-	agent, err := as.changeAgent(req.AgentId, req.Common)
+func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, p *inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
+	ag, err := as.changeAgent(p.AgentId, p.Common)
 	if err != nil {
 		return nil, err
 	}
 
-	res := agent.(*inventoryv1.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, res.PmmAgentId)
+	agent := ag.(*inventoryv1.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_QanPostgresqlPgstatementsAgent{
+			QanPostgresqlPgstatementsAgent: agent,
+		},
+	}
 	return res, nil
 }
 
@@ -803,14 +860,20 @@ func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context,
 }
 
 // ChangeQANPostgreSQLPgStatMonitorAgent updates PostgreSQL Pg stat monitor QAN Agent with given parameters.
-func (as *AgentsService) ChangeQANPostgreSQLPgStatMonitorAgent(ctx context.Context, req *inventoryv1.ChangeQANPostgreSQLPgStatMonitorAgentParams) (*inventoryv1.QANPostgreSQLPgStatMonitorAgent, error) { //nolint:lll
-	agent, err := as.changeAgent(req.AgentId, req.Common)
+func (as *AgentsService) ChangeQANPostgreSQLPgStatMonitorAgent(ctx context.Context, req *inventoryv1.ChangeQANPostgreSQLPgStatMonitorAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
+	ag, err := as.changeAgent(req.AgentId, req.Common)
 	if err != nil {
 		return nil, err
 	}
 
-	res := agent.(*inventoryv1.QANPostgreSQLPgStatMonitorAgent) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, res.PmmAgentId)
+	agent := ag.(*inventoryv1.QANPostgreSQLPgStatMonitorAgent) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_QanPostgresqlPgstatmonitorAgent{
+			QanPostgresqlPgstatmonitorAgent: agent,
+		},
+	}
 	return res, nil
 }
 
@@ -855,14 +918,20 @@ func (as *AgentsService) AddRDSExporter(ctx context.Context, p *inventoryv1.AddR
 }
 
 // ChangeRDSExporter updates rds_exporter Agent with given parameters.
-func (as *AgentsService) ChangeRDSExporter(ctx context.Context, req *inventoryv1.ChangeRDSExporterParams) (*inventoryv1.RDSExporter, error) {
-	agent, err := as.changeAgent(req.AgentId, req.Common)
+func (as *AgentsService) ChangeRDSExporter(ctx context.Context, req *inventoryv1.ChangeRDSExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
+	ag, err := as.changeAgent(req.AgentId, req.Common)
 	if err != nil {
 		return nil, err
 	}
 
-	res := agent.(*inventoryv1.RDSExporter) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, res.PmmAgentId)
+	agent := ag.(*inventoryv1.RDSExporter) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_RdsExporter{
+			RdsExporter: agent,
+		},
+	}
 	return res, nil
 }
 
@@ -912,8 +981,8 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 }
 
 // ChangeExternalExporter updates external-exporter Agent with given parameters.
-func (as *AgentsService) ChangeExternalExporter(req *inventoryv1.ChangeExternalExporterParams) (*inventoryv1.ExternalExporter, error) {
-	agent, err := as.changeAgent(req.AgentId, req.Common)
+func (as *AgentsService) ChangeExternalExporter(req *inventoryv1.ChangeExternalExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
+	ag, err := as.changeAgent(req.AgentId, req.Common)
 	if err != nil {
 		return nil, err
 	}
@@ -921,7 +990,14 @@ func (as *AgentsService) ChangeExternalExporter(req *inventoryv1.ChangeExternalE
 	// It's required to regenerate victoriametrics config file.
 	as.vmdb.RequestConfigurationUpdate()
 
-	res := agent.(*inventoryv1.ExternalExporter) //nolint:forceTypeAssert
+	agent := ag.(*inventoryv1.ExternalExporter) //nolint:forceTypeAssert
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_ExternalExporter{
+			ExternalExporter: agent,
+		},
+	}
+
 	return res, nil
 }
 
@@ -962,14 +1038,20 @@ func (as *AgentsService) AddAzureDatabaseExporter(ctx context.Context, p *invent
 func (as *AgentsService) ChangeAzureDatabaseExporter(
 	ctx context.Context,
 	req *inventoryv1.ChangeAzureDatabaseExporterParams,
-) (*inventoryv1.AzureDatabaseExporter, error) {
-	agent, err := as.changeAgent(req.AgentId, req.Common)
+) (*inventoryv1.ChangeAgentResponse, error) {
+	ag, err := as.changeAgent(req.AgentId, req.Common)
 	if err != nil {
 		return nil, err
 	}
 
-	res := agent.(*inventoryv1.AzureDatabaseExporter) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, res.PmmAgentId)
+	agent := ag.(*inventoryv1.AzureDatabaseExporter) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_AzureDatabaseExporter{
+			AzureDatabaseExporter: agent,
+		},
+	}
 	return res, nil
 }
 

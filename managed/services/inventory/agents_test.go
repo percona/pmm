@@ -78,13 +78,14 @@ func TestAgents(t *testing.T) {
 		}
 		assert.Equal(t, expectedNodeExporter, actualNodeExporter)
 
-		actualNodeExporter, err = as.ChangeNodeExporter(ctx, &inventoryv1.ChangeNodeExporterParams{
+		resp, err := as.ChangeNodeExporter(ctx, &inventoryv1.ChangeNodeExporterParams{
 			AgentId: "/agent_id/00000000-0000-4000-8000-000000000006",
 			Common: &inventoryv1.ChangeCommonAgentParams{
 				Disable: true,
 			},
 		})
 		require.NoError(t, err)
+		actualNodeExporter = resp.GetNodeExporter()
 		expectedNodeExporter = &inventoryv1.NodeExporter{
 			AgentId:    "/agent_id/00000000-0000-4000-8000-000000000006",
 			PmmAgentId: "/agent_id/00000000-0000-4000-8000-000000000005",
