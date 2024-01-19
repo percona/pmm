@@ -1,6 +1,6 @@
 # About PMM
 
-!!! info ""
+!!! info "Info"
     This is the documentation for the latest release, **PMM {{release}}** ([Release Notes](release-notes/{{release}}.md)).
 
 
