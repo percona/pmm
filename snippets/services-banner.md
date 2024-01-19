@@ -6,5 +6,5 @@ If you need assistance, you can find comprehensive and free database knowledge o
 
 <div class="actions" markdown>
 
-[:material-forum-outline: Community Forum](https://forums.percona.com/){:target="_blank"} [:percona-logo: Get a Percona Expert](https://www.percona.com/about/contact){:target="_blank"}[:simple-blogger: Blogposts](https://www.percona.com/blog/)
+[:material-forum-outline: Community Forum](https://forums.percona.com/){:target="_blank"} [:percona-logo: Get a Percona Expert](https://www.percona.com/about/contact){:target="_blank"}[:fontawesome-solid-blog: Blogposts](https://www.percona.com/blog/)
 </div></div>
