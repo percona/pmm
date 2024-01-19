@@ -61,10 +61,11 @@ jobs:
           pushd tools && go mod download -x
           popd        && go mod download -x
 
-      - name: Initialize CI environment
+      - name: Launch PMM Server (see docker-compose.yml)
         run: |
+          # Note: launching the container with --wait fails for an unknown reason. 
+          # A temporary workaround is to run it manually. To be reverted once the issue is resolved.
           # make env-compose-up # the container workdir is /root/go/src/github.com/percona/pmm
-          # ---
           docker compose --profile pmm up -d
           sleep 100s
           docker logs pmm-server
