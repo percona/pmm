@@ -249,7 +249,7 @@ func TestExternalExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAgentRequest.ListenPort: value must be inside range (0, 65536)")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalExporterParams.ListenPort: value must be inside range (0, 65536)")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.ExternalExporter.AgentID)
 		}
@@ -282,7 +282,7 @@ func TestExternalExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAgentRequest.RunsOnNodeId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalExporterParams.RunsOnNodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.ExternalExporter.AgentID)
 		}

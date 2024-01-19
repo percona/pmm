@@ -308,7 +308,7 @@ func TestPMMAgent(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAgentRequest.RunsOnNodeId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPMMAgentParams.RunsOnNodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.PMMAgent.AgentID)
 		}
@@ -641,7 +641,7 @@ func TestQanAgentExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAgentRequest.ServiceId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddQANMySQLPerfSchemaAgentParams.ServiceId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANMysqlPerfschemaAgent.AgentID)
 		}
@@ -678,7 +678,7 @@ func TestQanAgentExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAgentRequest.PmmAgentId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddQANMySQLPerfSchemaAgentParams.PmmAgentId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANMysqlPerfschemaAgent.AgentID)
 		}
@@ -902,7 +902,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAgentRequest.ServiceId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddQANPostgreSQLPgStatementsAgentParams.ServiceId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANPostgresqlPgstatementsAgent.AgentID)
 		}
@@ -939,7 +939,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddQANPostgreSQLPgStatementsAgentRequest.PmmAgentId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddQANPostgreSQLPgStatementsAgentParams.PmmAgentId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANPostgresqlPgstatementsAgent.AgentID)
 		}
@@ -1230,7 +1230,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAgentRequest.ServiceId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddQANPostgreSQLPgStatMonitorAgentParams.ServiceId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANPostgresqlPgstatmonitorAgent.AgentID)
 		}
@@ -1267,7 +1267,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAgentRequest.PmmAgentId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddQANPostgreSQLPgStatMonitorAgentParams.PmmAgentId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANPostgresqlPgstatmonitorAgent.AgentID)
 		}

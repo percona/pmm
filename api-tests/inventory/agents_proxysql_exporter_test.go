@@ -181,7 +181,7 @@ func TestProxySQLExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAgentRequest.ServiceId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLExporterParams.ServiceId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.ProxysqlExporter.AgentID)
 		}
@@ -216,7 +216,7 @@ func TestProxySQLExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAgentRequest.PmmAgentId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLExporterParams.PmmAgentId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.ProxysqlExporter.AgentID)
 		}
