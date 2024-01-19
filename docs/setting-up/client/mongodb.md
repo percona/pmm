@@ -196,6 +196,9 @@ For example, to enable the profiler in the `testdb`, run this:
 
 When you have configured your database server, you can add a MongoDB service with the user interface or on the command line.
 
+!!! caution alert alert-warning "Important"
+   To monitor MongoDB sharded clusters, PMM requires access to all cluster components. Make sure to add all config servers, shards, and mongos. Otherwise, PMM will not be able to correctly collect metrics and populate dashboards.
+
 ### With the user interface
 
 1. Select {{icon.configuration}} *Configuration* → {{icon.inventory}} *Inventory*.
@@ -214,7 +217,7 @@ Use `pmm-admin` to add the database server as a service using one of these examp
 When successful, PMM Client will print `MongoDB Service added` with the service's ID and name. Use the `--environment` and `-custom-labels` options to set tags for the service to help identify them.
 
 !!! hint alert alert-success "Tips"
-    - When adding nodes of a sharded cluster, add each node separately using the `--cluster mycluster` option for the MongoDB Cluster Summary dashboard to populate correctly.
+    - When adding nodes of a sharded cluster, add each node separately using the `--cluster mycluster` option for the [MongoDB Cluster Summary](../../details/dashboards/dashboard-mongodb-cluster-summary.md) dashboard to populate correctly. Also use the `--replication-set` option to specify a replication set. Example: `--replication-set config` for your config servers; `--replication-set rs1` for your servers in the first replica set, `--replication-set rs2` for your servers in the second replica set, and so on.
     - Atlas doesn't support direct connections. When connecting to an Atlas instance, use the `pmm-admin` option `--direct-connection=false`. (Doing so will prevent replicaset status from working and the MongoDB Overview dashboard widget will show invalid values.)
 
 ### Examples
