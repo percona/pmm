@@ -30,7 +30,7 @@ Ready to dive into PMM? We've got you covered! Follow our simple, step-by-step i
 
 </div><div data-banner markdown>
 
-## :fontawesome-solid-gear: Configuration { .title }
+## :fontawesome-solid-gears: Configuration { .title }
 
 Are you ready to begin configuring PMM  but need help figuring out how to begin? Let's dive in together and get you to speed up.
 
@@ -38,7 +38,7 @@ Are you ready to begin configuring PMM  but need help figuring out how to begin?
 
 </div><div data-banner markdown>
 
-### :material-bookshelf: Resources { .title }
+### :material-book-plus-multiple: Resources { .title }
 
 Looking for reliable and easy-to-use resources to tackle your everyday challenges and specific doubts? Our comprehensive resources are here to help you overcome any obstacles that come your way.
 
