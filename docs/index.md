@@ -1,6 +1,6 @@
 # About PMM
 
-!!! alert alert-info ""
+!!! info ""
     This is the documentation for the latest release, **PMM {{release}}** ([Release Notes](release-notes/{{release}}.md)).
 
 
@@ -28,7 +28,7 @@ Unleash the full power of your monitoring experience with PMM's amazing set of f
 
 Ready to dive into PMM? We've got you covered! Follow our simple, step-by-step installation instructions to get started in no time!
 
-[Quickstart guide :material-arrow-right:](quickstart.md){ .md-button }
+[Quickstart guide :material-arrow-right:](quickstart.md){ .md-button .md-button--primary }
 
 </div><div data-banner markdown>
 
@@ -36,7 +36,7 @@ Ready to dive into PMM? We've got you covered! Follow our simple, step-by-step i
 
 Are you ready to begin configuring PMM  but need help figuring out how to begin? Let's dive in together and get you to speed up.
 
-[Configure PMM :material-arrow-right:](configure-pmm/configure.md){ .md-button }
+[Configure PMM :material-arrow-right:](configure-pmm/configure.md){ .md-button .md-button--primary }
 
 </div><div data-banner markdown>
 
@@ -44,7 +44,7 @@ Are you ready to begin configuring PMM  but need help figuring out how to begin?
 
 Looking for reliable and easy-to-use resources to tackle your everyday challenges and specific doubts? Our comprehensive resources are here to help you overcome any obstacles that come your way.
 
-[Additional resources :material-arrow-right:](https://www.percona.com/resources){.md-button}
+[Additional resources :material-arrow-right:](https://www.percona.com/resources){ .md-button .md-button--primary }
 
 </div>
 </div>
