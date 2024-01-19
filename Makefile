@@ -20,7 +20,7 @@ env-update-image:					## Pull latest dev image
 
 env-compose-up: env-update-image
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose up --detach --renew-anon-volumes --remove-orphans --wait --wait-timeout 150
+	docker compose up --detach --renew-anon-volumes --remove-orphans --wait --wait-timeout 250
 
 env-devcontainer:
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-server .devcontainer/setup.py
