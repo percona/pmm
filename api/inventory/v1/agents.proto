@@ -672,7 +672,7 @@ message GetAgentLogsResponse {
 // TODO Change VMAgent?
 
 message AddAgentRequest {
-  oneof exporter {
+  oneof agent {
     AddPMMAgentParams pmm_agent = 1;
     AddNodeExporterParams node_exporter = 2;
     AddMySQLdExporterParams mysqld_exporter = 3;
@@ -691,7 +691,7 @@ message AddAgentRequest {
 }
 
 message AddAgentResponse {
-  oneof exporter {
+  oneof agent {
     PMMAgent pmm_agent = 1;
     NodeExporter node_exporter = 2;
     MySQLdExporter mysqld_exporter = 3;
@@ -1327,20 +1327,6 @@ service AgentsService {
       description: "Updates an Agent in Inventory."
     };
   }
-
-  // ChangeNodeExporter
-  // ChangeMySQLdExporter
-  // ChangeMongoDBExporter
-  // ChangePostgresExporter
-  // ChangeProxySQLExporter
-  // ChangeQANMySQLPerfSchemaAgent
-  // ChangeQANMySQLSlowlogAgent
-  // ChangeQANMongoDBProfilerAgent
-  // ChangeQANPostgreSQLPgStatementsAgent
-  // ChangeQANPostgreSQLPgStatMonitorAgent
-  // ChangeRDSExporter
-  // ChangeExternalExporter
-  // ChangeAzureDatabaseExporter
 
   // RemoveAgent removes an Agent.
   rpc RemoveAgent(RemoveAgentRequest) returns (RemoveAgentResponse) {

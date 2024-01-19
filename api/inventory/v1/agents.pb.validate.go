@@ -3842,11 +3842,11 @@ func (m *AddAgentRequest) validate(all bool) error {
 
 	var errors []error
 
-	switch v := m.Exporter.(type) {
+	switch v := m.Agent.(type) {
 	case *AddAgentRequest_PmmAgent:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -3887,7 +3887,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_NodeExporter:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -3928,7 +3928,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_MysqldExporter:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -3969,7 +3969,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_MongodbExporter:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4010,7 +4010,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_PostgresExporter:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4051,7 +4051,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_ProxysqlExporter:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4092,7 +4092,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_ExternalExporter:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4133,7 +4133,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_RdsExporter:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4174,7 +4174,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_AzureDatabaseExporter:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4215,7 +4215,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_QanMysqlPerfschemaAgent:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4256,7 +4256,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_QanMysqlSlowlogAgent:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4297,7 +4297,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_QanMongodbProfilerAgent:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4338,7 +4338,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_QanPostgresqlPgstatementsAgent:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4379,7 +4379,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_QanPostgresqlPgstatmonitorAgent:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4523,11 +4523,11 @@ func (m *AddAgentResponse) validate(all bool) error {
 
 	// no validation rules for TableCount
 
-	switch v := m.Exporter.(type) {
+	switch v := m.Agent.(type) {
 	case *AddAgentResponse_PmmAgent:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4568,7 +4568,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_NodeExporter:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4609,7 +4609,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_MysqldExporter:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4650,7 +4650,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_MongodbExporter:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4691,7 +4691,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_PostgresExporter:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4732,7 +4732,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_ProxysqlExporter:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4773,7 +4773,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_ExternalExporter:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4814,7 +4814,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_RdsExporter:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4855,7 +4855,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_AzureDatabaseExporter:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4896,7 +4896,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_QanMysqlPerfschemaAgent:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4937,7 +4937,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_QanMysqlSlowlogAgent:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4978,7 +4978,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_QanMongodbProfilerAgent:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -5019,7 +5019,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_QanPostgresqlPgstatementsAgent:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -5060,7 +5060,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_QanPostgresqlPgstatmonitorAgent:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {

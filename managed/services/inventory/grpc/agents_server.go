@@ -181,7 +181,7 @@ func (s *agentsServer) addPMMAgent(ctx context.Context, params *inventoryv1.AddP
 	}
 
 	res := &inventoryv1.AddAgentResponse{
-		Exporter: &inventoryv1.AddAgentResponse_PmmAgent{
+		Agent: &inventoryv1.AddAgentResponse_PmmAgent{
 			PmmAgent: agent,
 		},
 	}
@@ -190,7 +190,7 @@ func (s *agentsServer) addPMMAgent(ctx context.Context, params *inventoryv1.AddP
 
 // AddAgent adds an Agent.
 func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRequest) (*inventoryv1.AddAgentResponse, error) {
-	switch req.Exporter.(type) {
+	switch req.Agent.(type) {
 	case *inventoryv1.AddAgentRequest_PmmAgent:
 		return s.addPMMAgent(ctx, req.GetPmmAgent())
 	case *inventoryv1.AddAgentRequest_NodeExporter:
@@ -220,7 +220,7 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 	case *inventoryv1.AddAgentRequest_QanPostgresqlPgstatmonitorAgent:
 		return s.addQANPostgreSQLPgStatMonitorAgent(ctx, req.GetQanPostgresqlPgstatmonitorAgent())
 	default:
-		return nil, fmt.Errorf("invalid request %v", req.Exporter)
+		return nil, fmt.Errorf("invalid request %v", req.Agent)
 	}
 }
 
@@ -266,7 +266,7 @@ func (s *agentsServer) addNodeExporter(ctx context.Context, params *inventoryv1.
 	}
 
 	res := &inventoryv1.AddAgentResponse{
-		Exporter: &inventoryv1.AddAgentResponse_NodeExporter{
+		Agent: &inventoryv1.AddAgentResponse_NodeExporter{
 			NodeExporter: agent,
 		},
 	}
@@ -281,7 +281,7 @@ func (s *agentsServer) addMySQLdExporter(ctx context.Context, params *inventoryv
 	}
 
 	res := &inventoryv1.AddAgentResponse{
-		Exporter: &inventoryv1.AddAgentResponse_MysqldExporter{
+		Agent: &inventoryv1.AddAgentResponse_MysqldExporter{
 			MysqldExporter: agent,
 		},
 		TableCount: tableCount,
@@ -297,7 +297,7 @@ func (s *agentsServer) addMongoDBExporter(ctx context.Context, params *inventory
 	}
 
 	res := &inventoryv1.AddAgentResponse{
-		Exporter: &inventoryv1.AddAgentResponse_MongodbExporter{
+		Agent: &inventoryv1.AddAgentResponse_MongodbExporter{
 			MongodbExporter: agent,
 		},
 	}
@@ -314,7 +314,7 @@ func (s *agentsServer) addQANMySQLPerfSchemaAgent(ctx context.Context, params *i
 	}
 
 	res := &inventoryv1.AddAgentResponse{
-		Exporter: &inventoryv1.AddAgentResponse_QanMysqlPerfschemaAgent{
+		Agent: &inventoryv1.AddAgentResponse_QanMysqlPerfschemaAgent{
 			QanMysqlPerfschemaAgent: agent,
 		},
 	}
@@ -331,7 +331,7 @@ func (s *agentsServer) addQANMySQLSlowlogAgent(ctx context.Context, params *inve
 	}
 
 	res := &inventoryv1.AddAgentResponse{
-		Exporter: &inventoryv1.AddAgentResponse_QanMysqlSlowlogAgent{
+		Agent: &inventoryv1.AddAgentResponse_QanMysqlSlowlogAgent{
 			QanMysqlSlowlogAgent: agent,
 		},
 	}
@@ -346,7 +346,7 @@ func (s *agentsServer) addPostgresExporter(ctx context.Context, params *inventor
 	}
 
 	res := &inventoryv1.AddAgentResponse{
-		Exporter: &inventoryv1.AddAgentResponse_PostgresExporter{
+		Agent: &inventoryv1.AddAgentResponse_PostgresExporter{
 			PostgresExporter: agent,
 		},
 	}
@@ -363,7 +363,7 @@ func (s *agentsServer) addQANMongoDBProfilerAgent(ctx context.Context, params *i
 	}
 
 	res := &inventoryv1.AddAgentResponse{
-		Exporter: &inventoryv1.AddAgentResponse_QanMongodbProfilerAgent{
+		Agent: &inventoryv1.AddAgentResponse_QanMongodbProfilerAgent{
 			QanMongodbProfilerAgent: agent,
 		},
 	}
@@ -378,7 +378,7 @@ func (s *agentsServer) addProxySQLExporter(ctx context.Context, params *inventor
 	}
 
 	res := &inventoryv1.AddAgentResponse{
-		Exporter: &inventoryv1.AddAgentResponse_ProxysqlExporter{
+		Agent: &inventoryv1.AddAgentResponse_ProxysqlExporter{
 			ProxysqlExporter: agent,
 		},
 	}
@@ -393,7 +393,7 @@ func (s *agentsServer) addQANPostgreSQLPgStatementsAgent(ctx context.Context, pa
 	}
 
 	res := &inventoryv1.AddAgentResponse{
-		Exporter: &inventoryv1.AddAgentResponse_QanPostgresqlPgstatementsAgent{
+		Agent: &inventoryv1.AddAgentResponse_QanPostgresqlPgstatementsAgent{
 			QanPostgresqlPgstatementsAgent: agent,
 		},
 	}
@@ -408,7 +408,7 @@ func (s *agentsServer) addQANPostgreSQLPgStatMonitorAgent(ctx context.Context, p
 	}
 
 	res := &inventoryv1.AddAgentResponse{
-		Exporter: &inventoryv1.AddAgentResponse_QanPostgresqlPgstatmonitorAgent{
+		Agent: &inventoryv1.AddAgentResponse_QanPostgresqlPgstatmonitorAgent{
 			QanPostgresqlPgstatmonitorAgent: agent,
 		},
 	}
@@ -423,7 +423,7 @@ func (s *agentsServer) addRDSExporter(ctx context.Context, params *inventoryv1.A
 	}
 
 	res := &inventoryv1.AddAgentResponse{
-		Exporter: &inventoryv1.AddAgentResponse_RdsExporter{
+		Agent: &inventoryv1.AddAgentResponse_RdsExporter{
 			RdsExporter: agent,
 		},
 	}
@@ -438,7 +438,7 @@ func (s *agentsServer) addExternalExporter(ctx context.Context, params *inventor
 	}
 
 	res := &inventoryv1.AddAgentResponse{
-		Exporter: &inventoryv1.AddAgentResponse_ExternalExporter{
+		Agent: &inventoryv1.AddAgentResponse_ExternalExporter{
 			ExternalExporter: agent,
 		},
 	}
@@ -456,7 +456,7 @@ func (s *agentsServer) addAzureDatabaseExporter(
 	}
 
 	res := &inventoryv1.AddAgentResponse{
-		Exporter: &inventoryv1.AddAgentResponse_AzureDatabaseExporter{
+		Agent: &inventoryv1.AddAgentResponse_AzureDatabaseExporter{
 			AzureDatabaseExporter: agent,
 		},
 	}
