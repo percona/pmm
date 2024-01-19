@@ -46,7 +46,7 @@ func TestStartSecurityChecks(t *testing.T) {
 		assert.Nil(t, resp)
 	})
 
-	t.Run("STT disabled error", func(t *testing.T) {
+	t.Run("Advisors disabled error", func(t *testing.T) {
 		var checksService mockChecksService
 		checksService.On("StartChecks", []string(nil)).Return(services.ErrAdvisorsDisabled)
 
@@ -77,7 +77,7 @@ func TestGetFailedChecks(t *testing.T) {
 		assert.Nil(t, resp)
 	})
 
-	t.Run("STT disabled error", func(t *testing.T) {
+	t.Run("Advisors disabled error", func(t *testing.T) {
 		t.Parallel()
 
 		var checksService mockChecksService

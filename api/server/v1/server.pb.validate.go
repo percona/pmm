@@ -1745,22 +1745,22 @@ var _ interface {
 	ErrorName() string
 } = MetricsResolutionsValidationError{}
 
-// Validate checks the field values on STTCheckIntervals with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// first error encountered is returned, or nil if there are no violations.
-func (m *STTCheckIntervals) Validate() error {
+// Validate checks the field values on AdvisorRunIntervals with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AdvisorRunIntervals) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on STTCheckIntervals with the rules
+// ValidateAll checks the field values on AdvisorRunIntervals with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// STTCheckIntervalsMultiError, or nil if none found.
-func (m *STTCheckIntervals) ValidateAll() error {
+// AdvisorRunIntervalsMultiError, or nil if none found.
+func (m *AdvisorRunIntervals) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *STTCheckIntervals) validate(all bool) error {
+func (m *AdvisorRunIntervals) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1771,7 +1771,7 @@ func (m *STTCheckIntervals) validate(all bool) error {
 		switch v := interface{}(m.GetStandardInterval()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, STTCheckIntervalsValidationError{
+				errors = append(errors, AdvisorRunIntervalsValidationError{
 					field:  "StandardInterval",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1779,7 +1779,7 @@ func (m *STTCheckIntervals) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, STTCheckIntervalsValidationError{
+				errors = append(errors, AdvisorRunIntervalsValidationError{
 					field:  "StandardInterval",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1788,7 +1788,7 @@ func (m *STTCheckIntervals) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetStandardInterval()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return STTCheckIntervalsValidationError{
+			return AdvisorRunIntervalsValidationError{
 				field:  "StandardInterval",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -1800,7 +1800,7 @@ func (m *STTCheckIntervals) validate(all bool) error {
 		switch v := interface{}(m.GetRareInterval()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, STTCheckIntervalsValidationError{
+				errors = append(errors, AdvisorRunIntervalsValidationError{
 					field:  "RareInterval",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1808,7 +1808,7 @@ func (m *STTCheckIntervals) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, STTCheckIntervalsValidationError{
+				errors = append(errors, AdvisorRunIntervalsValidationError{
 					field:  "RareInterval",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1817,7 +1817,7 @@ func (m *STTCheckIntervals) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetRareInterval()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return STTCheckIntervalsValidationError{
+			return AdvisorRunIntervalsValidationError{
 				field:  "RareInterval",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -1829,7 +1829,7 @@ func (m *STTCheckIntervals) validate(all bool) error {
 		switch v := interface{}(m.GetFrequentInterval()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, STTCheckIntervalsValidationError{
+				errors = append(errors, AdvisorRunIntervalsValidationError{
 					field:  "FrequentInterval",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1837,7 +1837,7 @@ func (m *STTCheckIntervals) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, STTCheckIntervalsValidationError{
+				errors = append(errors, AdvisorRunIntervalsValidationError{
 					field:  "FrequentInterval",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1846,7 +1846,7 @@ func (m *STTCheckIntervals) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetFrequentInterval()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return STTCheckIntervalsValidationError{
+			return AdvisorRunIntervalsValidationError{
 				field:  "FrequentInterval",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -1855,19 +1855,19 @@ func (m *STTCheckIntervals) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return STTCheckIntervalsMultiError(errors)
+		return AdvisorRunIntervalsMultiError(errors)
 	}
 
 	return nil
 }
 
-// STTCheckIntervalsMultiError is an error wrapping multiple validation errors
-// returned by STTCheckIntervals.ValidateAll() if the designated constraints
-// aren't met.
-type STTCheckIntervalsMultiError []error
+// AdvisorRunIntervalsMultiError is an error wrapping multiple validation
+// errors returned by AdvisorRunIntervals.ValidateAll() if the designated
+// constraints aren't met.
+type AdvisorRunIntervalsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m STTCheckIntervalsMultiError) Error() string {
+func (m AdvisorRunIntervalsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1876,11 +1876,11 @@ func (m STTCheckIntervalsMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m STTCheckIntervalsMultiError) AllErrors() []error { return m }
+func (m AdvisorRunIntervalsMultiError) AllErrors() []error { return m }
 
-// STTCheckIntervalsValidationError is the validation error returned by
-// STTCheckIntervals.Validate if the designated constraints aren't met.
-type STTCheckIntervalsValidationError struct {
+// AdvisorRunIntervalsValidationError is the validation error returned by
+// AdvisorRunIntervals.Validate if the designated constraints aren't met.
+type AdvisorRunIntervalsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1888,24 +1888,24 @@ type STTCheckIntervalsValidationError struct {
 }
 
 // Field function returns field value.
-func (e STTCheckIntervalsValidationError) Field() string { return e.field }
+func (e AdvisorRunIntervalsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e STTCheckIntervalsValidationError) Reason() string { return e.reason }
+func (e AdvisorRunIntervalsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e STTCheckIntervalsValidationError) Cause() error { return e.cause }
+func (e AdvisorRunIntervalsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e STTCheckIntervalsValidationError) Key() bool { return e.key }
+func (e AdvisorRunIntervalsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e STTCheckIntervalsValidationError) ErrorName() string {
-	return "STTCheckIntervalsValidationError"
+func (e AdvisorRunIntervalsValidationError) ErrorName() string {
+	return "AdvisorRunIntervalsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e STTCheckIntervalsValidationError) Error() string {
+func (e AdvisorRunIntervalsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1917,14 +1917,14 @@ func (e STTCheckIntervalsValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sSTTCheckIntervals.%s: %s%s",
+		"invalid %sAdvisorRunIntervals.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = STTCheckIntervalsValidationError{}
+var _ error = AdvisorRunIntervalsValidationError{}
 
 var _ interface {
 	Field() string
@@ -1932,7 +1932,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = STTCheckIntervalsValidationError{}
+} = AdvisorRunIntervalsValidationError{}
 
 // Validate checks the field values on Settings with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
@@ -2020,7 +2020,7 @@ func (m *Settings) validate(all bool) error {
 
 	// no validation rules for SshKey
 
-	// no validation rules for SttEnabled
+	// no validation rules for AdvisorEnabled
 
 	// no validation rules for PlatformEmail
 
@@ -2029,11 +2029,11 @@ func (m *Settings) validate(all bool) error {
 	// no validation rules for PmmPublicAddress
 
 	if all {
-		switch v := interface{}(m.GetSttCheckIntervals()).(type) {
+		switch v := interface{}(m.GetAdvisorRunIntervals()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, SettingsValidationError{
-					field:  "SttCheckIntervals",
+					field:  "AdvisorRunIntervals",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -2041,16 +2041,16 @@ func (m *Settings) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, SettingsValidationError{
-					field:  "SttCheckIntervals",
+					field:  "AdvisorRunIntervals",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetSttCheckIntervals()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetAdvisorRunIntervals()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return SettingsValidationError{
-				field:  "SttCheckIntervals",
+				field:  "AdvisorRunIntervals",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -2458,11 +2458,11 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetSttCheckIntervals()).(type) {
+		switch v := interface{}(m.GetAdvisorRunIntervals()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeSettingsRequestValidationError{
-					field:  "SttCheckIntervals",
+					field:  "AdvisorRunIntervals",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -2470,16 +2470,16 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, ChangeSettingsRequestValidationError{
-					field:  "SttCheckIntervals",
+					field:  "AdvisorRunIntervals",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetSttCheckIntervals()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetAdvisorRunIntervals()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeSettingsRequestValidationError{
-				field:  "SttCheckIntervals",
+				field:  "AdvisorRunIntervals",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -2529,8 +2529,8 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 		}
 	}
 
-	if m.EnableStt != nil {
-		// no validation rules for EnableStt
+	if m.EnableAdvisor != nil {
+		// no validation rules for EnableAdvisor
 	}
 
 	if m.EnableAlerting != nil {

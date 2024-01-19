@@ -63,15 +63,15 @@ type ChangeSettingsParams struct {
 
 	SSHKey *string
 
-	// Enable Security Threat Tool
-	EnableSTT *bool
+	// Enable Advisors
+	EnableAdvisors *bool
 
-	// List of STT checks to disable
-	DisableSTTChecks []string
-	// List of STT checks to enable
-	EnableSTTChecks []string
-	// STT check intervals
-	STTCheckIntervals STTCheckIntervals
+	// List of Advisor checks to disable
+	DisableAdvisorChecks []string
+	// List of Advisor checks to enable
+	EnableAdvisorChecks []string
+	// Advisors run intervals
+	AdvisorsRunInterval AdvisorsRunIntervals
 
 	// Enable Azure Discover features.
 	EnableAzurediscover *bool
@@ -162,37 +162,37 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.SSHKey = pointer.GetString(params.SSHKey)
 	}
 
-	if params.EnableSTT != nil {
-		settings.SaaS.Enabled = params.EnableSTT
+	if params.EnableAdvisors != nil {
+		settings.SaaS.Enabled = params.EnableAdvisors
 	}
 
-	if params.STTCheckIntervals.RareInterval != 0 {
-		settings.SaaS.STTCheckIntervals.RareInterval = params.STTCheckIntervals.RareInterval
+	if params.AdvisorsRunInterval.RareInterval != 0 {
+		settings.SaaS.AdvisorRunIntervals.RareInterval = params.AdvisorsRunInterval.RareInterval
 	}
-	if params.STTCheckIntervals.StandardInterval != 0 {
-		settings.SaaS.STTCheckIntervals.StandardInterval = params.STTCheckIntervals.StandardInterval
+	if params.AdvisorsRunInterval.StandardInterval != 0 {
+		settings.SaaS.AdvisorRunIntervals.StandardInterval = params.AdvisorsRunInterval.StandardInterval
 	}
-	if params.STTCheckIntervals.FrequentInterval != 0 {
-		settings.SaaS.STTCheckIntervals.FrequentInterval = params.STTCheckIntervals.FrequentInterval
-	}
-
-	if len(params.DisableSTTChecks) != 0 {
-		settings.SaaS.DisabledSTTChecks = deduplicateStrings(append(settings.SaaS.DisabledSTTChecks, params.DisableSTTChecks...))
+	if params.AdvisorsRunInterval.FrequentInterval != 0 {
+		settings.SaaS.AdvisorRunIntervals.FrequentInterval = params.AdvisorsRunInterval.FrequentInterval
 	}
 
-	if len(params.EnableSTTChecks) != 0 {
-		m := make(map[string]struct{}, len(params.EnableSTTChecks))
-		for _, p := range params.EnableSTTChecks {
+	if len(params.DisableAdvisorChecks) != 0 {
+		settings.SaaS.DisabledAdvisors = deduplicateStrings(append(settings.SaaS.DisabledAdvisors, params.DisableAdvisorChecks...))
+	}
+
+	if len(params.EnableAdvisorChecks) != 0 {
+		m := make(map[string]struct{}, len(params.EnableAdvisorChecks))
+		for _, p := range params.EnableAdvisorChecks {
 			m[p] = struct{}{}
 		}
 
 		var res []string
-		for _, c := range settings.SaaS.DisabledSTTChecks {
+		for _, c := range settings.SaaS.DisabledAdvisors {
 			if _, ok := m[c]; !ok {
 				res = append(res, c)
 			}
 		}
-		settings.SaaS.DisabledSTTChecks = res
+		settings.SaaS.DisabledAdvisors = res
 	}
 
 	if params.EnableVMCache != nil {
@@ -241,7 +241,7 @@ func lockRoleForChange(tx *reform.TX, roleID int) error {
 
 // ValidateSettings validates settings changes.
 func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
-	// TODO: consider refactoring this and the validation for STT check intervals
+	// TODO: consider refactoring this and the validation for Advisors run intervals
 	checkCases := []struct {
 		dur       time.Duration
 		fieldName string
@@ -271,16 +271,16 @@ func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
 		dur       time.Duration
 		fieldName string
 	}{
-		{params.STTCheckIntervals.RareInterval, "rare_interval"},
-		{params.STTCheckIntervals.StandardInterval, "standard_interval"},
-		{params.STTCheckIntervals.FrequentInterval, "frequent_interval"},
+		{params.AdvisorsRunInterval.RareInterval, "rare_interval"},
+		{params.AdvisorsRunInterval.StandardInterval, "standard_interval"},
+		{params.AdvisorsRunInterval.FrequentInterval, "frequent_interval"},
 	}
 	for _, v := range checkCases {
 		if v.dur == 0 {
 			continue
 		}
 
-		if _, err := validators.ValidateSTTCheckInterval(v.dur); err != nil {
+		if _, err := validators.ValidateAdvisorRunInterval(v.dur); err != nil {
 			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)

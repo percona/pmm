@@ -978,6 +978,13 @@ var databaseSchema = [][]string{
 		`UPDATE settings SET settings = settings || jsonb_set(settings, '{sass,enabled}', to_jsonb( NOT ((settings#>'{sass,stt_disabled}')::boolean))) WHERE (settings#>'{sass,stt_disabled}') IS NOT NULL`,
 		`UPDATE settings SET settings = settings #- '{sass, stt_disabled}';`,
 	},
+	104: {
+		`UPDATE settings SET settings = settings || jsonb_set(settings, '{sass,disabled_advisors}', settings#>'{sass,disabled_stt_checks}')`,
+		`UPDATE settings SET settings = settings #- '{sass,disabled_stt_checks}';`,
+
+		`UPDATE settings SET settings = settings || jsonb_set(settings, '{sass,advisor_run_intervals}', settings#>'{sass,stt_check_intervals}')`,
+		`UPDATE settings SET settings = settings #- '{sass,stt_check_intervals}';`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

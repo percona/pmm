@@ -46,12 +46,12 @@ func TestSettings(t *testing.T) {
 			Lr: "60s",
 		}
 		assert.Equal(t, expected, res.Payload.Settings.MetricsResolutions)
-		expectedSTTCheckIntervals := &server.GetSettingsOKBodySettingsSttCheckIntervals{
+		expectedAdvisorRunIntervals := &server.GetSettingsOKBodySettingsAdvisorRunIntervals{
 			FrequentInterval: "14400s",
 			StandardInterval: "86400s",
 			RareInterval:     "280800s",
 		}
-		assert.Equal(t, expectedSTTCheckIntervals, res.Payload.Settings.SttCheckIntervals)
+		assert.Equal(t, expectedAdvisorRunIntervals, res.Payload.Settings.AdvisorRunIntervals)
 		assert.Equal(t, "2592000s", res.Payload.Settings.DataRetention)
 		assert.Equal(t, []string{"aws"}, res.Payload.Settings.AWSPartitions)
 		assert.True(t, res.Payload.Settings.UpdatesEnabled)

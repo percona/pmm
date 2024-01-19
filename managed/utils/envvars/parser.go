@@ -57,7 +57,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 // Short description of environment variables:
 //   - PATH, HOSTNAME, TERM, HOME are default environment variables that will be ignored;
 //   - ENABLE_UPDATES is a boolean flag to enable or disable pmm-server update;
-//   - ENABLE_TELEMETRY is a boolean flag to enable or disable pmm telemetry (and disable STT if telemetry is disabled);
+//   - ENABLE_TELEMETRY is a boolean flag to enable or disable pmm telemetry (and disable Advisors if telemetry is disabled);
 //   - ENABLE_ALERTING disables Percona Alerting;
 //   - METRICS_RESOLUTION, METRICS_RESOLUTION_MR, METRICS_RESOLUTION_HR, METRICS_RESOLUTION_LR are durations of metrics resolution;
 //   - DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;

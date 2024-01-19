@@ -43,10 +43,10 @@ type MetricsResolutions struct {
 type Advisors struct {
 	// Advisor checks disabled, false by default.
 	Enabled *bool `json:"enabled"`
-	// List of disabled STT checks
-	DisabledSTTChecks []string `json:"disabled_stt_checks"`
-	// STT check intervals
-	STTCheckIntervals STTCheckIntervals `json:"stt_check_intervals"`
+	// List of disabled advisors
+	DisabledAdvisors []string `json:"disabled_advisors"`
+	// Advisor run intervals
+	AdvisorRunIntervals AdvisorsRunIntervals `json:"advisor_run_intervals"`
 }
 
 // Settings contains PMM Server settings.
@@ -168,8 +168,8 @@ func (s *Settings) IsVictoriaMetricsCacheEnabled() bool {
 	return VictoriaMetricsCacheEnabledDefault
 }
 
-// STTCheckIntervals represents intervals between STT checks.
-type STTCheckIntervals struct {
+// AdvisorsRunIntervals represents intervals between Advisors checks.
+type AdvisorsRunIntervals struct {
 	StandardInterval time.Duration `json:"standard_interval"`
 	RareInterval     time.Duration `json:"rare_interval"`
 	FrequentInterval time.Duration `json:"frequent_interval"`
@@ -198,15 +198,15 @@ func (s *Settings) fillDefaults() {
 		s.AWSPartitions = []string{endpoints.AwsPartitionID}
 	}
 
-	if s.SaaS.STTCheckIntervals.RareInterval == 0 {
-		s.SaaS.STTCheckIntervals.RareInterval = 78 * time.Hour
+	if s.SaaS.AdvisorRunIntervals.RareInterval == 0 {
+		s.SaaS.AdvisorRunIntervals.RareInterval = 78 * time.Hour
 	}
 
-	if s.SaaS.STTCheckIntervals.StandardInterval == 0 {
-		s.SaaS.STTCheckIntervals.StandardInterval = 24 * time.Hour
+	if s.SaaS.AdvisorRunIntervals.StandardInterval == 0 {
+		s.SaaS.AdvisorRunIntervals.StandardInterval = 24 * time.Hour
 	}
 
-	if s.SaaS.STTCheckIntervals.FrequentInterval == 0 {
-		s.SaaS.STTCheckIntervals.FrequentInterval = 4 * time.Hour
+	if s.SaaS.AdvisorRunIntervals.FrequentInterval == 0 {
+		s.SaaS.AdvisorRunIntervals.FrequentInterval = 4 * time.Hour
 	}
 }

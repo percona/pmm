@@ -428,15 +428,15 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 			Mr: durationpb.New(settings.MetricsResolutions.MR),
 			Lr: durationpb.New(settings.MetricsResolutions.LR),
 		},
-		SttCheckIntervals: &serverv1.STTCheckIntervals{
-			RareInterval:     durationpb.New(settings.SaaS.STTCheckIntervals.RareInterval),
-			StandardInterval: durationpb.New(settings.SaaS.STTCheckIntervals.StandardInterval),
-			FrequentInterval: durationpb.New(settings.SaaS.STTCheckIntervals.FrequentInterval),
+		AdvisorRunIntervals: &serverv1.AdvisorRunIntervals{
+			RareInterval:     durationpb.New(settings.SaaS.AdvisorRunIntervals.RareInterval),
+			StandardInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.StandardInterval),
+			FrequentInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.FrequentInterval),
 		},
 		DataRetention:        durationpb.New(settings.DataRetention),
 		SshKey:               settings.SSHKey,
 		AwsPartitions:        settings.AWSPartitions,
-		SttEnabled:           settings.IsAdvisorsEnabled(),
+		AdvisorEnabled:       settings.IsAdvisorsEnabled(),
 		AzurediscoverEnabled: settings.IsAzureDiscoverEnabled(),
 		PmmPublicAddress:     settings.PMMPublicAddress,
 
@@ -532,20 +532,20 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		}
 
 		metricsRes := req.MetricsResolutions
-		sttCheckIntervals := req.SttCheckIntervals
+		advisorsRunInterval := req.AdvisorRunIntervals
 		settingsParams := &models.ChangeSettingsParams{
 			EnableUpdates:          req.EnableUpdates,
 			EnableTelemetry:        req.EnableTelemetry,
-			EnableSTT:              req.EnableStt,
+			EnableAdvisors:         req.EnableAdvisor,
 			EnableAzurediscover:    req.EnableAzurediscover,
 			PMMPublicAddress:       req.PmmPublicAddress,
 			EnableAlerting:         req.EnableAlerting,
 			EnableBackupManagement: req.EnableBackupManagement,
 			EnableAccessControl:    req.EnableAccessControl,
-			STTCheckIntervals: models.STTCheckIntervals{
-				RareInterval:     sttCheckIntervals.GetRareInterval().AsDuration(),
-				StandardInterval: sttCheckIntervals.GetStandardInterval().AsDuration(),
-				FrequentInterval: sttCheckIntervals.GetFrequentInterval().AsDuration(),
+			AdvisorsRunInterval: models.AdvisorsRunIntervals{
+				RareInterval:     advisorsRunInterval.GetRareInterval().AsDuration(),
+				StandardInterval: advisorsRunInterval.GetStandardInterval().AsDuration(),
+				FrequentInterval: advisorsRunInterval.GetFrequentInterval().AsDuration(),
 			},
 			MetricsResolutions: models.MetricsResolutions{
 				HR: metricsRes.GetHr().AsDuration(),
@@ -588,33 +588,33 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		return nil, err
 	}
 
-	// If STT intervals are changed reset timers.
-	if oldSettings.SaaS.STTCheckIntervals != newSettings.SaaS.STTCheckIntervals {
+	// If Advisors run intervals are changed reset timers.
+	if oldSettings.SaaS.AdvisorRunIntervals != newSettings.SaaS.AdvisorRunIntervals {
 		s.checksService.UpdateIntervals(
-			newSettings.SaaS.STTCheckIntervals.RareInterval,
-			newSettings.SaaS.STTCheckIntervals.StandardInterval,
-			newSettings.SaaS.STTCheckIntervals.FrequentInterval)
+			newSettings.SaaS.AdvisorRunIntervals.RareInterval,
+			newSettings.SaaS.AdvisorRunIntervals.StandardInterval,
+			newSettings.SaaS.AdvisorRunIntervals.FrequentInterval)
 	}
 
-	// When STT moved from disabled state to enabled force checks download and execution.
-	var sttStarted bool
+	// When Advisor is moved from disabled to enabled state, force checks download and execution.
+	var advisorsStarted bool
 	if !oldSettings.IsAdvisorsEnabled() && newSettings.IsAdvisorsEnabled() {
-		sttStarted = true
+		advisorsStarted = true
 		if err := s.checksService.StartChecks(nil); err != nil {
 			s.l.Error(err)
 		}
 	}
 
-	// When STT moved from enabled state to disabled drop all existing STT alerts.
+	// When Advisor is moved from enabled to disabled state, drop all existing alerts.
 	if oldSettings.IsAdvisorsEnabled() && !newSettings.IsAdvisorsEnabled() {
 		s.checksService.CleanupAlerts()
 	}
 
-	// When telemetry state is switched force alert templates and STT checks files collection.
+	// When telemetry state is switched force alert templates and Advisor check files collection.
 	// If telemetry switched off that will drop previously downloaded files.
 	if oldSettings.IsTelemetryEnabled() != newSettings.IsTelemetryEnabled() {
 		s.templatesService.CollectTemplates(ctx)
-		if !sttStarted {
+		if !advisorsStarted {
 			s.checksService.CollectAdvisors(ctx)
 		}
 	}
