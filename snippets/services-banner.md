@@ -6,5 +6,5 @@ If you need assistance, visit the community forum for comprehensive and free dat
 
 <div class="actions" markdown>
 
-[:material-forum-outline: Community Forum](https://forums.percona.com/){:target="_blank"} [:percona-logo: Get a Percona Expert](https://www.percona.com/about/contact){:target="_blank"}
+[:material-forum-outline: Community Forum](https://forums.percona.com/){:target="_blank"} [:percona-logo: Get a Percona Expert](https://www.percona.com/about/contact){:target="_blank"}[:simple-blogger: Blogposts](https://www.percona.com/blog/)
 </div></div>
