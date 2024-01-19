@@ -64,7 +64,11 @@ jobs:
       - name: Initialize CI environment
         run: |
           # the container workdir is /root/go/src/github.com/percona/pmm
-          if ! make env-compose-up; then docker logs pmm-server; exit 1; fi
+          exit_code=$(make env-compose-up)
+          if [ "$exit_code" -ne 0 ]; then
+            echo "Failed to start PMM Server, exit code: $exit_code"
+            docker logs pmm-server
+          fi
 
       - name: Restore Go build cache
         if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
