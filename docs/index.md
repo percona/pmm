@@ -38,11 +38,11 @@ Are you ready to begin configuring PMM  but need help figuring out how to begin?
 
 </div><div data-banner markdown>
 
-### :material-frequently-asked-questions: Troubleshooting { .title }
+### :material-library-shelves: Resources { .title }
 
-Our comprehensive resources will help you overcome challenges, from everyday issues to specific doubts.
+Looking for reliable and easy-to-use resources to tackle your everyday challenges and specific doubts? Look no further! Our comprehensive resources are here to help you overcome any obstacles that come your way.
 
-[Diagnostics :material-arrow-right:](troubleshoot/index.md){.md-button}
+[Additional resources :material-arrow-right:](https://www.percona.com/resources){.md-button}
 
 </div>
 </div>
