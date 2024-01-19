@@ -62,7 +62,9 @@ jobs:
           popd        && go mod download -x
 
       - name: Initialize CI environment
-        run: make env-compose-up # the container workdir is /root/go/src/github.com/percona/pmm
+        run: |
+          # the container workdir is /root/go/src/github.com/percona/pmm
+          if ! make env-compose-up; then docker compose logs; exit 1; fi
 
       - name: Restore Go build cache
         if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
