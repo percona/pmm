@@ -24,7 +24,7 @@ Unleash the full power of your monitoring experience with PMM's amazing set of f
 
 </div><div data-banner markdown>
 
-## :material-progress-download: Installation { .title }
+## :material-progress-download: Install { .title }
 
 Ready to dive into PMM? We've got you covered! Follow our simple, step-by-step installation instructions to get started in no time!
 
@@ -32,7 +32,7 @@ Ready to dive into PMM? We've got you covered! Follow our simple, step-by-step i
 
 </div><div data-banner markdown>
 
-## :fontawesome-solid-gear: Configuration { .title }
+## :fontawesome-solid-gear: Configure { .title }
 
 Are you ready to begin configuring PMM  but need help figuring out how to begin? Let's dive in together and get you to speed up.
 
