@@ -71,5 +71,6 @@ func GetHeadersFromContext(ctx context.Context) (http.Header, error) {
 			authHeaders.Add("Cookie", header)
 		}
 	}
+
 	return authHeaders, nil
 }

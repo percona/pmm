@@ -17,11 +17,12 @@ package apitests
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
-	"math/rand"
+	"math"
+	"math/big"
 	"reflect"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -52,9 +53,9 @@ func TestString(t TestingT, name string) string {
 	t.Helper()
 
 	// Without proper seed parallel tests can generate same "random" number.
-	// Since 1.20 rand.Seed is deprecated.
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	n := r.Int() //nolint:gosec
+	n, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt32))
+	require.NoError(t, err)
+
 	return fmt.Sprintf("pmm-api-tests/%s/%s/%s/%d", Hostname, t.Name(), name, n)
 }
 

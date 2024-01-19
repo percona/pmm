@@ -41,7 +41,6 @@ func RegisterGenericNode(t pmmapitests.TestingT, body node.RegisterNodeBody) (st
 		Context: pmmapitests.Context,
 		Body:    body,
 	}
-
 	registerOK, err := client.Default.Node.RegisterNode(&params)
 	require.NoError(t, err)
 	require.NotNil(t, registerOK)
