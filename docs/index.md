@@ -3,12 +3,14 @@
 
 <i info>:material-information: Info:</i> This is the documentation for the latest release, **PMM {{release}}** ([Release Notes](release-notes/{{release}}.md)).
 
+Percona Monitoring and Management (PMM) is the solution for all your database monitoring and management needs. Developed by Percona, PMM is an open-source platform that offers comprehensive observability, monitoring, and management capabilities for MySQL, PostgreSQL, MongoDB, and their corresponding servers. 
 
-Percona Monitoring and Management (PMM) is a comprehensive, open-source tool designed by Percona to provide database observability, monitoring, and management capabilities across various databases, including MySQL, PostgreSQL, MongoDB, and their respective servers. With PMM, you can easily access and analyze detailed performance metrics for each query and node associated with your databases within a user-friendly interface. 
+- PMM is designed to facilitate seamless access to comprehensive performance metrics for all the nodes and queries associated with your databases. Its user-friendly interface ensures easy navigation and analysis of the data, empowering you to make informed decisions based on the insights derived from the analysis.
+- PMM is highly versatile and can be deployed behind a firewall, on the cloud, or across hybrid platforms. 
+- It is a complete package comprising in-house and third-party components and tools for all your monitoring requirements.
+- To set up basic PMM, you just need to install a [server](reference/index.md#server) and a [client](reference/index.md#client) on each system you intend to monitor.
 
-PMM is versatile in its deployment options and can be set up behind a firewall, on the cloud, or across hybrid platforms.
-
-PMM is a software application that includes in-house and third-party components and tools. To set up basic PMM, you need to install a [server](reference/index.md#pmm-server) and a [client](reference/index.md#client) on each system that you want to monitor. See [PMM architecture](reference/index.md) for detailed information.
+Let's dive deep into PMM and unlock the full potential of PMM. 
 
 !!! quote ""
 
