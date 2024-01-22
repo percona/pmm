@@ -1,6 +1,7 @@
 # Upgrade PMM agent
 
 PMM-Agent can be updated from tarball:
+{.power-number}
 
  1. Download `tar.gz` with `pmm2-client`.
  2. Extract it.
