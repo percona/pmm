@@ -658,7 +658,7 @@ telemetry:
       - metric_name: "pmm_server_node_os_version"
         label: "release"
 
-  - id: PMMClinetNodeOSName
+  - id: PMMClientNodeOSName
     source: VM
     query: node_uname_info{node_id!="pmm-server"}
     summary: "PMM Clinet node OS name"
