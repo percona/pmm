@@ -37,7 +37,7 @@ The main menu is part of the Grafana framework and is visible on every page.
 | {{icon.checks}}                    | PMM Advisor Checks  | Run health assessment checks against your connected databases and check any failed checks. 
 | <i class="uil uil-database"></i>   | DBaaS                |
 
-!!! hint alert alert-success "Tip"
+!!! tip "Tip"
     The DBaaS icon appears only if a server feature flag has been set.
 
     The Backup Management icon appears when *Backup Management* is activated in <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
@@ -104,8 +104,8 @@ This menu contains shortcuts to other dashboards. The list changes according to 
 | <i class="uil uil-bars"></i> Services        | Services menu.
 | <i class="uil uil-bars"></i> PMM             | PMM menu.
 
-!!! hint alert alert-success "Tip"
-    The *Compare* menu links to the Instances Overview dashboard for the current service type.
+!!! tip "Tip"
+    The **Compare** menu links to the Instances Overview dashboard for the current service type.
 
 
 ### Services menu
