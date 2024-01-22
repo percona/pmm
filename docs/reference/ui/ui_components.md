@@ -74,7 +74,7 @@ The main menu is part of the Grafana framework and is visible on every page.
 
 This menu bar is context-sensitive; it changes according to the page you are on. (With wide menus on small screens, items may wrap to the next row.)
 
-![!](../_images/PMM_Home_Dashboard_Menus_Submenu_Bar.jpg)
+![!](../../_images/PMM_Home_Dashboard_Menus_Submenu_Bar.jpg)
 
 | Item                          | Description
 |-------------------------------|-------------------------------------------
@@ -110,7 +110,7 @@ This menu contains shortcuts to other dashboards. The list changes according to 
 
 ### Services menu
 
-The *Services* menu choice determines the Service Type menu.
+The **Services** menu choice determines the Service Type menu.
 
 | Menu      | Item                           | Service type menu                       | Description
 |-----------|--------------------------------|-----------------------------------------|-----------------------
@@ -121,8 +121,8 @@ The *Services* menu choice determines the Service Type menu.
 |           | PostgreSQL Instances Overview  | <i class="uil uil-bars"></i> PostgreSQL | PostgreSQL dashboards.
 
 
-!!! hint alert alert-success "Note"
-    - You can easily access all dashboards for monitored services from the *Main menu* via *Other Dashboards* in the *Services* sub menu.
+!!! tip ""
+    - You can easily access all dashboards for monitored services from the **Main menu** via **Other Dashboards** in the **Services** sub menu.
     - Only the services being monitored by PMM will appear on the main menu.
 
 ### PMM menu
