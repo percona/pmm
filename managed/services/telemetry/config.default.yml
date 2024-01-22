@@ -661,7 +661,7 @@ telemetry:
   - id: PMMClientNodeOSName
     source: VM
     query: node_uname_info{node_id!="pmm-server"}
-    summary: "PMM Clinet node OS name"
+    summary: "PMM Client node OS name"
     data:
       - metric_name: "pmm_client_node_os_name"
         label: "sysname"
