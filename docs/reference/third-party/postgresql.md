@@ -50,20 +50,20 @@ To use PostgreSQL as an external database:
 
     ??? Examples
 
-    ```
-    /external-postgres-configuration# cat pg_hba.conf 
-    local     all         all                                    trust
-    hostnossl all         example_user all                       reject
-    hostssl   all         example_user all                       cert
-    ```
-    ```
-    /external-postgres-certificates# ls -la
-    drwxr-xr-x 1 root     root     4096 Apr  5 12:38 .
-    drwxr-xr-x 1 root     root     4096 Apr  5 12:43 ..
-    -rw------- 1 postgres postgres 1391 Apr  5 12:38 certificate_authority.crt
-    -rw------- 1 postgres postgres 1407 Apr  5 12:38 external_postgres.crt
-    -rw------- 1 postgres postgres 1708 Apr  5 12:38 external_postgres.key
-    ```
+        ```
+        /external-postgres-configuration# cat pg_hba.conf 
+        local     all         all                                    trust
+        hostnossl all         example_user all                       reject
+        hostssl   all         example_user all                       cert
+        ```
+        ```
+        /external-postgres-certificates# ls -la
+        drwxr-xr-x 1 root     root     4096 Apr  5 12:38 .
+        drwxr-xr-x 1 root     root     4096 Apr  5 12:43 ..
+        -rw------- 1 postgres postgres 1391 Apr  5 12:38 certificate_authority.crt
+        -rw------- 1 postgres postgres 1407 Apr  5 12:38 external_postgres.crt
+        -rw------- 1 postgres postgres 1708 Apr  5 12:38 external_postgres.key
+        ```
     
 4. Create `user` and `database` for pmm-server to use. Set appropriate rights and access.
 
@@ -71,41 +71,41 @@ To use PostgreSQL as an external database:
 
 6. Run PostgreSQL server.
 
-```sh
-docker run
---name external-postgres
--e POSTGRES_PASSWORD=secret
-<image_id>
-postgres
--c shared_preload_libraries=pg_stat_statements
--c pg_stat_statements.max=10000
--c pg_stat_statements.track=all
--c pg_stat_statements.save=off
--c ssl=on
--c ssl_ca_file=$CA_PATH
--c ssl_key_file=$KEY_PATH
--c ssl_cert_file=$CERT_PATH
--c hba_file=$HBA_PATH
-```
+    ```sh
+    docker run
+    --name external-postgres
+    -e POSTGRES_PASSWORD=secret
+    <image_id>
+    postgres
+    -c shared_preload_libraries=pg_stat_statements
+    -c pg_stat_statements.max=10000
+    -c pg_stat_statements.track=all
+    -c pg_stat_statements.save=off
+    -c ssl=on
+    -c ssl_ca_file=$CA_PATH
+    -c ssl_key_file=$KEY_PATH
+    -c ssl_cert_file=$CERT_PATH
+    -c hba_file=$HBA_PATH
+    ```
 
 7. Run PMM server.
 
-```sh
-docker run 
---name pmm-server 
--e PERCONA_TEST_POSTGRES_ADDR=$ADDRESS:$PORT
--e PERCONA_TEST_POSTGRES_DBNAME=$DBNAME
--e PERCONA_TEST_POSTGRES_USERNAME=$USER
--e PERCONA_TEST_POSTGRES_DBPASSWORD=$PASSWORD
--e PERCONA_TEST_POSTGRES_SSL_MODE=$SSL_MODE
--e PERCONA_TEST_POSTGRES_SSL_CA_PATH=$CA_PATH
--e PERCONA_TEST_POSTGRES_SSL_KEY_PATH=$KEY_PATH
--e PERCONA_TEST_POSTGRES_SSL_CERT_PATH=$CERT_PATH 
--e PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES=true
--e GF_DATABASE_URL=$GF_DATABASE_URL
--e GF_DATABASE_SSL_MODE=$GF_SSL_MODE
--e GF_DATABASE_CA_CERT_PATH=$GF_CA_PATH
--e GF_DATABASE_CLIENT_KEY_PATH=$GF_KEY_PATH
--e GF_DATABASE_CLIENT_CERT_PATH=$GF_CERT_PATH
-percona/pmm-server:2
-```
+    ```sh
+    docker run 
+    --name pmm-server 
+    -e PERCONA_TEST_POSTGRES_ADDR=$ADDRESS:$PORT
+    -e PERCONA_TEST_POSTGRES_DBNAME=$DBNAME
+    -e PERCONA_TEST_POSTGRES_USERNAME=$USER
+    -e PERCONA_TEST_POSTGRES_DBPASSWORD=$PASSWORD
+    -e PERCONA_TEST_POSTGRES_SSL_MODE=$SSL_MODE
+    -e PERCONA_TEST_POSTGRES_SSL_CA_PATH=$CA_PATH
+    -e PERCONA_TEST_POSTGRES_SSL_KEY_PATH=$KEY_PATH
+    -e PERCONA_TEST_POSTGRES_SSL_CERT_PATH=$CERT_PATH 
+    -e PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES=true
+    -e GF_DATABASE_URL=$GF_DATABASE_URL
+    -e GF_DATABASE_SSL_MODE=$GF_SSL_MODE
+    -e GF_DATABASE_CA_CERT_PATH=$GF_CA_PATH
+    -e GF_DATABASE_CLIENT_KEY_PATH=$GF_KEY_PATH
+    -e GF_DATABASE_CLIENT_CERT_PATH=$GF_CERT_PATH
+    percona/pmm-server:2
+    ```
