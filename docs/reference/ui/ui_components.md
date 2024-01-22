@@ -1,6 +1,6 @@
 # UI components
 
-![!](../_images/PMM_Home_Dashboard_Numbered.png)
+![!](../../_images/PMM_Home_Dashboard_Numbered.png)
 
 !!! note alert alert-light "Key"
     1. [Main menu](#main-menu) (also *Grafana menu*, *side menu*)
@@ -19,19 +19,19 @@ The main menu is part of the Grafana framework and is visible on every page.
 | <i class="uil uil-search"></i>     | Search               | Search dashboards by name.
 | <i class="uil uil-star"></i>       | Starred              | Mark your favorite dashboards.
 | <i class="uil uil-apps"></i>       | Dashboards           | Create dashboards or [folders][Folders], manage dashboards, import dashboards, create playlists, manage snapshots.
-| ![!image](../_images/os-dashboard.png)      | Operating System (OS)    | Operating System dashboard
-| ![!image](../_images/mysql-dashboard.png)    | MySQL      | MySQL dashboard
-| ![!image](../_images/mongo-dashboard.png)    | MongoDB      | MongoDB dashboard
-| ![!image](../_images/postresql-dashboard.png)    | PostgreSQL     | PostgreSQL dashboard
-| ![!image](../_images/proxysql-dashboard.png)    | ProxySQL     | ProxySQL dashboard
-| ![!image](../_images/haproxy-dashboard.png)    | HAproxy     | HAproxy dashboard
-| ![!image](../_images/qan-dashboard.png)| Query Analytics (QAN) | Query Analytics
+| ![!image](../../_images/os-dashboard.png)      | Operating System (OS)    | Operating System dashboard
+| ![!image](../../_images/mysql-dashboard.png)    | MySQL      | MySQL dashboard
+| ![!image](../../_images/mongo-dashboard.png)    | MongoDB      | MongoDB dashboard
+| ![!image](../../_images/postresql-dashboard.png)    | PostgreSQL     | PostgreSQL dashboard
+| ![!image](../../_images/proxysql-dashboard.png)    | ProxySQL     | ProxySQL dashboard
+| ![!image](../../_images/haproxy-dashboard.png)    | HAproxy     | HAproxy dashboard
+| ![!image](../../_images/qan-dashboard.png)| Query Analytics (QAN) | Query Analytics
 | <i class="uil uil-compass"></i>    | Explore              | Run queries with [PromQL].
-| <i class="uil uil-bell"></i>       | Percona Alerting             | [Alerting](../get-started/alerting.md), Create new alerts and manage your alert rules and alert templates.
+| <i class="uil uil-bell"></i>       | Percona Alerting             | [Alerting](../../alert/index.md), Create new alerts and manage your alert rules and alert templates.
 | <i class="uil uil-cog"></i>        | Configuration        |
-| ![!image](../_images/entitlements-white.png)       | Entitlements        |This tab is displayed after connecting PMM to Percona Portal, and shows all your Percona Platform account information. 
-| ![!image](../_images/support_tickets_white.png)       | Support Tickets        | Shows the list of tickets opened across your organization. This tab is only available after you connect PMM to Percona Platform.
-| ![!image](../_images/environment_overview.png)       | Environment Overview        | This tab is displayed after connecting PMM to Percona Portal. Shows the name and email of the Customer Success Manager assigned to your organization, who can help with any PMM queries. This tab will soon be populated with more useful information about your PMM environment. 
+| ![!image](../../_images/entitlements-white.png)       | Entitlements        |This tab is displayed after connecting PMM to Percona Portal, and shows all your Percona Platform account information. 
+| ![!image](../../_images/support_tickets_white.png)       | Support Tickets        | Shows the list of tickets opened across your organization. This tab is only available after you connect PMM to Percona Platform.
+| ![!image](../../_images/environment_overview.png)       | Environment Overview        | This tab is displayed after connecting PMM to Percona Portal. Shows the name and email of the Customer Success Manager assigned to your organization, who can help with any PMM queries. This tab will soon be populated with more useful information about your PMM environment. 
 | <i class="uil uil-shield"></i>     | Server Admin         |
 | <i class="uil uil-history"></i>    | Backup Management    | [Backup management and storage location configuration][BACKUP].
 | {{icon.checks}}                    | PMM Advisor Checks  | Run health assessment checks against your connected databases and check any failed checks. 
