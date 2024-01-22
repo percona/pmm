@@ -48,6 +48,8 @@ To use PostgreSQL as an external database:
 
 3. Attach `pg_hba.conf` and certificates to the PostgreSQL image.
 
+    ??? Examples
+
     ```
     /external-postgres-configuration# cat pg_hba.conf 
     local     all         all                                    trust
@@ -85,6 +87,7 @@ postgres
 -c ssl_cert_file=$CERT_PATH
 -c hba_file=$HBA_PATH
 ```
+
 7. Run PMM server.
 
 ```sh
