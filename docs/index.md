@@ -18,7 +18,7 @@ PMM is a software application that includes in-house and third-party components 
 
 ## :material-telescope: Discover { .title }
 
-Unleash the full power of your monitoring experience with PMM's amazing set of features. Discover how PMM can help you monitor your systems like a pro and make informed decisions.
+Unleash the full power of your monitoring experience with PMM's amazing set of features. Discover how PMM can help you monitor your systems and make informed decisions.
 
 [Discover PMM :material-arrow-right:](discover-pmm/features.md){ .md-button .md-button--primary }
 
