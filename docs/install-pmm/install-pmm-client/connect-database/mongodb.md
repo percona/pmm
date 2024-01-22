@@ -24,7 +24,7 @@ Run the example codes below in a `mongo` session to:
 !!! caution alert alert-warning ""
     Values for username (`user`) and password (`pwd`) are examples. Replace them before using these code snippets.
 
-=== "### Create roles with privileges for backups and QAN"
+=== "Create roles with privileges for backups and QAN"
         db.getSiblingDB("admin").createRole({
             role: "explainRole",
             privileges: [{

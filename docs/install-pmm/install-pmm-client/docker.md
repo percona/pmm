@@ -19,7 +19,7 @@ The [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/)
     percona/pmm-client:2 /bin/true
     ```
 
-3. Run the container to start [PMM Agent](../../commands/pmm-agent.md) in setup mode. Set `X.X.X.X` to the IP address of your PMM Server. (Do not use the `docker --detach` option as PMM agent only logs to the console.)
+3. Run the container to start [PMM Agent](../../use/commands/pmm-agent.md) in setup mode. Set `X.X.X.X` to the IP address of your PMM Server. (Do not use the `docker --detach` option as PMM agent only logs to the console.)
 
     ```sh
     PMM_SERVER=X.X.X.X:443
@@ -36,7 +36,7 @@ The [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/)
     percona/pmm-client:2
     ```
 !!! hint alert-success "Tips"
-    You can find a complete list of compatible environment variables [here](../../details/commands/pmm-agent.md).
+    You can find a complete list of compatible environment variables [here](../../use/commands/pmm-agent.md).
 
 4. Check status.
 
@@ -47,7 +47,7 @@ The [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/)
 
     In the PMM user interface you will also see an increase in the number of monitored nodes.
 
-You can now add services with [`pmm-admin`](../../commands/pmm-admin.md) by prefixing commands with `docker exec pmm-client`.
+You can now add services with [`pmm-admin`](../../use/commands/pmm-admin.md) by prefixing commands with `docker exec pmm-client`.
 
 !!! hint alert alert-success "Tips"
     - Adjust host firewall and routing rules to allow Docker communications. ([Read more](../../troubleshoot/checklist.md)
