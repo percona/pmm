@@ -85,7 +85,7 @@ This menu bar is context-sensitive; it changes according to the page you are on.
 | Replication Set               | Filter by replication set.
 | Node Name                     | Filter by node name.
 | Service Name                  | Filter by service name.
-| PMM Annotations               | View [annotations](../how-to/annotate.md).
+| PMM Annotations               | View [annotations](dashboards-panels/annotate/annotate.md).
 
 ## Shortcut menu
 
@@ -139,4 +139,4 @@ This item lists shortcuts to utility pages.
 
 [Folders]: https://grafana.com/docs/grafana/latest/dashboards/dashboard_folders/
 [PromQL]: https://grafana.com/blog/2020/02/04/introduction-to-promql-the-prometheus-query-language/
-[BACKUP]: ../get-started/backup/index.md
+[BACKUP]: ../../backup/index.md
