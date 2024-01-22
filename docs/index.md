@@ -10,7 +10,6 @@ Percona Monitoring and Management (PMM) is the solution for all your database mo
 - It is a complete package comprising in-house and third-party components and tools for all your monitoring requirements.
 - To set up basic PMM, you just need to install a [server](reference/index.md#server) and a [client](reference/index.md#client) on each system you intend to monitor.
 
-Let's dive deep into PMM and unlock the full potential of PMM. 
 
 !!! quote ""
 
