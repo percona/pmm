@@ -59,7 +59,7 @@ To log in to the PMM user interface:
         ssh -i admin admin@N.N.N.N
         ```
 
-??? info "(Optional) Set up static IP via CLI"
+??? info "(optional) Set up static IP via CLI"
 
     When the guest OS starts, it will get an IP address from the hypervisor's DHCP server. This IP can change each time the guest OS is restarted. Setting a static IP for the guest OS avoids having to check the IP address whenever the guest is restarted.
     {.power-number}
