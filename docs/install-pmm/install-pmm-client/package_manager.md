@@ -11,6 +11,8 @@ On Debian or Red Hat Linux, install `percona-release` and use a Linux package ma
     ```
 
 === "Debian-based"
+    To install PMM clinet:
+    {.power-number}
 
     1. Configure repositories.
 
