@@ -257,7 +257,7 @@ func TestPostgresAgentTLS(t *testing.T) {
 			agent.TLSSkipVerify = testCase.tlsSkipVerify
 			assert.Equal(t, testCase.expected, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil))
 		})
-		t.Run(fmt.Sprintf("AutodiscoveryLimit TLS:%v/TLSSkipVerify:%v", testCase.tls, testCase.tlsSkipVerify), func(t *testing.T) {
+		t.Run(fmt.Sprintf("AutodiscoveryLimit set TLS:%v/TLSSkipVerify:%v", testCase.tls, testCase.tlsSkipVerify), func(t *testing.T) {
 			agent.TLS = testCase.tls
 			agent.TLSSkipVerify = testCase.tlsSkipVerify
 			agent.PostgreSQLOptions = &models.PostgreSQLOptions{AutoDiscoveryLimit: 10}
