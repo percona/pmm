@@ -4,10 +4,10 @@
 
 * **Disk**
 
-    Approximately 1 GB of storage per monitored database node with data retention set to one week. By default, [retention](..//configure-pmm/advanced_settings.md#data-retention) is 30 days.
+    Approximately 1 GB of storage per monitored database node with data retention set to one week. By default, [retention](../../configure-pmm/advanced_settings.md#data-retention) is 30 days.
 
     !!! hint alert alert-success "Tip"
-        [Disable table statistics](..//optimize/disable_table_stats.md) to decrease the VictoriaMetrics database size.
+        [Disable table statistics](../../optimize/disable_table_stats.md) to decrease the VictoriaMetrics database size.
 
 * **Memory**
 
