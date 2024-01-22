@@ -628,10 +628,16 @@ func (s Agent) Files() map[string]string {
 		return nil
 	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType, QANPostgreSQLPgStatMonitorAgentType:
 		if s.PostgreSQLOptions != nil {
-			return map[string]string{
-				caFilePlaceholder:             s.PostgreSQLOptions.SSLCa,
-				certificateFilePlaceholder:    s.PostgreSQLOptions.SSLCert,
-				certificateKeyFilePlaceholder: s.PostgreSQLOptions.SSLKey,
+			files := make(map[string]string)
+
+			if s.PostgreSQLOptions.SSLCa != "" {
+				files[caFilePlaceholder] = s.PostgreSQLOptions.SSLCa
+			}
+			if s.PostgreSQLOptions.SSLCert != "" {
+				files[certificateFilePlaceholder] = s.PostgreSQLOptions.SSLCert
+			}
+			if s.PostgreSQLOptions.SSLKey != "" {
+				files[certificateKeyFilePlaceholder] = s.PostgreSQLOptions.SSLKey
 			}
 		}
 		return nil
