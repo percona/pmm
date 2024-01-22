@@ -444,7 +444,7 @@ nav:
       - troubleshoot/alerting_issues.md
       - troubleshoot/qan_issues.md
       - troubleshoot/plugin_issues.md
-  - Release Notes:
+  - Release notes:
       - Release notes index: release-notes/index.md
       - "PMM 2.41.0 (Dec 12, 2023)": release-notes/2.41.0.md
       - "PMM 2.40.1 (Oct 20, 2023)": release-notes/2.40.1.md
