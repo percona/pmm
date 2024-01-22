@@ -10,7 +10,7 @@ PMM is versatile in its deployment options and can be set up behind a firewall, 
 
 PMM is a software application that includes in-house and third-party components and tools. To set up basic PMM, you need to install a [server](reference/index.md#pmm-server) and a [client](reference/index.md#client) on each system that you want to monitor. See [PMM architecture](reference/index.md) for detailed information.
 
-!!! note ""
+!!! quote ""
 
     Would you like to see a preview of our Home page? Take a look at our free, live [demo](https://pmmdemo.percona.com/).
 
@@ -41,7 +41,7 @@ Are you ready to begin configuring PMM  but need help figuring out how to begin?
 
 </div><div data-banner markdown>
 
-### :material-book-plus-multiple: Resources { .title }
+## :material-book-plus-multiple: Resources { .title }
 
 Looking for reliable and easy-to-use resources to tackle your everyday challenges and specific doubts? Our comprehensive resources are here to help you overcome any obstacles that come your way.
 
