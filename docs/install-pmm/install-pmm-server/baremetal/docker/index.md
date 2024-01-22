@@ -27,6 +27,7 @@ This section provides instructions for running PMM Server with Docker based on o
     ---
 
 You can store data from PMM in:
+{.power-number}
 
 1. [Docker volume](run_with_vol.md) (Preffered method)
 2. [Data container](run_with_data_container.md)
