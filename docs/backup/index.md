@@ -31,7 +31,7 @@ To learn how to create and restore backups, check out subtopics below:
 - ![!](../_images/mysql_logo.png) [MySQL backups](mysql-backup/create_mysql_backup.md) 
 
 
-??? info "Additional resources?"
+??? info "Additional resources"
     Here are some external resources for learning more about databases backups:
 
     - [Amazon Web Services S3](https://aws.amazon.com/s3/)
