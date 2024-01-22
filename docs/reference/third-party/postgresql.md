@@ -35,8 +35,8 @@ To use PostgreSQL as an external database:
 1. Generate all necessary SSL certificates.
 2. Deploy PMM Server with certificates under read-only permissions and Grafana user and Grafana group.
 
-    ??? info
-    
+    ??? Example
+
         ```
         /pmm-server-certificates# la -la
         drwxr-xr-x 1 root    root    4096 Apr  5 12:43 .
@@ -62,9 +62,13 @@ To use PostgreSQL as an external database:
     -rw------- 1 postgres postgres 1407 Apr  5 12:38 external_postgres.crt
     -rw------- 1 postgres postgres 1708 Apr  5 12:38 external_postgres.key
     ```
+    
 4. Create `user` and `database` for pmm-server to use. Set appropriate rights and access.
+
 5. Install `pg_stat_statements` in PostgreSQL in order to have all metrics according to [this](../setting-up/client/postgresql.md) handy document.
+
 6. Run PostgreSQL server.
+
 ```sh
 docker run
 --name external-postgres
@@ -82,6 +86,7 @@ postgres
 -c hba_file=$HBA_PATH
 ```
 7. Run PMM server.
+
 ```sh
 docker run 
 --name pmm-server 

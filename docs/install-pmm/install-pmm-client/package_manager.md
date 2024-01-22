@@ -55,7 +55,7 @@ On Debian or Red Hat Linux, install `percona-release` and use a Linux package ma
         pmm-admin --version
         ```
 
-    4. [Register the node](..//register-client-node/index.md).
+    4. [Register the node](../register-client-node/index.md).
 
 ## Package manager -- manual download
 
