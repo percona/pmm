@@ -35,7 +35,7 @@ To use PostgreSQL as an external database:
 1. Generate all necessary SSL certificates.
 2. Deploy PMM Server with certificates under read-only permissions and Grafana user and Grafana group.
 
-        ```
+        ```sh
         /pmm-server-certificates# la -la
         drwxr-xr-x 1 root    root    4096 Apr  5 12:43 .
         drwxr-xr-x 1 root    root    4096 Apr  5 12:43 ..
@@ -46,12 +46,12 @@ To use PostgreSQL as an external database:
 
 3. Attach `pg_hba.conf` and certificates to the PostgreSQL image.
 
-        ```
+        ```sh
         /external-postgres-configuration# cat pg_hba.conf 
         local     all         all                                    trust
         hostnossl all         example_user all                       reject
         hostssl   all         example_user all                       cert
-        ```
+        
         
         /external-postgres-certificates# ls -la
         drwxr-xr-x 1 root     root     4096 Apr  5 12:38 .
