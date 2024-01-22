@@ -49,7 +49,7 @@ The main menu is part of the Grafana framework and is visible on every page.
 
 ## Navigation bar
 
-![!Common page elements top row](../_images/PMM_Home_Dashboard_Menus_Top_Navigation_Bar.jpg)
+![!Common page elements top row](../../_images/PMM_Home_Dashboard_Menus_Top_Navigation_Bar.jpg)
 
 | Item (left)                       | Description
 |-----------------------------------|-------------------------
