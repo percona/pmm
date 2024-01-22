@@ -52,7 +52,7 @@ To use PostgreSQL as an external database:
         hostnossl all         example_user all                       reject
         hostssl   all         example_user all                       cert
         ```
-        ```
+        
         /external-postgres-certificates# ls -la
         drwxr-xr-x 1 root     root     4096 Apr  5 12:38 .
         drwxr-xr-x 1 root     root     4096 Apr  5 12:43 ..
