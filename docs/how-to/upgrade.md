@@ -1,16 +1,26 @@
 # Upgrade
 
-!!! caution alert alert-warning "Important"
-    Upgrade the PMM Server before you upgrade the PMM Client.
-    Ensure that the PMM Server version is higher than or equal to the PMM Client version. Otherwise, there might be configuration issues, thus leading to failure in the client-server communication as PMM Server might not be able to identify all the parameters in the configuration.
+## Plan the upgrade order
 
-    For example, for a PMM Server version 2.25.0, the PMM Client version should be 2.25.0 or 2.24.0. If the PMM Client version is 2.26.0, PMM might not work as expected.
+### Upgrade PMM Server first
 
+Make sure to upgrade the PMM Server before you upgrade the PMM Client.
+    
+Ensure that the PMM Server version is higher than or equal to the PMM Client version. Otherwise, there might be configuration issues, thus leading to failure in the client-server communication as PMM Server might not be able to identify all the parameters in the configuration.
 
-## Updating a Server
+For example, for a PMM Server version 2.25.0, the PMM Client version should be 2.25.0 or 2.24.0. If the PMM Client version is 2.26.0, PMM might not work as expected.
 
-!!! caution alert alert-warning "Caution"
-    - While upgrading PMM to version 2.32.0, it fails. This issue has been resolved for PMM version 2.33.0. However, the issue persists on all the versions prior to 2.33.0. For solution, see the [troubleshooting](../how-to/troubleshoot.md#pmm-server-fails-while-upgrading) section.
+### Staged upgrade approach
+
+When upgrading PMM from older versions (2.30.0 and below), we recommend following a staged approach: first, upgrade to version 2.33.0, and then proceed to the latest version. 
+
+This sequential upgrading process ensures that PMM's internal components are migrated and updated correctly.
+
+## Update the Server
+
+!!! caution alert alert-warning "Known issues for older versions"
+    - Upgrading to PMM 2.32.0 from older versions fails. We recommend upgrading directly to2.33 or latest version. For more information, see the [troubleshooting topic](../how-to/troubleshoot.md#pmm-server-fails-while-upgrading).
+
     - PMM versions prior to 2.33.0 may not show the latest versions available with instances created from the AWS marketplace in specific environments, including AWS. For solution, see the [troubleshooting](../how-to/troubleshoot.md#pmm-server-not-showing-latest-versions-available-with-the-instances-created-from-aws) section.
 
 
