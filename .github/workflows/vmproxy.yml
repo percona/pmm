@@ -41,7 +41,7 @@ jobs:
           cache: false
 
       - name: Enable Go build cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/go-build
           key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
@@ -50,7 +50,7 @@ jobs:
             ${{ runner.os }}-go-build-
 
       - name: Enable Go modules cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
