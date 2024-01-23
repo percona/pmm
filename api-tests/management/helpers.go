@@ -19,7 +19,6 @@ package management
 import (
 	"context"
 
-	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -66,11 +65,6 @@ func registerContainerNode(t pmmapitests.TestingT, body node.RegisterNodeBody) (
 	require.NotNil(t, registerOK.Payload.PMMAgent.AgentID)
 	require.NotNil(t, registerOK.Payload.ContainerNode)
 	require.NotNil(t, registerOK.Payload.ContainerNode.NodeID)
-
-	current := client.DefaultTransportConfig()
-	transport := httptransport.New(current.Host, current.BasePath, current.Schemes)
-	transport.DefaultAuthentication = httptransport.BearerToken(registerOK.Payload.Token)
-	client.Default.SetTransport(transport)
 
 	return registerOK.Payload.ContainerNode.NodeID, registerOK.Payload.PMMAgent.AgentID
 }

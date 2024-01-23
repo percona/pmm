@@ -280,7 +280,7 @@ func TestNodeRegister(t *testing.T) {
 				CustomLabels:  map[string]string{"foo": "bar"},
 			}
 			nodeID, pmmAgentID := registerContainerNode(t, body)
-			defer pmmapitests.RemoveNodes(t, nodeID)
+			defer pmmapitests.UnregisterNodes(t, nodeID)
 			defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 			// Check Node is created
