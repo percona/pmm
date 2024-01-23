@@ -1,4 +1,19 @@
-- name: pull the PMM image
+- name: Set distribution for OVF
+  when: ansible_virtualization_type == "virtualbox"
+  copy:
+    content: ovf
+    dest: /srv/pmm-distribution
+
+- name: Set distribution for AMI
+  when: >
+    ( ansible_virtualization_type == "xen"
+    or ansible_virtualization_type == "kvm" )
+    and ansible_system_vendor != "DigitalOcean"
+  copy:
+    content: ami
+    dest: /srv/pmm-distribution
+
+- name: Pull the PMM image
   command: podman pull {{ pmm_server_image_name }}
 
 - name: Create a volume on the host

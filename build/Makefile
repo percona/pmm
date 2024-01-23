@@ -60,23 +60,9 @@ pmm2-digitalocean:
 pmm2-azure:
 	packer build -only azure-arm packer/pmm2.json
 
-pmm2-ami-el9:
-	mkdir -p update && \
-	cp -r ../update/ansible/playbook/* update/ && \
-		sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
-		docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
-		build -var 'pmm_client_repos=original experimental' \
-					-var 'pmm_client_repo_name=percona-experimental-x86_64' \
-					-var 'pmm2_server_repo=experimental' \
-					-only amazon-ebs -color=false \
-					packer/pmm2.el9.json
-
 pmm-ami:
 	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build \hashicorp/packer:${PACKER_VERSION} \
-	build -var 'pmm_client_repos=original experimental' \
-				-var 'pmm_client_repo_name=percona-experimental-x86_64' \
-				-var 'pmm2_server_repo=experimental' \
-				-only amazon-ebs -color=false packer/pmm.json | tee build.log
+	build -only amazon-ebs -color=false packer/pmm.json | tee build.log
 
 pmm2-ami-el9-rc:
 	mkdir -p update && \
