@@ -55,10 +55,6 @@ func TestServer(t *testing.T) {
 		mvmalert.Test(t)
 		mvmalert.On("RequestConfigurationUpdate").Return(nil)
 
-		var malertmanager mockAlertmanagerService
-		malertmanager.Test(t)
-		malertmanager.On("RequestConfigurationUpdate").Return(nil)
-
 		var mtemplatesService mockTemplatesService
 		mtemplatesService.Test(t)
 		mtemplatesService.On("CollectTemplates", context.TODO()).Return(nil)
@@ -79,7 +75,6 @@ func TestServer(t *testing.T) {
 			DB:                   reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)),
 			VMDB:                 &mvmdb,
 			VMAlert:              &mvmalert,
-			Alertmanager:         &malertmanager,
 			ChecksService:        &mchecksService,
 			TemplatesService:     &mtemplatesService,
 			AgentsStateUpdater:   mState,
@@ -198,14 +193,8 @@ func TestServer(t *testing.T) {
 
 		ctx := context.TODO()
 
-		expected := status.New(codes.InvalidArgument, "Both alert_manager_rules and remove_alert_manager_rules are present.")
-		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
-			AlertManagerRules:       "something",
-			RemoveAlertManagerRules: true,
-		}))
-
 		s.envSettings.DisableUpdates = true
-		expected = status.New(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
+		expected := status.New(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
 		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
 			EnableUpdates: true,
 		}))
@@ -234,7 +223,6 @@ func TestServer(t *testing.T) {
 		server := newServer(t)
 
 		server.UpdateSettingsFromEnv([]string{
-			"ENABLE_DBAAS=1",
 			"ENABLE_ALERTING=1",
 			"ENABLE_AZUREDISCOVER=1",
 		})
@@ -250,196 +238,25 @@ func TestServer(t *testing.T) {
 		settings, err := server.GetSettings(ctx, &serverpb.GetSettingsRequest{})
 
 		require.NoError(t, err)
-		assert.True(t, settings.Settings.DbaasEnabled)
 		assert.True(t, settings.Settings.AlertingEnabled)
 		assert.True(t, settings.Settings.AzurediscoverEnabled)
 	})
 
-	t.Run("ChangeSettings IA", func(t *testing.T) {
+	t.Run("ChangeSettings Alerting", func(t *testing.T) {
 		server := newServer(t)
-		var rs mockRulesService
-		server.rulesService = &rs
 		server.UpdateSettingsFromEnv([]string{})
 
 		ctx := context.TODO()
-		rs.On("RemoveVMAlertRulesFiles").Return(nil)
-		defer rs.AssertExpectations(t)
 		s, err := server.ChangeSettings(ctx, &serverpb.ChangeSettingsRequest{
 			DisableAlerting: true,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, s)
 
-		rs.On("WriteVMAlertRulesFiles")
 		s, err = server.ChangeSettings(ctx, &serverpb.ChangeSettingsRequest{
 			EnableAlerting: true,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, s)
-
-		rs.On("RemoveVMAlertRulesFiles").Return(nil)
-		s, err = server.ChangeSettings(ctx, &serverpb.ChangeSettingsRequest{
-			DisableAlerting: true,
-		})
-		require.NoError(t, err)
-		require.NotNil(t, s)
 	})
-}
-
-func TestServer_TestEmailAlertingSettings(t *testing.T) { //nolint:tparallel
-	t.Parallel()
-
-	var server Server
-
-	var e mockEmailer
-	server.emailer = &e
-
-	ctx := context.TODO()
-
-	normalRequest := &serverpb.TestEmailAlertingSettingsRequest{
-		EmailAlertingSettings: &serverpb.EmailAlertingSettings{
-			From:       "me@example.com",
-			Smarthost:  "example.com:465",
-			Hello:      "example.com",
-			Username:   "example-user",
-			Password:   "some-password",
-			Identity:   "example",
-			Secret:     "example-secret",
-			RequireTls: true,
-		},
-		EmailTo: "to@example.com",
-	}
-	eas := normalRequest.EmailAlertingSettings
-
-	for _, tc := range []struct {
-		testName string
-		req      *serverpb.TestEmailAlertingSettingsRequest
-		respErr  string
-		mock     func()
-	}{
-		{
-			testName: "normal",
-			req:      normalRequest,
-			respErr:  "",
-			mock: func() {
-				s := &models.EmailAlertingSettings{
-					From:       eas.From,
-					Smarthost:  eas.Smarthost,
-					Hello:      eas.Hello,
-					Username:   eas.Username,
-					Password:   eas.Password,
-					Identity:   eas.Identity,
-					Secret:     eas.Secret,
-					RequireTLS: eas.RequireTls,
-				}
-				e.On("Send", mock.Anything, s, normalRequest.EmailTo).Return(nil).Once()
-			},
-		},
-		{
-			testName: "failed to send: invalid argument",
-			req:      normalRequest,
-			respErr:  "rpc error: code = InvalidArgument desc = Cannot send email: invalid argument.",
-			mock: func() {
-				s := &models.EmailAlertingSettings{
-					From:       eas.From,
-					Smarthost:  eas.Smarthost,
-					Hello:      eas.Hello,
-					Username:   eas.Username,
-					Password:   eas.Password,
-					Identity:   eas.Identity,
-					Secret:     eas.Secret,
-					RequireTLS: eas.RequireTls,
-				}
-				e.On("Send", mock.Anything, s, normalRequest.EmailTo).
-					Return(models.NewInvalidArgumentError("invalid argument")).Once()
-			},
-		},
-		{
-			testName: "invalid argument: from",
-			respErr: "rpc error: code = InvalidArgument desc = " +
-				"Invalid argument: invalid \"from\" email \"invalid-from\".",
-			req: &serverpb.TestEmailAlertingSettingsRequest{
-				EmailAlertingSettings: &serverpb.EmailAlertingSettings{
-					From:       "invalid-from",
-					Smarthost:  eas.Smarthost,
-					Hello:      eas.Hello,
-					Username:   eas.Username,
-					Password:   eas.Password,
-					Identity:   eas.Identity,
-					Secret:     eas.Secret,
-					RequireTls: eas.RequireTls,
-				},
-				EmailTo: normalRequest.EmailTo,
-			},
-		},
-		{
-			testName: "invalid argument: smarthost",
-			respErr: "rpc error: code = InvalidArgument desc = " +
-				"Invalid argument: invalid server address, expected format host:port.",
-			req: &serverpb.TestEmailAlertingSettingsRequest{
-				EmailAlertingSettings: &serverpb.EmailAlertingSettings{
-					From:       eas.From,
-					Smarthost:  "invalid-smart-host",
-					Hello:      eas.Hello,
-					Username:   eas.Username,
-					Password:   eas.Password,
-					Identity:   eas.Identity,
-					Secret:     eas.Secret,
-					RequireTls: eas.RequireTls,
-				},
-				EmailTo: normalRequest.EmailTo,
-			},
-		},
-		{
-			testName: "invalid argument: hello",
-			respErr: "rpc error: code = InvalidArgument desc = " +
-				"Invalid argument: invalid hello field, expected valid host.",
-			req: &serverpb.TestEmailAlertingSettingsRequest{
-				EmailAlertingSettings: &serverpb.EmailAlertingSettings{
-					From:       eas.From,
-					Smarthost:  eas.Smarthost,
-					Hello:      "@invalid hello",
-					Username:   eas.Username,
-					Password:   eas.Password,
-					Identity:   eas.Identity,
-					Secret:     eas.Secret,
-					RequireTls: eas.RequireTls,
-				},
-				EmailTo: normalRequest.EmailTo,
-			},
-		},
-		{
-			testName: "invalid argument: emailTo",
-			respErr:  "rpc error: code = InvalidArgument desc = invalid \"emailTo\" email \"invalid email\"",
-			req: &serverpb.TestEmailAlertingSettingsRequest{
-				EmailAlertingSettings: &serverpb.EmailAlertingSettings{
-					From:       eas.From,
-					Smarthost:  eas.Smarthost,
-					Hello:      eas.Hello,
-					Username:   eas.Username,
-					Password:   eas.Password,
-					Identity:   eas.Identity,
-					Secret:     eas.Secret,
-					RequireTls: eas.RequireTls,
-				},
-				EmailTo: "invalid email",
-			},
-		},
-	} {
-		t.Run(tc.testName, func(t *testing.T) {
-			if tc.mock != nil {
-				tc.mock()
-			}
-			resp, err := server.TestEmailAlertingSettings(ctx, tc.req)
-			if tc.respErr != "" {
-				assert.Nil(t, resp)
-				assert.EqualError(t, err, tc.respErr)
-			} else {
-				assert.NoError(t, err)
-				assert.NotNil(t, resp)
-			}
-		})
-	}
-
-	mock.AssertExpectationsForObjects(t, &e)
 }

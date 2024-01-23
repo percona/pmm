@@ -368,7 +368,7 @@ func (s *Service) UpdateLog(offset uint32) ([]string, uint32, error) {
 	if err != nil {
 		return nil, 0, errors.WithStack(err)
 	}
-	defer f.Close() //nolint:errcheck,gosec
+	defer f.Close() //nolint:errcheck,gosec,nolintlint
 
 	if _, err = f.Seek(int64(offset), io.SeekStart); err != nil {
 		return nil, 0, errors.WithStack(err)
@@ -427,7 +427,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"VMDBCacheDisable":         !settings.VictoriaMetrics.CacheEnabled,
 		"VMURL":                    s.vmParams.URL(),
 		"ExternalVM":               s.vmParams.ExternalVM(),
-		"PerconaTestDbaas":         settings.DBaaS.Enabled,
 		"InterfaceToBind":          envvars.GetInterfaceToBind(),
 		"ClickhouseAddr":           clickhouseAddr,
 		"ClickhouseDataSourceAddr": clickhouseDataSourceAddr,
@@ -467,47 +466,12 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		templateParams["PerconaSSODetails"] = nil
 	}
 
-	if err := addAlertManagerParams(settings.AlertManagerURL, templateParams); err != nil {
-		return nil, errors.Wrap(err, "cannot add AlertManagerParams to supervisor template")
-	}
-
 	var buf bytes.Buffer
 	if err := tmpl.Execute(&buf, templateParams); err != nil {
 		return nil, errors.Wrapf(err, "failed to render template %q", tmpl.Name())
 	}
 	b := append([]byte("; Managed by pmm-managed. DO NOT EDIT.\n"), buf.Bytes()...)
 	return b, nil
-}
-
-// addAlertManagerParams parses alertManagerURL
-// and extracts url, username and password from it to templateParams.
-func addAlertManagerParams(alertManagerURL string, templateParams map[string]interface{}) error {
-	templateParams["AlertmanagerURL"] = "http://127.0.0.1:9093/alertmanager"
-	templateParams["AlertManagerUser"] = ""
-	templateParams["AlertManagerPassword"] = ""
-	if alertManagerURL == "" {
-		return nil
-	}
-	u, err := url.Parse(alertManagerURL)
-	if err != nil {
-		return errors.Wrap(err, "cannot parse AlertManagerURL")
-	}
-	if u.Opaque != "" || u.Host == "" {
-		return errors.Errorf("AlertmanagerURL parsed incorrectly as %#v", u)
-	}
-	password, _ := u.User.Password()
-	n := url.URL{
-		Scheme:   u.Scheme,
-		Host:     u.Host,
-		Path:     u.Path,
-		RawQuery: u.RawQuery,
-		Fragment: u.Fragment,
-	}
-	templateParams["AlertManagerUser"] = fmt.Sprintf(",%s", u.User.Username())
-	templateParams["AlertManagerPassword"] = fmt.Sprintf(",%s", strconv.Quote(password))
-	templateParams["AlertmanagerURL"] = fmt.Sprintf("http://127.0.0.1:9093/alertmanager,%s", n.String())
-
-	return nil
 }
 
 // addPostgresParams adds pmm-server postgres database params to template config for grafana.
@@ -585,7 +549,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	return true, nil
 }
 
-// UpdateConfiguration updates Prometheus, Alertmanager, Grafana and qan-api2 configurations, restarting them if needed.
+// UpdateConfiguration updates VictoriaMetrics, Grafana and qan-api2 configurations, restarting them if needed.
 func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *models.PerconaSSODetails) error {
 	if s.supervisorctlPath == "" {
 		s.l.Errorf("supervisorctl not found, configuration updates are disabled.")
@@ -642,38 +606,6 @@ func (s *Service) StopSupervisedService(serviceName string) error {
 
 //nolint:lll
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
-{{define "dbaas-controller"}}
-[program:dbaas-controller]
-priority = 6
-command = /usr/sbin/dbaas-controller
-user = pmm
-autorestart = {{ .PerconaTestDbaas }}
-autostart = {{ .PerconaTestDbaas }}
-startretries = 10
-startsecs = 1
-stopsignal = TERM
-stopwaitsecs = 300
-stdout_logfile = /srv/logs/dbaas-controller.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
-
-{{define "prometheus"}}
-[program:prometheus]
-command = /bin/echo Prometheus is substituted by VictoriaMetrics
-user = pmm
-autorestart = false
-autostart = false
-startretries = 10
-startsecs = 1
-stopsignal = TERM
-stopwaitsecs = 300
-stdout_logfile = /srv/logs/prometheus.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
 
 {{define "victoriametrics"}}
 {{- if not .ExternalVM }}
@@ -694,7 +626,6 @@ command =
 		--search.logSlowQueryDuration=30s
 		--search.maxQueryDuration=90s
 		--promscrape.streamParse=true
-		--prometheusDataPath=/srv/prometheus/data
 		--http.pathPrefix=/prometheus
 		--envflag.enable
 		--envflag.prefix=VM_
@@ -717,16 +648,12 @@ redirect_stderr = true
 priority = 7
 command =
 	/usr/sbin/vmalert
-		--notifier.url="{{ .AlertmanagerURL }}"
-		--notifier.basicAuth.password='{{ .AlertManagerPassword }}'
-		--notifier.basicAuth.username="{{ .AlertManagerUser }}"
 		--external.url={{ .VMURL }}
 		--datasource.url={{ .VMURL }}
 		--remoteRead.url={{ .VMURL }}
 		--remoteRead.ignoreRestoreErrors=false
 		--remoteWrite.url={{ .VMURL }}
 		--rule=/srv/prometheus/rules/*.yml
-		--rule=/etc/ia/rules/*.yml
 		--httpListenAddr={{ .InterfaceToBind }}:8880
 {{- range $index, $param := .VMAlertFlags }}
 		{{ $param }}
@@ -761,30 +688,6 @@ startsecs = 1
 stopsignal = INT
 stopwaitsecs = 300
 stdout_logfile = /srv/logs/vmproxy.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
-
-{{define "alertmanager"}}
-[program:alertmanager]
-priority = 8
-command =
-	/usr/sbin/alertmanager
-		--config.file=/etc/alertmanager.yml
-		--storage.path=/srv/alertmanager/data
-		--data.retention={{ .DataRetentionHours }}h
-		--web.external-url=http://localhost:9093/alertmanager/
-		--web.listen-address={{ .InterfaceToBind }}:9093
-		--cluster.listen-address=""
-user = pmm
-autorestart = true
-autostart = true
-startretries = 1000
-startsecs = 1
-stopsignal = TERM
-stopwaitsecs = 10
-stdout_logfile = /srv/logs/alertmanager.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
 redirect_stderr = true
@@ -856,7 +759,7 @@ environment =
     GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS="{{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}",
     GF_UNIFIED_ALERTING_HA_PEERS="{{ .HANodes }}"
     {{- end}}
-user = grafana
+user = pmm
 directory = /usr/share/grafana
 autorestart = true
 autostart = true

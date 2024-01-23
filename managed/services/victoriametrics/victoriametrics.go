@@ -87,7 +87,7 @@ func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, params *models.V
 // Run runs VictoriaMetrics configuration update loop until ctx is canceled.
 func (svc *Service) Run(ctx context.Context) {
 	// If you change this and related methods,
-	// please do similar changes in alertmanager and vmalert packages.
+	// please do similar changes in vmalert package.
 
 	svc.l.Info("Starting...")
 	defer svc.l.Info("Done.")
@@ -176,7 +176,7 @@ func (svc *Service) reload(ctx context.Context) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:errcheck,gosec
+	defer resp.Body.Close() //nolint:errcheck,gosec,nolintlint
 
 	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("VM reload: %s", b)
@@ -338,7 +338,7 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForInternalVMAgent(s.HR, svc.baseURL.Host))
 		}
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(s.HR))
-		AddInternalServicesToScrape(cfg, s, settings.DBaaS.Enabled)
+		AddInternalServicesToScrape(cfg, s)
 		return AddScrapeConfigs(svc.l, cfg, tx.Querier, &s, nil, false)
 	})
 }
@@ -440,7 +440,7 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:gosec,errcheck
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("VM health: %s", b)

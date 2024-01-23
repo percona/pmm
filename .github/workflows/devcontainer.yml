@@ -4,14 +4,14 @@ on:
     inputs:
       branch:
         description: "The branch to build the devcontainer from"
-        default: "main"
+        default: "v3"
         required: true
         type: string
   workflow_call:
     inputs:
       branch:
         description: "The branch to build the devcontainer from"
-        default: "main"
+        default: "v3"
         required: true
         type: string
 
@@ -20,14 +20,12 @@ jobs:
     name: Build
     runs-on: ubuntu-22.04
     timeout-minutes: 15
-    strategy:
-      fail-fast: false
     permissions:
       packages: write
 
     env:
-      LAB_DEVCONTAINER_IMAGE: perconalab/pmm-server:dev-container
-      GH_DEVCONTAINER_IMAGE: ghcr.io/percona/pmm:dev-container
+      LAB_DEVCONTAINER_IMAGE: perconalab/pmm-server:3-dev-container
+      GH_DEVCONTAINER_IMAGE: ghcr.io/percona/pmm:3-dev-container
 
     steps:
       - name: Check out code

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - v3
       - pmm-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
@@ -14,15 +15,13 @@ jobs:
   check:
     name: Checks
     runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
 
     steps:
       - name: Check out code
         uses: actions/checkout@v4
 
       - name: Set up Go release
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version-file: ${{ github.workspace }}/go.mod
           cache: false
@@ -89,7 +88,7 @@ jobs:
           fail_on_error: true
           cache: false
           golangci_lint_flags: "-c=.golangci.yml"
-          golangci_lint_version: v1.51.2 # Version should match specified in Makefile
+          golangci_lint_version: v1.55.2 # Version should match specified in Makefile
 
       - name: Run go-consistent
         env:

@@ -17,6 +17,7 @@ package management
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	"github.com/percona-platform/saas/pkg/check"
@@ -27,17 +28,6 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
-
-//go:generate ../../../bin/mockery --name=agentsRegistry --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=agentsStateUpdater --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=prometheusService --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=checksService --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=grafanaClient --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=jobsService --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=connectionChecker --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=serviceInfoBroker --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=versionCache --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=victoriaMetricsClient --case=snake --inpackage --testonly
 
 // agentsRegistry is a subset of methods of agents.Registry used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -107,4 +97,9 @@ type versionCache interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type victoriaMetricsClient interface {
 	Query(ctx context.Context, query string, ts time.Time, opts ...v1.Option) (model.Value, v1.Warnings, error)
+}
+
+type apiKeyProvider interface {
+	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
+	IsAPIKeyAuth(headers http.Header) bool
 }

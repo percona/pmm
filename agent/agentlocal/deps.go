@@ -23,9 +23,6 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 )
 
-//go:generate ../../bin/mockery --name=client --case=snake --inpackage --testonly
-//go:generate ../../bin/mockery --name=supervisor --case=snake --inpackage --testonly
-
 // client is a subset of methods of client.Client used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type client interface {

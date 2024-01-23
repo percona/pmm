@@ -13,9 +13,6 @@ header:
       - "**/amclient/**"
       - "**/ammodels/**"
       - "qan-api2/migrations/**"
-      - "managed/services/dbaas/kubernetes/client/kubeclient_interface.go"
-      - "managed/services/dbaas/olm/operator_service_interface.go"
-      - "managed/services/dbaas/kubernetes/operator_service_interface.go"
     license:
       spdx-id: AGPL-3.0-or-later
       copyright-owner: Percona LLC

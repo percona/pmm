@@ -1,0 +1,45 @@
+apiVersion: 1
+deleteDatasources:
+  - name: ClickHouse
+    orgId: 1
+datasources:
+- name: Metrics
+  version: 2
+  orgId: 1
+  type: prometheus
+  access: proxy
+  url: http://127.0.0.1:8430/
+  isDefault: true
+  jsonData:
+    httpMethod: POST
+    keepCookies: []
+    timeInterval: 1s
+- name: PostgreSQL
+  version: 2
+  orgId: 1
+  type: postgres
+  access: proxy
+  url: ${PERCONA_TEST_POSTGRES_ADDR}
+  user: ${PERCONA_TEST_POSTGRES_USERNAME}
+  database: ${PERCONA_TEST_POSTGRES_DBNAME}
+  jsonData:
+    sslRootCertFile: ${PERCONA_TEST_POSTGRES_SSL_CA_PATH}
+    sslKeyFile: ${PERCONA_TEST_POSTGRES_SSL_KEY_PATH}
+    sslCertFile: ${PERCONA_TEST_POSTGRES_SSL_CERT_PATH}
+    postgresVersion: "1100"
+    sslmode: ${PERCONA_TEST_POSTGRES_SSL_MODE}
+  secureJsonData:
+    password: ${PERCONA_TEST_POSTGRES_DBPASSWORD}
+- name: PTSummary
+  version: 2
+  orgId: 1
+  type: pmm-pt-summary-datasource
+  access: proxy
+- name: ClickHouse
+  orgId: 1
+  version: 2
+  type: grafana-clickhouse-datasource
+  jsonData:
+    port: ${PERCONA_TEST_PMM_CLICKHOUSE_PORT}
+    server: ${PERCONA_TEST_PMM_CLICKHOUSE_HOST}
+    tlsSkipVerify: false

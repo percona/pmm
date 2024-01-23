@@ -157,13 +157,12 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 		"/etc/victoriametrics-promscrape.yml",
 
 		"/etc/supervisord.conf",
-		"/etc/supervisord.d/alertmanager.ini",
 		"/etc/supervisord.d/pmm.ini",
 		"/etc/supervisord.d/qan-api2.ini",
 		"/etc/supervisord.d/victoriametrics.ini",
 		"/etc/supervisord.d/vmalert.ini",
 
-		"/usr/local/percona/pmm2/config/pmm-agent.yaml",
+		"/usr/local/percona/pmm/config/pmm-agent.yaml",
 	} {
 		b, m, err := readFile(f)
 		files = append(files, fileContent{
@@ -278,7 +277,7 @@ func readLog(name string, maxLines int, maxBytes int64) ([]byte, time.Time, erro
 	if err != nil {
 		return nil, m, errors.WithStack(err)
 	}
-	defer f.Close() //nolint:gosec,errcheck
+	defer f.Close() //nolint:gosec,errcheck,nolintlint
 
 	fi, err := f.Stat()
 	if err != nil {
@@ -354,7 +353,7 @@ func readURL(ctx context.Context, url string) ([]byte, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:gosec,errcheck
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {

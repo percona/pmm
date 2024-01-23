@@ -84,15 +84,3 @@ type CheckResultSummary struct {
 	InfoCount      uint32
 	DebugCount     uint32
 }
-
-// FilterParams provides fields needed to filter alerts from AlertManager.
-type FilterParams struct {
-	// IsIA specifies if only Integrated Alerts should be matched.
-	IsIA bool
-	// IsCheck specifies if only Checks/Advisors alerts should be matched.
-	IsCheck bool
-	// AlertID is the ID of alert to be matched (if any).
-	AlertID string
-	// ServiceID is the ID of service to be matched (if any).
-	ServiceID string
-}

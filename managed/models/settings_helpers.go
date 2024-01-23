@@ -18,11 +18,8 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"net/url"
-	"strings"
 	"time"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
@@ -66,10 +63,6 @@ type ChangeSettingsParams struct {
 
 	SSHKey string
 
-	// not url.URL to keep username and password
-	AlertManagerURL       string
-	RemoveAlertManagerURL bool
-
 	// Enable Security Threat Tool
 	EnableSTT bool
 	// Disable Security Threat Tool
@@ -81,35 +74,20 @@ type ChangeSettingsParams struct {
 	// STT check intervals
 	STTCheckIntervals STTCheckIntervals
 
-	// Enable DBaaS features.
-	EnableDBaaS bool
-	// Disable DBaaS features.
-	DisableDBaaS bool
-
 	// Enable Azure Discover features.
 	EnableAzurediscover bool
 	// Disable Azure Discover features.
 	DisableAzurediscover bool
 
-	// Enable Integrated Alerting features.
+	// Enable Percona Alerting features.
 	EnableAlerting bool
-	// Disable Integrated Alerting features.
+	// Disable Percona Alerting features.
 	DisableAlerting bool
 
 	// Enable Access Control features.
 	EnableAccessControl bool
 	// Disable Access Control features.
 	DisableAccessControl bool
-
-	// Email config for Integrated Alerting.
-	EmailAlertingSettings *EmailAlertingSettings
-	// If true removes email alerting settings.
-	RemoveEmailAlertingSettings bool
-
-	// Slack config for Integrated Alerting.
-	SlackAlertingSettings *SlackAlertingSettings
-	// If true removes Slack alerting settings.
-	RemoveSlackAlertingSettings bool
 
 	// EnableVMCache enables caching for vmdb search queries
 	EnableVMCache bool
@@ -197,12 +175,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	if params.SSHKey != "" {
 		settings.SSHKey = params.SSHKey
 	}
-	if params.AlertManagerURL != "" {
-		settings.AlertManagerURL = params.AlertManagerURL
-	}
-	if params.RemoveAlertManagerURL {
-		settings.AlertManagerURL = ""
-	}
 
 	if params.DisableSTT {
 		settings.SaaS.STTDisabled = true
@@ -238,14 +210,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 			}
 		}
 		settings.SaaS.DisabledSTTChecks = res
-	}
-
-	if params.EnableDBaaS {
-		settings.DBaaS.Enabled = true
-	}
-
-	if params.DisableDBaaS {
-		settings.DBaaS.Enabled = false
 	}
 
 	if params.DisableVMCache {
@@ -286,21 +250,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.AccessControl.Enabled = true
 	}
 
-	if params.RemoveEmailAlertingSettings {
-		settings.Alerting.EmailAlertingSettings = nil
-	}
-
-	if params.RemoveSlackAlertingSettings {
-		settings.Alerting.SlackAlertingSettings = nil
-	}
-
-	if params.EmailAlertingSettings != nil {
-		settings.Alerting.EmailAlertingSettings = params.EmailAlertingSettings
-	}
-	if params.SlackAlertingSettings != nil {
-		settings.Alerting.SlackAlertingSettings = params.SlackAlertingSettings
-	}
-
 	if params.DisableBackupManagement {
 		settings.BackupManagement.Disabled = true
 	}
@@ -329,34 +278,6 @@ func lockRoleForChange(tx *reform.TX, roleID int) error {
 	return nil
 }
 
-func validateSlackAlertingSettings(params *ChangeSettingsParams) error {
-	if params.SlackAlertingSettings != nil && params.RemoveSlackAlertingSettings {
-		return errors.New("both slack_alerting_settings and remove_slack_alerting_settings are present")
-	}
-
-	if params.SlackAlertingSettings == nil {
-		return nil
-	}
-
-	if !govalidator.IsURL(params.SlackAlertingSettings.URL) {
-		return errors.New("invalid url value")
-	}
-
-	return nil
-}
-
-func validateEmailAlertingSettings(params *ChangeSettingsParams) error {
-	if params.EmailAlertingSettings != nil && params.RemoveEmailAlertingSettings {
-		return errors.New("both email_alerting_settings and remove_email_alerting_settings are present")
-	}
-
-	if params.EmailAlertingSettings == nil {
-		return nil
-	}
-
-	return params.EmailAlertingSettings.Validate()
-}
-
 // ValidateSettings validates settings changes.
 func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
 	if params.EnableUpdates && params.DisableUpdates {
@@ -373,12 +294,6 @@ func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
 	}
 	if params.EnableAlerting && params.DisableAlerting {
 		return errors.New("both enable_alerting and disable_alerting are present")
-	}
-	if err := validateEmailAlertingSettings(params); err != nil {
-		return err
-	}
-	if err := validateSlackAlertingSettings(params); err != nil {
-		return err
 	}
 	if params.EnableBackupManagement && params.DisableBackupManagement {
 		return errors.New("both enable_backup_management and disable_backup_management are present")
@@ -449,27 +364,6 @@ func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
 
 	if err := validators.ValidateAWSPartitions(params.AWSPartitions); err != nil {
 		return err
-	}
-
-	if params.AlertManagerURL != "" {
-		if params.RemoveAlertManagerURL {
-			return errors.New("both alert_manager_url and remove_alert_manager_url are present")
-		}
-
-		// custom validation for typical error that is not handled well by url.Parse
-		if !strings.Contains(params.AlertManagerURL, "//") {
-			return errors.Errorf("invalid alert_manager_url: %s - missing protocol scheme", params.AlertManagerURL)
-		}
-		u, err := url.Parse(params.AlertManagerURL)
-		if err != nil {
-			return errors.Errorf("invalid alert_manager_url: %s", err)
-		}
-		if u.Scheme == "" {
-			return errors.Errorf("invalid alert_manager_url: %s - missing protocol scheme", params.AlertManagerURL)
-		}
-		if u.Host == "" {
-			return errors.Errorf("invalid alert_manager_url: %s - missing host", params.AlertManagerURL)
-		}
 	}
 
 	if params.PMMPublicAddress != "" && params.RemovePMMPublicAddress {

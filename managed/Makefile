@@ -5,9 +5,6 @@ help:                           ## Display this help message
 	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | \
 		awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 	@echo
-	@echo "To test DBaaS components with minikube:"
-	@echo "Start minikube: minikube start --cpus=2 --nodes=3 --kubernetes-version=v1.20.0"
-	@echo "ENABLE_DBAAS=1 NETWORK=minikube make env-up"
 
 # `cut` is used to remove first `v` from `git describe` output
 PMM_RELEASE_PATH ?= ../bin
@@ -30,7 +27,6 @@ gen: clean                      ## Generate files
 
 clean:                          ## Remove generated files
 	find . -name *_reform.go -delete
-	find . -name mock_*.go -delete
 
 release:                        ## Build pmm-managed release binaries
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...

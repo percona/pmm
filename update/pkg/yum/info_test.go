@@ -116,7 +116,7 @@ func TestParseInfoEL7(t *testing.T) {
 			Version     : 2.0.0
 			Release     : 9.beta5.1907301223.90149dd.el7
 			Size        : 1.5 M
-			Repo        : pmm2-laboratory
+			Repo        : pmm-laboratory
 			Committer   : Mykola Marzhan <mykola.marzhan@percona.com>
 			Committime  : Fri Jun 30 12:00:00 2017
 			Buildtime   : Tue Jul 30 12:23:10 2019
@@ -131,7 +131,7 @@ func TestParseInfoEL7(t *testing.T) {
 			"Version":     "2.0.0",
 			"Release":     "9.beta5.1907301223.90149dd.el7",
 			"Size":        "1.5 M",
-			"Repo":        "pmm2-laboratory",
+			"Repo":        "pmm-laboratory",
 			"Committer":   "Mykola Marzhan <mykola.marzhan@percona.com>",
 			"Committime":  "Fri Jun 30 12:00:00 2017",
 			"Buildtime":   "Tue Jul 30 12:23:10 2019",
@@ -172,7 +172,7 @@ func TestParseInfoEL7(t *testing.T) {
 			Version     : PMM
 			Release     : 7.4358.1907161009.7685dba.el7
 			Size        : 20 k
-			Repo        : pmm2-laboratory
+			Repo        : pmm-laboratory
 			Committer   : Mykola Marzhan <mykola.marzhan@percona.com>
 			Committime  : Fri Jun 30 12:00:00 2017
 			Buildtime   : Tue Jul 16 10:09:01 2019
@@ -186,7 +186,7 @@ func TestParseInfoEL7(t *testing.T) {
 			Version     : 2.0.0
 			Release     : 1.1903221448.2e245f9.el7
 			Size        : 20 k
-			Repo        : pmm2-laboratory
+			Repo        : pmm-laboratory
 			Committer   : Mykola Marzhan <mykola.marzhan@percona.com>
 			Committime  : Fri Jun 30 12:00:00 2017
 			Buildtime   : Fri Mar 22 14:48:42 2019
@@ -203,7 +203,7 @@ func TestParseInfoEL7(t *testing.T) {
 			"Version":     "PMM",
 			"Release":     "7.4358.1907161009.7685dba.el7",
 			"Size":        "20 k",
-			"Repo":        "pmm2-laboratory",
+			"Repo":        "pmm-laboratory",
 			"Committer":   "Mykola Marzhan <mykola.marzhan@percona.com>",
 			"Committime":  "Fri Jun 30 12:00:00 2017",
 			"Buildtime":   "Tue Jul 16 10:09:01 2019",
@@ -231,7 +231,7 @@ func TestParseInfoEL7(t *testing.T) {
 			Version     : 2.0.0
 			Release     : 18.1909180550.6de91ea.el7
 			Size        : 857 k
-			Repo        : pmm2-server
+			Repo        : pmm-server
 			Committer   : Alexey Palazhchenko <alexey.palazhchenko@percona.com>
 			Committime  : Wed Sep 18 12:00:00 2019
 			Buildtime   : Wed Sep 18 05:51:01 2019
@@ -248,7 +248,7 @@ func TestParseInfoEL7(t *testing.T) {
 			"Version":     "2.0.0",
 			"Release":     "18.1909180550.6de91ea.el7",
 			"Size":        "857 k",
-			"Repo":        "pmm2-server",
+			"Repo":        "pmm-server",
 			"Committer":   "Alexey Palazhchenko <alexey.palazhchenko@percona.com>",
 			"Committime":  "Wed Sep 18 12:00:00 2019",
 			"Buildtime":   "Wed Sep 18 05:51:01 2019",
@@ -296,7 +296,7 @@ func TestParseInfoEL7(t *testing.T) {
 	})
 
 	t.Run("RepoInfo", func(t *testing.T) {
-		// yum repoinfo pmm2-server.
+		// yum repoinfo pmm-server.
 		stdout := strings.Split(`
 			Loaded plugins: changelog, fastestmirror, ovl
 			Loading mirror speeds from cached hostfile
@@ -304,33 +304,33 @@ func TestParseInfoEL7(t *testing.T) {
 			* epel: mirror.netcologne.de
 			* extras: centos.mirror.iphh.net
 			* updates: mirror.netcologne.de
-			Repo-id      : pmm2-server
+			Repo-id      : pmm-server
 			Repo-name    : PMM Server YUM repository - x86_64
 			Repo-status  : enabled
 			Repo-revision: 1622561436
 			Repo-updated : Tue Jun  1 15:30:45 2021
 			Repo-pkgs    : 237
 			Repo-size    : 2.4 G
-			Repo-baseurl : https://repo.percona.com/pmm2-components/yum/release/7/RPMS/x86_64/
+			Repo-baseurl : https://repo.percona.com/pmm3-components/yum/experimental/7/RPMS/x86_64/
 			Repo-expire  : 21600 second(s) (last: Thu Jun 10 16:08:12 2021)
 			Filter     : read-only:present
-			Repo-filename: /etc/yum.repos.d/pmm2-server.repo
+			Repo-filename: /etc/yum.repos.d/pmm-server.repo
 			
 			repolist: 237
 			…
 		`, "\n")
 		expected := map[string]string{
-			"Repo-id":       "pmm2-server",
+			"Repo-id":       "pmm-server",
 			"Repo-name":     "PMM Server YUM repository - x86_64",
 			"Repo-status":   "enabled",
 			"Repo-revision": "1622561436",
 			"Repo-updated":  "Tue Jun  1 15:30:45 2021",
 			"Repo-pkgs":     "237",
 			"Repo-size":     "2.4 G",
-			"Repo-baseurl":  "https://repo.percona.com/pmm2-components/yum/release/7/RPMS/x86_64/",
+			"Repo-baseurl":  "https://repo.percona.com/pmm3-components/yum/experimental/7/RPMS/x86_64/",
 			"Repo-expire":   "21600 second(s) (last: Thu Jun 10 16:08:12 2021)",
 			"Filter":        "read-only:present",
-			"Repo-filename": "/etc/yum.repos.d/pmm2-server.repo",
+			"Repo-filename": "/etc/yum.repos.d/pmm-server.repo",
 			"repolist":      "237",
 		}
 		actual, err := parseInfo(stdout, "Repo-id")
@@ -358,7 +358,7 @@ func TestParseInfoEL9(t *testing.T) {
 			Unknown configuration option: async = 1 in /etc/yum.repos.d/nginx.repo
 			Unknown configuration option: async = 1 in /etc/yum.repos.d/percona-ppg-11.repo
 			Unknown configuration option: async = 1 in /etc/yum.repos.d/percona-ppg-14.repo
-			Unknown configuration option: async = 1 in /etc/yum.repos.d/pmm2-server.repo
+			Unknown configuration option: async = 1 in /etc/yum.repos.d/pmm-server.repo
 			User-Agent: constructed: 'libdnf (Oracle Linux Server 9.2; server; Linux.x86_64)'
 			Installed Packages
 			Name         : pmm-managed
@@ -421,7 +421,7 @@ func TestParseInfoEL9(t *testing.T) {
 			Unknown configuration option: async = 1 in /etc/yum.repos.d/nginx.repo
 			Unknown configuration option: async = 1 in /etc/yum.repos.d/percona-ppg-11.repo
 			Unknown configuration option: async = 1 in /etc/yum.repos.d/percona-ppg-14.repo
-			Unknown configuration option: async = 1 in /etc/yum.repos.d/pmm2-server.repo
+			Unknown configuration option: async = 1 in /etc/yum.repos.d/pmm-server.repo
 			User-Agent: constructed: 'libdnf (Oracle Linux Server 9.2; server; Linux.x86_64)'
 			repo: using cache for: ol9_developer_EPEL
 			ol9_developer_EPEL: using metadata from Wed 28 Jun 2023 02:28:50 PM UTC.
@@ -443,8 +443,8 @@ func TestParseInfoEL9(t *testing.T) {
 			percona-ppg-14: using metadata from Wed 28 Jun 2023 02:57:51 PM UTC.
 			repo: using cache for: prel-release-noarch
 			prel-release-noarch: using metadata from Thu 16 Sep 2021 06:35:55 AM UTC.
-			repo: using cache for: pmm2-server
-			pmm2-server: using metadata from Wed 28 Jun 2023 02:46:09 PM UTC.
+			repo: using cache for: pmm-server
+			pmm-server: using metadata from Wed 28 Jun 2023 02:46:09 PM UTC.
 			Last metadata expiration check: 1:42:51 ago on Wed 28 Jun 2023 07:06:43 PM UTC.
 			Available Upgrades
 			Name         : pmm-update
@@ -453,7 +453,7 @@ func TestParseInfoEL9(t *testing.T) {
 			Architecture : noarch
 			Size         : 886 k
 			Source       : pmm-update-2.39.0-67.2306281336.d0d7fcb.el9.src.rpm
-			Repository   : pmm2-server
+			Repository   : pmm-server
 			Packager     : None
 			Buildtime    : Wed 28 Jun 2023 01:36:03 PM UTC
 			Summary      : Tool for updating packages and OS configuration for PMM Server
@@ -468,7 +468,7 @@ func TestParseInfoEL9(t *testing.T) {
 			"Release":      "67.2306281336.d0d7fcb.el9",
 			"Size":         "886 k",
 			"Source":       "pmm-update-2.39.0-67.2306281336.d0d7fcb.el9.src.rpm",
-			"Repository":   "pmm2-server",
+			"Repository":   "pmm-server",
 			"Packager":     "None",
 			"Buildtime":    "Wed 28 Jun 2023 01:36:03 PM UTC",
 			"Summary":      "Tool for updating packages and OS configuration for PMM Server",
@@ -497,7 +497,7 @@ func TestParseInfoEL9(t *testing.T) {
 			Unknown configuration option: async = 1 in /etc/yum.repos.d/nginx.repo
 			Unknown configuration option: async = 1 in /etc/yum.repos.d/percona-ppg-11.repo
 			Unknown configuration option: async = 1 in /etc/yum.repos.d/percona-ppg-14.repo
-			Unknown configuration option: async = 1 in /etc/yum.repos.d/pmm2-server.repo
+			Unknown configuration option: async = 1 in /etc/yum.repos.d/pmm-server.repo
 			User-Agent: constructed: 'libdnf (Oracle Linux Server 9.2; server; Linux.x86_64)'
 			repo: using cache for: ol9_developer_EPEL
 			ol9_developer_EPEL: using metadata from Wed 28 Jun 2023 02:28:50 PM UTC.
@@ -519,8 +519,8 @@ func TestParseInfoEL9(t *testing.T) {
 			percona-ppg-14: using metadata from Wed 28 Jun 2023 02:57:51 PM UTC.
 			repo: using cache for: prel-release-noarch
 			prel-release-noarch: using metadata from Thu 16 Sep 2021 06:35:55 AM UTC.
-			repo: using cache for: pmm2-server
-			pmm2-server: using metadata from Wed 28 Jun 2023 02:46:09 PM UTC.
+			repo: using cache for: pmm-server
+			pmm-server: using metadata from Wed 28 Jun 2023 02:46:09 PM UTC.
 			Last metadata expiration check: 1:18:00 ago on Wed 28 Jun 2023 07:06:43 PM UTC.
 			Available Packages
 			Name         : pmm-update
@@ -529,7 +529,7 @@ func TestParseInfoEL9(t *testing.T) {
 			Architecture : noarch
 			Size         : 887 k
 			Source       : pmm-update-2.39.0-67.2306280932.70f3748.el9.src.rpm
-			Repository   : pmm2-server
+			Repository   : pmm-server
 			Packager     : None
 			Buildtime    : Wed 28 Jun 2023 09:32:21 AM UTC
 			Summary      : Tool for updating packages and OS configuration for PMM Server
@@ -543,7 +543,7 @@ func TestParseInfoEL9(t *testing.T) {
 			Architecture : noarch
 			Size         : 887 k
 			Source       : pmm-update-2.39.0-67.2306281012.fe8e947.el9.src.rpm
-			Repository   : pmm2-server
+			Repository   : pmm-server
 			Packager     : None
 			Buildtime    : Wed 28 Jun 2023 10:12:02 AM UTC
 			Summary      : Tool for updating packages and OS configuration for PMM Server
@@ -558,7 +558,7 @@ func TestParseInfoEL9(t *testing.T) {
 			"Release":      "67.2306280932.70f3748.el9",
 			"Size":         "887 k",
 			"Source":       "pmm-update-2.39.0-67.2306280932.70f3748.el9.src.rpm",
-			"Repository":   "pmm2-server",
+			"Repository":   "pmm-server",
 			"Packager":     "None",
 			"Buildtime":    "Wed 28 Jun 2023 09:32:21 AM UTC",
 			"Summary":      "Tool for updating packages and OS configuration for PMM Server",
@@ -589,7 +589,7 @@ func TestParseInfoEL9(t *testing.T) {
 			Unknown configuration option: async = 1 in /etc/yum.repos.d/nginx.repo
 			Unknown configuration option: async = 1 in /etc/yum.repos.d/percona-ppg-11.repo
 			Unknown configuration option: async = 1 in /etc/yum.repos.d/percona-ppg-14.repo
-			Unknown configuration option: async = 1 in /etc/yum.repos.d/pmm2-server.repo
+			Unknown configuration option: async = 1 in /etc/yum.repos.d/pmm-server.repo
 			User-Agent: constructed: 'libdnf (Oracle Linux Server 9.2; server; Linux.x86_64)'
 			repo: using cache for: ol9_developer_EPEL
 			ol9_developer_EPEL: using metadata from Wed 28 Jun 2023 02:28:50 PM UTC.
@@ -611,8 +611,8 @@ func TestParseInfoEL9(t *testing.T) {
 			percona-ppg-14: using metadata from Wed 28 Jun 2023 02:57:51 PM UTC.
 			repo: using cache for: prel-release-noarch
 			prel-release-noarch: using metadata from Thu 16 Sep 2021 06:35:55 AM UTC.
-			repo: using cache for: pmm2-server
-			pmm2-server: using metadata from Wed 28 Jun 2023 02:46:09 PM UTC.
+			repo: using cache for: pmm-server
+			pmm-server: using metadata from Wed 28 Jun 2023 02:46:09 PM UTC.
 			Last metadata expiration check: 0:59:54 ago on Wed 28 Jun 2023 07:06:43 PM UTC.
 		`, "\n")
 		actual, err := parseInfo(stdout, "Name")
@@ -621,10 +621,10 @@ func TestParseInfoEL9(t *testing.T) {
 	})
 
 	t.Run("RepoInfo EL9", func(t *testing.T) {
-		// yum repoinfo pmm2-server.
+		// yum repoinfo pmm-server.
 		stdout := strings.Split(`
 			Last metadata expiration check: 9:26:06 ago on Wed 28 Jun 2023 09:26:18 AM UTC.
-			Repo-id            : pmm2-server
+			Repo-id            : pmm-server
 			Repo-name          : PMM Server YUM repository - x86_64
 			Repo-status        : enabled
 			Repo-revision      : 1687873070
@@ -632,13 +632,13 @@ func TestParseInfoEL9(t *testing.T) {
 			Repo-pkgs          : 478
 			Repo-available-pkgs: 478
 			Repo-size          : 3.7 G
-			Repo-baseurl       : https://repo.percona.com/pmm2-components/yum/experimental/9/RPMS/x86_64/
+			Repo-baseurl       : https://repo.percona.com/pmm3-components/yum/experimental/9/RPMS/x86_64/
 			Repo-expire        : 172,800 second(s) (last: Wed 28 Jun 2023 09:26:18 AM UTC)
-			Repo-filename      : /etc/yum.repos.d/pmm2-server.repo
+			Repo-filename      : /etc/yum.repos.d/pmm-server.repo
 			Total packages: 478
 		`, "\n")
 		expected := map[string]string{
-			"Repo-id":             "pmm2-server",
+			"Repo-id":             "pmm-server",
 			"Repo-name":           "PMM Server YUM repository - x86_64",
 			"Repo-status":         "enabled",
 			"Repo-revision":       "1687873070",
@@ -646,9 +646,9 @@ func TestParseInfoEL9(t *testing.T) {
 			"Repo-pkgs":           "478",
 			"Repo-available-pkgs": "478",
 			"Repo-size":           "3.7 G",
-			"Repo-baseurl":        "https://repo.percona.com/pmm2-components/yum/experimental/9/RPMS/x86_64/",
+			"Repo-baseurl":        "https://repo.percona.com/pmm3-components/yum/experimental/9/RPMS/x86_64/",
 			"Repo-expire":         "172,800 second(s) (last: Wed 28 Jun 2023 09:26:18 AM UTC)",
-			"Repo-filename":       "/etc/yum.repos.d/pmm2-server.repo",
+			"Repo-filename":       "/etc/yum.repos.d/pmm-server.repo",
 			"Total packages":      "478",
 		}
 		actual, err := parseInfo(stdout, "Repo-id")

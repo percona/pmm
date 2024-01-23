@@ -60,7 +60,7 @@ func (b *Base) Install(ctx context.Context) error {
 	}
 
 	link := fmt.Sprintf(
-		"https://downloads.percona.com/downloads/pmm2/%s/binary/tarball/pmm2-client-%s.tar.gz",
+		"https://downloads.percona.com/downloads/pmm/%s/binary/tarball/pmm-client-%s.tar.gz",
 		b.Version,
 		b.Version)
 
@@ -84,7 +84,7 @@ func (b *Base) Install(ctx context.Context) error {
 		return err
 	}
 
-	extractedPath := path.Join(os.TempDir(), fmt.Sprintf("pmm2-client-%s", b.Version))
+	extractedPath := path.Join(os.TempDir(), fmt.Sprintf("pmm-client-%s", b.Version))
 	defer os.RemoveAll(extractedPath) //nolint:errcheck
 
 	if err := b.installTarball(ctx, extractedPath); err != nil {
@@ -104,7 +104,7 @@ func (b *Base) downloadTarball(ctx context.Context, link string) (string, error)
 		return "", err
 	}
 
-	defer f.Close() //nolint:gosec,errcheck
+	defer f.Close() //nolint:gosec,errcheck,nolintlint
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, link, nil)
 	if err != nil {
@@ -116,7 +116,7 @@ func (b *Base) downloadTarball(ctx context.Context, link string) (string, error)
 		return "", err
 	}
 
-	defer res.Body.Close() //nolint:errcheck,gosec
+	defer res.Body.Close() //nolint:errcheck,gosec,nolintlint
 	if res.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("%w: cannot download installation tarball (http %d)", ErrHTTPStatusNotOk, res.StatusCode)
 	}
@@ -148,7 +148,7 @@ func (b *Base) checksumTarball(ctx context.Context, link string, path string) er
 		return err
 	}
 
-	defer res.Body.Close() //nolint:gosec,errcheck
+	defer res.Body.Close() //nolint:gosec,errcheck,nolintlint
 	if res.StatusCode != http.StatusOK {
 		return fmt.Errorf("%w: cannot download tarball's sha256sum (http %d)", ErrHTTPStatusNotOk, res.StatusCode)
 	}
@@ -170,7 +170,7 @@ func (b *Base) checksumTarball(ctx context.Context, link string, path string) er
 		return err
 	}
 
-	defer f.Close() //nolint:errcheck,gosec
+	defer f.Close() //nolint:errcheck,gosec,nolintlint
 
 	h := sha256.New()
 	if _, err := io.Copy(h, f); err != nil {
@@ -187,7 +187,7 @@ func (b *Base) checksumTarball(ctx context.Context, link string, path string) er
 }
 
 func (b *Base) extractTarball(tarPath string) error {
-	if err := os.RemoveAll(path.Join(os.TempDir(), fmt.Sprintf("pmm2-client-%s", b.Version))); err != nil {
+	if err := os.RemoveAll(path.Join(os.TempDir(), fmt.Sprintf("pmm-client-%s", b.Version))); err != nil {
 		return err
 	}
 

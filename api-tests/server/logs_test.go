@@ -18,7 +18,6 @@ package server
 import (
 	"archive/zip"
 	"bytes"
-	"os"
 	"sort"
 	"strings"
 	"testing"
@@ -44,8 +43,6 @@ func TestDownloadLogs(t *testing.T) {
 	assert.NoError(t, err)
 
 	expected := []string{
-		"alertmanager.ini",
-		"alertmanager.log",
 		"clickhouse-server.log",
 		"client/list.txt",
 		"client/pmm-admin-version.txt",
@@ -80,11 +77,6 @@ func TestDownloadLogs(t *testing.T) {
 		"vmalert.ini",
 		"vmalert.log",
 		"vmproxy.log",
-	}
-
-	if os.Getenv("PERCONA_TEST_DBAAS") == "1" {
-		expected = append(expected, "dbaas-controller.log")
-		sort.Strings(expected)
 	}
 
 	actual := make([]string, 0, len(zipR.File))

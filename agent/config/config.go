@@ -18,6 +18,7 @@ package config
 import (
 	"fmt"
 	"io/fs"
+	"log"
 	"net"
 	"net/url"
 	"os"
@@ -37,7 +38,7 @@ import (
 )
 
 const (
-	pathBaseDefault = "/usr/local/percona/pmm2"
+	pathBaseDefault = "/usr/local/percona/pmm"
 	agentTmpPath    = "tmp" // temporary directory to keep exporters' config files, relative to pathBase
 )
 
@@ -301,25 +302,25 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 	// parse command-line flags and environment variables
 	app, cfgFileF := Application(cfg)
 	if _, err = app.Parse(args); err != nil {
-		return
+		return //nolint:nakedret
 	}
 	if *cfgFileF == "" {
-		return
+		return //nolint:nakedret
 	}
 
 	if configFileF, err = filepath.Abs(*cfgFileF); err != nil {
-		return
+		return //nolint:nakedret
 	}
 	l.Infof("Loading configuration file %s.", configFileF)
 	fileCfg, err := loadFromFile(configFileF)
 	if err != nil {
-		return
+		return //nolint:nakedret
 	}
 
 	// re-parse flags into configuration from file
 	app, _ = Application(fileCfg)
 	if _, err = app.Parse(args); err != nil {
-		return
+		return //nolint:nakedret
 	}
 
 	*cfg = *fileCfg
@@ -412,9 +413,9 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 
 	app.Flag("version", "Show application version").Short('v').Action(func(*kingpin.ParseContext) error {
 		if *jsonF {
-			fmt.Println(version.FullInfoJSON())
+			log.Println(version.FullInfoJSON())
 		} else {
-			fmt.Println(version.FullInfo())
+			log.Println(version.FullInfo())
 		}
 		os.Exit(0)
 

@@ -18,10 +18,7 @@ package data
 
 import "embed"
 
-// IATemplates holds IA template files in the struct of type embed.FS which implements the io/fs package's FS interface.
+// AlertRuleTemplates holds Percona Alerting template files in the struct of type embed.FS which implements the io/fs package's FS interface.
 //
 //go:embed iatemplates/*
-var IATemplates embed.FS
-
-//go:embed crds/*
-var OLMCRDs embed.FS
+var AlertRuleTemplates embed.FS
