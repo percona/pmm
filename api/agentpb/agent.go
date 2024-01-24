@@ -55,6 +55,7 @@ type ServerRequestPayload interface {
 }
 
 // A list of AgentMessage request payloads.
+
 // AgentMessageRequestPayload returns the payload for the AgentMessageRequest.
 func (m *Ping) AgentMessageRequestPayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_Ping{Ping: m}
@@ -85,8 +86,8 @@ func (m *JobResult) AgentMessageRequestPayload() isAgentMessage_Payload { //noli
 	return &AgentMessage_JobResult{JobResult: m}
 }
 
-// AgentMessageRequestPayload returns the payload for the AgentMessageRequest.
 // A list of AgentMessage response payloads.
+
 // AgentMessageResponsePayload returns the payload for the AgentMessageResponse.
 func (m *Pong) AgentMessageResponsePayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_Pong{Pong: m}
@@ -157,8 +158,8 @@ func (m *AgentLogsResponse) AgentMessageResponsePayload() isAgentMessage_Payload
 	return &AgentMessage_AgentLogs{AgentLogs: m}
 }
 
-// AgentMessageResponsePayload returns the payload for the AgentMessageResponse.
 // A list of ServerMessage response payloads.
+
 // ServerMessageResponsePayload returns the payload for the ServerMessageResponse.
 func (m *Pong) ServerMessageResponsePayload() isServerMessage_Payload { //nolint:ireturn
 	return &ServerMessage_Pong{Pong: m}
@@ -180,6 +181,7 @@ func (m *ActionResultResponse) ServerMessageResponsePayload() isServerMessage_Pa
 }
 
 // A list of ServerMessage request payloads.
+
 // ServerMessageRequestPayload returns the payload for the ServerMessageRequestPayload.
 func (m *Ping) ServerMessageRequestPayload() isServerMessage_Payload { //nolint:ireturn
 	return &ServerMessage_Ping{Ping: m}

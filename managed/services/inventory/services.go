@@ -451,7 +451,7 @@ func (ss *ServicesService) ChangeService(ctx context.Context, mgmtServices commo
 		return errTx
 	}
 
-	if err := ss.updateScrapeConfig(ctx, params.ServiceID); err != nil {
+	if err := ss.updateScrapeConfig(ctx, params.ServiceID); err != nil { //nolint:revive
 		return err
 	}
 

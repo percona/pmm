@@ -235,6 +235,8 @@ const (
 type ParamUnit string
 
 const (
-	Percent = ParamUnit("%") //noiint:revive
+	// Percent represents a parameter unit for percentage values.
+	Percent = ParamUnit("%")
+	// Seconds represents a parameter unit for time values in seconds.
 	Seconds = ParamUnit("s")
 )

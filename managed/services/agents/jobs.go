@@ -67,6 +67,7 @@ func NewJobsService(db *reform.DB, registry *Registry, retention retentionServic
 	}
 }
 
+// RestartJob restarts a job with the given jobID.
 func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 	var job *models.Job
 	var artifact *models.Artifact
@@ -285,7 +286,7 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 							FinishedAt: pointer.ToTime(models.Now()),
 						})
 					return err
-				} else {
+				} else { //nolint:revive
 					s.l.Info("successfully restarted mongod and pbm-agent on all cluster members")
 				}
 			}

@@ -39,10 +39,10 @@ func (v *GRPC) V(l int) bool { //nolint:revive
 //nolint:stylecheck
 func (v *GRPC) Info(args ...interface{}) { v.Trace(args...) }
 
-// Info logs a message at the Info level.
+// Infoln logs a message at the Info level.
 func (v *GRPC) Infoln(args ...interface{}) { v.Traceln(args...) }
 
-// Info logs a message at the Info level.
+// Infof logs a formatted message at the Info level.
 func (v *GRPC) Infof(format string, args ...interface{}) { v.Tracef(format, args...) }
 
 // check interfaces.

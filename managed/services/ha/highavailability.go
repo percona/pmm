@@ -68,7 +68,7 @@ func (s *Service) Restore(_ io.ReadCloser) error {
 	return nil
 }
 
-// Service provides new instance of the high availability service.
+// New provides a new instance of the high availability service.
 func New(params *models.HAParams) *Service {
 	return &Service{
 		params:           params,

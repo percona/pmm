@@ -13,7 +13,8 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+// Package models provides the data models for the managed package.
+//
 //nolint:lll
 package models
 
@@ -1157,7 +1158,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 		if err = setupFixture1(tx.Querier, params); err != nil { //nolint:revive
 			return err
 		}
-		if err = setupFixture2(tx.Querier, params.Username, params.Password); err != nil {
+		if err = setupFixture2(tx.Querier, params.Username, params.Password); err != nil { //nolint:revive
 			return err
 		}
 		return nil
