@@ -135,8 +135,8 @@ type ChangeSettingsBody struct {
 	// ssh key
 	SSHKey *string `json:"ssh_key,omitempty"`
 
-	// Enable Security Threat Tool.
-	EnableStt *bool `json:"enable_stt,omitempty"`
+	// Enable Advisor.
+	EnableAdvisor *bool `json:"enable_advisor,omitempty"`
 
 	// Enable Alerting.
 	EnableAlerting *bool `json:"enable_alerting,omitempty"`
@@ -153,19 +153,23 @@ type ChangeSettingsBody struct {
 	// Enable Access Control
 	EnableAccessControl *bool `json:"enable_access_control,omitempty"`
 
+	// advisor run intervals
+	AdvisorRunIntervals *ChangeSettingsParamsBodyAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
+
 	// aws partitions
 	AWSPartitions *ChangeSettingsParamsBodyAWSPartitions `json:"aws_partitions,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsParamsBodyMetricsResolutions `json:"metrics_resolutions,omitempty"`
-
-	// stt check intervals
-	SttCheckIntervals *ChangeSettingsParamsBodySttCheckIntervals `json:"stt_check_intervals,omitempty"`
 }
 
 // Validate validates this change settings body
 func (o *ChangeSettingsBody) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateAdvisorRunIntervals(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateAWSPartitions(formats); err != nil {
 		res = append(res, err)
@@ -175,13 +179,28 @@ func (o *ChangeSettingsBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateSttCheckIntervals(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *ChangeSettingsBody) validateAdvisorRunIntervals(formats strfmt.Registry) error {
+	if swag.IsZero(o.AdvisorRunIntervals) { // not required
+		return nil
+	}
+
+	if o.AdvisorRunIntervals != nil {
+		if err := o.AdvisorRunIntervals.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "advisor_run_intervals")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "advisor_run_intervals")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -223,28 +242,13 @@ func (o *ChangeSettingsBody) validateMetricsResolutions(formats strfmt.Registry)
 	return nil
 }
 
-func (o *ChangeSettingsBody) validateSttCheckIntervals(formats strfmt.Registry) error {
-	if swag.IsZero(o.SttCheckIntervals) { // not required
-		return nil
-	}
-
-	if o.SttCheckIntervals != nil {
-		if err := o.SttCheckIntervals.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "stt_check_intervals")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "stt_check_intervals")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 // ContextValidate validate this change settings body based on the context it is used
 func (o *ChangeSettingsBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.contextValidateAdvisorRunIntervals(ctx, formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.contextValidateAWSPartitions(ctx, formats); err != nil {
 		res = append(res, err)
@@ -254,13 +258,24 @@ func (o *ChangeSettingsBody) ContextValidate(ctx context.Context, formats strfmt
 		res = append(res, err)
 	}
 
-	if err := o.contextValidateSttCheckIntervals(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *ChangeSettingsBody) contextValidateAdvisorRunIntervals(ctx context.Context, formats strfmt.Registry) error {
+	if o.AdvisorRunIntervals != nil {
+		if err := o.AdvisorRunIntervals.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "advisor_run_intervals")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "advisor_run_intervals")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -286,21 +301,6 @@ func (o *ChangeSettingsBody) contextValidateMetricsResolutions(ctx context.Conte
 				return ve.ValidateName("body" + "." + "metrics_resolutions")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "metrics_resolutions")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ChangeSettingsBody) contextValidateSttCheckIntervals(ctx context.Context, formats strfmt.Registry) error {
-	if o.SttCheckIntervals != nil {
-		if err := o.SttCheckIntervals.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "stt_check_intervals")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "stt_check_intervals")
 			}
 			return err
 		}
@@ -688,8 +688,8 @@ type ChangeSettingsOKBodySettings struct {
 	// aws partitions
 	AWSPartitions []string `json:"aws_partitions"`
 
-	// True if Security Threat Tool is enabled.
-	SttEnabled bool `json:"stt_enabled,omitempty"`
+	// True if Advisor is enabled.
+	AdvisorEnabled bool `json:"advisor_enabled,omitempty"`
 
 	// Percona Platform user's email, if this PMM instance is linked to the Platform.
 	PlatformEmail string `json:"platform_email,omitempty"`
@@ -718,28 +718,47 @@ type ChangeSettingsOKBodySettings struct {
 	// Default Access Control role ID for new users.
 	DefaultRoleID int64 `json:"default_role_id,omitempty"`
 
+	// advisor run intervals
+	AdvisorRunIntervals *ChangeSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
-
-	// stt check intervals
-	SttCheckIntervals *ChangeSettingsOKBodySettingsSttCheckIntervals `json:"stt_check_intervals,omitempty"`
 }
 
 // Validate validates this change settings OK body settings
 func (o *ChangeSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateMetricsResolutions(formats); err != nil {
+	if err := o.validateAdvisorRunIntervals(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateSttCheckIntervals(formats); err != nil {
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *ChangeSettingsOKBodySettings) validateAdvisorRunIntervals(formats strfmt.Registry) error {
+	if swag.IsZero(o.AdvisorRunIntervals) { // not required
+		return nil
+	}
+
+	if o.AdvisorRunIntervals != nil {
+		if err := o.AdvisorRunIntervals.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "advisor_run_intervals")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeSettingsOk" + "." + "settings" + "." + "advisor_run_intervals")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -762,40 +781,36 @@ func (o *ChangeSettingsOKBodySettings) validateMetricsResolutions(formats strfmt
 	return nil
 }
 
-func (o *ChangeSettingsOKBodySettings) validateSttCheckIntervals(formats strfmt.Registry) error {
-	if swag.IsZero(o.SttCheckIntervals) { // not required
-		return nil
-	}
-
-	if o.SttCheckIntervals != nil {
-		if err := o.SttCheckIntervals.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "stt_check_intervals")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("changeSettingsOk" + "." + "settings" + "." + "stt_check_intervals")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 // ContextValidate validate this change settings OK body settings based on the context it is used
 func (o *ChangeSettingsOKBodySettings) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+	if err := o.contextValidateAdvisorRunIntervals(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.contextValidateSttCheckIntervals(ctx, formats); err != nil {
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *ChangeSettingsOKBodySettings) contextValidateAdvisorRunIntervals(ctx context.Context, formats strfmt.Registry) error {
+	if o.AdvisorRunIntervals != nil {
+		if err := o.AdvisorRunIntervals.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "advisor_run_intervals")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeSettingsOk" + "." + "settings" + "." + "advisor_run_intervals")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -806,21 +821,6 @@ func (o *ChangeSettingsOKBodySettings) contextValidateMetricsResolutions(ctx con
 				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "metrics_resolutions")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("changeSettingsOk" + "." + "settings" + "." + "metrics_resolutions")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ChangeSettingsOKBodySettings) contextValidateSttCheckIntervals(ctx context.Context, formats strfmt.Registry) error {
-	if o.SttCheckIntervals != nil {
-		if err := o.SttCheckIntervals.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "stt_check_intervals")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("changeSettingsOk" + "." + "settings" + "." + "stt_check_intervals")
 			}
 			return err
 		}
@@ -840,6 +840,49 @@ func (o *ChangeSettingsOKBodySettings) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeSettingsOKBodySettings) UnmarshalBinary(b []byte) error {
 	var res ChangeSettingsOKBodySettings
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeSettingsOKBodySettingsAdvisorRunIntervals AdvisorRunIntervals represents intervals between each run of Advisor checks.
+swagger:model ChangeSettingsOKBodySettingsAdvisorRunIntervals
+*/
+type ChangeSettingsOKBodySettingsAdvisorRunIntervals struct {
+	// Standard check interval.
+	StandardInterval string `json:"standard_interval,omitempty"`
+
+	// Interval for rare check runs.
+	RareInterval string `json:"rare_interval,omitempty"`
+
+	// Interval for frequent check runs.
+	FrequentInterval string `json:"frequent_interval,omitempty"`
+}
+
+// Validate validates this change settings OK body settings advisor run intervals
+func (o *ChangeSettingsOKBodySettingsAdvisorRunIntervals) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change settings OK body settings advisor run intervals based on context it is used
+func (o *ChangeSettingsOKBodySettingsAdvisorRunIntervals) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeSettingsOKBodySettingsAdvisorRunIntervals) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeSettingsOKBodySettingsAdvisorRunIntervals) UnmarshalBinary(b []byte) error {
+	var res ChangeSettingsOKBodySettingsAdvisorRunIntervals
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -891,49 +934,6 @@ func (o *ChangeSettingsOKBodySettingsMetricsResolutions) UnmarshalBinary(b []byt
 }
 
 /*
-ChangeSettingsOKBodySettingsSttCheckIntervals STTCheckIntervals represents intervals between STT checks.
-swagger:model ChangeSettingsOKBodySettingsSttCheckIntervals
-*/
-type ChangeSettingsOKBodySettingsSttCheckIntervals struct {
-	// Standard check interval.
-	StandardInterval string `json:"standard_interval,omitempty"`
-
-	// Interval for rare check runs.
-	RareInterval string `json:"rare_interval,omitempty"`
-
-	// Interval for frequent check runs.
-	FrequentInterval string `json:"frequent_interval,omitempty"`
-}
-
-// Validate validates this change settings OK body settings stt check intervals
-func (o *ChangeSettingsOKBodySettingsSttCheckIntervals) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this change settings OK body settings stt check intervals based on context it is used
-func (o *ChangeSettingsOKBodySettingsSttCheckIntervals) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ChangeSettingsOKBodySettingsSttCheckIntervals) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ChangeSettingsOKBodySettingsSttCheckIntervals) UnmarshalBinary(b []byte) error {
-	var res ChangeSettingsOKBodySettingsSttCheckIntervals
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
 ChangeSettingsParamsBodyAWSPartitions A wrapper for a string array. This type allows to distinguish between an empty array and a null value.
 swagger:model ChangeSettingsParamsBodyAWSPartitions
 */
@@ -963,6 +963,49 @@ func (o *ChangeSettingsParamsBodyAWSPartitions) MarshalBinary() ([]byte, error) 
 // UnmarshalBinary interface implementation
 func (o *ChangeSettingsParamsBodyAWSPartitions) UnmarshalBinary(b []byte) error {
 	var res ChangeSettingsParamsBodyAWSPartitions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeSettingsParamsBodyAdvisorRunIntervals AdvisorRunIntervals represents intervals between each run of Advisor checks.
+swagger:model ChangeSettingsParamsBodyAdvisorRunIntervals
+*/
+type ChangeSettingsParamsBodyAdvisorRunIntervals struct {
+	// Standard check interval.
+	StandardInterval string `json:"standard_interval,omitempty"`
+
+	// Interval for rare check runs.
+	RareInterval string `json:"rare_interval,omitempty"`
+
+	// Interval for frequent check runs.
+	FrequentInterval string `json:"frequent_interval,omitempty"`
+}
+
+// Validate validates this change settings params body advisor run intervals
+func (o *ChangeSettingsParamsBodyAdvisorRunIntervals) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change settings params body advisor run intervals based on context it is used
+func (o *ChangeSettingsParamsBodyAdvisorRunIntervals) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeSettingsParamsBodyAdvisorRunIntervals) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeSettingsParamsBodyAdvisorRunIntervals) UnmarshalBinary(b []byte) error {
+	var res ChangeSettingsParamsBodyAdvisorRunIntervals
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1006,49 +1049,6 @@ func (o *ChangeSettingsParamsBodyMetricsResolutions) MarshalBinary() ([]byte, er
 // UnmarshalBinary interface implementation
 func (o *ChangeSettingsParamsBodyMetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res ChangeSettingsParamsBodyMetricsResolutions
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-ChangeSettingsParamsBodySttCheckIntervals STTCheckIntervals represents intervals between STT checks.
-swagger:model ChangeSettingsParamsBodySttCheckIntervals
-*/
-type ChangeSettingsParamsBodySttCheckIntervals struct {
-	// Standard check interval.
-	StandardInterval string `json:"standard_interval,omitempty"`
-
-	// Interval for rare check runs.
-	RareInterval string `json:"rare_interval,omitempty"`
-
-	// Interval for frequent check runs.
-	FrequentInterval string `json:"frequent_interval,omitempty"`
-}
-
-// Validate validates this change settings params body stt check intervals
-func (o *ChangeSettingsParamsBodySttCheckIntervals) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this change settings params body stt check intervals based on context it is used
-func (o *ChangeSettingsParamsBodySttCheckIntervals) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ChangeSettingsParamsBodySttCheckIntervals) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ChangeSettingsParamsBodySttCheckIntervals) UnmarshalBinary(b []byte) error {
-	var res ChangeSettingsParamsBodySttCheckIntervals
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

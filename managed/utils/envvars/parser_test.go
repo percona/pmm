@@ -45,7 +45,7 @@ func TestEnvVarValidator(t *testing.T) {
 			DataRetention:   72 * time.Hour,
 			EnableTelemetry: pointer.ToBool(true),
 			EnableUpdates:   pointer.ToBool(false),
-			EnableSTT:       nil,
+			EnableAdvisors:  nil,
 			MetricsResolutions: models.MetricsResolutions{
 				HR: 5 * time.Minute,
 				MR: 5 * time.Second,

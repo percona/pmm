@@ -26,7 +26,7 @@ You can use these environment variables (-e VAR) when running the Docker image.
 | Variable                 | Description                                                                                                                 |
 |--------------------------|-----------------------------------------------------------------------------------------------------------------------------|
 | ENABLE_UPDATES           | Enable/disable automatic updates                                                                                            |
-| ENABLE_TELEMETRY         | Enable/disable built-in telemetry and disable STT if telemetry is disabled                                                  |
+| ENABLE_TELEMETRY         | Enable/disable built-in telemetry and disable Advisors if telemetry is disabled                                             |
 | ENABLE_ALERTING          | Enable/disable percona alerting                                                                                             |
 | METRICS_RESOLUTION       | High metrics resolution in seconds                                                                                          |
 | METRICS_RESOLUTION_HR    | High metrics resolution (same as above)                                                                                     |
