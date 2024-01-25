@@ -1,0 +1,56 @@
+- name: Set distribution for OVF
+  when: ansible_virtualization_type == "virtualbox"
+  copy:
+    content: ovf
+    dest: /srv/pmm-distribution
+
+- name: Set distribution for AMI
+  when: >
+    ( ansible_virtualization_type == "xen"
+    or ansible_virtualization_type == "kvm" )
+    and ansible_system_vendor != "DigitalOcean"
+  copy:
+    content: ami
+    dest: /srv/pmm-distribution
+
+- name: Pull the PMM image
+  command: podman pull {{ pmm_server_image_name }}
+
+- name: Create a volume on the host
+  command: podman volume create pmm-data
+
+- name: Enable privileged port
+  become: yes
+  sysctl:
+    name: net.ipv4.ip_unprivileged_port_start
+    value: 443
+
+- name: Create user-specific systemd directory
+  file:
+    path: /home/admin/.config/systemd/user/
+    state: directory
+    owner: admin
+    group: admin
+    mode: '0755'
+
+- name: Copy systemd service file to user-specific directory
+  template:
+    src: pmm-server.service
+    dest: /home/admin/.config/systemd/user/
+    owner: admin
+    group: admin
+    mode: '0644'
+
+- name: Get user ID of admin user
+  command: id -u admin
+  register: admin_user_id
+
+- name: Enable linger for the admin user
+  command: loginctl enable-linger {{ admin_user_id.stdout }}
+
+- name: Enable and start PMM container as a user service
+  command: systemctl --user enable --now pmm-server
+  become: true
+  become_user: admin
+  environment:
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ admin_user_id.stdout }}/bus"
