@@ -56,9 +56,10 @@ func TestConfig(t *testing.T) {
 	settings.VictoriaMetrics.CacheEnabled = false
 
 	// Test a couple of environment variables being picked up by VictoriaMetrics.
-	err = os.Setenv("VM_search_maxQueryLen", "2MB")
+	// NOTE: we can't use t.Setenv() here because of parallel tests.
+	err = os.Setenv("VM_search_maxQueryLen", "2MB") //nolint:tenv
 	require.NoError(t, err)
-	err = os.Setenv("VM_search_latencyOffset", "10s")
+	err = os.Setenv("VM_search_latencyOffset", "10s") //nolint:tenv
 	require.NoError(t, err)
 
 	for _, tmpl := range templates.Templates() {
