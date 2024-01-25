@@ -55,6 +55,12 @@ func TestConfig(t *testing.T) {
 	}
 	settings.VictoriaMetrics.CacheEnabled = false
 
+	// Test a couple of environment variables being picked up by VictoriaMetrics.
+	err = os.Setenv("VM_search_maxQueryLen", "2MB")
+	require.NoError(t, err)
+	err = os.Setenv("VM_search_latencyOffset", "10s")
+	require.NoError(t, err)
+
 	for _, tmpl := range templates.Templates() {
 		n := tmpl.Name()
 		if n == "" || n == "dbaas-controller" {
