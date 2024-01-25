@@ -658,6 +658,22 @@ telemetry:
       - metric_name: "pmm_server_node_os_version"
         label: "release"
 
+  - id: PMMClientNodeOSName
+    source: VM
+    query: node_uname_info{node_id!="pmm-server"}
+    summary: "PMM Client node OS name"
+    data:
+      - metric_name: "pmm_client_node_os_name"
+        label: "sysname"
+
+  - id: PMMClientNodeOSVersion
+    source: VM
+    query: node_uname_info{node_id!="pmm-server"}
+    summary: "PMM Client node OS version"
+    data:
+      - metric_name: "pmm_client_node_os_version"
+        label: "release"
+
   - id: PMMOSNameAndVersion
     source: VM
     query: node_os_info{node_id=~"pmm-server"}
