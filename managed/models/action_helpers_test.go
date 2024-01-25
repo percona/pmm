@@ -158,7 +158,7 @@ func TestCleanupResults(t *testing.T) {
 			t.Helper()
 			require.NoError(t, tx.Rollback())
 		}
-		return
+		return //nolint:nakedret
 	}
 
 	t.Run("CheckActionResultByID", func(t *testing.T) {

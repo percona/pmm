@@ -27,19 +27,25 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
+const (
+	defaultAutoDiscoveryDatabaseLimit = 10
+)
+
 // PostgreSQLService PostgreSQL Management Service.
 type PostgreSQLService struct {
 	db    *reform.DB
 	state agentsStateUpdater
 	cc    connectionChecker
+	sib   serviceInfoBroker
 }
 
 // NewPostgreSQLService creates new PostgreSQL Management Service.
-func NewPostgreSQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker) *PostgreSQLService {
+func NewPostgreSQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, sib serviceInfoBroker) *PostgreSQLService {
 	return &PostgreSQLService{
 		db:    db,
 		state: state,
 		cc:    cc,
+		sib:   sib,
 	}
 }
 
@@ -48,6 +54,13 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 	res := &managementpb.AddPostgreSQLResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
+		switch {
+		case req.AutoDiscoveryLimit == 0:
+			req.AutoDiscoveryLimit = defaultAutoDiscoveryDatabaseLimit
+		case req.AutoDiscoveryLimit < -1:
+			req.AutoDiscoveryLimit = -1
+		}
+
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {
 			return err
@@ -89,6 +102,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 			TLS:               req.Tls,
 			TLSSkipVerify:     req.TlsSkipVerify,
 			PushMetrics:       isPushMode(req.MetricsMode),
+			ExposeExporter:    req.ExposeExporter,
 			DisableCollectors: req.DisableCollectors,
 			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
 			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_error),
@@ -99,6 +113,10 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 
 		if !req.SkipConnectionCheck {
 			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
+
+			if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
 		}

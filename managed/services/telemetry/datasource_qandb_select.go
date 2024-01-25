@@ -42,7 +42,7 @@ func (d *dsQanDBSelect) Enabled() bool {
 }
 
 // NewDsQanDBSelect make new QAN DB Select data source.
-func NewDsQanDBSelect(config DSConfigQAN, l *logrus.Entry) (DataSource, error) { //nolint:ireturn
+func NewDsQanDBSelect(config DSConfigQAN, l *logrus.Entry) (DataSource, error) {
 	db, err := openQANDBConnection(config.DSN, config.Enabled, l)
 	if err != nil {
 		return nil, err
@@ -64,7 +64,7 @@ func openQANDBConnection(dsn string, enabled bool, l *logrus.Entry) (*sql.DB, er
 		return nil, errors.Wrap(err, "Failed to open connection to QAN DB")
 	}
 	if err := db.Ping(); err != nil {
-		l.Warnf("DB is not reachable [%s]: %s", dsn, err)
+		l.Warnf("ClickHouse DB is not reachable [%s]: %s", dsn, err)
 	}
 	return db, nil
 }

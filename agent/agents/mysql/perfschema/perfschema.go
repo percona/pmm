@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"io"
 	"math"
-	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer" // register SQL driver
@@ -36,7 +35,6 @@ import (
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/truncate"
-	"github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/utils/sqlmetrics"
@@ -46,30 +44,6 @@ type (
 	historyMap map[string]*eventsStatementsHistory
 	summaryMap map[string]*eventsStatementsSummaryByDigest
 )
-
-// mySQLVersion contains.
-type mySQLVersion struct {
-	version float64
-	vendor  string
-}
-
-// versionsCache provides cached access to MySQL version.
-type versionsCache struct {
-	rw    sync.RWMutex
-	items map[string]*mySQLVersion
-}
-
-func (m *PerfSchema) mySQLVersion() *mySQLVersion {
-	m.versionsCache.rw.RLock()
-	defer m.versionsCache.rw.RUnlock()
-
-	res := m.versionsCache.items[m.agentID]
-	if res == nil {
-		return &mySQLVersion{}
-	}
-
-	return res
-}
 
 const (
 	retainHistory    = 5 * time.Minute
@@ -93,7 +67,6 @@ type PerfSchema struct {
 	changes                chan agents.Change
 	historyCache           *historyCache
 	summaryCache           *summaryCache
-	versionsCache          *versionsCache
 }
 
 // Params represent Agent parameters.
@@ -207,7 +180,6 @@ func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
 		changes:                make(chan agents.Change, 10),
 		historyCache:           historyCache,
 		summaryCache:           summaryCache,
-		versionsCache:          &versionsCache{items: make(map[string]*mySQLVersion)},
 	}, nil
 }
 
@@ -235,17 +207,6 @@ func (m *PerfSchema) Run(ctx context.Context) {
 	if err != nil {
 		m.l.Error(err)
 		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
-	}
-
-	// cache MySQL version
-	ver, ven, err := version.GetMySQLVersion(ctx, m.q)
-	if err != nil {
-		m.l.Error(err)
-	}
-
-	m.versionsCache.items[m.agentID] = &mySQLVersion{
-		version: ver.Float(),
-		vendor:  ven.String(),
 	}
 
 	go m.runHistoryCacheRefresher(ctx)

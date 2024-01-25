@@ -169,7 +169,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 			t.Helper()
 			require.NoError(t, tx.Rollback())
 		}
-		return
+		return //nolint:nakedret
 	}
 
 	t.Run("FindDSNByServiceIDandPMMAgentIDWithNoAgent", func(t *testing.T) {

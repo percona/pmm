@@ -752,7 +752,7 @@ func TestScrapeConfig(t *testing.T) {
 					ScrapeTimeout:  scrapeTimeout(s.LR),
 					MetricsPath:    "/metrics",
 					Params: map[string][]string{
-						"collect[]": {"collstats", "dbstats", "indexstats"},
+						"collect[]": {"collstats", "dbstats", "indexstats", "shards"},
 					},
 					HTTPClientConfig: config.HTTPClientConfig{
 						BasicAuth: &config.BasicAuth{
@@ -784,7 +784,7 @@ func TestScrapeConfig(t *testing.T) {
 				node:            node,
 				service:         service,
 				agent:           agent,
-				pmmAgentVersion: version.MustParse("2.26.0"),
+				pmmAgentVersion: version.MustParse("2.41.1"),
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))

@@ -192,7 +192,7 @@ func TestAgentHelpers(t *testing.T) {
 			t.Helper()
 			require.NoError(t, tx.Rollback())
 		}
-		return
+		return //nolint:nakedret
 	}
 
 	t.Run("AgentsForNode", func(t *testing.T) {

@@ -73,7 +73,7 @@ var (
 var pmmAgentProcessID = 0
 
 func runPmmAgent(ctx context.Context, commandLineArgs []string, restartPolicy restartPolicy, l *logrus.Entry, pmmAgentSidecarSleep int) int {
-	pmmAgentFullCommand := "pmm-admin " + strings.Join(commandLineArgs, " ")
+	pmmAgentFullCommand := "pmm-agent " + strings.Join(commandLineArgs, " ")
 	for {
 		select {
 		case <-ctx.Done():
@@ -81,7 +81,7 @@ func runPmmAgent(ctx context.Context, commandLineArgs []string, restartPolicy re
 		default:
 		}
 		var exitCode int
-		l.Infof("Starting 'pmm-admin %s'...", strings.Join(commandLineArgs, " "))
+		l.Infof("Starting 'pmm-agent %s'...", strings.Join(commandLineArgs, " "))
 		cmd := commandPmmAgent(commandLineArgs)
 		if err := cmd.Start(); err != nil {
 			l.Errorf("Can't run: '%s', Error: %s", commandLineArgs, err)

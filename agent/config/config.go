@@ -18,6 +18,7 @@ package config
 import (
 	"fmt"
 	"io/fs"
+	"log"
 	"net"
 	"net/url"
 	"os"
@@ -137,6 +138,7 @@ type Setup struct {
 
 	Force            bool
 	SkipRegistration bool
+	ExposeExporter   bool
 }
 
 // Config represents pmm-agent's configuration.
@@ -300,25 +302,25 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 	// parse command-line flags and environment variables
 	app, cfgFileF := Application(cfg)
 	if _, err = app.Parse(args); err != nil {
-		return
+		return //nolint:nakedret
 	}
 	if *cfgFileF == "" {
-		return
+		return //nolint:nakedret
 	}
 
 	if configFileF, err = filepath.Abs(*cfgFileF); err != nil {
-		return
+		return //nolint:nakedret
 	}
 	l.Infof("Loading configuration file %s.", configFileF)
 	fileCfg, err := loadFromFile(configFileF)
 	if err != nil {
-		return
+		return //nolint:nakedret
 	}
 
 	// re-parse flags into configuration from file
 	app, _ = Application(fileCfg)
 	if _, err = app.Parse(args); err != nil {
-		return
+		return //nolint:nakedret
 	}
 
 	*cfg = *fileCfg
@@ -411,9 +413,9 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 
 	app.Flag("version", "Show application version").Short('v').Action(func(*kingpin.ParseContext) error {
 		if *jsonF {
-			fmt.Println(version.FullInfoJSON())
+			log.Println(version.FullInfoJSON())
 		} else {
-			fmt.Println(version.FullInfo())
+			log.Println(version.FullInfo())
 		}
 		os.Exit(0)
 
@@ -479,6 +481,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_SETUP_CUSTOM_LABELS").StringVar(&cfg.Setup.CustomLabels)
 	setupCmd.Flag("agent-password", "Custom password for /metrics endpoint [PMM_AGENT_SETUP_NODE_PASSWORD]").
 		Envar("PMM_AGENT_SETUP_NODE_PASSWORD").StringVar(&cfg.Setup.AgentPassword)
+	setupCmd.Flag("expose-exporter", "Expose the address of the agent's node-exporter publicly on 0.0.0.0").
+		Envar("PMM_AGENT_EXPOSE_EXPORTER").BoolVar(&cfg.Setup.ExposeExporter)
 
 	return app, configFileF
 }

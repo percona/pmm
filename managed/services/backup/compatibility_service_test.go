@@ -32,8 +32,6 @@ import (
 
 func TestCheckCompatibility(t *testing.T) {
 	t.Parallel()
-	mockVersioner := mockVersioner{}
-	cSvc := NewCompatibilityService(nil, &mockVersioner)
 
 	agentModel := models.Agent{AgentID: "test_agent_id"}
 
@@ -194,7 +192,9 @@ func TestCheckCompatibility(t *testing.T) {
 				sw = mongoSoftware
 			default: // just to satisfy linters
 			}
+			mockVersioner := mockVersioner{}
 			mockVersioner.On("GetVersions", agentModel.AgentID, sw).Return(tc.versions, nil).Once()
+			cSvc := NewCompatibilityService(nil, &mockVersioner)
 			dbVersion, err := cSvc.checkCompatibility(&models.Service{ServiceType: tc.serviceType}, &agentModel)
 			if tc.expectedError != nil {
 				assert.ErrorIs(t, err, tc.expectedError)
@@ -203,12 +203,12 @@ func TestCheckCompatibility(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.versions[0].Version, dbVersion)
 			}
+			mock.AssertExpectationsForObjects(t, &mockVersioner)
 		})
 	}
-	mock.AssertExpectationsForObjects(t, &mockVersioner)
 }
 
-func TestFindCompatibleServiceIDs(t *testing.T) {
+func TestFindCompatibleServiceIDs(t *testing.T) { //nolint:tparallel
 	t.Parallel()
 	cSvc := NewCompatibilityService(nil, nil)
 
@@ -462,10 +462,11 @@ func TestFindArtifactCompatibleServices(t *testing.T) {
 			t.Cleanup(func() {
 				dropRecords(serviceModel, nodeModel, locationModel)
 			})
+			artifact := test.artifact
 
-			addRecord(&test.artifact)
+			addRecord(&artifact)
 			t.Cleanup(func() {
-				dropRecords(&test.artifact)
+				dropRecords(&artifact)
 			})
 
 			res, err := cSvc.FindArtifactCompatibleServices(context.Background(), test.artifactIDToSearch)

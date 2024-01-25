@@ -115,7 +115,7 @@ func TestNodeHelpers(t *testing.T) {
 			t.Helper()
 			require.NoError(t, tx.Rollback())
 		}
-		return
+		return //nolint:nakedret
 	}
 
 	t.Run("CreateNode", func(t *testing.T) {
