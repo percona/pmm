@@ -68,20 +68,13 @@
       "export_opts": [
         "--ovf10",
         "--manifest",
-        "--vsys",
-        "0",
-        "--product",
-        "Percona Monitoring and Management",
-        "--producturl",
-        "https://www.percona.com/software/database-tools/percona-monitoring-and-management",
-        "--vendor",
-        "Percona",
-        "--vendorurl",
-        "https://www.percona.com",
-        "--version",
-        "{{isotime \"2006-01-02\"}}",
-        "--description",
-        "Percona Monitoring and Management (PMM) is an open-source platform for managing and monitoring MySQL, PostgreSQL and MongoDB"
+        "--vsys", "0",
+        "--product", "Percona Monitoring and Management",
+        "--producturl", "https://www.percona.com/software/database-tools/percona-monitoring-and-management",
+        "--vendor", "Percona",
+        "--vendorurl", "https://www.percona.com",
+        "--version", "{{isotime \"2006-01-02\"}}",
+        "--description", "Percona Monitoring and Management (PMM) is an open-source platform for managing and monitoring MySQL, PostgreSQL and MongoDB"
       ],
       "format": "ovf",
       "guest_additions_mode": "disable",
@@ -96,66 +89,11 @@
       "vboxmanage": [
         ["modifyvm", "{{.Name}}", "--memory", "4096"],
         ["modifyvm", "{{.Name}}", "--audio", "none"],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--cpus",
-          "4",
-          "--vrdeport",
-          "5050",
-          "--vram",
-          "10",
-          "--graphicscontroller",
-          "vmsvga",
-          "--ioapic",
-          "on"
-        ],
-        [
-          "storagectl",
-          "{{.Name}}",
-          "--name",
-          "IDE Controller",
-          "--controller",
-          "PIIX4",
-          "--remove"
-        ],
-        [
-          "storagectl",
-          "{{.Name}}",
-          "--name",
-          "SATA Controller",
-          "--controller",
-          "IntelAhci",
-          "--portcount",
-          "2",
-          "--hostiocache",
-          "on",
-          "--bootable",
-          "on"
-        ],
-        [
-          "createhd",
-          "--variant",
-          "STREAM",
-          "--format",
-          "VMDK",
-          "--size",
-          "409600",
-          "--filename",
-          "/tmp/box-disk002.vmdk"
-        ],
-        [
-          "storageattach",
-          "{{.Name}}",
-          "--storagectl",
-          "SATA Controller",
-          "--port",
-          "1",
-          "--type",
-          "hdd",
-          "--medium",
-          "/tmp/box-disk002.vmdk"
-        ]
+        ["modifyvm", "{{.Name}}", "--cpus", "4", "--vrdeport", "5050", "--vram", "10", "--graphicscontroller", "vmsvga", "--ioapic", "on"],
+        ["storagectl", "{{.Name}}", "--name", "IDE Controller", "--controller", "PIIX4", "--remove"],
+        ["storagectl", "{{.Name}}", "--name", "SATA Controller", "--controller", "IntelAhci", "--portcount", "2", "--hostiocache", "on", "--bootable", "on"],
+        ["createhd", "--variant", "STREAM", "--format", "VMDK", "--size", "409600", "--filename", "/tmp/box-disk002.vmdk"],
+        ["storageattach", "{{.Name}}", "--storagectl", "SATA Controller", "--port", "1", "--type", "hdd", "--medium", "/tmp/box-disk002.vmdk"]
       ]
     },
     {
