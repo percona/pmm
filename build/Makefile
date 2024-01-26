@@ -22,12 +22,12 @@ deps:
 
 pmm-ovf: fetch
 	/usr/bin/packer build \
-			-only virtualbox-ovf -color=false packer/pmm.el9.json | tee build.log
+			-only virtualbox-ovf -color=false packer/pmm.json | tee build.log
 
 # NOTE: no difference between rc and dev-latest (i.e. pmm-ovf) ATM
 pmm-ovf-rc: fetch
 	/usr/bin/packer build \
-			-only virtualbox-ovf -color=false packer/pmm.el9.json | tee build.log
+			-only virtualbox-ovf -color=false packer/pmm.json | tee build.log
 
 pmm-digitalocean:
 	packer build -only digitalocean -var 'single_disk=true' packer/pmm.json
