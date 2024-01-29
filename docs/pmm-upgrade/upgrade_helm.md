@@ -1,4 +1,4 @@
-# Upgrade PMM server uisng Helm
+# Upgrade PMM server using Helm
 
 Percona will release a new chart updating its containers if a new version of the main container is available, there are any significant changes, or critical vulnerabilities exist.
 
