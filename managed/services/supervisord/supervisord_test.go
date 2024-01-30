@@ -74,7 +74,7 @@ func TestConfig(t *testing.T) {
 	}
 }
 
-func TestConfigVicrotiametricsEnvvars(t *testing.T) {
+func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
 	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
