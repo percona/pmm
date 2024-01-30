@@ -30,9 +30,10 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
+const gRPCMessageMaxSize = uint32(100 * 1024 * 1024)
+
 func TestConfig(t *testing.T) {
 	t.Parallel()
-	gRPCMessageMaxSize := uint32(100 * 1024 * 1024)
 
 	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
@@ -55,13 +56,6 @@ func TestConfig(t *testing.T) {
 	}
 	settings.VictoriaMetrics.CacheEnabled = false
 
-	// Test a couple of environment variables being picked up by VictoriaMetrics.
-	// NOTE: we can't use t.Setenv() here because of parallel tests.
-	err = os.Setenv("VM_search_maxQueryLen", "2MB") //nolint:tenv
-	require.NoError(t, err)
-	err = os.Setenv("VM_search_latencyOffset", "10s") //nolint:tenv
-	require.NoError(t, err)
-
 	for _, tmpl := range templates.Templates() {
 		n := tmpl.Name()
 		if n == "" || n == "dbaas-controller" {
@@ -80,9 +74,51 @@ func TestConfig(t *testing.T) {
 	}
 }
 
+func TestConfigVicrotiametricsEnvvars(t *testing.T) {
+	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
+	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
+	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	require.NoError(t, err)
+	pgParams := &models.PGParams{
+		Addr:        "127.0.0.1:5432",
+		DBName:      "postgres",
+		DBUsername:  "db_username",
+		DBPassword:  "db_password",
+		SSLMode:     "verify",
+		SSLCAPath:   "path-to-CA-cert",
+		SSLKeyPath:  "path-to-key",
+		SSLCertPath: "path-to-cert",
+	}
+	s := New(configDir, pmmUpdateCheck, &models.Params{VMParams: vmParams, PGParams: pgParams, HAParams: &models.HAParams{}}, gRPCMessageMaxSize)
+	settings := &models.Settings{
+		DataRetention:   30 * 24 * time.Hour,
+		AlertManagerURL: "https://external-user:passw!,ord@external-alertmanager:6443/alerts",
+	}
+	settings.VictoriaMetrics.CacheEnabled = false
+
+	// Test a couple of environment variables being picked up by VictoriaMetrics.
+	t.Setenv("VM_search_maxQueryLen", "2MB")
+	t.Setenv("VM_search_latencyOffset", "10s")
+
+	for _, tmpl := range templates.Templates() {
+		n := tmpl.Name()
+		if n != "victoriametrics" { // just test the VM template
+			continue
+		}
+
+		tmpl := tmpl
+		t.Run(tmpl.Name(), func(t *testing.T) {
+			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+"_envvars.ini")) //nolint:gosec
+			require.NoError(t, err)
+			actual, err := s.marshalConfig(tmpl, settings, nil)
+			require.NoError(t, err)
+			assert.Equal(t, string(expected), string(actual))
+		})
+	}
+}
+
 func TestDBaaSController(t *testing.T) {
 	t.Parallel()
-	gRPCMessageMaxSize := uint32(100 * 1024 * 1024)
 
 	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
