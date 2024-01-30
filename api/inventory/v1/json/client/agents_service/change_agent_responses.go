@@ -4257,11 +4257,8 @@ ChangeAgentParamsBodyAzureDatabaseExporterCommon ChangeCommonAgentParams contain
 swagger:model ChangeAgentParamsBodyAzureDatabaseExporterCommon
 */
 type ChangeAgentParamsBodyAzureDatabaseExporterCommon struct {
-	// Enable this Agent. Can't be used with disabled.
-	Enable bool `json:"enable,omitempty"`
-
-	// Disable this Agent. Can't be used with enabled.
-	Disable bool `json:"disable,omitempty"`
+	// Enable this Agent. Agents are enabled by default when they get added.
+	Enable *bool `json:"enable,omitempty"`
 
 	// Replace all custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
@@ -4269,11 +4266,8 @@ type ChangeAgentParamsBodyAzureDatabaseExporterCommon struct {
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
-	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
-	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
-
-	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+	// Enables push metrics with vmagent.
+	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 }
 
 // Validate validates this change agent params body azure database exporter common
@@ -4401,11 +4395,8 @@ ChangeAgentParamsBodyExternalExporterCommon ChangeCommonAgentParams contains par
 swagger:model ChangeAgentParamsBodyExternalExporterCommon
 */
 type ChangeAgentParamsBodyExternalExporterCommon struct {
-	// Enable this Agent. Can't be used with disabled.
-	Enable bool `json:"enable,omitempty"`
-
-	// Disable this Agent. Can't be used with enabled.
-	Disable bool `json:"disable,omitempty"`
+	// Enable this Agent. Agents are enabled by default when they get added.
+	Enable *bool `json:"enable,omitempty"`
 
 	// Replace all custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
@@ -4413,11 +4404,8 @@ type ChangeAgentParamsBodyExternalExporterCommon struct {
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
-	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
-	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
-
-	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+	// Enables push metrics with vmagent.
+	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 }
 
 // Validate validates this change agent params body external exporter common
@@ -4545,11 +4533,8 @@ ChangeAgentParamsBodyMongodbExporterCommon ChangeCommonAgentParams contains para
 swagger:model ChangeAgentParamsBodyMongodbExporterCommon
 */
 type ChangeAgentParamsBodyMongodbExporterCommon struct {
-	// Enable this Agent. Can't be used with disabled.
-	Enable bool `json:"enable,omitempty"`
-
-	// Disable this Agent. Can't be used with enabled.
-	Disable bool `json:"disable,omitempty"`
+	// Enable this Agent. Agents are enabled by default when they get added.
+	Enable *bool `json:"enable,omitempty"`
 
 	// Replace all custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
@@ -4557,11 +4542,8 @@ type ChangeAgentParamsBodyMongodbExporterCommon struct {
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
-	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
-	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
-
-	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+	// Enables push metrics with vmagent.
+	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 }
 
 // Validate validates this change agent params body mongodb exporter common
@@ -4689,11 +4671,8 @@ ChangeAgentParamsBodyMysqldExporterCommon ChangeCommonAgentParams contains param
 swagger:model ChangeAgentParamsBodyMysqldExporterCommon
 */
 type ChangeAgentParamsBodyMysqldExporterCommon struct {
-	// Enable this Agent. Can't be used with disabled.
-	Enable bool `json:"enable,omitempty"`
-
-	// Disable this Agent. Can't be used with enabled.
-	Disable bool `json:"disable,omitempty"`
+	// Enable this Agent. Agents are enabled by default when they get added.
+	Enable *bool `json:"enable,omitempty"`
 
 	// Replace all custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
@@ -4701,11 +4680,8 @@ type ChangeAgentParamsBodyMysqldExporterCommon struct {
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
-	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
-	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
-
-	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+	// Enables push metrics with vmagent.
+	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 }
 
 // Validate validates this change agent params body mysqld exporter common
@@ -4833,11 +4809,8 @@ ChangeAgentParamsBodyNodeExporterCommon ChangeCommonAgentParams contains paramet
 swagger:model ChangeAgentParamsBodyNodeExporterCommon
 */
 type ChangeAgentParamsBodyNodeExporterCommon struct {
-	// Enable this Agent. Can't be used with disabled.
-	Enable bool `json:"enable,omitempty"`
-
-	// Disable this Agent. Can't be used with enabled.
-	Disable bool `json:"disable,omitempty"`
+	// Enable this Agent. Agents are enabled by default when they get added.
+	Enable *bool `json:"enable,omitempty"`
 
 	// Replace all custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
@@ -4845,11 +4818,8 @@ type ChangeAgentParamsBodyNodeExporterCommon struct {
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
-	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
-	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
-
-	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+	// Enables push metrics with vmagent.
+	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 }
 
 // Validate validates this change agent params body node exporter common
@@ -4977,11 +4947,8 @@ ChangeAgentParamsBodyPostgresExporterCommon ChangeCommonAgentParams contains par
 swagger:model ChangeAgentParamsBodyPostgresExporterCommon
 */
 type ChangeAgentParamsBodyPostgresExporterCommon struct {
-	// Enable this Agent. Can't be used with disabled.
-	Enable bool `json:"enable,omitempty"`
-
-	// Disable this Agent. Can't be used with enabled.
-	Disable bool `json:"disable,omitempty"`
+	// Enable this Agent. Agents are enabled by default when they get added.
+	Enable *bool `json:"enable,omitempty"`
 
 	// Replace all custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
@@ -4989,11 +4956,8 @@ type ChangeAgentParamsBodyPostgresExporterCommon struct {
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
-	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
-	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
-
-	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+	// Enables push metrics with vmagent.
+	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 }
 
 // Validate validates this change agent params body postgres exporter common
@@ -5121,11 +5085,8 @@ ChangeAgentParamsBodyProxysqlExporterCommon ChangeCommonAgentParams contains par
 swagger:model ChangeAgentParamsBodyProxysqlExporterCommon
 */
 type ChangeAgentParamsBodyProxysqlExporterCommon struct {
-	// Enable this Agent. Can't be used with disabled.
-	Enable bool `json:"enable,omitempty"`
-
-	// Disable this Agent. Can't be used with enabled.
-	Disable bool `json:"disable,omitempty"`
+	// Enable this Agent. Agents are enabled by default when they get added.
+	Enable *bool `json:"enable,omitempty"`
 
 	// Replace all custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
@@ -5133,11 +5094,8 @@ type ChangeAgentParamsBodyProxysqlExporterCommon struct {
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
-	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
-	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
-
-	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+	// Enables push metrics with vmagent.
+	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 }
 
 // Validate validates this change agent params body proxysql exporter common
@@ -5265,11 +5223,8 @@ ChangeAgentParamsBodyQANMongodbProfilerAgentCommon ChangeCommonAgentParams conta
 swagger:model ChangeAgentParamsBodyQANMongodbProfilerAgentCommon
 */
 type ChangeAgentParamsBodyQANMongodbProfilerAgentCommon struct {
-	// Enable this Agent. Can't be used with disabled.
-	Enable bool `json:"enable,omitempty"`
-
-	// Disable this Agent. Can't be used with enabled.
-	Disable bool `json:"disable,omitempty"`
+	// Enable this Agent. Agents are enabled by default when they get added.
+	Enable *bool `json:"enable,omitempty"`
 
 	// Replace all custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
@@ -5277,11 +5232,8 @@ type ChangeAgentParamsBodyQANMongodbProfilerAgentCommon struct {
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
-	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
-	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
-
-	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+	// Enables push metrics with vmagent.
+	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 }
 
 // Validate validates this change agent params body QAN mongodb profiler agent common
@@ -5409,11 +5361,8 @@ ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon ChangeCommonAgentParams conta
 swagger:model ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon
 */
 type ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon struct {
-	// Enable this Agent. Can't be used with disabled.
-	Enable bool `json:"enable,omitempty"`
-
-	// Disable this Agent. Can't be used with enabled.
-	Disable bool `json:"disable,omitempty"`
+	// Enable this Agent. Agents are enabled by default when they get added.
+	Enable *bool `json:"enable,omitempty"`
 
 	// Replace all custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
@@ -5421,11 +5370,8 @@ type ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon struct {
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
-	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
-	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
-
-	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+	// Enables push metrics with vmagent.
+	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 }
 
 // Validate validates this change agent params body QAN mysql perfschema agent common
@@ -5553,11 +5499,8 @@ ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon ChangeCommonAgentParams contains
 swagger:model ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon
 */
 type ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon struct {
-	// Enable this Agent. Can't be used with disabled.
-	Enable bool `json:"enable,omitempty"`
-
-	// Disable this Agent. Can't be used with enabled.
-	Disable bool `json:"disable,omitempty"`
+	// Enable this Agent. Agents are enabled by default when they get added.
+	Enable *bool `json:"enable,omitempty"`
 
 	// Replace all custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
@@ -5565,11 +5508,8 @@ type ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon struct {
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
-	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
-	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
-
-	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+	// Enables push metrics with vmagent.
+	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 }
 
 // Validate validates this change agent params body QAN mysql slowlog agent common
@@ -5697,11 +5637,8 @@ ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon ChangeCommonAgentParam
 swagger:model ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon
 */
 type ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon struct {
-	// Enable this Agent. Can't be used with disabled.
-	Enable bool `json:"enable,omitempty"`
-
-	// Disable this Agent. Can't be used with enabled.
-	Disable bool `json:"disable,omitempty"`
+	// Enable this Agent. Agents are enabled by default when they get added.
+	Enable *bool `json:"enable,omitempty"`
 
 	// Replace all custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
@@ -5709,11 +5646,8 @@ type ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon struct {
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
-	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
-	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
-
-	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+	// Enables push metrics with vmagent.
+	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 }
 
 // Validate validates this change agent params body QAN postgresql pgstatements agent common
@@ -5841,11 +5775,8 @@ ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon ChangeCommonAgentPara
 swagger:model ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon
 */
 type ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon struct {
-	// Enable this Agent. Can't be used with disabled.
-	Enable bool `json:"enable,omitempty"`
-
-	// Disable this Agent. Can't be used with enabled.
-	Disable bool `json:"disable,omitempty"`
+	// Enable this Agent. Agents are enabled by default when they get added.
+	Enable *bool `json:"enable,omitempty"`
 
 	// Replace all custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
@@ -5853,11 +5784,8 @@ type ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon struct {
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
-	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
-	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
-
-	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+	// Enables push metrics with vmagent.
+	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 }
 
 // Validate validates this change agent params body QAN postgresql pgstatmonitor agent common
@@ -5985,11 +5913,8 @@ ChangeAgentParamsBodyRDSExporterCommon ChangeCommonAgentParams contains paramete
 swagger:model ChangeAgentParamsBodyRDSExporterCommon
 */
 type ChangeAgentParamsBodyRDSExporterCommon struct {
-	// Enable this Agent. Can't be used with disabled.
-	Enable bool `json:"enable,omitempty"`
-
-	// Disable this Agent. Can't be used with enabled.
-	Disable bool `json:"disable,omitempty"`
+	// Enable this Agent. Agents are enabled by default when they get added.
+	Enable *bool `json:"enable,omitempty"`
 
 	// Replace all custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
@@ -5997,11 +5922,8 @@ type ChangeAgentParamsBodyRDSExporterCommon struct {
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
-	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
-	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
-
-	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+	// Enables push metrics with vmagent.
+	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 }
 
 // Validate validates this change agent params body RDS exporter common

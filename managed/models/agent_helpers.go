@@ -903,10 +903,10 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 type ChangeCommonAgentParams struct {
-	Disabled           *bool // true - disable, false - enable, nil - do not change
+	Enabled            *bool // true - enable, false - disable, nil - do not change
 	CustomLabels       map[string]string
 	RemoveCustomLabels bool
-	DisablePushMetrics *bool
+	EnablePushMetrics  *bool
 }
 
 // ChangeAgent changes common parameters for given Agent.
@@ -916,15 +916,11 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 		return nil, err
 	}
 
-	if params.Disabled != nil {
-		if *params.Disabled {
-			row.Disabled = true
-		} else {
-			row.Disabled = false
-		}
+	if params.Enabled != nil {
+		row.Disabled = !(*params.Enabled)
 	}
-	if params.DisablePushMetrics != nil {
-		row.PushMetrics = !(*params.DisablePushMetrics)
+	if params.EnablePushMetrics != nil {
+		row.PushMetrics = *params.EnablePushMetrics
 		if row.AgentType == ExternalExporterType {
 			if err := updateExternalExporterParams(q, row); err != nil {
 				return nil, errors.Wrap(err, "failed to update External exporterParams for PushMetrics")

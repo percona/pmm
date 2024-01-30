@@ -102,7 +102,7 @@ func TestPostgresExporter(t *testing.T) {
 					PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyPostgresExporterCommon{
-							Disable:            true,
+							Enable:             pointer.ToBool(false),
 							RemoveCustomLabels: true,
 						},
 					},
@@ -132,7 +132,7 @@ func TestPostgresExporter(t *testing.T) {
 					PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyPostgresExporterCommon{
-							Enable: true,
+							Enable: pointer.ToBool(true),
 							CustomLabels: map[string]string{
 								"new_label": "postgres_exporter",
 							},
@@ -359,7 +359,7 @@ func TestPostgresExporter(t *testing.T) {
 					PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyPostgresExporterCommon{
-							DisablePushMetrics: true,
+							EnablePushMetrics: pointer.ToBool(false),
 						},
 					},
 				},
@@ -389,7 +389,7 @@ func TestPostgresExporter(t *testing.T) {
 					PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyPostgresExporterCommon{
-							EnablePushMetrics: true,
+							EnablePushMetrics: pointer.ToBool(true),
 						},
 					},
 				},
@@ -413,24 +413,5 @@ func TestPostgresExporter(t *testing.T) {
 				},
 			},
 		}, changePostgresExporterOK)
-
-		_, err = client.Default.AgentsService.ChangeAgent(
-			&agents.ChangeAgentParams{
-				Body: agents.ChangeAgentBody{
-					PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyPostgresExporterCommon{
-							Enable: true,
-							CustomLabels: map[string]string{
-								"new_label": "postgres_exporter",
-							},
-							EnablePushMetrics:  true,
-							DisablePushMetrics: true,
-						},
-					},
-				},
-				Context: pmmapitests.Context,
-			})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "expected one of  param: enable_push_metrics or disable_push_metrics")
 	})
 }

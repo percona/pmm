@@ -75,30 +75,8 @@ func (as *AgentsService) changeAgent(agentID string, common *inventoryv1.ChangeC
 			RemoveCustomLabels: common.RemoveCustomLabels,
 		}
 
-		got := 0
-		if common.Enable {
-			got++
-			params.Disabled = pointer.ToBool(false)
-		}
-		if common.Disable {
-			got++
-			params.Disabled = pointer.ToBool(true)
-		}
-		if got > 1 {
-			return status.Errorf(codes.InvalidArgument, "expected at most one param: enable or disable")
-		}
-		got = 0
-		if common.EnablePushMetrics {
-			got++
-			params.DisablePushMetrics = pointer.ToBool(false)
-		}
-		if common.DisablePushMetrics {
-			got++
-			params.DisablePushMetrics = pointer.ToBool(true)
-		}
-		if got > 1 {
-			return status.Errorf(codes.InvalidArgument, "expected one of  param: enable_push_metrics or disable_push_metrics")
-		}
+		params.Enabled = common.Enable
+		params.EnablePushMetrics = common.EnablePushMetrics
 
 		row, err := models.ChangeAgent(tx.Querier, agentID, params)
 		if err != nil {

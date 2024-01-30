@@ -18,6 +18,7 @@ package inventory
 import (
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -145,7 +146,7 @@ func TestExternalExporter(t *testing.T) {
 					ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyExternalExporterCommon{
-							Disable:            true,
+							Enable:             pointer.ToBool(false),
 							RemoveCustomLabels: true,
 						},
 					},
@@ -173,7 +174,7 @@ func TestExternalExporter(t *testing.T) {
 					ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyExternalExporterCommon{
-							Enable: true,
+							Enable: pointer.ToBool(true),
 							CustomLabels: map[string]string{
 								"new_label": "external_exporter",
 							},
@@ -404,7 +405,7 @@ func TestExternalExporter(t *testing.T) {
 					ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyExternalExporterCommon{
-							DisablePushMetrics: true,
+							EnablePushMetrics: pointer.ToBool(false),
 						},
 					},
 				},
@@ -432,7 +433,7 @@ func TestExternalExporter(t *testing.T) {
 					ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyExternalExporterCommon{
-							EnablePushMetrics: true,
+							EnablePushMetrics: pointer.ToBool(true),
 						},
 					},
 				},
@@ -453,20 +454,5 @@ func TestExternalExporter(t *testing.T) {
 				PushMetricsEnabled: true,
 			},
 		}, changeExternalExporterOK.Payload)
-
-		_, err = client.Default.AgentsService.ChangeAgent(
-			&agents.ChangeAgentParams{
-				Body: agents.ChangeAgentBody{
-					ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyExternalExporterCommon{
-							EnablePushMetrics:  true,
-							DisablePushMetrics: true,
-						},
-					},
-				},
-				Context: pmmapitests.Context,
-			})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "expected one of  param: enable_push_metrics or disable_push_metrics")
 	})
 }

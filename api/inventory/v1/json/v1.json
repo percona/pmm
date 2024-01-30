@@ -2692,32 +2692,24 @@
                           "additionalProperties": {
                             "type": "string"
                           },
-                          "x-order": 2
-                        },
-                        "disable": {
-                          "description": "Disable this Agent. Can't be used with enabled.",
-                          "type": "boolean",
                           "x-order": 1
                         },
-                        "disable_push_metrics": {
-                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                          "type": "boolean",
-                          "x-order": 5
-                        },
                         "enable": {
-                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
                           "type": "boolean",
+                          "x-nullable": true,
                           "x-order": 0
                         },
                         "enable_push_metrics": {
-                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
-                          "x-order": 4
+                          "x-nullable": true,
+                          "x-order": 3
                         },
                         "remove_custom_labels": {
                           "description": "Remove all custom user-assigned labels.",
                           "type": "boolean",
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -2742,32 +2734,24 @@
                           "additionalProperties": {
                             "type": "string"
                           },
-                          "x-order": 2
-                        },
-                        "disable": {
-                          "description": "Disable this Agent. Can't be used with enabled.",
-                          "type": "boolean",
                           "x-order": 1
                         },
-                        "disable_push_metrics": {
-                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                          "type": "boolean",
-                          "x-order": 5
-                        },
                         "enable": {
-                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
                           "type": "boolean",
+                          "x-nullable": true,
                           "x-order": 0
                         },
                         "enable_push_metrics": {
-                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
-                          "x-order": 4
+                          "x-nullable": true,
+                          "x-order": 3
                         },
                         "remove_custom_labels": {
                           "description": "Remove all custom user-assigned labels.",
                           "type": "boolean",
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -2792,32 +2776,24 @@
                           "additionalProperties": {
                             "type": "string"
                           },
-                          "x-order": 2
-                        },
-                        "disable": {
-                          "description": "Disable this Agent. Can't be used with enabled.",
-                          "type": "boolean",
                           "x-order": 1
                         },
-                        "disable_push_metrics": {
-                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                          "type": "boolean",
-                          "x-order": 5
-                        },
                         "enable": {
-                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
                           "type": "boolean",
+                          "x-nullable": true,
                           "x-order": 0
                         },
                         "enable_push_metrics": {
-                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
-                          "x-order": 4
+                          "x-nullable": true,
+                          "x-order": 3
                         },
                         "remove_custom_labels": {
                           "description": "Remove all custom user-assigned labels.",
                           "type": "boolean",
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -2842,32 +2818,24 @@
                           "additionalProperties": {
                             "type": "string"
                           },
-                          "x-order": 2
-                        },
-                        "disable": {
-                          "description": "Disable this Agent. Can't be used with enabled.",
-                          "type": "boolean",
                           "x-order": 1
                         },
-                        "disable_push_metrics": {
-                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                          "type": "boolean",
-                          "x-order": 5
-                        },
                         "enable": {
-                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
                           "type": "boolean",
+                          "x-nullable": true,
                           "x-order": 0
                         },
                         "enable_push_metrics": {
-                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
-                          "x-order": 4
+                          "x-nullable": true,
+                          "x-order": 3
                         },
                         "remove_custom_labels": {
                           "description": "Remove all custom user-assigned labels.",
                           "type": "boolean",
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -2892,32 +2860,24 @@
                           "additionalProperties": {
                             "type": "string"
                           },
-                          "x-order": 2
-                        },
-                        "disable": {
-                          "description": "Disable this Agent. Can't be used with enabled.",
-                          "type": "boolean",
                           "x-order": 1
                         },
-                        "disable_push_metrics": {
-                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                          "type": "boolean",
-                          "x-order": 5
-                        },
                         "enable": {
-                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
                           "type": "boolean",
+                          "x-nullable": true,
                           "x-order": 0
                         },
                         "enable_push_metrics": {
-                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
-                          "x-order": 4
+                          "x-nullable": true,
+                          "x-order": 3
                         },
                         "remove_custom_labels": {
                           "description": "Remove all custom user-assigned labels.",
                           "type": "boolean",
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -2942,32 +2902,24 @@
                           "additionalProperties": {
                             "type": "string"
                           },
-                          "x-order": 2
-                        },
-                        "disable": {
-                          "description": "Disable this Agent. Can't be used with enabled.",
-                          "type": "boolean",
                           "x-order": 1
                         },
-                        "disable_push_metrics": {
-                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                          "type": "boolean",
-                          "x-order": 5
-                        },
                         "enable": {
-                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
                           "type": "boolean",
+                          "x-nullable": true,
                           "x-order": 0
                         },
                         "enable_push_metrics": {
-                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
-                          "x-order": 4
+                          "x-nullable": true,
+                          "x-order": 3
                         },
                         "remove_custom_labels": {
                           "description": "Remove all custom user-assigned labels.",
                           "type": "boolean",
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -2992,32 +2944,24 @@
                           "additionalProperties": {
                             "type": "string"
                           },
-                          "x-order": 2
-                        },
-                        "disable": {
-                          "description": "Disable this Agent. Can't be used with enabled.",
-                          "type": "boolean",
                           "x-order": 1
                         },
-                        "disable_push_metrics": {
-                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                          "type": "boolean",
-                          "x-order": 5
-                        },
                         "enable": {
-                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
                           "type": "boolean",
+                          "x-nullable": true,
                           "x-order": 0
                         },
                         "enable_push_metrics": {
-                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
-                          "x-order": 4
+                          "x-nullable": true,
+                          "x-order": 3
                         },
                         "remove_custom_labels": {
                           "description": "Remove all custom user-assigned labels.",
                           "type": "boolean",
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -3042,32 +2986,24 @@
                           "additionalProperties": {
                             "type": "string"
                           },
-                          "x-order": 2
-                        },
-                        "disable": {
-                          "description": "Disable this Agent. Can't be used with enabled.",
-                          "type": "boolean",
                           "x-order": 1
                         },
-                        "disable_push_metrics": {
-                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                          "type": "boolean",
-                          "x-order": 5
-                        },
                         "enable": {
-                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
                           "type": "boolean",
+                          "x-nullable": true,
                           "x-order": 0
                         },
                         "enable_push_metrics": {
-                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
-                          "x-order": 4
+                          "x-nullable": true,
+                          "x-order": 3
                         },
                         "remove_custom_labels": {
                           "description": "Remove all custom user-assigned labels.",
                           "type": "boolean",
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -3092,32 +3028,24 @@
                           "additionalProperties": {
                             "type": "string"
                           },
-                          "x-order": 2
-                        },
-                        "disable": {
-                          "description": "Disable this Agent. Can't be used with enabled.",
-                          "type": "boolean",
                           "x-order": 1
                         },
-                        "disable_push_metrics": {
-                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                          "type": "boolean",
-                          "x-order": 5
-                        },
                         "enable": {
-                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
                           "type": "boolean",
+                          "x-nullable": true,
                           "x-order": 0
                         },
                         "enable_push_metrics": {
-                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
-                          "x-order": 4
+                          "x-nullable": true,
+                          "x-order": 3
                         },
                         "remove_custom_labels": {
                           "description": "Remove all custom user-assigned labels.",
                           "type": "boolean",
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -3142,32 +3070,24 @@
                           "additionalProperties": {
                             "type": "string"
                           },
-                          "x-order": 2
-                        },
-                        "disable": {
-                          "description": "Disable this Agent. Can't be used with enabled.",
-                          "type": "boolean",
                           "x-order": 1
                         },
-                        "disable_push_metrics": {
-                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                          "type": "boolean",
-                          "x-order": 5
-                        },
                         "enable": {
-                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
                           "type": "boolean",
+                          "x-nullable": true,
                           "x-order": 0
                         },
                         "enable_push_metrics": {
-                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
-                          "x-order": 4
+                          "x-nullable": true,
+                          "x-order": 3
                         },
                         "remove_custom_labels": {
                           "description": "Remove all custom user-assigned labels.",
                           "type": "boolean",
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -3192,32 +3112,24 @@
                           "additionalProperties": {
                             "type": "string"
                           },
-                          "x-order": 2
-                        },
-                        "disable": {
-                          "description": "Disable this Agent. Can't be used with enabled.",
-                          "type": "boolean",
                           "x-order": 1
                         },
-                        "disable_push_metrics": {
-                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                          "type": "boolean",
-                          "x-order": 5
-                        },
                         "enable": {
-                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
                           "type": "boolean",
+                          "x-nullable": true,
                           "x-order": 0
                         },
                         "enable_push_metrics": {
-                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
-                          "x-order": 4
+                          "x-nullable": true,
+                          "x-order": 3
                         },
                         "remove_custom_labels": {
                           "description": "Remove all custom user-assigned labels.",
                           "type": "boolean",
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -3242,32 +3154,24 @@
                           "additionalProperties": {
                             "type": "string"
                           },
-                          "x-order": 2
-                        },
-                        "disable": {
-                          "description": "Disable this Agent. Can't be used with enabled.",
-                          "type": "boolean",
                           "x-order": 1
                         },
-                        "disable_push_metrics": {
-                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                          "type": "boolean",
-                          "x-order": 5
-                        },
                         "enable": {
-                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
                           "type": "boolean",
+                          "x-nullable": true,
                           "x-order": 0
                         },
                         "enable_push_metrics": {
-                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
-                          "x-order": 4
+                          "x-nullable": true,
+                          "x-order": 3
                         },
                         "remove_custom_labels": {
                           "description": "Remove all custom user-assigned labels.",
                           "type": "boolean",
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -3292,32 +3196,24 @@
                           "additionalProperties": {
                             "type": "string"
                           },
-                          "x-order": 2
-                        },
-                        "disable": {
-                          "description": "Disable this Agent. Can't be used with enabled.",
-                          "type": "boolean",
                           "x-order": 1
                         },
-                        "disable_push_metrics": {
-                          "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                          "type": "boolean",
-                          "x-order": 5
-                        },
                         "enable": {
-                          "description": "Enable this Agent. Can't be used with disabled.",
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
                           "type": "boolean",
+                          "x-nullable": true,
                           "x-order": 0
                         },
                         "enable_push_metrics": {
-                          "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.",
+                          "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
-                          "x-order": 4
+                          "x-nullable": true,
+                          "x-order": 3
                         },
                         "remove_custom_labels": {
                           "description": "Remove all custom user-assigned labels.",
                           "type": "boolean",
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1

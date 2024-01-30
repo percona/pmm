@@ -576,18 +576,14 @@ message AzureDatabaseExporter {
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 message ChangeCommonAgentParams {
-  // Enable this Agent. Can't be used with disabled.
-  bool enable = 1;
-  // Disable this Agent. Can't be used with enabled.
-  bool disable = 2;
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
   // Replace all custom user-assigned labels.
-  map<string, string> custom_labels = 3;
+  map<string, string> custom_labels = 2;
   // Remove all custom user-assigned labels.
-  bool remove_custom_labels = 4;
-  // Enables push metrics with vmagent, can't be used with disable_push_metrics.
-  bool enable_push_metrics = 5;
-  // Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-  bool disable_push_metrics = 6;
+  bool remove_custom_labels = 3;
+  // Enables push metrics with vmagent.
+  optional bool enable_push_metrics = 4;
 }
 
 // List

@@ -88,7 +88,7 @@ func TestRDSExporter(t *testing.T) {
 					RDSExporter: &agents.ChangeAgentParamsBodyRDSExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyRDSExporterCommon{
-							Disable:            true,
+							Enable:             pointer.ToBool(false),
 							RemoveCustomLabels: true,
 						},
 					},
@@ -118,7 +118,7 @@ func TestRDSExporter(t *testing.T) {
 					RDSExporter: &agents.ChangeAgentParamsBodyRDSExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyRDSExporterCommon{
-							Enable: true,
+							Enable: pointer.ToBool(true),
 							CustomLabels: map[string]string{
 								"new_label": "rds_exporter",
 							},
@@ -279,7 +279,7 @@ func TestRDSExporter(t *testing.T) {
 					RDSExporter: &agents.ChangeAgentParamsBodyRDSExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyRDSExporterCommon{
-							EnablePushMetrics: true,
+							EnablePushMetrics: pointer.ToBool(true),
 						},
 					},
 				},
@@ -310,7 +310,7 @@ func TestRDSExporter(t *testing.T) {
 					RDSExporter: &agents.ChangeAgentParamsBodyRDSExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyRDSExporterCommon{
-							DisablePushMetrics: true,
+							EnablePushMetrics: pointer.ToBool(false),
 						},
 					},
 				},
@@ -333,20 +333,5 @@ func TestRDSExporter(t *testing.T) {
 				},
 			},
 		}, changeRDSExporterOK)
-		_, err = client.Default.AgentsService.ChangeAgent(
-			&agents.ChangeAgentParams{
-				Body: agents.ChangeAgentBody{
-					RDSExporter: &agents.ChangeAgentParamsBodyRDSExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyRDSExporterCommon{
-							EnablePushMetrics:  true,
-							DisablePushMetrics: true,
-						},
-					},
-				},
-				Context: pmmapitests.Context,
-			})
-
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "expected one of  param: enable_push_metrics or disable_push_metrics")
 	})
 }

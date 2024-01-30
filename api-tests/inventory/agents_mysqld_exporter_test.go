@@ -104,7 +104,7 @@ func TestMySQLdExporter(t *testing.T) {
 					MysqldExporter: &agents.ChangeAgentParamsBodyMysqldExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyMysqldExporterCommon{
-							Disable:            true,
+							Enable:             pointer.ToBool(false),
 							RemoveCustomLabels: true,
 						},
 					},
@@ -133,7 +133,7 @@ func TestMySQLdExporter(t *testing.T) {
 					MysqldExporter: &agents.ChangeAgentParamsBodyMysqldExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyMysqldExporterCommon{
-							Enable: true,
+							Enable: pointer.ToBool(true),
 							CustomLabels: map[string]string{
 								"new_label": "mysql_exporter",
 							},
@@ -419,7 +419,7 @@ func TestMySQLdExporter(t *testing.T) {
 					MysqldExporter: &agents.ChangeAgentParamsBodyMysqldExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyMysqldExporterCommon{
-							DisablePushMetrics: true,
+							EnablePushMetrics: pointer.ToBool(false),
 						},
 					},
 				},
@@ -448,7 +448,7 @@ func TestMySQLdExporter(t *testing.T) {
 					MysqldExporter: &agents.ChangeAgentParamsBodyMysqldExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyMysqldExporterCommon{
-							EnablePushMetrics: true,
+							EnablePushMetrics: pointer.ToBool(true),
 						},
 					},
 				},
@@ -471,22 +471,5 @@ func TestMySQLdExporter(t *testing.T) {
 				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, changeMySQLdExporterOK.Payload)
-		_, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
-			Body: agents.ChangeAgentBody{
-				MysqldExporter: &agents.ChangeAgentParamsBodyMysqldExporter{
-					AgentID: agentID,
-					Common: &agents.ChangeAgentParamsBodyMysqldExporterCommon{
-						Enable: true,
-						CustomLabels: map[string]string{
-							"new_label": "mysql_exporter",
-						},
-						EnablePushMetrics:  true,
-						DisablePushMetrics: true,
-					},
-				},
-			},
-			Context: pmmapitests.Context,
-		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "expected one of  param: enable_push_metrics or disable_push_metrics")
 	})
 }

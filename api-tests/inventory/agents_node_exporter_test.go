@@ -75,7 +75,7 @@ func TestNodeExporter(t *testing.T) {
 					NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyNodeExporterCommon{
-							Disable:            true,
+							Enable:             pointer.ToBool(false),
 							RemoveCustomLabels: true,
 						},
 					},
@@ -103,7 +103,7 @@ func TestNodeExporter(t *testing.T) {
 					NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyNodeExporterCommon{
-							Enable: true,
+							Enable: pointer.ToBool(true),
 							CustomLabels: map[string]string{
 								"new_label": "node_exporter",
 							},
@@ -221,7 +221,7 @@ func TestNodeExporter(t *testing.T) {
 				NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
 					AgentID: agentID,
 					Common: &agents.ChangeAgentParamsBodyNodeExporterCommon{
-						DisablePushMetrics: true,
+						EnablePushMetrics: pointer.ToBool(false),
 					},
 				},
 			},
@@ -248,7 +248,7 @@ func TestNodeExporter(t *testing.T) {
 					NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyNodeExporterCommon{
-							EnablePushMetrics: true,
+							EnablePushMetrics: pointer.ToBool(true),
 						},
 					},
 				},
@@ -269,18 +269,5 @@ func TestNodeExporter(t *testing.T) {
 				},
 			},
 		}, changeNodeExporterOK)
-		_, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
-			Body: agents.ChangeAgentBody{
-				NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
-					AgentID: agentID,
-					Common: &agents.ChangeAgentParamsBodyNodeExporterCommon{
-						EnablePushMetrics:  true,
-						DisablePushMetrics: true,
-					},
-				},
-			},
-			Context: pmmapitests.Context,
-		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "expected one of  param: enable_push_metrics or disable_push_metrics")
 	})
 }

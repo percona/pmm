@@ -103,7 +103,7 @@ func TestMongoDBExporter(t *testing.T) {
 					MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyMongodbExporterCommon{
-							Disable:            true,
+							Enable:             pointer.ToBool(false),
 							RemoveCustomLabels: true,
 						},
 					},
@@ -134,7 +134,7 @@ func TestMongoDBExporter(t *testing.T) {
 					MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyMongodbExporterCommon{
-							Enable: true,
+							Enable: pointer.ToBool(true),
 							CustomLabels: map[string]string{
 								"new_label": "mongodb_exporter",
 							},
@@ -363,7 +363,7 @@ func TestMongoDBExporter(t *testing.T) {
 					MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyMongodbExporterCommon{
-							DisablePushMetrics: true,
+							EnablePushMetrics: pointer.ToBool(false),
 						},
 					},
 				},
@@ -394,7 +394,7 @@ func TestMongoDBExporter(t *testing.T) {
 					MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyMongodbExporterCommon{
-							EnablePushMetrics: true,
+							EnablePushMetrics: pointer.ToBool(true),
 						},
 					},
 				},
@@ -419,20 +419,5 @@ func TestMongoDBExporter(t *testing.T) {
 				},
 			},
 		}, changeMongoDBExporterOK)
-
-		_, err = client.Default.AgentsService.ChangeAgent(
-			&agents.ChangeAgentParams{
-				Body: agents.ChangeAgentBody{
-					MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyMongodbExporterCommon{
-							EnablePushMetrics:  true,
-							DisablePushMetrics: true,
-						},
-					},
-				},
-				Context: pmmapitests.Context,
-			})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "expected one of  param: enable_push_metrics or disable_push_metrics")
 	})
 }

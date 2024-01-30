@@ -1956,17 +1956,17 @@ func (m *ChangeCommonAgentParams) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Enable
-
-	// no validation rules for Disable
-
 	// no validation rules for CustomLabels
 
 	// no validation rules for RemoveCustomLabels
 
-	// no validation rules for EnablePushMetrics
+	if m.Enable != nil {
+		// no validation rules for Enable
+	}
 
-	// no validation rules for DisablePushMetrics
+	if m.EnablePushMetrics != nil {
+		// no validation rules for EnablePushMetrics
+	}
 
 	if len(errors) > 0 {
 		return ChangeCommonAgentParamsMultiError(errors)

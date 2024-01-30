@@ -102,7 +102,7 @@ func TestProxySQLExporter(t *testing.T) {
 					ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyProxysqlExporterCommon{
-							Disable:            true,
+							Enable:             pointer.ToBool(false),
 							RemoveCustomLabels: true,
 						},
 					},
@@ -132,7 +132,7 @@ func TestProxySQLExporter(t *testing.T) {
 					ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyProxysqlExporterCommon{
-							Enable: true,
+							Enable: pointer.ToBool(true),
 							CustomLabels: map[string]string{
 								"new_label": "proxysql_exporter",
 							},
@@ -352,7 +352,7 @@ func TestProxySQLExporter(t *testing.T) {
 				ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
 					AgentID: agentID,
 					Common: &agents.ChangeAgentParamsBodyProxysqlExporterCommon{
-						EnablePushMetrics: true,
+						EnablePushMetrics: pointer.ToBool(true),
 					},
 				},
 			},
@@ -383,7 +383,7 @@ func TestProxySQLExporter(t *testing.T) {
 					ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyProxysqlExporterCommon{
-							DisablePushMetrics: true,
+							EnablePushMetrics: pointer.ToBool(false),
 						},
 					},
 				},
@@ -406,20 +406,5 @@ func TestProxySQLExporter(t *testing.T) {
 				},
 			},
 		}, changeProxySQLExporterOK)
-
-		_, err = client.Default.AgentsService.ChangeAgent(
-			&agents.ChangeAgentParams{
-				Body: agents.ChangeAgentBody{
-					ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyProxysqlExporterCommon{
-							EnablePushMetrics:  true,
-							DisablePushMetrics: true,
-						},
-					},
-				},
-				Context: pmmapitests.Context,
-			})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "expected one of  param: enable_push_metrics or disable_push_metrics")
 	})
 }
