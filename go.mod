@@ -23,9 +23,9 @@ require (
 	github.com/alecthomas/kong v0.8.0
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
-	github.com/aws/aws-sdk-go v1.49.6
+	github.com/aws/aws-sdk-go v1.50.1
 	github.com/blang/semver v3.5.1+incompatible
-	github.com/brianvoe/gofakeit/v6 v6.27.0
+	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/charmbracelet/bubbles v0.17.1
 	github.com/charmbracelet/bubbletea v0.25.0
 	github.com/charmbracelet/lipgloss v0.9.1
@@ -37,12 +37,12 @@ require (
 	github.com/go-openapi/errors v0.21.0
 	github.com/go-openapi/runtime v0.26.0
 	github.com/go-openapi/strfmt v0.21.8
-	github.com/go-openapi/swag v0.22.3
-	github.com/go-openapi/validate v0.22.1
+	github.com/go-openapi/swag v0.22.5
+	github.com/go-openapi/validate v0.22.3
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/golang-migrate/migrate/v4 v4.17.0
 	github.com/golang/protobuf v1.5.3
-	github.com/google/uuid v1.5.0
+	github.com/google/uuid v1.6.0
 	github.com/grafana/grafana-api-golang-client v0.27.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
@@ -83,7 +83,7 @@ require (
 	golang.org/x/tools v0.17.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240102182953-50ed04b92917
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240102182953-50ed04b92917
-	google.golang.org/grpc v1.60.1
+	google.golang.org/grpc v1.61.0
 	google.golang.org/protobuf v1.32.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/reform.v1 v1.5.1
@@ -181,10 +181,10 @@ require (
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
 	github.com/go-openapi/analysis v0.21.4 // indirect
-	github.com/go-openapi/jsonpointer v0.19.6 // indirect
-	github.com/go-openapi/jsonreference v0.20.2 // indirect
+	github.com/go-openapi/jsonpointer v0.20.1 // indirect
+	github.com/go-openapi/jsonreference v0.20.3 // indirect
 	github.com/go-openapi/loads v0.21.2 // indirect
-	github.com/go-openapi/spec v0.20.8 // indirect
+	github.com/go-openapi/spec v0.20.12 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
