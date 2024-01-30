@@ -178,7 +178,6 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		}
 	}
 	err = kubeClient.CreateDatabaseCluster(dbCluster)
-
 	if err != nil {
 		if apiKeyID != 0 {
 			e := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
@@ -358,7 +357,6 @@ func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1be
 	}
 
 	err = kubeClient.PatchDatabaseCluster(dbCluster)
-
 	if err != nil {
 		return nil, err
 	}
