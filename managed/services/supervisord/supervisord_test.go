@@ -96,9 +96,15 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 	}
 	settings.VictoriaMetrics.CacheEnabled = false
 
-	// Test a couple of environment variables being picked up by VictoriaMetrics.
+	// Test environment variables being passed to VictoriaMetrics.
 	t.Setenv("VM_search_maxQueryLen", "2MB")
 	t.Setenv("VM_search_latencyOffset", "10s")
+	t.Setenv("VM_search_maxUniqueTimeseries", "500000000")
+	t.Setenv("VM_search_maxSamplesPerQuery", "1600000000")
+	t.Setenv("VM_search_maxQueueDuration", "100s")
+	t.Setenv("VM_search_logSlowQueryDuration", "300s")
+	t.Setenv("VM_search_maxQueryDuration", "9s")
+	t.Setenv("VM_promscrape_streamParse", "false")
 
 	for _, tmpl := range templates.Templates() {
 		n := tmpl.Name()
