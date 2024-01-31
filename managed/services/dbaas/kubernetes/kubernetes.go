@@ -837,7 +837,6 @@ func (k *Kubernetes) InstallOperator(ctx context.Context, req InstallOperatorReq
 
 		return true, nil
 	})
-
 	if err != nil {
 		return err
 	}

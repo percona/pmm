@@ -838,7 +838,6 @@ func (svc *Service) UnsilenceAlerts(ctx context.Context, alerts []*ammodels.Gett
 				SilenceID: strfmt.UUID(silenceID),
 				Context:   ctx,
 			})
-
 			if err != nil {
 				return errors.Wrapf(err, "failed to delete silence with id %s for alert %s", silenceID, *a.Fingerprint)
 			}
