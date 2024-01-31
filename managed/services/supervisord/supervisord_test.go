@@ -52,7 +52,7 @@ func TestConfig(t *testing.T) {
 	settings := &models.Settings{
 		DataRetention:    30 * 24 * time.Hour,
 		AlertManagerURL:  "https://external-user:passw!,ord@external-alertmanager:6443/alerts",
-		PMMPublicAddress: "192.168.0.1:6100",
+		PMMPublicAddress: "192.168.0.42:8443",
 	}
 	settings.VictoriaMetrics.CacheEnabled = false
 
