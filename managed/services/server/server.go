@@ -21,7 +21,6 @@ import (
 	"crypto/subtle"
 	"encoding/json"
 	"fmt"
-	"net/url"
 	"os"
 	"os/user"
 	"path"
@@ -526,12 +525,6 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 	}
 	if req.PmmPublicAddress != "" && req.RemovePmmPublicAddress {
 		return status.Error(codes.InvalidArgument, "Both pmm_public_address and remove_pmm_public_address are present.")
-	}
-
-	if req.GetPmmPublicAddress() != "" {
-		if _, err := url.Parse(req.GetPmmPublicAddress()); err != nil {
-			return status.Error(codes.FailedPrecondition, "Provided PMM public address is invalid.")
-		}
 	}
 
 	if req.SshKey != "" {
