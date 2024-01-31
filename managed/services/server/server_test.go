@@ -228,6 +228,12 @@ func TestServer(t *testing.T) {
 		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
 			DisableStt: true,
 		}))
+
+		// fail if new public address is not a valid URL.
+		expected = status.New(codes.FailedPrecondition, "Provided PMM public address is invalid.")
+		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
+			PmmPublicAddress: "192.168.55.1:5555",
+		}))
 	})
 
 	t.Run("ChangeSettings", func(t *testing.T) {

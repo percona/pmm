@@ -443,14 +443,12 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 
 	templateParams["PMMServerHost"] = ""
 	if settings.PMMPublicAddress != "" {
+		if !strings.HasPrefix(settings.PMMPublicAddress, "https://") && !strings.HasPrefix(settings.PMMPublicAddress, "http://") {
+			settings.PMMPublicAddress = fmt.Sprintf("https://%s", settings.PMMPublicAddress)
+		}
 		publicURL, err := url.Parse(settings.PMMPublicAddress)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to parse PMM public address.")
-		}
-		if publicURL.Host == "" {
-			if publicURL, err = url.Parse(fmt.Sprintf("https://%s", settings.PMMPublicAddress)); err != nil {
-				return nil, errors.Wrap(err, "failed to parse PMM public address.")
-			}
 		}
 		templateParams["PMMServerHost"] = publicURL.Host
 	}
