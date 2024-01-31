@@ -71,21 +71,41 @@
 
 - name: Update (both)
   block:
-    # This will implicitly create /srv/clickhouse
-    - name: Create clickhouse data directory
-      file:
-        path: "/srv/clickhouse/flags"
-        state: directory
-        owner: root
-        group: pmm
-        recurse: true
+    - name: Check that Clickhouse database engine is ordinary
+      stat:
+        path: /srv/clickhouse/flags/convert_ordinary_to_atomic
+      register: is_database_ordinary
 
-    - name: Create empty file to convert clickhouse databases from ordinary to atomic
-      file:
-        path: "/srv/clickhouse/flags/convert_ordinary_to_atomic"
-        state: touch
-        owner: root
-        group: pmm
+    - name: Update (both)
+      block: Convert clickhouse engine from ordinary to atomic
+        # This will implicitly create /srv/clickhouse
+        - name: Create clickhouse data directory
+          file:
+            path: "/srv/clickhouse/flags"
+            state: directory
+            owner: root
+            group: pmm
+            recurse: true
+
+        - name: Create empty file to convert clickhouse databases from ordinary to atomic
+          file:
+            path: "/srv/clickhouse/flags/convert_ordinary_to_atomic"
+            state: touch
+            owner: root
+            group: pmm
+
+        - name: Restart clickhouse EL7
+          when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+          command: supervisorctl restart clickhouse
+          become: true
+          changed_when: true
+
+        - name: Restart clickhouse EL9
+          when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9' and is_docker
+          command: /usr/local/bin/supervisorctl restart clickhouse
+          become: true
+          changed_when: true
+      when: is_database_ordinary.stat.exists
 
     - name: Upgrade dashboards
       include_role:
