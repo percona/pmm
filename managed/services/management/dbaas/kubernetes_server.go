@@ -529,7 +529,6 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 				Kubeconfig: kubernetesCluster.KubeConfig,
 			},
 		})
-
 		if err != nil {
 			k.l.Warnf("cannot stop monitoring: %s", err)
 		}
