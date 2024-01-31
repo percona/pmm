@@ -76,8 +76,8 @@
         path: /srv/clickhouse/flags/convert_ordinary_to_atomic
       register: is_database_ordinary
 
-    - name: Update (both)
-      block: Convert clickhouse engine from ordinary to atomic
+    - name: Convert clickhouse engine from ordinary to atomic
+      block:
         # This will implicitly create /srv/clickhouse
         - name: Create clickhouse data directory
           file:
