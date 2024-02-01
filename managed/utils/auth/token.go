@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"github.com/gogo/status"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 )
@@ -38,6 +39,7 @@ func GetTokenFromHeaders(authHeaders http.Header) string {
 		h := strings.TrimPrefix(authHeader, "Basic")
 		t, err := base64.StdEncoding.DecodeString(strings.TrimSpace(h))
 		if err != nil {
+			logrus.Debugf("cannot decode basic authorization header: %s", err)
 			return ""
 		}
 		tk := string(t)
