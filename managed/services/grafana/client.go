@@ -691,7 +691,7 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 	serviceAccountID := int(m["id"].(float64)) //nolint:forcetypeassert
 
 	// orgId is ignored during creating service account and default is -1
-	// orgId should be setup to 1
+	// orgId should be set to 1
 	if err = c.do(ctx, "PATCH", fmt.Sprintf("/api/serviceaccounts/%d", serviceAccountID), "", authHeaders, []byte("{\"orgId\": 1}"), &m); err != nil {
 		return 0, err
 	}
