@@ -213,10 +213,10 @@ func TestServer(t *testing.T) {
 		}))
 
 		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableStt: pointer.ToBool(false),
+			EnableAdvisor: pointer.ToBool(false),
 		}))
 		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableStt: pointer.ToBool(true),
+			EnableAdvisor: pointer.ToBool(true),
 		}))
 	})
 
