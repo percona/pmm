@@ -189,13 +189,13 @@ func (s *Service) Run(ctx context.Context) {
 		return
 	}
 
-	s.rareTicker = time.NewTicker(settings.SaaS.STTCheckIntervals.RareInterval)
+	s.rareTicker = time.NewTicker(settings.SaaS.AdvisorRunIntervals.RareInterval)
 	defer s.rareTicker.Stop()
 
-	s.standardTicker = time.NewTicker(settings.SaaS.STTCheckIntervals.StandardInterval)
+	s.standardTicker = time.NewTicker(settings.SaaS.AdvisorRunIntervals.StandardInterval)
 	defer s.standardTicker.Stop()
 
-	s.frequentTicker = time.NewTicker(settings.SaaS.STTCheckIntervals.FrequentInterval)
+	s.frequentTicker = time.NewTicker(settings.SaaS.AdvisorRunIntervals.FrequentInterval)
 	defer s.frequentTicker.Stop()
 
 	// delay for the first run to allow all agents to connect
@@ -384,7 +384,7 @@ func (s *Service) GetDisabledChecks() ([]string, error) {
 		return nil, err
 	}
 
-	return settings.SaaS.DisabledSTTChecks, nil
+	return settings.SaaS.DisabledAdvisors, nil
 }
 
 // DisableChecks disables checks with provided names.
@@ -405,7 +405,7 @@ func (s *Service) DisableChecks(checkNames []string) error {
 	}
 
 	errTx := s.db.InTransaction(func(tx *reform.TX) error {
-		params := models.ChangeSettingsParams{DisableSTTChecks: checkNames}
+		params := models.ChangeSettingsParams{DisableAdvisorChecks: checkNames}
 		_, err := models.UpdateSettings(tx.Querier, &params)
 		return err
 	})
@@ -423,7 +423,7 @@ func (s *Service) EnableChecks(checkNames []string) error {
 	}
 
 	err := s.db.InTransaction(func(tx *reform.TX) error {
-		params := models.ChangeSettingsParams{EnableSTTChecks: checkNames}
+		params := models.ChangeSettingsParams{EnableAdvisorChecks: checkNames}
 		_, err := models.UpdateSettings(tx.Querier, &params)
 		return err
 	})

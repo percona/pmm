@@ -46,7 +46,7 @@ func TestSettings(t *testing.T) {
 			DataRetention: 30 * 24 * time.Hour,
 			AWSPartitions: []string{"aws"},
 			SaaS: models.Advisors{
-				STTCheckIntervals: models.STTCheckIntervals{
+				AdvisorRunIntervals: models.AdvisorsRunIntervals{
 					StandardInterval: 24 * time.Hour,
 					RareInterval:     78 * time.Hour,
 					FrequentInterval: 4 * time.Hour,
@@ -70,7 +70,7 @@ func TestSettings(t *testing.T) {
 			DataRetention: 30 * 24 * time.Hour,
 			AWSPartitions: []string{"aws"},
 			SaaS: models.Advisors{
-				STTCheckIntervals: models.STTCheckIntervals{
+				AdvisorRunIntervals: models.AdvisorsRunIntervals{
 					StandardInterval: 24 * time.Hour,
 					RareInterval:     78 * time.Hour,
 					FrequentInterval: 4 * time.Hour,
@@ -164,25 +164,25 @@ func TestSettings(t *testing.T) {
 			// ensure initial default state
 			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				EnableTelemetry: pointer.ToBool(true),
-				EnableSTT:       pointer.ToBool(true),
+				EnableAdvisors:  pointer.ToBool(true),
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
 			assert.True(t, *ns.SaaS.Enabled)
 
-			// disable telemetry, enable STT
+			// disable telemetry, enable Advisors
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				EnableTelemetry: pointer.ToBool(false),
-				EnableSTT:       pointer.ToBool(true),
+				EnableAdvisors:  pointer.ToBool(true),
 			})
 			require.NoError(t, err)
 			assert.False(t, *ns.Telemetry.Enabled)
 			assert.True(t, *ns.SaaS.Enabled)
 
-			// disable STT, enable Telemetry
+			// disable Advisors, enable Telemetry
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				EnableTelemetry: pointer.ToBool(true),
-				EnableSTT:       pointer.ToBool(false),
+				EnableAdvisors:  pointer.ToBool(false),
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
@@ -190,24 +190,24 @@ func TestSettings(t *testing.T) {
 
 			// enable both
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableSTT:       pointer.ToBool(true),
+				EnableAdvisors:  pointer.ToBool(true),
 				EnableTelemetry: pointer.ToBool(true),
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
 			assert.True(t, *ns.SaaS.Enabled)
 
-			// disable STT
+			// disable Advisors
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableSTT: pointer.ToBool(false),
+				EnableAdvisors: pointer.ToBool(false),
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
 			assert.False(t, *ns.SaaS.Enabled)
 
-			// enable STT
+			// enable Advisors
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableSTT: pointer.ToBool(true),
+				EnableAdvisors: pointer.ToBool(true),
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
@@ -215,7 +215,7 @@ func TestSettings(t *testing.T) {
 
 			// restore initial default state
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableSTT:       pointer.ToBool(true),
+				EnableAdvisors:  pointer.ToBool(true),
 				EnableTelemetry: pointer.ToBool(true),
 			})
 			require.NoError(t, err)
@@ -249,21 +249,21 @@ func TestSettings(t *testing.T) {
 			disChecks := []string{"one", "two", "three"}
 
 			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				DisableSTTChecks: disChecks,
+				DisableAdvisorChecks: disChecks,
 			})
 			require.NoError(t, err)
-			assert.ElementsMatch(t, ns.SaaS.DisabledSTTChecks, disChecks)
+			assert.ElementsMatch(t, ns.SaaS.DisabledAdvisors, disChecks)
 		})
 
 		t.Run("enable checks", func(t *testing.T) {
 			disChecks := []string{"one", "two", "three"}
 
-			_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{DisableSTTChecks: disChecks})
+			_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{DisableAdvisorChecks: disChecks})
 			require.NoError(t, err)
 
-			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableSTTChecks: []string{"two"}})
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAdvisorChecks: []string{"two"}})
 			require.NoError(t, err)
-			assert.ElementsMatch(t, ns.SaaS.DisabledSTTChecks, []string{"one", "three"})
+			assert.ElementsMatch(t, ns.SaaS.DisabledAdvisors, []string{"one", "three"})
 		})
 
 		t.Run("enable azure discover", func(t *testing.T) {

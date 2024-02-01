@@ -35,7 +35,7 @@ func restoreSettingsDefaults(t *testing.T) {
 
 	res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 		Body: server.ChangeSettingsBody{
-			EnableStt:       pointer.ToBool(true),
+			EnableAdvisor:   pointer.ToBool(true),
 			EnableTelemetry: pointer.ToBool(true),
 			EnableAlerting:  pointer.ToBool(true),
 			MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
@@ -43,7 +43,7 @@ func restoreSettingsDefaults(t *testing.T) {
 				Mr: "10s",
 				Lr: "60s",
 			},
-			SttCheckIntervals: &server.ChangeSettingsParamsBodySttCheckIntervals{
+			AdvisorRunIntervals: &server.ChangeSettingsParamsBodyAdvisorRunIntervals{
 				FrequentInterval: "14400s",
 				StandardInterval: "86400s",
 				RareInterval:     "280800s",
@@ -57,19 +57,19 @@ func restoreSettingsDefaults(t *testing.T) {
 	})
 	require.NoError(t, err)
 	assert.Equal(t, true, res.Payload.Settings.TelemetryEnabled)
-	assert.Equal(t, true, res.Payload.Settings.SttEnabled)
+	assert.Equal(t, true, res.Payload.Settings.AdvisorEnabled)
 	expectedResolutions := &server.ChangeSettingsOKBodySettingsMetricsResolutions{
 		Hr: "5s",
 		Mr: "10s",
 		Lr: "60s",
 	}
 	assert.Equal(t, expectedResolutions, res.Payload.Settings.MetricsResolutions)
-	expectedSTTIntervals := &server.ChangeSettingsOKBodySettingsSttCheckIntervals{
+	expectedAdvisorRunIntervals := &server.ChangeSettingsOKBodySettingsAdvisorRunIntervals{
 		FrequentInterval: "14400s",
 		StandardInterval: "86400s",
 		RareInterval:     "280800s",
 	}
-	assert.Equal(t, expectedSTTIntervals, res.Payload.Settings.SttCheckIntervals)
+	assert.Equal(t, expectedAdvisorRunIntervals, res.Payload.Settings.AdvisorRunIntervals)
 	assert.Equal(t, "2592000s", res.Payload.Settings.DataRetention)
 	assert.Equal(t, []string{"aws"}, res.Payload.Settings.AWSPartitions)
 }

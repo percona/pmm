@@ -204,8 +204,8 @@
                   "x-nullable": true,
                   "x-order": 5
                 },
-                "enable_stt": {
-                  "description": "Enable Security Threat Tool.",
+                "enable_advisor": {
+                  "description": "Enable Advisor.",
                   "type": "boolean",
                   "x-nullable": true,
                   "x-order": 6
@@ -222,8 +222,8 @@
                   "x-nullable": true,
                   "x-order": 8
                 },
-                "stt_check_intervals": {
-                  "description": "STTCheckIntervals represents intervals between STT checks.",
+                "advisor_run_intervals": {
+                  "description": "AdvisorRunIntervals represents intervals between each run of Advisor checks.",
                   "type": "object",
                   "properties": {
                     "standard_interval": {
@@ -323,8 +323,8 @@
                       },
                       "x-order": 5
                     },
-                    "stt_enabled": {
-                      "description": "True if Security Threat Tool is enabled.",
+                    "advisor_enabled": {
+                      "description": "True if Advisor is enabled.",
                       "type": "boolean",
                       "x-order": 6
                     },
@@ -343,8 +343,8 @@
                       "type": "string",
                       "x-order": 9
                     },
-                    "stt_check_intervals": {
-                      "description": "STTCheckIntervals represents intervals between STT checks.",
+                    "advisor_run_intervals": {
+                      "description": "AdvisorRunIntervals represents intervals between each run of Advisor checks.",
                       "type": "object",
                       "properties": {
                         "standard_interval": {
@@ -516,8 +516,8 @@
                       },
                       "x-order": 5
                     },
-                    "stt_enabled": {
-                      "description": "True if Security Threat Tool is enabled.",
+                    "advisor_enabled": {
+                      "description": "True if Advisor is enabled.",
                       "type": "boolean",
                       "x-order": 6
                     },
@@ -536,8 +536,8 @@
                       "type": "string",
                       "x-order": 9
                     },
-                    "stt_check_intervals": {
-                      "description": "STTCheckIntervals represents intervals between STT checks.",
+                    "advisor_run_intervals": {
+                      "description": "AdvisorRunIntervals represents intervals between each run of Advisor checks.",
                       "type": "object",
                       "properties": {
                         "standard_interval": {
@@ -7387,7 +7387,7 @@
                         "x-order": 3
                       },
                       "read_more_url": {
-                        "description": "URL containing information on how to resolve an issue detected by an STT check.",
+                        "description": "URL containing information on how to resolve an issue detected by an Advisor check.",
                         "type": "string",
                         "x-order": 4
                       },

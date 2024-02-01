@@ -398,7 +398,7 @@ func TestStartChecks(t *testing.T) {
 		assert.EqualError(t, err, "unknown check interval: unknown")
 	})
 
-	t.Run("stt enabled", func(t *testing.T) {
+	t.Run("advisors enabled", func(t *testing.T) {
 		s := New(db, nil, nil, vmClient, clickhouseDB)
 
 		s.localChecksFile = testChecksFile
@@ -410,7 +410,7 @@ func TestStartChecks(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("stt disabled", func(t *testing.T) {
+	t.Run("advisors disabled", func(t *testing.T) {
 		s := New(db, nil, nil, vmClient, clickhouseDB)
 
 		settings, err := models.GetSettings(db)
@@ -785,7 +785,7 @@ func TestGetFailedChecks(t *testing.T) {
 		assert.Equal(t, checkResults[0], response[0])
 	})
 
-	t.Run("STT disabled", func(t *testing.T) {
+	t.Run("Advisors disabled", func(t *testing.T) {
 		s := New(db, nil, nil, vmClient, clickhouseDB)
 
 		settings, err := models.GetSettings(db)

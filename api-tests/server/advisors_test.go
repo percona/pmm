@@ -32,7 +32,7 @@ import (
 )
 
 func TestStartChecks(t *testing.T) {
-	t.Run("with enabled STT", func(t *testing.T) {
+	t.Run("with advisors enabled", func(t *testing.T) {
 		toggleAdvisorChecks(t, true)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
@@ -41,7 +41,7 @@ func TestStartChecks(t *testing.T) {
 		assert.NotNil(t, resp)
 	})
 
-	t.Run("with disabled STT", func(t *testing.T) {
+	t.Run("with advisors disabled", func(t *testing.T) {
 		toggleAdvisorChecks(t, false)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
@@ -51,12 +51,12 @@ func TestStartChecks(t *testing.T) {
 	})
 }
 
-func TestGetSecurityCheckResults(t *testing.T) {
-	if !pmmapitests.RunSTTTests {
-		t.Skip("Skipping STT tests until we have environment: https://jira.percona.com/browse/PMM-5106")
+func TestGetAdvisorCheckResults(t *testing.T) {
+	if !pmmapitests.RunAdvisorTests {
+		t.Skip("Skipping Advisor tests until we have environment: https://jira.percona.com/browse/PMM-5106")
 	}
 
-	t.Run("with disabled STT", func(t *testing.T) {
+	t.Run("with disabled Advisors", func(t *testing.T) {
 		toggleAdvisorChecks(t, true)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
@@ -65,7 +65,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 		assert.Nil(t, results)
 	})
 
-	t.Run("with enabled STT", func(t *testing.T) {
+	t.Run("with enabled Advisors", func(t *testing.T) {
 		toggleAdvisorChecks(t, true)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
@@ -247,12 +247,12 @@ func toggleAdvisorChecks(t *testing.T, enable bool) {
 
 	res, err := serverClient.Default.ServerService.ChangeSettings(&server_service.ChangeSettingsParams{
 		Body: server_service.ChangeSettingsBody{
-			EnableStt: pointer.ToBool(enable),
+			EnableAdvisor: pointer.ToBool(enable),
 		},
 		Context: pmmapitests.Context,
 	})
 	require.NoError(t, err)
-	require.Equal(t, enable, res.Payload.Settings.SttEnabled)
+	require.Equal(t, enable, res.Payload.Settings.AdvisorEnabled)
 
 	if enable {
 		// It takes some time to load check files

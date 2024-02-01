@@ -6403,7 +6403,7 @@
                         "x-order": 3
                       },
                       "read_more_url": {
-                        "description": "URL containing information on how to resolve an issue detected by an STT check.",
+                        "description": "URL containing information on how to resolve an issue detected by an Advisor check.",
                         "type": "string",
                         "x-order": 4
                       },
