@@ -175,8 +175,10 @@ func TestExternalExporter(t *testing.T) {
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyExternalExporterCommon{
 							Enable: pointer.ToBool(true),
-							CustomLabels: map[string]string{
-								"new_label": "external_exporter",
+							CustomLabels: &agents.ChangeAgentParamsBodyExternalExporterCommonCustomLabels{
+								Values: map[string]string{
+									"new_label": "external_exporter",
+								},
 							},
 						},
 					},

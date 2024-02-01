@@ -119,8 +119,10 @@ func TestRDSExporter(t *testing.T) {
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyRDSExporterCommon{
 							Enable: pointer.ToBool(true),
-							CustomLabels: map[string]string{
-								"new_label": "rds_exporter",
+							CustomLabels: &agents.ChangeAgentParamsBodyRDSExporterCommonCustomLabels{
+								Values: map[string]string{
+									"new_label": "rds_exporter",
+								},
 							},
 						},
 					},

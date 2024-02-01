@@ -133,8 +133,10 @@ func TestPostgresExporter(t *testing.T) {
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyPostgresExporterCommon{
 							Enable: pointer.ToBool(true),
-							CustomLabels: map[string]string{
-								"new_label": "postgres_exporter",
+							CustomLabels: &agents.ChangeAgentParamsBodyPostgresExporterCommonCustomLabels{
+								Values: map[string]string{
+									"new_label": "postgres_exporter",
+								},
 							},
 						},
 					},

@@ -104,8 +104,10 @@ func TestNodeExporter(t *testing.T) {
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyNodeExporterCommon{
 							Enable: pointer.ToBool(true),
-							CustomLabels: map[string]string{
-								"new_label": "node_exporter",
+							CustomLabels: &agents.ChangeAgentParamsBodyNodeExporterCommonCustomLabels{
+								Values: map[string]string{
+									"new_label": "node_exporter",
+								},
 							},
 						},
 					},

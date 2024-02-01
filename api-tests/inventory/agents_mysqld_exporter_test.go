@@ -134,8 +134,10 @@ func TestMySQLdExporter(t *testing.T) {
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyMysqldExporterCommon{
 							Enable: pointer.ToBool(true),
-							CustomLabels: map[string]string{
-								"new_label": "mysql_exporter",
+							CustomLabels: &agents.ChangeAgentParamsBodyMysqldExporterCommonCustomLabels{
+								Values: map[string]string{
+									"new_label": "mysql_exporter",
+								},
 							},
 						},
 					},

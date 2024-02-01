@@ -133,8 +133,10 @@ func TestProxySQLExporter(t *testing.T) {
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyProxysqlExporterCommon{
 							Enable: pointer.ToBool(true),
-							CustomLabels: map[string]string{
-								"new_label": "proxysql_exporter",
+							CustomLabels: &agents.ChangeAgentParamsBodyProxysqlExporterCommonCustomLabels{
+								Values: map[string]string{
+									"new_label": "proxysql_exporter",
+								},
 							},
 						},
 					},

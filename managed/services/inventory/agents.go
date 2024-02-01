@@ -71,12 +71,10 @@ func (as *AgentsService) changeAgent(agentID string, common *inventoryv1.ChangeC
 	var agent inventoryv1.Agent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.ChangeCommonAgentParams{
-			CustomLabels:       common.CustomLabels,
-			RemoveCustomLabels: common.RemoveCustomLabels,
+			Enabled:           common.Enable,
+			EnablePushMetrics: common.EnablePushMetrics,
+			CustomLabels:      &common.CustomLabels.Values,
 		}
-
-		params.Enabled = common.Enable
-		params.EnablePushMetrics = common.EnablePushMetrics
 
 		row, err := models.ChangeAgent(tx.Querier, agentID, params)
 		if err != nil {

@@ -6452,11 +6452,18 @@
                           "x-order": 0
                         },
                         "custom_labels": {
-                          "description": "Replace all custom user-assigned labels.",
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
                           "type": "object",
-                          "additionalProperties": {
-                            "type": "string"
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
                           },
+                          "x-nullable": true,
                           "x-order": 1
                         },
                         "remove_custom_labels": {
@@ -6494,11 +6501,18 @@
                           "x-order": 0
                         },
                         "custom_labels": {
-                          "description": "Replace all custom user-assigned labels.",
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
                           "type": "object",
-                          "additionalProperties": {
-                            "type": "string"
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
                           },
+                          "x-nullable": true,
                           "x-order": 1
                         },
                         "remove_custom_labels": {
@@ -6536,11 +6550,18 @@
                           "x-order": 0
                         },
                         "custom_labels": {
-                          "description": "Replace all custom user-assigned labels.",
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
                           "type": "object",
-                          "additionalProperties": {
-                            "type": "string"
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
                           },
+                          "x-nullable": true,
                           "x-order": 1
                         },
                         "remove_custom_labels": {
@@ -6578,11 +6599,18 @@
                           "x-order": 0
                         },
                         "custom_labels": {
-                          "description": "Replace all custom user-assigned labels.",
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
                           "type": "object",
-                          "additionalProperties": {
-                            "type": "string"
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
                           },
+                          "x-nullable": true,
                           "x-order": 1
                         },
                         "remove_custom_labels": {
@@ -6620,11 +6648,18 @@
                           "x-order": 0
                         },
                         "custom_labels": {
-                          "description": "Replace all custom user-assigned labels.",
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
                           "type": "object",
-                          "additionalProperties": {
-                            "type": "string"
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
                           },
+                          "x-nullable": true,
                           "x-order": 1
                         },
                         "remove_custom_labels": {
@@ -6662,11 +6697,18 @@
                           "x-order": 0
                         },
                         "custom_labels": {
-                          "description": "Replace all custom user-assigned labels.",
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
                           "type": "object",
-                          "additionalProperties": {
-                            "type": "string"
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
                           },
+                          "x-nullable": true,
                           "x-order": 1
                         },
                         "remove_custom_labels": {
@@ -6704,11 +6746,18 @@
                           "x-order": 0
                         },
                         "custom_labels": {
-                          "description": "Replace all custom user-assigned labels.",
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
                           "type": "object",
-                          "additionalProperties": {
-                            "type": "string"
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
                           },
+                          "x-nullable": true,
                           "x-order": 1
                         },
                         "remove_custom_labels": {
@@ -6746,11 +6795,18 @@
                           "x-order": 0
                         },
                         "custom_labels": {
-                          "description": "Replace all custom user-assigned labels.",
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
                           "type": "object",
-                          "additionalProperties": {
-                            "type": "string"
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
                           },
+                          "x-nullable": true,
                           "x-order": 1
                         },
                         "remove_custom_labels": {
@@ -6788,11 +6844,18 @@
                           "x-order": 0
                         },
                         "custom_labels": {
-                          "description": "Replace all custom user-assigned labels.",
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
                           "type": "object",
-                          "additionalProperties": {
-                            "type": "string"
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
                           },
+                          "x-nullable": true,
                           "x-order": 1
                         },
                         "remove_custom_labels": {
@@ -6830,11 +6893,18 @@
                           "x-order": 0
                         },
                         "custom_labels": {
-                          "description": "Replace all custom user-assigned labels.",
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
                           "type": "object",
-                          "additionalProperties": {
-                            "type": "string"
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
                           },
+                          "x-nullable": true,
                           "x-order": 1
                         },
                         "remove_custom_labels": {
@@ -6872,11 +6942,18 @@
                           "x-order": 0
                         },
                         "custom_labels": {
-                          "description": "Replace all custom user-assigned labels.",
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
                           "type": "object",
-                          "additionalProperties": {
-                            "type": "string"
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
                           },
+                          "x-nullable": true,
                           "x-order": 1
                         },
                         "remove_custom_labels": {
@@ -6914,11 +6991,18 @@
                           "x-order": 0
                         },
                         "custom_labels": {
-                          "description": "Replace all custom user-assigned labels.",
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
                           "type": "object",
-                          "additionalProperties": {
-                            "type": "string"
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
                           },
+                          "x-nullable": true,
                           "x-order": 1
                         },
                         "remove_custom_labels": {
@@ -6956,11 +7040,18 @@
                           "x-order": 0
                         },
                         "custom_labels": {
-                          "description": "Replace all custom user-assigned labels.",
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
                           "type": "object",
-                          "additionalProperties": {
-                            "type": "string"
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
                           },
+                          "x-nullable": true,
                           "x-order": 1
                         },
                         "remove_custom_labels": {

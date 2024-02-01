@@ -903,10 +903,9 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 type ChangeCommonAgentParams struct {
-	Enabled            *bool // true - enable, false - disable, nil - do not change
-	CustomLabels       map[string]string
-	RemoveCustomLabels bool
-	EnablePushMetrics  *bool
+	Enabled           *bool              // true - enable, false - disable, nil - no change
+	CustomLabels      *map[string]string // empty map - remove all custom labels, non-empty - change, nil - no change
+	EnablePushMetrics *bool
 }
 
 // ChangeAgent changes common parameters for given Agent.
@@ -919,6 +918,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 	if params.Enabled != nil {
 		row.Disabled = !(*params.Enabled)
 	}
+
 	if params.EnablePushMetrics != nil {
 		row.PushMetrics = *params.EnablePushMetrics
 		if row.AgentType == ExternalExporterType {
@@ -928,14 +928,15 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 		}
 	}
 
-	if params.RemoveCustomLabels {
-		if err = row.SetCustomLabels(nil); err != nil {
-			return nil, err
-		}
-	}
-	if len(params.CustomLabels) != 0 {
-		if err = row.SetCustomLabels(params.CustomLabels); err != nil {
-			return nil, err
+	if params.CustomLabels != nil {
+		if len(*params.CustomLabels) == 0 {
+			if err = row.SetCustomLabels(nil); err != nil {
+				return nil, err
+			}
+		} else {
+			if err = row.SetCustomLabels(*params.CustomLabels); err != nil {
+				return nil, err
+			}
 		}
 	}
 

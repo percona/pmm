@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package inventory.v1;
 
+import "common/common.proto";
 import "google/api/annotations.proto";
 import "inventory/v1/agent_status.proto";
 import "inventory/v1/log_level.proto";
@@ -579,7 +580,7 @@ message ChangeCommonAgentParams {
   // Enable this Agent. Agents are enabled by default when they get added.
   optional bool enable = 1;
   // Replace all custom user-assigned labels.
-  map<string, string> custom_labels = 2;
+  optional common.StringMap custom_labels = 2;
   // Remove all custom user-assigned labels.
   bool remove_custom_labels = 3;
   // Enables push metrics with vmagent.

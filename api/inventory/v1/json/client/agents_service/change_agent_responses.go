@@ -4260,23 +4260,75 @@ type ChangeAgentParamsBodyAzureDatabaseExporterCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
-	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
+
+	// custom labels
+	CustomLabels *ChangeAgentParamsBodyAzureDatabaseExporterCommonCustomLabels `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this change agent params body azure database exporter common
 func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change agent params body azure database exporter common based on context it is used
+func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommon) validateCustomLabels(formats strfmt.Registry) error {
+	if swag.IsZero(o.CustomLabels) { // not required
+		return nil
+	}
+
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "azure_database_exporter" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "azure_database_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent params body azure database exporter common based on the context it is used
 func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommon) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "azure_database_exporter" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "azure_database_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -4291,6 +4343,43 @@ func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommon) MarshalBinary() ([]by
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommon) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyAzureDatabaseExporterCommon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyAzureDatabaseExporterCommonCustomLabels A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.
+swagger:model ChangeAgentParamsBodyAzureDatabaseExporterCommonCustomLabels
+*/
+type ChangeAgentParamsBodyAzureDatabaseExporterCommonCustomLabels struct {
+	// values
+	Values map[string]string `json:"values,omitempty"`
+}
+
+// Validate validates this change agent params body azure database exporter common custom labels
+func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommonCustomLabels) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body azure database exporter common custom labels based on context it is used
+func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommonCustomLabels) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommonCustomLabels) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommonCustomLabels) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyAzureDatabaseExporterCommonCustomLabels
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -4398,23 +4487,75 @@ type ChangeAgentParamsBodyExternalExporterCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
-	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
+
+	// custom labels
+	CustomLabels *ChangeAgentParamsBodyExternalExporterCommonCustomLabels `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this change agent params body external exporter common
 func (o *ChangeAgentParamsBodyExternalExporterCommon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change agent params body external exporter common based on context it is used
+func (o *ChangeAgentParamsBodyExternalExporterCommon) validateCustomLabels(formats strfmt.Registry) error {
+	if swag.IsZero(o.CustomLabels) { // not required
+		return nil
+	}
+
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "external_exporter" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "external_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent params body external exporter common based on the context it is used
 func (o *ChangeAgentParamsBodyExternalExporterCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyExternalExporterCommon) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "external_exporter" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "external_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -4429,6 +4570,43 @@ func (o *ChangeAgentParamsBodyExternalExporterCommon) MarshalBinary() ([]byte, e
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyExternalExporterCommon) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyExternalExporterCommon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyExternalExporterCommonCustomLabels A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.
+swagger:model ChangeAgentParamsBodyExternalExporterCommonCustomLabels
+*/
+type ChangeAgentParamsBodyExternalExporterCommonCustomLabels struct {
+	// values
+	Values map[string]string `json:"values,omitempty"`
+}
+
+// Validate validates this change agent params body external exporter common custom labels
+func (o *ChangeAgentParamsBodyExternalExporterCommonCustomLabels) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body external exporter common custom labels based on context it is used
+func (o *ChangeAgentParamsBodyExternalExporterCommonCustomLabels) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyExternalExporterCommonCustomLabels) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyExternalExporterCommonCustomLabels) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyExternalExporterCommonCustomLabels
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -4536,23 +4714,75 @@ type ChangeAgentParamsBodyMongodbExporterCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
-	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
+
+	// custom labels
+	CustomLabels *ChangeAgentParamsBodyMongodbExporterCommonCustomLabels `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this change agent params body mongodb exporter common
 func (o *ChangeAgentParamsBodyMongodbExporterCommon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change agent params body mongodb exporter common based on context it is used
+func (o *ChangeAgentParamsBodyMongodbExporterCommon) validateCustomLabels(formats strfmt.Registry) error {
+	if swag.IsZero(o.CustomLabels) { // not required
+		return nil
+	}
+
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "mongodb_exporter" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "mongodb_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent params body mongodb exporter common based on the context it is used
 func (o *ChangeAgentParamsBodyMongodbExporterCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyMongodbExporterCommon) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "mongodb_exporter" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "mongodb_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -4567,6 +4797,43 @@ func (o *ChangeAgentParamsBodyMongodbExporterCommon) MarshalBinary() ([]byte, er
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyMongodbExporterCommon) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyMongodbExporterCommon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyMongodbExporterCommonCustomLabels A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.
+swagger:model ChangeAgentParamsBodyMongodbExporterCommonCustomLabels
+*/
+type ChangeAgentParamsBodyMongodbExporterCommonCustomLabels struct {
+	// values
+	Values map[string]string `json:"values,omitempty"`
+}
+
+// Validate validates this change agent params body mongodb exporter common custom labels
+func (o *ChangeAgentParamsBodyMongodbExporterCommonCustomLabels) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body mongodb exporter common custom labels based on context it is used
+func (o *ChangeAgentParamsBodyMongodbExporterCommonCustomLabels) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyMongodbExporterCommonCustomLabels) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyMongodbExporterCommonCustomLabels) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyMongodbExporterCommonCustomLabels
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -4674,23 +4941,75 @@ type ChangeAgentParamsBodyMysqldExporterCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
-	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
+
+	// custom labels
+	CustomLabels *ChangeAgentParamsBodyMysqldExporterCommonCustomLabels `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this change agent params body mysqld exporter common
 func (o *ChangeAgentParamsBodyMysqldExporterCommon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change agent params body mysqld exporter common based on context it is used
+func (o *ChangeAgentParamsBodyMysqldExporterCommon) validateCustomLabels(formats strfmt.Registry) error {
+	if swag.IsZero(o.CustomLabels) { // not required
+		return nil
+	}
+
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "mysqld_exporter" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "mysqld_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent params body mysqld exporter common based on the context it is used
 func (o *ChangeAgentParamsBodyMysqldExporterCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyMysqldExporterCommon) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "mysqld_exporter" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "mysqld_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -4705,6 +5024,43 @@ func (o *ChangeAgentParamsBodyMysqldExporterCommon) MarshalBinary() ([]byte, err
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyMysqldExporterCommon) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyMysqldExporterCommon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyMysqldExporterCommonCustomLabels A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.
+swagger:model ChangeAgentParamsBodyMysqldExporterCommonCustomLabels
+*/
+type ChangeAgentParamsBodyMysqldExporterCommonCustomLabels struct {
+	// values
+	Values map[string]string `json:"values,omitempty"`
+}
+
+// Validate validates this change agent params body mysqld exporter common custom labels
+func (o *ChangeAgentParamsBodyMysqldExporterCommonCustomLabels) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body mysqld exporter common custom labels based on context it is used
+func (o *ChangeAgentParamsBodyMysqldExporterCommonCustomLabels) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyMysqldExporterCommonCustomLabels) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyMysqldExporterCommonCustomLabels) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyMysqldExporterCommonCustomLabels
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -4812,23 +5168,75 @@ type ChangeAgentParamsBodyNodeExporterCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
-	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
+
+	// custom labels
+	CustomLabels *ChangeAgentParamsBodyNodeExporterCommonCustomLabels `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this change agent params body node exporter common
 func (o *ChangeAgentParamsBodyNodeExporterCommon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change agent params body node exporter common based on context it is used
+func (o *ChangeAgentParamsBodyNodeExporterCommon) validateCustomLabels(formats strfmt.Registry) error {
+	if swag.IsZero(o.CustomLabels) { // not required
+		return nil
+	}
+
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "node_exporter" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "node_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent params body node exporter common based on the context it is used
 func (o *ChangeAgentParamsBodyNodeExporterCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyNodeExporterCommon) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "node_exporter" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "node_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -4843,6 +5251,43 @@ func (o *ChangeAgentParamsBodyNodeExporterCommon) MarshalBinary() ([]byte, error
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyNodeExporterCommon) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyNodeExporterCommon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyNodeExporterCommonCustomLabels A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.
+swagger:model ChangeAgentParamsBodyNodeExporterCommonCustomLabels
+*/
+type ChangeAgentParamsBodyNodeExporterCommonCustomLabels struct {
+	// values
+	Values map[string]string `json:"values,omitempty"`
+}
+
+// Validate validates this change agent params body node exporter common custom labels
+func (o *ChangeAgentParamsBodyNodeExporterCommonCustomLabels) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body node exporter common custom labels based on context it is used
+func (o *ChangeAgentParamsBodyNodeExporterCommonCustomLabels) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyNodeExporterCommonCustomLabels) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyNodeExporterCommonCustomLabels) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyNodeExporterCommonCustomLabels
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -4950,23 +5395,75 @@ type ChangeAgentParamsBodyPostgresExporterCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
-	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
+
+	// custom labels
+	CustomLabels *ChangeAgentParamsBodyPostgresExporterCommonCustomLabels `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this change agent params body postgres exporter common
 func (o *ChangeAgentParamsBodyPostgresExporterCommon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change agent params body postgres exporter common based on context it is used
+func (o *ChangeAgentParamsBodyPostgresExporterCommon) validateCustomLabels(formats strfmt.Registry) error {
+	if swag.IsZero(o.CustomLabels) { // not required
+		return nil
+	}
+
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "postgres_exporter" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "postgres_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent params body postgres exporter common based on the context it is used
 func (o *ChangeAgentParamsBodyPostgresExporterCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyPostgresExporterCommon) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "postgres_exporter" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "postgres_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -4981,6 +5478,43 @@ func (o *ChangeAgentParamsBodyPostgresExporterCommon) MarshalBinary() ([]byte, e
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyPostgresExporterCommon) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyPostgresExporterCommon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyPostgresExporterCommonCustomLabels A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.
+swagger:model ChangeAgentParamsBodyPostgresExporterCommonCustomLabels
+*/
+type ChangeAgentParamsBodyPostgresExporterCommonCustomLabels struct {
+	// values
+	Values map[string]string `json:"values,omitempty"`
+}
+
+// Validate validates this change agent params body postgres exporter common custom labels
+func (o *ChangeAgentParamsBodyPostgresExporterCommonCustomLabels) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body postgres exporter common custom labels based on context it is used
+func (o *ChangeAgentParamsBodyPostgresExporterCommonCustomLabels) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyPostgresExporterCommonCustomLabels) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyPostgresExporterCommonCustomLabels) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyPostgresExporterCommonCustomLabels
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -5088,23 +5622,75 @@ type ChangeAgentParamsBodyProxysqlExporterCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
-	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
+
+	// custom labels
+	CustomLabels *ChangeAgentParamsBodyProxysqlExporterCommonCustomLabels `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this change agent params body proxysql exporter common
 func (o *ChangeAgentParamsBodyProxysqlExporterCommon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change agent params body proxysql exporter common based on context it is used
+func (o *ChangeAgentParamsBodyProxysqlExporterCommon) validateCustomLabels(formats strfmt.Registry) error {
+	if swag.IsZero(o.CustomLabels) { // not required
+		return nil
+	}
+
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "proxysql_exporter" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "proxysql_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent params body proxysql exporter common based on the context it is used
 func (o *ChangeAgentParamsBodyProxysqlExporterCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyProxysqlExporterCommon) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "proxysql_exporter" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "proxysql_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -5119,6 +5705,43 @@ func (o *ChangeAgentParamsBodyProxysqlExporterCommon) MarshalBinary() ([]byte, e
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyProxysqlExporterCommon) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyProxysqlExporterCommon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyProxysqlExporterCommonCustomLabels A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.
+swagger:model ChangeAgentParamsBodyProxysqlExporterCommonCustomLabels
+*/
+type ChangeAgentParamsBodyProxysqlExporterCommonCustomLabels struct {
+	// values
+	Values map[string]string `json:"values,omitempty"`
+}
+
+// Validate validates this change agent params body proxysql exporter common custom labels
+func (o *ChangeAgentParamsBodyProxysqlExporterCommonCustomLabels) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body proxysql exporter common custom labels based on context it is used
+func (o *ChangeAgentParamsBodyProxysqlExporterCommonCustomLabels) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyProxysqlExporterCommonCustomLabels) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyProxysqlExporterCommonCustomLabels) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyProxysqlExporterCommonCustomLabels
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -5226,23 +5849,75 @@ type ChangeAgentParamsBodyQANMongodbProfilerAgentCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
-	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
+
+	// custom labels
+	CustomLabels *ChangeAgentParamsBodyQANMongodbProfilerAgentCommonCustomLabels `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this change agent params body QAN mongodb profiler agent common
 func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change agent params body QAN mongodb profiler agent common based on context it is used
+func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommon) validateCustomLabels(formats strfmt.Registry) error {
+	if swag.IsZero(o.CustomLabels) { // not required
+		return nil
+	}
+
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mongodb_profiler_agent" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mongodb_profiler_agent" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent params body QAN mongodb profiler agent common based on the context it is used
 func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommon) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mongodb_profiler_agent" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mongodb_profiler_agent" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -5257,6 +5932,43 @@ func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommon) MarshalBinary() ([]
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommon) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyQANMongodbProfilerAgentCommon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyQANMongodbProfilerAgentCommonCustomLabels A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.
+swagger:model ChangeAgentParamsBodyQANMongodbProfilerAgentCommonCustomLabels
+*/
+type ChangeAgentParamsBodyQANMongodbProfilerAgentCommonCustomLabels struct {
+	// values
+	Values map[string]string `json:"values,omitempty"`
+}
+
+// Validate validates this change agent params body QAN mongodb profiler agent common custom labels
+func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommonCustomLabels) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body QAN mongodb profiler agent common custom labels based on context it is used
+func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommonCustomLabels) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommonCustomLabels) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommonCustomLabels) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyQANMongodbProfilerAgentCommonCustomLabels
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -5364,23 +6076,75 @@ type ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
-	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
+
+	// custom labels
+	CustomLabels *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonCustomLabels `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this change agent params body QAN mysql perfschema agent common
 func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change agent params body QAN mysql perfschema agent common based on context it is used
+func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon) validateCustomLabels(formats strfmt.Registry) error {
+	if swag.IsZero(o.CustomLabels) { // not required
+		return nil
+	}
+
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mysql_perfschema_agent" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mysql_perfschema_agent" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent params body QAN mysql perfschema agent common based on the context it is used
 func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mysql_perfschema_agent" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mysql_perfschema_agent" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -5395,6 +6159,43 @@ func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon) MarshalBinary() ([]
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonCustomLabels A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.
+swagger:model ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonCustomLabels
+*/
+type ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonCustomLabels struct {
+	// values
+	Values map[string]string `json:"values,omitempty"`
+}
+
+// Validate validates this change agent params body QAN mysql perfschema agent common custom labels
+func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonCustomLabels) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body QAN mysql perfschema agent common custom labels based on context it is used
+func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonCustomLabels) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonCustomLabels) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonCustomLabels) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonCustomLabels
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -5502,23 +6303,75 @@ type ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
-	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
+
+	// custom labels
+	CustomLabels *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonCustomLabels `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this change agent params body QAN mysql slowlog agent common
 func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change agent params body QAN mysql slowlog agent common based on context it is used
+func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon) validateCustomLabels(formats strfmt.Registry) error {
+	if swag.IsZero(o.CustomLabels) { // not required
+		return nil
+	}
+
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mysql_slowlog_agent" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mysql_slowlog_agent" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent params body QAN mysql slowlog agent common based on the context it is used
 func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mysql_slowlog_agent" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mysql_slowlog_agent" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -5533,6 +6386,43 @@ func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon) MarshalBinary() ([]byt
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonCustomLabels A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.
+swagger:model ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonCustomLabels
+*/
+type ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonCustomLabels struct {
+	// values
+	Values map[string]string `json:"values,omitempty"`
+}
+
+// Validate validates this change agent params body QAN mysql slowlog agent common custom labels
+func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonCustomLabels) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body QAN mysql slowlog agent common custom labels based on context it is used
+func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonCustomLabels) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonCustomLabels) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonCustomLabels) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonCustomLabels
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -5640,23 +6530,75 @@ type ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
-	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
+
+	// custom labels
+	CustomLabels *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonCustomLabels `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this change agent params body QAN postgresql pgstatements agent common
 func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change agent params body QAN postgresql pgstatements agent common based on context it is used
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon) validateCustomLabels(formats strfmt.Registry) error {
+	if swag.IsZero(o.CustomLabels) { // not required
+		return nil
+	}
+
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent params body QAN postgresql pgstatements agent common based on the context it is used
 func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -5671,6 +6613,43 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon) MarshalBinar
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonCustomLabels A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.
+swagger:model ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonCustomLabels
+*/
+type ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonCustomLabels struct {
+	// values
+	Values map[string]string `json:"values,omitempty"`
+}
+
+// Validate validates this change agent params body QAN postgresql pgstatements agent common custom labels
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonCustomLabels) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body QAN postgresql pgstatements agent common custom labels based on context it is used
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonCustomLabels) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonCustomLabels) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonCustomLabels) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonCustomLabels
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -5778,23 +6757,75 @@ type ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
-	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
+
+	// custom labels
+	CustomLabels *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonCustomLabels `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this change agent params body QAN postgresql pgstatmonitor agent common
 func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change agent params body QAN postgresql pgstatmonitor agent common based on context it is used
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon) validateCustomLabels(formats strfmt.Registry) error {
+	if swag.IsZero(o.CustomLabels) { // not required
+		return nil
+	}
+
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent params body QAN postgresql pgstatmonitor agent common based on the context it is used
 func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -5809,6 +6840,43 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon) MarshalBina
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonCustomLabels A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.
+swagger:model ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonCustomLabels
+*/
+type ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonCustomLabels struct {
+	// values
+	Values map[string]string `json:"values,omitempty"`
+}
+
+// Validate validates this change agent params body QAN postgresql pgstatmonitor agent common custom labels
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonCustomLabels) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body QAN postgresql pgstatmonitor agent common custom labels based on context it is used
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonCustomLabels) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonCustomLabels) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonCustomLabels) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonCustomLabels
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -5916,23 +6984,75 @@ type ChangeAgentParamsBodyRDSExporterCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
-	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
+
+	// custom labels
+	CustomLabels *ChangeAgentParamsBodyRDSExporterCommonCustomLabels `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this change agent params body RDS exporter common
 func (o *ChangeAgentParamsBodyRDSExporterCommon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change agent params body RDS exporter common based on context it is used
+func (o *ChangeAgentParamsBodyRDSExporterCommon) validateCustomLabels(formats strfmt.Registry) error {
+	if swag.IsZero(o.CustomLabels) { // not required
+		return nil
+	}
+
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "rds_exporter" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "rds_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent params body RDS exporter common based on the context it is used
 func (o *ChangeAgentParamsBodyRDSExporterCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyRDSExporterCommon) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "rds_exporter" + "." + "common" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "rds_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -5947,6 +7067,43 @@ func (o *ChangeAgentParamsBodyRDSExporterCommon) MarshalBinary() ([]byte, error)
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyRDSExporterCommon) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyRDSExporterCommon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyRDSExporterCommonCustomLabels A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.
+swagger:model ChangeAgentParamsBodyRDSExporterCommonCustomLabels
+*/
+type ChangeAgentParamsBodyRDSExporterCommonCustomLabels struct {
+	// values
+	Values map[string]string `json:"values,omitempty"`
+}
+
+// Validate validates this change agent params body RDS exporter common custom labels
+func (o *ChangeAgentParamsBodyRDSExporterCommonCustomLabels) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body RDS exporter common custom labels based on context it is used
+func (o *ChangeAgentParamsBodyRDSExporterCommonCustomLabels) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyRDSExporterCommonCustomLabels) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyRDSExporterCommonCustomLabels) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyRDSExporterCommonCustomLabels
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

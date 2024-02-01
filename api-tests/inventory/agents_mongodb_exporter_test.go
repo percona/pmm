@@ -135,8 +135,10 @@ func TestMongoDBExporter(t *testing.T) {
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyMongodbExporterCommon{
 							Enable: pointer.ToBool(true),
-							CustomLabels: map[string]string{
-								"new_label": "mongodb_exporter",
+							CustomLabels: &agents.ChangeAgentParamsBodyMongodbExporterCommonCustomLabels{
+								Values: map[string]string{
+									"new_label": "mongodb_exporter",
+								},
 							},
 						},
 					},
