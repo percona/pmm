@@ -581,10 +581,8 @@ message ChangeCommonAgentParams {
   optional bool enable = 1;
   // Replace all custom user-assigned labels.
   optional common.StringMap custom_labels = 2;
-  // Remove all custom user-assigned labels.
-  bool remove_custom_labels = 3;
   // Enables push metrics with vmagent.
-  optional bool enable_push_metrics = 4;
+  optional bool enable_push_metrics = 3;
 }
 
 // List

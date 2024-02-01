@@ -88,8 +88,8 @@ func TestRDSExporter(t *testing.T) {
 					RDSExporter: &agents.ChangeAgentParamsBodyRDSExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyRDSExporterCommon{
-							Enable:             pointer.ToBool(false),
-							RemoveCustomLabels: true,
+							Enable:       pointer.ToBool(false),
+							CustomLabels: &agents.ChangeAgentParamsBodyRDSExporterCommonCustomLabels{},
 						},
 					},
 				},

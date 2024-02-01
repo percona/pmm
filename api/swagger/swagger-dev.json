@@ -6466,16 +6466,11 @@
                           "x-nullable": true,
                           "x-order": 1
                         },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
-                          "x-order": 2
-                        },
                         "enable_push_metrics": {
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -6515,16 +6510,11 @@
                           "x-nullable": true,
                           "x-order": 1
                         },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
-                          "x-order": 2
-                        },
                         "enable_push_metrics": {
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -6564,16 +6554,11 @@
                           "x-nullable": true,
                           "x-order": 1
                         },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
-                          "x-order": 2
-                        },
                         "enable_push_metrics": {
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -6613,16 +6598,11 @@
                           "x-nullable": true,
                           "x-order": 1
                         },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
-                          "x-order": 2
-                        },
                         "enable_push_metrics": {
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -6662,16 +6642,11 @@
                           "x-nullable": true,
                           "x-order": 1
                         },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
-                          "x-order": 2
-                        },
                         "enable_push_metrics": {
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -6711,16 +6686,11 @@
                           "x-nullable": true,
                           "x-order": 1
                         },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
-                          "x-order": 2
-                        },
                         "enable_push_metrics": {
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -6760,16 +6730,11 @@
                           "x-nullable": true,
                           "x-order": 1
                         },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
-                          "x-order": 2
-                        },
                         "enable_push_metrics": {
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -6809,16 +6774,11 @@
                           "x-nullable": true,
                           "x-order": 1
                         },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
-                          "x-order": 2
-                        },
                         "enable_push_metrics": {
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -6858,16 +6818,11 @@
                           "x-nullable": true,
                           "x-order": 1
                         },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
-                          "x-order": 2
-                        },
                         "enable_push_metrics": {
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -6907,16 +6862,11 @@
                           "x-nullable": true,
                           "x-order": 1
                         },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
-                          "x-order": 2
-                        },
                         "enable_push_metrics": {
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -6956,16 +6906,11 @@
                           "x-nullable": true,
                           "x-order": 1
                         },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
-                          "x-order": 2
-                        },
                         "enable_push_metrics": {
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -7005,16 +6950,11 @@
                           "x-nullable": true,
                           "x-order": 1
                         },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
-                          "x-order": 2
-                        },
                         "enable_push_metrics": {
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -7054,16 +6994,11 @@
                           "x-nullable": true,
                           "x-order": 1
                         },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
-                          "x-order": 2
-                        },
                         "enable_push_metrics": {
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 1

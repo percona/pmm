@@ -88,8 +88,8 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 					AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCommon{
-							Enable:             pointer.ToBool(false),
-							RemoveCustomLabels: true,
+							Enable:       pointer.ToBool(false),
+							CustomLabels: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCommonCustomLabels{},
 						},
 					},
 				},

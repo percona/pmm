@@ -1956,8 +1956,6 @@ func (m *ChangeCommonAgentParams) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for RemoveCustomLabels
-
 	if m.Enable != nil {
 		// no validation rules for Enable
 	}

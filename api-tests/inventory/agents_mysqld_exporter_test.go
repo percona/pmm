@@ -104,8 +104,8 @@ func TestMySQLdExporter(t *testing.T) {
 					MysqldExporter: &agents.ChangeAgentParamsBodyMysqldExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyMysqldExporterCommon{
-							Enable:             pointer.ToBool(false),
-							RemoveCustomLabels: true,
+							Enable:       pointer.ToBool(false),
+							CustomLabels: &agents.ChangeAgentParamsBodyMysqldExporterCommonCustomLabels{},
 						},
 					},
 				},

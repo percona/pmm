@@ -102,8 +102,8 @@ func TestPostgresExporter(t *testing.T) {
 					PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyPostgresExporterCommon{
-							Enable:             pointer.ToBool(false),
-							RemoveCustomLabels: true,
+							Enable:       pointer.ToBool(false),
+							CustomLabels: &agents.ChangeAgentParamsBodyPostgresExporterCommonCustomLabels{},
 						},
 					},
 				},

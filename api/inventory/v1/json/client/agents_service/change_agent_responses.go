@@ -4260,9 +4260,6 @@ type ChangeAgentParamsBodyAzureDatabaseExporterCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
-	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
-
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 
@@ -4486,9 +4483,6 @@ swagger:model ChangeAgentParamsBodyExternalExporterCommon
 type ChangeAgentParamsBodyExternalExporterCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
-
-	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
@@ -4714,9 +4708,6 @@ type ChangeAgentParamsBodyMongodbExporterCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
-	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
-
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 
@@ -4940,9 +4931,6 @@ swagger:model ChangeAgentParamsBodyMysqldExporterCommon
 type ChangeAgentParamsBodyMysqldExporterCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
-
-	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
@@ -5168,9 +5156,6 @@ type ChangeAgentParamsBodyNodeExporterCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
-	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
-
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 
@@ -5394,9 +5379,6 @@ swagger:model ChangeAgentParamsBodyPostgresExporterCommon
 type ChangeAgentParamsBodyPostgresExporterCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
-
-	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
@@ -5622,9 +5604,6 @@ type ChangeAgentParamsBodyProxysqlExporterCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
-	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
-
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 
@@ -5848,9 +5827,6 @@ swagger:model ChangeAgentParamsBodyQANMongodbProfilerAgentCommon
 type ChangeAgentParamsBodyQANMongodbProfilerAgentCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
-
-	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
@@ -6076,9 +6052,6 @@ type ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
-	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
-
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 
@@ -6302,9 +6275,6 @@ swagger:model ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon
 type ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
-
-	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
@@ -6530,9 +6500,6 @@ type ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
-	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
-
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 
@@ -6757,9 +6724,6 @@ type ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
-	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
-
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 
@@ -6983,9 +6947,6 @@ swagger:model ChangeAgentParamsBodyRDSExporterCommon
 type ChangeAgentParamsBodyRDSExporterCommon struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
-
-	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`

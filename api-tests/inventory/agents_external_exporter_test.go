@@ -146,8 +146,8 @@ func TestExternalExporter(t *testing.T) {
 					ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyExternalExporterCommon{
-							Enable:             pointer.ToBool(false),
-							RemoveCustomLabels: true,
+							Enable:       pointer.ToBool(false),
+							CustomLabels: &agents.ChangeAgentParamsBodyExternalExporterCommonCustomLabels{},
 						},
 					},
 				},

@@ -2711,11 +2711,6 @@
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
-                        },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
                           "x-order": 2
                         }
                       },
@@ -2760,11 +2755,6 @@
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
-                        },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
                           "x-order": 2
                         }
                       },
@@ -2809,11 +2799,6 @@
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
-                        },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
                           "x-order": 2
                         }
                       },
@@ -2858,11 +2843,6 @@
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
-                        },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
                           "x-order": 2
                         }
                       },
@@ -2907,11 +2887,6 @@
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
-                        },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
                           "x-order": 2
                         }
                       },
@@ -2956,11 +2931,6 @@
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
-                        },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
                           "x-order": 2
                         }
                       },
@@ -3005,11 +2975,6 @@
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
-                        },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
                           "x-order": 2
                         }
                       },
@@ -3054,11 +3019,6 @@
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
-                        },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
                           "x-order": 2
                         }
                       },
@@ -3103,11 +3063,6 @@
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
-                        },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
                           "x-order": 2
                         }
                       },
@@ -3152,11 +3107,6 @@
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
-                        },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
                           "x-order": 2
                         }
                       },
@@ -3201,11 +3151,6 @@
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
-                        },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
                           "x-order": 2
                         }
                       },
@@ -3250,11 +3195,6 @@
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
-                        },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
                           "x-order": 2
                         }
                       },
@@ -3299,11 +3239,6 @@
                           "description": "Enables push metrics with vmagent.",
                           "type": "boolean",
                           "x-nullable": true,
-                          "x-order": 3
-                        },
-                        "remove_custom_labels": {
-                          "description": "Remove all custom user-assigned labels.",
-                          "type": "boolean",
                           "x-order": 2
                         }
                       },

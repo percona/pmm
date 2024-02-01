@@ -75,8 +75,8 @@ func TestNodeExporter(t *testing.T) {
 					NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyNodeExporterCommon{
-							Enable:             pointer.ToBool(false),
-							RemoveCustomLabels: true,
+							Enable:       pointer.ToBool(false),
+							CustomLabels: &agents.ChangeAgentParamsBodyNodeExporterCommonCustomLabels{},
 						},
 					},
 				},

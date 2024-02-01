@@ -65,11 +65,10 @@ func TestAgents(t *testing.T) {
 
 		mySqldExporter := addAgent(t, agents.AddAgentBody{
 			MysqldExporter: &agents.AddAgentParamsBodyMysqldExporter{
-				ServiceID:  serviceID,
-				Username:   "username",
-				Password:   "password",
-				PMMAgentID: pmmAgentID,
-
+				ServiceID:           serviceID,
+				Username:            "username",
+				Password:            "password",
+				PMMAgentID:          pmmAgentID,
 				SkipConnectionCheck: true,
 			},
 		})
@@ -560,8 +559,8 @@ func TestQanAgentExporter(t *testing.T) {
 					QANMysqlPerfschemaAgent: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgent{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon{
-							Enable:             pointer.ToBool(false),
-							RemoveCustomLabels: true,
+							Enable:       pointer.ToBool(false),
+							CustomLabels: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonCustomLabels{},
 						},
 					},
 				},
@@ -823,8 +822,8 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 					QANPostgresqlPgstatementsAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon{
-							Enable:             pointer.ToBool(false),
-							RemoveCustomLabels: true,
+							Enable:       pointer.ToBool(false),
+							CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonCustomLabels{},
 						},
 					},
 				},
@@ -1086,8 +1085,8 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 					QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon{
-							Enable:             pointer.ToBool(false),
-							RemoveCustomLabels: true,
+							Enable:       pointer.ToBool(false),
+							CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonCustomLabels{},
 						},
 					},
 				},

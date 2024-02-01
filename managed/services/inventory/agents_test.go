@@ -184,7 +184,6 @@ func TestAgents(t *testing.T) {
 			exporter, err := as.Get(ctx, "/agent_id/00000000-0000-4000-8000-00000000000a")
 			require.NoError(t, err)
 			assert.Equal(t, expectedMongoDBExporter, exporter.(*inventoryv1.MongoDBExporter))
-
 		})
 
 		t.Run("AddQANMySQLSlowlogAgent", func(t *testing.T) {

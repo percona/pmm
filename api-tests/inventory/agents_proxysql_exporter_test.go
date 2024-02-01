@@ -102,8 +102,8 @@ func TestProxySQLExporter(t *testing.T) {
 					ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
 						AgentID: agentID,
 						Common: &agents.ChangeAgentParamsBodyProxysqlExporterCommon{
-							Enable:             pointer.ToBool(false),
-							RemoveCustomLabels: true,
+							Enable:       pointer.ToBool(false),
+							CustomLabels: &agents.ChangeAgentParamsBodyProxysqlExporterCommonCustomLabels{},
 						},
 					},
 				},
