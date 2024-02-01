@@ -30,12 +30,12 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-// ChecksAPIService represents security checks service API.
+// ChecksAPIService represents advisor service API.
 type ChecksAPIService struct {
 	checksService checksService
 	l             *logrus.Entry
 
-	managementv1.UnimplementedSecurityChecksServiceServer
+	managementv1.UnimplementedAdvisorServiceServer
 }
 
 // NewChecksAPIService creates new Checks API Service.
@@ -171,8 +171,8 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementv
 	return &managementv1.GetFailedChecksResponse{Results: failedChecks[from:to], PageTotals: pageTotals}, nil
 }
 
-// StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
-func (s *ChecksAPIService) StartSecurityChecks(_ context.Context, req *managementv1.StartSecurityChecksRequest) (*managementv1.StartSecurityChecksResponse, error) {
+// StartAdvisorChecks executes advisor checks and returns when all checks are executed.
+func (s *ChecksAPIService) StartAdvisorChecks(_ context.Context, req *managementv1.StartAdvisorChecksRequest) (*managementv1.StartAdvisorChecksResponse, error) {
 	// Start only specified checks from any group.
 	err := s.checksService.StartChecks(req.Names)
 	if err != nil {
@@ -180,14 +180,14 @@ func (s *ChecksAPIService) StartSecurityChecks(_ context.Context, req *managemen
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
 		}
 
-		return nil, errors.Wrap(err, "failed to start security checks")
+		return nil, errors.Wrap(err, "failed to start advisor checks")
 	}
 
-	return &managementv1.StartSecurityChecksResponse{}, nil
+	return &managementv1.StartAdvisorChecksResponse{}, nil
 }
 
-// ListSecurityChecks returns a list of available advisor checks and their statuses.
-func (s *ChecksAPIService) ListSecurityChecks(_ context.Context, _ *managementv1.ListSecurityChecksRequest) (*managementv1.ListSecurityChecksResponse, error) {
+// ListAdvisorChecks returns a list of available advisor checks and their statuses.
+func (s *ChecksAPIService) ListAdvisorChecks(_ context.Context, _ *managementv1.ListAdvisorChecksRequest) (*managementv1.ListAdvisorChecksResponse, error) {
 	disChecks, err := s.checksService.GetDisabledChecks()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get disabled checks list")
@@ -203,10 +203,10 @@ func (s *ChecksAPIService) ListSecurityChecks(_ context.Context, _ *managementv1
 		return nil, errors.Wrap(err, "failed to get available checks list")
 	}
 
-	res := make([]*managementv1.SecurityCheck, 0, len(checks))
+	res := make([]*managementv1.AdvisorCheck, 0, len(checks))
 	for _, c := range checks {
 		_, disabled := m[c.Name]
-		res = append(res, &managementv1.SecurityCheck{
+		res = append(res, &managementv1.AdvisorCheck{
 			Name:        c.Name,
 			Enabled:     !disabled,
 			Summary:     c.Summary,
@@ -216,7 +216,7 @@ func (s *ChecksAPIService) ListSecurityChecks(_ context.Context, _ *managementv1
 		})
 	}
 
-	return &managementv1.ListSecurityChecksResponse{Checks: res}, nil
+	return &managementv1.ListAdvisorChecksResponse{Checks: res}, nil
 }
 
 func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *managementv1.ListAdvisorsRequest) (*managementv1.ListAdvisorsResponse, error) {
@@ -237,10 +237,10 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *managementv1.ListA
 
 	res := make([]*managementv1.Advisor, 0, len(advisors))
 	for _, a := range advisors {
-		checks := make([]*managementv1.SecurityCheck, 0, len(a.Checks))
+		checks := make([]*managementv1.AdvisorCheck, 0, len(a.Checks))
 		for _, c := range a.Checks {
 			_, disabled := m[c.Name]
-			checks = append(checks, &managementv1.SecurityCheck{
+			checks = append(checks, &managementv1.AdvisorCheck{
 				Name:        c.Name,
 				Enabled:     !disabled,
 				Summary:     c.Summary,
@@ -294,15 +294,15 @@ func createComment(checks []check.Check) string {
 	return "Partial support (" + strings.Join(b, ", ") + ")"
 }
 
-// ChangeSecurityChecks enables/disables Security Thread Tool checks by names or changes its execution interval.
-func (s *ChecksAPIService) ChangeSecurityChecks(_ context.Context, req *managementv1.ChangeSecurityChecksRequest) (*managementv1.ChangeSecurityChecksResponse, error) {
+// ChangeAdvisorChecks enables/disables advisor checks by names or changes its execution interval.
+func (s *ChecksAPIService) ChangeAdvisorChecks(_ context.Context, req *managementv1.ChangeAdvisorChecksRequest) (*managementv1.ChangeAdvisorChecksResponse, error) {
 	var enableChecks, disableChecks []string
 	changeIntervalParams := make(map[string]check.Interval)
 	for _, check := range req.Params {
-		if check.Interval != managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_UNSPECIFIED {
+		if check.Interval != managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED {
 			interval, err := convertAPIInterval(check.Interval)
 			if err != nil {
-				return nil, errors.Wrap(err, "failed to change security check interval")
+				return nil, errors.Wrap(err, "failed to change advisor check interval")
 			}
 			changeIntervalParams[check.Name] = interval
 		}
@@ -319,34 +319,34 @@ func (s *ChecksAPIService) ChangeSecurityChecks(_ context.Context, req *manageme
 	if len(changeIntervalParams) != 0 {
 		err := s.checksService.ChangeInterval(changeIntervalParams)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to change security check interval")
+			return nil, errors.Wrap(err, "failed to change advisor check interval")
 		}
 	}
 
 	err := s.checksService.EnableChecks(enableChecks)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to enable disabled security checks")
+		return nil, errors.Wrap(err, "failed to enable disabled advisor checks")
 	}
 
 	err = s.checksService.DisableChecks(disableChecks)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to disable security checks")
+		return nil, errors.Wrap(err, "failed to disable advisor checks")
 	}
 
-	return &managementv1.ChangeSecurityChecksResponse{}, nil
+	return &managementv1.ChangeAdvisorChecksResponse{}, nil
 }
 
-// convertInterval converts check.Interval type to managementv1.SecurityCheckInterval.
-func convertInterval(interval check.Interval) managementv1.SecurityCheckInterval {
+// convertInterval converts check.Interval type to managementv1.AdvisorCheckInterval.
+func convertInterval(interval check.Interval) managementv1.AdvisorCheckInterval {
 	switch interval {
 	case check.Standard, "": // empty interval means standard
-		return managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_STANDARD
+		return managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD
 	case check.Frequent:
-		return managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_FREQUENT
+		return managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT
 	case check.Rare:
-		return managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_RARE
+		return managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE
 	default:
-		return managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_UNSPECIFIED
+		return managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED
 	}
 }
 
@@ -364,18 +364,18 @@ func convertFamily(family check.Family) managementv1.AdvisorCheckFamily {
 	}
 }
 
-// convertAPIInterval converts managementv1.SecurityCheckInterval type to check.Interval.
-func convertAPIInterval(interval managementv1.SecurityCheckInterval) (check.Interval, error) {
+// convertAPIInterval converts managementv1.AdvisorCheckInterval type to check.Interval.
+func convertAPIInterval(interval managementv1.AdvisorCheckInterval) (check.Interval, error) {
 	switch interval {
-	case managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_STANDARD:
+	case managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD:
 		return check.Standard, nil
-	case managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_FREQUENT:
+	case managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT:
 		return check.Frequent, nil
-	case managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_RARE:
+	case managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE:
 		return check.Rare, nil
-	case managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_UNSPECIFIED:
-		return check.Interval(""), errors.New("invalid security check interval")
+	case managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED:
+		return "", errors.New("invalid advisor check interval")
 	default:
-		return check.Interval(""), errors.New("unknown security check interval")
+		return "", errors.New("unknown advisor check interval")
 	}
 }

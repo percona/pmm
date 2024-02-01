@@ -7,12 +7,12 @@ import "management/v1/pagination.proto";
 import "management/v1/severity.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
-// SecurityCheckInterval represents possible execution interval values for checks.
-enum SecurityCheckInterval {
-  SECURITY_CHECK_INTERVAL_UNSPECIFIED = 0;
-  SECURITY_CHECK_INTERVAL_STANDARD = 1;
-  SECURITY_CHECK_INTERVAL_FREQUENT = 2;
-  SECURITY_CHECK_INTERVAL_RARE = 3;
+// AdvisorCheckInterval represents possible execution interval values for checks.
+enum AdvisorCheckInterval {
+  ADVISOR_CHECK_INTERVAL_UNSPECIFIED = 0;
+  ADVISOR_CHECK_INTERVAL_STANDARD = 1;
+  ADVISOR_CHECK_INTERVAL_FREQUENT = 2;
+  ADVISOR_CHECK_INTERVAL_RARE = 3;
 }
 
 enum AdvisorCheckFamily {
@@ -22,8 +22,8 @@ enum AdvisorCheckFamily {
   ADVISOR_CHECK_FAMILY_MONGODB = 3;
 }
 
-// SecurityCheckResult represents the check result returned from pmm-managed after running the check.
-message SecurityCheckResult {
+// AdvisorCheckResult represents the check result returned from pmm-managed after running the check.
+message AdvisorCheckResult {
   string summary = 1;
   string description = 2;
   Severity severity = 3;
@@ -74,8 +74,8 @@ message CheckResult {
   bool silenced = 10;
 }
 
-// SecurityCheck contains check name and status.
-message SecurityCheck {
+// AdvisorCheck contains check name and status.
+message AdvisorCheck {
   // Machine-readable name (ID) that is used in expression.
   string name = 1;
   // True if that check is enabled.
@@ -85,7 +85,7 @@ message SecurityCheck {
   // Short human-readable summary.
   string summary = 4;
   // Check execution interval.
-  SecurityCheckInterval interval = 5;
+  AdvisorCheckInterval interval = 5;
   // DB family.
   AdvisorCheckFamily family = 6;
 }
@@ -102,29 +102,29 @@ message Advisor {
   // Category.
   string category = 5;
   // Advisor checks.
-  repeated SecurityCheck checks = 6;
+  repeated AdvisorCheck checks = 6;
 }
 
-// ChangeSecurityCheckParams specifies a single check parameters.
-message ChangeSecurityCheckParams {
+// ChangeAdvisorCheckParams specifies a single check parameters.
+message ChangeAdvisorCheckParams {
   // The name of the check to change.
   string name = 1;
   optional bool enable = 2;
   // check execution interval.
-  SecurityCheckInterval interval = 4;
+  AdvisorCheckInterval interval = 4;
 }
 
-message StartSecurityChecksRequest {
+message StartAdvisorChecksRequest {
   // Names of the checks that should be started.
   repeated string names = 1;
 }
 
-message StartSecurityChecksResponse {}
+message StartAdvisorChecksResponse {}
 
-message ListSecurityChecksRequest {}
+message ListAdvisorChecksRequest {}
 
-message ListSecurityChecksResponse {
-  repeated SecurityCheck checks = 1;
+message ListAdvisorChecksResponse {
+  repeated AdvisorCheck checks = 1;
 }
 
 message ListAdvisorsRequest {}
@@ -133,11 +133,11 @@ message ListAdvisorsResponse {
   repeated Advisor advisors = 1;
 }
 
-message ChangeSecurityChecksRequest {
-  repeated ChangeSecurityCheckParams params = 1;
+message ChangeAdvisorChecksRequest {
+  repeated ChangeAdvisorCheckParams params = 1;
 }
 
-message ChangeSecurityChecksResponse {}
+message ChangeAdvisorChecksResponse {}
 
 message ListFailedServicesRequest {}
 
@@ -155,12 +155,12 @@ message GetFailedChecksResponse {
   PageTotals page_totals = 2;
 }
 
-// SecurityChecks service provides public Management API methods for Security Checks Service.
-service SecurityChecksService {
+// AdvisorChecks service provides public Management API methods for Advisor Service.
+service AdvisorService {
   // ListFailedServices returns a list of services with failed checks.
   rpc ListFailedServices(ListFailedServicesRequest) returns (ListFailedServicesResponse) {
     option (google.api.http) = {
-      post: "/v1/management/SecurityChecks/ListFailedServices"
+      post: "/v1/management/AdvisorChecks/ListFailedServices"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -171,7 +171,7 @@ service SecurityChecksService {
   // GetFailedChecks returns the checks result for a given service.
   rpc GetFailedChecks(GetFailedChecksRequest) returns (GetFailedChecksResponse) {
     option (google.api.http) = {
-      post: "/v1/management/SecurityChecks/FailedChecks"
+      post: "/v1/management/AdvisorChecks/FailedChecks"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -179,21 +179,21 @@ service SecurityChecksService {
       description: "Returns the latest check results for a given service."
     };
   }
-  // StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
-  rpc StartSecurityChecks(StartSecurityChecksRequest) returns (StartSecurityChecksResponse) {
+  // StartAdvisorChecks executes Advisor checks and returns when all checks are executed.
+  rpc StartAdvisorChecks(StartAdvisorChecksRequest) returns (StartAdvisorChecksResponse) {
     option (google.api.http) = {
-      post: "/v1/management/SecurityChecks/Start"
+      post: "/v1/management/AdvisorChecks/Start"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Start Security Checks"
-      description: "Executes Security Thread Tool checks and returns when all checks are executed. All available checks will be started if check names aren't specified."
+      summary: "Start Advisor Checks"
+      description: "Executes Advisor checks and returns when all checks are executed. All available checks will be started if check names aren't specified."
     };
   }
-  // ListSecurityChecks returns a list of advisor checks available to the user..
-  rpc ListSecurityChecks(ListSecurityChecksRequest) returns (ListSecurityChecksResponse) {
+  // ListAdvisorChecks returns a list of advisor checks available to the user..
+  rpc ListAdvisorChecks(ListAdvisorChecksRequest) returns (ListAdvisorChecksResponse) {
     option (google.api.http) = {
-      post: "/v1/management/SecurityChecks/List"
+      post: "/v1/management/AdvisorChecks/List"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -212,15 +212,15 @@ service SecurityChecksService {
       description: "Returns a list of advisors available to the user."
     };
   }
-  // ChangeSecurityChecks enables/disables Security Thread Tool checks or changes their interval by names.
-  rpc ChangeSecurityChecks(ChangeSecurityChecksRequest) returns (ChangeSecurityChecksResponse) {
+  // ChangeAdvisorChecks enables/disables Advisor checks or changes their interval by names.
+  rpc ChangeAdvisorChecks(ChangeAdvisorChecksRequest) returns (ChangeAdvisorChecksResponse) {
     option (google.api.http) = {
-      post: "/v1/management/SecurityChecks/Change"
+      post: "/v1/management/AdvisorChecks/Change"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Change Security Checks"
-      description: "Enables/disables Security Thread Tool checks or changes their interval by names."
+      summary: "Change Advisor Checks"
+      description: "Enables/disables Advisor checks or changes their interval by names."
     };
   }
 }

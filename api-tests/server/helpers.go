@@ -25,7 +25,7 @@ import (
 
 	pmmapitests "github.com/percona/pmm/api-tests"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
-	security_checks "github.com/percona/pmm/api/management/v1/json/client/security_checks_service"
+	advisor "github.com/percona/pmm/api/management/v1/json/client/advisor_service"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
@@ -77,26 +77,26 @@ func restoreSettingsDefaults(t *testing.T) {
 func restoreCheckIntervalDefaults(t *testing.T) {
 	t.Helper()
 
-	resp, err := managementClient.Default.SecurityChecksService.ListSecurityChecks(nil)
+	resp, err := managementClient.Default.AdvisorService.ListAdvisorChecks(nil)
 	require.NoError(t, err)
 	require.NotEmpty(t, resp.Payload.Checks)
 
-	var params *security_checks.ChangeSecurityChecksParams
+	var params *advisor.ChangeAdvisorChecksParams
 
 	for _, check := range resp.Payload.Checks {
-		params = &security_checks.ChangeSecurityChecksParams{
-			Body: security_checks.ChangeSecurityChecksBody{
-				Params: []*security_checks.ChangeSecurityChecksParamsBodyParamsItems0{
+		params = &advisor.ChangeAdvisorChecksParams{
+			Body: advisor.ChangeAdvisorChecksBody{
+				Params: []*advisor.ChangeAdvisorChecksParamsBodyParamsItems0{
 					{
 						Name:     check.Name,
-						Interval: pointer.ToString(security_checks.ChangeSecurityChecksParamsBodyParamsItems0IntervalSECURITYCHECKINTERVALSTANDARD),
+						Interval: pointer.ToString(advisor.ChangeAdvisorChecksParamsBodyParamsItems0IntervalADVISORCHECKINTERVALSTANDARD),
 					},
 				},
 			},
 			Context: pmmapitests.Context,
 		}
 
-		_, err = managementClient.Default.SecurityChecksService.ChangeSecurityChecks(params)
+		_, err = managementClient.Default.AdvisorService.ChangeAdvisorChecks(params)
 		require.NoError(t, err)
 	}
 }
