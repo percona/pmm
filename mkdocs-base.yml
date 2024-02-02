@@ -158,43 +158,43 @@ extra:
 nav:
   - Home: index.md  
   - Discover:
-      - discover-pmm/why-pmm.md
-      - discover-pmm/features.md
+    - discover-pmm/why-pmm.md
+    - discover-pmm/features.md
   - Quickstart Guide: quickstart.md
   - Install:
-      - install-pmm/index.md
-      - Plan your PMM installation: 
-        - install-pmm/plan-pmm-installation/hardware_and_system.md
-        - install-pmm/plan-pmm-installation/network_and_firewall.md
-      - Install PMM in HA mode: install-pmm/HA.md  
-      - Install PMM server:
-        - install-pmm/install-pmm-server/index.md
-        - install-pmm/install-pmm-server/prerequisites.md
-        - Bare metal:
-          - Easy-install script: install-pmm/install-pmm-server/baremetal/easy-install.md  
-          - Docker:
-            - install-pmm/install-pmm-server/baremetal/docker/index.md
-            - install-pmm/install-pmm-server/baremetal/docker/run_with_vol.md
-            - install-pmm/install-pmm-server/baremetal/docker/run_with_data_container.md
-            - install-pmm/install-pmm-server/baremetal/docker/run_with_host_dir.md      
-            - install-pmm/install-pmm-server/baremetal/docker/backup_container.md      
-            - install-pmm/install-pmm-server/baremetal/docker/restore_container.md      
-            - install-pmm/install-pmm-server/baremetal/docker/remove_container.md      
-            - install-pmm/install-pmm-server/baremetal/docker/env_var.md      
-            - install-pmm/install-pmm-server/baremetal/docker/preview_env_var.md      
-            - install-pmm/install-pmm-server/baremetal/docker/isolated_hosts.md        
-          - Podman:
-            - install-pmm/install-pmm-server/baremetal/podman/index.md
-            - install-pmm/install-pmm-server/baremetal/podman/backup_container_podman.md
-            - install-pmm/install-pmm-server/baremetal/podman/restore_container_podman.md
-            - install-pmm/install-pmm-server/baremetal/podman/remove_container_podman.md
-          - Virtual Applinace:
-            - install-pmm/install-pmm-server/baremetal/virtual/index.md
-            - install-pmm/install-pmm-server/baremetal/virtual/download_ova.md
-            - install-pmm/install-pmm-server/baremetal/virtual/vmware.md
-            - install-pmm/install-pmm-server/baremetal/virtual/virtualbox.md
-            - install-pmm/install-pmm-server/baremetal/virtual/login_UI.md
-            - install-pmm/install-pmm-server/baremetal/virtual/remove_virtual_machine.md
+    - install-pmm/index.md
+    - Plan your PMM installation: 
+      - install-pmm/plan-pmm-installation/hardware_and_system.md
+      - install-pmm/plan-pmm-installation/network_and_firewall.md
+    - Install PMM in HA mode: install-pmm/HA.md  
+    - Install PMM server:
+      - install-pmm/install-pmm-server/index.md
+      - install-pmm/install-pmm-server/prerequisites.md
+      - Bare metal:
+        - Easy-install script: install-pmm/install-pmm-server/baremetal/easy-install.md  
+        - Docker:
+          - install-pmm/install-pmm-server/baremetal/docker/index.md
+          - install-pmm/install-pmm-server/baremetal/docker/run_with_vol.md
+          - install-pmm/install-pmm-server/baremetal/docker/run_with_data_container.md
+          - install-pmm/install-pmm-server/baremetal/docker/run_with_host_dir.md      
+          - install-pmm/install-pmm-server/baremetal/docker/backup_container.md      
+          - install-pmm/install-pmm-server/baremetal/docker/restore_container.md      
+          - install-pmm/install-pmm-server/baremetal/docker/remove_container.md      
+          - install-pmm/install-pmm-server/baremetal/docker/env_var.md      
+          - install-pmm/install-pmm-server/baremetal/docker/preview_env_var.md      
+          - install-pmm/install-pmm-server/baremetal/docker/isolated_hosts.md        
+        - Podman:
+          - install-pmm/install-pmm-server/baremetal/podman/index.md
+          - install-pmm/install-pmm-server/baremetal/podman/backup_container_podman.md
+          - install-pmm/install-pmm-server/baremetal/podman/restore_container_podman.md
+          - install-pmm/install-pmm-server/baremetal/podman/remove_container_podman.md
+        - Virtual Applinace:
+          - install-pmm/install-pmm-server/baremetal/virtual/index.md
+          - install-pmm/install-pmm-server/baremetal/virtual/download_ova.md
+          - install-pmm/install-pmm-server/baremetal/virtual/vmware.md
+          - install-pmm/install-pmm-server/baremetal/virtual/virtualbox.md
+          - install-pmm/install-pmm-server/baremetal/virtual/login_UI.md
+          - install-pmm/install-pmm-server/baremetal/virtual/remove_virtual_machine.md
         - Helm:
           - install-pmm/install-pmm-server/baremetal/helm/index.md
           - install-pmm/install-pmm-server/baremetal/helm/backup_container_helm.md
@@ -231,20 +231,20 @@ nav:
         - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md
   
   - Upgrade: pmm-upgrade/index.md
-      - Upgrade PMM server:
-        - pmm-upgrade/ui_upgrade.md
-        - pmm-upgrade/upgrade_aws.md    
-        - pmm-upgrade/upgrade_docker.md
-        - pmm-upgrade/upgrade_podman.md
-        - pmm-upgrade/upgrade_helm.md
-        - pmm-upgrade/upgrade_agent.md
-        - pmm-upgrade/upgrade_from_pmm_1.md
+    - Upgrade PMM server:
+      - pmm-upgrade/ui_upgrade.md
+      - pmm-upgrade/upgrade_aws.md    
+      - pmm-upgrade/upgrade_docker.md
+      - pmm-upgrade/upgrade_podman.md
+      - pmm-upgrade/upgrade_helm.md
+      - pmm-upgrade/upgrade_agent.md
+      - pmm-upgrade/upgrade_from_pmm_1.md
   - Uninstall:
-      - uninstall-pmm/index.md
-      - Docker: uninstall-pmm/uninstall_docker.md
-      - Helm: uninstall-pmm/uninstall_helm.md 
-      - Package manager: uninstall-pmm/uninstall_package_manager.md
-      - uninstall-pmm/unregister_client.md
+    - uninstall-pmm/index.md
+    - Docker: uninstall-pmm/uninstall_docker.md
+    - Helm: uninstall-pmm/uninstall_helm.md 
+    - Package manager: uninstall-pmm/uninstall_package_manager.md
+    - uninstall-pmm/unregister_client.md
 
   - Use:
     - use/using-pmm.md
@@ -266,78 +266,78 @@ nav:
         - Annotate: use/dashboards-panels/annotate/annotate.md              
         - Available dashboards:
           - Insight:
-              - use/dashboards/dashboard-home.md
-              - use/dashboards/dashboard-advanced-data-exploration.md
-              - use/dashboards/dashboard-victoriametrics.md
-              - use/dashboards/dashboard-victoriametrics-agents-overview.md
+            - use/dashboards/dashboard-home.md
+            - use/dashboards/dashboard-advanced-data-exploration.md
+            - use/dashboards/dashboard-victoriametrics.md
+            - use/dashboards/dashboard-victoriametrics-agents-overview.md
           - Environments:
-              - use/dashboards/dashboard-env-overview.md
-              - use/dashboards/dashboard-environent-summary.md
+            - use/dashboards/dashboard-env-overview.md
+            - use/dashboards/dashboard-environent-summary.md
           - Kubernetes:
-              - use/dashboards/kubernetes_cluster_summary.md
-              - use/dashboards/kubernetes_pods_status.md
-              - use/dashboards/kubernetes_volume.md
-              - use/dashboards/kubernetes_monitor_operators.md
-              - use/dashboards/kubernetes_monitor_db_clusters_managed.md
+            - use/dashboards/kubernetes_cluster_summary.md
+            - use/dashboards/kubernetes_pods_status.md
+            - use/dashboards/kubernetes_volume.md
+            - use/dashboards/kubernetes_monitor_operators.md
+            - use/dashboards/kubernetes_monitor_db_clusters_managed.md
           - DBaas:
-              - use/dashboards/dashboard-cluster-summary.md
+            - use/dashboards/dashboard-cluster-summary.md
           - OS Dashboards:
-              - use/dashboards/dashboard-cpu-utilization-details.md
-              - use/dashboards/dashboard-disk-details.md
-              - use/dashboards/dashboard-network-details.md
-              - use/dashboards/dashboard-memory-details.md
-              - use/dashboards/dashboard-node-temperature-details.md
-              - use/dashboards/dashboard-nodes-compare.md
-              - use/dashboards/dashboard-nodes-overview.md
-              - use/dashboards/dashboard-node-summary.md
-              - use/dashboards/dashboard-numa-details.md
-              - use/dashboards/dashboard-processes-details.md
+            - use/dashboards/dashboard-cpu-utilization-details.md
+            - use/dashboards/dashboard-disk-details.md
+            - use/dashboards/dashboard-network-details.md
+            - use/dashboards/dashboard-memory-details.md
+            - use/dashboards/dashboard-node-temperature-details.md
+            - use/dashboards/dashboard-nodes-compare.md
+            - use/dashboards/dashboard-nodes-overview.md
+            - use/dashboards/dashboard-node-summary.md
+            - use/dashboards/dashboard-numa-details.md
+            - use/dashboards/dashboard-processes-details.md
           - Prometheus dashboards:
-              - use/dashboards/dashboard-prometheus-exporter-status.md
-              - use/dashboards/dashboard-prometheus-exporters-overview.md
+            - use/dashboards/dashboard-prometheus-exporter-status.md
+            - use/dashboards/dashboard-prometheus-exporters-overview.md
           - MySQL dashboards:
-              - use/dashboards/dashboard-mysql-amazon-aurora-details.md
-              - use/dashboards/dashboard-mysql-command-handler-counters-compare.md
-              - use/dashboards/dashboard-mysql-innodb-compression-details.md
-              - use/dashboards/dashboard-mysql-innodb-details.md
-              - use/dashboards/dashboard-mysql-myisam-aria-details.md
-              - use/dashboards/dashboard-mysql-myrocks-details.md
-              - use/dashboards/dashboard-mysql-instance-summary.md
-              - use/dashboards/dashboard-mysql-instances-compare.md
-              - use/dashboards/dashboard-mysql-instances-overview.md
-              - use/dashboards/dashboard-mysql-wait-event-analyses-details.md
-              - use/dashboards/dashboard-mysql-performance-schema-details.md
-              - use/dashboards/dashboard-mysql-query-response-time-details.md
-              - use/dashboards/dashboard-mysql-replication-summary.md
-              - use/dashboards/dashboard-mysql-group-replication-summary.md
-              - use/dashboards/dashboard-mysql-table-details.md
-              - use/dashboards/dashboard-mysql-user-details.md
-              - use/dashboards/dashboard-mysql-tokudb-details.md
+            - use/dashboards/dashboard-mysql-amazon-aurora-details.md
+            - use/dashboards/dashboard-mysql-command-handler-counters-compare.md
+            - use/dashboards/dashboard-mysql-innodb-compression-details.md
+            - use/dashboards/dashboard-mysql-innodb-details.md
+            - use/dashboards/dashboard-mysql-myisam-aria-details.md
+            - use/dashboards/dashboard-mysql-myrocks-details.md
+            - use/dashboards/dashboard-mysql-instance-summary.md
+            - use/dashboards/dashboard-mysql-instances-compare.md
+            - use/dashboards/dashboard-mysql-instances-overview.md
+            - use/dashboards/dashboard-mysql-wait-event-analyses-details.md
+            - use/dashboards/dashboard-mysql-performance-schema-details.md
+            - use/dashboards/dashboard-mysql-query-response-time-details.md
+            - use/dashboards/dashboard-mysql-replication-summary.md
+            - use/dashboards/dashboard-mysql-group-replication-summary.md
+            - use/dashboards/dashboard-mysql-table-details.md
+            - use/dashboards/dashboard-mysql-user-details.md
+            - use/dashboards/dashboard-mysql-tokudb-details.md
           - MongoDB dashboards:
-              - use/dashboards/dashboard-mongodb-experimental_collection_overview.md
-              - use/dashboards/dashboard-mongodb-experimental_collection_details.md
-              - use/dashboards/dashboard-mongodb-experimental_oplog.md
-              - use/dashboards/dashboard-mongodb-cluster-summary.md
-              - use/dashboards/dashboard-mongodb-instance-summary.md
-              - use/dashboards/dashboard-mongodb-instances-overview.md
-              - use/dashboards/dashboard-mongodb-instances-compare.md
-              - use/dashboards/dashboard-mongodb-replset-summary.md
-              - use/dashboards/dashboard-mongodb-inmemory-details.md
-              - use/dashboards/dashboard-mongodb-mmapv1-details.md
-              - use/dashboards/dashboard-mongodb-wiredtiger-details.md
+            - use/dashboards/dashboard-mongodb-experimental_collection_overview.md
+            - use/dashboards/dashboard-mongodb-experimental_collection_details.md
+            - use/dashboards/dashboard-mongodb-experimental_oplog.md
+            - use/dashboards/dashboard-mongodb-cluster-summary.md
+            - use/dashboards/dashboard-mongodb-instance-summary.md
+            - use/dashboards/dashboard-mongodb-instances-overview.md
+            - use/dashboards/dashboard-mongodb-instances-compare.md
+            - use/dashboards/dashboard-mongodb-replset-summary.md
+            - use/dashboards/dashboard-mongodb-inmemory-details.md
+            - use/dashboards/dashboard-mongodb-mmapv1-details.md
+            - use/dashboards/dashboard-mongodb-wiredtiger-details.md
           - PostgreSQL dashboards:
-              - use/dashboards/dashboard-postgresql-instances-overview.md
-              - use/dashboards/dashboard-postgresql-instance-summary.md
-              - use/dashboards/dashboard-postgresql-instances-compare.md
-              - use/dashboards/dashboard-postgresql-vacuum-monitoring-experimental.md
+            - use/dashboards/dashboard-postgresql-instances-overview.md
+            - use/dashboards/dashboard-postgresql-instance-summary.md
+            - use/dashboards/dashboard-postgresql-instances-compare.md
+            - use/dashboards/dashboard-postgresql-vacuum-monitoring-experimental.md
           - ProxySQL dashboards:
-              - use/dashboards/dashboard-proxysql-instance-summary.md
+            - use/dashboards/dashboard-proxysql-instance-summary.md
           - HA dashboards:
-              - use/dashboards/dashboard-pxc-galera-node-summary.md
-              - use/dashboards/dashboard-pxc-galera-cluster-summary.md
-              - use/dashboards/dashboard-pxc-galera-cluster-summary-experimental.md
-              - use/dashboards/dashboard-pxc-galera-nodes-compare.md
-              - use/dashboards/dashboard-haproxy-instance-summary.md
+            - use/dashboards/dashboard-pxc-galera-node-summary.md
+            - use/dashboards/dashboard-pxc-galera-cluster-summary.md
+            - use/dashboards/dashboard-pxc-galera-cluster-summary-experimental.md
+            - use/dashboards/dashboard-pxc-galera-nodes-compare.md
+            - use/dashboards/dashboard-haproxy-instance-summary.md
     - PMM metrics: 
       - use/metrics/index.md
       - use/metrics/extend_metrics.md
@@ -386,45 +386,45 @@ nav:
         - "Create a Kubernetes Cluster": dbaas/setting-up.html#create-a-kubernetes-cluster
         - "Deleting Kubernetes clusters ": dbaas/setting-up.html#deleting-clusters
       - Getting started:
-          - "Activating DBaaS": dbaas/get-started.html#getting-started-with-dbaas
-          - "Add a Kubernetes cluster automatically": dbaas/get-started.html#getting-started-with-dbaas
-          - "Add a Kubernetes cluster manually": dbaas/get-started.html#add-a-kubernetes-cluster
-          - "Manage allowed component versions": dbaas/get-started.html#manage-allowed-component-versions
-          - "Troubleshooting":
-              - "OLM installation": dbaas/troubleshoot-kubernetes.html#troubleshooting-olm-installation
-              - "Operators installation": dbaas/troubleshoot-kubernetes.html#troubleshooting-operators-installation
+        - "Activating DBaaS": dbaas/get-started.html#getting-started-with-dbaas
+        - "Add a Kubernetes cluster automatically": dbaas/get-started.html#getting-started-with-dbaas
+        - "Add a Kubernetes cluster manually": dbaas/get-started.html#add-a-kubernetes-cluster
+        - "Manage allowed component versions": dbaas/get-started.html#manage-allowed-component-versions
+        - "Troubleshooting":
+          - "OLM installation": dbaas/troubleshoot-kubernetes.html#troubleshooting-olm-installation
+          - "Operators installation": dbaas/troubleshoot-kubernetes.html#troubleshooting-operators-installation
       - Managing Database clusters:
-          - "Add a DB Cluster": dbaas/databases.html#add-a-db-cluster
-          - "Manage a DB Cluster": dbaas/databases.html#edit-a-db-cluster
-          - "Delete a DB Cluster": dbaas/databases.html#delete-a-db-cluster
-          - "Create a database cluster from a template": dbaas/DBaaS_template.md
+        - "Add a DB Cluster": dbaas/databases.html#add-a-db-cluster
+        - "Manage a DB Cluster": dbaas/databases.html#edit-a-db-cluster
+        - "Delete a DB Cluster": dbaas/databases.html#delete-a-db-cluster
+        - "Create a database cluster from a template": dbaas/DBaaS_template.md
       - Backup and restore: dbaas/backup_restore.md
   - Configure:      
-      - configure-pmm/configure.md
-      - configure-pmm/metrics_res.md
-      - configure-pmm/advanced_settings.md
-      - configure-pmm/ssh.md
-      - configure-pmm/alertmanager.md
-      - Percona Platform:
-        - configure-pmm/percona_platform/integrate_with_percona_platform.md
-        - configure-pmm/percona_platform/check_percona_platform.md
+    - configure-pmm/configure.md
+    - configure-pmm/metrics_res.md
+    - configure-pmm/advanced_settings.md
+    - configure-pmm/ssh.md
+    - configure-pmm/alertmanager.md
+    - Percona Platform:
+      - configure-pmm/percona_platform/integrate_with_percona_platform.md
+      - configure-pmm/percona_platform/check_percona_platform.md
   - Administer:
-      - pmm-admin/index.md
-      - Manage users:
-        - pmm-admin/manage-users/index.md
-        - pmm-admin/manage-users/add_users.md
-        - pmm-admin/manage-users/edit_users.md
-        - pmm-admin/manage-users/delete_users.md
-      - Roles and permissions:
-        - pmm-admin/roles/index.md
-        - Access Control:
-          - pmm-admin/roles/access-control/intro.md
-          - pmm-admin/roles/access-control/labels.md
-          - pmm-admin/roles/access-control/config_access_cntrl.md
-          - pmm-admin/roles/access-control/create_roles.md
-          - pmm-admin/roles/access-control/manage_roles.md
-          - pmm-admin/roles/access-control/assign_roles.md
-          - pmm-admin/roles/access-control/usecase.md
+    - pmm-admin/index.md
+    - Manage users:
+      - pmm-admin/manage-users/index.md
+      - pmm-admin/manage-users/add_users.md
+      - pmm-admin/manage-users/edit_users.md
+      - pmm-admin/manage-users/delete_users.md
+    - Roles and permissions:
+      - pmm-admin/roles/index.md
+      - Access Control:
+        - pmm-admin/roles/access-control/intro.md
+        - pmm-admin/roles/access-control/labels.md
+        - pmm-admin/roles/access-control/config_access_cntrl.md
+        - pmm-admin/roles/access-control/create_roles.md
+        - pmm-admin/roles/access-control/manage_roles.md
+        - pmm-admin/roles/access-control/assign_roles.md
+        - pmm-admin/roles/access-control/usecase.md
       - Security in PMM:
         - pmm-admin/security/index.md
         - pmm-admin/security/ssl_encryption.md 
@@ -434,101 +434,101 @@ nav:
         - optimize/disable_table_stats.md
         - optimize/change_number_tables.md
   - Troubleshoot:
-      - troubleshoot/index.md
-      - troubleshoot/checklist.md
-      - troubleshoot/upgrade_issues.md
-      - troubleshoot/config_issues.md
-      - DBaaS issues:
-        - troubleshoot/dbaas/index.md      
-        - troubleshoot/dbaas/olm_issues.md
-        - troubleshoot/dbaas/operator_issues.md
-      - troubleshoot/alerting_issues.md
-      - troubleshoot/qan_issues.md
-      - troubleshoot/plugin_issues.md
+    - troubleshoot/index.md
+    - troubleshoot/checklist.md
+    - troubleshoot/upgrade_issues.md
+    - troubleshoot/config_issues.md
+    - DBaaS issues:
+      - troubleshoot/dbaas/index.md      
+      - troubleshoot/dbaas/olm_issues.md
+      - troubleshoot/dbaas/operator_issues.md
+    - troubleshoot/alerting_issues.md
+    - troubleshoot/qan_issues.md
+    - troubleshoot/plugin_issues.md
   - Release notes:
-      - Release notes index: release-notes/index.md
-      - "PMM 2.41.0 (Dec 12, 2023)": release-notes/2.41.0.md
-      - "PMM 2.40.1 (Oct 20, 2023)": release-notes/2.40.1.md
-      - "PMM 2.40.0 (Oct 5 2023)": release-notes/2.40.0.md
-      - "PMM 2.39.0 (Aug 14, 2023)": release-notes/2.39.0.md
-      - "PMM 2.38.1 (July 13, 2023)": release-notes/2.38.1.md
-      - "PMM 2.38.0 (July 3, 2023)": release-notes/2.38.0.md
-      - "PMM 2.37.1 (June 5, 2023)": release-notes/2.37.1.md
-      - "PMM 2.37.0 (May 2, 2023)": release-notes/2.37.0.md
-      - "PMM 2.36.0 (Mar. 23, 2023)": release-notes/2.36.0.md
-      - "PMM 2.35.0 (Feb. 23, 2023)": release-notes/2.35.0.md
-      - "PMM 2.34.0 (Jan. 30, 2023)": release-notes/2.34.0.md
-      - 2022:
-        - "PMM 2.33.0 (Dec. 13, 2022)": release-notes/2.33.0.md
-        - "PMM 2.32.0 (Nov. 8, 2022)": release-notes/2.32.0.md
-        - "PMM 2.31.0 (Sept. 26, 2022)": release-notes/2.31.0.md
-        - "PMM 2.30.0 (Aug. 8, 2022)": release-notes/2.30.0.md
-        - "PMM 2.29.1 (July 7, 2022)": release-notes/2.29.1.md
-        - "PMM 2.29.0 (July 19, 2022)": release-notes/2.29.0.md
-        - "PMM 2.28.0 (June 12, 2022)": release-notes/2.28.0.md
-        - "PMM 2.27.0 (Apr. 4, 2022)": release-notes/2.27.0.md
-        - "PMM 2.26.0 (Feb. 8, 2022)": release-notes/2.26.0.md
-      - 2021:
-          - "PMM 2.25.0 (Dec 14, 2021)": release-notes/2.25.0.md
-          - "PMM 2.24.0 (Nov 18, 2021)": release-notes/2.24.0.md
-          - "PMM 2.23.0 (Oct. 21, 2021)": release-notes/2.23.0.md
-          - "PMM 2.22.0 (Sept. 23, 2021)": release-notes/2.22.0.md
-          - "PMM 2.21.0 (Aug. 26, 2021)": release-notes/2.21.0.md
-          - "PMM 2.20.0 (Aug. 3, 2021)": release-notes/2.20.0.md
-          - "PMM 2.19.0 (June 30, 2021)": release-notes/2.19.0.md
-          - "PMM 2.18.0 (June 1, 2021)": release-notes/2.18.0.md
-          - "PMM 2.17.0 (May 11, 2021)": release-notes/2.17.0.md
-          - "PMM 2.16.0 (Apr. 15, 2021)": release-notes/2.16.0.md
-          - "PMM 2.15.1 (Mar. 18, 2021)": release-notes/2.15.1.md
-          - "PMM 2.15.0 (Mar. 01, 2021)": release-notes/2.15.0.md
-          - "PMM 2.14.0 (Jan. 28, 2021)": release-notes/2.14.0.md
-      - 2020:
-          - "PMM 2.13.0 (Dec. 29, 2020)": release-notes/2.13.0.md
-          - "PMM 2.12.0 (Dec. 1, 2020)": release-notes/2.12.0.md
-          - "PMM 2.11.1 (Oct. 19, 2020)": release-notes/2.11.1.md
-          - "PMM 2.11.0 (Oct. 14, 2020)": release-notes/2.11.0.md
-          - "PMM 2.10.1 (Sept. 22, 2020)": release-notes/2.10.1.md
-          - "PMM 2.10.0 (Sept. 15, 2020)": release-notes/2.10.0.md
-          - "PMM 2.9.1 (Aug 4, 2020)": release-notes/2.9.1.md
-          - "PMM 2.9.0 (July 14, 2020)": release-notes/2.9.0.md
-          - "PMM 2.8.0 (June 25, 2020)": release-notes/2.8.0.md
-          - "PMM 2.7.0 (June 9, 2020)": release-notes/2.7.0.md
-          - "PMM 2.6.1 (May 18, 2020)": release-notes/2.6.1.md
-          - "PMM 2.6.0 (May 11, 2020)": release-notes/2.6.0.md
-          - "PMM 2.5.0 (Apr. 14, 2020)": release-notes/2.5.0.md
-          - "PMM 2.4.0 (Mar. 18, 2020)": release-notes/2.4.0.md
-          - "PMM 2.3.0 (Mar. 18, 2020)": release-notes/2.3.0.md
-          - "PMM 2.2.2 (Feb. 4, 2020)": release-notes/2.2.2.md
-          - "PMM 2.2.1 (Jan. 23, 2020)": release-notes/2.2.1.md
-      - 2019:      
-          - "PMM 2.2.0 (Dec. 24, 2019)": release-notes/2.2.0.md
-          - "PMM 2.1.0 (Nov. 11, 2019)": release-notes/2.1.0.md
-          - "PMM 2.0.1 (Nov. 11, 2019)": release-notes/2.0.1.md
-          - "PMM 2.0.0 (Sept. 19, 2019)": release-notes/2.0.0.md
+    - Release notes index: release-notes/index.md
+    - "PMM 2.41.0 (Dec 12, 2023)": release-notes/2.41.0.md
+    - "PMM 2.40.1 (Oct 20, 2023)": release-notes/2.40.1.md
+    - "PMM 2.40.0 (Oct 5 2023)": release-notes/2.40.0.md
+    - "PMM 2.39.0 (Aug 14, 2023)": release-notes/2.39.0.md
+    - "PMM 2.38.1 (July 13, 2023)": release-notes/2.38.1.md
+    - "PMM 2.38.0 (July 3, 2023)": release-notes/2.38.0.md
+    - "PMM 2.37.1 (June 5, 2023)": release-notes/2.37.1.md
+    - "PMM 2.37.0 (May 2, 2023)": release-notes/2.37.0.md
+    - "PMM 2.36.0 (Mar. 23, 2023)": release-notes/2.36.0.md
+    - "PMM 2.35.0 (Feb. 23, 2023)": release-notes/2.35.0.md
+    - "PMM 2.34.0 (Jan. 30, 2023)": release-notes/2.34.0.md
+    - 2022:
+      - "PMM 2.33.0 (Dec. 13, 2022)": release-notes/2.33.0.md
+      - "PMM 2.32.0 (Nov. 8, 2022)": release-notes/2.32.0.md
+      - "PMM 2.31.0 (Sept. 26, 2022)": release-notes/2.31.0.md
+      - "PMM 2.30.0 (Aug. 8, 2022)": release-notes/2.30.0.md
+      - "PMM 2.29.1 (July 7, 2022)": release-notes/2.29.1.md
+      - "PMM 2.29.0 (July 19, 2022)": release-notes/2.29.0.md
+      - "PMM 2.28.0 (June 12, 2022)": release-notes/2.28.0.md
+      - "PMM 2.27.0 (Apr. 4, 2022)": release-notes/2.27.0.md
+      - "PMM 2.26.0 (Feb. 8, 2022)": release-notes/2.26.0.md
+    - 2021:
+      - "PMM 2.25.0 (Dec 14, 2021)": release-notes/2.25.0.md
+      - "PMM 2.24.0 (Nov 18, 2021)": release-notes/2.24.0.md
+      - "PMM 2.23.0 (Oct. 21, 2021)": release-notes/2.23.0.md
+      - "PMM 2.22.0 (Sept. 23, 2021)": release-notes/2.22.0.md
+      - "PMM 2.21.0 (Aug. 26, 2021)": release-notes/2.21.0.md
+      - "PMM 2.20.0 (Aug. 3, 2021)": release-notes/2.20.0.md
+      - "PMM 2.19.0 (June 30, 2021)": release-notes/2.19.0.md
+      - "PMM 2.18.0 (June 1, 2021)": release-notes/2.18.0.md
+      - "PMM 2.17.0 (May 11, 2021)": release-notes/2.17.0.md
+      - "PMM 2.16.0 (Apr. 15, 2021)": release-notes/2.16.0.md
+      - "PMM 2.15.1 (Mar. 18, 2021)": release-notes/2.15.1.md
+      - "PMM 2.15.0 (Mar. 01, 2021)": release-notes/2.15.0.md
+      - "PMM 2.14.0 (Jan. 28, 2021)": release-notes/2.14.0.md
+    - 2020:
+      - "PMM 2.13.0 (Dec. 29, 2020)": release-notes/2.13.0.md
+      - "PMM 2.12.0 (Dec. 1, 2020)": release-notes/2.12.0.md
+      - "PMM 2.11.1 (Oct. 19, 2020)": release-notes/2.11.1.md
+      - "PMM 2.11.0 (Oct. 14, 2020)": release-notes/2.11.0.md
+      - "PMM 2.10.1 (Sept. 22, 2020)": release-notes/2.10.1.md
+      - "PMM 2.10.0 (Sept. 15, 2020)": release-notes/2.10.0.md
+      - "PMM 2.9.1 (Aug 4, 2020)": release-notes/2.9.1.md
+      - "PMM 2.9.0 (July 14, 2020)": release-notes/2.9.0.md
+      - "PMM 2.8.0 (June 25, 2020)": release-notes/2.8.0.md
+      - "PMM 2.7.0 (June 9, 2020)": release-notes/2.7.0.md
+      - "PMM 2.6.1 (May 18, 2020)": release-notes/2.6.1.md
+      - "PMM 2.6.0 (May 11, 2020)": release-notes/2.6.0.md
+      - "PMM 2.5.0 (Apr. 14, 2020)": release-notes/2.5.0.md
+      - "PMM 2.4.0 (Mar. 18, 2020)": release-notes/2.4.0.md
+      - "PMM 2.3.0 (Mar. 18, 2020)": release-notes/2.3.0.md
+      - "PMM 2.2.2 (Feb. 4, 2020)": release-notes/2.2.2.md
+      - "PMM 2.2.1 (Jan. 23, 2020)": release-notes/2.2.1.md
+    - 2019:      
+      - "PMM 2.2.0 (Dec. 24, 2019)": release-notes/2.2.0.md
+      - "PMM 2.1.0 (Nov. 11, 2019)": release-notes/2.1.0.md
+      - "PMM 2.0.1 (Nov. 11, 2019)": release-notes/2.0.1.md
+      - "PMM 2.0.0 (Sept. 19, 2019)": release-notes/2.0.0.md
   
   - Reference:
-      - reference/index.md 
-      - PMM user interface:
-        - reference/ui/ui_components.md  
-        - reference/ui/index.md
-        - reference/ui/log_in.md
-        - reference/ui/controls.md
-        - reference/ui/nav.md
-        - reference/ui/panels.md
-        - reference/ui/timezone.md
-        - reference/ui/view.md
-      - PMM API:
-        - api/index.md
-        - api/authentication.md
-      - reference/pmm_dump.md
-      - reference/pmm_components_and_versions.md
-      - reference/develop_advisor_checks.md
-      - reference/personal_data_handling.md
-      - Third-party components in PMM: 
-        - reference/third-party/victoria.md
-        - reference/third-party/clickhouse.md
-        - reference/third-party/postgresql.md
-      -  reference/glossary.md
-      -  reference/faq.md
-      - reference/trademark-policy.md
-      - reference/copyright.md
+    - reference/index.md 
+    - PMM user interface:
+      - reference/ui/ui_components.md  
+      - reference/ui/index.md
+      - reference/ui/log_in.md
+      - reference/ui/controls.md
+      - reference/ui/nav.md
+      - reference/ui/panels.md
+      - reference/ui/timezone.md
+      - reference/ui/view.md
+    - PMM API:
+      - api/index.md
+      - api/authentication.md
+    - reference/pmm_dump.md
+    - reference/pmm_components_and_versions.md
+    - reference/develop_advisor_checks.md
+    - reference/personal_data_handling.md
+    - Third-party components in PMM: 
+      - reference/third-party/victoria.md
+      - reference/third-party/clickhouse.md
+      - reference/third-party/postgresql.md
+    -  reference/glossary.md
+    -  reference/faq.md
+    - reference/trademark-policy.md
+    - reference/copyright.md
