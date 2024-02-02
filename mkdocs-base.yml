@@ -226,8 +226,8 @@ nav:
           - Linux: install-pmm/install-pmm-client/connect-database/linux.md
           - Remote: install-pmm/install-pmm-client/connect-database/remote.md
           - External: install-pmm/install-pmm-client/connect-database/external.md
-              - HAproxy: install-pmm/install-pmm-client/connect-database/haproxy.md
-              - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
+            - HAproxy: install-pmm/install-pmm-client/connect-database/haproxy.md
+            - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
         - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md
   
   - Upgrade:
