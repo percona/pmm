@@ -230,8 +230,8 @@ nav:
           - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
         - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md
   
-  - Upgrade: pmm-upgrade/index.md
-    - Upgrade PMM server:
+  - Upgrade:
+    - Upgrade PMM server: pmm-upgrade/index.md
       - pmm-upgrade/ui_upgrade.md
       - pmm-upgrade/upgrade_aws.md    
       - pmm-upgrade/upgrade_docker.md
