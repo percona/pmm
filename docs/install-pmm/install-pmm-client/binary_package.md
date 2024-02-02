@@ -1,4 +1,4 @@
-# Install PMM client manually
+# Install PMM client manually using binaries
 
 To install PMM client with **binary** package, do the following:
 {.power-number}
