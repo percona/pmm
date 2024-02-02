@@ -215,14 +215,13 @@ nav:
         - Images: install-pmm/install-pmm-client/docker.md
         - Manual binaries: install-pmm/install-pmm-client/binary_package.md          
       - Register client node: install-pmm/register-client-node/index.md 
-      - Add services to PMM:
-        - install-pmm/install-pmm-client/connect-database/index.md
+      - Add services to PMM: install-pmm/install-pmm-client/connect-database/index.md
         - MySQL: install-pmm/install-pmm-client/connect-database/mysql.md
         - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb.md
         - PostgreSQL: install-pmm/install-pmm-client/connect-database/postgresql.md
         - External: install-pmm/install-pmm-client/connect-database/external.md
         - HAproxy: install-pmm/install-pmm-client/connect-database/haproxy.md
-            - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
+          - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
         - AWS: install-pmm/install-pmm-client/connect-database/aws.md
         - Azure: install-pmm/install-pmm-client/connect-database/azure.md
         - Google Cloud: install-pmm/install-pmm-client/connect-database/google.md
