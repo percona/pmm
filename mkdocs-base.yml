@@ -188,10 +188,6 @@ nav:
             - install-pmm/install-pmm-server/baremetal/podman/backup_container_podman.md
             - install-pmm/install-pmm-server/baremetal/podman/restore_container_podman.md
             - install-pmm/install-pmm-server/baremetal/podman/remove_container_podman.md
-          - Helm:
-            - install-pmm/install-pmm-server/baremetal/helm/index.md
-            - install-pmm/install-pmm-server/baremetal/helm/backup_container_helm.md
-            - install-pmm/install-pmm-server/baremetal/helm/restore_container_helm.md
           - Virtual Applinace:
             - install-pmm/install-pmm-server/baremetal/virtual/index.md
             - install-pmm/install-pmm-server/baremetal/virtual/download_ova.md
@@ -199,6 +195,10 @@ nav:
             - install-pmm/install-pmm-server/baremetal/virtual/virtualbox.md
             - install-pmm/install-pmm-server/baremetal/virtual/login_UI.md
             - install-pmm/install-pmm-server/baremetal/virtual/remove_virtual_machine.md
+        - Helm:
+          - install-pmm/install-pmm-server/baremetal/helm/index.md
+          - install-pmm/install-pmm-server/baremetal/helm/backup_container_helm.md
+          - install-pmm/install-pmm-server/baremetal/helm/restore_container_helm.md            
         - AWS marketplace:
           - install-pmm/install-pmm-server/aws/aws.md
           - install-pmm/install-pmm-server/aws/limit_access.md
