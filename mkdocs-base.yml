@@ -221,14 +221,14 @@ nav:
         - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb.md
         - PostgreSQL: install-pmm/install-pmm-client/connect-database/postgresql.md
         - External: install-pmm/install-pmm-client/connect-database/external.md
-          - HAproxy: install-pmm/install-pmm-client/connect-database/haproxy.md
-          - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
+        - HAproxy: install-pmm/install-pmm-client/connect-database/haproxy.md
+            - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
         - AWS: install-pmm/install-pmm-client/connect-database/aws.md
         - Azure: install-pmm/install-pmm-client/connect-database/azure.md
         - Google Cloud: install-pmm/install-pmm-client/connect-database/google.md
         - Linux: install-pmm/install-pmm-client/connect-database/linux.md
         - Remote: install-pmm/install-pmm-client/connect-database/remote.md
-        - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md
+      - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md
   - Upgrade:
       - pmm-upgrade/index.md
       - pmm-upgrade/ui_upgrade.md
