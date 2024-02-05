@@ -65,7 +65,7 @@ func TestClient(t *testing.T) {
 			body := clientError.Body
 			body = strings.ReplaceAll(body, "\n", "") // different grafana versions format response differently
 			body = strings.ReplaceAll(body, " ", "")  // so we cleanup response from spaces and newlines to get unified result
-			assert.Equal(t, "{\"message\":\"Unauthorized\"}", body)
+			assert.Equal(t, "{\"extra\":null,\"message\":\"Unauthorized\",\"messageId\":\"auth.unauthorized\",\"statusCode\":401,\"traceID\":\"\"}", body)
 			assert.Equal(t, `Unauthorized`, clientError.ErrorMessage)
 			assert.Equal(t, none, role)
 			assert.Equal(t, "None", role.String())
