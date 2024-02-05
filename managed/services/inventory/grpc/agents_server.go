@@ -240,7 +240,7 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 	case *inventoryv1.ChangeAgentRequest_RdsExporter:
 		return s.s.ChangeRDSExporter(ctx, req.GetRdsExporter())
 	case *inventoryv1.ChangeAgentRequest_ExternalExporter:
-		return s.s.ChangeExternalExporter(req.GetExternalExporter())
+		return s.s.ChangeExternalExporter(ctx, req.GetExternalExporter())
 	case *inventoryv1.ChangeAgentRequest_AzureDatabaseExporter:
 		return s.s.ChangeAzureDatabaseExporter(ctx, req.GetAzureDatabaseExporter())
 	case *inventoryv1.ChangeAgentRequest_QanMysqlPerfschemaAgent:
