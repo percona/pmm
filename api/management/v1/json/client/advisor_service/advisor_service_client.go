@@ -56,7 +56,7 @@ func (a *Client) ChangeAdvisorChecks(params *ChangeAdvisorChecksParams, opts ...
 	op := &runtime.ClientOperation{
 		ID:                 "ChangeAdvisorChecks",
 		Method:             "POST",
-		PathPattern:        "/v1/management/AdvisorChecks/Change",
+		PathPattern:        "/v1/management/Advisors/Change",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -95,7 +95,7 @@ func (a *Client) GetFailedChecks(params *GetFailedChecksParams, opts ...ClientOp
 	op := &runtime.ClientOperation{
 		ID:                 "GetFailedChecks",
 		Method:             "POST",
-		PathPattern:        "/v1/management/AdvisorChecks/FailedChecks",
+		PathPattern:        "/v1/management/Advisors/FailedChecks",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -134,7 +134,7 @@ func (a *Client) ListAdvisorChecks(params *ListAdvisorChecksParams, opts ...Clie
 	op := &runtime.ClientOperation{
 		ID:                 "ListAdvisorChecks",
 		Method:             "POST",
-		PathPattern:        "/v1/management/AdvisorChecks/List",
+		PathPattern:        "/v1/management/Advisors/ListChecks",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -212,7 +212,7 @@ func (a *Client) ListFailedServices(params *ListFailedServicesParams, opts ...Cl
 	op := &runtime.ClientOperation{
 		ID:                 "ListFailedServices",
 		Method:             "POST",
-		PathPattern:        "/v1/management/AdvisorChecks/ListFailedServices",
+		PathPattern:        "/v1/management/Advisors/ListFailedServices",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -251,7 +251,7 @@ func (a *Client) StartAdvisorChecks(params *StartAdvisorChecksParams, opts ...Cl
 	op := &runtime.ClientOperation{
 		ID:                 "StartAdvisorChecks",
 		Method:             "POST",
-		PathPattern:        "/v1/management/AdvisorChecks/Start",
+		PathPattern:        "/v1/management/Advisors/StartChecks",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

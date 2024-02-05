@@ -58,7 +58,7 @@ type ListFailedServicesOK struct {
 }
 
 func (o *ListFailedServicesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/AdvisorChecks/ListFailedServices][%d] listFailedServicesOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Advisors/ListFailedServices][%d] listFailedServicesOk  %+v", 200, o.Payload)
 }
 
 func (o *ListFailedServicesOK) GetPayload() *ListFailedServicesOKBody {
@@ -100,7 +100,7 @@ func (o *ListFailedServicesDefault) Code() int {
 }
 
 func (o *ListFailedServicesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/AdvisorChecks/ListFailedServices][%d] ListFailedServices default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Advisors/ListFailedServices][%d] ListFailedServices default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ListFailedServicesDefault) GetPayload() *ListFailedServicesDefaultBody {

@@ -238,7 +238,7 @@ func RegisterAdvisorServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.AdvisorService/ListFailedServices", runtime.WithHTTPPathPattern("/v1/management/AdvisorChecks/ListFailedServices"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.AdvisorService/ListFailedServices", runtime.WithHTTPPathPattern("/v1/management/Advisors/ListFailedServices"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -262,7 +262,7 @@ func RegisterAdvisorServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.AdvisorService/GetFailedChecks", runtime.WithHTTPPathPattern("/v1/management/AdvisorChecks/FailedChecks"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.AdvisorService/GetFailedChecks", runtime.WithHTTPPathPattern("/v1/management/Advisors/FailedChecks"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -286,7 +286,7 @@ func RegisterAdvisorServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.AdvisorService/StartAdvisorChecks", runtime.WithHTTPPathPattern("/v1/management/AdvisorChecks/Start"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.AdvisorService/StartAdvisorChecks", runtime.WithHTTPPathPattern("/v1/management/Advisors/StartChecks"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -310,7 +310,7 @@ func RegisterAdvisorServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.AdvisorService/ListAdvisorChecks", runtime.WithHTTPPathPattern("/v1/management/AdvisorChecks/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.AdvisorService/ListAdvisorChecks", runtime.WithHTTPPathPattern("/v1/management/Advisors/ListChecks"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -358,7 +358,7 @@ func RegisterAdvisorServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.AdvisorService/ChangeAdvisorChecks", runtime.WithHTTPPathPattern("/v1/management/AdvisorChecks/Change"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.AdvisorService/ChangeAdvisorChecks", runtime.WithHTTPPathPattern("/v1/management/Advisors/Change"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -420,7 +420,7 @@ func RegisterAdvisorServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.AdvisorService/ListFailedServices", runtime.WithHTTPPathPattern("/v1/management/AdvisorChecks/ListFailedServices"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.AdvisorService/ListFailedServices", runtime.WithHTTPPathPattern("/v1/management/Advisors/ListFailedServices"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -441,7 +441,7 @@ func RegisterAdvisorServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.AdvisorService/GetFailedChecks", runtime.WithHTTPPathPattern("/v1/management/AdvisorChecks/FailedChecks"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.AdvisorService/GetFailedChecks", runtime.WithHTTPPathPattern("/v1/management/Advisors/FailedChecks"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -462,7 +462,7 @@ func RegisterAdvisorServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.AdvisorService/StartAdvisorChecks", runtime.WithHTTPPathPattern("/v1/management/AdvisorChecks/Start"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.AdvisorService/StartAdvisorChecks", runtime.WithHTTPPathPattern("/v1/management/Advisors/StartChecks"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -483,7 +483,7 @@ func RegisterAdvisorServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.AdvisorService/ListAdvisorChecks", runtime.WithHTTPPathPattern("/v1/management/AdvisorChecks/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.AdvisorService/ListAdvisorChecks", runtime.WithHTTPPathPattern("/v1/management/Advisors/ListChecks"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -525,7 +525,7 @@ func RegisterAdvisorServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.AdvisorService/ChangeAdvisorChecks", runtime.WithHTTPPathPattern("/v1/management/AdvisorChecks/Change"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.AdvisorService/ChangeAdvisorChecks", runtime.WithHTTPPathPattern("/v1/management/Advisors/Change"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -544,17 +544,17 @@ func RegisterAdvisorServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 }
 
 var (
-	pattern_AdvisorService_ListFailedServices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "AdvisorChecks", "ListFailedServices"}, ""))
+	pattern_AdvisorService_ListFailedServices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Advisors", "ListFailedServices"}, ""))
 
-	pattern_AdvisorService_GetFailedChecks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "AdvisorChecks", "FailedChecks"}, ""))
+	pattern_AdvisorService_GetFailedChecks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Advisors", "FailedChecks"}, ""))
 
-	pattern_AdvisorService_StartAdvisorChecks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "AdvisorChecks", "Start"}, ""))
+	pattern_AdvisorService_StartAdvisorChecks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Advisors", "StartChecks"}, ""))
 
-	pattern_AdvisorService_ListAdvisorChecks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "AdvisorChecks", "List"}, ""))
+	pattern_AdvisorService_ListAdvisorChecks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Advisors", "ListChecks"}, ""))
 
 	pattern_AdvisorService_ListAdvisors_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Advisors", "List"}, ""))
 
-	pattern_AdvisorService_ChangeAdvisorChecks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "AdvisorChecks", "Change"}, ""))
+	pattern_AdvisorService_ChangeAdvisorChecks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Advisors", "Change"}, ""))
 )
 
 var (
