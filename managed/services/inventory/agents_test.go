@@ -72,14 +72,14 @@ func TestAgents(t *testing.T) {
 				RunsOnNodeId: models.PMMServerNodeID,
 			})
 
-			pmmAgentID = pmmAgent.AgentId
+			pmmAgentID = pmmAgent.GetPmmAgent().AgentId
 			require.NoError(t, err)
 			expectedPMMAgent := &inventoryv1.PMMAgent{
 				AgentId:      "/agent_id/00000000-0000-4000-8000-000000000005",
 				RunsOnNodeId: models.PMMServerNodeID,
 				Connected:    true,
 			}
-			assert.Equal(t, expectedPMMAgent, pmmAgent)
+			assert.Equal(t, expectedPMMAgent, pmmAgent.GetPmmAgent())
 		})
 
 		t.Run("AddNodeExporter", func(t *testing.T) {
@@ -97,11 +97,11 @@ func TestAgents(t *testing.T) {
 					"environment": "test-env",
 				},
 			}
-			assert.Equal(t, expectedNodeExporter, actualNodeExporter)
+			assert.Equal(t, expectedNodeExporter, actualNodeExporter.GetNodeExporter())
 		})
 
 		t.Run("ChangeNodeExporterAndRemoveCustomLabels", func(t *testing.T) {
-			resp, err := as.ChangeNodeExporter(ctx, &inventoryv1.ChangeNodeExporterParams{
+			actualNodeExporter, err := as.ChangeNodeExporter(ctx, &inventoryv1.ChangeNodeExporterParams{
 				AgentId: "/agent_id/00000000-0000-4000-8000-000000000006",
 				Common: &inventoryv1.ChangeCommonAgentParams{
 					Enable: pointer.ToBool(false),
@@ -110,18 +110,17 @@ func TestAgents(t *testing.T) {
 				},
 			})
 			require.NoError(t, err)
-			actualNodeExporter := resp.GetNodeExporter()
 			expectedNodeExporter = &inventoryv1.NodeExporter{
 				AgentId:    "/agent_id/00000000-0000-4000-8000-000000000006",
 				PmmAgentId: "/agent_id/00000000-0000-4000-8000-000000000005",
 				Disabled:   true,
 				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 			}
-			assert.Equal(t, expectedNodeExporter, actualNodeExporter)
+			assert.Equal(t, expectedNodeExporter, actualNodeExporter.GetNodeExporter())
 
 			actualAgent, err := as.Get(ctx, "/agent_id/00000000-0000-4000-8000-000000000006")
 			require.NoError(t, err)
-			assert.Equal(t, expectedNodeExporter, actualAgent)
+			assert.Equal(t, expectedNodeExporter, actualAgent.(*inventoryv1.NodeExporter))
 		})
 
 		t.Run("AddMySQLExporter", func(t *testing.T) {
@@ -148,7 +147,7 @@ func TestAgents(t *testing.T) {
 				Username:   "username",
 				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 			}
-			assert.Equal(t, expectedMySQLdExporter, actualAgent)
+			assert.Equal(t, expectedMySQLdExporter, actualAgent.GetMysqldExporter())
 
 			exporter, err := as.Get(ctx, "/agent_id/00000000-0000-4000-8000-000000000008")
 			require.NoError(t, err)
@@ -179,7 +178,7 @@ func TestAgents(t *testing.T) {
 				Username:   "username",
 				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 			}
-			assert.Equal(t, expectedMongoDBExporter, actualAgent)
+			assert.Equal(t, expectedMongoDBExporter, actualAgent.GetMongodbExporter())
 
 			exporter, err := as.Get(ctx, "/agent_id/00000000-0000-4000-8000-00000000000a")
 			require.NoError(t, err)
@@ -200,7 +199,7 @@ func TestAgents(t *testing.T) {
 				Username:   "username",
 				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 			}
-			assert.Equal(t, expectedQANMySQLSlowlogAgent, actualAgent)
+			assert.Equal(t, expectedQANMySQLSlowlogAgent, actualAgent.GetQanMysqlSlowlogAgent())
 
 			exporter, err := as.Get(ctx, "/agent_id/00000000-0000-4000-8000-00000000000b")
 			require.NoError(t, err)
@@ -230,7 +229,7 @@ func TestAgents(t *testing.T) {
 				Username:   "username",
 				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 			}
-			assert.Equal(t, expectedPostgresExporter, actualAgent)
+			assert.Equal(t, expectedPostgresExporter, actualAgent.GetPostgresExporter())
 
 			exporter, err := as.Get(ctx, "/agent_id/00000000-0000-4000-8000-00000000000d")
 			require.NoError(t, err)
@@ -254,7 +253,7 @@ func TestAgents(t *testing.T) {
 				MetricsPath:  "/metrics",
 				ListenPort:   9222,
 			}
-			assert.Equal(t, expectedExternalExporter, actualAgent)
+			assert.Equal(t, expectedExternalExporter, actualAgent.GetExternalExporter())
 		})
 
 		var actualAgents []inventoryv1.Agent
@@ -353,7 +352,7 @@ func TestAgents(t *testing.T) {
 			RunsOnNodeId: models.PMMServerNodeID,
 			Connected:    false,
 		}
-		assert.Equal(t, expectedPMMAgent, actualAgent)
+		assert.Equal(t, expectedPMMAgent, actualAgent.GetPmmAgent())
 
 		as.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000006").Return(true)
 		actualAgent, err = as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
@@ -365,7 +364,7 @@ func TestAgents(t *testing.T) {
 			RunsOnNodeId: models.PMMServerNodeID,
 			Connected:    true,
 		}
-		assert.Equal(t, expectedPMMAgent, actualAgent)
+		assert.Equal(t, expectedPMMAgent, actualAgent.GetPmmAgent())
 	})
 
 	t.Run("AddPmmAgentNotFound", func(t *testing.T) {
@@ -420,7 +419,7 @@ func TestAgents(t *testing.T) {
 			CustomLabels: map[string]string{"baz": "qux"},
 			Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 		}
-		assert.Equal(t, expectedAgent, agent)
+		assert.Equal(t, expectedAgent, agent.GetRdsExporter())
 	})
 
 	t.Run("AddExternalExporter", func(t *testing.T) {
@@ -453,7 +452,7 @@ func TestAgents(t *testing.T) {
 			MetricsPath:  "/metrics",
 			ListenPort:   12345,
 		}
-		assert.Equal(t, expectedExternalExporter, agent)
+		assert.Equal(t, expectedExternalExporter, agent.GetExternalExporter())
 
 		actualAgent, err := as.Get(ctx, "/agent_id/00000000-0000-4000-8000-000000000006")
 		require.NoError(t, err)
@@ -471,7 +470,7 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 
 		_, err = as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
-			PmmAgentId: pmmAgent.AgentId,
+			PmmAgentId: pmmAgent.GetPmmAgent().AgentId,
 			ServiceId:  "no-such-id",
 		})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "no-such-id" not found.`), err)
@@ -514,7 +513,7 @@ func TestAgents(t *testing.T) {
 			RunsOnNodeId: models.PMMServerNodeID,
 			Connected:    true,
 		}
-		assert.Equal(t, expectedPMMAgent, pmmAgent)
+		assert.Equal(t, expectedPMMAgent, pmmAgent.GetPmmAgent())
 		ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mongo",
 			NodeID:      models.PMMServerNodeID,
@@ -523,7 +522,7 @@ func TestAgents(t *testing.T) {
 		})
 		require.NoError(t, err)
 		actualAgent, err := as.AddMongoDBExporter(ctx, &inventoryv1.AddMongoDBExporterParams{
-			PmmAgentId:  pmmAgent.AgentId,
+			PmmAgentId:  pmmAgent.GetPmmAgent().AgentId,
 			ServiceId:   ms.ServiceId,
 			Username:    "username",
 			PushMetrics: true,
@@ -531,13 +530,13 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		expectedMongoDBExporter := &inventoryv1.MongoDBExporter{
 			AgentId:            "/agent_id/00000000-0000-4000-8000-000000000007",
-			PmmAgentId:         pmmAgent.AgentId,
+			PmmAgentId:         pmmAgent.GetPmmAgent().AgentId,
 			ServiceId:          ms.ServiceId,
 			Username:           "username",
 			PushMetricsEnabled: true,
 			Status:             inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 		}
-		assert.Equal(t, expectedMongoDBExporter, actualAgent)
+		assert.Equal(t, expectedMongoDBExporter, actualAgent.GetMongodbExporter())
 	})
 
 	t.Run("PushMetricsNodeExporter", func(t *testing.T) {
@@ -561,10 +560,10 @@ func TestAgents(t *testing.T) {
 			RunsOnNodeId: models.PMMServerNodeID,
 			Connected:    true,
 		}
-		assert.Equal(t, expectedPMMAgent, pmmAgent)
+		assert.Equal(t, expectedPMMAgent, pmmAgent.GetPmmAgent())
 
 		actualNodeExporter, err := as.AddNodeExporter(ctx, &inventoryv1.AddNodeExporterParams{
-			PmmAgentId:  pmmAgent.AgentId,
+			PmmAgentId:  pmmAgent.GetPmmAgent().AgentId,
 			PushMetrics: true,
 		})
 		require.NoError(t, err)
@@ -574,7 +573,7 @@ func TestAgents(t *testing.T) {
 			PushMetricsEnabled: true,
 			Status:             inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 		}
-		assert.Equal(t, expectedNodeExporter, actualNodeExporter)
+		assert.Equal(t, expectedNodeExporter, actualNodeExporter.GetNodeExporter())
 	})
 
 	t.Run("PushMetricsPostgresSQLExporter", func(t *testing.T) {
@@ -606,7 +605,7 @@ func TestAgents(t *testing.T) {
 			RunsOnNodeId: models.PMMServerNodeID,
 			Connected:    true,
 		}
-		assert.Equal(t, expectedPMMAgent, pmmAgent)
+		assert.Equal(t, expectedPMMAgent, pmmAgent.GetPmmAgent())
 		ps, err := ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-postgres",
 			NodeID:      models.PMMServerNodeID,
@@ -616,7 +615,7 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 
 		actualAgent, err := as.AddPostgresExporter(ctx, &inventoryv1.AddPostgresExporterParams{
-			PmmAgentId:  pmmAgent.AgentId,
+			PmmAgentId:  pmmAgent.GetPmmAgent().AgentId,
 			ServiceId:   ps.ServiceId,
 			Username:    "username",
 			PushMetrics: true,
@@ -624,13 +623,13 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		expectedPostgresExporter := &inventoryv1.PostgresExporter{
 			AgentId:            "/agent_id/00000000-0000-4000-8000-000000000007",
-			PmmAgentId:         pmmAgent.AgentId,
+			PmmAgentId:         pmmAgent.GetPmmAgent().AgentId,
 			ServiceId:          ps.ServiceId,
 			Username:           "username",
 			PushMetricsEnabled: true,
 			Status:             inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 		}
-		assert.Equal(t, expectedPostgresExporter, actualAgent)
+		assert.Equal(t, expectedPostgresExporter, actualAgent.GetPostgresExporter())
 	})
 
 	t.Run("PushMetricsMySQLExporter", func(t *testing.T) {
@@ -662,7 +661,7 @@ func TestAgents(t *testing.T) {
 			RunsOnNodeId: models.PMMServerNodeID,
 			Connected:    true,
 		}
-		assert.Equal(t, expectedPMMAgent, pmmAgent)
+		assert.Equal(t, expectedPMMAgent, pmmAgent.GetPmmAgent())
 
 		ss.vc.(*mockVersionCache).On("RequestSoftwareVersionsUpdate").Once()
 		s, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
@@ -674,7 +673,7 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 
 		actualAgent, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
-			PmmAgentId:  pmmAgent.AgentId,
+			PmmAgentId:  pmmAgent.GetPmmAgent().AgentId,
 			ServiceId:   s.ServiceId,
 			Username:    "username",
 			PushMetrics: true,
@@ -688,7 +687,7 @@ func TestAgents(t *testing.T) {
 			PushMetricsEnabled: true,
 			Status:             inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 		}
-		assert.Equal(t, expectedMySQLdExporter, actualAgent)
+		assert.Equal(t, expectedMySQLdExporter, actualAgent.GetMysqldExporter())
 	})
 
 	t.Run("PushMetricsRdsExporter", func(t *testing.T) {
@@ -735,7 +734,7 @@ func TestAgents(t *testing.T) {
 			PushMetricsEnabled: true,
 			Status:             inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 		}
-		assert.Equal(t, expectedAgent, agent)
+		assert.Equal(t, expectedAgent, agent.GetRdsExporter())
 	})
 
 	t.Run("PushMetricsExternalExporter", func(t *testing.T) {
@@ -769,7 +768,7 @@ func TestAgents(t *testing.T) {
 			ListenPort:         12345,
 			PushMetricsEnabled: true,
 		}
-		assert.Equal(t, expectedExternalExporter, agent)
+		assert.Equal(t, expectedExternalExporter, agent.GetExternalExporter())
 
 		actualAgent, err := as.Get(ctx, "/agent_id/00000000-0000-4000-8000-000000000006")
 		require.NoError(t, err)

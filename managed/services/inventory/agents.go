@@ -123,9 +123,9 @@ func (as *AgentsService) List(ctx context.Context, filters models.AgentFilters) 
 }
 
 // Get selects a single Agent by ID.
-func (as *AgentsService) Get(ctx context.Context, id string) (inventoryv1.Agent, error) { //nolint:ireturn,unparam
+func (as *AgentsService) Get(ctx context.Context, id string) (inventoryv1.Agent, error) { //nolint:ireturn
 	var res inventoryv1.Agent
-	e := as.db.InTransaction(func(tx *reform.TX) error {
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		row, err := models.FindAgentByID(tx.Querier, id)
 		if err != nil {
 			return err
@@ -153,29 +153,34 @@ func (as *AgentsService) Logs(ctx context.Context, id string, limit uint32) ([]s
 }
 
 // AddPMMAgent inserts pmm-agent Agent with given parameters.
-//
-//nolint:unparam
-func (as *AgentsService) AddPMMAgent(ctx context.Context, p *inventoryv1.AddPMMAgentParams) (*inventoryv1.PMMAgent, error) {
-	var res *inventoryv1.PMMAgent
-	e := as.db.InTransaction(func(tx *reform.TX) error {
+func (as *AgentsService) AddPMMAgent(ctx context.Context, p *inventoryv1.AddPMMAgentParams) (*inventoryv1.AddAgentResponse, error) {
+	var agent *inventoryv1.PMMAgent
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		row, err := models.CreatePMMAgent(tx.Querier, p.RunsOnNodeId, p.CustomLabels)
 		if err != nil {
 			return err
 		}
 
-		agent, err := toInventoryAgent(tx.Querier, row, as.r)
+		aa, err := toInventoryAgent(tx.Querier, row, as.r)
 		if err != nil {
 			return err
 		}
-		res = agent.(*inventoryv1.PMMAgent) //nolint:forcetypeassert
+		agent = aa.(*inventoryv1.PMMAgent) //nolint:forcetypeassert
 		return nil
 	})
+
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_PmmAgent{
+			PmmAgent: agent,
+		},
+	}
+
 	return res, e
 }
 
 // AddNodeExporter inserts node_exporter Agent with given parameters.
-func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.AddNodeExporterParams) (*inventoryv1.NodeExporter, error) {
-	var res *inventoryv1.NodeExporter
+func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.AddNodeExporterParams) (*inventoryv1.AddAgentResponse, error) {
+	var agent *inventoryv1.NodeExporter
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		row, err := models.CreateNodeExporter(tx.Querier, p.PmmAgentId, p.CustomLabels, p.PushMetrics, p.ExposeExporter,
 			p.DisableCollectors, nil, services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR))
@@ -183,11 +188,11 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.Add
 			return err
 		}
 
-		agent, err := services.ToAPIAgent(tx.Querier, row)
+		aa, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
-		res = agent.(*inventoryv1.NodeExporter) //nolint:forcetypeassert
+		agent = aa.(*inventoryv1.NodeExporter) //nolint:forcetypeassert
 		return nil
 	})
 	if e != nil {
@@ -195,6 +200,12 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.Add
 	}
 
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_NodeExporter{
+			NodeExporter: agent,
+		},
+	}
+
 	return res, nil
 }
 
@@ -218,10 +229,10 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, p *inventoryv1.
 }
 
 // AddMySQLdExporter inserts mysqld_exporter Agent with given parameters and returns it and an actual table count.
-func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.AddMySQLdExporterParams) (*inventoryv1.MySQLdExporter, error) { //nolint:unparam
+func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.AddMySQLdExporterParams) (*inventoryv1.AddAgentResponse, error) {
 	var row *models.Agent
-	var res *inventoryv1.MySQLdExporter
-	e := as.db.InTransaction(func(tx *reform.TX) error {
+	var agent *inventoryv1.MySQLdExporter
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
 			PMMAgentID:                     p.PmmAgentId,
 			ServiceID:                      p.ServiceId,
@@ -258,11 +269,11 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 			}
 		}
 
-		agent, err := services.ToAPIAgent(tx.Querier, row)
+		aa, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
-		res = agent.(*inventoryv1.MySQLdExporter) //nolint:forcetypeassert
+		agent = aa.(*inventoryv1.MySQLdExporter) //nolint:forcetypeassert
 		return nil
 	})
 	if e != nil {
@@ -270,6 +281,12 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 	}
 
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_MysqldExporter{
+			MysqldExporter: agent,
+		},
+	}
+
 	return res, nil
 }
 
@@ -293,9 +310,9 @@ func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, p *inventoryv
 }
 
 // AddMongoDBExporter inserts mongodb_exporter Agent with given parameters.
-func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.AddMongoDBExporterParams) (*inventoryv1.MongoDBExporter, error) {
-	var res *inventoryv1.MongoDBExporter
-	e := as.db.InTransaction(func(tx *reform.TX) error {
+func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.AddMongoDBExporterParams) (*inventoryv1.AddAgentResponse, error) {
+	var agent *inventoryv1.MongoDBExporter
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
 			PMMAgentID:        p.PmmAgentId,
 			ServiceID:         p.ServiceId,
@@ -330,11 +347,11 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 			}
 		}
 
-		agent, err := services.ToAPIAgent(tx.Querier, row)
+		aa, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
-		res = agent.(*inventoryv1.MongoDBExporter) //nolint:forcetypeassert
+		agent = aa.(*inventoryv1.MongoDBExporter) //nolint:forcetypeassert
 		return nil
 	})
 	if e != nil {
@@ -342,6 +359,12 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 	}
 
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_MongodbExporter{
+			MongodbExporter: agent,
+		},
+	}
+
 	return res, nil
 }
 
@@ -367,9 +390,9 @@ func (as *AgentsService) ChangeMongoDBExporter(ctx context.Context, p *inventory
 // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
 //
 //nolint:lll
-func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inventoryv1.AddQANMySQLPerfSchemaAgentParams) (*inventoryv1.QANMySQLPerfSchemaAgent, error) {
-	var res *inventoryv1.QANMySQLPerfSchemaAgent
-	e := as.db.InTransaction(func(tx *reform.TX) error {
+func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inventoryv1.AddQANMySQLPerfSchemaAgentParams) (*inventoryv1.AddAgentResponse, error) {
+	var agent *inventoryv1.QANMySQLPerfSchemaAgent
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
 			PMMAgentID:              p.PmmAgentId,
 			ServiceID:               p.ServiceId,
@@ -399,18 +422,24 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inve
 			}
 		}
 
-		agent, err := services.ToAPIAgent(tx.Querier, row)
+		aa, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
-		res = agent.(*inventoryv1.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
+		agent = aa.(*inventoryv1.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
 		return nil
 	})
 	if e != nil {
-		return res, e
+		return nil, e
 	}
 
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_QanMysqlPerfschemaAgent{
+			QanMysqlPerfschemaAgent: agent,
+		},
+	}
+
 	return res, e
 }
 
@@ -433,9 +462,9 @@ func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, p *i
 }
 
 // AddQANMySQLSlowlogAgent adds MySQL Slowlog QAN Agent.
-func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *inventoryv1.AddQANMySQLSlowlogAgentParams) (*inventoryv1.QANMySQLSlowlogAgent, error) {
-	var res *inventoryv1.QANMySQLSlowlogAgent
-	e := as.db.InTransaction(func(tx *reform.TX) error {
+func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *inventoryv1.AddQANMySQLSlowlogAgentParams) (*inventoryv1.AddAgentResponse, error) {
+	var agent *inventoryv1.QANMySQLSlowlogAgent
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		// tweak according to API docs
 		maxSlowlogFileSize := p.MaxSlowlogFileSize
 		if maxSlowlogFileSize < 0 {
@@ -472,18 +501,24 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *invento
 			}
 		}
 
-		agent, err := services.ToAPIAgent(tx.Querier, row)
+		aa, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
-		res = agent.(*inventoryv1.QANMySQLSlowlogAgent) //nolint:forcetypeassert
+		agent = aa.(*inventoryv1.QANMySQLSlowlogAgent) //nolint:forcetypeassert
 		return nil
 	})
 	if e != nil {
-		return res, e
+		return nil, e
 	}
 
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_QanMysqlSlowlogAgent{
+			QanMysqlSlowlogAgent: agent,
+		},
+	}
+
 	return res, e
 }
 
@@ -506,9 +541,9 @@ func (as *AgentsService) ChangeQANMySQLSlowlogAgent(ctx context.Context, p *inve
 }
 
 // AddPostgresExporter inserts postgres_exporter Agent with given parameters.
-func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1.AddPostgresExporterParams) (*inventoryv1.PostgresExporter, error) {
-	var res *inventoryv1.PostgresExporter
-	e := as.db.InTransaction(func(tx *reform.TX) error {
+func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1.AddPostgresExporterParams) (*inventoryv1.AddAgentResponse, error) {
+	var agent *inventoryv1.PostgresExporter
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
 			PMMAgentID:        p.PmmAgentId,
 			ServiceID:         p.ServiceId,
@@ -543,11 +578,11 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1
 			}
 		}
 
-		agent, err := services.ToAPIAgent(tx.Querier, row)
+		aa, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
-		res = agent.(*inventoryv1.PostgresExporter) //nolint:forcetypeassert
+		agent = aa.(*inventoryv1.PostgresExporter) //nolint:forcetypeassert
 		return nil
 	})
 	if e != nil {
@@ -555,6 +590,12 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1
 	}
 
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_PostgresExporter{
+			PostgresExporter: agent,
+		},
+	}
+
 	return res, nil
 }
 
@@ -579,10 +620,10 @@ func (as *AgentsService) ChangePostgresExporter(ctx context.Context, p *inventor
 // AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.
 //
 //nolint:lll
-func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, p *inventoryv1.AddQANMongoDBProfilerAgentParams) (*inventoryv1.QANMongoDBProfilerAgent, error) {
-	var res *inventoryv1.QANMongoDBProfilerAgent
+func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, p *inventoryv1.AddQANMongoDBProfilerAgentParams) (*inventoryv1.AddAgentResponse, error) {
+	var agent *inventoryv1.QANMongoDBProfilerAgent
 
-	e := as.db.InTransaction(func(tx *reform.TX) error {
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
 			PMMAgentID:     p.PmmAgentId,
 			ServiceID:      p.ServiceId,
@@ -611,18 +652,24 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, p *inve
 			}
 		}
 
-		agent, err := services.ToAPIAgent(tx.Querier, row)
+		aa, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
-		res = agent.(*inventoryv1.QANMongoDBProfilerAgent) //nolint:forcetypeassert
+		agent = aa.(*inventoryv1.QANMongoDBProfilerAgent) //nolint:forcetypeassert
 		return nil
 	})
 	if e != nil {
-		return res, e
+		return nil, e
 	}
 
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_QanMongodbProfilerAgent{
+			QanMongodbProfilerAgent: agent,
+		},
+	}
+
 	return res, e
 }
 
@@ -647,9 +694,9 @@ func (as *AgentsService) ChangeQANMongoDBProfilerAgent(ctx context.Context, p *i
 }
 
 // AddProxySQLExporter inserts proxysql_exporter Agent with given parameters.
-func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1.AddProxySQLExporterParams) (*inventoryv1.ProxySQLExporter, error) {
-	var res *inventoryv1.ProxySQLExporter
-	e := as.db.InTransaction(func(tx *reform.TX) error {
+func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1.AddProxySQLExporterParams) (*inventoryv1.AddAgentResponse, error) {
+	var agent *inventoryv1.ProxySQLExporter
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
 			PMMAgentID:        p.PmmAgentId,
 			ServiceID:         p.ServiceId,
@@ -683,11 +730,11 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1
 			}
 		}
 
-		agent, err := services.ToAPIAgent(tx.Querier, row)
+		aa, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
-		res = agent.(*inventoryv1.ProxySQLExporter) //nolint:forcetypeassert
+		agent = aa.(*inventoryv1.ProxySQLExporter) //nolint:forcetypeassert
 		return nil
 	})
 	if e != nil {
@@ -695,6 +742,12 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1
 	}
 
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_ProxysqlExporter{
+			ProxysqlExporter: agent,
+		},
+	}
+
 	return res, nil
 }
 
@@ -719,9 +772,9 @@ func (as *AgentsService) ChangeProxySQLExporter(ctx context.Context, p *inventor
 // AddQANPostgreSQLPgStatementsAgent adds PostgreSQL Pg stat statements QAN Agent.
 //
 //nolint:lll
-func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, p *inventoryv1.AddQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.QANPostgreSQLPgStatementsAgent, error) {
-	var res *inventoryv1.QANPostgreSQLPgStatementsAgent
-	e := as.db.InTransaction(func(tx *reform.TX) error {
+func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, p *inventoryv1.AddQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.AddAgentResponse, error) {
+	var agent *inventoryv1.QANPostgreSQLPgStatementsAgent
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
 			PMMAgentID:              p.PmmAgentId,
 			ServiceID:               p.ServiceId,
@@ -750,18 +803,24 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, 
 			}
 		}
 
-		agent, err := services.ToAPIAgent(tx.Querier, row)
+		aa, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
-		res = agent.(*inventoryv1.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
+		agent = aa.(*inventoryv1.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
 		return nil
 	})
 	if e != nil {
-		return res, e
+		return nil, e
 	}
 
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_QanPostgresqlPgstatementsAgent{
+			QanPostgresqlPgstatementsAgent: agent,
+		},
+	}
+
 	return res, e
 }
 
@@ -786,9 +845,9 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Contex
 // AddQANPostgreSQLPgStatMonitorAgent adds PostgreSQL Pg stat monitor QAN Agent.
 //
 //nolint:lll
-func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context, p *inventoryv1.AddQANPostgreSQLPgStatMonitorAgentParams) (*inventoryv1.QANPostgreSQLPgStatMonitorAgent, error) {
-	var res *inventoryv1.QANPostgreSQLPgStatMonitorAgent
-	e := as.db.InTransaction(func(tx *reform.TX) error {
+func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context, p *inventoryv1.AddQANPostgreSQLPgStatMonitorAgentParams) (*inventoryv1.AddAgentResponse, error) {
+	var agent *inventoryv1.QANPostgreSQLPgStatMonitorAgent
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
 			PMMAgentID:              p.PmmAgentId,
 			ServiceID:               p.ServiceId,
@@ -818,18 +877,24 @@ func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context,
 			}
 		}
 
-		agent, err := services.ToAPIAgent(tx.Querier, row)
+		aa, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
-		res = agent.(*inventoryv1.QANPostgreSQLPgStatMonitorAgent) //nolint:forcetypeassert
+		agent = aa.(*inventoryv1.QANPostgreSQLPgStatMonitorAgent) //nolint:forcetypeassert
 		return nil
 	})
 	if e != nil {
-		return res, e
+		return nil, e
 	}
 
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_QanPostgresqlPgstatmonitorAgent{
+			QanPostgresqlPgstatmonitorAgent: agent,
+		},
+	}
+
 	return res, e
 }
 
@@ -852,9 +917,9 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatMonitorAgent(ctx context.Conte
 }
 
 // AddRDSExporter inserts rds_exporter Agent with given parameters.
-func (as *AgentsService) AddRDSExporter(ctx context.Context, p *inventoryv1.AddRDSExporterParams) (*inventoryv1.RDSExporter, error) {
-	var res *inventoryv1.RDSExporter
-	e := as.db.InTransaction(func(tx *reform.TX) error {
+func (as *AgentsService) AddRDSExporter(ctx context.Context, p *inventoryv1.AddRDSExporterParams) (*inventoryv1.AddAgentResponse, error) {
+	var agent *inventoryv1.RDSExporter
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
 			PMMAgentID:                 p.PmmAgentId,
 			NodeID:                     p.NodeId,
@@ -876,11 +941,11 @@ func (as *AgentsService) AddRDSExporter(ctx context.Context, p *inventoryv1.AddR
 		// 	...
 		// }
 
-		agent, err := services.ToAPIAgent(tx.Querier, row)
+		aa, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
-		res = agent.(*inventoryv1.RDSExporter) //nolint:forcetypeassert
+		agent = aa.(*inventoryv1.RDSExporter) //nolint:forcetypeassert
 		return nil
 	})
 	if e != nil {
@@ -888,6 +953,12 @@ func (as *AgentsService) AddRDSExporter(ctx context.Context, p *inventoryv1.AddR
 	}
 
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_RdsExporter{
+			RdsExporter: agent,
+		},
+	}
+
 	return res, nil
 }
 
@@ -910,12 +981,12 @@ func (as *AgentsService) ChangeRDSExporter(ctx context.Context, req *inventoryv1
 }
 
 // AddExternalExporter inserts external-exporter Agent with given parameters.
-func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1.AddExternalExporterParams) (*inventoryv1.ExternalExporter, error) {
+func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1.AddExternalExporterParams) (*inventoryv1.AddAgentResponse, error) {
 	var (
-		res        *inventoryv1.ExternalExporter
+		agent      *inventoryv1.ExternalExporter
 		PMMAgentID *string
 	)
-	e := as.db.InTransaction(func(tx *reform.TX) error {
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateExternalExporterParams{
 			RunsOnNodeID: p.RunsOnNodeId,
 			ServiceID:    p.ServiceId,
@@ -932,11 +1003,11 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 			return err
 		}
 
-		agent, err := services.ToAPIAgent(tx.Querier, row)
+		aa, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
-		res = agent.(*inventoryv1.ExternalExporter) //nolint:forcetypeassert
+		agent = aa.(*inventoryv1.ExternalExporter) //nolint:forcetypeassert
 		PMMAgentID = row.PMMAgentID
 		return nil
 	})
@@ -949,6 +1020,12 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 	} else {
 		// It's required to regenerate victoriametrics config file.
 		as.vmdb.RequestConfigurationUpdate()
+	}
+
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_ExternalExporter{
+			ExternalExporter: agent,
+		},
 	}
 
 	return res, nil
@@ -976,10 +1053,10 @@ func (as *AgentsService) ChangeExternalExporter(ctx context.Context, req *invent
 }
 
 // AddAzureDatabaseExporter inserts azure_exporter Agent with given parameters.
-func (as *AgentsService) AddAzureDatabaseExporter(ctx context.Context, p *inventoryv1.AddAzureDatabaseExporterParams) (*inventoryv1.AzureDatabaseExporter, error) {
-	var res *inventoryv1.AzureDatabaseExporter
+func (as *AgentsService) AddAzureDatabaseExporter(ctx context.Context, p *inventoryv1.AddAzureDatabaseExporterParams) (*inventoryv1.AddAgentResponse, error) {
+	var agent *inventoryv1.AzureDatabaseExporter
 
-	e := as.db.InTransaction(func(tx *reform.TX) error {
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
 			PMMAgentID:   p.PmmAgentId,
 			NodeID:       p.NodeId,
@@ -993,11 +1070,11 @@ func (as *AgentsService) AddAzureDatabaseExporter(ctx context.Context, p *invent
 			return err
 		}
 
-		agent, err := services.ToAPIAgent(tx.Querier, row)
+		aa, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
-		res = agent.(*inventoryv1.AzureDatabaseExporter) //nolint:forcetypeassert
+		agent = aa.(*inventoryv1.AzureDatabaseExporter) //nolint:forcetypeassert
 		return nil
 	})
 	if e != nil {
@@ -1005,6 +1082,12 @@ func (as *AgentsService) AddAzureDatabaseExporter(ctx context.Context, p *invent
 	}
 
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_AzureDatabaseExporter{
+			AzureDatabaseExporter: agent,
+		},
+	}
+
 	return res, nil
 }
 
@@ -1032,7 +1115,7 @@ func (as *AgentsService) ChangeAzureDatabaseExporter(
 // Remove removes Agent, and sends state update to pmm-agent, or kicks it.
 func (as *AgentsService) Remove(ctx context.Context, id string, force bool) error {
 	var removedAgent *models.Agent
-	e := as.db.InTransaction(func(tx *reform.TX) error {
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		mode := models.RemoveRestrict
 		if force {
