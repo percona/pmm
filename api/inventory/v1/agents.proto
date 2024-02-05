@@ -664,8 +664,6 @@ message GetAgentLogsResponse {
 
 // TODO Add VMAgent?
 
-// TODO Change VMAgent?
-
 message AddAgentRequest {
   oneof agent {
     AddPMMAgentParams pmm_agent = 1;
