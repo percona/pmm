@@ -218,7 +218,7 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, p *inventoryv1.
 }
 
 // AddMySQLdExporter inserts mysqld_exporter Agent with given parameters and returns it and an actual table count.
-func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.AddMySQLdExporterParams) (*inventoryv1.MySQLdExporter, int32, error) { //nolint:unparam
+func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.AddMySQLdExporterParams) (*inventoryv1.MySQLdExporter, error) { //nolint:unparam
 	var row *models.Agent
 	var res *inventoryv1.MySQLdExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
@@ -266,11 +266,11 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 		return nil
 	})
 	if e != nil {
-		return nil, 0, e
+		return nil, e
 	}
 
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
-	return res, pointer.GetInt32(row.TableCount), nil
+	return res, nil
 }
 
 // ChangeMySQLdExporter updates mysqld_exporter Agent with given parameters.

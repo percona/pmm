@@ -70,7 +70,7 @@ func TestMySQLdExporter(t *testing.T) {
 				TablestatsGroupTableLimit: 2000,
 			},
 		})
-		assert.EqualValues(t, 0, mySqldExporter.TableCount)
+		assert.EqualValues(t, 0, mySqldExporter.MysqldExporter.TableCount)
 		assert.EqualValues(t, 2000, mySqldExporter.MysqldExporter.TablestatsGroupTableLimit)
 		agentID := mySqldExporter.MysqldExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
@@ -215,7 +215,7 @@ func TestMySQLdExporter(t *testing.T) {
 				TablestatsGroupTableLimit: 2000,
 			},
 		})
-		assert.Greater(t, mySqldExporter.TableCount, int32(0))
+		assert.Greater(t, mySqldExporter.MysqldExporter.TableCount, int32(0))
 		assert.EqualValues(t, 2000, mySqldExporter.MysqldExporter.TablestatsGroupTableLimit)
 		agentID := mySqldExporter.MysqldExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
@@ -386,7 +386,7 @@ func TestMySQLdExporter(t *testing.T) {
 				PushMetrics:               true,
 			},
 		})
-		assert.EqualValues(t, 0, mySqldExporter.TableCount)
+		assert.EqualValues(t, 0, mySqldExporter.MysqldExporter.TableCount)
 		assert.EqualValues(t, 2000, mySqldExporter.MysqldExporter.TablestatsGroupTableLimit)
 		agentID := mySqldExporter.MysqldExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)

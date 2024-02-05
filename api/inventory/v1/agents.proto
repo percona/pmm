@@ -133,6 +133,8 @@ message MySQLdExporter {
   bool push_metrics_enabled = 13;
   // List of disabled collector names.
   repeated string disabled_collectors = 14;
+  // Actual table count at the moment of adding.
+  int32 table_count = 15;
 
   //
   // Status fields below.
@@ -700,13 +702,12 @@ message AddAgentResponse {
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 13;
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 14;
   }
-  // Actual table count for SQL databases at the moment of adding.
-  int32 table_count = 20;
 }
 
 message ChangeAgentRequest {
   oneof agent {
     // ChangePMMAgentParams pmm_agent = 1;
+
     ChangeNodeExporterParams node_exporter = 2;
     ChangeMySQLdExporterParams mysqld_exporter = 3;
     ChangeMongoDBExporterParams mongodb_exporter = 4;
@@ -726,6 +727,7 @@ message ChangeAgentRequest {
 message ChangeAgentResponse {
   oneof agent {
     // PMMAgent pmm_agent = 1;
+
     NodeExporter node_exporter = 2;
     MySQLdExporter mysqld_exporter = 3;
     MongoDBExporter mongodb_exporter = 4;
@@ -740,8 +742,6 @@ message ChangeAgentResponse {
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 13;
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 14;
   }
-  // Actual table count for SQL databases at the moment of adding.
-  int32 table_count = 20;
 }
 
 // Add PMMAgent

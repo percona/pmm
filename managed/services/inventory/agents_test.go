@@ -135,7 +135,7 @@ func TestAgents(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			actualAgent, _, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
+			actualAgent, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
 				PmmAgentId: pmmAgentID,
 				ServiceId:  ms.ServiceId,
 				Username:   "username",
@@ -470,7 +470,7 @@ func TestAgents(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		_, _, err = as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
+		_, err = as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
 			PmmAgentId: pmmAgent.AgentId,
 			ServiceId:  "no-such-id",
 		})
@@ -673,7 +673,7 @@ func TestAgents(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		actualAgent, _, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
+		actualAgent, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
 			PmmAgentId:  pmmAgent.AgentId,
 			ServiceId:   s.ServiceId,
 			Username:    "username",

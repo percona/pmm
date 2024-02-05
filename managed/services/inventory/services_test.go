@@ -169,7 +169,7 @@ func TestServices(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		mySQLAgent, _, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
+		mySQLAgent, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
 			PmmAgentId: "pmm-server",
 			ServiceId:  mySQLService.ServiceId,
 			Username:   "username",
@@ -230,7 +230,7 @@ func TestServices(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		mySQLAgent, _, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
+		mySQLAgent, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
 			PmmAgentId: "pmm-server",
 			ServiceId:  mySQLService.ServiceId,
 			Username:   "username",

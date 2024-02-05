@@ -156,6 +156,6 @@ func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 	}
 	return &addAgentMysqldExporterResult{
 		Agent:      resp.Payload.MysqldExporter,
-		TableCount: resp.Payload.TableCount,
+		TableCount: resp.Payload.MysqldExporter.TableCount,
 	}, nil
 }

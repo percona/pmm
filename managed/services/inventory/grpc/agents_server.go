@@ -275,7 +275,7 @@ func (s *agentsServer) addNodeExporter(ctx context.Context, params *inventoryv1.
 
 // addMySQLdExporter adds mysqld_exporter Agent.
 func (s *agentsServer) addMySQLdExporter(ctx context.Context, params *inventoryv1.AddMySQLdExporterParams) (*inventoryv1.AddAgentResponse, error) {
-	agent, tableCount, err := s.s.AddMySQLdExporter(ctx, params)
+	agent, err := s.s.AddMySQLdExporter(ctx, params)
 	if err != nil {
 		return nil, err
 	}
@@ -284,7 +284,6 @@ func (s *agentsServer) addMySQLdExporter(ctx context.Context, params *inventoryv
 		Agent: &inventoryv1.AddAgentResponse_MysqldExporter{
 			MysqldExporter: agent,
 		},
-		TableCount: tableCount,
 	}
 	return res, nil
 }

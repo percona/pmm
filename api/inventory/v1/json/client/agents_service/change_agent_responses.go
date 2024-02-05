@@ -895,9 +895,6 @@ ChangeAgentOKBody change agent OK body
 swagger:model ChangeAgentOKBody
 */
 type ChangeAgentOKBody struct {
-	// Actual table count for SQL databases at the moment of adding.
-	TableCount int32 `json:"table_count,omitempty"`
-
 	// azure database exporter
 	AzureDatabaseExporter *ChangeAgentOKBodyAzureDatabaseExporter `json:"azure_database_exporter,omitempty"`
 
@@ -2066,6 +2063,9 @@ type ChangeAgentOKBodyMysqldExporter struct {
 
 	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
+
+	// Actual table count at the moment of adding.
+	TableCount int32 `json:"table_count,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//

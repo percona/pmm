@@ -419,6 +419,8 @@ func (m *MySQLdExporter) validate(all bool) error {
 
 	// no validation rules for PushMetricsEnabled
 
+	// no validation rules for TableCount
+
 	// no validation rules for Status
 
 	// no validation rules for ListenPort
@@ -4548,8 +4550,6 @@ func (m *AddAgentResponse) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for TableCount
-
 	switch v := m.Agent.(type) {
 	case *AddAgentResponse_PmmAgent:
 		if v == nil {
@@ -5868,8 +5868,6 @@ func (m *ChangeAgentResponse) validate(all bool) error {
 	}
 
 	var errors []error
-
-	// no validation rules for TableCount
 
 	switch v := m.Agent.(type) {
 	case *ChangeAgentResponse_NodeExporter:

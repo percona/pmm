@@ -1538,13 +1538,13 @@
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 19
+                      "x-order": 20
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 15
+                      "x-order": 16
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -1559,7 +1559,7 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 18
+                      "x-order": 19
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -1569,7 +1569,7 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 17
+                      "x-order": 18
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
@@ -1594,12 +1594,18 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
+                      "x-order": 15
+                    },
+                    "table_count": {
+                      "description": "Actual table count at the moment of adding.",
+                      "type": "integer",
+                      "format": "int32",
                       "x-order": 14
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 16
+                      "x-order": 17
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
@@ -2615,12 +2621,6 @@
                     }
                   },
                   "x-order": 7
-                },
-                "table_count": {
-                  "description": "Actual table count for SQL databases at the moment of adding.",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 14
                 }
               }
             }
@@ -3575,13 +3575,13 @@
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 19
+                      "x-order": 20
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 15
+                      "x-order": 16
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -3596,7 +3596,7 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 18
+                      "x-order": 19
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3606,7 +3606,7 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 17
+                      "x-order": 18
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
@@ -3631,12 +3631,18 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
+                      "x-order": 15
+                    },
+                    "table_count": {
+                      "description": "Actual table count at the moment of adding.",
+                      "type": "integer",
+                      "format": "int32",
                       "x-order": 14
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 16
+                      "x-order": 17
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
@@ -4617,12 +4623,6 @@
                     }
                   },
                   "x-order": 6
-                },
-                "table_count": {
-                  "description": "Actual table count for SQL databases at the moment of adding.",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 13
                 }
               }
             }
@@ -5010,13 +5010,13 @@
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 19
+                      "x-order": 20
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 15
+                      "x-order": 16
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -5031,7 +5031,7 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 18
+                      "x-order": 19
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5041,7 +5041,7 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 17
+                      "x-order": 18
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
@@ -5066,12 +5066,18 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
+                      "x-order": 15
+                    },
+                    "table_count": {
+                      "description": "Actual table count at the moment of adding.",
+                      "type": "integer",
+                      "format": "int32",
                       "x-order": 14
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 16
+                      "x-order": 17
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
@@ -6648,13 +6654,13 @@
                       "expose_exporter": {
                         "type": "boolean",
                         "title": "Optionally expose the exporter process on all public interfaces",
-                        "x-order": 19
+                        "x-order": 20
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 15
+                        "x-order": 16
                       },
                       "log_level": {
                         "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -6669,7 +6675,7 @@
                           "LOG_LEVEL_INFO",
                           "LOG_LEVEL_DEBUG"
                         ],
-                        "x-order": 18
+                        "x-order": 19
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -6679,7 +6685,7 @@
                       "process_exec_path": {
                         "description": "Path to exec process.",
                         "type": "string",
-                        "x-order": 17
+                        "x-order": 18
                       },
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
@@ -6704,12 +6710,18 @@
                           "AGENT_STATUS_DONE",
                           "AGENT_STATUS_UNKNOWN"
                         ],
+                        "x-order": 15
+                      },
+                      "table_count": {
+                        "description": "Actual table count at the moment of adding.",
+                        "type": "integer",
+                        "format": "int32",
                         "x-order": 14
                       },
                       "tablestats_group_disabled": {
                         "description": "True if tablestats group collectors are currently disabled.",
                         "type": "boolean",
-                        "x-order": 16
+                        "x-order": 17
                       },
                       "tablestats_group_table_limit": {
                         "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
