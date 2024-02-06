@@ -982,7 +982,7 @@ var databaseSchema = [][]string{
 		`UPDATE settings SET settings = settings || jsonb_set(settings, '{sass,disabled_advisors}', settings#>'{sass,disabled_stt_checks}') WHERE (settings#>'{sass,disabled_stt_checks}') IS NOT NULL`,
 		`UPDATE settings SET settings = settings #- '{sass,disabled_stt_checks}';`,
 
-		`UPDATE settings SET settings = settings || jsonb_set(settings, '{sass,advisor_run_intervals}', settings#>'{sass,stt_check_intervals}')  WHERE (settings#>'{sass,disabled_stt_checks}') IS NOT NULL`,
+		`UPDATE settings SET settings = settings || jsonb_set(settings, '{sass,advisor_run_intervals}', settings#>'{sass,stt_check_intervals}') WHERE (settings#>'{sass,disabled_stt_checks}') IS NOT NULL`,
 		`UPDATE settings SET settings = settings #- '{sass,stt_check_intervals}';`,
 	},
 }
