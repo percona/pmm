@@ -1,4 +1,3 @@
-// Package models provides functionality for handling database models and related tasks.
 // Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -17,7 +16,6 @@
 //
 
 // Package models provides functionality for handling database models and related tasks.
-//
 //nolint:lll
 package models
 
