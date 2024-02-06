@@ -69,6 +69,13 @@
   become: true
   changed_when: True
 
+- name: Create clickhouse data directory
+  file:
+    path: "/srv/clickhouse"
+    state: directory
+    owner: root
+    group: pmm
+
 - name: Update (both)
   block:
     - name: Check that conversion flag isn't created
