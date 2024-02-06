@@ -46,7 +46,7 @@ type ClientService interface {
 /*
 AddAgent adds an agent to inventory
 
-Adds an Agent to Inventory.
+Adds an Agent to Inventory. Only one top-level parameter should be passed.
 */
 func (a *Client) AddAgent(params *AddAgentParams, opts ...ClientOption) (*AddAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -85,7 +85,7 @@ func (a *Client) AddAgent(params *AddAgentParams, opts ...ClientOption) (*AddAge
 /*
 ChangeAgent updates an agent in inventory
 
-Updates an Agent in Inventory.
+Updates an Agent in Inventory. Only one top-level parameter should be passed.
 */
 func (a *Client) ChangeAgent(params *ChangeAgentParams, opts ...ClientOption) (*ChangeAgentOK, error) {
 	// TODO: Validate the params before sending

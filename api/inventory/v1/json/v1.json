@@ -17,7 +17,7 @@
   "paths": {
     "/v1/inventory/Agents/Add": {
       "post": {
-        "description": "Adds an Agent to Inventory.",
+        "description": "Adds an Agent to Inventory. Only one top-level parameter should be passed.",
         "tags": [
           "AgentsService"
         ],
@@ -2661,7 +2661,7 @@
     },
     "/v1/inventory/Agents/Change": {
       "post": {
-        "description": "Updates an Agent in Inventory.",
+        "description": "Updates an Agent in Inventory. Only one top-level parameter should be passed.",
         "tags": [
           "AgentsService"
         ],

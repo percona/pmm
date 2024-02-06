@@ -1306,7 +1306,7 @@ service AgentsService {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add an Agent to Inventory"
-      description: "Adds an Agent to Inventory."
+      description: "Adds an Agent to Inventory. Only one top-level parameter should be passed."
     };
   }
   // ChangeAgent changes any type of Agent record in Inventory.
@@ -1317,7 +1317,7 @@ service AgentsService {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Update an Agent in Inventory"
-      description: "Updates an Agent in Inventory."
+      description: "Updates an Agent in Inventory. Only one top-level parameter should be passed."
     };
   }
 
