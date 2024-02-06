@@ -8,11 +8,10 @@
     enabled: yes
     gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
-# we need the old postgres binary for the upgrade process
 - name: Install Postgres
   when:
     - not ansible_check_mode
-  dnf:
+  yum:
     name:
       - percona-postgresql14-server
       - percona-postgresql14-contrib
