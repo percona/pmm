@@ -665,7 +665,7 @@ func (s *Server) writeSSHKey(sshKey string) error {
 	s.sshKeyM.Lock()
 	defer s.sshKeyM.Unlock()
 
-	username := "root"
+	username := "pmm"
 	usr, err := user.Lookup(username)
 	if err != nil {
 		return errors.WithStack(err)
