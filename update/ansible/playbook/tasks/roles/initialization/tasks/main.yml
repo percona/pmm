@@ -105,7 +105,7 @@
           command: /usr/local/bin/supervisorctl restart clickhouse
           become: true
           changed_when: true
-      when: is_database_ordinary.stat.exists
+      when: not is_database_ordinary.stat.exists
 
     - name: Upgrade dashboards
       include_role:
