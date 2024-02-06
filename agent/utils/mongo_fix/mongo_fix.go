@@ -14,6 +14,7 @@
 //
 
 // Package mongo_fix provides utilities for fixing MongoDB-related issues.
+//
 //nolint:stylecheck
 package mongo_fix //nolint:revive
 
