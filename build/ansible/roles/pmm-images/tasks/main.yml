@@ -1,13 +1,16 @@
 ---
 # We use percona-release package to install the gpg keys and ppg-14
-# To workaround the package's incompatibility with RHEL9, we have to ignore errors :(
+# To workaround the package's incompatibility with RHEL9, we have to disable the gpg verification :(
 # Error: `Failed to validate GPG signature for percona-release-1.0-27.noarch`
 # Despite the error, this task will install the package and the GPG keys
 - name: Add percona-release package
   yum:
     name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     state: installed
-  ignore_errors: True
+    disable_gpg_check: yes
+
+- name: List installed gpg keys
+  command: ls -la /etc/pki/rpm-gpg
 
 # Local yum repo for building pmm server docker image in autobuild jobs
 - name: Add a local YUM repository
@@ -30,15 +33,6 @@
       - python3.11-pip
       - python3.11-psycopg2
       - rsync
-
-- name: Install ansible-core and ansible collections
-  yum:
-    name:
-      - ansible-core
-      - ansible-collection-community-general
-      - ansible-collection-community-postgresql
-      - ansible-collection-ansible-posix
-    state: present
 
 - name: Create groups
   group:

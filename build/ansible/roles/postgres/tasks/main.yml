@@ -100,7 +100,7 @@
 
 - name: Upgrade grafana database to the latest schema
   command: grafana cli --homepath=/usr/share/grafana --config=/etc/grafana/grafana.ini admin data-migration encrypt-datasource-passwords
-  changed_when: True
+  changed_when: true
 
 - name: Stop Postgres 14 database without supervisor
   command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
