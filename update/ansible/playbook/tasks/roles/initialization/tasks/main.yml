@@ -74,7 +74,7 @@
     - name: Check that Clickhouse database engine is ordinary
       stat:
         path: /srv/clickhouse/flags/convert_ordinary_to_atomic
-      register: is_database_ordinary
+      register: is_gf_database_converted
 
     - name: Convert clickhouse engine from ordinary to atomic
       block:
@@ -105,7 +105,7 @@
           command: /usr/local/bin/supervisorctl restart clickhouse
           become: true
           changed_when: true
-      when: not is_database_ordinary.stat.exists
+      when: not is_gf_database_converted.stat.exists
 
     - name: Upgrade dashboards
       include_role:
