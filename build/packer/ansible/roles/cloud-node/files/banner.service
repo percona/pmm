@@ -1,0 +1,10 @@
+[Unit]
+Description=URL banner service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/opt/show-url
+
+[Install]
+WantedBy=multi-user.target

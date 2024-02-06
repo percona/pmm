@@ -61,40 +61,8 @@ pmm-azure:
 	packer build -only azure-arm packer/pmm.json
 
 pmm-ami:
-	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
-			build -var 'pmm_client_repos=original experimental' \
-						-var 'pmm_client_repo_name=percona-experimental-x86_64' \
-						-var 'pmm_server_repo=experimental' \
-						-only amazon-ebs -color=false \
-						packer/pmm.json
-
-pmm-ami-rc:
-	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
-			build -var 'pmm_client_repos=original testing' \
-						-var 'pmm_client_repo_name=percona-testing-x86_64' \
-						-var 'pmm_server_repo=testing' \
-						-only amazon-ebs '-color=false' \
-						packer/pmm.json
-
-pmm-ami-el9:
-	mkdir -p update && \
-		sed -i 's|become_method: su|become_method: sudo|g' ./roles/postgres/tasks/main.yml && \
-		docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
-		build -var 'pmm_client_repos=original experimental' \
-					-var 'pmm_client_repo_name=percona-experimental-x86_64' \
-					-var 'pmm_server_repo=experimental' \
-					-only amazon-ebs -color=false \
-					packer/pmm.el9.json
-
-pmm-ami-el9-rc:
-	mkdir -p update && \
-		sed -i 's|become_method: su|become_method: sudo|g' ./roles/postgres/tasks/main.yml && \
-		docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
-		build -var 'pmm_client_repos=original testing' \
-					-var 'pmm_client_repo_name=percona-testing-x86_64' \
-					-var 'pmm_server_repo=testing' \
-					-only amazon-ebs '-color=false' \
-					packer/pmm.el9.json
+	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build \hashicorp/packer:${PACKER_VERSION} \
+	build -only amazon-ebs -color=false packer/pmm.json | tee build.log
 
 ## ----------------- PACKER ------------------
 
