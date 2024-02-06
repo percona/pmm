@@ -254,6 +254,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			TlsSkipVerify:             agent.TLSSkipVerify,
 			TablestatsGroupTableLimit: agent.TableCountTablestatsGroupLimit,
 			TablestatsGroupDisabled:   !agent.IsMySQLTablestatsGroupEnabled(),
+			TableCount:                pointer.GetInt32(agent.TableCount),
 			PushMetricsEnabled:        agent.PushMetrics,
 			DisabledCollectors:        agent.DisabledCollectors,
 			ProcessExecPath:           processExecPath,

@@ -169,7 +169,7 @@ func TestServices(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		mySQLAgent, _, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
+		mySQLAgent, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
 			PmmAgentId: "pmm-server",
 			ServiceId:  mySQLService.ServiceId,
 			Username:   "username",
@@ -182,11 +182,11 @@ func TestServices(t *testing.T) {
 		_, err = ss.Get(ctx, mySQLService.ServiceId)
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Service with ID "%s" not found.`, mySQLService.ServiceId)), err)
 
-		_, err = as.Get(ctx, rdsAgent.AgentId)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, rdsAgent.AgentId)), err)
+		_, err = as.Get(ctx, rdsAgent.GetRdsExporter().AgentId)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, rdsAgent.GetRdsExporter().AgentId)), err)
 
-		_, err = as.Get(ctx, mySQLAgent.AgentId)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, mySQLAgent.AgentId)), err)
+		_, err = as.Get(ctx, mySQLAgent.GetMysqldExporter().AgentId)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, mySQLAgent.GetMysqldExporter().AgentId)), err)
 
 		_, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: node.NodeId})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, node.NodeId)), err)
@@ -214,7 +214,7 @@ func TestServices(t *testing.T) {
 		node, err := ns.AddRemoteAzureDatabaseNode(ctx, &inventoryv1.AddRemoteAzureNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
 		require.NoError(t, err)
 
-		rdsAgent, err := as.AddAzureDatabaseExporter(ctx, &inventoryv1.AddAzureDatabaseExporterParams{
+		azureAgent, err := as.AddAzureDatabaseExporter(ctx, &inventoryv1.AddAzureDatabaseExporterParams{
 			PmmAgentId:    "pmm-server",
 			NodeId:        node.NodeId,
 			PushMetrics:   true,
@@ -230,7 +230,7 @@ func TestServices(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		mySQLAgent, _, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
+		mySQLAgent, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
 			PmmAgentId: "pmm-server",
 			ServiceId:  mySQLService.ServiceId,
 			Username:   "username",
@@ -243,11 +243,11 @@ func TestServices(t *testing.T) {
 		_, err = ss.Get(ctx, mySQLService.ServiceId)
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Service with ID "%s" not found.`, mySQLService.ServiceId)), err)
 
-		_, err = as.Get(ctx, rdsAgent.AgentId)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, rdsAgent.AgentId)), err)
+		_, err = as.Get(ctx, azureAgent.GetAzureDatabaseExporter().AgentId)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, azureAgent.GetAzureDatabaseExporter().AgentId)), err)
 
-		_, err = as.Get(ctx, mySQLAgent.AgentId)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, mySQLAgent.AgentId)), err)
+		_, err = as.Get(ctx, mySQLAgent.GetMysqldExporter().AgentId)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, mySQLAgent.GetMysqldExporter().AgentId)), err)
 
 		_, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: node.NodeId})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, node.NodeId)), err)
