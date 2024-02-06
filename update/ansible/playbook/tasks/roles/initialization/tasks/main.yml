@@ -71,7 +71,7 @@
 
 - name: Update (both)
   block:
-    - name: Check that Clickhouse database engine is ordinary
+    - name: Check that conversion flag isn't created
       stat:
         path: /srv/clickhouse/flags/convert_ordinary_to_atomic
       register: is_gf_database_converted
