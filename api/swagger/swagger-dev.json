@@ -3776,7 +3776,7 @@
     },
     "/v1/inventory/Agents/Add": {
       "post": {
-        "description": "Adds an Agent from Inventory.",
+        "description": "Adds an Agent to Inventory. Only one top-level parameter should be passed.",
         "tags": [
           "AgentsService"
         ],
@@ -5184,6 +5184,12 @@
                       },
                       "x-order": 13
                     },
+                    "table_count": {
+                      "description": "Actual table count at the moment of adding.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 14
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
@@ -5197,23 +5203,23 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 15
+                      "x-order": 16
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 16
+                      "x-order": 17
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 17
+                      "x-order": 18
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -5228,12 +5234,12 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 18
+                      "x-order": 19
                     },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 19
+                      "x-order": 20
                     }
                   },
                   "x-order": 2
@@ -6374,12 +6380,6 @@
                     }
                   },
                   "x-order": 13
-                },
-                "table_count": {
-                  "description": "Actual table count for SQL databases at the moment of adding.",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 14
                 }
               }
             }
@@ -6418,14 +6418,14 @@
         }
       }
     },
-    "/v1/inventory/Agents/ChangeAzureDatabaseExporter": {
+    "/v1/inventory/Agents/Change": {
       "post": {
-        "description": "Changes azure_database_exporter Agent.",
+        "description": "Updates an Agent in Inventory. Only one top-level parameter should be passed.",
         "tags": [
           "AgentsService"
         ],
-        "summary": "Change Azure Database Exporter",
-        "operationId": "ChangeAzureDatabaseExporter",
+        "summary": "Update an Agent in Inventory",
+        "operationId": "ChangeAgent",
         "parameters": [
           {
             "name": "body",
@@ -6434,49 +6434,577 @@
             "schema": {
               "type": "object",
               "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                "node_exporter": {
                   "type": "object",
                   "properties": {
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
+                    "agent_id": {
+                      "type": "string",
                       "x-order": 0
                     },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
                       "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
+                      "properties": {
+                        "enable": {
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 0
+                        },
+                        "custom_labels": {
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
+                          "type": "object",
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
+                          },
+                          "x-nullable": true,
+                          "x-order": 1
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 2
+                        }
                       },
-                      "x-order": 2
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 0
+                },
+                "mysqld_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
                     },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "enable": {
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 0
+                        },
+                        "custom_labels": {
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
+                          "type": "object",
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
+                          },
+                          "x-nullable": true,
+                          "x-order": 1
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 1
                     }
                   },
                   "x-order": 1
+                },
+                "mongodb_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "enable": {
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 0
+                        },
+                        "custom_labels": {
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
+                          "type": "object",
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
+                          },
+                          "x-nullable": true,
+                          "x-order": 1
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 2
+                },
+                "postgres_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "enable": {
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 0
+                        },
+                        "custom_labels": {
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
+                          "type": "object",
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
+                          },
+                          "x-nullable": true,
+                          "x-order": 1
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 3
+                },
+                "proxysql_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "enable": {
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 0
+                        },
+                        "custom_labels": {
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
+                          "type": "object",
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
+                          },
+                          "x-nullable": true,
+                          "x-order": 1
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 4
+                },
+                "external_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "enable": {
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 0
+                        },
+                        "custom_labels": {
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
+                          "type": "object",
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
+                          },
+                          "x-nullable": true,
+                          "x-order": 1
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 5
+                },
+                "rds_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "enable": {
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 0
+                        },
+                        "custom_labels": {
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
+                          "type": "object",
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
+                          },
+                          "x-nullable": true,
+                          "x-order": 1
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 6
+                },
+                "azure_database_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "enable": {
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 0
+                        },
+                        "custom_labels": {
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
+                          "type": "object",
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
+                          },
+                          "x-nullable": true,
+                          "x-order": 1
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 7
+                },
+                "qan_mysql_perfschema_agent": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "enable": {
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 0
+                        },
+                        "custom_labels": {
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
+                          "type": "object",
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
+                          },
+                          "x-nullable": true,
+                          "x-order": 1
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 8
+                },
+                "qan_mysql_slowlog_agent": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "enable": {
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 0
+                        },
+                        "custom_labels": {
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
+                          "type": "object",
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
+                          },
+                          "x-nullable": true,
+                          "x-order": 1
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 9
+                },
+                "qan_mongodb_profiler_agent": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "enable": {
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 0
+                        },
+                        "custom_labels": {
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
+                          "type": "object",
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
+                          },
+                          "x-nullable": true,
+                          "x-order": 1
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 10
+                },
+                "qan_postgresql_pgstatements_agent": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "enable": {
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 0
+                        },
+                        "custom_labels": {
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
+                          "type": "object",
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
+                          },
+                          "x-nullable": true,
+                          "x-order": 1
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 11
+                },
+                "qan_postgresql_pgstatmonitor_agent": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "common": {
+                      "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                      "type": "object",
+                      "properties": {
+                        "enable": {
+                          "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 0
+                        },
+                        "custom_labels": {
+                          "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
+                          "type": "object",
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
+                          },
+                          "x-nullable": true,
+                          "x-order": 1
+                        },
+                        "enable_push_metrics": {
+                          "description": "Enables push metrics with vmagent.",
+                          "type": "boolean",
+                          "x-nullable": true,
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 12
                 }
               }
             }
@@ -6488,8 +7016,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "azure_database_exporter": {
-                  "description": "AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
+                "node_exporter": {
+                  "description": "NodeExporter runs on Generic or Container Node and exposes its metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -6507,28 +7035,26 @@
                       "type": "boolean",
                       "x-order": 2
                     },
-                    "node_id": {
-                      "description": "Node identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "azure_database_subscription_id": {
-                      "description": "Azure database subscription ID.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "azure_database_resource_type": {
-                      "type": "string",
-                      "title": "Azure database resource type (mysql, maria, postgres)",
-                      "x-order": 5
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 6
+                      "x-order": 3
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -6543,23 +7069,18 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "listen_port": {
-                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 8
-                    },
-                    "push_metrics_enabled": {
-                      "description": "True if the exporter operates in push metrics mode.",
-                      "type": "boolean",
-                      "x-order": 9
+                      "x-order": 7
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 10
+                      "x-order": 8
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -6574,120 +7095,18 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 11
+                      "x-order": 9
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
                 },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeExternalExporter": {
-      "post": {
-        "description": "Changes external_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change External Exporter",
-        "operationId": "ChangeExternalExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
-                      "x-order": 0
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "external_exporter": {
-                  "description": "ExternalExporter runs on any Node type, including Remote Node.",
+                "mysqld_exporter": {
+                  "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -6695,13 +7114,13 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where this instance runs.",
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
                     },
                     "disabled": {
-                      "description": "If disabled, metrics from this exporter will not be collected.",
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "x-order": 2
                     },
@@ -6711,19 +7130,40 @@
                       "x-order": 3
                     },
                     "username": {
-                      "description": "HTTP basic auth username for collecting metrics.",
+                      "description": "MySQL username for scraping metrics.",
                       "type": "string",
                       "x-order": 4
                     },
-                    "scheme": {
-                      "description": "Scheme to generate URI to exporter metrics endpoints.",
-                      "type": "string",
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
                       "x-order": 5
                     },
-                    "metrics_path": {
-                      "description": "Path under which metrics are exposed, used to generate URI.",
-                      "type": "string",
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
                       "x-order": 6
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-order": 9
+                    },
+                    "tablestats_group_table_limit": {
+                      "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 10
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -6731,134 +7171,81 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 11
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 12
+                    },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 13
+                    },
+                    "table_count": {
+                      "description": "Actual table count at the moment of adding.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 14
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 15
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 8
+                      "x-order": 16
                     },
-                    "push_metrics_enabled": {
-                      "description": "True if exporter uses push metrics mode.",
+                    "tablestats_group_disabled": {
+                      "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 17
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 10
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
+                      "x-order": 18
                     },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeMongoDBExporter": {
-      "post": {
-        "description": "Changes mongodb_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change MongoDB Exporter",
-        "operationId": "ChangeMongoDBExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 19
+                    },
+                    "expose_exporter": {
                       "type": "boolean",
-                      "x-order": 0
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 20
                     }
                   },
                   "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
+                },
                 "mongodb_exporter": {
                   "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
                   "type": "object",
@@ -6985,553 +7372,8 @@
                       "x-order": 17
                     }
                   },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
                   "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeMySQLdExporter": {
-      "post": {
-        "description": "Changes mysqld_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change mysqld Exporter",
-        "operationId": "ChangeMySQLdExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
                 },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
-                      "x-order": 0
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "mysqld_exporter": {
-                  "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "x-order": 2
-                    },
-                    "service_id": {
-                      "description": "Service identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "username": {
-                      "description": "MySQL username for scraping metrics.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "tls": {
-                      "description": "Use TLS for database connections.",
-                      "type": "boolean",
-                      "x-order": 5
-                    },
-                    "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation.",
-                      "type": "boolean",
-                      "x-order": 6
-                    },
-                    "tls_ca": {
-                      "description": "Certificate Authority certificate chain.",
-                      "type": "string",
-                      "x-order": 7
-                    },
-                    "tls_cert": {
-                      "description": "Client certificate.",
-                      "type": "string",
-                      "x-order": 8
-                    },
-                    "tls_key": {
-                      "description": "Password for decrypting tls_cert.",
-                      "type": "string",
-                      "x-order": 9
-                    },
-                    "tablestats_group_table_limit": {
-                      "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 10
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 11
-                    },
-                    "push_metrics_enabled": {
-                      "description": "True if exporter uses push metrics mode.",
-                      "type": "boolean",
-                      "x-order": 12
-                    },
-                    "disabled_collectors": {
-                      "description": "List of disabled collector names.",
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "x-order": 13
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_UNSPECIFIED",
-                      "enum": [
-                        "AGENT_STATUS_UNSPECIFIED",
-                        "AGENT_STATUS_STARTING",
-                        "AGENT_STATUS_RUNNING",
-                        "AGENT_STATUS_WAITING",
-                        "AGENT_STATUS_STOPPING",
-                        "AGENT_STATUS_DONE",
-                        "AGENT_STATUS_UNKNOWN"
-                      ],
-                      "x-order": 14
-                    },
-                    "listen_port": {
-                      "description": "Listen port for scraping metrics.",
-                      "type": "integer",
-                      "format": "int64",
-                      "x-order": 15
-                    },
-                    "tablestats_group_disabled": {
-                      "description": "True if tablestats group collectors are currently disabled.",
-                      "type": "boolean",
-                      "x-order": 16
-                    },
-                    "process_exec_path": {
-                      "description": "Path to exec process.",
-                      "type": "string",
-                      "x-order": 17
-                    },
-                    "log_level": {
-                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
-                      "type": "string",
-                      "title": "Log level for exporters",
-                      "default": "LOG_LEVEL_UNSPECIFIED",
-                      "enum": [
-                        "LOG_LEVEL_UNSPECIFIED",
-                        "LOG_LEVEL_FATAL",
-                        "LOG_LEVEL_ERROR",
-                        "LOG_LEVEL_WARN",
-                        "LOG_LEVEL_INFO",
-                        "LOG_LEVEL_DEBUG"
-                      ],
-                      "x-order": 18
-                    },
-                    "expose_exporter": {
-                      "type": "boolean",
-                      "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 19
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeNodeExporter": {
-      "post": {
-        "description": "Changes node_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change Node Exporter",
-        "operationId": "ChangeNodeExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
-                      "x-order": 0
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "node_exporter": {
-                  "description": "NodeExporter runs on Generic or Container Node and exposes its metrics.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "x-order": 2
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 3
-                    },
-                    "push_metrics_enabled": {
-                      "description": "True if exporter uses push metrics mode.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "disabled_collectors": {
-                      "description": "List of disabled collector names.",
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "x-order": 5
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_UNSPECIFIED",
-                      "enum": [
-                        "AGENT_STATUS_UNSPECIFIED",
-                        "AGENT_STATUS_STARTING",
-                        "AGENT_STATUS_RUNNING",
-                        "AGENT_STATUS_WAITING",
-                        "AGENT_STATUS_STOPPING",
-                        "AGENT_STATUS_DONE",
-                        "AGENT_STATUS_UNKNOWN"
-                      ],
-                      "x-order": 6
-                    },
-                    "listen_port": {
-                      "description": "Listen port for scraping metrics.",
-                      "type": "integer",
-                      "format": "int64",
-                      "x-order": 7
-                    },
-                    "process_exec_path": {
-                      "description": "Path to exec process.",
-                      "type": "string",
-                      "x-order": 8
-                    },
-                    "log_level": {
-                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
-                      "type": "string",
-                      "title": "Log level for exporters",
-                      "default": "LOG_LEVEL_UNSPECIFIED",
-                      "enum": [
-                        "LOG_LEVEL_UNSPECIFIED",
-                        "LOG_LEVEL_FATAL",
-                        "LOG_LEVEL_ERROR",
-                        "LOG_LEVEL_WARN",
-                        "LOG_LEVEL_INFO",
-                        "LOG_LEVEL_DEBUG"
-                      ],
-                      "x-order": 9
-                    },
-                    "expose_exporter": {
-                      "type": "boolean",
-                      "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 10
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangePostgresExporter": {
-      "post": {
-        "description": "Changes postgres_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change Postgres Exporter",
-        "operationId": "ChangePostgresExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
-                      "x-order": 0
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
                 "postgres_exporter": {
                   "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.",
                   "type": "object",
@@ -7645,115 +7487,8 @@
                       "x-order": 15
                     }
                   },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
+                  "x-order": 3
                 },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeProxySQLExporter": {
-      "post": {
-        "description": "Changes proxysql_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change ProxySQL Exporter",
-        "operationId": "ChangeProxySQLExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
-                      "x-order": 0
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
                 "proxysql_exporter": {
                   "description": "ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.",
                   "type": "object",
@@ -7861,117 +7596,76 @@
                       "x-order": 14
                     }
                   },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
+                  "x-order": 4
                 },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent": {
-      "post": {
-        "description": "Changes 'Query Analytics MongoDB Profiler' Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change 'QAN MongoDB Profiler' Agent",
-        "operationId": "ChangeQANMongoDBProfilerAgent",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                "external_exporter": {
+                  "description": "ExternalExporter runs on any Node type, including Remote Node.",
                   "type": "object",
                   "properties": {
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
                       "x-order": 0
                     },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
+                    "runs_on_node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string",
                       "x-order": 1
                     },
+                    "disabled": {
+                      "description": "If disabled, metrics from this exporter will not be collected.",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "HTTP basic auth username for collecting metrics.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "scheme": {
+                      "description": "Scheme to generate URI to exporter metrics endpoints.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "metrics_path": {
+                      "description": "Path under which metrics are exposed, used to generate URI.",
+                      "type": "string",
+                      "x-order": 6
+                    },
                     "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 2
+                      "x-order": 7
                     },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 8
                     },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 4
+                      "x-order": 9
                     },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "qan_mongodb_profiler_agent": {
-                  "description": "QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
+                  "x-order": 5
+                },
+                "rds_exporter": {
+                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -7989,31 +7683,15 @@
                       "type": "boolean",
                       "x-order": 2
                     },
-                    "service_id": {
-                      "description": "Service identifier.",
+                    "node_id": {
+                      "description": "Node identifier.",
                       "type": "string",
                       "x-order": 3
                     },
-                    "username": {
-                      "description": "MongoDB username for getting profiler data.",
+                    "aws_access_key": {
+                      "description": "AWS Access Key.",
                       "type": "string",
                       "x-order": 4
-                    },
-                    "tls": {
-                      "description": "Use TLS for database connections.",
-                      "type": "boolean",
-                      "x-order": 5
-                    },
-                    "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation.",
-                      "type": "boolean",
-                      "x-order": 6
-                    },
-                    "max_query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 7
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -8021,7 +7699,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 5
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -8036,6 +7714,124 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
+                      "x-order": 6
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 7
+                    },
+                    "basic_metrics_disabled": {
+                      "description": "Basic metrics are disabled.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
+                    "enhanced_metrics_disabled": {
+                      "description": "Enhanced metrics are disabled.",
+                      "type": "boolean",
+                      "x-order": 9
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 10
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 11
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 12
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 13
+                    }
+                  },
+                  "x-order": 6
+                },
+                "azure_database_exporter": {
+                  "description": "AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "node_id": {
+                      "description": "Node identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "azure_database_subscription_id": {
+                      "description": "Azure database subscription ID.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "azure_database_resource_type": {
+                      "type": "string",
+                      "title": "Azure database resource type (mysql, maria, postgres)",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 7
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 8
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if the exporter operates in push metrics mode.",
+                      "type": "boolean",
                       "x-order": 9
                     },
                     "process_exec_path": {
@@ -8059,115 +7855,8 @@
                       "x-order": 11
                     }
                   },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
+                  "x-order": 7
                 },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent": {
-      "post": {
-        "description": "Changes 'Query Analytics MySQL PerfSchema' Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change 'QAN MySQL PerfSchema' Agent",
-        "operationId": "ChangeQANMySQLPerfSchemaAgent",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
-                      "x-order": 0
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
                 "qan_mysql_perfschema_agent": {
                   "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
                   "type": "object",
@@ -8282,115 +7971,8 @@
                       "x-order": 16
                     }
                   },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
+                  "x-order": 8
                 },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent": {
-      "post": {
-        "description": "Changes 'Query Analytics MySQL Slowlog' Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change 'QAN MySQL Slowlog' Agent",
-        "operationId": "ChangeQANMySQLSlowlogAgent",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
-                      "x-order": 0
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
                 "qan_mysql_slowlog_agent": {
                   "description": "QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
                   "type": "object",
@@ -8511,115 +8093,195 @@
                       "x-order": 17
                     }
                   },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
+                  "x-order": 9
                 },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatMonitorAgent": {
-      "post": {
-        "description": "Changes 'Query Analytics PostgreSQL pg_stat_monitor' Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change 'QAN PostgreSQL pg_stat_monitor' Agent",
-        "operationId": "ChangeQANPostgreSQLPgStatMonitorAgent",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                "qan_mongodb_profiler_agent": {
+                  "description": "QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
                   "type": "object",
                   "properties": {
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
                       "x-order": 0
                     },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
                       "x-order": 1
                     },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "MongoDB username for getting profiler data.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 2
+                      "x-order": 8
                     },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 9
                     },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
                     },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 11
                     }
                   },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
+                  "x-order": 10
+                },
+                "qan_postgresql_pgstatements_agent": {
+                  "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for getting pg stat statements data.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "disable_comments_parsing": {
+                      "description": "Disable parsing comments from queries and showing them in QAN.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 6
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 7
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 10
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 11
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 12
+                    }
+                  },
+                  "x-order": 11
+                },
                 "qan_postgresql_pgstatmonitor_agent": {
                   "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
                   "type": "object",
@@ -8719,419 +8381,7 @@
                       "x-order": 13
                     }
                   },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent": {
-      "post": {
-        "description": "Changes 'Query Analytics PostgreSQL pg_stat_statements' Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change 'QAN PostgreSQL pg_stat_statements' Agent",
-        "operationId": "ChangeQANPostgreSQLPgStatementsAgent",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
-                      "x-order": 0
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "qan_postgresql_pgstatements_agent": {
-                  "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "x-order": 2
-                    },
-                    "service_id": {
-                      "description": "Service identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "username": {
-                      "description": "PostgreSQL username for getting pg stat statements data.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "disable_comments_parsing": {
-                      "description": "Disable parsing comments from queries and showing them in QAN.",
-                      "type": "boolean",
-                      "x-order": 5
-                    },
-                    "max_query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 6
-                    },
-                    "tls": {
-                      "description": "Use TLS for database connections.",
-                      "type": "boolean",
-                      "x-order": 7
-                    },
-                    "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation.",
-                      "type": "boolean",
-                      "x-order": 8
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 9
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_UNSPECIFIED",
-                      "enum": [
-                        "AGENT_STATUS_UNSPECIFIED",
-                        "AGENT_STATUS_STARTING",
-                        "AGENT_STATUS_RUNNING",
-                        "AGENT_STATUS_WAITING",
-                        "AGENT_STATUS_STOPPING",
-                        "AGENT_STATUS_DONE",
-                        "AGENT_STATUS_UNKNOWN"
-                      ],
-                      "x-order": 10
-                    },
-                    "process_exec_path": {
-                      "description": "Path to exec process.",
-                      "type": "string",
-                      "x-order": 11
-                    },
-                    "log_level": {
-                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
-                      "type": "string",
-                      "title": "Log level for exporters",
-                      "default": "LOG_LEVEL_UNSPECIFIED",
-                      "enum": [
-                        "LOG_LEVEL_UNSPECIFIED",
-                        "LOG_LEVEL_FATAL",
-                        "LOG_LEVEL_ERROR",
-                        "LOG_LEVEL_WARN",
-                        "LOG_LEVEL_INFO",
-                        "LOG_LEVEL_DEBUG"
-                      ],
-                      "x-order": 12
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/ChangeRDSExporter": {
-      "post": {
-        "description": "Changes rds_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Change RDS Exporter",
-        "operationId": "ChangeRDSExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "common": {
-                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
-                  "type": "object",
-                  "properties": {
-                    "enable": {
-                      "description": "Enable this Agent. Can't be used with disabled.",
-                      "type": "boolean",
-                      "x-order": 0
-                    },
-                    "disable": {
-                      "description": "Disable this Agent. Can't be used with enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "custom_labels": {
-                      "description": "Replace all custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "remove_custom_labels": {
-                      "description": "Remove all custom user-assigned labels.",
-                      "type": "boolean",
-                      "x-order": 3
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "disable_push_metrics": {
-                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
-                      "type": "boolean",
-                      "x-order": 5
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "rds_exporter": {
-                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "x-order": 2
-                    },
-                    "node_id": {
-                      "description": "Node identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "aws_access_key": {
-                      "description": "AWS Access Key.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 5
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_UNSPECIFIED",
-                      "enum": [
-                        "AGENT_STATUS_UNSPECIFIED",
-                        "AGENT_STATUS_STARTING",
-                        "AGENT_STATUS_RUNNING",
-                        "AGENT_STATUS_WAITING",
-                        "AGENT_STATUS_STOPPING",
-                        "AGENT_STATUS_DONE",
-                        "AGENT_STATUS_UNKNOWN"
-                      ],
-                      "x-order": 6
-                    },
-                    "listen_port": {
-                      "description": "Listen port for scraping metrics (the same for several configurations).",
-                      "type": "integer",
-                      "format": "int64",
-                      "x-order": 7
-                    },
-                    "basic_metrics_disabled": {
-                      "description": "Basic metrics are disabled.",
-                      "type": "boolean",
-                      "x-order": 8
-                    },
-                    "enhanced_metrics_disabled": {
-                      "description": "Enhanced metrics are disabled.",
-                      "type": "boolean",
-                      "x-order": 9
-                    },
-                    "push_metrics_enabled": {
-                      "description": "True if exporter uses push metrics mode.",
-                      "type": "boolean",
-                      "x-order": 10
-                    },
-                    "process_exec_path": {
-                      "description": "Path to exec process.",
-                      "type": "string",
-                      "x-order": 11
-                    },
-                    "log_level": {
-                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
-                      "type": "string",
-                      "title": "Log level for exporters",
-                      "default": "LOG_LEVEL_UNSPECIFIED",
-                      "enum": [
-                        "LOG_LEVEL_UNSPECIFIED",
-                        "LOG_LEVEL_FATAL",
-                        "LOG_LEVEL_ERROR",
-                        "LOG_LEVEL_WARN",
-                        "LOG_LEVEL_INFO",
-                        "LOG_LEVEL_DEBUG"
-                      ],
-                      "x-order": 12
-                    },
-                    "auto_discovery_limit": {
-                      "description": "Limit of databases for auto-discovery.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 13
-                    }
-                  },
-                  "x-order": 0
+                  "x-order": 12
                 }
               }
             }
@@ -9449,6 +8699,12 @@
                       },
                       "x-order": 13
                     },
+                    "table_count": {
+                      "description": "Actual table count at the moment of adding.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 14
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
@@ -9462,23 +8718,23 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 15
+                      "x-order": 16
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 16
+                      "x-order": 17
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 17
+                      "x-order": 18
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -9493,12 +8749,12 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 18
+                      "x-order": 19
                     },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 19
+                      "x-order": 20
                     }
                   },
                   "x-order": 3
@@ -11087,6 +10343,12 @@
                         },
                         "x-order": 13
                       },
+                      "table_count": {
+                        "description": "Actual table count at the moment of adding.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 14
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
@@ -11100,23 +10362,23 @@
                           "AGENT_STATUS_DONE",
                           "AGENT_STATUS_UNKNOWN"
                         ],
-                        "x-order": 14
+                        "x-order": 15
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 15
+                        "x-order": 16
                       },
                       "tablestats_group_disabled": {
                         "description": "True if tablestats group collectors are currently disabled.",
                         "type": "boolean",
-                        "x-order": 16
+                        "x-order": 17
                       },
                       "process_exec_path": {
                         "description": "Path to exec process.",
                         "type": "string",
-                        "x-order": 17
+                        "x-order": 18
                       },
                       "log_level": {
                         "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -11131,12 +10393,12 @@
                           "LOG_LEVEL_INFO",
                           "LOG_LEVEL_DEBUG"
                         ],
-                        "x-order": 18
+                        "x-order": 19
                       },
                       "expose_exporter": {
                         "type": "boolean",
                         "title": "Optionally expose the exporter process on all public interfaces",
-                        "x-order": 19
+                        "x-order": 20
                       }
                     }
                   },
@@ -20026,6 +19288,12 @@
                       },
                       "x-order": 13
                     },
+                    "table_count": {
+                      "description": "Actual table count at the moment of adding.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 14
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
@@ -20039,23 +19307,23 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 15
+                      "x-order": 16
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 16
+                      "x-order": 17
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 17
+                      "x-order": 18
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -20070,12 +19338,12 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 18
+                      "x-order": 19
                     },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 19
+                      "x-order": 20
                     }
                   },
                   "x-order": 1
@@ -22760,6 +22028,12 @@
                       },
                       "x-order": 13
                     },
+                    "table_count": {
+                      "description": "Actual table count at the moment of adding.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 14
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
@@ -22773,23 +22047,23 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 15
+                      "x-order": 16
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 16
+                      "x-order": 17
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 17
+                      "x-order": 18
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -22804,12 +22078,12 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 18
+                      "x-order": 19
                     },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 19
+                      "x-order": 20
                     }
                   },
                   "x-order": 3

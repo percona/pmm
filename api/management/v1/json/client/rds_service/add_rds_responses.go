@@ -1024,6 +1024,9 @@ type AddRDSOKBodyMysqldExporter struct {
 	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
+	// Actual table count at the moment of adding.
+	TableCount int32 `json:"table_count,omitempty"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.

@@ -419,6 +419,8 @@ func (m *MySQLdExporter) validate(all bool) error {
 
 	// no validation rules for PushMetricsEnabled
 
+	// no validation rules for TableCount
+
 	// no validation rules for Status
 
 	// no validation rules for ListenPort
@@ -1956,17 +1958,44 @@ func (m *ChangeCommonAgentParams) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Enable
+	if m.Enable != nil {
+		// no validation rules for Enable
+	}
 
-	// no validation rules for Disable
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeCommonAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeCommonAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeCommonAgentParamsValidationError{
+					field:  "CustomLabels",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+	}
 
-	// no validation rules for CustomLabels
-
-	// no validation rules for RemoveCustomLabels
-
-	// no validation rules for EnablePushMetrics
-
-	// no validation rules for DisablePushMetrics
+	if m.EnablePushMetrics != nil {
+		// no validation rules for EnablePushMetrics
+	}
 
 	if len(errors) > 0 {
 		return ChangeCommonAgentParamsMultiError(errors)
@@ -3820,121 +3849,6 @@ var _ interface {
 	ErrorName() string
 } = GetAgentLogsResponseValidationError{}
 
-// Validate checks the field values on AddPMMAgentParams with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// first error encountered is returned, or nil if there are no violations.
-func (m *AddPMMAgentParams) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddPMMAgentParams with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddPMMAgentParamsMultiError, or nil if none found.
-func (m *AddPMMAgentParams) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddPMMAgentParams) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if utf8.RuneCountInString(m.GetRunsOnNodeId()) < 1 {
-		err := AddPMMAgentParamsValidationError{
-			field:  "RunsOnNodeId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	// no validation rules for CustomLabels
-
-	if len(errors) > 0 {
-		return AddPMMAgentParamsMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddPMMAgentParamsMultiError is an error wrapping multiple validation errors
-// returned by AddPMMAgentParams.ValidateAll() if the designated constraints
-// aren't met.
-type AddPMMAgentParamsMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddPMMAgentParamsMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddPMMAgentParamsMultiError) AllErrors() []error { return m }
-
-// AddPMMAgentParamsValidationError is the validation error returned by
-// AddPMMAgentParams.Validate if the designated constraints aren't met.
-type AddPMMAgentParamsValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddPMMAgentParamsValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddPMMAgentParamsValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddPMMAgentParamsValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddPMMAgentParamsValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddPMMAgentParamsValidationError) ErrorName() string {
-	return "AddPMMAgentParamsValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddPMMAgentParamsValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddPMMAgentParams.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddPMMAgentParamsValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddPMMAgentParamsValidationError{}
-
 // Validate checks the field values on AddAgentRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -3957,11 +3871,11 @@ func (m *AddAgentRequest) validate(all bool) error {
 
 	var errors []error
 
-	switch v := m.Exporter.(type) {
+	switch v := m.Agent.(type) {
 	case *AddAgentRequest_PmmAgent:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4002,7 +3916,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_NodeExporter:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4043,7 +3957,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_MysqldExporter:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4084,7 +3998,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_MongodbExporter:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4125,7 +4039,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_PostgresExporter:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4166,7 +4080,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_ProxysqlExporter:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4207,7 +4121,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_ExternalExporter:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4248,7 +4162,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_RdsExporter:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4289,7 +4203,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_AzureDatabaseExporter:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4330,7 +4244,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_QanMysqlPerfschemaAgent:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4371,7 +4285,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_QanMysqlSlowlogAgent:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4412,7 +4326,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_QanMongodbProfilerAgent:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4453,7 +4367,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_QanPostgresqlPgstatementsAgent:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4494,7 +4408,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 	case *AddAgentRequest_QanPostgresqlPgstatmonitorAgent:
 		if v == nil {
 			err := AddAgentRequestValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4636,13 +4550,11 @@ func (m *AddAgentResponse) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for TableCount
-
-	switch v := m.Exporter.(type) {
+	switch v := m.Agent.(type) {
 	case *AddAgentResponse_PmmAgent:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4683,7 +4595,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_NodeExporter:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4724,7 +4636,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_MysqldExporter:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4765,7 +4677,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_MongodbExporter:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4806,7 +4718,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_PostgresExporter:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4847,7 +4759,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_ProxysqlExporter:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4888,7 +4800,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_ExternalExporter:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4929,7 +4841,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_RdsExporter:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -4970,7 +4882,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_AzureDatabaseExporter:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -5011,7 +4923,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_QanMysqlPerfschemaAgent:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -5052,7 +4964,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_QanMysqlSlowlogAgent:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -5093,7 +5005,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_QanMongodbProfilerAgent:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -5134,7 +5046,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_QanPostgresqlPgstatementsAgent:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -5175,7 +5087,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 	case *AddAgentResponse_QanPostgresqlPgstatmonitorAgent:
 		if v == nil {
 			err := AddAgentResponseValidationError{
-				field:  "Exporter",
+				field:  "Agent",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -5294,6 +5206,1401 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AddAgentResponseValidationError{}
+
+// Validate checks the field values on ChangeAgentRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangeAgentRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeAgentRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangeAgentRequestMultiError, or nil if none found.
+func (m *ChangeAgentRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeAgentRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	switch v := m.Agent.(type) {
+	case *ChangeAgentRequest_NodeExporter:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetNodeExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "NodeExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "NodeExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetNodeExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "NodeExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentRequest_MysqldExporter:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMysqldExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "MysqldExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "MysqldExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMysqldExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "MysqldExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentRequest_MongodbExporter:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMongodbExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "MongodbExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "MongodbExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMongodbExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "MongodbExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentRequest_PostgresExporter:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetPostgresExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "PostgresExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "PostgresExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetPostgresExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "PostgresExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentRequest_ProxysqlExporter:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetProxysqlExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "ProxysqlExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "ProxysqlExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetProxysqlExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "ProxysqlExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentRequest_ExternalExporter:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetExternalExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "ExternalExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "ExternalExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetExternalExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "ExternalExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentRequest_RdsExporter:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRdsExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "RdsExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "RdsExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRdsExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "RdsExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentRequest_AzureDatabaseExporter:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetAzureDatabaseExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "AzureDatabaseExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "AzureDatabaseExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetAzureDatabaseExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "AzureDatabaseExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentRequest_QanMysqlPerfschemaAgent:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetQanMysqlPerfschemaAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "QanMysqlPerfschemaAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "QanMysqlPerfschemaAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetQanMysqlPerfschemaAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "QanMysqlPerfschemaAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentRequest_QanMysqlSlowlogAgent:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetQanMysqlSlowlogAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "QanMysqlSlowlogAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "QanMysqlSlowlogAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetQanMysqlSlowlogAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "QanMysqlSlowlogAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentRequest_QanMongodbProfilerAgent:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetQanMongodbProfilerAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "QanMongodbProfilerAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "QanMongodbProfilerAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetQanMongodbProfilerAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "QanMongodbProfilerAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentRequest_QanPostgresqlPgstatementsAgent:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetQanPostgresqlPgstatementsAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "QanPostgresqlPgstatementsAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "QanPostgresqlPgstatementsAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetQanPostgresqlPgstatementsAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "QanPostgresqlPgstatementsAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentRequest_QanPostgresqlPgstatmonitorAgent:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetQanPostgresqlPgstatmonitorAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "QanPostgresqlPgstatmonitorAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "QanPostgresqlPgstatmonitorAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetQanPostgresqlPgstatmonitorAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "QanPostgresqlPgstatmonitorAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
+	}
+
+	if len(errors) > 0 {
+		return ChangeAgentRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeAgentRequestMultiError is an error wrapping multiple validation errors
+// returned by ChangeAgentRequest.ValidateAll() if the designated constraints
+// aren't met.
+type ChangeAgentRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeAgentRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeAgentRequestMultiError) AllErrors() []error { return m }
+
+// ChangeAgentRequestValidationError is the validation error returned by
+// ChangeAgentRequest.Validate if the designated constraints aren't met.
+type ChangeAgentRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeAgentRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeAgentRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeAgentRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeAgentRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeAgentRequestValidationError) ErrorName() string {
+	return "ChangeAgentRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeAgentRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeAgentRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangeAgentRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeAgentRequestValidationError{}
+
+// Validate checks the field values on ChangeAgentResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangeAgentResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeAgentResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangeAgentResponseMultiError, or nil if none found.
+func (m *ChangeAgentResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeAgentResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	switch v := m.Agent.(type) {
+	case *ChangeAgentResponse_NodeExporter:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetNodeExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "NodeExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "NodeExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetNodeExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "NodeExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentResponse_MysqldExporter:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMysqldExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "MysqldExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "MysqldExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMysqldExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "MysqldExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentResponse_MongodbExporter:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMongodbExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "MongodbExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "MongodbExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMongodbExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "MongodbExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentResponse_PostgresExporter:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetPostgresExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "PostgresExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "PostgresExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetPostgresExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "PostgresExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentResponse_ProxysqlExporter:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetProxysqlExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "ProxysqlExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "ProxysqlExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetProxysqlExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "ProxysqlExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentResponse_ExternalExporter:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetExternalExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "ExternalExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "ExternalExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetExternalExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "ExternalExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentResponse_RdsExporter:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRdsExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "RdsExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "RdsExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRdsExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "RdsExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentResponse_AzureDatabaseExporter:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetAzureDatabaseExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "AzureDatabaseExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "AzureDatabaseExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetAzureDatabaseExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "AzureDatabaseExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentResponse_QanMysqlPerfschemaAgent:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetQanMysqlPerfschemaAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "QanMysqlPerfschemaAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "QanMysqlPerfschemaAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetQanMysqlPerfschemaAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "QanMysqlPerfschemaAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentResponse_QanMysqlSlowlogAgent:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetQanMysqlSlowlogAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "QanMysqlSlowlogAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "QanMysqlSlowlogAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetQanMysqlSlowlogAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "QanMysqlSlowlogAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentResponse_QanMongodbProfilerAgent:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetQanMongodbProfilerAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "QanMongodbProfilerAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "QanMongodbProfilerAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetQanMongodbProfilerAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "QanMongodbProfilerAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentResponse_QanPostgresqlPgstatementsAgent:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetQanPostgresqlPgstatementsAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "QanPostgresqlPgstatementsAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "QanPostgresqlPgstatementsAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetQanPostgresqlPgstatementsAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "QanPostgresqlPgstatementsAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentResponse_QanPostgresqlPgstatmonitorAgent:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetQanPostgresqlPgstatmonitorAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "QanPostgresqlPgstatmonitorAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "QanPostgresqlPgstatmonitorAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetQanPostgresqlPgstatmonitorAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "QanPostgresqlPgstatmonitorAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
+	}
+
+	if len(errors) > 0 {
+		return ChangeAgentResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeAgentResponseMultiError is an error wrapping multiple validation
+// errors returned by ChangeAgentResponse.ValidateAll() if the designated
+// constraints aren't met.
+type ChangeAgentResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeAgentResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeAgentResponseMultiError) AllErrors() []error { return m }
+
+// ChangeAgentResponseValidationError is the validation error returned by
+// ChangeAgentResponse.Validate if the designated constraints aren't met.
+type ChangeAgentResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeAgentResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeAgentResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeAgentResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeAgentResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeAgentResponseValidationError) ErrorName() string {
+	return "ChangeAgentResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeAgentResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeAgentResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangeAgentResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeAgentResponseValidationError{}
+
+// Validate checks the field values on AddPMMAgentParams with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *AddPMMAgentParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddPMMAgentParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddPMMAgentParamsMultiError, or nil if none found.
+func (m *AddPMMAgentParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddPMMAgentParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetRunsOnNodeId()) < 1 {
+		err := AddPMMAgentParamsValidationError{
+			field:  "RunsOnNodeId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for CustomLabels
+
+	if len(errors) > 0 {
+		return AddPMMAgentParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddPMMAgentParamsMultiError is an error wrapping multiple validation errors
+// returned by AddPMMAgentParams.ValidateAll() if the designated constraints
+// aren't met.
+type AddPMMAgentParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddPMMAgentParamsMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddPMMAgentParamsMultiError) AllErrors() []error { return m }
+
+// AddPMMAgentParamsValidationError is the validation error returned by
+// AddPMMAgentParams.Validate if the designated constraints aren't met.
+type AddPMMAgentParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddPMMAgentParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddPMMAgentParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddPMMAgentParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddPMMAgentParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddPMMAgentParamsValidationError) ErrorName() string {
+	return "AddPMMAgentParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddPMMAgentParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddPMMAgentParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddPMMAgentParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddPMMAgentParamsValidationError{}
 
 // Validate checks the field values on AddNodeExporterParams with the rules
 // defined in the proto definition for this message. If any rules are
@@ -5416,22 +6723,22 @@ var _ interface {
 	ErrorName() string
 } = AddNodeExporterParamsValidationError{}
 
-// Validate checks the field values on ChangeNodeExporterRequest with the rules
+// Validate checks the field values on ChangeNodeExporterParams with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ChangeNodeExporterRequest) Validate() error {
+func (m *ChangeNodeExporterParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ChangeNodeExporterRequest with the
+// ValidateAll checks the field values on ChangeNodeExporterParams with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// ChangeNodeExporterRequestMultiError, or nil if none found.
-func (m *ChangeNodeExporterRequest) ValidateAll() error {
+// ChangeNodeExporterParamsMultiError, or nil if none found.
+func (m *ChangeNodeExporterParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ChangeNodeExporterRequest) validate(all bool) error {
+func (m *ChangeNodeExporterParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -5439,7 +6746,7 @@ func (m *ChangeNodeExporterRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeNodeExporterRequestValidationError{
+		err := ChangeNodeExporterParamsValidationError{
 			field:  "AgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -5453,7 +6760,7 @@ func (m *ChangeNodeExporterRequest) validate(all bool) error {
 		switch v := interface{}(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeNodeExporterRequestValidationError{
+				errors = append(errors, ChangeNodeExporterParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -5461,7 +6768,7 @@ func (m *ChangeNodeExporterRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeNodeExporterRequestValidationError{
+				errors = append(errors, ChangeNodeExporterParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -5470,7 +6777,7 @@ func (m *ChangeNodeExporterRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ChangeNodeExporterRequestValidationError{
+			return ChangeNodeExporterParamsValidationError{
 				field:  "Common",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -5479,19 +6786,19 @@ func (m *ChangeNodeExporterRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ChangeNodeExporterRequestMultiError(errors)
+		return ChangeNodeExporterParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// ChangeNodeExporterRequestMultiError is an error wrapping multiple validation
-// errors returned by ChangeNodeExporterRequest.ValidateAll() if the
-// designated constraints aren't met.
-type ChangeNodeExporterRequestMultiError []error
+// ChangeNodeExporterParamsMultiError is an error wrapping multiple validation
+// errors returned by ChangeNodeExporterParams.ValidateAll() if the designated
+// constraints aren't met.
+type ChangeNodeExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ChangeNodeExporterRequestMultiError) Error() string {
+func (m ChangeNodeExporterParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -5500,11 +6807,11 @@ func (m ChangeNodeExporterRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ChangeNodeExporterRequestMultiError) AllErrors() []error { return m }
+func (m ChangeNodeExporterParamsMultiError) AllErrors() []error { return m }
 
-// ChangeNodeExporterRequestValidationError is the validation error returned by
-// ChangeNodeExporterRequest.Validate if the designated constraints aren't met.
-type ChangeNodeExporterRequestValidationError struct {
+// ChangeNodeExporterParamsValidationError is the validation error returned by
+// ChangeNodeExporterParams.Validate if the designated constraints aren't met.
+type ChangeNodeExporterParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -5512,24 +6819,24 @@ type ChangeNodeExporterRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ChangeNodeExporterRequestValidationError) Field() string { return e.field }
+func (e ChangeNodeExporterParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ChangeNodeExporterRequestValidationError) Reason() string { return e.reason }
+func (e ChangeNodeExporterParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ChangeNodeExporterRequestValidationError) Cause() error { return e.cause }
+func (e ChangeNodeExporterParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ChangeNodeExporterRequestValidationError) Key() bool { return e.key }
+func (e ChangeNodeExporterParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ChangeNodeExporterRequestValidationError) ErrorName() string {
-	return "ChangeNodeExporterRequestValidationError"
+func (e ChangeNodeExporterParamsValidationError) ErrorName() string {
+	return "ChangeNodeExporterParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ChangeNodeExporterRequestValidationError) Error() string {
+func (e ChangeNodeExporterParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -5541,14 +6848,14 @@ func (e ChangeNodeExporterRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sChangeNodeExporterRequest.%s: %s%s",
+		"invalid %sChangeNodeExporterParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ChangeNodeExporterRequestValidationError{}
+var _ error = ChangeNodeExporterParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -5556,138 +6863,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ChangeNodeExporterRequestValidationError{}
-
-// Validate checks the field values on ChangeNodeExporterResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ChangeNodeExporterResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on ChangeNodeExporterResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// ChangeNodeExporterResponseMultiError, or nil if none found.
-func (m *ChangeNodeExporterResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ChangeNodeExporterResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetNodeExporter()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeNodeExporterResponseValidationError{
-					field:  "NodeExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeNodeExporterResponseValidationError{
-					field:  "NodeExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetNodeExporter()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeNodeExporterResponseValidationError{
-				field:  "NodeExporter",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return ChangeNodeExporterResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// ChangeNodeExporterResponseMultiError is an error wrapping multiple
-// validation errors returned by ChangeNodeExporterResponse.ValidateAll() if
-// the designated constraints aren't met.
-type ChangeNodeExporterResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ChangeNodeExporterResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ChangeNodeExporterResponseMultiError) AllErrors() []error { return m }
-
-// ChangeNodeExporterResponseValidationError is the validation error returned
-// by ChangeNodeExporterResponse.Validate if the designated constraints aren't met.
-type ChangeNodeExporterResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ChangeNodeExporterResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ChangeNodeExporterResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ChangeNodeExporterResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ChangeNodeExporterResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ChangeNodeExporterResponseValidationError) ErrorName() string {
-	return "ChangeNodeExporterResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ChangeNodeExporterResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sChangeNodeExporterResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ChangeNodeExporterResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ChangeNodeExporterResponseValidationError{}
+} = ChangeNodeExporterParamsValidationError{}
 
 // Validate checks the field values on AddMySQLdExporterParams with the rules
 // defined in the proto definition for this message. If any rules are
@@ -5850,22 +7026,22 @@ var _ interface {
 	ErrorName() string
 } = AddMySQLdExporterParamsValidationError{}
 
-// Validate checks the field values on ChangeMySQLdExporterRequest with the
+// Validate checks the field values on ChangeMySQLdExporterParams with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ChangeMySQLdExporterRequest) Validate() error {
+func (m *ChangeMySQLdExporterParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ChangeMySQLdExporterRequest with the
+// ValidateAll checks the field values on ChangeMySQLdExporterParams with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// ChangeMySQLdExporterRequestMultiError, or nil if none found.
-func (m *ChangeMySQLdExporterRequest) ValidateAll() error {
+// ChangeMySQLdExporterParamsMultiError, or nil if none found.
+func (m *ChangeMySQLdExporterParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ChangeMySQLdExporterRequest) validate(all bool) error {
+func (m *ChangeMySQLdExporterParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -5873,7 +7049,7 @@ func (m *ChangeMySQLdExporterRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeMySQLdExporterRequestValidationError{
+		err := ChangeMySQLdExporterParamsValidationError{
 			field:  "AgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -5887,7 +7063,7 @@ func (m *ChangeMySQLdExporterRequest) validate(all bool) error {
 		switch v := interface{}(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeMySQLdExporterRequestValidationError{
+				errors = append(errors, ChangeMySQLdExporterParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -5895,7 +7071,7 @@ func (m *ChangeMySQLdExporterRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeMySQLdExporterRequestValidationError{
+				errors = append(errors, ChangeMySQLdExporterParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -5904,7 +7080,7 @@ func (m *ChangeMySQLdExporterRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ChangeMySQLdExporterRequestValidationError{
+			return ChangeMySQLdExporterParamsValidationError{
 				field:  "Common",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -5913,19 +7089,19 @@ func (m *ChangeMySQLdExporterRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ChangeMySQLdExporterRequestMultiError(errors)
+		return ChangeMySQLdExporterParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// ChangeMySQLdExporterRequestMultiError is an error wrapping multiple
-// validation errors returned by ChangeMySQLdExporterRequest.ValidateAll() if
+// ChangeMySQLdExporterParamsMultiError is an error wrapping multiple
+// validation errors returned by ChangeMySQLdExporterParams.ValidateAll() if
 // the designated constraints aren't met.
-type ChangeMySQLdExporterRequestMultiError []error
+type ChangeMySQLdExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ChangeMySQLdExporterRequestMultiError) Error() string {
+func (m ChangeMySQLdExporterParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -5934,12 +7110,11 @@ func (m ChangeMySQLdExporterRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ChangeMySQLdExporterRequestMultiError) AllErrors() []error { return m }
+func (m ChangeMySQLdExporterParamsMultiError) AllErrors() []error { return m }
 
-// ChangeMySQLdExporterRequestValidationError is the validation error returned
-// by ChangeMySQLdExporterRequest.Validate if the designated constraints
-// aren't met.
-type ChangeMySQLdExporterRequestValidationError struct {
+// ChangeMySQLdExporterParamsValidationError is the validation error returned
+// by ChangeMySQLdExporterParams.Validate if the designated constraints aren't met.
+type ChangeMySQLdExporterParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -5947,24 +7122,24 @@ type ChangeMySQLdExporterRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ChangeMySQLdExporterRequestValidationError) Field() string { return e.field }
+func (e ChangeMySQLdExporterParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ChangeMySQLdExporterRequestValidationError) Reason() string { return e.reason }
+func (e ChangeMySQLdExporterParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ChangeMySQLdExporterRequestValidationError) Cause() error { return e.cause }
+func (e ChangeMySQLdExporterParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ChangeMySQLdExporterRequestValidationError) Key() bool { return e.key }
+func (e ChangeMySQLdExporterParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ChangeMySQLdExporterRequestValidationError) ErrorName() string {
-	return "ChangeMySQLdExporterRequestValidationError"
+func (e ChangeMySQLdExporterParamsValidationError) ErrorName() string {
+	return "ChangeMySQLdExporterParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ChangeMySQLdExporterRequestValidationError) Error() string {
+func (e ChangeMySQLdExporterParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -5976,14 +7151,14 @@ func (e ChangeMySQLdExporterRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sChangeMySQLdExporterRequest.%s: %s%s",
+		"invalid %sChangeMySQLdExporterParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ChangeMySQLdExporterRequestValidationError{}
+var _ error = ChangeMySQLdExporterParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -5991,139 +7166,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ChangeMySQLdExporterRequestValidationError{}
-
-// Validate checks the field values on ChangeMySQLdExporterResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ChangeMySQLdExporterResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on ChangeMySQLdExporterResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// ChangeMySQLdExporterResponseMultiError, or nil if none found.
-func (m *ChangeMySQLdExporterResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ChangeMySQLdExporterResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetMysqldExporter()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeMySQLdExporterResponseValidationError{
-					field:  "MysqldExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeMySQLdExporterResponseValidationError{
-					field:  "MysqldExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetMysqldExporter()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeMySQLdExporterResponseValidationError{
-				field:  "MysqldExporter",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return ChangeMySQLdExporterResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// ChangeMySQLdExporterResponseMultiError is an error wrapping multiple
-// validation errors returned by ChangeMySQLdExporterResponse.ValidateAll() if
-// the designated constraints aren't met.
-type ChangeMySQLdExporterResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ChangeMySQLdExporterResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ChangeMySQLdExporterResponseMultiError) AllErrors() []error { return m }
-
-// ChangeMySQLdExporterResponseValidationError is the validation error returned
-// by ChangeMySQLdExporterResponse.Validate if the designated constraints
-// aren't met.
-type ChangeMySQLdExporterResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ChangeMySQLdExporterResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ChangeMySQLdExporterResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ChangeMySQLdExporterResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ChangeMySQLdExporterResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ChangeMySQLdExporterResponseValidationError) ErrorName() string {
-	return "ChangeMySQLdExporterResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ChangeMySQLdExporterResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sChangeMySQLdExporterResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ChangeMySQLdExporterResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ChangeMySQLdExporterResponseValidationError{}
+} = ChangeMySQLdExporterParamsValidationError{}
 
 // Validate checks the field values on AddMongoDBExporterParams with the rules
 // defined in the proto definition for this message. If any rules are
@@ -6281,22 +7324,22 @@ var _ interface {
 	ErrorName() string
 } = AddMongoDBExporterParamsValidationError{}
 
-// Validate checks the field values on ChangeMongoDBExporterRequest with the
+// Validate checks the field values on ChangeMongoDBExporterParams with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ChangeMongoDBExporterRequest) Validate() error {
+func (m *ChangeMongoDBExporterParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ChangeMongoDBExporterRequest with the
+// ValidateAll checks the field values on ChangeMongoDBExporterParams with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// ChangeMongoDBExporterRequestMultiError, or nil if none found.
-func (m *ChangeMongoDBExporterRequest) ValidateAll() error {
+// ChangeMongoDBExporterParamsMultiError, or nil if none found.
+func (m *ChangeMongoDBExporterParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ChangeMongoDBExporterRequest) validate(all bool) error {
+func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -6304,7 +7347,7 @@ func (m *ChangeMongoDBExporterRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeMongoDBExporterRequestValidationError{
+		err := ChangeMongoDBExporterParamsValidationError{
 			field:  "AgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -6318,7 +7361,7 @@ func (m *ChangeMongoDBExporterRequest) validate(all bool) error {
 		switch v := interface{}(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeMongoDBExporterRequestValidationError{
+				errors = append(errors, ChangeMongoDBExporterParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -6326,7 +7369,7 @@ func (m *ChangeMongoDBExporterRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeMongoDBExporterRequestValidationError{
+				errors = append(errors, ChangeMongoDBExporterParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -6335,7 +7378,7 @@ func (m *ChangeMongoDBExporterRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ChangeMongoDBExporterRequestValidationError{
+			return ChangeMongoDBExporterParamsValidationError{
 				field:  "Common",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -6344,19 +7387,19 @@ func (m *ChangeMongoDBExporterRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ChangeMongoDBExporterRequestMultiError(errors)
+		return ChangeMongoDBExporterParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// ChangeMongoDBExporterRequestMultiError is an error wrapping multiple
-// validation errors returned by ChangeMongoDBExporterRequest.ValidateAll() if
+// ChangeMongoDBExporterParamsMultiError is an error wrapping multiple
+// validation errors returned by ChangeMongoDBExporterParams.ValidateAll() if
 // the designated constraints aren't met.
-type ChangeMongoDBExporterRequestMultiError []error
+type ChangeMongoDBExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ChangeMongoDBExporterRequestMultiError) Error() string {
+func (m ChangeMongoDBExporterParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -6365,12 +7408,12 @@ func (m ChangeMongoDBExporterRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ChangeMongoDBExporterRequestMultiError) AllErrors() []error { return m }
+func (m ChangeMongoDBExporterParamsMultiError) AllErrors() []error { return m }
 
-// ChangeMongoDBExporterRequestValidationError is the validation error returned
-// by ChangeMongoDBExporterRequest.Validate if the designated constraints
+// ChangeMongoDBExporterParamsValidationError is the validation error returned
+// by ChangeMongoDBExporterParams.Validate if the designated constraints
 // aren't met.
-type ChangeMongoDBExporterRequestValidationError struct {
+type ChangeMongoDBExporterParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -6378,24 +7421,24 @@ type ChangeMongoDBExporterRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ChangeMongoDBExporterRequestValidationError) Field() string { return e.field }
+func (e ChangeMongoDBExporterParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ChangeMongoDBExporterRequestValidationError) Reason() string { return e.reason }
+func (e ChangeMongoDBExporterParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ChangeMongoDBExporterRequestValidationError) Cause() error { return e.cause }
+func (e ChangeMongoDBExporterParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ChangeMongoDBExporterRequestValidationError) Key() bool { return e.key }
+func (e ChangeMongoDBExporterParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ChangeMongoDBExporterRequestValidationError) ErrorName() string {
-	return "ChangeMongoDBExporterRequestValidationError"
+func (e ChangeMongoDBExporterParamsValidationError) ErrorName() string {
+	return "ChangeMongoDBExporterParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ChangeMongoDBExporterRequestValidationError) Error() string {
+func (e ChangeMongoDBExporterParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -6407,14 +7450,14 @@ func (e ChangeMongoDBExporterRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sChangeMongoDBExporterRequest.%s: %s%s",
+		"invalid %sChangeMongoDBExporterParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ChangeMongoDBExporterRequestValidationError{}
+var _ error = ChangeMongoDBExporterParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -6422,139 +7465,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ChangeMongoDBExporterRequestValidationError{}
-
-// Validate checks the field values on ChangeMongoDBExporterResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ChangeMongoDBExporterResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on ChangeMongoDBExporterResponse with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// ChangeMongoDBExporterResponseMultiError, or nil if none found.
-func (m *ChangeMongoDBExporterResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ChangeMongoDBExporterResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetMongodbExporter()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeMongoDBExporterResponseValidationError{
-					field:  "MongodbExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeMongoDBExporterResponseValidationError{
-					field:  "MongodbExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetMongodbExporter()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeMongoDBExporterResponseValidationError{
-				field:  "MongodbExporter",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return ChangeMongoDBExporterResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// ChangeMongoDBExporterResponseMultiError is an error wrapping multiple
-// validation errors returned by ChangeMongoDBExporterResponse.ValidateAll()
-// if the designated constraints aren't met.
-type ChangeMongoDBExporterResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ChangeMongoDBExporterResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ChangeMongoDBExporterResponseMultiError) AllErrors() []error { return m }
-
-// ChangeMongoDBExporterResponseValidationError is the validation error
-// returned by ChangeMongoDBExporterResponse.Validate if the designated
-// constraints aren't met.
-type ChangeMongoDBExporterResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ChangeMongoDBExporterResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ChangeMongoDBExporterResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ChangeMongoDBExporterResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ChangeMongoDBExporterResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ChangeMongoDBExporterResponseValidationError) ErrorName() string {
-	return "ChangeMongoDBExporterResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ChangeMongoDBExporterResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sChangeMongoDBExporterResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ChangeMongoDBExporterResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ChangeMongoDBExporterResponseValidationError{}
+} = ChangeMongoDBExporterParamsValidationError{}
 
 // Validate checks the field values on AddPostgresExporterParams with the rules
 // defined in the proto definition for this message. If any rules are
@@ -6717,22 +7628,22 @@ var _ interface {
 	ErrorName() string
 } = AddPostgresExporterParamsValidationError{}
 
-// Validate checks the field values on ChangePostgresExporterRequest with the
+// Validate checks the field values on ChangePostgresExporterParams with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ChangePostgresExporterRequest) Validate() error {
+func (m *ChangePostgresExporterParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ChangePostgresExporterRequest with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// ChangePostgresExporterRequestMultiError, or nil if none found.
-func (m *ChangePostgresExporterRequest) ValidateAll() error {
+// ValidateAll checks the field values on ChangePostgresExporterParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangePostgresExporterParamsMultiError, or nil if none found.
+func (m *ChangePostgresExporterParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ChangePostgresExporterRequest) validate(all bool) error {
+func (m *ChangePostgresExporterParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -6740,7 +7651,7 @@ func (m *ChangePostgresExporterRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangePostgresExporterRequestValidationError{
+		err := ChangePostgresExporterParamsValidationError{
 			field:  "AgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -6754,7 +7665,7 @@ func (m *ChangePostgresExporterRequest) validate(all bool) error {
 		switch v := interface{}(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangePostgresExporterRequestValidationError{
+				errors = append(errors, ChangePostgresExporterParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -6762,7 +7673,7 @@ func (m *ChangePostgresExporterRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangePostgresExporterRequestValidationError{
+				errors = append(errors, ChangePostgresExporterParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -6771,7 +7682,7 @@ func (m *ChangePostgresExporterRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ChangePostgresExporterRequestValidationError{
+			return ChangePostgresExporterParamsValidationError{
 				field:  "Common",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -6780,19 +7691,19 @@ func (m *ChangePostgresExporterRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ChangePostgresExporterRequestMultiError(errors)
+		return ChangePostgresExporterParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// ChangePostgresExporterRequestMultiError is an error wrapping multiple
-// validation errors returned by ChangePostgresExporterRequest.ValidateAll()
-// if the designated constraints aren't met.
-type ChangePostgresExporterRequestMultiError []error
+// ChangePostgresExporterParamsMultiError is an error wrapping multiple
+// validation errors returned by ChangePostgresExporterParams.ValidateAll() if
+// the designated constraints aren't met.
+type ChangePostgresExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ChangePostgresExporterRequestMultiError) Error() string {
+func (m ChangePostgresExporterParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -6801,12 +7712,12 @@ func (m ChangePostgresExporterRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ChangePostgresExporterRequestMultiError) AllErrors() []error { return m }
+func (m ChangePostgresExporterParamsMultiError) AllErrors() []error { return m }
 
-// ChangePostgresExporterRequestValidationError is the validation error
-// returned by ChangePostgresExporterRequest.Validate if the designated
-// constraints aren't met.
-type ChangePostgresExporterRequestValidationError struct {
+// ChangePostgresExporterParamsValidationError is the validation error returned
+// by ChangePostgresExporterParams.Validate if the designated constraints
+// aren't met.
+type ChangePostgresExporterParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -6814,24 +7725,24 @@ type ChangePostgresExporterRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ChangePostgresExporterRequestValidationError) Field() string { return e.field }
+func (e ChangePostgresExporterParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ChangePostgresExporterRequestValidationError) Reason() string { return e.reason }
+func (e ChangePostgresExporterParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ChangePostgresExporterRequestValidationError) Cause() error { return e.cause }
+func (e ChangePostgresExporterParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ChangePostgresExporterRequestValidationError) Key() bool { return e.key }
+func (e ChangePostgresExporterParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ChangePostgresExporterRequestValidationError) ErrorName() string {
-	return "ChangePostgresExporterRequestValidationError"
+func (e ChangePostgresExporterParamsValidationError) ErrorName() string {
+	return "ChangePostgresExporterParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ChangePostgresExporterRequestValidationError) Error() string {
+func (e ChangePostgresExporterParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -6843,14 +7754,14 @@ func (e ChangePostgresExporterRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sChangePostgresExporterRequest.%s: %s%s",
+		"invalid %sChangePostgresExporterParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ChangePostgresExporterRequestValidationError{}
+var _ error = ChangePostgresExporterParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -6858,139 +7769,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ChangePostgresExporterRequestValidationError{}
-
-// Validate checks the field values on ChangePostgresExporterResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ChangePostgresExporterResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on ChangePostgresExporterResponse with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// ChangePostgresExporterResponseMultiError, or nil if none found.
-func (m *ChangePostgresExporterResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ChangePostgresExporterResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetPostgresExporter()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangePostgresExporterResponseValidationError{
-					field:  "PostgresExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangePostgresExporterResponseValidationError{
-					field:  "PostgresExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetPostgresExporter()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangePostgresExporterResponseValidationError{
-				field:  "PostgresExporter",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return ChangePostgresExporterResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// ChangePostgresExporterResponseMultiError is an error wrapping multiple
-// validation errors returned by ChangePostgresExporterResponse.ValidateAll()
-// if the designated constraints aren't met.
-type ChangePostgresExporterResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ChangePostgresExporterResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ChangePostgresExporterResponseMultiError) AllErrors() []error { return m }
-
-// ChangePostgresExporterResponseValidationError is the validation error
-// returned by ChangePostgresExporterResponse.Validate if the designated
-// constraints aren't met.
-type ChangePostgresExporterResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ChangePostgresExporterResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ChangePostgresExporterResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ChangePostgresExporterResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ChangePostgresExporterResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ChangePostgresExporterResponseValidationError) ErrorName() string {
-	return "ChangePostgresExporterResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ChangePostgresExporterResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sChangePostgresExporterResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ChangePostgresExporterResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ChangePostgresExporterResponseValidationError{}
+} = ChangePostgresExporterParamsValidationError{}
 
 // Validate checks the field values on AddProxySQLExporterParams with the rules
 // defined in the proto definition for this message. If any rules are
@@ -7145,22 +7924,22 @@ var _ interface {
 	ErrorName() string
 } = AddProxySQLExporterParamsValidationError{}
 
-// Validate checks the field values on ChangeProxySQLExporterRequest with the
+// Validate checks the field values on ChangeProxySQLExporterParams with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ChangeProxySQLExporterRequest) Validate() error {
+func (m *ChangeProxySQLExporterParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ChangeProxySQLExporterRequest with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// ChangeProxySQLExporterRequestMultiError, or nil if none found.
-func (m *ChangeProxySQLExporterRequest) ValidateAll() error {
+// ValidateAll checks the field values on ChangeProxySQLExporterParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangeProxySQLExporterParamsMultiError, or nil if none found.
+func (m *ChangeProxySQLExporterParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ChangeProxySQLExporterRequest) validate(all bool) error {
+func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -7168,7 +7947,7 @@ func (m *ChangeProxySQLExporterRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeProxySQLExporterRequestValidationError{
+		err := ChangeProxySQLExporterParamsValidationError{
 			field:  "AgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -7182,7 +7961,7 @@ func (m *ChangeProxySQLExporterRequest) validate(all bool) error {
 		switch v := interface{}(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeProxySQLExporterRequestValidationError{
+				errors = append(errors, ChangeProxySQLExporterParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -7190,7 +7969,7 @@ func (m *ChangeProxySQLExporterRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeProxySQLExporterRequestValidationError{
+				errors = append(errors, ChangeProxySQLExporterParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -7199,7 +7978,7 @@ func (m *ChangeProxySQLExporterRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ChangeProxySQLExporterRequestValidationError{
+			return ChangeProxySQLExporterParamsValidationError{
 				field:  "Common",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -7208,19 +7987,19 @@ func (m *ChangeProxySQLExporterRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ChangeProxySQLExporterRequestMultiError(errors)
+		return ChangeProxySQLExporterParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// ChangeProxySQLExporterRequestMultiError is an error wrapping multiple
-// validation errors returned by ChangeProxySQLExporterRequest.ValidateAll()
-// if the designated constraints aren't met.
-type ChangeProxySQLExporterRequestMultiError []error
+// ChangeProxySQLExporterParamsMultiError is an error wrapping multiple
+// validation errors returned by ChangeProxySQLExporterParams.ValidateAll() if
+// the designated constraints aren't met.
+type ChangeProxySQLExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ChangeProxySQLExporterRequestMultiError) Error() string {
+func (m ChangeProxySQLExporterParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -7229,12 +8008,12 @@ func (m ChangeProxySQLExporterRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ChangeProxySQLExporterRequestMultiError) AllErrors() []error { return m }
+func (m ChangeProxySQLExporterParamsMultiError) AllErrors() []error { return m }
 
-// ChangeProxySQLExporterRequestValidationError is the validation error
-// returned by ChangeProxySQLExporterRequest.Validate if the designated
-// constraints aren't met.
-type ChangeProxySQLExporterRequestValidationError struct {
+// ChangeProxySQLExporterParamsValidationError is the validation error returned
+// by ChangeProxySQLExporterParams.Validate if the designated constraints
+// aren't met.
+type ChangeProxySQLExporterParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -7242,24 +8021,24 @@ type ChangeProxySQLExporterRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ChangeProxySQLExporterRequestValidationError) Field() string { return e.field }
+func (e ChangeProxySQLExporterParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ChangeProxySQLExporterRequestValidationError) Reason() string { return e.reason }
+func (e ChangeProxySQLExporterParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ChangeProxySQLExporterRequestValidationError) Cause() error { return e.cause }
+func (e ChangeProxySQLExporterParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ChangeProxySQLExporterRequestValidationError) Key() bool { return e.key }
+func (e ChangeProxySQLExporterParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ChangeProxySQLExporterRequestValidationError) ErrorName() string {
-	return "ChangeProxySQLExporterRequestValidationError"
+func (e ChangeProxySQLExporterParamsValidationError) ErrorName() string {
+	return "ChangeProxySQLExporterParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ChangeProxySQLExporterRequestValidationError) Error() string {
+func (e ChangeProxySQLExporterParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -7271,14 +8050,14 @@ func (e ChangeProxySQLExporterRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sChangeProxySQLExporterRequest.%s: %s%s",
+		"invalid %sChangeProxySQLExporterParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ChangeProxySQLExporterRequestValidationError{}
+var _ error = ChangeProxySQLExporterParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -7286,139 +8065,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ChangeProxySQLExporterRequestValidationError{}
-
-// Validate checks the field values on ChangeProxySQLExporterResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ChangeProxySQLExporterResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on ChangeProxySQLExporterResponse with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// ChangeProxySQLExporterResponseMultiError, or nil if none found.
-func (m *ChangeProxySQLExporterResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ChangeProxySQLExporterResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetProxysqlExporter()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeProxySQLExporterResponseValidationError{
-					field:  "ProxysqlExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeProxySQLExporterResponseValidationError{
-					field:  "ProxysqlExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetProxysqlExporter()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeProxySQLExporterResponseValidationError{
-				field:  "ProxysqlExporter",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return ChangeProxySQLExporterResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// ChangeProxySQLExporterResponseMultiError is an error wrapping multiple
-// validation errors returned by ChangeProxySQLExporterResponse.ValidateAll()
-// if the designated constraints aren't met.
-type ChangeProxySQLExporterResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ChangeProxySQLExporterResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ChangeProxySQLExporterResponseMultiError) AllErrors() []error { return m }
-
-// ChangeProxySQLExporterResponseValidationError is the validation error
-// returned by ChangeProxySQLExporterResponse.Validate if the designated
-// constraints aren't met.
-type ChangeProxySQLExporterResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ChangeProxySQLExporterResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ChangeProxySQLExporterResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ChangeProxySQLExporterResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ChangeProxySQLExporterResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ChangeProxySQLExporterResponseValidationError) ErrorName() string {
-	return "ChangeProxySQLExporterResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ChangeProxySQLExporterResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sChangeProxySQLExporterResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ChangeProxySQLExporterResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ChangeProxySQLExporterResponseValidationError{}
+} = ChangeProxySQLExporterParamsValidationError{}
 
 // Validate checks the field values on AddQANMySQLPerfSchemaAgentParams with
 // the rules defined in the proto definition for this message. If any rules
@@ -7582,23 +8229,23 @@ var _ interface {
 	ErrorName() string
 } = AddQANMySQLPerfSchemaAgentParamsValidationError{}
 
-// Validate checks the field values on ChangeQANMySQLPerfSchemaAgentRequest
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the first error encountered is returned, or nil if
-// there are no violations.
-func (m *ChangeQANMySQLPerfSchemaAgentRequest) Validate() error {
+// Validate checks the field values on ChangeQANMySQLPerfSchemaAgentParams with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *ChangeQANMySQLPerfSchemaAgentParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ChangeQANMySQLPerfSchemaAgentRequest
+// ValidateAll checks the field values on ChangeQANMySQLPerfSchemaAgentParams
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, the result is a list of violation errors wrapped in
-// ChangeQANMySQLPerfSchemaAgentRequestMultiError, or nil if none found.
-func (m *ChangeQANMySQLPerfSchemaAgentRequest) ValidateAll() error {
+// ChangeQANMySQLPerfSchemaAgentParamsMultiError, or nil if none found.
+func (m *ChangeQANMySQLPerfSchemaAgentParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ChangeQANMySQLPerfSchemaAgentRequest) validate(all bool) error {
+func (m *ChangeQANMySQLPerfSchemaAgentParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -7606,7 +8253,7 @@ func (m *ChangeQANMySQLPerfSchemaAgentRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeQANMySQLPerfSchemaAgentRequestValidationError{
+		err := ChangeQANMySQLPerfSchemaAgentParamsValidationError{
 			field:  "AgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -7620,7 +8267,7 @@ func (m *ChangeQANMySQLPerfSchemaAgentRequest) validate(all bool) error {
 		switch v := interface{}(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeQANMySQLPerfSchemaAgentRequestValidationError{
+				errors = append(errors, ChangeQANMySQLPerfSchemaAgentParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -7628,7 +8275,7 @@ func (m *ChangeQANMySQLPerfSchemaAgentRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeQANMySQLPerfSchemaAgentRequestValidationError{
+				errors = append(errors, ChangeQANMySQLPerfSchemaAgentParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -7637,7 +8284,7 @@ func (m *ChangeQANMySQLPerfSchemaAgentRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ChangeQANMySQLPerfSchemaAgentRequestValidationError{
+			return ChangeQANMySQLPerfSchemaAgentParamsValidationError{
 				field:  "Common",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -7646,20 +8293,20 @@ func (m *ChangeQANMySQLPerfSchemaAgentRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ChangeQANMySQLPerfSchemaAgentRequestMultiError(errors)
+		return ChangeQANMySQLPerfSchemaAgentParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// ChangeQANMySQLPerfSchemaAgentRequestMultiError is an error wrapping multiple
+// ChangeQANMySQLPerfSchemaAgentParamsMultiError is an error wrapping multiple
 // validation errors returned by
-// ChangeQANMySQLPerfSchemaAgentRequest.ValidateAll() if the designated
+// ChangeQANMySQLPerfSchemaAgentParams.ValidateAll() if the designated
 // constraints aren't met.
-type ChangeQANMySQLPerfSchemaAgentRequestMultiError []error
+type ChangeQANMySQLPerfSchemaAgentParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ChangeQANMySQLPerfSchemaAgentRequestMultiError) Error() string {
+func (m ChangeQANMySQLPerfSchemaAgentParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -7668,12 +8315,12 @@ func (m ChangeQANMySQLPerfSchemaAgentRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ChangeQANMySQLPerfSchemaAgentRequestMultiError) AllErrors() []error { return m }
+func (m ChangeQANMySQLPerfSchemaAgentParamsMultiError) AllErrors() []error { return m }
 
-// ChangeQANMySQLPerfSchemaAgentRequestValidationError is the validation error
-// returned by ChangeQANMySQLPerfSchemaAgentRequest.Validate if the designated
+// ChangeQANMySQLPerfSchemaAgentParamsValidationError is the validation error
+// returned by ChangeQANMySQLPerfSchemaAgentParams.Validate if the designated
 // constraints aren't met.
-type ChangeQANMySQLPerfSchemaAgentRequestValidationError struct {
+type ChangeQANMySQLPerfSchemaAgentParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -7681,24 +8328,24 @@ type ChangeQANMySQLPerfSchemaAgentRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ChangeQANMySQLPerfSchemaAgentRequestValidationError) Field() string { return e.field }
+func (e ChangeQANMySQLPerfSchemaAgentParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ChangeQANMySQLPerfSchemaAgentRequestValidationError) Reason() string { return e.reason }
+func (e ChangeQANMySQLPerfSchemaAgentParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ChangeQANMySQLPerfSchemaAgentRequestValidationError) Cause() error { return e.cause }
+func (e ChangeQANMySQLPerfSchemaAgentParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ChangeQANMySQLPerfSchemaAgentRequestValidationError) Key() bool { return e.key }
+func (e ChangeQANMySQLPerfSchemaAgentParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ChangeQANMySQLPerfSchemaAgentRequestValidationError) ErrorName() string {
-	return "ChangeQANMySQLPerfSchemaAgentRequestValidationError"
+func (e ChangeQANMySQLPerfSchemaAgentParamsValidationError) ErrorName() string {
+	return "ChangeQANMySQLPerfSchemaAgentParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ChangeQANMySQLPerfSchemaAgentRequestValidationError) Error() string {
+func (e ChangeQANMySQLPerfSchemaAgentParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -7710,14 +8357,14 @@ func (e ChangeQANMySQLPerfSchemaAgentRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sChangeQANMySQLPerfSchemaAgentRequest.%s: %s%s",
+		"invalid %sChangeQANMySQLPerfSchemaAgentParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ChangeQANMySQLPerfSchemaAgentRequestValidationError{}
+var _ error = ChangeQANMySQLPerfSchemaAgentParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -7725,141 +8372,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ChangeQANMySQLPerfSchemaAgentRequestValidationError{}
-
-// Validate checks the field values on ChangeQANMySQLPerfSchemaAgentResponse
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the first error encountered is returned, or nil if
-// there are no violations.
-func (m *ChangeQANMySQLPerfSchemaAgentResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on ChangeQANMySQLPerfSchemaAgentResponse
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// ChangeQANMySQLPerfSchemaAgentResponseMultiError, or nil if none found.
-func (m *ChangeQANMySQLPerfSchemaAgentResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ChangeQANMySQLPerfSchemaAgentResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetQanMysqlPerfschemaAgent()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeQANMySQLPerfSchemaAgentResponseValidationError{
-					field:  "QanMysqlPerfschemaAgent",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeQANMySQLPerfSchemaAgentResponseValidationError{
-					field:  "QanMysqlPerfschemaAgent",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetQanMysqlPerfschemaAgent()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeQANMySQLPerfSchemaAgentResponseValidationError{
-				field:  "QanMysqlPerfschemaAgent",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return ChangeQANMySQLPerfSchemaAgentResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// ChangeQANMySQLPerfSchemaAgentResponseMultiError is an error wrapping
-// multiple validation errors returned by
-// ChangeQANMySQLPerfSchemaAgentResponse.ValidateAll() if the designated
-// constraints aren't met.
-type ChangeQANMySQLPerfSchemaAgentResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ChangeQANMySQLPerfSchemaAgentResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ChangeQANMySQLPerfSchemaAgentResponseMultiError) AllErrors() []error { return m }
-
-// ChangeQANMySQLPerfSchemaAgentResponseValidationError is the validation error
-// returned by ChangeQANMySQLPerfSchemaAgentResponse.Validate if the
-// designated constraints aren't met.
-type ChangeQANMySQLPerfSchemaAgentResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ChangeQANMySQLPerfSchemaAgentResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ChangeQANMySQLPerfSchemaAgentResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ChangeQANMySQLPerfSchemaAgentResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ChangeQANMySQLPerfSchemaAgentResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ChangeQANMySQLPerfSchemaAgentResponseValidationError) ErrorName() string {
-	return "ChangeQANMySQLPerfSchemaAgentResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ChangeQANMySQLPerfSchemaAgentResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sChangeQANMySQLPerfSchemaAgentResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ChangeQANMySQLPerfSchemaAgentResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ChangeQANMySQLPerfSchemaAgentResponseValidationError{}
+} = ChangeQANMySQLPerfSchemaAgentParamsValidationError{}
 
 // Validate checks the field values on AddQANMySQLSlowlogAgentParams with the
 // rules defined in the proto definition for this message. If any rules are
@@ -8023,23 +8536,23 @@ var _ interface {
 	ErrorName() string
 } = AddQANMySQLSlowlogAgentParamsValidationError{}
 
-// Validate checks the field values on ChangeQANMySQLSlowlogAgentRequest with
+// Validate checks the field values on ChangeQANMySQLSlowlogAgentParams with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the first error encountered is returned, or nil if there are
 // no violations.
-func (m *ChangeQANMySQLSlowlogAgentRequest) Validate() error {
+func (m *ChangeQANMySQLSlowlogAgentParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ChangeQANMySQLSlowlogAgentRequest
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// ChangeQANMySQLSlowlogAgentRequestMultiError, or nil if none found.
-func (m *ChangeQANMySQLSlowlogAgentRequest) ValidateAll() error {
+// ValidateAll checks the field values on ChangeQANMySQLSlowlogAgentParams with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// ChangeQANMySQLSlowlogAgentParamsMultiError, or nil if none found.
+func (m *ChangeQANMySQLSlowlogAgentParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ChangeQANMySQLSlowlogAgentRequest) validate(all bool) error {
+func (m *ChangeQANMySQLSlowlogAgentParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -8047,7 +8560,7 @@ func (m *ChangeQANMySQLSlowlogAgentRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeQANMySQLSlowlogAgentRequestValidationError{
+		err := ChangeQANMySQLSlowlogAgentParamsValidationError{
 			field:  "AgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -8061,7 +8574,7 @@ func (m *ChangeQANMySQLSlowlogAgentRequest) validate(all bool) error {
 		switch v := interface{}(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeQANMySQLSlowlogAgentRequestValidationError{
+				errors = append(errors, ChangeQANMySQLSlowlogAgentParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -8069,7 +8582,7 @@ func (m *ChangeQANMySQLSlowlogAgentRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeQANMySQLSlowlogAgentRequestValidationError{
+				errors = append(errors, ChangeQANMySQLSlowlogAgentParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -8078,7 +8591,7 @@ func (m *ChangeQANMySQLSlowlogAgentRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ChangeQANMySQLSlowlogAgentRequestValidationError{
+			return ChangeQANMySQLSlowlogAgentParamsValidationError{
 				field:  "Common",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -8087,20 +8600,20 @@ func (m *ChangeQANMySQLSlowlogAgentRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ChangeQANMySQLSlowlogAgentRequestMultiError(errors)
+		return ChangeQANMySQLSlowlogAgentParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// ChangeQANMySQLSlowlogAgentRequestMultiError is an error wrapping multiple
+// ChangeQANMySQLSlowlogAgentParamsMultiError is an error wrapping multiple
 // validation errors returned by
-// ChangeQANMySQLSlowlogAgentRequest.ValidateAll() if the designated
+// ChangeQANMySQLSlowlogAgentParams.ValidateAll() if the designated
 // constraints aren't met.
-type ChangeQANMySQLSlowlogAgentRequestMultiError []error
+type ChangeQANMySQLSlowlogAgentParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ChangeQANMySQLSlowlogAgentRequestMultiError) Error() string {
+func (m ChangeQANMySQLSlowlogAgentParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -8109,12 +8622,12 @@ func (m ChangeQANMySQLSlowlogAgentRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ChangeQANMySQLSlowlogAgentRequestMultiError) AllErrors() []error { return m }
+func (m ChangeQANMySQLSlowlogAgentParamsMultiError) AllErrors() []error { return m }
 
-// ChangeQANMySQLSlowlogAgentRequestValidationError is the validation error
-// returned by ChangeQANMySQLSlowlogAgentRequest.Validate if the designated
+// ChangeQANMySQLSlowlogAgentParamsValidationError is the validation error
+// returned by ChangeQANMySQLSlowlogAgentParams.Validate if the designated
 // constraints aren't met.
-type ChangeQANMySQLSlowlogAgentRequestValidationError struct {
+type ChangeQANMySQLSlowlogAgentParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -8122,24 +8635,24 @@ type ChangeQANMySQLSlowlogAgentRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ChangeQANMySQLSlowlogAgentRequestValidationError) Field() string { return e.field }
+func (e ChangeQANMySQLSlowlogAgentParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ChangeQANMySQLSlowlogAgentRequestValidationError) Reason() string { return e.reason }
+func (e ChangeQANMySQLSlowlogAgentParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ChangeQANMySQLSlowlogAgentRequestValidationError) Cause() error { return e.cause }
+func (e ChangeQANMySQLSlowlogAgentParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ChangeQANMySQLSlowlogAgentRequestValidationError) Key() bool { return e.key }
+func (e ChangeQANMySQLSlowlogAgentParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ChangeQANMySQLSlowlogAgentRequestValidationError) ErrorName() string {
-	return "ChangeQANMySQLSlowlogAgentRequestValidationError"
+func (e ChangeQANMySQLSlowlogAgentParamsValidationError) ErrorName() string {
+	return "ChangeQANMySQLSlowlogAgentParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ChangeQANMySQLSlowlogAgentRequestValidationError) Error() string {
+func (e ChangeQANMySQLSlowlogAgentParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -8151,14 +8664,14 @@ func (e ChangeQANMySQLSlowlogAgentRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sChangeQANMySQLSlowlogAgentRequest.%s: %s%s",
+		"invalid %sChangeQANMySQLSlowlogAgentParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ChangeQANMySQLSlowlogAgentRequestValidationError{}
+var _ error = ChangeQANMySQLSlowlogAgentParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -8166,141 +8679,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ChangeQANMySQLSlowlogAgentRequestValidationError{}
-
-// Validate checks the field values on ChangeQANMySQLSlowlogAgentResponse with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *ChangeQANMySQLSlowlogAgentResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on ChangeQANMySQLSlowlogAgentResponse
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// ChangeQANMySQLSlowlogAgentResponseMultiError, or nil if none found.
-func (m *ChangeQANMySQLSlowlogAgentResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ChangeQANMySQLSlowlogAgentResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetQanMysqlSlowlogAgent()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeQANMySQLSlowlogAgentResponseValidationError{
-					field:  "QanMysqlSlowlogAgent",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeQANMySQLSlowlogAgentResponseValidationError{
-					field:  "QanMysqlSlowlogAgent",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetQanMysqlSlowlogAgent()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeQANMySQLSlowlogAgentResponseValidationError{
-				field:  "QanMysqlSlowlogAgent",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return ChangeQANMySQLSlowlogAgentResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// ChangeQANMySQLSlowlogAgentResponseMultiError is an error wrapping multiple
-// validation errors returned by
-// ChangeQANMySQLSlowlogAgentResponse.ValidateAll() if the designated
-// constraints aren't met.
-type ChangeQANMySQLSlowlogAgentResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ChangeQANMySQLSlowlogAgentResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ChangeQANMySQLSlowlogAgentResponseMultiError) AllErrors() []error { return m }
-
-// ChangeQANMySQLSlowlogAgentResponseValidationError is the validation error
-// returned by ChangeQANMySQLSlowlogAgentResponse.Validate if the designated
-// constraints aren't met.
-type ChangeQANMySQLSlowlogAgentResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ChangeQANMySQLSlowlogAgentResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ChangeQANMySQLSlowlogAgentResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ChangeQANMySQLSlowlogAgentResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ChangeQANMySQLSlowlogAgentResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ChangeQANMySQLSlowlogAgentResponseValidationError) ErrorName() string {
-	return "ChangeQANMySQLSlowlogAgentResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ChangeQANMySQLSlowlogAgentResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sChangeQANMySQLSlowlogAgentResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ChangeQANMySQLSlowlogAgentResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ChangeQANMySQLSlowlogAgentResponseValidationError{}
+} = ChangeQANMySQLSlowlogAgentParamsValidationError{}
 
 // Validate checks the field values on AddQANMongoDBProfilerAgentParams with
 // the rules defined in the proto definition for this message. If any rules
@@ -8455,23 +8834,23 @@ var _ interface {
 	ErrorName() string
 } = AddQANMongoDBProfilerAgentParamsValidationError{}
 
-// Validate checks the field values on ChangeQANMongoDBProfilerAgentRequest
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the first error encountered is returned, or nil if
-// there are no violations.
-func (m *ChangeQANMongoDBProfilerAgentRequest) Validate() error {
+// Validate checks the field values on ChangeQANMongoDBProfilerAgentParams with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *ChangeQANMongoDBProfilerAgentParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ChangeQANMongoDBProfilerAgentRequest
+// ValidateAll checks the field values on ChangeQANMongoDBProfilerAgentParams
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, the result is a list of violation errors wrapped in
-// ChangeQANMongoDBProfilerAgentRequestMultiError, or nil if none found.
-func (m *ChangeQANMongoDBProfilerAgentRequest) ValidateAll() error {
+// ChangeQANMongoDBProfilerAgentParamsMultiError, or nil if none found.
+func (m *ChangeQANMongoDBProfilerAgentParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ChangeQANMongoDBProfilerAgentRequest) validate(all bool) error {
+func (m *ChangeQANMongoDBProfilerAgentParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -8479,7 +8858,7 @@ func (m *ChangeQANMongoDBProfilerAgentRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeQANMongoDBProfilerAgentRequestValidationError{
+		err := ChangeQANMongoDBProfilerAgentParamsValidationError{
 			field:  "AgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -8493,7 +8872,7 @@ func (m *ChangeQANMongoDBProfilerAgentRequest) validate(all bool) error {
 		switch v := interface{}(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeQANMongoDBProfilerAgentRequestValidationError{
+				errors = append(errors, ChangeQANMongoDBProfilerAgentParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -8501,7 +8880,7 @@ func (m *ChangeQANMongoDBProfilerAgentRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeQANMongoDBProfilerAgentRequestValidationError{
+				errors = append(errors, ChangeQANMongoDBProfilerAgentParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -8510,7 +8889,7 @@ func (m *ChangeQANMongoDBProfilerAgentRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ChangeQANMongoDBProfilerAgentRequestValidationError{
+			return ChangeQANMongoDBProfilerAgentParamsValidationError{
 				field:  "Common",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -8519,20 +8898,20 @@ func (m *ChangeQANMongoDBProfilerAgentRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ChangeQANMongoDBProfilerAgentRequestMultiError(errors)
+		return ChangeQANMongoDBProfilerAgentParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// ChangeQANMongoDBProfilerAgentRequestMultiError is an error wrapping multiple
+// ChangeQANMongoDBProfilerAgentParamsMultiError is an error wrapping multiple
 // validation errors returned by
-// ChangeQANMongoDBProfilerAgentRequest.ValidateAll() if the designated
+// ChangeQANMongoDBProfilerAgentParams.ValidateAll() if the designated
 // constraints aren't met.
-type ChangeQANMongoDBProfilerAgentRequestMultiError []error
+type ChangeQANMongoDBProfilerAgentParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ChangeQANMongoDBProfilerAgentRequestMultiError) Error() string {
+func (m ChangeQANMongoDBProfilerAgentParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -8541,12 +8920,12 @@ func (m ChangeQANMongoDBProfilerAgentRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ChangeQANMongoDBProfilerAgentRequestMultiError) AllErrors() []error { return m }
+func (m ChangeQANMongoDBProfilerAgentParamsMultiError) AllErrors() []error { return m }
 
-// ChangeQANMongoDBProfilerAgentRequestValidationError is the validation error
-// returned by ChangeQANMongoDBProfilerAgentRequest.Validate if the designated
+// ChangeQANMongoDBProfilerAgentParamsValidationError is the validation error
+// returned by ChangeQANMongoDBProfilerAgentParams.Validate if the designated
 // constraints aren't met.
-type ChangeQANMongoDBProfilerAgentRequestValidationError struct {
+type ChangeQANMongoDBProfilerAgentParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -8554,24 +8933,24 @@ type ChangeQANMongoDBProfilerAgentRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ChangeQANMongoDBProfilerAgentRequestValidationError) Field() string { return e.field }
+func (e ChangeQANMongoDBProfilerAgentParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ChangeQANMongoDBProfilerAgentRequestValidationError) Reason() string { return e.reason }
+func (e ChangeQANMongoDBProfilerAgentParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ChangeQANMongoDBProfilerAgentRequestValidationError) Cause() error { return e.cause }
+func (e ChangeQANMongoDBProfilerAgentParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ChangeQANMongoDBProfilerAgentRequestValidationError) Key() bool { return e.key }
+func (e ChangeQANMongoDBProfilerAgentParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ChangeQANMongoDBProfilerAgentRequestValidationError) ErrorName() string {
-	return "ChangeQANMongoDBProfilerAgentRequestValidationError"
+func (e ChangeQANMongoDBProfilerAgentParamsValidationError) ErrorName() string {
+	return "ChangeQANMongoDBProfilerAgentParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ChangeQANMongoDBProfilerAgentRequestValidationError) Error() string {
+func (e ChangeQANMongoDBProfilerAgentParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -8583,14 +8962,14 @@ func (e ChangeQANMongoDBProfilerAgentRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sChangeQANMongoDBProfilerAgentRequest.%s: %s%s",
+		"invalid %sChangeQANMongoDBProfilerAgentParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ChangeQANMongoDBProfilerAgentRequestValidationError{}
+var _ error = ChangeQANMongoDBProfilerAgentParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -8598,141 +8977,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ChangeQANMongoDBProfilerAgentRequestValidationError{}
-
-// Validate checks the field values on ChangeQANMongoDBProfilerAgentResponse
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the first error encountered is returned, or nil if
-// there are no violations.
-func (m *ChangeQANMongoDBProfilerAgentResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on ChangeQANMongoDBProfilerAgentResponse
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// ChangeQANMongoDBProfilerAgentResponseMultiError, or nil if none found.
-func (m *ChangeQANMongoDBProfilerAgentResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ChangeQANMongoDBProfilerAgentResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetQanMongodbProfilerAgent()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeQANMongoDBProfilerAgentResponseValidationError{
-					field:  "QanMongodbProfilerAgent",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeQANMongoDBProfilerAgentResponseValidationError{
-					field:  "QanMongodbProfilerAgent",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetQanMongodbProfilerAgent()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeQANMongoDBProfilerAgentResponseValidationError{
-				field:  "QanMongodbProfilerAgent",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return ChangeQANMongoDBProfilerAgentResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// ChangeQANMongoDBProfilerAgentResponseMultiError is an error wrapping
-// multiple validation errors returned by
-// ChangeQANMongoDBProfilerAgentResponse.ValidateAll() if the designated
-// constraints aren't met.
-type ChangeQANMongoDBProfilerAgentResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ChangeQANMongoDBProfilerAgentResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ChangeQANMongoDBProfilerAgentResponseMultiError) AllErrors() []error { return m }
-
-// ChangeQANMongoDBProfilerAgentResponseValidationError is the validation error
-// returned by ChangeQANMongoDBProfilerAgentResponse.Validate if the
-// designated constraints aren't met.
-type ChangeQANMongoDBProfilerAgentResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ChangeQANMongoDBProfilerAgentResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ChangeQANMongoDBProfilerAgentResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ChangeQANMongoDBProfilerAgentResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ChangeQANMongoDBProfilerAgentResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ChangeQANMongoDBProfilerAgentResponseValidationError) ErrorName() string {
-	return "ChangeQANMongoDBProfilerAgentResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ChangeQANMongoDBProfilerAgentResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sChangeQANMongoDBProfilerAgentResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ChangeQANMongoDBProfilerAgentResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ChangeQANMongoDBProfilerAgentResponseValidationError{}
+} = ChangeQANMongoDBProfilerAgentParamsValidationError{}
 
 // Validate checks the field values on AddQANPostgreSQLPgStatementsAgentParams
 // with the rules defined in the proto definition for this message. If any
@@ -8896,23 +9141,23 @@ var _ interface {
 } = AddQANPostgreSQLPgStatementsAgentParamsValidationError{}
 
 // Validate checks the field values on
-// ChangeQANPostgreSQLPgStatementsAgentRequest with the rules defined in the
+// ChangeQANPostgreSQLPgStatementsAgentParams with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
-func (m *ChangeQANPostgreSQLPgStatementsAgentRequest) Validate() error {
+func (m *ChangeQANPostgreSQLPgStatementsAgentParams) Validate() error {
 	return m.validate(false)
 }
 
 // ValidateAll checks the field values on
-// ChangeQANPostgreSQLPgStatementsAgentRequest with the rules defined in the
+// ChangeQANPostgreSQLPgStatementsAgentParams with the rules defined in the
 // proto definition for this message. If any rules are violated, the result is
 // a list of violation errors wrapped in
-// ChangeQANPostgreSQLPgStatementsAgentRequestMultiError, or nil if none found.
-func (m *ChangeQANPostgreSQLPgStatementsAgentRequest) ValidateAll() error {
+// ChangeQANPostgreSQLPgStatementsAgentParamsMultiError, or nil if none found.
+func (m *ChangeQANPostgreSQLPgStatementsAgentParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ChangeQANPostgreSQLPgStatementsAgentRequest) validate(all bool) error {
+func (m *ChangeQANPostgreSQLPgStatementsAgentParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -8920,7 +9165,7 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeQANPostgreSQLPgStatementsAgentRequestValidationError{
+		err := ChangeQANPostgreSQLPgStatementsAgentParamsValidationError{
 			field:  "AgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -8934,7 +9179,7 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentRequest) validate(all bool) error {
 		switch v := interface{}(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeQANPostgreSQLPgStatementsAgentRequestValidationError{
+				errors = append(errors, ChangeQANPostgreSQLPgStatementsAgentParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -8942,7 +9187,7 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeQANPostgreSQLPgStatementsAgentRequestValidationError{
+				errors = append(errors, ChangeQANPostgreSQLPgStatementsAgentParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -8951,7 +9196,7 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ChangeQANPostgreSQLPgStatementsAgentRequestValidationError{
+			return ChangeQANPostgreSQLPgStatementsAgentParamsValidationError{
 				field:  "Common",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -8960,20 +9205,20 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ChangeQANPostgreSQLPgStatementsAgentRequestMultiError(errors)
+		return ChangeQANPostgreSQLPgStatementsAgentParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// ChangeQANPostgreSQLPgStatementsAgentRequestMultiError is an error wrapping
+// ChangeQANPostgreSQLPgStatementsAgentParamsMultiError is an error wrapping
 // multiple validation errors returned by
-// ChangeQANPostgreSQLPgStatementsAgentRequest.ValidateAll() if the designated
+// ChangeQANPostgreSQLPgStatementsAgentParams.ValidateAll() if the designated
 // constraints aren't met.
-type ChangeQANPostgreSQLPgStatementsAgentRequestMultiError []error
+type ChangeQANPostgreSQLPgStatementsAgentParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ChangeQANPostgreSQLPgStatementsAgentRequestMultiError) Error() string {
+func (m ChangeQANPostgreSQLPgStatementsAgentParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -8982,12 +9227,12 @@ func (m ChangeQANPostgreSQLPgStatementsAgentRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ChangeQANPostgreSQLPgStatementsAgentRequestMultiError) AllErrors() []error { return m }
+func (m ChangeQANPostgreSQLPgStatementsAgentParamsMultiError) AllErrors() []error { return m }
 
-// ChangeQANPostgreSQLPgStatementsAgentRequestValidationError is the validation
-// error returned by ChangeQANPostgreSQLPgStatementsAgentRequest.Validate if
+// ChangeQANPostgreSQLPgStatementsAgentParamsValidationError is the validation
+// error returned by ChangeQANPostgreSQLPgStatementsAgentParams.Validate if
 // the designated constraints aren't met.
-type ChangeQANPostgreSQLPgStatementsAgentRequestValidationError struct {
+type ChangeQANPostgreSQLPgStatementsAgentParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -8995,24 +9240,24 @@ type ChangeQANPostgreSQLPgStatementsAgentRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ChangeQANPostgreSQLPgStatementsAgentRequestValidationError) Field() string { return e.field }
+func (e ChangeQANPostgreSQLPgStatementsAgentParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ChangeQANPostgreSQLPgStatementsAgentRequestValidationError) Reason() string { return e.reason }
+func (e ChangeQANPostgreSQLPgStatementsAgentParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ChangeQANPostgreSQLPgStatementsAgentRequestValidationError) Cause() error { return e.cause }
+func (e ChangeQANPostgreSQLPgStatementsAgentParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ChangeQANPostgreSQLPgStatementsAgentRequestValidationError) Key() bool { return e.key }
+func (e ChangeQANPostgreSQLPgStatementsAgentParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ChangeQANPostgreSQLPgStatementsAgentRequestValidationError) ErrorName() string {
-	return "ChangeQANPostgreSQLPgStatementsAgentRequestValidationError"
+func (e ChangeQANPostgreSQLPgStatementsAgentParamsValidationError) ErrorName() string {
+	return "ChangeQANPostgreSQLPgStatementsAgentParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ChangeQANPostgreSQLPgStatementsAgentRequestValidationError) Error() string {
+func (e ChangeQANPostgreSQLPgStatementsAgentParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -9024,14 +9269,14 @@ func (e ChangeQANPostgreSQLPgStatementsAgentRequestValidationError) Error() stri
 	}
 
 	return fmt.Sprintf(
-		"invalid %sChangeQANPostgreSQLPgStatementsAgentRequest.%s: %s%s",
+		"invalid %sChangeQANPostgreSQLPgStatementsAgentParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ChangeQANPostgreSQLPgStatementsAgentRequestValidationError{}
+var _ error = ChangeQANPostgreSQLPgStatementsAgentParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -9039,143 +9284,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ChangeQANPostgreSQLPgStatementsAgentRequestValidationError{}
-
-// Validate checks the field values on
-// ChangeQANPostgreSQLPgStatementsAgentResponse with the rules defined in the
-// proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *ChangeQANPostgreSQLPgStatementsAgentResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on
-// ChangeQANPostgreSQLPgStatementsAgentResponse with the rules defined in the
-// proto definition for this message. If any rules are violated, the result is
-// a list of violation errors wrapped in
-// ChangeQANPostgreSQLPgStatementsAgentResponseMultiError, or nil if none found.
-func (m *ChangeQANPostgreSQLPgStatementsAgentResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ChangeQANPostgreSQLPgStatementsAgentResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetQanPostgresqlPgstatementsAgent()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeQANPostgreSQLPgStatementsAgentResponseValidationError{
-					field:  "QanPostgresqlPgstatementsAgent",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeQANPostgreSQLPgStatementsAgentResponseValidationError{
-					field:  "QanPostgresqlPgstatementsAgent",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetQanPostgresqlPgstatementsAgent()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeQANPostgreSQLPgStatementsAgentResponseValidationError{
-				field:  "QanPostgresqlPgstatementsAgent",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return ChangeQANPostgreSQLPgStatementsAgentResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// ChangeQANPostgreSQLPgStatementsAgentResponseMultiError is an error wrapping
-// multiple validation errors returned by
-// ChangeQANPostgreSQLPgStatementsAgentResponse.ValidateAll() if the
-// designated constraints aren't met.
-type ChangeQANPostgreSQLPgStatementsAgentResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ChangeQANPostgreSQLPgStatementsAgentResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ChangeQANPostgreSQLPgStatementsAgentResponseMultiError) AllErrors() []error { return m }
-
-// ChangeQANPostgreSQLPgStatementsAgentResponseValidationError is the
-// validation error returned by
-// ChangeQANPostgreSQLPgStatementsAgentResponse.Validate if the designated
-// constraints aren't met.
-type ChangeQANPostgreSQLPgStatementsAgentResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ChangeQANPostgreSQLPgStatementsAgentResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ChangeQANPostgreSQLPgStatementsAgentResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ChangeQANPostgreSQLPgStatementsAgentResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ChangeQANPostgreSQLPgStatementsAgentResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ChangeQANPostgreSQLPgStatementsAgentResponseValidationError) ErrorName() string {
-	return "ChangeQANPostgreSQLPgStatementsAgentResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ChangeQANPostgreSQLPgStatementsAgentResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sChangeQANPostgreSQLPgStatementsAgentResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ChangeQANPostgreSQLPgStatementsAgentResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ChangeQANPostgreSQLPgStatementsAgentResponseValidationError{}
+} = ChangeQANPostgreSQLPgStatementsAgentParamsValidationError{}
 
 // Validate checks the field values on AddQANPostgreSQLPgStatMonitorAgentParams
 // with the rules defined in the proto definition for this message. If any
@@ -9341,23 +9450,23 @@ var _ interface {
 } = AddQANPostgreSQLPgStatMonitorAgentParamsValidationError{}
 
 // Validate checks the field values on
-// ChangeQANPostgreSQLPgStatMonitorAgentRequest with the rules defined in the
+// ChangeQANPostgreSQLPgStatMonitorAgentParams with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
-func (m *ChangeQANPostgreSQLPgStatMonitorAgentRequest) Validate() error {
+func (m *ChangeQANPostgreSQLPgStatMonitorAgentParams) Validate() error {
 	return m.validate(false)
 }
 
 // ValidateAll checks the field values on
-// ChangeQANPostgreSQLPgStatMonitorAgentRequest with the rules defined in the
+// ChangeQANPostgreSQLPgStatMonitorAgentParams with the rules defined in the
 // proto definition for this message. If any rules are violated, the result is
 // a list of violation errors wrapped in
-// ChangeQANPostgreSQLPgStatMonitorAgentRequestMultiError, or nil if none found.
-func (m *ChangeQANPostgreSQLPgStatMonitorAgentRequest) ValidateAll() error {
+// ChangeQANPostgreSQLPgStatMonitorAgentParamsMultiError, or nil if none found.
+func (m *ChangeQANPostgreSQLPgStatMonitorAgentParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ChangeQANPostgreSQLPgStatMonitorAgentRequest) validate(all bool) error {
+func (m *ChangeQANPostgreSQLPgStatMonitorAgentParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -9365,7 +9474,7 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentRequest) validate(all bool) error 
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeQANPostgreSQLPgStatMonitorAgentRequestValidationError{
+		err := ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError{
 			field:  "AgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -9379,7 +9488,7 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentRequest) validate(all bool) error 
 		switch v := interface{}(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeQANPostgreSQLPgStatMonitorAgentRequestValidationError{
+				errors = append(errors, ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -9387,7 +9496,7 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentRequest) validate(all bool) error 
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeQANPostgreSQLPgStatMonitorAgentRequestValidationError{
+				errors = append(errors, ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -9396,7 +9505,7 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentRequest) validate(all bool) error 
 		}
 	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ChangeQANPostgreSQLPgStatMonitorAgentRequestValidationError{
+			return ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError{
 				field:  "Common",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -9405,20 +9514,20 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentRequest) validate(all bool) error 
 	}
 
 	if len(errors) > 0 {
-		return ChangeQANPostgreSQLPgStatMonitorAgentRequestMultiError(errors)
+		return ChangeQANPostgreSQLPgStatMonitorAgentParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// ChangeQANPostgreSQLPgStatMonitorAgentRequestMultiError is an error wrapping
+// ChangeQANPostgreSQLPgStatMonitorAgentParamsMultiError is an error wrapping
 // multiple validation errors returned by
-// ChangeQANPostgreSQLPgStatMonitorAgentRequest.ValidateAll() if the
-// designated constraints aren't met.
-type ChangeQANPostgreSQLPgStatMonitorAgentRequestMultiError []error
+// ChangeQANPostgreSQLPgStatMonitorAgentParams.ValidateAll() if the designated
+// constraints aren't met.
+type ChangeQANPostgreSQLPgStatMonitorAgentParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ChangeQANPostgreSQLPgStatMonitorAgentRequestMultiError) Error() string {
+func (m ChangeQANPostgreSQLPgStatMonitorAgentParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -9427,13 +9536,12 @@ func (m ChangeQANPostgreSQLPgStatMonitorAgentRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ChangeQANPostgreSQLPgStatMonitorAgentRequestMultiError) AllErrors() []error { return m }
+func (m ChangeQANPostgreSQLPgStatMonitorAgentParamsMultiError) AllErrors() []error { return m }
 
-// ChangeQANPostgreSQLPgStatMonitorAgentRequestValidationError is the
-// validation error returned by
-// ChangeQANPostgreSQLPgStatMonitorAgentRequest.Validate if the designated
-// constraints aren't met.
-type ChangeQANPostgreSQLPgStatMonitorAgentRequestValidationError struct {
+// ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError is the validation
+// error returned by ChangeQANPostgreSQLPgStatMonitorAgentParams.Validate if
+// the designated constraints aren't met.
+type ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -9441,24 +9549,24 @@ type ChangeQANPostgreSQLPgStatMonitorAgentRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ChangeQANPostgreSQLPgStatMonitorAgentRequestValidationError) Field() string { return e.field }
+func (e ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ChangeQANPostgreSQLPgStatMonitorAgentRequestValidationError) Reason() string { return e.reason }
+func (e ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ChangeQANPostgreSQLPgStatMonitorAgentRequestValidationError) Cause() error { return e.cause }
+func (e ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ChangeQANPostgreSQLPgStatMonitorAgentRequestValidationError) Key() bool { return e.key }
+func (e ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ChangeQANPostgreSQLPgStatMonitorAgentRequestValidationError) ErrorName() string {
-	return "ChangeQANPostgreSQLPgStatMonitorAgentRequestValidationError"
+func (e ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError) ErrorName() string {
+	return "ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ChangeQANPostgreSQLPgStatMonitorAgentRequestValidationError) Error() string {
+func (e ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -9470,14 +9578,14 @@ func (e ChangeQANPostgreSQLPgStatMonitorAgentRequestValidationError) Error() str
 	}
 
 	return fmt.Sprintf(
-		"invalid %sChangeQANPostgreSQLPgStatMonitorAgentRequest.%s: %s%s",
+		"invalid %sChangeQANPostgreSQLPgStatMonitorAgentParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ChangeQANPostgreSQLPgStatMonitorAgentRequestValidationError{}
+var _ error = ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -9485,145 +9593,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ChangeQANPostgreSQLPgStatMonitorAgentRequestValidationError{}
-
-// Validate checks the field values on
-// ChangeQANPostgreSQLPgStatMonitorAgentResponse with the rules defined in the
-// proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *ChangeQANPostgreSQLPgStatMonitorAgentResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on
-// ChangeQANPostgreSQLPgStatMonitorAgentResponse with the rules defined in the
-// proto definition for this message. If any rules are violated, the result is
-// a list of violation errors wrapped in
-// ChangeQANPostgreSQLPgStatMonitorAgentResponseMultiError, or nil if none found.
-func (m *ChangeQANPostgreSQLPgStatMonitorAgentResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ChangeQANPostgreSQLPgStatMonitorAgentResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetQanPostgresqlPgstatmonitorAgent()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeQANPostgreSQLPgStatMonitorAgentResponseValidationError{
-					field:  "QanPostgresqlPgstatmonitorAgent",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeQANPostgreSQLPgStatMonitorAgentResponseValidationError{
-					field:  "QanPostgresqlPgstatmonitorAgent",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetQanPostgresqlPgstatmonitorAgent()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeQANPostgreSQLPgStatMonitorAgentResponseValidationError{
-				field:  "QanPostgresqlPgstatmonitorAgent",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return ChangeQANPostgreSQLPgStatMonitorAgentResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// ChangeQANPostgreSQLPgStatMonitorAgentResponseMultiError is an error wrapping
-// multiple validation errors returned by
-// ChangeQANPostgreSQLPgStatMonitorAgentResponse.ValidateAll() if the
-// designated constraints aren't met.
-type ChangeQANPostgreSQLPgStatMonitorAgentResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ChangeQANPostgreSQLPgStatMonitorAgentResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ChangeQANPostgreSQLPgStatMonitorAgentResponseMultiError) AllErrors() []error { return m }
-
-// ChangeQANPostgreSQLPgStatMonitorAgentResponseValidationError is the
-// validation error returned by
-// ChangeQANPostgreSQLPgStatMonitorAgentResponse.Validate if the designated
-// constraints aren't met.
-type ChangeQANPostgreSQLPgStatMonitorAgentResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ChangeQANPostgreSQLPgStatMonitorAgentResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ChangeQANPostgreSQLPgStatMonitorAgentResponseValidationError) Reason() string {
-	return e.reason
-}
-
-// Cause function returns cause value.
-func (e ChangeQANPostgreSQLPgStatMonitorAgentResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ChangeQANPostgreSQLPgStatMonitorAgentResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ChangeQANPostgreSQLPgStatMonitorAgentResponseValidationError) ErrorName() string {
-	return "ChangeQANPostgreSQLPgStatMonitorAgentResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ChangeQANPostgreSQLPgStatMonitorAgentResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sChangeQANPostgreSQLPgStatMonitorAgentResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ChangeQANPostgreSQLPgStatMonitorAgentResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ChangeQANPostgreSQLPgStatMonitorAgentResponseValidationError{}
+} = ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError{}
 
 // Validate checks the field values on AddRDSExporterParams with the rules
 // defined in the proto definition for this message. If any rules are
@@ -9765,22 +9735,22 @@ var _ interface {
 	ErrorName() string
 } = AddRDSExporterParamsValidationError{}
 
-// Validate checks the field values on ChangeRDSExporterRequest with the rules
+// Validate checks the field values on ChangeRDSExporterParams with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ChangeRDSExporterRequest) Validate() error {
+func (m *ChangeRDSExporterParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ChangeRDSExporterRequest with the
+// ValidateAll checks the field values on ChangeRDSExporterParams with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// ChangeRDSExporterRequestMultiError, or nil if none found.
-func (m *ChangeRDSExporterRequest) ValidateAll() error {
+// ChangeRDSExporterParamsMultiError, or nil if none found.
+func (m *ChangeRDSExporterParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ChangeRDSExporterRequest) validate(all bool) error {
+func (m *ChangeRDSExporterParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -9788,7 +9758,7 @@ func (m *ChangeRDSExporterRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeRDSExporterRequestValidationError{
+		err := ChangeRDSExporterParamsValidationError{
 			field:  "AgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -9802,7 +9772,7 @@ func (m *ChangeRDSExporterRequest) validate(all bool) error {
 		switch v := interface{}(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeRDSExporterRequestValidationError{
+				errors = append(errors, ChangeRDSExporterParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -9810,7 +9780,7 @@ func (m *ChangeRDSExporterRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeRDSExporterRequestValidationError{
+				errors = append(errors, ChangeRDSExporterParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -9819,7 +9789,7 @@ func (m *ChangeRDSExporterRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ChangeRDSExporterRequestValidationError{
+			return ChangeRDSExporterParamsValidationError{
 				field:  "Common",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -9828,19 +9798,19 @@ func (m *ChangeRDSExporterRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ChangeRDSExporterRequestMultiError(errors)
+		return ChangeRDSExporterParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// ChangeRDSExporterRequestMultiError is an error wrapping multiple validation
-// errors returned by ChangeRDSExporterRequest.ValidateAll() if the designated
+// ChangeRDSExporterParamsMultiError is an error wrapping multiple validation
+// errors returned by ChangeRDSExporterParams.ValidateAll() if the designated
 // constraints aren't met.
-type ChangeRDSExporterRequestMultiError []error
+type ChangeRDSExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ChangeRDSExporterRequestMultiError) Error() string {
+func (m ChangeRDSExporterParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -9849,11 +9819,11 @@ func (m ChangeRDSExporterRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ChangeRDSExporterRequestMultiError) AllErrors() []error { return m }
+func (m ChangeRDSExporterParamsMultiError) AllErrors() []error { return m }
 
-// ChangeRDSExporterRequestValidationError is the validation error returned by
-// ChangeRDSExporterRequest.Validate if the designated constraints aren't met.
-type ChangeRDSExporterRequestValidationError struct {
+// ChangeRDSExporterParamsValidationError is the validation error returned by
+// ChangeRDSExporterParams.Validate if the designated constraints aren't met.
+type ChangeRDSExporterParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -9861,24 +9831,24 @@ type ChangeRDSExporterRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ChangeRDSExporterRequestValidationError) Field() string { return e.field }
+func (e ChangeRDSExporterParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ChangeRDSExporterRequestValidationError) Reason() string { return e.reason }
+func (e ChangeRDSExporterParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ChangeRDSExporterRequestValidationError) Cause() error { return e.cause }
+func (e ChangeRDSExporterParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ChangeRDSExporterRequestValidationError) Key() bool { return e.key }
+func (e ChangeRDSExporterParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ChangeRDSExporterRequestValidationError) ErrorName() string {
-	return "ChangeRDSExporterRequestValidationError"
+func (e ChangeRDSExporterParamsValidationError) ErrorName() string {
+	return "ChangeRDSExporterParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ChangeRDSExporterRequestValidationError) Error() string {
+func (e ChangeRDSExporterParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -9890,14 +9860,14 @@ func (e ChangeRDSExporterRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sChangeRDSExporterRequest.%s: %s%s",
+		"invalid %sChangeRDSExporterParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ChangeRDSExporterRequestValidationError{}
+var _ error = ChangeRDSExporterParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -9905,138 +9875,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ChangeRDSExporterRequestValidationError{}
-
-// Validate checks the field values on ChangeRDSExporterResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ChangeRDSExporterResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on ChangeRDSExporterResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// ChangeRDSExporterResponseMultiError, or nil if none found.
-func (m *ChangeRDSExporterResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ChangeRDSExporterResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetRdsExporter()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeRDSExporterResponseValidationError{
-					field:  "RdsExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeRDSExporterResponseValidationError{
-					field:  "RdsExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetRdsExporter()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeRDSExporterResponseValidationError{
-				field:  "RdsExporter",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return ChangeRDSExporterResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// ChangeRDSExporterResponseMultiError is an error wrapping multiple validation
-// errors returned by ChangeRDSExporterResponse.ValidateAll() if the
-// designated constraints aren't met.
-type ChangeRDSExporterResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ChangeRDSExporterResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ChangeRDSExporterResponseMultiError) AllErrors() []error { return m }
-
-// ChangeRDSExporterResponseValidationError is the validation error returned by
-// ChangeRDSExporterResponse.Validate if the designated constraints aren't met.
-type ChangeRDSExporterResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ChangeRDSExporterResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ChangeRDSExporterResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ChangeRDSExporterResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ChangeRDSExporterResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ChangeRDSExporterResponseValidationError) ErrorName() string {
-	return "ChangeRDSExporterResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ChangeRDSExporterResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sChangeRDSExporterResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ChangeRDSExporterResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ChangeRDSExporterResponseValidationError{}
+} = ChangeRDSExporterParamsValidationError{}
 
 // Validate checks the field values on AddExternalExporterParams with the rules
 // defined in the proto definition for this message. If any rules are
@@ -10176,22 +10015,22 @@ var _ interface {
 	ErrorName() string
 } = AddExternalExporterParamsValidationError{}
 
-// Validate checks the field values on ChangeExternalExporterRequest with the
+// Validate checks the field values on ChangeExternalExporterParams with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ChangeExternalExporterRequest) Validate() error {
+func (m *ChangeExternalExporterParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ChangeExternalExporterRequest with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// ChangeExternalExporterRequestMultiError, or nil if none found.
-func (m *ChangeExternalExporterRequest) ValidateAll() error {
+// ValidateAll checks the field values on ChangeExternalExporterParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangeExternalExporterParamsMultiError, or nil if none found.
+func (m *ChangeExternalExporterParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ChangeExternalExporterRequest) validate(all bool) error {
+func (m *ChangeExternalExporterParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -10199,7 +10038,7 @@ func (m *ChangeExternalExporterRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeExternalExporterRequestValidationError{
+		err := ChangeExternalExporterParamsValidationError{
 			field:  "AgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -10213,7 +10052,7 @@ func (m *ChangeExternalExporterRequest) validate(all bool) error {
 		switch v := interface{}(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeExternalExporterRequestValidationError{
+				errors = append(errors, ChangeExternalExporterParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -10221,7 +10060,7 @@ func (m *ChangeExternalExporterRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeExternalExporterRequestValidationError{
+				errors = append(errors, ChangeExternalExporterParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -10230,7 +10069,7 @@ func (m *ChangeExternalExporterRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ChangeExternalExporterRequestValidationError{
+			return ChangeExternalExporterParamsValidationError{
 				field:  "Common",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -10239,19 +10078,19 @@ func (m *ChangeExternalExporterRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ChangeExternalExporterRequestMultiError(errors)
+		return ChangeExternalExporterParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// ChangeExternalExporterRequestMultiError is an error wrapping multiple
-// validation errors returned by ChangeExternalExporterRequest.ValidateAll()
-// if the designated constraints aren't met.
-type ChangeExternalExporterRequestMultiError []error
+// ChangeExternalExporterParamsMultiError is an error wrapping multiple
+// validation errors returned by ChangeExternalExporterParams.ValidateAll() if
+// the designated constraints aren't met.
+type ChangeExternalExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ChangeExternalExporterRequestMultiError) Error() string {
+func (m ChangeExternalExporterParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -10260,12 +10099,12 @@ func (m ChangeExternalExporterRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ChangeExternalExporterRequestMultiError) AllErrors() []error { return m }
+func (m ChangeExternalExporterParamsMultiError) AllErrors() []error { return m }
 
-// ChangeExternalExporterRequestValidationError is the validation error
-// returned by ChangeExternalExporterRequest.Validate if the designated
-// constraints aren't met.
-type ChangeExternalExporterRequestValidationError struct {
+// ChangeExternalExporterParamsValidationError is the validation error returned
+// by ChangeExternalExporterParams.Validate if the designated constraints
+// aren't met.
+type ChangeExternalExporterParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -10273,24 +10112,24 @@ type ChangeExternalExporterRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ChangeExternalExporterRequestValidationError) Field() string { return e.field }
+func (e ChangeExternalExporterParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ChangeExternalExporterRequestValidationError) Reason() string { return e.reason }
+func (e ChangeExternalExporterParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ChangeExternalExporterRequestValidationError) Cause() error { return e.cause }
+func (e ChangeExternalExporterParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ChangeExternalExporterRequestValidationError) Key() bool { return e.key }
+func (e ChangeExternalExporterParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ChangeExternalExporterRequestValidationError) ErrorName() string {
-	return "ChangeExternalExporterRequestValidationError"
+func (e ChangeExternalExporterParamsValidationError) ErrorName() string {
+	return "ChangeExternalExporterParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ChangeExternalExporterRequestValidationError) Error() string {
+func (e ChangeExternalExporterParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -10302,14 +10141,14 @@ func (e ChangeExternalExporterRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sChangeExternalExporterRequest.%s: %s%s",
+		"invalid %sChangeExternalExporterParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ChangeExternalExporterRequestValidationError{}
+var _ error = ChangeExternalExporterParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -10317,139 +10156,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ChangeExternalExporterRequestValidationError{}
-
-// Validate checks the field values on ChangeExternalExporterResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ChangeExternalExporterResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on ChangeExternalExporterResponse with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// ChangeExternalExporterResponseMultiError, or nil if none found.
-func (m *ChangeExternalExporterResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ChangeExternalExporterResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetExternalExporter()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeExternalExporterResponseValidationError{
-					field:  "ExternalExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeExternalExporterResponseValidationError{
-					field:  "ExternalExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetExternalExporter()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeExternalExporterResponseValidationError{
-				field:  "ExternalExporter",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return ChangeExternalExporterResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// ChangeExternalExporterResponseMultiError is an error wrapping multiple
-// validation errors returned by ChangeExternalExporterResponse.ValidateAll()
-// if the designated constraints aren't met.
-type ChangeExternalExporterResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ChangeExternalExporterResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ChangeExternalExporterResponseMultiError) AllErrors() []error { return m }
-
-// ChangeExternalExporterResponseValidationError is the validation error
-// returned by ChangeExternalExporterResponse.Validate if the designated
-// constraints aren't met.
-type ChangeExternalExporterResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ChangeExternalExporterResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ChangeExternalExporterResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ChangeExternalExporterResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ChangeExternalExporterResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ChangeExternalExporterResponseValidationError) ErrorName() string {
-	return "ChangeExternalExporterResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ChangeExternalExporterResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sChangeExternalExporterResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ChangeExternalExporterResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ChangeExternalExporterResponseValidationError{}
+} = ChangeExternalExporterParamsValidationError{}
 
 // Validate checks the field values on AddAzureDatabaseExporterParams with the
 // rules defined in the proto definition for this message. If any rules are
@@ -10605,23 +10312,23 @@ var _ interface {
 	ErrorName() string
 } = AddAzureDatabaseExporterParamsValidationError{}
 
-// Validate checks the field values on ChangeAzureDatabaseExporterRequest with
+// Validate checks the field values on ChangeAzureDatabaseExporterParams with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the first error encountered is returned, or nil if there are
 // no violations.
-func (m *ChangeAzureDatabaseExporterRequest) Validate() error {
+func (m *ChangeAzureDatabaseExporterParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ChangeAzureDatabaseExporterRequest
+// ValidateAll checks the field values on ChangeAzureDatabaseExporterParams
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, the result is a list of violation errors wrapped in
-// ChangeAzureDatabaseExporterRequestMultiError, or nil if none found.
-func (m *ChangeAzureDatabaseExporterRequest) ValidateAll() error {
+// ChangeAzureDatabaseExporterParamsMultiError, or nil if none found.
+func (m *ChangeAzureDatabaseExporterParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ChangeAzureDatabaseExporterRequest) validate(all bool) error {
+func (m *ChangeAzureDatabaseExporterParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -10629,7 +10336,7 @@ func (m *ChangeAzureDatabaseExporterRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeAzureDatabaseExporterRequestValidationError{
+		err := ChangeAzureDatabaseExporterParamsValidationError{
 			field:  "AgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -10643,7 +10350,7 @@ func (m *ChangeAzureDatabaseExporterRequest) validate(all bool) error {
 		switch v := interface{}(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeAzureDatabaseExporterRequestValidationError{
+				errors = append(errors, ChangeAzureDatabaseExporterParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -10651,7 +10358,7 @@ func (m *ChangeAzureDatabaseExporterRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeAzureDatabaseExporterRequestValidationError{
+				errors = append(errors, ChangeAzureDatabaseExporterParamsValidationError{
 					field:  "Common",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -10660,7 +10367,7 @@ func (m *ChangeAzureDatabaseExporterRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ChangeAzureDatabaseExporterRequestValidationError{
+			return ChangeAzureDatabaseExporterParamsValidationError{
 				field:  "Common",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -10669,20 +10376,20 @@ func (m *ChangeAzureDatabaseExporterRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ChangeAzureDatabaseExporterRequestMultiError(errors)
+		return ChangeAzureDatabaseExporterParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// ChangeAzureDatabaseExporterRequestMultiError is an error wrapping multiple
+// ChangeAzureDatabaseExporterParamsMultiError is an error wrapping multiple
 // validation errors returned by
-// ChangeAzureDatabaseExporterRequest.ValidateAll() if the designated
+// ChangeAzureDatabaseExporterParams.ValidateAll() if the designated
 // constraints aren't met.
-type ChangeAzureDatabaseExporterRequestMultiError []error
+type ChangeAzureDatabaseExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ChangeAzureDatabaseExporterRequestMultiError) Error() string {
+func (m ChangeAzureDatabaseExporterParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -10691,12 +10398,12 @@ func (m ChangeAzureDatabaseExporterRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ChangeAzureDatabaseExporterRequestMultiError) AllErrors() []error { return m }
+func (m ChangeAzureDatabaseExporterParamsMultiError) AllErrors() []error { return m }
 
-// ChangeAzureDatabaseExporterRequestValidationError is the validation error
-// returned by ChangeAzureDatabaseExporterRequest.Validate if the designated
+// ChangeAzureDatabaseExporterParamsValidationError is the validation error
+// returned by ChangeAzureDatabaseExporterParams.Validate if the designated
 // constraints aren't met.
-type ChangeAzureDatabaseExporterRequestValidationError struct {
+type ChangeAzureDatabaseExporterParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -10704,24 +10411,24 @@ type ChangeAzureDatabaseExporterRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ChangeAzureDatabaseExporterRequestValidationError) Field() string { return e.field }
+func (e ChangeAzureDatabaseExporterParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ChangeAzureDatabaseExporterRequestValidationError) Reason() string { return e.reason }
+func (e ChangeAzureDatabaseExporterParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ChangeAzureDatabaseExporterRequestValidationError) Cause() error { return e.cause }
+func (e ChangeAzureDatabaseExporterParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ChangeAzureDatabaseExporterRequestValidationError) Key() bool { return e.key }
+func (e ChangeAzureDatabaseExporterParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ChangeAzureDatabaseExporterRequestValidationError) ErrorName() string {
-	return "ChangeAzureDatabaseExporterRequestValidationError"
+func (e ChangeAzureDatabaseExporterParamsValidationError) ErrorName() string {
+	return "ChangeAzureDatabaseExporterParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ChangeAzureDatabaseExporterRequestValidationError) Error() string {
+func (e ChangeAzureDatabaseExporterParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -10733,14 +10440,14 @@ func (e ChangeAzureDatabaseExporterRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sChangeAzureDatabaseExporterRequest.%s: %s%s",
+		"invalid %sChangeAzureDatabaseExporterParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ChangeAzureDatabaseExporterRequestValidationError{}
+var _ error = ChangeAzureDatabaseExporterParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -10748,141 +10455,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ChangeAzureDatabaseExporterRequestValidationError{}
-
-// Validate checks the field values on ChangeAzureDatabaseExporterResponse with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *ChangeAzureDatabaseExporterResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on ChangeAzureDatabaseExporterResponse
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// ChangeAzureDatabaseExporterResponseMultiError, or nil if none found.
-func (m *ChangeAzureDatabaseExporterResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ChangeAzureDatabaseExporterResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetAzureDatabaseExporter()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeAzureDatabaseExporterResponseValidationError{
-					field:  "AzureDatabaseExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeAzureDatabaseExporterResponseValidationError{
-					field:  "AzureDatabaseExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetAzureDatabaseExporter()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeAzureDatabaseExporterResponseValidationError{
-				field:  "AzureDatabaseExporter",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return ChangeAzureDatabaseExporterResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// ChangeAzureDatabaseExporterResponseMultiError is an error wrapping multiple
-// validation errors returned by
-// ChangeAzureDatabaseExporterResponse.ValidateAll() if the designated
-// constraints aren't met.
-type ChangeAzureDatabaseExporterResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ChangeAzureDatabaseExporterResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ChangeAzureDatabaseExporterResponseMultiError) AllErrors() []error { return m }
-
-// ChangeAzureDatabaseExporterResponseValidationError is the validation error
-// returned by ChangeAzureDatabaseExporterResponse.Validate if the designated
-// constraints aren't met.
-type ChangeAzureDatabaseExporterResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ChangeAzureDatabaseExporterResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ChangeAzureDatabaseExporterResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ChangeAzureDatabaseExporterResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ChangeAzureDatabaseExporterResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ChangeAzureDatabaseExporterResponseValidationError) ErrorName() string {
-	return "ChangeAzureDatabaseExporterResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ChangeAzureDatabaseExporterResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sChangeAzureDatabaseExporterResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ChangeAzureDatabaseExporterResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ChangeAzureDatabaseExporterResponseValidationError{}
+} = ChangeAzureDatabaseExporterParamsValidationError{}
 
 // Validate checks the field values on RemoveAgentRequest with the rules
 // defined in the proto definition for this message. If any rules are

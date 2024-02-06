@@ -619,7 +619,7 @@ func TestSettings(t *testing.T) {
 
 				getRes, err := serverClient.Default.ServerService.GetSettings(nil)
 				require.NoError(t, err)
-				getExpected := &server.GetSettingsOKBodySettingsAdvisorRunIntervals{
+				getExpected := &server.ChangeSettingsOKBodySettingsAdvisorRunIntervals{
 					RareInterval:     "28800s",
 					StandardInterval: "1800s",
 					FrequentInterval: "20s",
@@ -644,7 +644,7 @@ func TestSettings(t *testing.T) {
 					// Check if the values were persisted
 					getRes, err := serverClient.Default.ServerService.GetSettings(nil)
 					require.NoError(t, err)
-					getExpected := &server.GetSettingsOKBodySettingsAdvisorRunIntervals{
+					getExpected := &server.ChangeSettingsOKBodySettingsAdvisorRunIntervals{
 						RareInterval:     "28800s",
 						StandardInterval: "1800s",
 						FrequentInterval: "20s",

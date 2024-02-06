@@ -20,24 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AgentsService_ListAgents_FullMethodName                            = "/inventory.v1.AgentsService/ListAgents"
-	AgentsService_GetAgent_FullMethodName                              = "/inventory.v1.AgentsService/GetAgent"
-	AgentsService_GetAgentLogs_FullMethodName                          = "/inventory.v1.AgentsService/GetAgentLogs"
-	AgentsService_AddAgent_FullMethodName                              = "/inventory.v1.AgentsService/AddAgent"
-	AgentsService_ChangeNodeExporter_FullMethodName                    = "/inventory.v1.AgentsService/ChangeNodeExporter"
-	AgentsService_ChangeMySQLdExporter_FullMethodName                  = "/inventory.v1.AgentsService/ChangeMySQLdExporter"
-	AgentsService_ChangeMongoDBExporter_FullMethodName                 = "/inventory.v1.AgentsService/ChangeMongoDBExporter"
-	AgentsService_ChangePostgresExporter_FullMethodName                = "/inventory.v1.AgentsService/ChangePostgresExporter"
-	AgentsService_ChangeProxySQLExporter_FullMethodName                = "/inventory.v1.AgentsService/ChangeProxySQLExporter"
-	AgentsService_ChangeQANMySQLPerfSchemaAgent_FullMethodName         = "/inventory.v1.AgentsService/ChangeQANMySQLPerfSchemaAgent"
-	AgentsService_ChangeQANMySQLSlowlogAgent_FullMethodName            = "/inventory.v1.AgentsService/ChangeQANMySQLSlowlogAgent"
-	AgentsService_ChangeQANMongoDBProfilerAgent_FullMethodName         = "/inventory.v1.AgentsService/ChangeQANMongoDBProfilerAgent"
-	AgentsService_ChangeQANPostgreSQLPgStatementsAgent_FullMethodName  = "/inventory.v1.AgentsService/ChangeQANPostgreSQLPgStatementsAgent"
-	AgentsService_ChangeQANPostgreSQLPgStatMonitorAgent_FullMethodName = "/inventory.v1.AgentsService/ChangeQANPostgreSQLPgStatMonitorAgent"
-	AgentsService_ChangeRDSExporter_FullMethodName                     = "/inventory.v1.AgentsService/ChangeRDSExporter"
-	AgentsService_ChangeExternalExporter_FullMethodName                = "/inventory.v1.AgentsService/ChangeExternalExporter"
-	AgentsService_ChangeAzureDatabaseExporter_FullMethodName           = "/inventory.v1.AgentsService/ChangeAzureDatabaseExporter"
-	AgentsService_RemoveAgent_FullMethodName                           = "/inventory.v1.AgentsService/RemoveAgent"
+	AgentsService_ListAgents_FullMethodName   = "/inventory.v1.AgentsService/ListAgents"
+	AgentsService_GetAgent_FullMethodName     = "/inventory.v1.AgentsService/GetAgent"
+	AgentsService_GetAgentLogs_FullMethodName = "/inventory.v1.AgentsService/GetAgentLogs"
+	AgentsService_AddAgent_FullMethodName     = "/inventory.v1.AgentsService/AddAgent"
+	AgentsService_ChangeAgent_FullMethodName  = "/inventory.v1.AgentsService/ChangeAgent"
+	AgentsService_RemoveAgent_FullMethodName  = "/inventory.v1.AgentsService/RemoveAgent"
 )
 
 // AgentsServiceClient is the client API for AgentsService service.
@@ -52,32 +40,8 @@ type AgentsServiceClient interface {
 	GetAgentLogs(ctx context.Context, in *GetAgentLogsRequest, opts ...grpc.CallOption) (*GetAgentLogsResponse, error)
 	// AddAgent adds any type of Agent to Inventory.
 	AddAgent(ctx context.Context, in *AddAgentRequest, opts ...grpc.CallOption) (*AddAgentResponse, error)
-	// ChangeNodeExporter changes node_exporter Agent.
-	ChangeNodeExporter(ctx context.Context, in *ChangeNodeExporterRequest, opts ...grpc.CallOption) (*ChangeNodeExporterResponse, error)
-	// ChangeMySQLdExporter changes mysqld_exporter Agent.
-	ChangeMySQLdExporter(ctx context.Context, in *ChangeMySQLdExporterRequest, opts ...grpc.CallOption) (*ChangeMySQLdExporterResponse, error)
-	// ChangeMongoDBExporter changes mongodb_exporter Agent.
-	ChangeMongoDBExporter(ctx context.Context, in *ChangeMongoDBExporterRequest, opts ...grpc.CallOption) (*ChangeMongoDBExporterResponse, error)
-	// ChangePostgresExporter changes postgres_exporter Agent.
-	ChangePostgresExporter(ctx context.Context, in *ChangePostgresExporterRequest, opts ...grpc.CallOption) (*ChangePostgresExporterResponse, error)
-	// ChangeProxySQLExporter changes proxysql_exporter Agent.
-	ChangeProxySQLExporter(ctx context.Context, in *ChangeProxySQLExporterRequest, opts ...grpc.CallOption) (*ChangeProxySQLExporterResponse, error)
-	// ChangeQANMySQLPerfSchemaAgent changes QAN MySQL PerfSchema Agent.
-	ChangeQANMySQLPerfSchemaAgent(ctx context.Context, in *ChangeQANMySQLPerfSchemaAgentRequest, opts ...grpc.CallOption) (*ChangeQANMySQLPerfSchemaAgentResponse, error)
-	// ChangeQANMySQLSlowlogAgent changes QAN MySQL Slowlog Agent.
-	ChangeQANMySQLSlowlogAgent(ctx context.Context, in *ChangeQANMySQLSlowlogAgentRequest, opts ...grpc.CallOption) (*ChangeQANMySQLSlowlogAgentResponse, error)
-	// ChangeQANMongoDBProfilerAgent changes QAN MongoDB Profiler Agent.
-	ChangeQANMongoDBProfilerAgent(ctx context.Context, in *ChangeQANMongoDBProfilerAgentRequest, opts ...grpc.CallOption) (*ChangeQANMongoDBProfilerAgentResponse, error)
-	// ChangeQANPostgreSQLPgStatementsAgent changes QAN PostgreSQL PgStat Statements Agent.
-	ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, in *ChangeQANPostgreSQLPgStatementsAgentRequest, opts ...grpc.CallOption) (*ChangeQANPostgreSQLPgStatementsAgentResponse, error)
-	// ChangeQANPostgreSQLPgStatMonitorAgent changes QAN PostgreSQL PgStat Monitor Agent.
-	ChangeQANPostgreSQLPgStatMonitorAgent(ctx context.Context, in *ChangeQANPostgreSQLPgStatMonitorAgentRequest, opts ...grpc.CallOption) (*ChangeQANPostgreSQLPgStatMonitorAgentResponse, error)
-	// ChangeRDSExporter changes rds_exporter Agent.
-	ChangeRDSExporter(ctx context.Context, in *ChangeRDSExporterRequest, opts ...grpc.CallOption) (*ChangeRDSExporterResponse, error)
-	// ChangeExternalExporter changes external_exporter Agent.
-	ChangeExternalExporter(ctx context.Context, in *ChangeExternalExporterRequest, opts ...grpc.CallOption) (*ChangeExternalExporterResponse, error)
-	// ChangeAzureDatabaseExporter changes azure_database_exporter Agent.
-	ChangeAzureDatabaseExporter(ctx context.Context, in *ChangeAzureDatabaseExporterRequest, opts ...grpc.CallOption) (*ChangeAzureDatabaseExporterResponse, error)
+	// ChangeAgent changes any type of Agent record in Inventory.
+	ChangeAgent(ctx context.Context, in *ChangeAgentRequest, opts ...grpc.CallOption) (*ChangeAgentResponse, error)
 	// RemoveAgent removes an Agent.
 	RemoveAgent(ctx context.Context, in *RemoveAgentRequest, opts ...grpc.CallOption) (*RemoveAgentResponse, error)
 }
@@ -126,117 +90,9 @@ func (c *agentsServiceClient) AddAgent(ctx context.Context, in *AddAgentRequest,
 	return out, nil
 }
 
-func (c *agentsServiceClient) ChangeNodeExporter(ctx context.Context, in *ChangeNodeExporterRequest, opts ...grpc.CallOption) (*ChangeNodeExporterResponse, error) {
-	out := new(ChangeNodeExporterResponse)
-	err := c.cc.Invoke(ctx, AgentsService_ChangeNodeExporter_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentsServiceClient) ChangeMySQLdExporter(ctx context.Context, in *ChangeMySQLdExporterRequest, opts ...grpc.CallOption) (*ChangeMySQLdExporterResponse, error) {
-	out := new(ChangeMySQLdExporterResponse)
-	err := c.cc.Invoke(ctx, AgentsService_ChangeMySQLdExporter_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentsServiceClient) ChangeMongoDBExporter(ctx context.Context, in *ChangeMongoDBExporterRequest, opts ...grpc.CallOption) (*ChangeMongoDBExporterResponse, error) {
-	out := new(ChangeMongoDBExporterResponse)
-	err := c.cc.Invoke(ctx, AgentsService_ChangeMongoDBExporter_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentsServiceClient) ChangePostgresExporter(ctx context.Context, in *ChangePostgresExporterRequest, opts ...grpc.CallOption) (*ChangePostgresExporterResponse, error) {
-	out := new(ChangePostgresExporterResponse)
-	err := c.cc.Invoke(ctx, AgentsService_ChangePostgresExporter_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentsServiceClient) ChangeProxySQLExporter(ctx context.Context, in *ChangeProxySQLExporterRequest, opts ...grpc.CallOption) (*ChangeProxySQLExporterResponse, error) {
-	out := new(ChangeProxySQLExporterResponse)
-	err := c.cc.Invoke(ctx, AgentsService_ChangeProxySQLExporter_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentsServiceClient) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, in *ChangeQANMySQLPerfSchemaAgentRequest, opts ...grpc.CallOption) (*ChangeQANMySQLPerfSchemaAgentResponse, error) {
-	out := new(ChangeQANMySQLPerfSchemaAgentResponse)
-	err := c.cc.Invoke(ctx, AgentsService_ChangeQANMySQLPerfSchemaAgent_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentsServiceClient) ChangeQANMySQLSlowlogAgent(ctx context.Context, in *ChangeQANMySQLSlowlogAgentRequest, opts ...grpc.CallOption) (*ChangeQANMySQLSlowlogAgentResponse, error) {
-	out := new(ChangeQANMySQLSlowlogAgentResponse)
-	err := c.cc.Invoke(ctx, AgentsService_ChangeQANMySQLSlowlogAgent_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentsServiceClient) ChangeQANMongoDBProfilerAgent(ctx context.Context, in *ChangeQANMongoDBProfilerAgentRequest, opts ...grpc.CallOption) (*ChangeQANMongoDBProfilerAgentResponse, error) {
-	out := new(ChangeQANMongoDBProfilerAgentResponse)
-	err := c.cc.Invoke(ctx, AgentsService_ChangeQANMongoDBProfilerAgent_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentsServiceClient) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, in *ChangeQANPostgreSQLPgStatementsAgentRequest, opts ...grpc.CallOption) (*ChangeQANPostgreSQLPgStatementsAgentResponse, error) {
-	out := new(ChangeQANPostgreSQLPgStatementsAgentResponse)
-	err := c.cc.Invoke(ctx, AgentsService_ChangeQANPostgreSQLPgStatementsAgent_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentsServiceClient) ChangeQANPostgreSQLPgStatMonitorAgent(ctx context.Context, in *ChangeQANPostgreSQLPgStatMonitorAgentRequest, opts ...grpc.CallOption) (*ChangeQANPostgreSQLPgStatMonitorAgentResponse, error) {
-	out := new(ChangeQANPostgreSQLPgStatMonitorAgentResponse)
-	err := c.cc.Invoke(ctx, AgentsService_ChangeQANPostgreSQLPgStatMonitorAgent_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentsServiceClient) ChangeRDSExporter(ctx context.Context, in *ChangeRDSExporterRequest, opts ...grpc.CallOption) (*ChangeRDSExporterResponse, error) {
-	out := new(ChangeRDSExporterResponse)
-	err := c.cc.Invoke(ctx, AgentsService_ChangeRDSExporter_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentsServiceClient) ChangeExternalExporter(ctx context.Context, in *ChangeExternalExporterRequest, opts ...grpc.CallOption) (*ChangeExternalExporterResponse, error) {
-	out := new(ChangeExternalExporterResponse)
-	err := c.cc.Invoke(ctx, AgentsService_ChangeExternalExporter_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentsServiceClient) ChangeAzureDatabaseExporter(ctx context.Context, in *ChangeAzureDatabaseExporterRequest, opts ...grpc.CallOption) (*ChangeAzureDatabaseExporterResponse, error) {
-	out := new(ChangeAzureDatabaseExporterResponse)
-	err := c.cc.Invoke(ctx, AgentsService_ChangeAzureDatabaseExporter_FullMethodName, in, out, opts...)
+func (c *agentsServiceClient) ChangeAgent(ctx context.Context, in *ChangeAgentRequest, opts ...grpc.CallOption) (*ChangeAgentResponse, error) {
+	out := new(ChangeAgentResponse)
+	err := c.cc.Invoke(ctx, AgentsService_ChangeAgent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -264,32 +120,8 @@ type AgentsServiceServer interface {
 	GetAgentLogs(context.Context, *GetAgentLogsRequest) (*GetAgentLogsResponse, error)
 	// AddAgent adds any type of Agent to Inventory.
 	AddAgent(context.Context, *AddAgentRequest) (*AddAgentResponse, error)
-	// ChangeNodeExporter changes node_exporter Agent.
-	ChangeNodeExporter(context.Context, *ChangeNodeExporterRequest) (*ChangeNodeExporterResponse, error)
-	// ChangeMySQLdExporter changes mysqld_exporter Agent.
-	ChangeMySQLdExporter(context.Context, *ChangeMySQLdExporterRequest) (*ChangeMySQLdExporterResponse, error)
-	// ChangeMongoDBExporter changes mongodb_exporter Agent.
-	ChangeMongoDBExporter(context.Context, *ChangeMongoDBExporterRequest) (*ChangeMongoDBExporterResponse, error)
-	// ChangePostgresExporter changes postgres_exporter Agent.
-	ChangePostgresExporter(context.Context, *ChangePostgresExporterRequest) (*ChangePostgresExporterResponse, error)
-	// ChangeProxySQLExporter changes proxysql_exporter Agent.
-	ChangeProxySQLExporter(context.Context, *ChangeProxySQLExporterRequest) (*ChangeProxySQLExporterResponse, error)
-	// ChangeQANMySQLPerfSchemaAgent changes QAN MySQL PerfSchema Agent.
-	ChangeQANMySQLPerfSchemaAgent(context.Context, *ChangeQANMySQLPerfSchemaAgentRequest) (*ChangeQANMySQLPerfSchemaAgentResponse, error)
-	// ChangeQANMySQLSlowlogAgent changes QAN MySQL Slowlog Agent.
-	ChangeQANMySQLSlowlogAgent(context.Context, *ChangeQANMySQLSlowlogAgentRequest) (*ChangeQANMySQLSlowlogAgentResponse, error)
-	// ChangeQANMongoDBProfilerAgent changes QAN MongoDB Profiler Agent.
-	ChangeQANMongoDBProfilerAgent(context.Context, *ChangeQANMongoDBProfilerAgentRequest) (*ChangeQANMongoDBProfilerAgentResponse, error)
-	// ChangeQANPostgreSQLPgStatementsAgent changes QAN PostgreSQL PgStat Statements Agent.
-	ChangeQANPostgreSQLPgStatementsAgent(context.Context, *ChangeQANPostgreSQLPgStatementsAgentRequest) (*ChangeQANPostgreSQLPgStatementsAgentResponse, error)
-	// ChangeQANPostgreSQLPgStatMonitorAgent changes QAN PostgreSQL PgStat Monitor Agent.
-	ChangeQANPostgreSQLPgStatMonitorAgent(context.Context, *ChangeQANPostgreSQLPgStatMonitorAgentRequest) (*ChangeQANPostgreSQLPgStatMonitorAgentResponse, error)
-	// ChangeRDSExporter changes rds_exporter Agent.
-	ChangeRDSExporter(context.Context, *ChangeRDSExporterRequest) (*ChangeRDSExporterResponse, error)
-	// ChangeExternalExporter changes external_exporter Agent.
-	ChangeExternalExporter(context.Context, *ChangeExternalExporterRequest) (*ChangeExternalExporterResponse, error)
-	// ChangeAzureDatabaseExporter changes azure_database_exporter Agent.
-	ChangeAzureDatabaseExporter(context.Context, *ChangeAzureDatabaseExporterRequest) (*ChangeAzureDatabaseExporterResponse, error)
+	// ChangeAgent changes any type of Agent record in Inventory.
+	ChangeAgent(context.Context, *ChangeAgentRequest) (*ChangeAgentResponse, error)
 	// RemoveAgent removes an Agent.
 	RemoveAgent(context.Context, *RemoveAgentRequest) (*RemoveAgentResponse, error)
 	mustEmbedUnimplementedAgentsServiceServer()
@@ -314,56 +146,8 @@ func (UnimplementedAgentsServiceServer) AddAgent(context.Context, *AddAgentReque
 	return nil, status.Errorf(codes.Unimplemented, "method AddAgent not implemented")
 }
 
-func (UnimplementedAgentsServiceServer) ChangeNodeExporter(context.Context, *ChangeNodeExporterRequest) (*ChangeNodeExporterResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeNodeExporter not implemented")
-}
-
-func (UnimplementedAgentsServiceServer) ChangeMySQLdExporter(context.Context, *ChangeMySQLdExporterRequest) (*ChangeMySQLdExporterResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeMySQLdExporter not implemented")
-}
-
-func (UnimplementedAgentsServiceServer) ChangeMongoDBExporter(context.Context, *ChangeMongoDBExporterRequest) (*ChangeMongoDBExporterResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeMongoDBExporter not implemented")
-}
-
-func (UnimplementedAgentsServiceServer) ChangePostgresExporter(context.Context, *ChangePostgresExporterRequest) (*ChangePostgresExporterResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangePostgresExporter not implemented")
-}
-
-func (UnimplementedAgentsServiceServer) ChangeProxySQLExporter(context.Context, *ChangeProxySQLExporterRequest) (*ChangeProxySQLExporterResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeProxySQLExporter not implemented")
-}
-
-func (UnimplementedAgentsServiceServer) ChangeQANMySQLPerfSchemaAgent(context.Context, *ChangeQANMySQLPerfSchemaAgentRequest) (*ChangeQANMySQLPerfSchemaAgentResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeQANMySQLPerfSchemaAgent not implemented")
-}
-
-func (UnimplementedAgentsServiceServer) ChangeQANMySQLSlowlogAgent(context.Context, *ChangeQANMySQLSlowlogAgentRequest) (*ChangeQANMySQLSlowlogAgentResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeQANMySQLSlowlogAgent not implemented")
-}
-
-func (UnimplementedAgentsServiceServer) ChangeQANMongoDBProfilerAgent(context.Context, *ChangeQANMongoDBProfilerAgentRequest) (*ChangeQANMongoDBProfilerAgentResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeQANMongoDBProfilerAgent not implemented")
-}
-
-func (UnimplementedAgentsServiceServer) ChangeQANPostgreSQLPgStatementsAgent(context.Context, *ChangeQANPostgreSQLPgStatementsAgentRequest) (*ChangeQANPostgreSQLPgStatementsAgentResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeQANPostgreSQLPgStatementsAgent not implemented")
-}
-
-func (UnimplementedAgentsServiceServer) ChangeQANPostgreSQLPgStatMonitorAgent(context.Context, *ChangeQANPostgreSQLPgStatMonitorAgentRequest) (*ChangeQANPostgreSQLPgStatMonitorAgentResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeQANPostgreSQLPgStatMonitorAgent not implemented")
-}
-
-func (UnimplementedAgentsServiceServer) ChangeRDSExporter(context.Context, *ChangeRDSExporterRequest) (*ChangeRDSExporterResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeRDSExporter not implemented")
-}
-
-func (UnimplementedAgentsServiceServer) ChangeExternalExporter(context.Context, *ChangeExternalExporterRequest) (*ChangeExternalExporterResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeExternalExporter not implemented")
-}
-
-func (UnimplementedAgentsServiceServer) ChangeAzureDatabaseExporter(context.Context, *ChangeAzureDatabaseExporterRequest) (*ChangeAzureDatabaseExporterResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeAzureDatabaseExporter not implemented")
+func (UnimplementedAgentsServiceServer) ChangeAgent(context.Context, *ChangeAgentRequest) (*ChangeAgentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangeAgent not implemented")
 }
 
 func (UnimplementedAgentsServiceServer) RemoveAgent(context.Context, *RemoveAgentRequest) (*RemoveAgentResponse, error) {
@@ -454,236 +238,20 @@ func _AgentsService_AddAgent_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AgentsService_ChangeNodeExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeNodeExporterRequest)
+func _AgentsService_ChangeAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServiceServer).ChangeNodeExporter(ctx, in)
+		return srv.(AgentsServiceServer).ChangeAgent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AgentsService_ChangeNodeExporter_FullMethodName,
+		FullMethod: AgentsService_ChangeAgent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServiceServer).ChangeNodeExporter(ctx, req.(*ChangeNodeExporterRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AgentsService_ChangeMySQLdExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeMySQLdExporterRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentsServiceServer).ChangeMySQLdExporter(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AgentsService_ChangeMySQLdExporter_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServiceServer).ChangeMySQLdExporter(ctx, req.(*ChangeMySQLdExporterRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AgentsService_ChangeMongoDBExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeMongoDBExporterRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentsServiceServer).ChangeMongoDBExporter(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AgentsService_ChangeMongoDBExporter_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServiceServer).ChangeMongoDBExporter(ctx, req.(*ChangeMongoDBExporterRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AgentsService_ChangePostgresExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangePostgresExporterRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentsServiceServer).ChangePostgresExporter(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AgentsService_ChangePostgresExporter_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServiceServer).ChangePostgresExporter(ctx, req.(*ChangePostgresExporterRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AgentsService_ChangeProxySQLExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeProxySQLExporterRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentsServiceServer).ChangeProxySQLExporter(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AgentsService_ChangeProxySQLExporter_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServiceServer).ChangeProxySQLExporter(ctx, req.(*ChangeProxySQLExporterRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AgentsService_ChangeQANMySQLPerfSchemaAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeQANMySQLPerfSchemaAgentRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentsServiceServer).ChangeQANMySQLPerfSchemaAgent(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AgentsService_ChangeQANMySQLPerfSchemaAgent_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServiceServer).ChangeQANMySQLPerfSchemaAgent(ctx, req.(*ChangeQANMySQLPerfSchemaAgentRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AgentsService_ChangeQANMySQLSlowlogAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeQANMySQLSlowlogAgentRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentsServiceServer).ChangeQANMySQLSlowlogAgent(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AgentsService_ChangeQANMySQLSlowlogAgent_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServiceServer).ChangeQANMySQLSlowlogAgent(ctx, req.(*ChangeQANMySQLSlowlogAgentRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AgentsService_ChangeQANMongoDBProfilerAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeQANMongoDBProfilerAgentRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentsServiceServer).ChangeQANMongoDBProfilerAgent(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AgentsService_ChangeQANMongoDBProfilerAgent_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServiceServer).ChangeQANMongoDBProfilerAgent(ctx, req.(*ChangeQANMongoDBProfilerAgentRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AgentsService_ChangeQANPostgreSQLPgStatementsAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeQANPostgreSQLPgStatementsAgentRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentsServiceServer).ChangeQANPostgreSQLPgStatementsAgent(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AgentsService_ChangeQANPostgreSQLPgStatementsAgent_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServiceServer).ChangeQANPostgreSQLPgStatementsAgent(ctx, req.(*ChangeQANPostgreSQLPgStatementsAgentRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AgentsService_ChangeQANPostgreSQLPgStatMonitorAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeQANPostgreSQLPgStatMonitorAgentRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentsServiceServer).ChangeQANPostgreSQLPgStatMonitorAgent(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AgentsService_ChangeQANPostgreSQLPgStatMonitorAgent_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServiceServer).ChangeQANPostgreSQLPgStatMonitorAgent(ctx, req.(*ChangeQANPostgreSQLPgStatMonitorAgentRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AgentsService_ChangeRDSExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeRDSExporterRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentsServiceServer).ChangeRDSExporter(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AgentsService_ChangeRDSExporter_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServiceServer).ChangeRDSExporter(ctx, req.(*ChangeRDSExporterRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AgentsService_ChangeExternalExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeExternalExporterRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentsServiceServer).ChangeExternalExporter(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AgentsService_ChangeExternalExporter_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServiceServer).ChangeExternalExporter(ctx, req.(*ChangeExternalExporterRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AgentsService_ChangeAzureDatabaseExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeAzureDatabaseExporterRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentsServiceServer).ChangeAzureDatabaseExporter(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AgentsService_ChangeAzureDatabaseExporter_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServiceServer).ChangeAzureDatabaseExporter(ctx, req.(*ChangeAzureDatabaseExporterRequest))
+		return srv.(AgentsServiceServer).ChangeAgent(ctx, req.(*ChangeAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -730,56 +298,8 @@ var AgentsService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AgentsService_AddAgent_Handler,
 		},
 		{
-			MethodName: "ChangeNodeExporter",
-			Handler:    _AgentsService_ChangeNodeExporter_Handler,
-		},
-		{
-			MethodName: "ChangeMySQLdExporter",
-			Handler:    _AgentsService_ChangeMySQLdExporter_Handler,
-		},
-		{
-			MethodName: "ChangeMongoDBExporter",
-			Handler:    _AgentsService_ChangeMongoDBExporter_Handler,
-		},
-		{
-			MethodName: "ChangePostgresExporter",
-			Handler:    _AgentsService_ChangePostgresExporter_Handler,
-		},
-		{
-			MethodName: "ChangeProxySQLExporter",
-			Handler:    _AgentsService_ChangeProxySQLExporter_Handler,
-		},
-		{
-			MethodName: "ChangeQANMySQLPerfSchemaAgent",
-			Handler:    _AgentsService_ChangeQANMySQLPerfSchemaAgent_Handler,
-		},
-		{
-			MethodName: "ChangeQANMySQLSlowlogAgent",
-			Handler:    _AgentsService_ChangeQANMySQLSlowlogAgent_Handler,
-		},
-		{
-			MethodName: "ChangeQANMongoDBProfilerAgent",
-			Handler:    _AgentsService_ChangeQANMongoDBProfilerAgent_Handler,
-		},
-		{
-			MethodName: "ChangeQANPostgreSQLPgStatementsAgent",
-			Handler:    _AgentsService_ChangeQANPostgreSQLPgStatementsAgent_Handler,
-		},
-		{
-			MethodName: "ChangeQANPostgreSQLPgStatMonitorAgent",
-			Handler:    _AgentsService_ChangeQANPostgreSQLPgStatMonitorAgent_Handler,
-		},
-		{
-			MethodName: "ChangeRDSExporter",
-			Handler:    _AgentsService_ChangeRDSExporter_Handler,
-		},
-		{
-			MethodName: "ChangeExternalExporter",
-			Handler:    _AgentsService_ChangeExternalExporter_Handler,
-		},
-		{
-			MethodName: "ChangeAzureDatabaseExporter",
-			Handler:    _AgentsService_ChangeAzureDatabaseExporter_Handler,
+			MethodName: "ChangeAgent",
+			Handler:    _AgentsService_ChangeAgent_Handler,
 		},
 		{
 			MethodName: "RemoveAgent",
