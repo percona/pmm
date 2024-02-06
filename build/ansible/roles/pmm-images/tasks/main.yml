@@ -1,8 +1,13 @@
 ---
-- name: Install the GPG key for repo.percona.com
-  rpm_key:
-    state: present
-    key: https://downloads.percona.com/downloads/RPM-GPG-KEY-percona
+# We use percona-release package to install the gpg keys and ppg-14
+# To workaround the package's incompatibility with RHEL9, we have to ignore errors :(
+# Error: `Failed to validate GPG signature for percona-release-1.0-27.noarch`
+# Despite the error, this task will install the package and the GPG keys
+- name: Add percona-release package
+  yum:
+    name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+    state: installed
+  ignore_errors: True
 
 # Local yum repo for building pmm server docker image in autobuild jobs
 - name: Add a local YUM repository
