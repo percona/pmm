@@ -16,6 +16,7 @@
 //
 
 // Package models provides functionality for handling database models and related tasks.
+//
 //nolint:lll
 package models
 
