@@ -196,7 +196,7 @@ nav:
           - install-pmm/install-pmm-server/baremetal/virtual/login_UI.md
           - install-pmm/install-pmm-server/baremetal/virtual/remove_virtual_machine.md
       - Helm: 
-        - Helm: install-pmm/install-pmm-server/baremetal/helm/index.md
+        - install-pmm/install-pmm-server/baremetal/helm/index.md
         - install-pmm/install-pmm-server/baremetal/helm/backup_container_helm.md
         - install-pmm/install-pmm-server/baremetal/helm/restore_container_helm.md            
       - AWS marketplace:
