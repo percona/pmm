@@ -282,7 +282,7 @@ func (c *Client) makeRequest(ctx context.Context, accessToken, method, path stri
 	return bodyBytes, nil
 }
 
-// SsoDetails represents the Single Sign-On details containing information
+// SsoDetails represents the Single Sign-On details containing information.
 type SsoDetails struct {
 	GrafanaClientID        string `json:"grafana_client_id"`
 	PMMManagedClientID     string `json:"pmm_managed_client_id"`
@@ -297,7 +297,7 @@ type ConnectPMMResponse struct {
 	OrganizationID string      `json:"org_id"`
 }
 
-// SearchOrganizationEntitlementsResponse represents the response structure
+// SearchOrganizationEntitlementsResponse represents the response structure.
 type SearchOrganizationEntitlementsResponse struct {
 	Entitlement []*EntitlementResponse `json:"entitlements"`
 }

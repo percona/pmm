@@ -95,7 +95,7 @@ func (cmd *AddPostgreSQLCommand) GetDefaultAddress() string {
 	return "127.0.0.1:5432"
 }
 
-// GetSocket returns the socket for AddPostgreSQLCommand
+// GetSocket returns the socket for AddPostgreSQLCommand.
 func (cmd *AddPostgreSQLCommand) GetSocket() string {
 	return cmd.Socket
 }
