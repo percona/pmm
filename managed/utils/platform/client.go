@@ -323,7 +323,6 @@ type Response struct {
 	ConfigAdvisor   string `json:"config_advisor"`
 }
 
-// SearchOrganizationTicketsResponse represents the response structure
 type SearchOrganizationTicketsResponse struct {
 	Tickets []*TicketResponse `json:"tickets"`
 }
