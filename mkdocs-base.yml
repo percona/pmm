@@ -451,7 +451,7 @@ nav:
     - Available dashboards:
       - Insight:
         - reference/dashboards/dashboard-home.md
-        - dashboards/dashboard-advanced-data-exploration.md
+        - reference/dashboards/dashboard-advanced-data-exploration.md
         - dashboards/dashboard-victoriametrics.md
         - dashboards/dashboard-victoriametrics-agents-overview.md
       - Environments:
