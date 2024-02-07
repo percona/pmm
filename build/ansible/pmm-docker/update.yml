@@ -111,7 +111,6 @@
       become: true
       become_user: pmm
       become_method: su
-      # changed_when: true
       with_nested:
         - - nginx
           - grafana
@@ -124,29 +123,6 @@
 
     - name: Check grafana logs
       shell: cat /srv/logs/grafana.log
-
-    - name: Fix grafana fields type
-      postgresql_query:
-        db: grafana
-        query: "{{ item }}"
-      loop:
-        - ALTER TABLE tag ALTER COLUMN key TYPE text;
-        - ALTER TABLE tag ALTER COLUMN value TYPE text;
-        - ALTER TABLE api_key ALTER COLUMN key TYPE text;
-        - ALTER TABLE api_key ALTER COLUMN name TYPE text;
-      when: not ansible_check_mode
-
-    - name: Change default admin id
-      postgresql_query:
-        db: grafana
-        query: UPDATE "user" SET id='1' WHERE login='admin';
-      when: not ansible_check_mode
-
-    # - name: Remove redundant packages
-    #   yum:
-    #     state: absent
-    #     name:
-    #       - logrotate # https://jira.percona.com/browse/PMM-7627
 
     # Regenerating pmm.ini and enabling pmm-update-perform-init
     - name: Generate new supervisor config
