@@ -1,8 +1,6 @@
 ---
 # We use percona-release package to install the gpg keys and ppg-14
 # To workaround the package's incompatibility with RHEL9, we have to disable the gpg verification :(
-# Error: `Failed to validate GPG signature for percona-release-1.0-27.noarch`
-# Despite the error, this task will install the package and the GPG keys
 - name: Add percona-release package
   yum:
     name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
