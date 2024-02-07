@@ -252,9 +252,18 @@ nav:
 
   - Use:
     - use/using-pmm.md
+    - PMM user interface:
+      - reference/ui/ui_components.md  
+      - reference/ui/index.md
+      - reference/ui/log_in.md
+      - reference/ui/controls.md
+      - reference/ui/nav.md
+      - reference/ui/panels.md
+      - reference/ui/timezone.md
+      - reference/ui/view.md
+    - PMM Inventory: use/dashboard-inventory.md
     - Monitor:
       - use/monitor.md
-      - PMM Inventory: use/dashboard-inventory.md  
       - Dashboards:
         - use/dashboards-panels/index.md
         - Manage dashboards:
@@ -512,15 +521,7 @@ nav:
   
   - Reference:
     - reference/index.md 
-    - PMM user interface:
-      - reference/ui/ui_components.md  
-      - reference/ui/index.md
-      - reference/ui/log_in.md
-      - reference/ui/controls.md
-      - reference/ui/nav.md
-      - reference/ui/panels.md
-      - reference/ui/timezone.md
-      - reference/ui/view.md
+
     - PMM API:
       - api/index.md
       - api/authentication.md
