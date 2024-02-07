@@ -195,18 +195,17 @@ nav:
           - install-pmm/install-pmm-server/baremetal/virtual/virtualbox.md
           - install-pmm/install-pmm-server/baremetal/virtual/login_UI.md
           - install-pmm/install-pmm-server/baremetal/virtual/remove_virtual_machine.md
-        - Helm:
-          - install-pmm/install-pmm-server/baremetal/helm/index.md
-          - install-pmm/install-pmm-server/baremetal/helm/backup_container_helm.md
-          - install-pmm/install-pmm-server/baremetal/helm/restore_container_helm.md            
-        - AWS marketplace:
-          - install-pmm/install-pmm-server/aws/aws.md
-          - install-pmm/install-pmm-server/aws/limit_access.md
-          - install-pmm/install-pmm-server/aws/settings.md
-          - install-pmm/install-pmm-server/aws/run.md
-          - install-pmm/install-pmm-server/aws/back_pmm_server.md
-          - install-pmm/install-pmm-server/aws/restore_pmm_server.md
-          - install-pmm/install-pmm-server/aws/remove_pmm_server.md
+      - Helm: install-pmm/install-pmm-server/baremetal/helm/index.md
+        - install-pmm/install-pmm-server/baremetal/helm/backup_container_helm.md
+        - install-pmm/install-pmm-server/baremetal/helm/restore_container_helm.md            
+      - AWS marketplace:
+        - install-pmm/install-pmm-server/aws/aws.md
+        - install-pmm/install-pmm-server/aws/limit_access.md
+        - install-pmm/install-pmm-server/aws/settings.md
+        - install-pmm/install-pmm-server/aws/run.md
+        - install-pmm/install-pmm-server/aws/back_pmm_server.md
+        - install-pmm/install-pmm-server/aws/restore_pmm_server.md
+        - install-pmm/install-pmm-server/aws/remove_pmm_server.md
       - Set up PMM client:
         - Install PMM client:
           - install-pmm/install-pmm-client/index.md
