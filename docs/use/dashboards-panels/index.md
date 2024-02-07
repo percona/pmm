@@ -7,7 +7,7 @@ A dashboard is a group of one or more panels organized and arranged into rows. P
 Dashboards provide insightful and actionable data, enabling you to gain an overview of your system status quickly. These dashboards enable you to drill down into specific time frames, apply filters, and analyze data trends for troubleshooting and performance optimization. Customizable dashboards and real-time alerting facilitate seamless monitoring of database performance.
 
 
-## Available 
+## Available dashboards
 
 Performance Monitoring and Management (PMM) offers a range of dashboards you can access. Some of these dashboards are as follows:
 
