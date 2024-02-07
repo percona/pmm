@@ -33,7 +33,7 @@ var (
 	_ = metadata.Join
 )
 
-func request_SecurityChecksService_ListFailedServices_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityChecksServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_AdvisorService_ListFailedServices_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListFailedServicesRequest
 	var metadata runtime.ServerMetadata
 
@@ -49,7 +49,7 @@ func request_SecurityChecksService_ListFailedServices_0(ctx context.Context, mar
 	return msg, metadata, err
 }
 
-func local_request_SecurityChecksService_ListFailedServices_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityChecksServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_AdvisorService_ListFailedServices_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListFailedServicesRequest
 	var metadata runtime.ServerMetadata
 
@@ -65,7 +65,7 @@ func local_request_SecurityChecksService_ListFailedServices_0(ctx context.Contex
 	return msg, metadata, err
 }
 
-func request_SecurityChecksService_GetFailedChecks_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityChecksServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_AdvisorService_GetFailedChecks_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetFailedChecksRequest
 	var metadata runtime.ServerMetadata
 
@@ -81,7 +81,7 @@ func request_SecurityChecksService_GetFailedChecks_0(ctx context.Context, marsha
 	return msg, metadata, err
 }
 
-func local_request_SecurityChecksService_GetFailedChecks_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityChecksServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_AdvisorService_GetFailedChecks_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetFailedChecksRequest
 	var metadata runtime.ServerMetadata
 
@@ -97,8 +97,8 @@ func local_request_SecurityChecksService_GetFailedChecks_0(ctx context.Context, 
 	return msg, metadata, err
 }
 
-func request_SecurityChecksService_StartSecurityChecks_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityChecksServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq StartSecurityChecksRequest
+func request_AdvisorService_StartAdvisorChecks_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq StartAdvisorChecksRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -109,12 +109,12 @@ func request_SecurityChecksService_StartSecurityChecks_0(ctx context.Context, ma
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.StartSecurityChecks(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.StartAdvisorChecks(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_SecurityChecksService_StartSecurityChecks_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityChecksServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq StartSecurityChecksRequest
+func local_request_AdvisorService_StartAdvisorChecks_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq StartAdvisorChecksRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -125,12 +125,12 @@ func local_request_SecurityChecksService_StartSecurityChecks_0(ctx context.Conte
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.StartSecurityChecks(ctx, &protoReq)
+	msg, err := server.StartAdvisorChecks(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-func request_SecurityChecksService_ListSecurityChecks_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityChecksServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListSecurityChecksRequest
+func request_AdvisorService_ListAdvisorChecks_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListAdvisorChecksRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -141,12 +141,12 @@ func request_SecurityChecksService_ListSecurityChecks_0(ctx context.Context, mar
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.ListSecurityChecks(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ListAdvisorChecks(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_SecurityChecksService_ListSecurityChecks_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityChecksServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListSecurityChecksRequest
+func local_request_AdvisorService_ListAdvisorChecks_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListAdvisorChecksRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -157,11 +157,11 @@ func local_request_SecurityChecksService_ListSecurityChecks_0(ctx context.Contex
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.ListSecurityChecks(ctx, &protoReq)
+	msg, err := server.ListAdvisorChecks(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-func request_SecurityChecksService_ListAdvisors_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityChecksServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_AdvisorService_ListAdvisors_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListAdvisorsRequest
 	var metadata runtime.ServerMetadata
 
@@ -177,7 +177,7 @@ func request_SecurityChecksService_ListAdvisors_0(ctx context.Context, marshaler
 	return msg, metadata, err
 }
 
-func local_request_SecurityChecksService_ListAdvisors_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityChecksServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_AdvisorService_ListAdvisors_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListAdvisorsRequest
 	var metadata runtime.ServerMetadata
 
@@ -193,8 +193,8 @@ func local_request_SecurityChecksService_ListAdvisors_0(ctx context.Context, mar
 	return msg, metadata, err
 }
 
-func request_SecurityChecksService_ChangeSecurityChecks_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityChecksServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ChangeSecurityChecksRequest
+func request_AdvisorService_ChangeAdvisorChecks_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ChangeAdvisorChecksRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -205,12 +205,12 @@ func request_SecurityChecksService_ChangeSecurityChecks_0(ctx context.Context, m
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.ChangeSecurityChecks(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ChangeAdvisorChecks(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_SecurityChecksService_ChangeSecurityChecks_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityChecksServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ChangeSecurityChecksRequest
+func local_request_AdvisorService_ChangeAdvisorChecks_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ChangeAdvisorChecksRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -221,16 +221,16 @@ func local_request_SecurityChecksService_ChangeSecurityChecks_0(ctx context.Cont
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.ChangeSecurityChecks(ctx, &protoReq)
+	msg, err := server.ChangeAdvisorChecks(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-// RegisterSecurityChecksServiceHandlerServer registers the http handlers for service SecurityChecksService to "mux".
-// UnaryRPC     :call SecurityChecksServiceServer directly.
+// RegisterAdvisorServiceHandlerServer registers the http handlers for service AdvisorService to "mux".
+// UnaryRPC     :call AdvisorServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterSecurityChecksServiceHandlerFromEndpoint instead.
-func RegisterSecurityChecksServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server SecurityChecksServiceServer) error {
-	mux.Handle("POST", pattern_SecurityChecksService_ListFailedServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAdvisorServiceHandlerFromEndpoint instead.
+func RegisterAdvisorServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AdvisorServiceServer) error {
+	mux.Handle("POST", pattern_AdvisorService_ListFailedServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -238,12 +238,12 @@ func RegisterSecurityChecksServiceHandlerServer(ctx context.Context, mux *runtim
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.SecurityChecksService/ListFailedServices", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/ListFailedServices"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.AdvisorService/ListFailedServices", runtime.WithHTTPPathPattern("/v1/management/Advisors/ListFailedServices"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityChecksService_ListFailedServices_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_AdvisorService_ListFailedServices_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -251,10 +251,10 @@ func RegisterSecurityChecksServiceHandlerServer(ctx context.Context, mux *runtim
 			return
 		}
 
-		forward_SecurityChecksService_ListFailedServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AdvisorService_ListFailedServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_SecurityChecksService_GetFailedChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_AdvisorService_GetFailedChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -262,12 +262,12 @@ func RegisterSecurityChecksServiceHandlerServer(ctx context.Context, mux *runtim
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.SecurityChecksService/GetFailedChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/FailedChecks"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.AdvisorService/GetFailedChecks", runtime.WithHTTPPathPattern("/v1/management/Advisors/FailedChecks"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityChecksService_GetFailedChecks_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_AdvisorService_GetFailedChecks_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -275,10 +275,10 @@ func RegisterSecurityChecksServiceHandlerServer(ctx context.Context, mux *runtim
 			return
 		}
 
-		forward_SecurityChecksService_GetFailedChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AdvisorService_GetFailedChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_SecurityChecksService_StartSecurityChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_AdvisorService_StartAdvisorChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -286,12 +286,12 @@ func RegisterSecurityChecksServiceHandlerServer(ctx context.Context, mux *runtim
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.SecurityChecksService/StartSecurityChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/Start"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.AdvisorService/StartAdvisorChecks", runtime.WithHTTPPathPattern("/v1/management/Advisors/StartChecks"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityChecksService_StartSecurityChecks_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_AdvisorService_StartAdvisorChecks_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -299,10 +299,10 @@ func RegisterSecurityChecksServiceHandlerServer(ctx context.Context, mux *runtim
 			return
 		}
 
-		forward_SecurityChecksService_StartSecurityChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AdvisorService_StartAdvisorChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_SecurityChecksService_ListSecurityChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_AdvisorService_ListAdvisorChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -310,12 +310,12 @@ func RegisterSecurityChecksServiceHandlerServer(ctx context.Context, mux *runtim
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.SecurityChecksService/ListSecurityChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.AdvisorService/ListAdvisorChecks", runtime.WithHTTPPathPattern("/v1/management/Advisors/ListChecks"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityChecksService_ListSecurityChecks_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_AdvisorService_ListAdvisorChecks_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -323,10 +323,10 @@ func RegisterSecurityChecksServiceHandlerServer(ctx context.Context, mux *runtim
 			return
 		}
 
-		forward_SecurityChecksService_ListSecurityChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AdvisorService_ListAdvisorChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_SecurityChecksService_ListAdvisors_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_AdvisorService_ListAdvisors_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -334,12 +334,12 @@ func RegisterSecurityChecksServiceHandlerServer(ctx context.Context, mux *runtim
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.SecurityChecksService/ListAdvisors", runtime.WithHTTPPathPattern("/v1/management/Advisors/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.AdvisorService/ListAdvisors", runtime.WithHTTPPathPattern("/v1/management/Advisors/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityChecksService_ListAdvisors_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_AdvisorService_ListAdvisors_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -347,10 +347,10 @@ func RegisterSecurityChecksServiceHandlerServer(ctx context.Context, mux *runtim
 			return
 		}
 
-		forward_SecurityChecksService_ListAdvisors_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AdvisorService_ListAdvisors_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_SecurityChecksService_ChangeSecurityChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_AdvisorService_ChangeAdvisorChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -358,12 +358,12 @@ func RegisterSecurityChecksServiceHandlerServer(ctx context.Context, mux *runtim
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.SecurityChecksService/ChangeSecurityChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/Change"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.AdvisorService/ChangeAdvisorChecks", runtime.WithHTTPPathPattern("/v1/management/Advisors/Change"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityChecksService_ChangeSecurityChecks_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_AdvisorService_ChangeAdvisorChecks_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -371,15 +371,15 @@ func RegisterSecurityChecksServiceHandlerServer(ctx context.Context, mux *runtim
 			return
 		}
 
-		forward_SecurityChecksService_ChangeSecurityChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AdvisorService_ChangeAdvisorChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterSecurityChecksServiceHandlerFromEndpoint is same as RegisterSecurityChecksServiceHandler but
+// RegisterAdvisorServiceHandlerFromEndpoint is same as RegisterAdvisorServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterSecurityChecksServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterAdvisorServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -399,174 +399,174 @@ func RegisterSecurityChecksServiceHandlerFromEndpoint(ctx context.Context, mux *
 		}()
 	}()
 
-	return RegisterSecurityChecksServiceHandler(ctx, mux, conn)
+	return RegisterAdvisorServiceHandler(ctx, mux, conn)
 }
 
-// RegisterSecurityChecksServiceHandler registers the http handlers for service SecurityChecksService to "mux".
+// RegisterAdvisorServiceHandler registers the http handlers for service AdvisorService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterSecurityChecksServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterSecurityChecksServiceHandlerClient(ctx, mux, NewSecurityChecksServiceClient(conn))
+func RegisterAdvisorServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterAdvisorServiceHandlerClient(ctx, mux, NewAdvisorServiceClient(conn))
 }
 
-// RegisterSecurityChecksServiceHandlerClient registers the http handlers for service SecurityChecksService
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "SecurityChecksServiceClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "SecurityChecksServiceClient"
+// RegisterAdvisorServiceHandlerClient registers the http handlers for service AdvisorService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "AdvisorServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "AdvisorServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "SecurityChecksServiceClient" to call the correct interceptors.
-func RegisterSecurityChecksServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client SecurityChecksServiceClient) error {
-	mux.Handle("POST", pattern_SecurityChecksService_ListFailedServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "AdvisorServiceClient" to call the correct interceptors.
+func RegisterAdvisorServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AdvisorServiceClient) error {
+	mux.Handle("POST", pattern_AdvisorService_ListFailedServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.SecurityChecksService/ListFailedServices", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/ListFailedServices"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.AdvisorService/ListFailedServices", runtime.WithHTTPPathPattern("/v1/management/Advisors/ListFailedServices"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityChecksService_ListFailedServices_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_AdvisorService_ListFailedServices_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityChecksService_ListFailedServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AdvisorService_ListFailedServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_SecurityChecksService_GetFailedChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_AdvisorService_GetFailedChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.SecurityChecksService/GetFailedChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/FailedChecks"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.AdvisorService/GetFailedChecks", runtime.WithHTTPPathPattern("/v1/management/Advisors/FailedChecks"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityChecksService_GetFailedChecks_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_AdvisorService_GetFailedChecks_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityChecksService_GetFailedChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AdvisorService_GetFailedChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_SecurityChecksService_StartSecurityChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_AdvisorService_StartAdvisorChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.SecurityChecksService/StartSecurityChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/Start"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.AdvisorService/StartAdvisorChecks", runtime.WithHTTPPathPattern("/v1/management/Advisors/StartChecks"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityChecksService_StartSecurityChecks_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_AdvisorService_StartAdvisorChecks_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityChecksService_StartSecurityChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AdvisorService_StartAdvisorChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_SecurityChecksService_ListSecurityChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_AdvisorService_ListAdvisorChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.SecurityChecksService/ListSecurityChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.AdvisorService/ListAdvisorChecks", runtime.WithHTTPPathPattern("/v1/management/Advisors/ListChecks"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityChecksService_ListSecurityChecks_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_AdvisorService_ListAdvisorChecks_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityChecksService_ListSecurityChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AdvisorService_ListAdvisorChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_SecurityChecksService_ListAdvisors_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_AdvisorService_ListAdvisors_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.SecurityChecksService/ListAdvisors", runtime.WithHTTPPathPattern("/v1/management/Advisors/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.AdvisorService/ListAdvisors", runtime.WithHTTPPathPattern("/v1/management/Advisors/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityChecksService_ListAdvisors_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_AdvisorService_ListAdvisors_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityChecksService_ListAdvisors_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AdvisorService_ListAdvisors_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_SecurityChecksService_ChangeSecurityChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_AdvisorService_ChangeAdvisorChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.SecurityChecksService/ChangeSecurityChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/Change"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.AdvisorService/ChangeAdvisorChecks", runtime.WithHTTPPathPattern("/v1/management/Advisors/Change"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityChecksService_ChangeSecurityChecks_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_AdvisorService_ChangeAdvisorChecks_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityChecksService_ChangeSecurityChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AdvisorService_ChangeAdvisorChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
 var (
-	pattern_SecurityChecksService_ListFailedServices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "SecurityChecks", "ListFailedServices"}, ""))
+	pattern_AdvisorService_ListFailedServices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Advisors", "ListFailedServices"}, ""))
 
-	pattern_SecurityChecksService_GetFailedChecks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "SecurityChecks", "FailedChecks"}, ""))
+	pattern_AdvisorService_GetFailedChecks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Advisors", "FailedChecks"}, ""))
 
-	pattern_SecurityChecksService_StartSecurityChecks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "SecurityChecks", "Start"}, ""))
+	pattern_AdvisorService_StartAdvisorChecks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Advisors", "StartChecks"}, ""))
 
-	pattern_SecurityChecksService_ListSecurityChecks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "SecurityChecks", "List"}, ""))
+	pattern_AdvisorService_ListAdvisorChecks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Advisors", "ListChecks"}, ""))
 
-	pattern_SecurityChecksService_ListAdvisors_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Advisors", "List"}, ""))
+	pattern_AdvisorService_ListAdvisors_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Advisors", "List"}, ""))
 
-	pattern_SecurityChecksService_ChangeSecurityChecks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "SecurityChecks", "Change"}, ""))
+	pattern_AdvisorService_ChangeAdvisorChecks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Advisors", "Change"}, ""))
 )
 
 var (
-	forward_SecurityChecksService_ListFailedServices_0 = runtime.ForwardResponseMessage
+	forward_AdvisorService_ListFailedServices_0 = runtime.ForwardResponseMessage
 
-	forward_SecurityChecksService_GetFailedChecks_0 = runtime.ForwardResponseMessage
+	forward_AdvisorService_GetFailedChecks_0 = runtime.ForwardResponseMessage
 
-	forward_SecurityChecksService_StartSecurityChecks_0 = runtime.ForwardResponseMessage
+	forward_AdvisorService_StartAdvisorChecks_0 = runtime.ForwardResponseMessage
 
-	forward_SecurityChecksService_ListSecurityChecks_0 = runtime.ForwardResponseMessage
+	forward_AdvisorService_ListAdvisorChecks_0 = runtime.ForwardResponseMessage
 
-	forward_SecurityChecksService_ListAdvisors_0 = runtime.ForwardResponseMessage
+	forward_AdvisorService_ListAdvisors_0 = runtime.ForwardResponseMessage
 
-	forward_SecurityChecksService_ChangeSecurityChecks_0 = runtime.ForwardResponseMessage
+	forward_AdvisorService_ChangeAdvisorChecks_0 = runtime.ForwardResponseMessage
 )

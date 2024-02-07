@@ -11,6 +11,7 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	"github.com/percona/pmm/api/management/v1/json/client/actions_service"
+	"github.com/percona/pmm/api/management/v1/json/client/advisor_service"
 	"github.com/percona/pmm/api/management/v1/json/client/annotation_service"
 	"github.com/percona/pmm/api/management/v1/json/client/external_service"
 	"github.com/percona/pmm/api/management/v1/json/client/ha_proxy_service"
@@ -20,7 +21,6 @@ import (
 	"github.com/percona/pmm/api/management/v1/json/client/postgre_sql_service"
 	"github.com/percona/pmm/api/management/v1/json/client/proxy_sql_service"
 	"github.com/percona/pmm/api/management/v1/json/client/rds_service"
-	"github.com/percona/pmm/api/management/v1/json/client/security_checks_service"
 	"github.com/percona/pmm/api/management/v1/json/client/service"
 )
 
@@ -67,6 +67,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagem
 	cli := new(PMMManagementAPI)
 	cli.Transport = transport
 	cli.ActionsService = actions_service.New(transport, formats)
+	cli.AdvisorService = advisor_service.New(transport, formats)
 	cli.AnnotationService = annotation_service.New(transport, formats)
 	cli.ExternalService = external_service.New(transport, formats)
 	cli.HAProxyService = ha_proxy_service.New(transport, formats)
@@ -76,7 +77,6 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagem
 	cli.PostgreSQLService = postgre_sql_service.New(transport, formats)
 	cli.ProxySQLService = proxy_sql_service.New(transport, formats)
 	cli.RDSService = rds_service.New(transport, formats)
-	cli.SecurityChecksService = security_checks_service.New(transport, formats)
 	cli.Service = service.New(transport, formats)
 	return cli
 }
@@ -124,6 +124,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 type PMMManagementAPI struct {
 	ActionsService actions_service.ClientService
 
+	AdvisorService advisor_service.ClientService
+
 	AnnotationService annotation_service.ClientService
 
 	ExternalService external_service.ClientService
@@ -142,8 +144,6 @@ type PMMManagementAPI struct {
 
 	RDSService rds_service.ClientService
 
-	SecurityChecksService security_checks_service.ClientService
-
 	Service service.ClientService
 
 	Transport runtime.ClientTransport
@@ -153,6 +153,7 @@ type PMMManagementAPI struct {
 func (c *PMMManagementAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.ActionsService.SetTransport(transport)
+	c.AdvisorService.SetTransport(transport)
 	c.AnnotationService.SetTransport(transport)
 	c.ExternalService.SetTransport(transport)
 	c.HAProxyService.SetTransport(transport)
@@ -162,6 +163,5 @@ func (c *PMMManagementAPI) SetTransport(transport runtime.ClientTransport) {
 	c.PostgreSQLService.SetTransport(transport)
 	c.ProxySQLService.SetTransport(transport)
 	c.RDSService.SetTransport(transport)
-	c.SecurityChecksService.SetTransport(transport)
 	c.Service.SetTransport(transport)
 }

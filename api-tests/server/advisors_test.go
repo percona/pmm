@@ -26,7 +26,7 @@ import (
 
 	pmmapitests "github.com/percona/pmm/api-tests"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
-	security_checks "github.com/percona/pmm/api/management/v1/json/client/security_checks_service"
+	advisor "github.com/percona/pmm/api/management/v1/json/client/advisor_service"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	"github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
@@ -36,7 +36,7 @@ func TestStartChecks(t *testing.T) {
 		toggleAdvisorChecks(t, true)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-		resp, err := managementClient.Default.SecurityChecksService.StartSecurityChecks(nil)
+		resp, err := managementClient.Default.AdvisorService.StartAdvisorChecks(nil)
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
 	})
@@ -45,7 +45,7 @@ func TestStartChecks(t *testing.T) {
 		toggleAdvisorChecks(t, false)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-		resp, err := managementClient.Default.SecurityChecksService.StartSecurityChecks(nil)
+		resp, err := managementClient.Default.AdvisorService.StartAdvisorChecks(nil)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Advisor checks are disabled.`)
 		assert.Nil(t, resp)
 	})
@@ -60,7 +60,7 @@ func TestGetAdvisorCheckResults(t *testing.T) {
 		toggleAdvisorChecks(t, true)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-		results, err := managementClient.Default.SecurityChecksService.GetFailedChecks(nil)
+		results, err := managementClient.Default.AdvisorService.GetFailedChecks(nil)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Advisor checks are disabled.`)
 		assert.Nil(t, results)
 	})
@@ -69,21 +69,21 @@ func TestGetAdvisorCheckResults(t *testing.T) {
 		toggleAdvisorChecks(t, true)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-		resp, err := managementClient.Default.SecurityChecksService.StartSecurityChecks(nil)
+		resp, err := managementClient.Default.AdvisorService.StartAdvisorChecks(nil)
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
 
-		results, err := managementClient.Default.SecurityChecksService.GetFailedChecks(nil)
+		results, err := managementClient.Default.AdvisorService.GetFailedChecks(nil)
 		require.NoError(t, err)
 		assert.NotNil(t, results)
 	})
 }
 
-func TestListSecurityChecks(t *testing.T) {
+func TestListAdvisorChecks(t *testing.T) {
 	toggleAdvisorChecks(t, true)
 	t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-	resp, err := managementClient.Default.SecurityChecksService.ListSecurityChecks(nil)
+	resp, err := managementClient.Default.AdvisorService.ListAdvisorChecks(nil)
 	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.NotEmpty(t, resp.Payload.Checks)
@@ -98,7 +98,7 @@ func TestListAdvisors(t *testing.T) {
 	toggleAdvisorChecks(t, true)
 	t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-	resp, err := managementClient.Default.SecurityChecksService.ListAdvisors(nil)
+	resp, err := managementClient.Default.AdvisorService.ListAdvisors(nil)
 	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.NotEmpty(t, resp.Payload.Advisors)
@@ -118,25 +118,25 @@ func TestListAdvisors(t *testing.T) {
 	}
 }
 
-func TestChangeSecurityChecks(t *testing.T) {
+func TestChangeAdvisorChecks(t *testing.T) {
 	toggleAdvisorChecks(t, true)
 	t.Cleanup(func() { restoreSettingsDefaults(t) })
 
 	t.Run("enable disable", func(t *testing.T) {
 		t.Run("enable disable", func(t *testing.T) {
-			resp, err := managementClient.Default.SecurityChecksService.ListSecurityChecks(nil)
+			resp, err := managementClient.Default.AdvisorService.ListAdvisorChecks(nil)
 			require.NoError(t, err)
 			require.NotEmpty(t, resp.Payload.Checks)
 
-			var check *security_checks.ListSecurityChecksOKBodyChecksItems0
+			var check *advisor.ListAdvisorChecksOKBodyChecksItems0
 
 			// enable ⥁ disable loop, it checks current state of first returned check and changes its state,
 			// then in second iteration it returns state to its origin.
 			for i := 0; i < 2; i++ {
 				check = resp.Payload.Checks[0]
-				params := &security_checks.ChangeSecurityChecksParams{
-					Body: security_checks.ChangeSecurityChecksBody{
-						Params: []*security_checks.ChangeSecurityChecksParamsBodyParamsItems0{
+				params := &advisor.ChangeAdvisorChecksParams{
+					Body: advisor.ChangeAdvisorChecksBody{
+						Params: []*advisor.ChangeAdvisorChecksParamsBodyParamsItems0{
 							{
 								Name:   check.Name,
 								Enable: pointer.ToBool(!check.Enabled),
@@ -146,10 +146,10 @@ func TestChangeSecurityChecks(t *testing.T) {
 					Context: pmmapitests.Context,
 				}
 
-				_, err = managementClient.Default.SecurityChecksService.ChangeSecurityChecks(params)
+				_, err = managementClient.Default.AdvisorService.ChangeAdvisorChecks(params)
 				require.NoError(t, err)
 
-				resp, err = managementClient.Default.SecurityChecksService.ListSecurityChecks(nil)
+				resp, err = managementClient.Default.AdvisorService.ListAdvisorChecks(nil)
 				require.NoError(t, err)
 				require.NotEmpty(t, resp.Payload.Checks)
 
@@ -165,15 +165,15 @@ func TestChangeSecurityChecks(t *testing.T) {
 		t.Run("change interval error", func(t *testing.T) {
 			t.Cleanup(func() { restoreCheckIntervalDefaults(t) })
 
-			resp, err := managementClient.Default.SecurityChecksService.ListSecurityChecks(nil)
+			resp, err := managementClient.Default.AdvisorService.ListAdvisorChecks(nil)
 			require.NoError(t, err)
 			require.NotEmpty(t, resp.Payload.Checks)
 
 			check := resp.Payload.Checks[0]
 			interval := *check.Interval
-			params := &security_checks.ChangeSecurityChecksParams{
-				Body: security_checks.ChangeSecurityChecksBody{
-					Params: []*security_checks.ChangeSecurityChecksParamsBodyParamsItems0{
+			params := &advisor.ChangeAdvisorChecksParams{
+				Body: advisor.ChangeAdvisorChecksBody{
+					Params: []*advisor.ChangeAdvisorChecksParamsBodyParamsItems0{
 						{
 							Name:     check.Name,
 							Interval: pointer.ToString("unknown_interval"),
@@ -183,10 +183,10 @@ func TestChangeSecurityChecks(t *testing.T) {
 				Context: pmmapitests.Context,
 			}
 
-			_, err = managementClient.Default.SecurityChecksService.ChangeSecurityChecks(params)
+			_, err = managementClient.Default.AdvisorService.ChangeAdvisorChecks(params)
 			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid value for enum type: \"unknown_interval\"")
 
-			resp, err = managementClient.Default.SecurityChecksService.ListSecurityChecks(nil)
+			resp, err = managementClient.Default.AdvisorService.ListAdvisorChecks(nil)
 			require.NoError(t, err)
 			require.NotEmpty(t, resp.Payload.Checks)
 
@@ -204,39 +204,39 @@ func TestChangeSecurityChecks(t *testing.T) {
 		t.Run("change interval normal", func(t *testing.T) {
 			t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-			resp, err := managementClient.Default.SecurityChecksService.ListSecurityChecks(nil)
+			resp, err := managementClient.Default.AdvisorService.ListAdvisorChecks(nil)
 			require.NoError(t, err)
 			require.NotEmpty(t, resp.Payload.Checks)
 
 			// convert all checks to RARE interval
-			pp := make([]*security_checks.ChangeSecurityChecksParamsBodyParamsItems0, len(resp.Payload.Checks))
+			pp := make([]*advisor.ChangeAdvisorChecksParamsBodyParamsItems0, len(resp.Payload.Checks))
 			for i, check := range resp.Payload.Checks {
-				pp[i] = &security_checks.ChangeSecurityChecksParamsBodyParamsItems0{
+				pp[i] = &advisor.ChangeAdvisorChecksParamsBodyParamsItems0{
 					Name:     check.Name,
-					Interval: pointer.ToString(security_checks.ChangeSecurityChecksParamsBodyParamsItems0IntervalSECURITYCHECKINTERVALRARE),
+					Interval: pointer.ToString(advisor.ChangeAdvisorChecksParamsBodyParamsItems0IntervalADVISORCHECKINTERVALRARE),
 				}
 			}
 
-			params := &security_checks.ChangeSecurityChecksParams{
-				Body:    security_checks.ChangeSecurityChecksBody{Params: pp},
+			params := &advisor.ChangeAdvisorChecksParams{
+				Body:    advisor.ChangeAdvisorChecksBody{Params: pp},
 				Context: pmmapitests.Context,
 			}
-			_, err = managementClient.Default.SecurityChecksService.ChangeSecurityChecks(params)
+			_, err = managementClient.Default.AdvisorService.ChangeAdvisorChecks(params)
 			require.NoError(t, err)
 
-			resp, err = managementClient.Default.SecurityChecksService.ListSecurityChecks(nil)
+			resp, err = managementClient.Default.AdvisorService.ListAdvisorChecks(nil)
 			require.NoError(t, err)
 			require.NotEmpty(t, resp.Payload.Checks)
 
 			for _, check := range resp.Payload.Checks {
-				assert.Equal(t, "SECURITY_CHECK_INTERVAL_RARE", *check.Interval)
+				assert.Equal(t, "ADVISOR_CHECK_INTERVAL_RARE", *check.Interval)
 			}
 
 			t.Run("intervals should be preserved on restart", func(t *testing.T) {
-				resp, err := managementClient.Default.SecurityChecksService.ListSecurityChecks(nil)
+				resp, err := managementClient.Default.AdvisorService.ListAdvisorChecks(nil)
 				require.NoError(t, err)
 				require.NotEmpty(t, resp.Payload.Checks)
-				assert.Equal(t, "SECURITY_CHECK_INTERVAL_RARE", *resp.Payload.Checks[0].Interval)
+				assert.Equal(t, "ADVISOR_CHECK_INTERVAL_RARE", *resp.Payload.Checks[0].Interval)
 			})
 		})
 	})
