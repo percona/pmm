@@ -261,7 +261,7 @@ func (s *ChannelsService) ChangeChannel(ctx context.Context, req *iav1beta1.Chan
 
 // RemoveChannel removes notification channel.
 // Deprecated. Do not use.
-func (s *ChannelsService) RemoveChannel(ctx context.Context, req *iav1beta1.RemoveChannelRequest) (*iav1beta1.RemoveChannelResponse, error) { //nolint:staticcheck,,revive
+func (s *ChannelsService) RemoveChannel(ctx context.Context, req *iav1beta1.RemoveChannelRequest) (*iav1beta1.RemoveChannelResponse, error) { //nolint:staticcheck,revive
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		return models.RemoveChannel(tx.Querier, req.ChannelId)
 	})

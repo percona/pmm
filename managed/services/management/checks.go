@@ -172,7 +172,7 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementp
 }
 
 // ToggleCheckAlert toggles the silence state of the check with the provided alertID.
-func (s *ChecksAPIService) ToggleCheckAlert(ctx context.Context, req *managementpb.ToggleCheckAlertRequest) (*managementpb.ToggleCheckAlertResponse, error) { //nolint:revive
+func (s *ChecksAPIService) ToggleCheckAlert(ctx context.Context, req *managementpb.ToggleCheckAlertRequest) (*managementpb.ToggleCheckAlertResponse, error) { //nolint:revive,lll
 	return nil, status.Error(codes.NotFound, "Advisor alerts silencing is not supported anymore.")
 }
 

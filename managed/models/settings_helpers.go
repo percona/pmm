@@ -322,7 +322,7 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 func lockRoleForChange(tx *reform.TX, roleID int) error {
 	var r Role
-	if err := FindAndLockRole(tx, roleID, &r); err != nil { //nolint:revive
+	if err := FindAndLockRole(tx, roleID, &r); err != nil {
 		return err
 	}
 
