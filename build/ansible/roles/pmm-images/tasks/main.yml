@@ -97,7 +97,7 @@
       - pmm-dump
       - vmproxy
     state: installed
-    enablerepo: "local"
+    enablerepo: local
 
 - name: Create grafana config
   include_role:
