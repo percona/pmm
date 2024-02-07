@@ -245,7 +245,6 @@ nav:
       - pmm-upgrade/upgrade_aws.md
   - Uninstall:
     - Uninstall PMM client: 
-      - uninstall-pmm/index.md
       - Docker: uninstall-pmm/uninstall_docker.md
       - Helm: uninstall-pmm/uninstall_helm.md 
       - Package manager: uninstall-pmm/uninstall_package_manager.md
