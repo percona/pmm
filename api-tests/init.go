@@ -36,8 +36,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
+	alertingClient "github.com/percona/pmm/api/alerting/v1/json/client"
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
-	alertingClient "github.com/percona/pmm/api/management/v1/alerting/json/client"
 	backupsClient "github.com/percona/pmm/api/management/v1/backup/json/client"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
 	platformClient "github.com/percona/pmm/api/platform/v1/json/client"

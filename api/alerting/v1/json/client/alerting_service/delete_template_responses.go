@@ -58,7 +58,7 @@ type DeleteTemplateOK struct {
 }
 
 func (o *DeleteTemplateOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/alerting/Templates/Delete][%d] deleteTemplateOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/alerting/Templates/Delete][%d] deleteTemplateOk  %+v", 200, o.Payload)
 }
 
 func (o *DeleteTemplateOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *DeleteTemplateDefault) Code() int {
 }
 
 func (o *DeleteTemplateDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/alerting/Templates/Delete][%d] DeleteTemplate default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/alerting/Templates/Delete][%d] DeleteTemplate default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *DeleteTemplateDefault) GetPayload() *DeleteTemplateDefaultBody {

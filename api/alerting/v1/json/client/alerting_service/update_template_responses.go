@@ -58,7 +58,7 @@ type UpdateTemplateOK struct {
 }
 
 func (o *UpdateTemplateOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/alerting/Templates/Update][%d] updateTemplateOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/alerting/Templates/Update][%d] updateTemplateOk  %+v", 200, o.Payload)
 }
 
 func (o *UpdateTemplateOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *UpdateTemplateDefault) Code() int {
 }
 
 func (o *UpdateTemplateDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/alerting/Templates/Update][%d] UpdateTemplate default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/alerting/Templates/Update][%d] UpdateTemplate default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *UpdateTemplateDefault) GetPayload() *UpdateTemplateDefaultBody {

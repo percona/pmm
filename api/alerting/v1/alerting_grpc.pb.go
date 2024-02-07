@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: management/v1/alerting/alerting.proto
+// source: alerting/v1/alerting.proto
 
 package alertingv1
 
@@ -267,5 +267,5 @@ var AlertingService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "management/v1/alerting/alerting.proto",
+	Metadata: "alerting/v1/alerting.proto",
 }

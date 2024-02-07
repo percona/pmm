@@ -60,10 +60,10 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
+	alertingpb "github.com/percona/pmm/api/alerting/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	agentv1beta1 "github.com/percona/pmm/api/management/v1/agent"
-	alertingpb "github.com/percona/pmm/api/management/v1/alerting"
 	azurev1beta1 "github.com/percona/pmm/api/management/v1/azure"
 	backuppb "github.com/percona/pmm/api/management/v1/backup"
 	dumpv1beta1 "github.com/percona/pmm/api/management/v1/dump"

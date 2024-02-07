@@ -60,7 +60,7 @@ type ListTemplatesOK struct {
 }
 
 func (o *ListTemplatesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/alerting/Templates/List][%d] listTemplatesOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/alerting/Templates/List][%d] listTemplatesOk  %+v", 200, o.Payload)
 }
 
 func (o *ListTemplatesOK) GetPayload() *ListTemplatesOKBody {
@@ -102,7 +102,7 @@ func (o *ListTemplatesDefault) Code() int {
 }
 
 func (o *ListTemplatesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/alerting/Templates/List][%d] ListTemplates default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/alerting/Templates/List][%d] ListTemplates default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ListTemplatesDefault) GetPayload() *ListTemplatesDefaultBody {

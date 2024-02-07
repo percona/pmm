@@ -10,7 +10,7 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/management/v1/alerting/json/client/alerting_service"
+	"github.com/percona/pmm/api/alerting/v1/json/client/alerting_service"
 )
 
 // Default PMM alerting API HTTP client.

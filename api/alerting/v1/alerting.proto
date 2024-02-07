@@ -2,10 +2,10 @@ syntax = "proto3";
 
 package alerting.v1;
 
+import "alerting/v1/params.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
-import "management/v1/alerting/params.proto";
 import "management/v1/boolean_flag.proto";
 import "management/v1/pagination.proto";
 import "management/v1/severity.proto";
@@ -194,35 +194,35 @@ service AlertingService {
   // ListTemplates returns a list of all collected alert rule templates.
   rpc ListTemplates(ListTemplatesRequest) returns (ListTemplatesResponse) {
     option (google.api.http) = {
-      post: "/v1/management/alerting/Templates/List"
+      post: "/v1/alerting/Templates/List"
       body: "*"
     };
   }
   // CreateTemplate creates a new template.
   rpc CreateTemplate(CreateTemplateRequest) returns (CreateTemplateResponse) {
     option (google.api.http) = {
-      post: "/v1/management/alerting/Templates/Create"
+      post: "/v1/alerting/Templates/Create"
       body: "*"
     };
   }
   // UpdateTemplate updates existing template, previously created via API.
   rpc UpdateTemplate(UpdateTemplateRequest) returns (UpdateTemplateResponse) {
     option (google.api.http) = {
-      post: "/v1/management/alerting/Templates/Update"
+      post: "/v1/alerting/Templates/Update"
       body: "*"
     };
   }
   // DeleteTemplate deletes existing, previously created via API.
   rpc DeleteTemplate(DeleteTemplateRequest) returns (DeleteTemplateResponse) {
     option (google.api.http) = {
-      post: "/v1/management/alerting/Templates/Delete"
+      post: "/v1/alerting/Templates/Delete"
       body: "*"
     };
   }
   // CreateRule creates alerting rule from the given template.
   rpc CreateRule(CreateRuleRequest) returns (CreateRuleResponse) {
     option (google.api.http) = {
-      post: "/v1/management/alerting/Rules/Create"
+      post: "/v1/alerting/Rules/Create"
       body: "*"
     };
   }

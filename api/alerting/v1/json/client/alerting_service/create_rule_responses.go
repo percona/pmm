@@ -60,7 +60,7 @@ type CreateRuleOK struct {
 }
 
 func (o *CreateRuleOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/alerting/Rules/Create][%d] createRuleOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/alerting/Rules/Create][%d] createRuleOk  %+v", 200, o.Payload)
 }
 
 func (o *CreateRuleOK) GetPayload() interface{} {
@@ -100,7 +100,7 @@ func (o *CreateRuleDefault) Code() int {
 }
 
 func (o *CreateRuleDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/alerting/Rules/Create][%d] CreateRule default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/alerting/Rules/Create][%d] CreateRule default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *CreateRuleDefault) GetPayload() *CreateRuleDefaultBody {

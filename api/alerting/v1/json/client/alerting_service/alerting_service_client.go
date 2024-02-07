@@ -52,7 +52,7 @@ func (a *Client) CreateRule(params *CreateRuleParams, opts ...ClientOption) (*Cr
 	op := &runtime.ClientOperation{
 		ID:                 "CreateRule",
 		Method:             "POST",
-		PathPattern:        "/v1/management/alerting/Rules/Create",
+		PathPattern:        "/v1/alerting/Rules/Create",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -89,7 +89,7 @@ func (a *Client) CreateTemplate(params *CreateTemplateParams, opts ...ClientOpti
 	op := &runtime.ClientOperation{
 		ID:                 "CreateTemplate",
 		Method:             "POST",
-		PathPattern:        "/v1/management/alerting/Templates/Create",
+		PathPattern:        "/v1/alerting/Templates/Create",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -126,7 +126,7 @@ func (a *Client) DeleteTemplate(params *DeleteTemplateParams, opts ...ClientOpti
 	op := &runtime.ClientOperation{
 		ID:                 "DeleteTemplate",
 		Method:             "POST",
-		PathPattern:        "/v1/management/alerting/Templates/Delete",
+		PathPattern:        "/v1/alerting/Templates/Delete",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -163,7 +163,7 @@ func (a *Client) ListTemplates(params *ListTemplatesParams, opts ...ClientOption
 	op := &runtime.ClientOperation{
 		ID:                 "ListTemplates",
 		Method:             "POST",
-		PathPattern:        "/v1/management/alerting/Templates/List",
+		PathPattern:        "/v1/alerting/Templates/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -200,7 +200,7 @@ func (a *Client) UpdateTemplate(params *UpdateTemplateParams, opts ...ClientOpti
 	op := &runtime.ClientOperation{
 		ID:                 "UpdateTemplate",
 		Method:             "POST",
-		PathPattern:        "/v1/management/alerting/Templates/Update",
+		PathPattern:        "/v1/alerting/Templates/Update",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
