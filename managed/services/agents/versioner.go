@@ -58,7 +58,7 @@ type Mysqld struct{}
 
 func (*Mysqld) isSoftware() {}
 
-// Name returns the software name for Mysqld.{}
+// Name returns the software name for Mysqld.{}.
 func (*Mysqld) Name() models.SoftwareName { return models.MysqldSoftwareName }
 
 // GetVersionRequest returns the GetVersionsRequest_Software for Mysqld.
@@ -118,7 +118,7 @@ type MongoDB struct{}
 
 func (*MongoDB) isSoftware() {}
 
-// Name returns the software name for MongoDB.{}
+// Name returns the software name for MongoDB.{}.
 func (*MongoDB) Name() models.SoftwareName { return models.MongoDBSoftwareName }
 
 // GetVersionRequest returns the GetVersionsRequest_Software for Qpress.
