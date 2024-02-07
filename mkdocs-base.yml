@@ -237,7 +237,8 @@ nav:
     - Manual upgrade:     
       - pmm-upgrade/upgrade_docker.md
       - pmm-upgrade/upgrade_podman.md
-    - Upgrade PM server in K8s: pmm-upgrade/upgrade_helm.md
+    - Upgrade PM server in K8s: 
+      - pmm-upgrade/upgrade_helm.md
     - pmm-upgrade/upgrade_agent.md
     - pmm-upgrade/upgrade_from_pmm_1.md
     - pmm-upgrade/upgrade_aws.md
