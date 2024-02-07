@@ -207,15 +207,12 @@ nav:
         - install-pmm/install-pmm-server/aws/back_pmm_server.md
         - install-pmm/install-pmm-server/aws/restore_pmm_server.md
         - install-pmm/install-pmm-server/aws/remove_pmm_server.md
-    - Install PMM server:
-      - install-pmm/install-pmm-server/index.md
-
     - Set up PMM client:
       - Install PMM client:
         - install-pmm/install-pmm-client/index.md
         - install-pmm/install-pmm-client/prerequisites.md
-        - Percona Repositories: install-pmm/install-pmm-client/package_manager.md          
-        - Images: install-pmm/install-pmm-client/docker.md
+          - Percona Repositories: install-pmm/install-pmm-client/package_manager.md          
+          - Images: install-pmm/install-pmm-client/docker.md
         - Manual binaries: install-pmm/install-pmm-client/binary_package.md          
         - Register client node: install-pmm/register-client-node/index.md 
         - Add services to PMM: 
