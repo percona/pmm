@@ -230,10 +230,10 @@ nav:
             - HAproxy: install-pmm/install-pmm-client/connect-database/haproxy.md
             - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
         - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md
-  
+
   - Upgrade:
-    - Upgrade PMM server: pmm-upgrade/index.md
-      - pmm-upgrade/ui_upgrade.md
+    - pmm-upgrade/index.md
+    - pmm-upgrade/ui_upgrade.md
       - Manual upgrade:     
         - pmm-upgrade/upgrade_docker.md
         - pmm-upgrade/upgrade_podman.md
