@@ -75,7 +75,7 @@ gen-api:            ## Generate PMM API
 		api/user/v1/json/v1.json \
 		api/management/v1/json/v1.json \
 		api/management/v1/backup/json/backup.json \
-		api/alerting/v1/json/alerting.json
+		api/alerting/v1/json/v1.json
 	bin/swagger validate api/swagger/swagger.json
 
 	bin/swagger-order --output=api/swagger/swagger.json api/swagger/swagger.json
@@ -87,7 +87,7 @@ gen-api:            ## Generate PMM API
 		api/user/v1/json/v1.json \
 		api/inventory/v1/json/v1.json \
 		api/management/v1/json/v1.json \
-		api/alerting/v1/json/alerting.json \
+		api/alerting/v1/json/v1.json \
 		api/management/v1/backup/json/backup.json \
 		api/management/v1/dump/json/dump.json \
 		api/management/v1/azure/json/azure.json \

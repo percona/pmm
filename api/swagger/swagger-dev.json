@@ -3774,6 +3774,700 @@
         }
       }
     },
+    "/v1/alerting/Rules/Create": {
+      "post": {
+        "tags": [
+          "AlertingService"
+        ],
+        "summary": "CreateRule creates alerting rule from the given template.",
+        "operationId": "CreateRule",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "template_name": {
+                  "description": "Template name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "name": {
+                  "description": "Rule name.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "group": {
+                  "description": "Rule group name.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "folder_uid": {
+                  "description": "Folder UID.",
+                  "type": "string",
+                  "x-order": 3
+                },
+                "params": {
+                  "description": "Rule parameters. All template parameters should be set.",
+                  "type": "array",
+                  "items": {
+                    "description": "ParamValue represents a single rule parameter value.",
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "Machine-readable name (ID) that is used in expression.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "type": {
+                        "description": "ParamType represents template parameter type.",
+                        "type": "string",
+                        "default": "PARAM_TYPE_UNSPECIFIED",
+                        "enum": [
+                          "PARAM_TYPE_UNSPECIFIED",
+                          "PARAM_TYPE_BOOL",
+                          "PARAM_TYPE_FLOAT",
+                          "PARAM_TYPE_STRING"
+                        ],
+                        "x-order": 1
+                      },
+                      "bool": {
+                        "description": "Bool value.",
+                        "type": "boolean",
+                        "x-order": 2
+                      },
+                      "float": {
+                        "description": "Float value.",
+                        "type": "number",
+                        "format": "double",
+                        "x-order": 3
+                      },
+                      "string": {
+                        "description": "String value.",
+                        "type": "string",
+                        "x-order": 4
+                      }
+                    }
+                  },
+                  "x-order": 4
+                },
+                "for": {
+                  "description": "Rule duration. Should be set.",
+                  "type": "string",
+                  "x-order": 5
+                },
+                "severity": {
+                  "description": "Severity represents severity level of the check result or alert.",
+                  "type": "string",
+                  "default": "SEVERITY_UNSPECIFIED",
+                  "enum": [
+                    "SEVERITY_UNSPECIFIED",
+                    "SEVERITY_EMERGENCY",
+                    "SEVERITY_ALERT",
+                    "SEVERITY_CRITICAL",
+                    "SEVERITY_ERROR",
+                    "SEVERITY_WARNING",
+                    "SEVERITY_NOTICE",
+                    "SEVERITY_INFO",
+                    "SEVERITY_DEBUG"
+                  ],
+                  "x-order": 6
+                },
+                "custom_labels": {
+                  "description": "All custom labels to add or remove (with empty values) to default labels from template.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 7
+                },
+                "filters": {
+                  "description": "Filters.",
+                  "type": "array",
+                  "items": {
+                    "description": "Filter represents a single filter condition.",
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "description": "FilterType represents filter matching type.",
+                        "type": "string",
+                        "default": "FILTER_TYPE_UNSPECIFIED",
+                        "enum": [
+                          "FILTER_TYPE_UNSPECIFIED",
+                          "FILTER_TYPE_MATCH",
+                          "FILTER_TYPE_MISMATCH"
+                        ],
+                        "x-order": 0
+                      },
+                      "label": {
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "regexp": {
+                        "type": "string",
+                        "x-order": 2
+                      }
+                    }
+                  },
+                  "x-order": 8
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/alerting/Templates/Create": {
+      "post": {
+        "tags": [
+          "AlertingService"
+        ],
+        "summary": "CreateTemplate creates a new template.",
+        "operationId": "CreateTemplate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "yaml": {
+                  "description": "YAML template file content.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/alerting/Templates/Delete": {
+      "post": {
+        "tags": [
+          "AlertingService"
+        ],
+        "summary": "DeleteTemplate deletes existing, previously created via API.",
+        "operationId": "DeleteTemplate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/alerting/Templates/List": {
+      "post": {
+        "tags": [
+          "AlertingService"
+        ],
+        "summary": "ListTemplates returns a list of all collected alert rule templates.",
+        "operationId": "ListTemplates",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "reload": {
+                  "description": "If true, template files will be re-read from disk.",
+                  "type": "boolean",
+                  "x-order": 0
+                },
+                "page_params": {
+                  "description": "PageParams represents page request parameters for pagination.",
+                  "type": "object",
+                  "properties": {
+                    "page_size": {
+                      "description": "Maximum number of results per page.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 0
+                    },
+                    "index": {
+                      "description": "Index of the requested page, starts from 0.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "templates": {
+                  "type": "array",
+                  "items": {
+                    "description": "Template represents Alert Template that is used to create Alert Rule.",
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "Machine-readable name (ID).",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "summary": {
+                        "description": "Short human-readable summary.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "expr": {
+                        "description": "PromQL query expression with templating parameters.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "params": {
+                        "description": "Query parameters definitions.",
+                        "type": "array",
+                        "items": {
+                          "description": "ParamDefinition represents a single query parameter.",
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "description": "Machine-readable name (ID) that is used in expression.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "summary": {
+                              "description": "Short human-readable parameter summary.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "unit": {
+                              "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_UNSPECIFIED: Invalid, unknown or absent.\n - PARAM_UNIT_PERCENTAGE: %\n - PARAM_UNIT_SECONDS: s",
+                              "type": "string",
+                              "default": "PARAM_UNIT_UNSPECIFIED",
+                              "enum": [
+                                "PARAM_UNIT_UNSPECIFIED",
+                                "PARAM_UNIT_PERCENTAGE",
+                                "PARAM_UNIT_SECONDS"
+                              ],
+                              "x-order": 2
+                            },
+                            "type": {
+                              "description": "ParamType represents template parameter type.",
+                              "type": "string",
+                              "default": "PARAM_TYPE_UNSPECIFIED",
+                              "enum": [
+                                "PARAM_TYPE_UNSPECIFIED",
+                                "PARAM_TYPE_BOOL",
+                                "PARAM_TYPE_FLOAT",
+                                "PARAM_TYPE_STRING"
+                              ],
+                              "x-order": 3
+                            },
+                            "bool": {
+                              "description": "BoolParamDefinition represents boolean parameter's default value.",
+                              "type": "object",
+                              "properties": {
+                                "default": {
+                                  "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - BOOLEAN_FLAG_UNSPECIFIED: Do not change boolean property. Default value.\n - BOOLEAN_FLAG_TRUE: True.\n - BOOLEAN_FLAG_FALSE: False.",
+                                  "type": "string",
+                                  "default": "BOOLEAN_FLAG_UNSPECIFIED",
+                                  "enum": [
+                                    "BOOLEAN_FLAG_UNSPECIFIED",
+                                    "BOOLEAN_FLAG_TRUE",
+                                    "BOOLEAN_FLAG_FALSE"
+                                  ],
+                                  "x-order": 0
+                                }
+                              },
+                              "x-order": 4
+                            },
+                            "float": {
+                              "description": "FloatParamDefinition represents float parameter's default value and valid range.",
+                              "type": "object",
+                              "properties": {
+                                "has_default": {
+                                  "description": "True if default value is set.",
+                                  "type": "boolean",
+                                  "x-order": 0
+                                },
+                                "default": {
+                                  "description": "Default value if has_default is true.",
+                                  "type": "number",
+                                  "format": "double",
+                                  "x-order": 1
+                                },
+                                "has_min": {
+                                  "description": "True if minimal valid value is set.",
+                                  "type": "boolean",
+                                  "x-order": 2
+                                },
+                                "min": {
+                                  "description": "Minimal valid value (inclusive) if has_min is true.",
+                                  "type": "number",
+                                  "format": "double",
+                                  "x-order": 3
+                                },
+                                "has_max": {
+                                  "description": "True if maximal valid value is set.",
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
+                                "max": {
+                                  "description": "Maximal valid value (inclusive) if has_max is true.",
+                                  "type": "number",
+                                  "format": "double",
+                                  "x-order": 5
+                                }
+                              },
+                              "x-order": 5
+                            },
+                            "string": {
+                              "description": "StringParamDefinition represents string parameter's default value.",
+                              "type": "object",
+                              "properties": {
+                                "has_default": {
+                                  "description": "True if default value is set.",
+                                  "type": "boolean",
+                                  "x-order": 0
+                                },
+                                "default": {
+                                  "description": "Default value if has_default is true.",
+                                  "type": "string",
+                                  "x-order": 1
+                                }
+                              },
+                              "x-order": 6
+                            }
+                          }
+                        },
+                        "x-order": 3
+                      },
+                      "for": {
+                        "description": "Default duration value.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "severity": {
+                        "description": "Severity represents severity level of the check result or alert.",
+                        "type": "string",
+                        "default": "SEVERITY_UNSPECIFIED",
+                        "enum": [
+                          "SEVERITY_UNSPECIFIED",
+                          "SEVERITY_EMERGENCY",
+                          "SEVERITY_ALERT",
+                          "SEVERITY_CRITICAL",
+                          "SEVERITY_ERROR",
+                          "SEVERITY_WARNING",
+                          "SEVERITY_NOTICE",
+                          "SEVERITY_INFO",
+                          "SEVERITY_DEBUG"
+                        ],
+                        "x-order": 5
+                      },
+                      "labels": {
+                        "description": "Labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 6
+                      },
+                      "annotations": {
+                        "description": "Annotations.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 7
+                      },
+                      "source": {
+                        "description": "TemplateSource defines template source.\n\n - TEMPLATE_SOURCE_BUILT_IN: Template that is shipped with PMM Server releases.\n - TEMPLATE_SOURCE_SAAS: Template that is downloaded from check.percona.com.\n - TEMPLATE_SOURCE_USER_FILE: Templated loaded from user-suplied file.\n - TEMPLATE_SOURCE_USER_API: Templated created via API.",
+                        "type": "string",
+                        "default": "TEMPLATE_SOURCE_UNSPECIFIED",
+                        "enum": [
+                          "TEMPLATE_SOURCE_UNSPECIFIED",
+                          "TEMPLATE_SOURCE_BUILT_IN",
+                          "TEMPLATE_SOURCE_SAAS",
+                          "TEMPLATE_SOURCE_USER_FILE",
+                          "TEMPLATE_SOURCE_USER_API"
+                        ],
+                        "x-order": 8
+                      },
+                      "created_at": {
+                        "description": "Template creation time. Empty for built-in and SaaS templates.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 9
+                      },
+                      "yaml": {
+                        "description": "YAML template file content. Empty for built-in and SaaS templates.",
+                        "type": "string",
+                        "x-order": 10
+                      }
+                    }
+                  },
+                  "x-order": 0
+                },
+                "totals": {
+                  "description": "PageTotals represents total values for pagination.",
+                  "type": "object",
+                  "properties": {
+                    "total_items": {
+                      "description": "Total number of results.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 0
+                    },
+                    "total_pages": {
+                      "description": "Total number of pages.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/alerting/Templates/Update": {
+      "post": {
+        "tags": [
+          "AlertingService"
+        ],
+        "summary": "UpdateTemplate updates existing template, previously created via API.",
+        "operationId": "UpdateTemplate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "description": "Machine-readable name (ID).",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "yaml": {
+                  "description": "YAML template file content.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/Agents/Add": {
       "post": {
         "description": "Adds an Agent to Inventory. Only one top-level parameter should be passed.",
@@ -23758,700 +24452,6 @@
                   "description": "Unique across all Services user-defined name.",
                   "type": "string",
                   "x-order": 2
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/alerting/Rules/Create": {
-      "post": {
-        "tags": [
-          "AlertingService"
-        ],
-        "summary": "CreateRule creates alerting rule from the given template.",
-        "operationId": "CreateRule",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "template_name": {
-                  "description": "Template name.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "name": {
-                  "description": "Rule name.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "group": {
-                  "description": "Rule group name.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "folder_uid": {
-                  "description": "Folder UID.",
-                  "type": "string",
-                  "x-order": 3
-                },
-                "params": {
-                  "description": "Rule parameters. All template parameters should be set.",
-                  "type": "array",
-                  "items": {
-                    "description": "ParamValue represents a single rule parameter value.",
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "description": "Machine-readable name (ID) that is used in expression.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "type": {
-                        "description": "ParamType represents template parameter type.",
-                        "type": "string",
-                        "default": "PARAM_TYPE_UNSPECIFIED",
-                        "enum": [
-                          "PARAM_TYPE_UNSPECIFIED",
-                          "PARAM_TYPE_BOOL",
-                          "PARAM_TYPE_FLOAT",
-                          "PARAM_TYPE_STRING"
-                        ],
-                        "x-order": 1
-                      },
-                      "bool": {
-                        "description": "Bool value.",
-                        "type": "boolean",
-                        "x-order": 2
-                      },
-                      "float": {
-                        "description": "Float value.",
-                        "type": "number",
-                        "format": "double",
-                        "x-order": 3
-                      },
-                      "string": {
-                        "description": "String value.",
-                        "type": "string",
-                        "x-order": 4
-                      }
-                    }
-                  },
-                  "x-order": 4
-                },
-                "for": {
-                  "description": "Rule duration. Should be set.",
-                  "type": "string",
-                  "x-order": 5
-                },
-                "severity": {
-                  "description": "Severity represents severity level of the check result or alert.",
-                  "type": "string",
-                  "default": "SEVERITY_UNSPECIFIED",
-                  "enum": [
-                    "SEVERITY_UNSPECIFIED",
-                    "SEVERITY_EMERGENCY",
-                    "SEVERITY_ALERT",
-                    "SEVERITY_CRITICAL",
-                    "SEVERITY_ERROR",
-                    "SEVERITY_WARNING",
-                    "SEVERITY_NOTICE",
-                    "SEVERITY_INFO",
-                    "SEVERITY_DEBUG"
-                  ],
-                  "x-order": 6
-                },
-                "custom_labels": {
-                  "description": "All custom labels to add or remove (with empty values) to default labels from template.",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "x-order": 7
-                },
-                "filters": {
-                  "description": "Filters.",
-                  "type": "array",
-                  "items": {
-                    "description": "Filter represents a single filter condition.",
-                    "type": "object",
-                    "properties": {
-                      "type": {
-                        "description": "FilterType represents filter matching type.",
-                        "type": "string",
-                        "default": "FILTER_TYPE_UNSPECIFIED",
-                        "enum": [
-                          "FILTER_TYPE_UNSPECIFIED",
-                          "FILTER_TYPE_MATCH",
-                          "FILTER_TYPE_MISMATCH"
-                        ],
-                        "x-order": 0
-                      },
-                      "label": {
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "regexp": {
-                        "type": "string",
-                        "x-order": 2
-                      }
-                    }
-                  },
-                  "x-order": 8
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/alerting/Templates/Create": {
-      "post": {
-        "tags": [
-          "AlertingService"
-        ],
-        "summary": "CreateTemplate creates a new template.",
-        "operationId": "CreateTemplate",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "yaml": {
-                  "description": "YAML template file content.",
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/alerting/Templates/Delete": {
-      "post": {
-        "tags": [
-          "AlertingService"
-        ],
-        "summary": "DeleteTemplate deletes existing, previously created via API.",
-        "operationId": "DeleteTemplate",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/alerting/Templates/List": {
-      "post": {
-        "tags": [
-          "AlertingService"
-        ],
-        "summary": "ListTemplates returns a list of all collected alert rule templates.",
-        "operationId": "ListTemplates",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "reload": {
-                  "description": "If true, template files will be re-read from disk.",
-                  "type": "boolean",
-                  "x-order": 0
-                },
-                "page_params": {
-                  "description": "PageParams represents page request parameters for pagination.",
-                  "type": "object",
-                  "properties": {
-                    "page_size": {
-                      "description": "Maximum number of results per page.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "index": {
-                      "description": "Index of the requested page, starts from 0.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "templates": {
-                  "type": "array",
-                  "items": {
-                    "description": "Template represents Alert Template that is used to create Alert Rule.",
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "description": "Machine-readable name (ID).",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "summary": {
-                        "description": "Short human-readable summary.",
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "expr": {
-                        "description": "PromQL query expression with templating parameters.",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "params": {
-                        "description": "Query parameters definitions.",
-                        "type": "array",
-                        "items": {
-                          "description": "ParamDefinition represents a single query parameter.",
-                          "type": "object",
-                          "properties": {
-                            "name": {
-                              "description": "Machine-readable name (ID) that is used in expression.",
-                              "type": "string",
-                              "x-order": 0
-                            },
-                            "summary": {
-                              "description": "Short human-readable parameter summary.",
-                              "type": "string",
-                              "x-order": 1
-                            },
-                            "unit": {
-                              "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_UNSPECIFIED: Invalid, unknown or absent.\n - PARAM_UNIT_PERCENTAGE: %\n - PARAM_UNIT_SECONDS: s",
-                              "type": "string",
-                              "default": "PARAM_UNIT_UNSPECIFIED",
-                              "enum": [
-                                "PARAM_UNIT_UNSPECIFIED",
-                                "PARAM_UNIT_PERCENTAGE",
-                                "PARAM_UNIT_SECONDS"
-                              ],
-                              "x-order": 2
-                            },
-                            "type": {
-                              "description": "ParamType represents template parameter type.",
-                              "type": "string",
-                              "default": "PARAM_TYPE_UNSPECIFIED",
-                              "enum": [
-                                "PARAM_TYPE_UNSPECIFIED",
-                                "PARAM_TYPE_BOOL",
-                                "PARAM_TYPE_FLOAT",
-                                "PARAM_TYPE_STRING"
-                              ],
-                              "x-order": 3
-                            },
-                            "bool": {
-                              "description": "BoolParamDefinition represents boolean parameter's default value.",
-                              "type": "object",
-                              "properties": {
-                                "default": {
-                                  "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - BOOLEAN_FLAG_UNSPECIFIED: Do not change boolean property. Default value.\n - BOOLEAN_FLAG_TRUE: True.\n - BOOLEAN_FLAG_FALSE: False.",
-                                  "type": "string",
-                                  "default": "BOOLEAN_FLAG_UNSPECIFIED",
-                                  "enum": [
-                                    "BOOLEAN_FLAG_UNSPECIFIED",
-                                    "BOOLEAN_FLAG_TRUE",
-                                    "BOOLEAN_FLAG_FALSE"
-                                  ],
-                                  "x-order": 0
-                                }
-                              },
-                              "x-order": 4
-                            },
-                            "float": {
-                              "description": "FloatParamDefinition represents float parameter's default value and valid range.",
-                              "type": "object",
-                              "properties": {
-                                "has_default": {
-                                  "description": "True if default value is set.",
-                                  "type": "boolean",
-                                  "x-order": 0
-                                },
-                                "default": {
-                                  "description": "Default value if has_default is true.",
-                                  "type": "number",
-                                  "format": "double",
-                                  "x-order": 1
-                                },
-                                "has_min": {
-                                  "description": "True if minimal valid value is set.",
-                                  "type": "boolean",
-                                  "x-order": 2
-                                },
-                                "min": {
-                                  "description": "Minimal valid value (inclusive) if has_min is true.",
-                                  "type": "number",
-                                  "format": "double",
-                                  "x-order": 3
-                                },
-                                "has_max": {
-                                  "description": "True if maximal valid value is set.",
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
-                                "max": {
-                                  "description": "Maximal valid value (inclusive) if has_max is true.",
-                                  "type": "number",
-                                  "format": "double",
-                                  "x-order": 5
-                                }
-                              },
-                              "x-order": 5
-                            },
-                            "string": {
-                              "description": "StringParamDefinition represents string parameter's default value.",
-                              "type": "object",
-                              "properties": {
-                                "has_default": {
-                                  "description": "True if default value is set.",
-                                  "type": "boolean",
-                                  "x-order": 0
-                                },
-                                "default": {
-                                  "description": "Default value if has_default is true.",
-                                  "type": "string",
-                                  "x-order": 1
-                                }
-                              },
-                              "x-order": 6
-                            }
-                          }
-                        },
-                        "x-order": 3
-                      },
-                      "for": {
-                        "description": "Default duration value.",
-                        "type": "string",
-                        "x-order": 4
-                      },
-                      "severity": {
-                        "description": "Severity represents severity level of the check result or alert.",
-                        "type": "string",
-                        "default": "SEVERITY_UNSPECIFIED",
-                        "enum": [
-                          "SEVERITY_UNSPECIFIED",
-                          "SEVERITY_EMERGENCY",
-                          "SEVERITY_ALERT",
-                          "SEVERITY_CRITICAL",
-                          "SEVERITY_ERROR",
-                          "SEVERITY_WARNING",
-                          "SEVERITY_NOTICE",
-                          "SEVERITY_INFO",
-                          "SEVERITY_DEBUG"
-                        ],
-                        "x-order": 5
-                      },
-                      "labels": {
-                        "description": "Labels.",
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        },
-                        "x-order": 6
-                      },
-                      "annotations": {
-                        "description": "Annotations.",
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        },
-                        "x-order": 7
-                      },
-                      "source": {
-                        "description": "TemplateSource defines template source.\n\n - TEMPLATE_SOURCE_BUILT_IN: Template that is shipped with PMM Server releases.\n - TEMPLATE_SOURCE_SAAS: Template that is downloaded from check.percona.com.\n - TEMPLATE_SOURCE_USER_FILE: Templated loaded from user-suplied file.\n - TEMPLATE_SOURCE_USER_API: Templated created via API.",
-                        "type": "string",
-                        "default": "TEMPLATE_SOURCE_UNSPECIFIED",
-                        "enum": [
-                          "TEMPLATE_SOURCE_UNSPECIFIED",
-                          "TEMPLATE_SOURCE_BUILT_IN",
-                          "TEMPLATE_SOURCE_SAAS",
-                          "TEMPLATE_SOURCE_USER_FILE",
-                          "TEMPLATE_SOURCE_USER_API"
-                        ],
-                        "x-order": 8
-                      },
-                      "created_at": {
-                        "description": "Template creation time. Empty for built-in and SaaS templates.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 9
-                      },
-                      "yaml": {
-                        "description": "YAML template file content. Empty for built-in and SaaS templates.",
-                        "type": "string",
-                        "x-order": 10
-                      }
-                    }
-                  },
-                  "x-order": 0
-                },
-                "totals": {
-                  "description": "PageTotals represents total values for pagination.",
-                  "type": "object",
-                  "properties": {
-                    "total_items": {
-                      "description": "Total number of results.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "total_pages": {
-                      "description": "Total number of pages.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/alerting/Templates/Update": {
-      "post": {
-        "tags": [
-          "AlertingService"
-        ],
-        "summary": "UpdateTemplate updates existing template, previously created via API.",
-        "operationId": "UpdateTemplate",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "description": "Machine-readable name (ID).",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "yaml": {
-                  "description": "YAML template file content.",
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }

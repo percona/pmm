@@ -77,6 +77,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
 	agentgrpc "github.com/percona/pmm/managed/services/agents/grpc"
+	"github.com/percona/pmm/managed/services/alerting"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/managed/services/config" //nolint:staticcheck
@@ -86,7 +87,6 @@ import (
 	"github.com/percona/pmm/managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm/managed/services/inventory/grpc"
 	"github.com/percona/pmm/managed/services/management"
-	"github.com/percona/pmm/managed/services/management/alerting"
 	managementbackup "github.com/percona/pmm/managed/services/management/backup"
 	"github.com/percona/pmm/managed/services/management/common"
 	managementdump "github.com/percona/pmm/managed/services/management/dump"
