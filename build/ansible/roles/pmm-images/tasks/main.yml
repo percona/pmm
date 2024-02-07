@@ -23,6 +23,7 @@
   yum:
     name: "*"
     state: latest
+    disablerepo: percona-release-x86_64
 
 - name: Install OS tools
   yum:
