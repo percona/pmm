@@ -118,7 +118,7 @@ type MongoDB struct{}
 
 func (*MongoDB) isSoftware() {}
 
-// Name returns the software name for MongoDB.{}.
+// Name returns the software name for MongoDB.
 func (*MongoDB) Name() models.SoftwareName { return models.MongoDBSoftwareName }
 
 // GetVersionRequest returns the GetVersionsRequest_Software for Qpress.
