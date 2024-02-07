@@ -234,13 +234,13 @@ nav:
   - Upgrade:
     - pmm-upgrade/index.md
     - pmm-upgrade/ui_upgrade.md
-      - Manual upgrade:     
-        - pmm-upgrade/upgrade_docker.md
-        - pmm-upgrade/upgrade_podman.md
-      - Upgrade PM server in K8s: pmm-upgrade/upgrade_helm.md
-      - pmm-upgrade/upgrade_agent.md
-      - pmm-upgrade/upgrade_from_pmm_1.md
-      - pmm-upgrade/upgrade_aws.md
+    - Manual upgrade:     
+      - pmm-upgrade/upgrade_docker.md
+      - pmm-upgrade/upgrade_podman.md
+    - Upgrade PM server in K8s: pmm-upgrade/upgrade_helm.md
+    - pmm-upgrade/upgrade_agent.md
+    - pmm-upgrade/upgrade_from_pmm_1.md
+    - pmm-upgrade/upgrade_aws.md
   - Uninstall:
     - uninstall-pmm/index.md
     - Docker: uninstall-pmm/uninstall_docker.md
