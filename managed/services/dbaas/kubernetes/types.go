@@ -589,6 +589,7 @@ func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv
 	return nil
 }
 
+// SecretForBackup returns a AWS secrets.
 func SecretForBackup(backupLocation *models.BackupLocation) map[string][]byte {
 	return map[string][]byte{
 		"AWS_ACCESS_KEY_ID":     []byte(backupLocation.S3Config.AccessKey),

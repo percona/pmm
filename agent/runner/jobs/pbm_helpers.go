@@ -335,7 +335,7 @@ func findPITRRestoreName(ctx context.Context, dbURL *string, restoreInfo *pbmRes
 					return "", errors.Errorf("failed to start restore")
 				}
 				continue
-			} else { //nolint:revive
+			} else {
 				return entry.Name, nil
 			}
 		case <-ctx.Done():

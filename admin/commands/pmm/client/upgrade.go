@@ -122,7 +122,7 @@ func (c *UpgradeCommand) upgradeViaTarball(ctx context.Context) error {
 		SkipChecksum: c.SkipChecksum,
 		IsUpgrade:    true,
 	}
-	if err := t.Install(ctx); err != nil { //nolint:revive
+	if err := t.Install(ctx); err != nil {
 		return err
 	}
 

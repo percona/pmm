@@ -69,7 +69,7 @@ func installDocker(ctx context.Context, dockerFn Functions) error {
 	}
 
 	logrus.Infoln("Installing Docker")
-	if err = dockerFn.InstallDocker(ctx); err != nil { //nolint:revive
+	if err = dockerFn.InstallDocker(ctx); err != nil {
 		return err
 	}
 

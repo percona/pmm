@@ -232,7 +232,7 @@ func (s *RemovalService) releaseArtifact(artifactID string, setStatus models.Bac
 			setStatus, artifactID)
 	}
 
-	if err := s.setArtifactStatus(artifactID, setStatus); err != nil { //nolint:revive
+	if err := s.setArtifactStatus(artifactID, setStatus); err != nil {
 		return err
 	}
 	return nil

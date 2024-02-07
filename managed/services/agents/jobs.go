@@ -286,7 +286,7 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 							FinishedAt: pointer.ToTime(models.Now()),
 						})
 					return err
-				} else { //nolint:revive
+				} else {
 					s.l.Info("successfully restarted mongod and pbm-agent on all cluster members")
 				}
 			}

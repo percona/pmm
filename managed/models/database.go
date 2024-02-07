@@ -1157,10 +1157,10 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			return err
 		}
 
-		if err = setupFixture1(tx.Querier, params); err != nil { //nolint:revive
+		if err = setupFixture1(tx.Querier, params); err != nil {
 			return err
 		}
-		if err = setupFixture2(tx.Querier, params.Username, params.Password); err != nil { //nolint:revive
+		if err = setupFixture2(tx.Querier, params.Username, params.Password); err != nil {
 			return err
 		}
 		return nil
