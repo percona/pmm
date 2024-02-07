@@ -232,14 +232,15 @@ nav:
         - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md
   
   - Upgrade:
-      - pmm-upgrade/index.md
-      - pmm-upgrade/ui_upgrade.md
-      - pmm-upgrade/upgrade_aws.md    
-      - pmm-upgrade/upgrade_docker.md
-      - pmm-upgrade/upgrade_podman.md
+      - Upgrade PMM server: pmm-upgrade/index.md
+        - pmm-upgrade/ui_upgrade.md
+        - Manual upgrade:     
+          - pmm-upgrade/upgrade_docker.md
+          - pmm-upgrade/upgrade_podman.md
       - pmm-upgrade/upgrade_helm.md
       - pmm-upgrade/upgrade_agent.md
       - pmm-upgrade/upgrade_from_pmm_1.md
+      - pmm-upgrade/upgrade_aws.md
   - Uninstall:
     - uninstall-pmm/index.md
     - Docker: uninstall-pmm/uninstall_docker.md
