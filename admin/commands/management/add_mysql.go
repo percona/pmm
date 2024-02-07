@@ -146,7 +146,7 @@ func (cmd *AddMySQLCommand) GetSocket() string {
 	return cmd.Socket
 }
 
-// RunCmd runs the command for AddMySQLCommand
+// RunCmd runs the command for AddMySQLCommand.
 func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 

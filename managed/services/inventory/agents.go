@@ -149,7 +149,7 @@ func (as *AgentsService) List(_ context.Context, filters models.AgentFilters) ([
 }
 
 // Get selects a single Agent by ID.
-func (as *AgentsService) Get(_ context.Context, id string) (inventorypb.Agent, error) { //nolint:ireturn,unparam
+func (as *AgentsService) Get(_ context.Context, id string) (inventorypb.Agent, error) { //nolint:ireturn
 	var res inventorypb.Agent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		row, err := models.FindAgentByID(tx.Querier, id)

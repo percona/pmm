@@ -23,7 +23,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-// PMMAgentMinVersionForPostgreSQLSSLSni is the minimum required version of PMM Agent
+// PMMAgentMinVersionForPostgreSQLSSLSni is the minimum required version of PMM Agent.
 var PMMAgentMinVersionForPostgreSQLSSLSni = version.Must(version.NewVersion("2.41.0-0"))
 
 // AgentNotSupportedError is used when the target PMM agent doesn't support the requested functionality.

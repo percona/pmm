@@ -165,7 +165,7 @@ func RemoveServices(t TestingT, serviceIDs ...string) {
 	}
 }
 
-// RemoveAgents removes specified agents
+// RemoveAgents removes specified agents.
 func RemoveAgents(t TestingT, agentIDs ...string) {
 	t.Helper()
 
