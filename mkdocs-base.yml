@@ -446,7 +446,6 @@ nav:
       - "PMM 2.0.0 (Sept. 19, 2019)": release-notes/2.0.0.md
 
   - Reference: 
-    - Architecture: 
     - reference/index.md
       - Third-party components in PMM: 
         - reference/third-party/victoria.md
