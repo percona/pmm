@@ -10,7 +10,7 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/management/v1/dump/json/client/dumps_service"
+	"github.com/percona/pmm/api/dump/v1/json/client/dumps_service"
 )
 
 // Default PMM dump API HTTP client.

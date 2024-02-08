@@ -36,7 +36,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	dumpv1beta1 "github.com/percona/pmm/api/management/v1/dump"
+	dumpv1beta1 "github.com/percona/pmm/api/dump/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/dump"
 	"github.com/percona/pmm/managed/services/grafana"

@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: management/v1/dump/dump.proto
+// source: dump/v1/dump.proto
 
 package dumpv1beta1
 
@@ -267,5 +267,5 @@ var DumpsService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "management/v1/dump/dump.proto",
+	Metadata: "dump/v1/dump.proto",
 }
