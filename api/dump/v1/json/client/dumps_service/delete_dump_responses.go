@@ -58,7 +58,7 @@ type DeleteDumpOK struct {
 }
 
 func (o *DeleteDumpOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/dump/Dumps/Delete][%d] deleteDumpOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/dump/Dumps/Delete][%d] deleteDumpOk  %+v", 200, o.Payload)
 }
 
 func (o *DeleteDumpOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *DeleteDumpDefault) Code() int {
 }
 
 func (o *DeleteDumpDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/dump/Dumps/Delete][%d] DeleteDump default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/dump/Dumps/Delete][%d] DeleteDump default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *DeleteDumpDefault) GetPayload() *DeleteDumpDefaultBody {

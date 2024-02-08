@@ -52,7 +52,7 @@ func (a *Client) DeleteDump(params *DeleteDumpParams, opts ...ClientOption) (*De
 	op := &runtime.ClientOperation{
 		ID:                 "DeleteDump",
 		Method:             "POST",
-		PathPattern:        "/v1/management/dump/Dumps/Delete",
+		PathPattern:        "/v1/dump/Dumps/Delete",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -89,7 +89,7 @@ func (a *Client) GetDumpLogs(params *GetDumpLogsParams, opts ...ClientOption) (*
 	op := &runtime.ClientOperation{
 		ID:                 "GetDumpLogs",
 		Method:             "POST",
-		PathPattern:        "/v1/management/dump/Dumps/GetLogs",
+		PathPattern:        "/v1/dump/Dumps/GetLogs",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -126,7 +126,7 @@ func (a *Client) ListDumps(params *ListDumpsParams, opts ...ClientOption) (*List
 	op := &runtime.ClientOperation{
 		ID:                 "ListDumps",
 		Method:             "POST",
-		PathPattern:        "/v1/management/dump/Dumps/List",
+		PathPattern:        "/v1/dump/Dumps/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -163,7 +163,7 @@ func (a *Client) StartDump(params *StartDumpParams, opts ...ClientOption) (*Star
 	op := &runtime.ClientOperation{
 		ID:                 "StartDump",
 		Method:             "POST",
-		PathPattern:        "/v1/management/dump/Dumps/Start",
+		PathPattern:        "/v1/dump/Dumps/Start",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -200,7 +200,7 @@ func (a *Client) UploadDump(params *UploadDumpParams, opts ...ClientOption) (*Up
 	op := &runtime.ClientOperation{
 		ID:                 "UploadDump",
 		Method:             "POST",
-		PathPattern:        "/v1/management/dump/Dumps/Upload",
+		PathPattern:        "/v1/dump/Dumps/Upload",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

@@ -59,7 +59,7 @@ type StartDumpOK struct {
 }
 
 func (o *StartDumpOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/dump/Dumps/Start][%d] startDumpOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/dump/Dumps/Start][%d] startDumpOk  %+v", 200, o.Payload)
 }
 
 func (o *StartDumpOK) GetPayload() *StartDumpOKBody {
@@ -101,7 +101,7 @@ func (o *StartDumpDefault) Code() int {
 }
 
 func (o *StartDumpDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/dump/Dumps/Start][%d] StartDump default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/dump/Dumps/Start][%d] StartDump default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *StartDumpDefault) GetPayload() *StartDumpDefaultBody {
