@@ -447,6 +447,11 @@ nav:
   
   - Reference:
     - reference/index.md
+      - Third-party components in PMM: 
+        - reference/third-party/victoria.md
+        - reference/third-party/clickhouse.md
+        - reference/third-party/postgresql.md
+
     - PMM dashboards:
       - Insight:
         - reference/dashboards/dashboard-home.md
@@ -530,10 +535,7 @@ nav:
     - reference/pmm_components_and_versions.md
     - reference/develop_advisor_checks.md
     - reference/personal_data_handling.md
-    - Third-party components in PMM: 
-      - reference/third-party/victoria.md
-      - reference/third-party/clickhouse.md
-      - reference/third-party/postgresql.md
+
     -  reference/glossary.md
     -  reference/faq.md
     - reference/trademark-policy.md
