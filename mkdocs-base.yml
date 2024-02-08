@@ -343,7 +343,10 @@ nav:
     - configure-pmm/metrics_res.md
     - configure-pmm/advanced_settings.md
     - configure-pmm/ssh.md
-    - configure-pmm/alertmanager.md
+    - Security in PMM:
+      - pmm-admin/security/index.md
+      - pmm-admin/security/ssl_encryption.md 
+      - pmm-admin/security/grafana_cookies.md  
     - Percona Platform:
       - configure-pmm/percona_platform/integrate_with_percona_platform.md
       - configure-pmm/percona_platform/check_percona_platform.md
@@ -364,10 +367,7 @@ nav:
         - pmm-admin/roles/access-control/manage_roles.md
         - pmm-admin/roles/access-control/assign_roles.md
         - pmm-admin/roles/access-control/usecase.md
-      - Security in PMM:
-        - pmm-admin/security/index.md
-        - pmm-admin/security/ssl_encryption.md 
-        - pmm-admin/security/grafana_cookies.md  
+
       - Optimize:
         - optimize/improve_perf.md
         - optimize/disable_table_stats.md
@@ -384,6 +384,8 @@ nav:
     - troubleshoot/alerting_issues.md
     - troubleshoot/qan_issues.md
     - troubleshoot/plugin_issues.md
+    - troubleshoot/pmm_dump.md
+
   - Release notes:
     - Release notes index: release-notes/index.md
     - "PMM 2.41.0 (Dec 12, 2023)": release-notes/2.41.0.md
@@ -459,7 +461,6 @@ nav:
         - api/authentication.md
       
     - reference/develop_advisor_checks.md    
-    - reference/pmm_dump.md
 
     - PMM dashboards:
       - Insight:
