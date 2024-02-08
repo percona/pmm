@@ -267,6 +267,10 @@ nav:
       - PMM metrics: 
         - use/metrics/index.md
         - use/metrics/extend_metrics.md
+      - Database Monitoring:
+        - optimize/improve_perf.md
+        - optimize/disable_table_stats.md
+        - optimize/change_number_tables.md
       - Dashboards:
         - use/dashboards-panels/index.md
         - Manage dashboards:
@@ -368,10 +372,7 @@ nav:
         - pmm-admin/roles/access-control/assign_roles.md
         - pmm-admin/roles/access-control/usecase.md
 
-      - Optimize:
-        - optimize/improve_perf.md
-        - optimize/disable_table_stats.md
-        - optimize/change_number_tables.md
+
   - Troubleshoot:
     - troubleshoot/index.md
     - troubleshoot/checklist.md
