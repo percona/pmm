@@ -446,7 +446,8 @@ nav:
       - "PMM 2.0.0 (Sept. 19, 2019)": release-notes/2.0.0.md
 
   - Reference: 
-    - Architecture: reference/index.md
+    - Architecture: 
+    - reference/index.md
       - Third-party components in PMM: 
         - reference/third-party/victoria.md
         - reference/third-party/clickhouse.md
@@ -458,7 +459,7 @@ nav:
         - api/index.md
         - api/authentication.md
     - reference/pmm_dump.md
-    
+
     - PMM dashboards:
       - Insight:
         - reference/dashboards/dashboard-home.md
