@@ -267,7 +267,7 @@ nav:
       - PMM metrics: 
         - use/metrics/index.md
         - use/metrics/extend_metrics.md
-      - Database Monitoring:
+      - Optimize:
         - optimize/improve_perf.md
         - optimize/disable_table_stats.md
         - optimize/change_number_tables.md
