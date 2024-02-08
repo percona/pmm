@@ -232,6 +232,15 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 	if token != "" {
 		role, err := c.getRoleForServiceToken(ctx, token)
 		if err != nil {
+			// TODO better err check
+			if e, ok := status.FromError(err); !ok && strings.Contains(e.Message(), "Auth method is not service account token") {
+				role, err := c.getRoleForAPIKey(ctx, authHeaders)
+				return authUser{
+					role:   role,
+					userID: 0,
+				}, err
+			}
+
 			return emptyUser, err
 		}
 		return authUser{
@@ -285,6 +294,20 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 		role:   none,
 		userID: userID,
 	}, nil
+}
+
+func (c *Client) getRoleForAPIKey(ctx context.Context, authHeaders http.Header) (role, error) {
+	var k map[string]interface{}
+	if err := c.do(ctx, http.MethodGet, "/api/auth/key", "", authHeaders, nil, &k); err != nil {
+		return none, err
+	}
+
+	if id, _ := k["orgId"].(float64); id != 1 {
+		return none, nil
+	}
+
+	role, _ := k["role"].(string)
+	return c.convertRole(role), nil
 }
 
 func (c *Client) convertRole(role string) role {
