@@ -444,13 +444,21 @@ nav:
       - "PMM 2.1.0 (Nov. 11, 2019)": release-notes/2.1.0.md
       - "PMM 2.0.1 (Nov. 11, 2019)": release-notes/2.0.1.md
       - "PMM 2.0.0 (Sept. 19, 2019)": release-notes/2.0.0.md
-  
-  - Reference: reference/index.md
+
+  - Reference: 
+    - Architecture: reference/index.md
       - Third-party components in PMM: 
         - reference/third-party/victoria.md
         - reference/third-party/clickhouse.md
         - reference/third-party/postgresql.md
-
+        - reference/pmm_components_and_versions.md
+      - reference/develop_advisor_checks.md
+      - reference/personal_data_handling.md
+      - PMM API:
+        - api/index.md
+        - api/authentication.md
+    - reference/pmm_dump.md
+    
     - PMM dashboards:
       - Insight:
         - reference/dashboards/dashboard-home.md
@@ -525,15 +533,6 @@ nav:
         - reference/dashboards/dashboard-pxc-galera-cluster-summary-experimental.md
         - reference/dashboards/dashboard-pxc-galera-nodes-compare.md
         - reference/dashboards/dashboard-haproxy-instance-summary.md
-
-
-    - PMM API:
-      - api/index.md
-      - api/authentication.md
-    - reference/pmm_dump.md
-    - reference/pmm_components_and_versions.md
-    - reference/develop_advisor_checks.md
-    - reference/personal_data_handling.md
 
     -  reference/glossary.md
     -  reference/faq.md
