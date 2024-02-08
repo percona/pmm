@@ -262,8 +262,7 @@ nav:
       - reference/ui/timezone.md
       - reference/ui/view.md
     - PMM Inventory: use/dashboard-inventory.md
-    - Metrics monitoring:
-      - use/monitor.md
+    - Metrics monitoring: use/monitor.md
       - PMM metrics: use/metrics/index.md
         - use/metrics/extend_metrics.md
       - Dashboards:
