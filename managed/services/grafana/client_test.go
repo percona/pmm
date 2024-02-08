@@ -134,20 +134,21 @@ func TestClient(t *testing.T) {
 				require.NoError(t, err)
 				require.NotZero(t, apiKeyID)
 				require.NotEmpty(t, apiKey)
+				if err != nil {
+					defer func() {
+						err = c.deleteAPIKey(ctx, apiKeyID, authHeaders)
+						require.NoError(t, err)
+					}()
+				}
 
 				apiKeyAuthHeaders := http.Header{}
 				apiKeyAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 
 				u, err := c.getAuthUser(ctx, apiKeyAuthHeaders)
-				assert.NoError(t, err)
 				actualRole := u.role
+				assert.NoError(t, err)
 				assert.Equal(t, role, actualRole)
 				assert.Equal(t, role.String(), actualRole.String())
-
-				serviceAccountID, err := c.getServiceAccountIDForServiceToken(ctx, apiKey)
-				assert.NoError(t, err)
-				err = c.deleteServiceAccount(ctx, serviceAccountID, authHeaders)
-				assert.NoError(t, err)
 			})
 
 			t.Run(fmt.Sprintf("Service token auth %s", role.String()), func(t *testing.T) {
