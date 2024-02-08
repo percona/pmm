@@ -26,7 +26,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
-	backuppb "github.com/percona/pmm/api/management/v1/backup"
+	backuppb "github.com/percona/pmm/api/backup/v1"
 )
 
 const (

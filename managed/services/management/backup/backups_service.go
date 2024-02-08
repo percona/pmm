@@ -32,8 +32,8 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
+	backuppb "github.com/percona/pmm/api/backup/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
-	backuppb "github.com/percona/pmm/api/management/v1/backup"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/services/backup"

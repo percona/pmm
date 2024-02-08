@@ -73,7 +73,7 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 	// pmm-dump supports user/pass authentication, API token or cookie.
 	var token, cookie, user, password string
 	if len(authHeader) != 0 {
-		// If auth header type is `Basic` try to extract user and password.
+		// If auth header type is `Basic`, try to extract the user and password.
 		if basic, ok := strings.CutPrefix(authHeader[0], "Basic"); ok {
 			decodedBasic, err := base64.StdEncoding.DecodeString(strings.TrimSpace(basic))
 			if err != nil {
@@ -87,7 +87,7 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 			user, password = s[0], s[1]
 		}
 
-		// If auth header type is `Basic` try to extract token.
+		// If auth header type is `Bearer`, try to extract the token.
 		if bearer, ok := strings.CutPrefix(authHeader[0], "Bearer"); ok {
 			token = strings.TrimSpace(bearer)
 		}
@@ -97,7 +97,8 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 	if len(cookieHeader) != 0 {
 		cookies := strings.Split(cookieHeader[0], ";")
 		for _, c := range cookies {
-			if auth, ok := strings.CutPrefix(strings.TrimSpace(c), "grafana_session="); ok {
+			// The name of the cookie is defined in `./build/ansible/roles/grafana/files/grafana.ini`.
+			if auth, ok := strings.CutPrefix(strings.TrimSpace(c), "pmm_session="); ok {
 				cookie = auth
 			}
 		}

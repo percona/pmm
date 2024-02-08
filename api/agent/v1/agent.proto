@@ -3,13 +3,13 @@ syntax = "proto3";
 package agent.v1;
 
 import "agent/v1/collector.proto";
+import "backup/v1/common.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "google/rpc/status.proto";
 import "inventory/v1/agent_status.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/services.proto";
-import "management/v1/backup/common.proto";
 
 // TextFiles contains files which can be used to connect to DB (certificates, keys and etc).
 message TextFiles {

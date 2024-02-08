@@ -61,11 +61,11 @@ import (
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	alertingpb "github.com/percona/pmm/api/alerting/v1"
+	backuppb "github.com/percona/pmm/api/backup/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	agentv1beta1 "github.com/percona/pmm/api/management/v1/agent"
 	azurev1beta1 "github.com/percona/pmm/api/management/v1/azure"
-	backuppb "github.com/percona/pmm/api/management/v1/backup"
 	dumpv1beta1 "github.com/percona/pmm/api/management/v1/dump"
 	nodev1beta1 "github.com/percona/pmm/api/management/v1/node"
 	rolev1beta1 "github.com/percona/pmm/api/management/v1/role"

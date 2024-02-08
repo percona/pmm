@@ -17,7 +17,7 @@ lint:
       - management/v1/azure/azure.proto
       - management/v1/backup/artifacts.proto
       - management/v1/backup/backups.proto
-      - management/v1/backup/common.proto
+      - backup/v1/common.proto
       - management/v1/backup/errors.proto
       - management/v1/backup/locations.proto
       - management/v1/backup/restores.proto
