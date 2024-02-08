@@ -206,7 +206,7 @@ func RegisterDumpsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.DumpsService/StartDump", runtime.WithHTTPPathPattern("/v1/dump/Dumps/Start"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.DumpsService/StartDump", runtime.WithHTTPPathPattern("/v1/dump/Start"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -230,7 +230,7 @@ func RegisterDumpsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.DumpsService/ListDumps", runtime.WithHTTPPathPattern("/v1/dump/Dumps/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.DumpsService/ListDumps", runtime.WithHTTPPathPattern("/v1/dump/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -254,7 +254,7 @@ func RegisterDumpsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.DumpsService/DeleteDump", runtime.WithHTTPPathPattern("/v1/dump/Dumps/Delete"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.DumpsService/DeleteDump", runtime.WithHTTPPathPattern("/v1/dump/Delete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -278,7 +278,7 @@ func RegisterDumpsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.DumpsService/GetDumpLogs", runtime.WithHTTPPathPattern("/v1/dump/Dumps/GetLogs"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.DumpsService/GetDumpLogs", runtime.WithHTTPPathPattern("/v1/dump/GetLogs"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -302,7 +302,7 @@ func RegisterDumpsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.DumpsService/UploadDump", runtime.WithHTTPPathPattern("/v1/dump/Dumps/Upload"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.DumpsService/UploadDump", runtime.WithHTTPPathPattern("/v1/dump/Upload"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -364,7 +364,7 @@ func RegisterDumpsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.DumpsService/StartDump", runtime.WithHTTPPathPattern("/v1/dump/Dumps/Start"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.DumpsService/StartDump", runtime.WithHTTPPathPattern("/v1/dump/Start"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -385,7 +385,7 @@ func RegisterDumpsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.DumpsService/ListDumps", runtime.WithHTTPPathPattern("/v1/dump/Dumps/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.DumpsService/ListDumps", runtime.WithHTTPPathPattern("/v1/dump/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -406,7 +406,7 @@ func RegisterDumpsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.DumpsService/DeleteDump", runtime.WithHTTPPathPattern("/v1/dump/Dumps/Delete"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.DumpsService/DeleteDump", runtime.WithHTTPPathPattern("/v1/dump/Delete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -427,7 +427,7 @@ func RegisterDumpsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.DumpsService/GetDumpLogs", runtime.WithHTTPPathPattern("/v1/dump/Dumps/GetLogs"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.DumpsService/GetDumpLogs", runtime.WithHTTPPathPattern("/v1/dump/GetLogs"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -448,7 +448,7 @@ func RegisterDumpsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.DumpsService/UploadDump", runtime.WithHTTPPathPattern("/v1/dump/Dumps/Upload"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.DumpsService/UploadDump", runtime.WithHTTPPathPattern("/v1/dump/Upload"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -467,15 +467,15 @@ func RegisterDumpsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 }
 
 var (
-	pattern_DumpsService_StartDump_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "dump", "Dumps", "Start"}, ""))
+	pattern_DumpsService_StartDump_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "dump", "Start"}, ""))
 
-	pattern_DumpsService_ListDumps_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "dump", "Dumps", "List"}, ""))
+	pattern_DumpsService_ListDumps_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "dump", "List"}, ""))
 
-	pattern_DumpsService_DeleteDump_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "dump", "Dumps", "Delete"}, ""))
+	pattern_DumpsService_DeleteDump_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "dump", "Delete"}, ""))
 
-	pattern_DumpsService_GetDumpLogs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "dump", "Dumps", "GetLogs"}, ""))
+	pattern_DumpsService_GetDumpLogs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "dump", "GetLogs"}, ""))
 
-	pattern_DumpsService_UploadDump_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "dump", "Dumps", "Upload"}, ""))
+	pattern_DumpsService_UploadDump_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "dump", "Upload"}, ""))
 )
 
 var (

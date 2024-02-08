@@ -58,7 +58,7 @@ type SetDefaultRoleOK struct {
 }
 
 func (o *SetDefaultRoleOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Role/SetDefault][%d] setDefaultRoleOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/Role/SetDefault][%d] setDefaultRoleOk  %+v", 200, o.Payload)
 }
 
 func (o *SetDefaultRoleOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *SetDefaultRoleDefault) Code() int {
 }
 
 func (o *SetDefaultRoleDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Role/SetDefault][%d] SetDefaultRole default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/Role/SetDefault][%d] SetDefaultRole default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *SetDefaultRoleDefault) GetPayload() *SetDefaultRoleDefaultBody {

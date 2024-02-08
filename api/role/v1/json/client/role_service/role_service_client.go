@@ -48,7 +48,7 @@ type ClientService interface {
 /*
 AssignRoles assigns roles
 
-Assigns Roles replaces all existing Roles for a User.
+Replaces all existing Roles for a User.
 */
 func (a *Client) AssignRoles(params *AssignRolesParams, opts ...ClientOption) (*AssignRolesOK, error) {
 	// TODO: Validate the params before sending
@@ -58,7 +58,7 @@ func (a *Client) AssignRoles(params *AssignRolesParams, opts ...ClientOption) (*
 	op := &runtime.ClientOperation{
 		ID:                 "AssignRoles",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Role/Assign",
+		PathPattern:        "/v1/Role/Assign",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -97,7 +97,7 @@ func (a *Client) CreateRole(params *CreateRoleParams, opts ...ClientOption) (*Cr
 	op := &runtime.ClientOperation{
 		ID:                 "CreateRole",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Role/Create",
+		PathPattern:        "/v1/Role/Create",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -136,7 +136,7 @@ func (a *Client) DeleteRole(params *DeleteRoleParams, opts ...ClientOption) (*De
 	op := &runtime.ClientOperation{
 		ID:                 "DeleteRole",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Role/Delete",
+		PathPattern:        "/v1/Role/Delete",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -175,7 +175,7 @@ func (a *Client) GetRole(params *GetRoleParams, opts ...ClientOption) (*GetRoleO
 	op := &runtime.ClientOperation{
 		ID:                 "GetRole",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Role/Get",
+		PathPattern:        "/v1/Role/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -214,7 +214,7 @@ func (a *Client) ListRoles(params *ListRolesParams, opts ...ClientOption) (*List
 	op := &runtime.ClientOperation{
 		ID:                 "ListRoles",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Role/List",
+		PathPattern:        "/v1/Role/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -243,7 +243,7 @@ func (a *Client) ListRoles(params *ListRolesParams, opts ...ClientOption) (*List
 /*
 SetDefaultRole sets default role
 
-Configures default Role assigned to Users.
+Configures a default Role assigned to Users.
 */
 func (a *Client) SetDefaultRole(params *SetDefaultRoleParams, opts ...ClientOption) (*SetDefaultRoleOK, error) {
 	// TODO: Validate the params before sending
@@ -253,7 +253,7 @@ func (a *Client) SetDefaultRole(params *SetDefaultRoleParams, opts ...ClientOpti
 	op := &runtime.ClientOperation{
 		ID:                 "SetDefaultRole",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Role/SetDefault",
+		PathPattern:        "/v1/Role/SetDefault",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -292,7 +292,7 @@ func (a *Client) UpdateRole(params *UpdateRoleParams, opts ...ClientOption) (*Up
 	op := &runtime.ClientOperation{
 		ID:                 "UpdateRole",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Role/Update",
+		PathPattern:        "/v1/Role/Update",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

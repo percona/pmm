@@ -15,7 +15,7 @@
     "version": "v1beta1"
   },
   "paths": {
-    "/v1/dump/Dumps/Delete": {
+    "/v1/dump/Delete": {
       "post": {
         "tags": [
           "DumpsService"
@@ -82,7 +82,7 @@
         }
       }
     },
-    "/v1/dump/Dumps/GetLogs": {
+    "/v1/dump/GetLogs": {
       "post": {
         "tags": [
           "DumpsService"
@@ -181,7 +181,7 @@
         }
       }
     },
-    "/v1/dump/Dumps/List": {
+    "/v1/dump/List": {
       "post": {
         "tags": [
           "DumpsService"
@@ -287,7 +287,7 @@
         }
       }
     },
-    "/v1/dump/Dumps/Start": {
+    "/v1/dump/Start": {
       "post": {
         "tags": [
           "DumpsService"
@@ -378,7 +378,7 @@
         }
       }
     },
-    "/v1/dump/Dumps/Upload": {
+    "/v1/dump/Upload": {
       "post": {
         "tags": [
           "DumpsService"

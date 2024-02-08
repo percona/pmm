@@ -74,7 +74,7 @@ service RoleService {
   // CreateRole creates a new role.
   rpc CreateRole(CreateRoleRequest) returns (CreateRoleResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Role/Create"
+      post: "/v1/Role/Create"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -86,7 +86,7 @@ service RoleService {
   // UpdateRole creates a new role.
   rpc UpdateRole(UpdateRoleRequest) returns (UpdateRoleResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Role/Update"
+      post: "/v1/Role/Update"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -98,7 +98,7 @@ service RoleService {
   // DeleteRole creates a new role.
   rpc DeleteRole(DeleteRoleRequest) returns (DeleteRoleResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Role/Delete"
+      post: "/v1/Role/Delete"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -110,7 +110,7 @@ service RoleService {
   // GetRole retrieves a single role.
   rpc GetRole(GetRoleRequest) returns (GetRoleResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Role/Get"
+      post: "/v1/Role/Get"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -122,7 +122,7 @@ service RoleService {
   // ListRoles retrieves a roles.
   rpc ListRoles(ListRolesRequest) returns (ListRolesResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Role/List"
+      post: "/v1/Role/List"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -134,24 +134,24 @@ service RoleService {
   // AssignRoles replaces all assigned roles for a user.
   rpc AssignRoles(AssignRolesRequest) returns (AssignRolesResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Role/Assign"
+      post: "/v1/Role/Assign"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Assign Roles"
-      description: "Assigns Roles replaces all existing Roles for a User."
+      description: "Replaces all existing Roles for a User."
     };
   }
 
   // SetDefaultRole configures default role assigned to users.
   rpc SetDefaultRole(SetDefaultRoleRequest) returns (SetDefaultRoleResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Role/SetDefault"
+      post: "/v1/Role/SetDefault"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Set default Role"
-      description: "Configures default Role assigned to Users."
+      description: "Configures a default Role assigned to Users."
     };
   }
 }

@@ -58,7 +58,7 @@ type GetDumpLogsOK struct {
 }
 
 func (o *GetDumpLogsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/dump/Dumps/GetLogs][%d] getDumpLogsOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/dump/GetLogs][%d] getDumpLogsOk  %+v", 200, o.Payload)
 }
 
 func (o *GetDumpLogsOK) GetPayload() *GetDumpLogsOKBody {
@@ -100,7 +100,7 @@ func (o *GetDumpLogsDefault) Code() int {
 }
 
 func (o *GetDumpLogsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/dump/Dumps/GetLogs][%d] GetDumpLogs default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/dump/GetLogs][%d] GetDumpLogs default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetDumpLogsDefault) GetPayload() *GetDumpLogsDefaultBody {

@@ -58,7 +58,7 @@ type AssignRolesOK struct {
 }
 
 func (o *AssignRolesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Role/Assign][%d] assignRolesOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/Role/Assign][%d] assignRolesOk  %+v", 200, o.Payload)
 }
 
 func (o *AssignRolesOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *AssignRolesDefault) Code() int {
 }
 
 func (o *AssignRolesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Role/Assign][%d] AssignRoles default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/Role/Assign][%d] AssignRoles default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AssignRolesDefault) GetPayload() *AssignRolesDefaultBody {

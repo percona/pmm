@@ -10,7 +10,7 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/management/v1/role/json/client/role_service"
+	"github.com/percona/pmm/api/role/v1/json/client/role_service"
 )
 
 // Default PMM roles API HTTP client.

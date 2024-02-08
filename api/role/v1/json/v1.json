@@ -15,9 +15,9 @@
     "version": "v1beta1"
   },
   "paths": {
-    "/v1/management/Role/Assign": {
+    "/v1/Role/Assign": {
       "post": {
-        "description": "Assigns Roles replaces all existing Roles for a User.",
+        "description": "Replaces all existing Roles for a User.",
         "tags": [
           "RoleService"
         ],
@@ -89,7 +89,7 @@
         }
       }
     },
-    "/v1/management/Role/Create": {
+    "/v1/Role/Create": {
       "post": {
         "description": "Creates a new Role.",
         "tags": [
@@ -169,7 +169,7 @@
         }
       }
     },
-    "/v1/management/Role/Delete": {
+    "/v1/Role/Delete": {
       "post": {
         "description": "Deletes a Role.",
         "tags": [
@@ -241,7 +241,7 @@
         }
       }
     },
-    "/v1/management/Role/Get": {
+    "/v1/Role/Get": {
       "post": {
         "description": "Retrieves a Role by ID.",
         "tags": [
@@ -326,7 +326,7 @@
         }
       }
     },
-    "/v1/management/Role/List": {
+    "/v1/Role/List": {
       "post": {
         "description": "Lists Roles.",
         "tags": [
@@ -413,9 +413,9 @@
         }
       }
     },
-    "/v1/management/Role/SetDefault": {
+    "/v1/Role/SetDefault": {
       "post": {
-        "description": "Configures default Role assigned to Users.",
+        "description": "Configures a default Role assigned to Users.",
         "tags": [
           "RoleService"
         ],
@@ -479,7 +479,7 @@
         }
       }
     },
-    "/v1/management/Role/Update": {
+    "/v1/Role/Update": {
       "post": {
         "description": "Updates an existing Role.",
         "tags": [

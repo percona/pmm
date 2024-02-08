@@ -58,7 +58,7 @@ type UploadDumpOK struct {
 }
 
 func (o *UploadDumpOK) Error() string {
-	return fmt.Sprintf("[POST /v1/dump/Dumps/Upload][%d] uploadDumpOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/dump/Upload][%d] uploadDumpOk  %+v", 200, o.Payload)
 }
 
 func (o *UploadDumpOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *UploadDumpDefault) Code() int {
 }
 
 func (o *UploadDumpDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/dump/Dumps/Upload][%d] UploadDump default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/dump/Upload][%d] UploadDump default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *UploadDumpDefault) GetPayload() *UploadDumpDefaultBody {

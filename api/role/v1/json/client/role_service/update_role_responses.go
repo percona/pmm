@@ -58,7 +58,7 @@ type UpdateRoleOK struct {
 }
 
 func (o *UpdateRoleOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Role/Update][%d] updateRoleOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/Role/Update][%d] updateRoleOk  %+v", 200, o.Payload)
 }
 
 func (o *UpdateRoleOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *UpdateRoleDefault) Code() int {
 }
 
 func (o *UpdateRoleDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Role/Update][%d] UpdateRole default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/Role/Update][%d] UpdateRole default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *UpdateRoleDefault) GetPayload() *UpdateRoleDefaultBody {

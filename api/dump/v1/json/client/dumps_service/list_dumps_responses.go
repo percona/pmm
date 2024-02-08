@@ -60,7 +60,7 @@ type ListDumpsOK struct {
 }
 
 func (o *ListDumpsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/dump/Dumps/List][%d] listDumpsOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/dump/List][%d] listDumpsOk  %+v", 200, o.Payload)
 }
 
 func (o *ListDumpsOK) GetPayload() *ListDumpsOKBody {
@@ -102,7 +102,7 @@ func (o *ListDumpsDefault) Code() int {
 }
 
 func (o *ListDumpsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/dump/Dumps/List][%d] ListDumps default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/dump/List][%d] ListDumps default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ListDumpsDefault) GetPayload() *ListDumpsDefaultBody {
