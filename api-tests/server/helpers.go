@@ -24,8 +24,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	managementClient "github.com/percona/pmm/api/management/v1/json/client"
-	advisor "github.com/percona/pmm/api/management/v1/json/client/advisor_service"
+	advisorClient "github.com/percona/pmm/api/advisors/v1/json/client"
+	advisor "github.com/percona/pmm/api/advisors/v1/json/client/advisor_service"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
@@ -77,7 +77,7 @@ func restoreSettingsDefaults(t *testing.T) {
 func restoreCheckIntervalDefaults(t *testing.T) {
 	t.Helper()
 
-	resp, err := managementClient.Default.AdvisorService.ListAdvisorChecks(nil)
+	resp, err := advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
 	require.NoError(t, err)
 	require.NotEmpty(t, resp.Payload.Checks)
 
@@ -96,7 +96,7 @@ func restoreCheckIntervalDefaults(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 
-		_, err = managementClient.Default.AdvisorService.ChangeAdvisorChecks(params)
+		_, err = advisorClient.Default.AdvisorService.ChangeAdvisorChecks(params)
 		require.NoError(t, err)
 	}
 }

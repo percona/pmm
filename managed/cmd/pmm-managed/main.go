@@ -59,6 +59,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	advisorsv1 "github.com/percona/pmm/api/advisors/v1"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	alertingpb "github.com/percona/pmm/api/alerting/v1"
 	backuppb "github.com/percona/pmm/api/backup/v1"
@@ -286,7 +287,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementv1.RegisterHAProxyServiceServer(gRPCServer, management.NewHAProxyService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
 	managementv1.RegisterExternalServiceServer(gRPCServer, management.NewExternalService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
 	managementv1.RegisterAnnotationServiceServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
-	managementv1.RegisterAdvisorServiceServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
+	advisorsv1.RegisterAdvisorServiceServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
 
 	rolev1beta1.RegisterRoleServiceServer(gRPCServer, management.NewRoleService(deps.db))
 
@@ -391,7 +392,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		managementv1.RegisterHAProxyServiceHandlerFromEndpoint,
 		managementv1.RegisterExternalServiceHandlerFromEndpoint,
 		managementv1.RegisterAnnotationServiceHandlerFromEndpoint,
-		managementv1.RegisterAdvisorServiceHandlerFromEndpoint,
+		advisorsv1.RegisterAdvisorServiceHandlerFromEndpoint,
 		rolev1beta1.RegisterRoleServiceHandlerFromEndpoint,
 
 		alertingpb.RegisterAlertingServiceHandlerFromEndpoint,

@@ -60,7 +60,7 @@ type GetFailedChecksOK struct {
 }
 
 func (o *GetFailedChecksOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Advisors/FailedChecks][%d] getFailedChecksOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/advisors/FailedChecks][%d] getFailedChecksOk  %+v", 200, o.Payload)
 }
 
 func (o *GetFailedChecksOK) GetPayload() *GetFailedChecksOKBody {
@@ -102,7 +102,7 @@ func (o *GetFailedChecksDefault) Code() int {
 }
 
 func (o *GetFailedChecksDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Advisors/FailedChecks][%d] GetFailedChecks default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/advisors/FailedChecks][%d] GetFailedChecks default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetFailedChecksDefault) GetPayload() *GetFailedChecksDefaultBody {

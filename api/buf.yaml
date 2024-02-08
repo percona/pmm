@@ -14,7 +14,6 @@ lint:
       - management/v1/agent/agent.proto
       - management/v1/azure/azure.proto
       - management/v1/node/node.proto
-      - management/v1/role/role.proto
       - management/v1/service/service.proto
     PACKAGE_VERSION_SUFFIX:
       - common/common.proto # We don't want to version this file

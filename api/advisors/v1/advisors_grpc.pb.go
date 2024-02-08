@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: management/v1/checks.proto
+// source: advisors/v1/advisors.proto
 
-package managementv1
+package advisorsv1
 
 import (
 	context "context"
@@ -20,12 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AdvisorService_ListFailedServices_FullMethodName  = "/management.v1.AdvisorService/ListFailedServices"
-	AdvisorService_GetFailedChecks_FullMethodName     = "/management.v1.AdvisorService/GetFailedChecks"
-	AdvisorService_StartAdvisorChecks_FullMethodName  = "/management.v1.AdvisorService/StartAdvisorChecks"
-	AdvisorService_ListAdvisorChecks_FullMethodName   = "/management.v1.AdvisorService/ListAdvisorChecks"
-	AdvisorService_ListAdvisors_FullMethodName        = "/management.v1.AdvisorService/ListAdvisors"
-	AdvisorService_ChangeAdvisorChecks_FullMethodName = "/management.v1.AdvisorService/ChangeAdvisorChecks"
+	AdvisorService_ListFailedServices_FullMethodName  = "/advisors.v1.AdvisorService/ListFailedServices"
+	AdvisorService_GetFailedChecks_FullMethodName     = "/advisors.v1.AdvisorService/GetFailedChecks"
+	AdvisorService_StartAdvisorChecks_FullMethodName  = "/advisors.v1.AdvisorService/StartAdvisorChecks"
+	AdvisorService_ListAdvisorChecks_FullMethodName   = "/advisors.v1.AdvisorService/ListAdvisorChecks"
+	AdvisorService_ListAdvisors_FullMethodName        = "/advisors.v1.AdvisorService/ListAdvisors"
+	AdvisorService_ChangeAdvisorChecks_FullMethodName = "/advisors.v1.AdvisorService/ChangeAdvisorChecks"
 )
 
 // AdvisorServiceClient is the client API for AdvisorService service.
@@ -42,7 +42,7 @@ type AdvisorServiceClient interface {
 	ListAdvisorChecks(ctx context.Context, in *ListAdvisorChecksRequest, opts ...grpc.CallOption) (*ListAdvisorChecksResponse, error)
 	// ListAdvisors returns a list of advisors available for the user.
 	ListAdvisors(ctx context.Context, in *ListAdvisorsRequest, opts ...grpc.CallOption) (*ListAdvisorsResponse, error)
-	// ChangeAdvisorChecks enables/disables Advisor checks or changes their interval by names.
+	// ChangeAdvisorChecks enables/disables Advisor checks or changes their exec interval.
 	ChangeAdvisorChecks(ctx context.Context, in *ChangeAdvisorChecksRequest, opts ...grpc.CallOption) (*ChangeAdvisorChecksResponse, error)
 }
 
@@ -122,7 +122,7 @@ type AdvisorServiceServer interface {
 	ListAdvisorChecks(context.Context, *ListAdvisorChecksRequest) (*ListAdvisorChecksResponse, error)
 	// ListAdvisors returns a list of advisors available for the user.
 	ListAdvisors(context.Context, *ListAdvisorsRequest) (*ListAdvisorsResponse, error)
-	// ChangeAdvisorChecks enables/disables Advisor checks or changes their interval by names.
+	// ChangeAdvisorChecks enables/disables Advisor checks or changes their exec interval.
 	ChangeAdvisorChecks(context.Context, *ChangeAdvisorChecksRequest) (*ChangeAdvisorChecksResponse, error)
 	mustEmbedUnimplementedAdvisorServiceServer()
 }
@@ -278,7 +278,7 @@ func _AdvisorService_ChangeAdvisorChecks_Handler(srv interface{}, ctx context.Co
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AdvisorService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.v1.AdvisorService",
+	ServiceName: "advisors.v1.AdvisorService",
 	HandlerType: (*AdvisorServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -307,5 +307,5 @@ var AdvisorService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "management/v1/checks.proto",
+	Metadata: "advisors/v1/advisors.proto",
 }

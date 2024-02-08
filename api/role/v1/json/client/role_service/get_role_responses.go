@@ -58,7 +58,7 @@ type GetRoleOK struct {
 }
 
 func (o *GetRoleOK) Error() string {
-	return fmt.Sprintf("[POST /v1/Role/Get][%d] getRoleOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/role/Get][%d] getRoleOk  %+v", 200, o.Payload)
 }
 
 func (o *GetRoleOK) GetPayload() *GetRoleOKBody {
@@ -100,7 +100,7 @@ func (o *GetRoleDefault) Code() int {
 }
 
 func (o *GetRoleDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/Role/Get][%d] GetRole default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/role/Get][%d] GetRole default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetRoleDefault) GetPayload() *GetRoleDefaultBody {

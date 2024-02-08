@@ -46,7 +46,7 @@ type ClientService interface {
 /*
 ChangeAdvisorChecks changes advisor checks
 
-Enables/disables Advisor checks or changes their interval by names.
+Enables/disables advisor checks or changes their exec interval.
 */
 func (a *Client) ChangeAdvisorChecks(params *ChangeAdvisorChecksParams, opts ...ClientOption) (*ChangeAdvisorChecksOK, error) {
 	// TODO: Validate the params before sending
@@ -56,7 +56,7 @@ func (a *Client) ChangeAdvisorChecks(params *ChangeAdvisorChecksParams, opts ...
 	op := &runtime.ClientOperation{
 		ID:                 "ChangeAdvisorChecks",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Advisors/Change",
+		PathPattern:        "/v1/advisors/Change",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -95,7 +95,7 @@ func (a *Client) GetFailedChecks(params *GetFailedChecksParams, opts ...ClientOp
 	op := &runtime.ClientOperation{
 		ID:                 "GetFailedChecks",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Advisors/FailedChecks",
+		PathPattern:        "/v1/advisors/FailedChecks",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -124,7 +124,7 @@ func (a *Client) GetFailedChecks(params *GetFailedChecksParams, opts ...ClientOp
 /*
 ListAdvisorChecks lists advisor checks
 
-Returns a list of checks available to the user.
+List advisor checks available to the user.
 */
 func (a *Client) ListAdvisorChecks(params *ListAdvisorChecksParams, opts ...ClientOption) (*ListAdvisorChecksOK, error) {
 	// TODO: Validate the params before sending
@@ -134,7 +134,7 @@ func (a *Client) ListAdvisorChecks(params *ListAdvisorChecksParams, opts ...Clie
 	op := &runtime.ClientOperation{
 		ID:                 "ListAdvisorChecks",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Advisors/ListChecks",
+		PathPattern:        "/v1/advisors/ListChecks",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -163,7 +163,7 @@ func (a *Client) ListAdvisorChecks(params *ListAdvisorChecksParams, opts ...Clie
 /*
 ListAdvisors lists advisors
 
-Returns a list of advisors available to the user.
+List advisors available to the user.
 */
 func (a *Client) ListAdvisors(params *ListAdvisorsParams, opts ...ClientOption) (*ListAdvisorsOK, error) {
 	// TODO: Validate the params before sending
@@ -173,7 +173,7 @@ func (a *Client) ListAdvisors(params *ListAdvisorsParams, opts ...ClientOption) 
 	op := &runtime.ClientOperation{
 		ID:                 "ListAdvisors",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Advisors/List",
+		PathPattern:        "/v1/advisors/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -212,7 +212,7 @@ func (a *Client) ListFailedServices(params *ListFailedServicesParams, opts ...Cl
 	op := &runtime.ClientOperation{
 		ID:                 "ListFailedServices",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Advisors/ListFailedServices",
+		PathPattern:        "/v1/advisors/ListFailedServices",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -251,7 +251,7 @@ func (a *Client) StartAdvisorChecks(params *StartAdvisorChecksParams, opts ...Cl
 	op := &runtime.ClientOperation{
 		ID:                 "StartAdvisorChecks",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Advisors/StartChecks",
+		PathPattern:        "/v1/advisors/StartChecks",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

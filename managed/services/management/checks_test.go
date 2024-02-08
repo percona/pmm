@@ -29,6 +29,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	advisorsv1 "github.com/percona/pmm/api/advisors/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -41,7 +42,7 @@ func TestStartAdvisorChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.StartAdvisorChecks(context.Background(), &managementv1.StartAdvisorChecksRequest{})
+		resp, err := s.StartAdvisorChecks(context.Background(), &advisorsv1.StartAdvisorChecksRequest{})
 		assert.EqualError(t, err, "failed to start advisor checks: random error")
 		assert.Nil(t, resp)
 	})
@@ -52,7 +53,7 @@ func TestStartAdvisorChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.StartAdvisorChecks(context.Background(), &managementv1.StartAdvisorChecksRequest{})
+		resp, err := s.StartAdvisorChecks(context.Background(), &advisorsv1.StartAdvisorChecksRequest{})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Advisor checks are disabled."), err)
 		assert.Nil(t, resp)
 	})
@@ -70,7 +71,7 @@ func TestGetFailedChecks(t *testing.T) {
 		s := NewChecksAPIService(&checksService)
 		serviceID := "test_svc"
 
-		resp, err := s.GetFailedChecks(context.Background(), &managementv1.GetFailedChecksRequest{
+		resp, err := s.GetFailedChecks(context.Background(), &advisorsv1.GetFailedChecksRequest{
 			ServiceId: serviceID,
 		})
 		assert.EqualError(t, err, fmt.Sprintf("failed to get check results for service '%s': random error", serviceID))
@@ -85,7 +86,7 @@ func TestGetFailedChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.GetFailedChecks(context.Background(), &managementv1.GetFailedChecksRequest{
+		resp, err := s.GetFailedChecks(context.Background(), &advisorsv1.GetFailedChecksRequest{
 			ServiceId: "test_svc",
 		})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Advisor checks are disabled."), err)
@@ -108,8 +109,8 @@ func TestGetFailedChecks(t *testing.T) {
 				CheckName: "test_check",
 			},
 		}
-		response := &managementv1.GetFailedChecksResponse{
-			Results: []*managementv1.CheckResult{
+		response := &advisorsv1.GetFailedChecksResponse{
+			Results: []*advisorsv1.CheckResult{
 				{
 					Summary:     "Check summary",
 					Description: "Check Description",
@@ -131,7 +132,7 @@ func TestGetFailedChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.GetFailedChecks(context.Background(), &managementv1.GetFailedChecksRequest{
+		resp, err := s.GetFailedChecks(context.Background(), &advisorsv1.GetFailedChecksRequest{
 			ServiceId: "test_svc",
 		})
 		require.NoError(t, err)
@@ -176,8 +177,8 @@ func TestGetFailedChecks(t *testing.T) {
 				CheckName: "test_check3",
 			},
 		}
-		response := &managementv1.GetFailedChecksResponse{
-			Results: []*managementv1.CheckResult{
+		response := &advisorsv1.GetFailedChecksResponse{
+			Results: []*advisorsv1.CheckResult{
 				{
 					Summary:     "Check summary 2",
 					Description: "Check Description 2",
@@ -199,7 +200,7 @@ func TestGetFailedChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.GetFailedChecks(context.Background(), &managementv1.GetFailedChecksRequest{
+		resp, err := s.GetFailedChecks(context.Background(), &advisorsv1.GetFailedChecksRequest{
 			ServiceId: "test_svc",
 			PageParams: &managementv1.PageParams{
 				PageSize: 1,
@@ -222,7 +223,7 @@ func TestListFailedServices(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListFailedServices(context.Background(), &managementv1.ListFailedServicesRequest{})
+		resp, err := s.ListFailedServices(context.Background(), &advisorsv1.ListFailedServicesRequest{})
 		assert.EqualError(t, err, "failed to get check results: random error")
 		assert.Nil(t, resp)
 	})
@@ -276,8 +277,8 @@ func TestListFailedServices(t *testing.T) {
 				CheckName: "test_check",
 			},
 		}
-		response := &managementv1.ListFailedServicesResponse{
-			Result: []*managementv1.CheckResultSummary{
+		response := &advisorsv1.ListFailedServicesResponse{
+			Result: []*advisorsv1.CheckResultSummary{
 				{
 					ServiceName:    "svc1",
 					ServiceId:      "test_svc1",
@@ -297,7 +298,7 @@ func TestListFailedServices(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListFailedServices(context.Background(), &managementv1.ListFailedServicesRequest{})
+		resp, err := s.ListFailedServices(context.Background(), &advisorsv1.ListFailedServicesRequest{})
 		require.NoError(t, err)
 		assert.ElementsMatch(t, resp.Result, response.Result)
 	})
@@ -322,11 +323,11 @@ func TestListAdvisorChecks(t *testing.T) {
 		require.NotNil(t, resp)
 
 		assert.ElementsMatch(t, resp.Checks,
-			[]*managementv1.AdvisorCheck{
-				{Name: "one", Enabled: true, Interval: managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD},
-				{Name: "two", Enabled: false, Interval: managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT},
-				{Name: "three", Enabled: true, Interval: managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE},
-				{Name: "four", Enabled: true, Interval: managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD},
+			[]*advisorsv1.AdvisorCheck{
+				{Name: "one", Enabled: true, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD},
+				{Name: "two", Enabled: false, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT},
+				{Name: "three", Enabled: true, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE},
+				{Name: "four", Enabled: true, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD},
 			},
 		)
 	})
@@ -350,7 +351,7 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeAdvisorChecks(context.Background(), &managementv1.ChangeAdvisorChecksRequest{})
+		resp, err := s.ChangeAdvisorChecks(context.Background(), &advisorsv1.ChangeAdvisorChecksRequest{})
 		assert.EqualError(t, err, "failed to enable disabled advisor checks: random error")
 		assert.Nil(t, resp)
 	})
@@ -362,7 +363,7 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeAdvisorChecks(context.Background(), &managementv1.ChangeAdvisorChecksRequest{})
+		resp, err := s.ChangeAdvisorChecks(context.Background(), &advisorsv1.ChangeAdvisorChecksRequest{})
 		assert.EqualError(t, err, "failed to disable advisor checks: random error")
 		assert.Nil(t, resp)
 	})
@@ -373,10 +374,10 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeAdvisorChecks(context.Background(), &managementv1.ChangeAdvisorChecksRequest{
-			Params: []*managementv1.ChangeAdvisorCheckParams{{
+		resp, err := s.ChangeAdvisorChecks(context.Background(), &advisorsv1.ChangeAdvisorChecksRequest{
+			Params: []*advisorsv1.ChangeAdvisorCheckParams{{
 				Name:     "check-name",
-				Interval: managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD,
+				Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD,
 			}},
 		})
 		assert.EqualError(t, err, "failed to change advisor check interval: random error")
@@ -391,14 +392,14 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeAdvisorChecks(context.Background(), &managementv1.ChangeAdvisorChecksRequest{
-			Params: []*managementv1.ChangeAdvisorCheckParams{{
+		resp, err := s.ChangeAdvisorChecks(context.Background(), &advisorsv1.ChangeAdvisorChecksRequest{
+			Params: []*advisorsv1.ChangeAdvisorCheckParams{{
 				Name:     "check-name",
-				Interval: managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED,
+				Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED,
 			}},
 		})
 		require.NoError(t, err)
-		assert.Equal(t, &managementv1.ChangeAdvisorChecksResponse{}, resp)
+		assert.Equal(t, &advisorsv1.ChangeAdvisorChecksResponse{}, resp)
 	})
 }
 

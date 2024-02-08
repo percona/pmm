@@ -270,7 +270,7 @@ func RegisterRoleServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.RoleService/CreateRole", runtime.WithHTTPPathPattern("/v1/Role/Create"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.RoleService/CreateRole", runtime.WithHTTPPathPattern("/v1/role/Create"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -294,7 +294,7 @@ func RegisterRoleServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.RoleService/UpdateRole", runtime.WithHTTPPathPattern("/v1/Role/Update"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.RoleService/UpdateRole", runtime.WithHTTPPathPattern("/v1/role/Update"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -318,7 +318,7 @@ func RegisterRoleServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.RoleService/DeleteRole", runtime.WithHTTPPathPattern("/v1/Role/Delete"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.RoleService/DeleteRole", runtime.WithHTTPPathPattern("/v1/role/Delete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -342,7 +342,7 @@ func RegisterRoleServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.RoleService/GetRole", runtime.WithHTTPPathPattern("/v1/Role/Get"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.RoleService/GetRole", runtime.WithHTTPPathPattern("/v1/role/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -366,7 +366,7 @@ func RegisterRoleServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.RoleService/ListRoles", runtime.WithHTTPPathPattern("/v1/Role/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.RoleService/ListRoles", runtime.WithHTTPPathPattern("/v1/role/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -390,7 +390,7 @@ func RegisterRoleServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.RoleService/AssignRoles", runtime.WithHTTPPathPattern("/v1/Role/Assign"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.RoleService/AssignRoles", runtime.WithHTTPPathPattern("/v1/role/Assign"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -414,7 +414,7 @@ func RegisterRoleServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.RoleService/SetDefaultRole", runtime.WithHTTPPathPattern("/v1/Role/SetDefault"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.RoleService/SetDefaultRole", runtime.WithHTTPPathPattern("/v1/role/SetDefault"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -476,7 +476,7 @@ func RegisterRoleServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.RoleService/CreateRole", runtime.WithHTTPPathPattern("/v1/Role/Create"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.RoleService/CreateRole", runtime.WithHTTPPathPattern("/v1/role/Create"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -497,7 +497,7 @@ func RegisterRoleServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.RoleService/UpdateRole", runtime.WithHTTPPathPattern("/v1/Role/Update"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.RoleService/UpdateRole", runtime.WithHTTPPathPattern("/v1/role/Update"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -518,7 +518,7 @@ func RegisterRoleServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.RoleService/DeleteRole", runtime.WithHTTPPathPattern("/v1/Role/Delete"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.RoleService/DeleteRole", runtime.WithHTTPPathPattern("/v1/role/Delete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -539,7 +539,7 @@ func RegisterRoleServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.RoleService/GetRole", runtime.WithHTTPPathPattern("/v1/Role/Get"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.RoleService/GetRole", runtime.WithHTTPPathPattern("/v1/role/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -560,7 +560,7 @@ func RegisterRoleServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.RoleService/ListRoles", runtime.WithHTTPPathPattern("/v1/Role/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.RoleService/ListRoles", runtime.WithHTTPPathPattern("/v1/role/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -581,7 +581,7 @@ func RegisterRoleServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.RoleService/AssignRoles", runtime.WithHTTPPathPattern("/v1/Role/Assign"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.RoleService/AssignRoles", runtime.WithHTTPPathPattern("/v1/role/Assign"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -602,7 +602,7 @@ func RegisterRoleServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.RoleService/SetDefaultRole", runtime.WithHTTPPathPattern("/v1/Role/SetDefault"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.RoleService/SetDefaultRole", runtime.WithHTTPPathPattern("/v1/role/SetDefault"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -621,19 +621,19 @@ func RegisterRoleServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 }
 
 var (
-	pattern_RoleService_CreateRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Role", "Create"}, ""))
+	pattern_RoleService_CreateRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "role", "Create"}, ""))
 
-	pattern_RoleService_UpdateRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Role", "Update"}, ""))
+	pattern_RoleService_UpdateRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "role", "Update"}, ""))
 
-	pattern_RoleService_DeleteRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Role", "Delete"}, ""))
+	pattern_RoleService_DeleteRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "role", "Delete"}, ""))
 
-	pattern_RoleService_GetRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Role", "Get"}, ""))
+	pattern_RoleService_GetRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "role", "Get"}, ""))
 
-	pattern_RoleService_ListRoles_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Role", "List"}, ""))
+	pattern_RoleService_ListRoles_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "role", "List"}, ""))
 
-	pattern_RoleService_AssignRoles_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Role", "Assign"}, ""))
+	pattern_RoleService_AssignRoles_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "role", "Assign"}, ""))
 
-	pattern_RoleService_SetDefaultRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Role", "SetDefault"}, ""))
+	pattern_RoleService_SetDefaultRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "role", "SetDefault"}, ""))
 )
 
 var (

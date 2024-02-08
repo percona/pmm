@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package management.v1;
+package advisors.v1;
 
 import "google/api/annotations.proto";
 import "management/v1/pagination.proto";
@@ -26,7 +26,7 @@ enum AdvisorCheckFamily {
 message AdvisorCheckResult {
   string summary = 1;
   string description = 2;
-  Severity severity = 3;
+  management.v1.Severity severity = 3;
   map<string, string> labels = 4;
   // URL containing information on how to resolve an issue detected by an Advisor check.
   string read_more_url = 5;
@@ -60,7 +60,7 @@ message CheckResultSummary {
 message CheckResult {
   string summary = 1;
   string description = 2;
-  Severity severity = 3;
+  management.v1.Severity severity = 3;
   map<string, string> labels = 4;
   // URL containing information on how to resolve an issue detected by an Advisor check.
   string read_more_url = 5;
@@ -147,12 +147,12 @@ message ListFailedServicesResponse {
 
 message GetFailedChecksRequest {
   string service_id = 1;
-  PageParams page_params = 2;
+  management.v1.PageParams page_params = 2;
 }
 
 message GetFailedChecksResponse {
   repeated CheckResult results = 1;
-  PageTotals page_totals = 2;
+  management.v1.PageTotals page_totals = 2;
 }
 
 // AdvisorService service provides public Management API methods for Advisor Service.
@@ -160,7 +160,7 @@ service AdvisorService {
   // ListFailedServices returns a list of services with failed checks.
   rpc ListFailedServices(ListFailedServicesRequest) returns (ListFailedServicesResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Advisors/ListFailedServices"
+      post: "/v1/advisors/ListFailedServices"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -171,7 +171,7 @@ service AdvisorService {
   // GetFailedChecks returns the checks result for a given service.
   rpc GetFailedChecks(GetFailedChecksRequest) returns (GetFailedChecksResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Advisors/FailedChecks"
+      post: "/v1/advisors/FailedChecks"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -182,7 +182,7 @@ service AdvisorService {
   // StartAdvisorChecks executes Advisor checks and returns when all checks are executed.
   rpc StartAdvisorChecks(StartAdvisorChecksRequest) returns (StartAdvisorChecksResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Advisors/StartChecks"
+      post: "/v1/advisors/StartChecks"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -193,34 +193,34 @@ service AdvisorService {
   // ListAdvisorChecks returns a list of advisor checks available to the user..
   rpc ListAdvisorChecks(ListAdvisorChecksRequest) returns (ListAdvisorChecksResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Advisors/ListChecks"
+      post: "/v1/advisors/ListChecks"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List advisor checks"
-      description: "Returns a list of checks available to the user."
+      description: "List advisor checks available to the user."
     };
   }
   // ListAdvisors returns a list of advisors available for the user.
   rpc ListAdvisors(ListAdvisorsRequest) returns (ListAdvisorsResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Advisors/List"
+      post: "/v1/advisors/List"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List advisors"
-      description: "Returns a list of advisors available to the user."
+      description: "List advisors available to the user."
     };
   }
-  // ChangeAdvisorChecks enables/disables Advisor checks or changes their interval by names.
+  // ChangeAdvisorChecks enables/disables Advisor checks or changes their exec interval.
   rpc ChangeAdvisorChecks(ChangeAdvisorChecksRequest) returns (ChangeAdvisorChecksResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Advisors/Change"
+      post: "/v1/advisors/Change"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change Advisor Checks"
-      description: "Enables/disables Advisor checks or changes their interval by names."
+      description: "Enables/disables advisor checks or changes their exec interval."
     };
   }
 }

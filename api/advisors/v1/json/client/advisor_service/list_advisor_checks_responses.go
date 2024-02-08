@@ -60,7 +60,7 @@ type ListAdvisorChecksOK struct {
 }
 
 func (o *ListAdvisorChecksOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Advisors/ListChecks][%d] listAdvisorChecksOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/advisors/ListChecks][%d] listAdvisorChecksOk  %+v", 200, o.Payload)
 }
 
 func (o *ListAdvisorChecksOK) GetPayload() *ListAdvisorChecksOKBody {
@@ -102,7 +102,7 @@ func (o *ListAdvisorChecksDefault) Code() int {
 }
 
 func (o *ListAdvisorChecksDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Advisors/ListChecks][%d] ListAdvisorChecks default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/advisors/ListChecks][%d] ListAdvisorChecks default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ListAdvisorChecksDefault) GetPayload() *ListAdvisorChecksDefaultBody {

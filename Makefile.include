@@ -48,7 +48,7 @@ gen-api:            ## Generate PMM API
 
 	bin/buf generate -v api
 
-	for API in api/agentlocal/v1 api/server/v1 api/inventory/v1 api/management/v1 api/alerting/v1 api/backup/v1 api/dump/v1 api/management/v1/azure api/role/v1 api/qan/v1beta1 api/management/v1/agent api/management/v1/node api/management/v1/service api/platform/v1 api/user/v1; do \
+	for API in api/agentlocal/v1 api/server/v1 api/inventory/v1 api/management/v1 api/advisors/v1 api/alerting/v1 api/backup/v1 api/dump/v1 api/management/v1/azure api/role/v1 api/qan/v1beta1 api/management/v1/agent api/management/v1/node api/management/v1/service api/platform/v1 api/user/v1; do \
 		set -x ; \
 		bin/swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$(basename $$API).json --keep-spec-order; \
 		bin/swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$(basename $$API).json --output=$$API/json/$$(basename $$API).json ; \
@@ -75,6 +75,7 @@ gen-api:            ## Generate PMM API
 		api/user/v1/json/v1.json \
 		api/management/v1/json/v1.json \
 		api/backup/v1/json/v1.json \
+		api/advisors/v1/json/v1.json \
 		api/alerting/v1/json/v1.json
 	bin/swagger validate api/swagger/swagger.json
 
@@ -88,6 +89,7 @@ gen-api:            ## Generate PMM API
 		api/inventory/v1/json/v1.json \
 		api/management/v1/json/v1.json \
 		api/alerting/v1/json/v1.json \
+		api/advisors/v1/json/v1.json \
 		api/backup/v1/json/v1.json \
 		api/dump/v1/json/v1.json \
 		api/management/v1/azure/json/azure.json \
@@ -124,7 +126,7 @@ clean: clean_swagger  ## Remove generated files
 	find api -name '*.pb.gw.go' -print -delete
 	find api -name '*.validate.go' -print -delete
 
-	for API in api/agentlocal/v1 api/server/v1 api/inventory/v1 api/management/v1 api/alerting/v1 api/backup/v1 api/dump/v1 api/role/v1 api/management/v1/agent api/management/v1/node api/management/v1/service api/qan/v1beta1 api/platform/v1 ; do \
+	for API in api/agentlocal/v1 api/server/v1 api/inventory/v1 api/management/v1 api/alerting/v1 api/advisors/v1 api/backup/v1 api/dump/v1 api/role/v1 api/management/v1/agent api/management/v1/node api/management/v1/service api/qan/v1beta1 api/platform/v1 ; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$(basename $$API).json ; \
 	done
 	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json

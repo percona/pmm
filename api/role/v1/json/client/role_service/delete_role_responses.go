@@ -58,7 +58,7 @@ type DeleteRoleOK struct {
 }
 
 func (o *DeleteRoleOK) Error() string {
-	return fmt.Sprintf("[POST /v1/Role/Delete][%d] deleteRoleOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/role/Delete][%d] deleteRoleOk  %+v", 200, o.Payload)
 }
 
 func (o *DeleteRoleOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *DeleteRoleDefault) Code() int {
 }
 
 func (o *DeleteRoleDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/Role/Delete][%d] DeleteRole default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/role/Delete][%d] DeleteRole default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *DeleteRoleDefault) GetPayload() *DeleteRoleDefaultBody {

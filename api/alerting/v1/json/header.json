@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "PMM Alerting API",
-    "version": "v1beta1"
+    "version": "v1"
   },
   "schemes": [
     "https",
