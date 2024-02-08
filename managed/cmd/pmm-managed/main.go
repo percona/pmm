@@ -286,7 +286,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementv1.RegisterHAProxyServiceServer(gRPCServer, management.NewHAProxyService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
 	managementv1.RegisterExternalServiceServer(gRPCServer, management.NewExternalService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
 	managementv1.RegisterAnnotationServiceServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
-	managementv1.RegisterSecurityChecksServiceServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
+	managementv1.RegisterAdvisorServiceServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
 
 	rolev1beta1.RegisterRoleServiceServer(gRPCServer, management.NewRoleService(deps.db))
 
@@ -391,7 +391,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		managementv1.RegisterHAProxyServiceHandlerFromEndpoint,
 		managementv1.RegisterExternalServiceHandlerFromEndpoint,
 		managementv1.RegisterAnnotationServiceHandlerFromEndpoint,
-		managementv1.RegisterSecurityChecksServiceHandlerFromEndpoint,
+		managementv1.RegisterAdvisorServiceHandlerFromEndpoint,
 		rolev1beta1.RegisterRoleServiceHandlerFromEndpoint,
 
 		alertingpb.RegisterAlertingServiceHandlerFromEndpoint,

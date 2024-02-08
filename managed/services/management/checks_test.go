@@ -34,15 +34,15 @@ import (
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
-func TestStartSecurityChecks(t *testing.T) {
+func TestStartAdvisorChecks(t *testing.T) {
 	t.Run("internal error", func(t *testing.T) {
 		var checksService mockChecksService
 		checksService.On("StartChecks", []string(nil)).Return(errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.StartSecurityChecks(context.Background(), &managementv1.StartSecurityChecksRequest{})
-		assert.EqualError(t, err, "failed to start security checks: random error")
+		resp, err := s.StartAdvisorChecks(context.Background(), &managementv1.StartAdvisorChecksRequest{})
+		assert.EqualError(t, err, "failed to start advisor checks: random error")
 		assert.Nil(t, resp)
 	})
 
@@ -52,7 +52,7 @@ func TestStartSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.StartSecurityChecks(context.Background(), &managementv1.StartSecurityChecksRequest{})
+		resp, err := s.StartAdvisorChecks(context.Background(), &managementv1.StartAdvisorChecksRequest{})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Advisor checks are disabled."), err)
 		assert.Nil(t, resp)
 	})
@@ -303,7 +303,7 @@ func TestListFailedServices(t *testing.T) {
 	})
 }
 
-func TestListSecurityChecks(t *testing.T) {
+func TestListAdvisorChecks(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
 		var checksService mockChecksService
 		checksService.On("GetDisabledChecks", mock.Anything).Return([]string{"two"}, nil)
@@ -317,16 +317,16 @@ func TestListSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListSecurityChecks(context.Background(), nil)
+		resp, err := s.ListAdvisorChecks(context.Background(), nil)
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 
 		assert.ElementsMatch(t, resp.Checks,
-			[]*managementv1.SecurityCheck{
-				{Name: "one", Enabled: true, Interval: managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_STANDARD},
-				{Name: "two", Enabled: false, Interval: managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_FREQUENT},
-				{Name: "three", Enabled: true, Interval: managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_RARE},
-				{Name: "four", Enabled: true, Interval: managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_STANDARD},
+			[]*managementv1.AdvisorCheck{
+				{Name: "one", Enabled: true, Interval: managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD},
+				{Name: "two", Enabled: false, Interval: managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT},
+				{Name: "three", Enabled: true, Interval: managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE},
+				{Name: "four", Enabled: true, Interval: managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD},
 			},
 		)
 	})
@@ -337,33 +337,33 @@ func TestListSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListSecurityChecks(context.Background(), nil)
+		resp, err := s.ListAdvisorChecks(context.Background(), nil)
 		assert.EqualError(t, err, "failed to get disabled checks list: random error")
 		assert.Nil(t, resp)
 	})
 }
 
-func TestUpdateSecurityChecks(t *testing.T) {
-	t.Run("enable security checks error", func(t *testing.T) {
+func TestUpdateAdvisorChecks(t *testing.T) {
+	t.Run("enable advisor checks error", func(t *testing.T) {
 		var checksService mockChecksService
 		checksService.On("EnableChecks", mock.Anything).Return(errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeSecurityChecks(context.Background(), &managementv1.ChangeSecurityChecksRequest{})
-		assert.EqualError(t, err, "failed to enable disabled security checks: random error")
+		resp, err := s.ChangeAdvisorChecks(context.Background(), &managementv1.ChangeAdvisorChecksRequest{})
+		assert.EqualError(t, err, "failed to enable disabled advisor checks: random error")
 		assert.Nil(t, resp)
 	})
 
-	t.Run("disable security checks error", func(t *testing.T) {
+	t.Run("disable advisor checks error", func(t *testing.T) {
 		var checksService mockChecksService
 		checksService.On("EnableChecks", mock.Anything).Return(nil)
 		checksService.On("DisableChecks", mock.Anything).Return(errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeSecurityChecks(context.Background(), &managementv1.ChangeSecurityChecksRequest{})
-		assert.EqualError(t, err, "failed to disable security checks: random error")
+		resp, err := s.ChangeAdvisorChecks(context.Background(), &managementv1.ChangeAdvisorChecksRequest{})
+		assert.EqualError(t, err, "failed to disable advisor checks: random error")
 		assert.Nil(t, resp)
 	})
 
@@ -373,13 +373,13 @@ func TestUpdateSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeSecurityChecks(context.Background(), &managementv1.ChangeSecurityChecksRequest{
-			Params: []*managementv1.ChangeSecurityCheckParams{{
+		resp, err := s.ChangeAdvisorChecks(context.Background(), &managementv1.ChangeAdvisorChecksRequest{
+			Params: []*managementv1.ChangeAdvisorCheckParams{{
 				Name:     "check-name",
-				Interval: managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_STANDARD,
+				Interval: managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD,
 			}},
 		})
-		assert.EqualError(t, err, "failed to change security check interval: random error")
+		assert.EqualError(t, err, "failed to change advisor check interval: random error")
 		assert.Nil(t, resp)
 	})
 
@@ -391,14 +391,14 @@ func TestUpdateSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeSecurityChecks(context.Background(), &managementv1.ChangeSecurityChecksRequest{
-			Params: []*managementv1.ChangeSecurityCheckParams{{
+		resp, err := s.ChangeAdvisorChecks(context.Background(), &managementv1.ChangeAdvisorChecksRequest{
+			Params: []*managementv1.ChangeAdvisorCheckParams{{
 				Name:     "check-name",
-				Interval: managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_STANDARD,
+				Interval: managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED,
 			}},
 		})
 		require.NoError(t, err)
-		assert.Equal(t, &managementv1.ChangeSecurityChecksResponse{}, resp)
+		assert.Equal(t, &managementv1.ChangeAdvisorChecksResponse{}, resp)
 	})
 }
 

@@ -20,290 +20,290 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	SecurityChecksService_ListFailedServices_FullMethodName   = "/management.v1.SecurityChecksService/ListFailedServices"
-	SecurityChecksService_GetFailedChecks_FullMethodName      = "/management.v1.SecurityChecksService/GetFailedChecks"
-	SecurityChecksService_StartSecurityChecks_FullMethodName  = "/management.v1.SecurityChecksService/StartSecurityChecks"
-	SecurityChecksService_ListSecurityChecks_FullMethodName   = "/management.v1.SecurityChecksService/ListSecurityChecks"
-	SecurityChecksService_ListAdvisors_FullMethodName         = "/management.v1.SecurityChecksService/ListAdvisors"
-	SecurityChecksService_ChangeSecurityChecks_FullMethodName = "/management.v1.SecurityChecksService/ChangeSecurityChecks"
+	AdvisorService_ListFailedServices_FullMethodName  = "/management.v1.AdvisorService/ListFailedServices"
+	AdvisorService_GetFailedChecks_FullMethodName     = "/management.v1.AdvisorService/GetFailedChecks"
+	AdvisorService_StartAdvisorChecks_FullMethodName  = "/management.v1.AdvisorService/StartAdvisorChecks"
+	AdvisorService_ListAdvisorChecks_FullMethodName   = "/management.v1.AdvisorService/ListAdvisorChecks"
+	AdvisorService_ListAdvisors_FullMethodName        = "/management.v1.AdvisorService/ListAdvisors"
+	AdvisorService_ChangeAdvisorChecks_FullMethodName = "/management.v1.AdvisorService/ChangeAdvisorChecks"
 )
 
-// SecurityChecksServiceClient is the client API for SecurityChecksService service.
+// AdvisorServiceClient is the client API for AdvisorService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type SecurityChecksServiceClient interface {
+type AdvisorServiceClient interface {
 	// ListFailedServices returns a list of services with failed checks.
 	ListFailedServices(ctx context.Context, in *ListFailedServicesRequest, opts ...grpc.CallOption) (*ListFailedServicesResponse, error)
 	// GetFailedChecks returns the checks result for a given service.
 	GetFailedChecks(ctx context.Context, in *GetFailedChecksRequest, opts ...grpc.CallOption) (*GetFailedChecksResponse, error)
-	// StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
-	StartSecurityChecks(ctx context.Context, in *StartSecurityChecksRequest, opts ...grpc.CallOption) (*StartSecurityChecksResponse, error)
-	// ListSecurityChecks returns a list of advisor checks available to the user..
-	ListSecurityChecks(ctx context.Context, in *ListSecurityChecksRequest, opts ...grpc.CallOption) (*ListSecurityChecksResponse, error)
+	// StartAdvisorChecks executes Advisor checks and returns when all checks are executed.
+	StartAdvisorChecks(ctx context.Context, in *StartAdvisorChecksRequest, opts ...grpc.CallOption) (*StartAdvisorChecksResponse, error)
+	// ListAdvisorChecks returns a list of advisor checks available to the user..
+	ListAdvisorChecks(ctx context.Context, in *ListAdvisorChecksRequest, opts ...grpc.CallOption) (*ListAdvisorChecksResponse, error)
 	// ListAdvisors returns a list of advisors available for the user.
 	ListAdvisors(ctx context.Context, in *ListAdvisorsRequest, opts ...grpc.CallOption) (*ListAdvisorsResponse, error)
-	// ChangeSecurityChecks enables/disables Security Thread Tool checks or changes their interval by names.
-	ChangeSecurityChecks(ctx context.Context, in *ChangeSecurityChecksRequest, opts ...grpc.CallOption) (*ChangeSecurityChecksResponse, error)
+	// ChangeAdvisorChecks enables/disables Advisor checks or changes their interval by names.
+	ChangeAdvisorChecks(ctx context.Context, in *ChangeAdvisorChecksRequest, opts ...grpc.CallOption) (*ChangeAdvisorChecksResponse, error)
 }
 
-type securityChecksServiceClient struct {
+type advisorServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewSecurityChecksServiceClient(cc grpc.ClientConnInterface) SecurityChecksServiceClient {
-	return &securityChecksServiceClient{cc}
+func NewAdvisorServiceClient(cc grpc.ClientConnInterface) AdvisorServiceClient {
+	return &advisorServiceClient{cc}
 }
 
-func (c *securityChecksServiceClient) ListFailedServices(ctx context.Context, in *ListFailedServicesRequest, opts ...grpc.CallOption) (*ListFailedServicesResponse, error) {
+func (c *advisorServiceClient) ListFailedServices(ctx context.Context, in *ListFailedServicesRequest, opts ...grpc.CallOption) (*ListFailedServicesResponse, error) {
 	out := new(ListFailedServicesResponse)
-	err := c.cc.Invoke(ctx, SecurityChecksService_ListFailedServices_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AdvisorService_ListFailedServices_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *securityChecksServiceClient) GetFailedChecks(ctx context.Context, in *GetFailedChecksRequest, opts ...grpc.CallOption) (*GetFailedChecksResponse, error) {
+func (c *advisorServiceClient) GetFailedChecks(ctx context.Context, in *GetFailedChecksRequest, opts ...grpc.CallOption) (*GetFailedChecksResponse, error) {
 	out := new(GetFailedChecksResponse)
-	err := c.cc.Invoke(ctx, SecurityChecksService_GetFailedChecks_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AdvisorService_GetFailedChecks_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *securityChecksServiceClient) StartSecurityChecks(ctx context.Context, in *StartSecurityChecksRequest, opts ...grpc.CallOption) (*StartSecurityChecksResponse, error) {
-	out := new(StartSecurityChecksResponse)
-	err := c.cc.Invoke(ctx, SecurityChecksService_StartSecurityChecks_FullMethodName, in, out, opts...)
+func (c *advisorServiceClient) StartAdvisorChecks(ctx context.Context, in *StartAdvisorChecksRequest, opts ...grpc.CallOption) (*StartAdvisorChecksResponse, error) {
+	out := new(StartAdvisorChecksResponse)
+	err := c.cc.Invoke(ctx, AdvisorService_StartAdvisorChecks_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *securityChecksServiceClient) ListSecurityChecks(ctx context.Context, in *ListSecurityChecksRequest, opts ...grpc.CallOption) (*ListSecurityChecksResponse, error) {
-	out := new(ListSecurityChecksResponse)
-	err := c.cc.Invoke(ctx, SecurityChecksService_ListSecurityChecks_FullMethodName, in, out, opts...)
+func (c *advisorServiceClient) ListAdvisorChecks(ctx context.Context, in *ListAdvisorChecksRequest, opts ...grpc.CallOption) (*ListAdvisorChecksResponse, error) {
+	out := new(ListAdvisorChecksResponse)
+	err := c.cc.Invoke(ctx, AdvisorService_ListAdvisorChecks_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *securityChecksServiceClient) ListAdvisors(ctx context.Context, in *ListAdvisorsRequest, opts ...grpc.CallOption) (*ListAdvisorsResponse, error) {
+func (c *advisorServiceClient) ListAdvisors(ctx context.Context, in *ListAdvisorsRequest, opts ...grpc.CallOption) (*ListAdvisorsResponse, error) {
 	out := new(ListAdvisorsResponse)
-	err := c.cc.Invoke(ctx, SecurityChecksService_ListAdvisors_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AdvisorService_ListAdvisors_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *securityChecksServiceClient) ChangeSecurityChecks(ctx context.Context, in *ChangeSecurityChecksRequest, opts ...grpc.CallOption) (*ChangeSecurityChecksResponse, error) {
-	out := new(ChangeSecurityChecksResponse)
-	err := c.cc.Invoke(ctx, SecurityChecksService_ChangeSecurityChecks_FullMethodName, in, out, opts...)
+func (c *advisorServiceClient) ChangeAdvisorChecks(ctx context.Context, in *ChangeAdvisorChecksRequest, opts ...grpc.CallOption) (*ChangeAdvisorChecksResponse, error) {
+	out := new(ChangeAdvisorChecksResponse)
+	err := c.cc.Invoke(ctx, AdvisorService_ChangeAdvisorChecks_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// SecurityChecksServiceServer is the server API for SecurityChecksService service.
-// All implementations must embed UnimplementedSecurityChecksServiceServer
+// AdvisorServiceServer is the server API for AdvisorService service.
+// All implementations must embed UnimplementedAdvisorServiceServer
 // for forward compatibility
-type SecurityChecksServiceServer interface {
+type AdvisorServiceServer interface {
 	// ListFailedServices returns a list of services with failed checks.
 	ListFailedServices(context.Context, *ListFailedServicesRequest) (*ListFailedServicesResponse, error)
 	// GetFailedChecks returns the checks result for a given service.
 	GetFailedChecks(context.Context, *GetFailedChecksRequest) (*GetFailedChecksResponse, error)
-	// StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
-	StartSecurityChecks(context.Context, *StartSecurityChecksRequest) (*StartSecurityChecksResponse, error)
-	// ListSecurityChecks returns a list of advisor checks available to the user..
-	ListSecurityChecks(context.Context, *ListSecurityChecksRequest) (*ListSecurityChecksResponse, error)
+	// StartAdvisorChecks executes Advisor checks and returns when all checks are executed.
+	StartAdvisorChecks(context.Context, *StartAdvisorChecksRequest) (*StartAdvisorChecksResponse, error)
+	// ListAdvisorChecks returns a list of advisor checks available to the user..
+	ListAdvisorChecks(context.Context, *ListAdvisorChecksRequest) (*ListAdvisorChecksResponse, error)
 	// ListAdvisors returns a list of advisors available for the user.
 	ListAdvisors(context.Context, *ListAdvisorsRequest) (*ListAdvisorsResponse, error)
-	// ChangeSecurityChecks enables/disables Security Thread Tool checks or changes their interval by names.
-	ChangeSecurityChecks(context.Context, *ChangeSecurityChecksRequest) (*ChangeSecurityChecksResponse, error)
-	mustEmbedUnimplementedSecurityChecksServiceServer()
+	// ChangeAdvisorChecks enables/disables Advisor checks or changes their interval by names.
+	ChangeAdvisorChecks(context.Context, *ChangeAdvisorChecksRequest) (*ChangeAdvisorChecksResponse, error)
+	mustEmbedUnimplementedAdvisorServiceServer()
 }
 
-// UnimplementedSecurityChecksServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedSecurityChecksServiceServer struct{}
+// UnimplementedAdvisorServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedAdvisorServiceServer struct{}
 
-func (UnimplementedSecurityChecksServiceServer) ListFailedServices(context.Context, *ListFailedServicesRequest) (*ListFailedServicesResponse, error) {
+func (UnimplementedAdvisorServiceServer) ListFailedServices(context.Context, *ListFailedServicesRequest) (*ListFailedServicesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListFailedServices not implemented")
 }
 
-func (UnimplementedSecurityChecksServiceServer) GetFailedChecks(context.Context, *GetFailedChecksRequest) (*GetFailedChecksResponse, error) {
+func (UnimplementedAdvisorServiceServer) GetFailedChecks(context.Context, *GetFailedChecksRequest) (*GetFailedChecksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFailedChecks not implemented")
 }
 
-func (UnimplementedSecurityChecksServiceServer) StartSecurityChecks(context.Context, *StartSecurityChecksRequest) (*StartSecurityChecksResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method StartSecurityChecks not implemented")
+func (UnimplementedAdvisorServiceServer) StartAdvisorChecks(context.Context, *StartAdvisorChecksRequest) (*StartAdvisorChecksResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StartAdvisorChecks not implemented")
 }
 
-func (UnimplementedSecurityChecksServiceServer) ListSecurityChecks(context.Context, *ListSecurityChecksRequest) (*ListSecurityChecksResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListSecurityChecks not implemented")
+func (UnimplementedAdvisorServiceServer) ListAdvisorChecks(context.Context, *ListAdvisorChecksRequest) (*ListAdvisorChecksResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListAdvisorChecks not implemented")
 }
 
-func (UnimplementedSecurityChecksServiceServer) ListAdvisors(context.Context, *ListAdvisorsRequest) (*ListAdvisorsResponse, error) {
+func (UnimplementedAdvisorServiceServer) ListAdvisors(context.Context, *ListAdvisorsRequest) (*ListAdvisorsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAdvisors not implemented")
 }
 
-func (UnimplementedSecurityChecksServiceServer) ChangeSecurityChecks(context.Context, *ChangeSecurityChecksRequest) (*ChangeSecurityChecksResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeSecurityChecks not implemented")
+func (UnimplementedAdvisorServiceServer) ChangeAdvisorChecks(context.Context, *ChangeAdvisorChecksRequest) (*ChangeAdvisorChecksResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangeAdvisorChecks not implemented")
 }
-func (UnimplementedSecurityChecksServiceServer) mustEmbedUnimplementedSecurityChecksServiceServer() {}
+func (UnimplementedAdvisorServiceServer) mustEmbedUnimplementedAdvisorServiceServer() {}
 
-// UnsafeSecurityChecksServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to SecurityChecksServiceServer will
+// UnsafeAdvisorServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AdvisorServiceServer will
 // result in compilation errors.
-type UnsafeSecurityChecksServiceServer interface {
-	mustEmbedUnimplementedSecurityChecksServiceServer()
+type UnsafeAdvisorServiceServer interface {
+	mustEmbedUnimplementedAdvisorServiceServer()
 }
 
-func RegisterSecurityChecksServiceServer(s grpc.ServiceRegistrar, srv SecurityChecksServiceServer) {
-	s.RegisterService(&SecurityChecksService_ServiceDesc, srv)
+func RegisterAdvisorServiceServer(s grpc.ServiceRegistrar, srv AdvisorServiceServer) {
+	s.RegisterService(&AdvisorService_ServiceDesc, srv)
 }
 
-func _SecurityChecksService_ListFailedServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdvisorService_ListFailedServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListFailedServicesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityChecksServiceServer).ListFailedServices(ctx, in)
+		return srv.(AdvisorServiceServer).ListFailedServices(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityChecksService_ListFailedServices_FullMethodName,
+		FullMethod: AdvisorService_ListFailedServices_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityChecksServiceServer).ListFailedServices(ctx, req.(*ListFailedServicesRequest))
+		return srv.(AdvisorServiceServer).ListFailedServices(ctx, req.(*ListFailedServicesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityChecksService_GetFailedChecks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdvisorService_GetFailedChecks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetFailedChecksRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityChecksServiceServer).GetFailedChecks(ctx, in)
+		return srv.(AdvisorServiceServer).GetFailedChecks(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityChecksService_GetFailedChecks_FullMethodName,
+		FullMethod: AdvisorService_GetFailedChecks_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityChecksServiceServer).GetFailedChecks(ctx, req.(*GetFailedChecksRequest))
+		return srv.(AdvisorServiceServer).GetFailedChecks(ctx, req.(*GetFailedChecksRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityChecksService_StartSecurityChecks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StartSecurityChecksRequest)
+func _AdvisorService_StartAdvisorChecks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartAdvisorChecksRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityChecksServiceServer).StartSecurityChecks(ctx, in)
+		return srv.(AdvisorServiceServer).StartAdvisorChecks(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityChecksService_StartSecurityChecks_FullMethodName,
+		FullMethod: AdvisorService_StartAdvisorChecks_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityChecksServiceServer).StartSecurityChecks(ctx, req.(*StartSecurityChecksRequest))
+		return srv.(AdvisorServiceServer).StartAdvisorChecks(ctx, req.(*StartAdvisorChecksRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityChecksService_ListSecurityChecks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListSecurityChecksRequest)
+func _AdvisorService_ListAdvisorChecks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAdvisorChecksRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityChecksServiceServer).ListSecurityChecks(ctx, in)
+		return srv.(AdvisorServiceServer).ListAdvisorChecks(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityChecksService_ListSecurityChecks_FullMethodName,
+		FullMethod: AdvisorService_ListAdvisorChecks_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityChecksServiceServer).ListSecurityChecks(ctx, req.(*ListSecurityChecksRequest))
+		return srv.(AdvisorServiceServer).ListAdvisorChecks(ctx, req.(*ListAdvisorChecksRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityChecksService_ListAdvisors_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdvisorService_ListAdvisors_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListAdvisorsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityChecksServiceServer).ListAdvisors(ctx, in)
+		return srv.(AdvisorServiceServer).ListAdvisors(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityChecksService_ListAdvisors_FullMethodName,
+		FullMethod: AdvisorService_ListAdvisors_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityChecksServiceServer).ListAdvisors(ctx, req.(*ListAdvisorsRequest))
+		return srv.(AdvisorServiceServer).ListAdvisors(ctx, req.(*ListAdvisorsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityChecksService_ChangeSecurityChecks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeSecurityChecksRequest)
+func _AdvisorService_ChangeAdvisorChecks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeAdvisorChecksRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityChecksServiceServer).ChangeSecurityChecks(ctx, in)
+		return srv.(AdvisorServiceServer).ChangeAdvisorChecks(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityChecksService_ChangeSecurityChecks_FullMethodName,
+		FullMethod: AdvisorService_ChangeAdvisorChecks_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityChecksServiceServer).ChangeSecurityChecks(ctx, req.(*ChangeSecurityChecksRequest))
+		return srv.(AdvisorServiceServer).ChangeAdvisorChecks(ctx, req.(*ChangeAdvisorChecksRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// SecurityChecksService_ServiceDesc is the grpc.ServiceDesc for SecurityChecksService service.
+// AdvisorService_ServiceDesc is the grpc.ServiceDesc for AdvisorService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var SecurityChecksService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.v1.SecurityChecksService",
-	HandlerType: (*SecurityChecksServiceServer)(nil),
+var AdvisorService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "management.v1.AdvisorService",
+	HandlerType: (*AdvisorServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "ListFailedServices",
-			Handler:    _SecurityChecksService_ListFailedServices_Handler,
+			Handler:    _AdvisorService_ListFailedServices_Handler,
 		},
 		{
 			MethodName: "GetFailedChecks",
-			Handler:    _SecurityChecksService_GetFailedChecks_Handler,
+			Handler:    _AdvisorService_GetFailedChecks_Handler,
 		},
 		{
-			MethodName: "StartSecurityChecks",
-			Handler:    _SecurityChecksService_StartSecurityChecks_Handler,
+			MethodName: "StartAdvisorChecks",
+			Handler:    _AdvisorService_StartAdvisorChecks_Handler,
 		},
 		{
-			MethodName: "ListSecurityChecks",
-			Handler:    _SecurityChecksService_ListSecurityChecks_Handler,
+			MethodName: "ListAdvisorChecks",
+			Handler:    _AdvisorService_ListAdvisorChecks_Handler,
 		},
 		{
 			MethodName: "ListAdvisors",
-			Handler:    _SecurityChecksService_ListAdvisors_Handler,
+			Handler:    _AdvisorService_ListAdvisors_Handler,
 		},
 		{
-			MethodName: "ChangeSecurityChecks",
-			Handler:    _SecurityChecksService_ChangeSecurityChecks_Handler,
+			MethodName: "ChangeAdvisorChecks",
+			Handler:    _AdvisorService_ChangeAdvisorChecks_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

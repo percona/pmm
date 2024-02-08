@@ -5080,11 +5080,276 @@
         }
       }
     },
+    "/v1/management/Advisors/Change": {
+      "post": {
+        "description": "Enables/disables Advisor checks or changes their interval by names.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "Change Advisor Checks",
+        "operationId": "ChangeAdvisorChecks",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "params": {
+                  "type": "array",
+                  "items": {
+                    "description": "ChangeAdvisorCheckParams specifies a single check parameters.",
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "The name of the check to change.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "enable": {
+                        "type": "boolean",
+                        "x-nullable": true,
+                        "x-order": 1
+                      },
+                      "interval": {
+                        "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
+                        "type": "string",
+                        "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                        "enum": [
+                          "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                          "ADVISOR_CHECK_INTERVAL_STANDARD",
+                          "ADVISOR_CHECK_INTERVAL_FREQUENT",
+                          "ADVISOR_CHECK_INTERVAL_RARE"
+                        ],
+                        "x-order": 2
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/Advisors/FailedChecks": {
+      "post": {
+        "description": "Returns the latest check results for a given service.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "Get Failed Checks",
+        "operationId": "GetFailedChecks",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "page_params": {
+                  "description": "PageParams represents page request parameters for pagination.",
+                  "type": "object",
+                  "properties": {
+                    "page_size": {
+                      "description": "Maximum number of results per page.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 0
+                    },
+                    "index": {
+                      "description": "Index of the requested page, starts from 0.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "description": "CheckResult represents the check results for a given service.",
+                    "type": "object",
+                    "properties": {
+                      "summary": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "description": {
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "severity": {
+                        "description": "Severity represents severity level of the check result or alert.",
+                        "type": "string",
+                        "default": "SEVERITY_UNSPECIFIED",
+                        "enum": [
+                          "SEVERITY_UNSPECIFIED",
+                          "SEVERITY_EMERGENCY",
+                          "SEVERITY_ALERT",
+                          "SEVERITY_CRITICAL",
+                          "SEVERITY_ERROR",
+                          "SEVERITY_WARNING",
+                          "SEVERITY_NOTICE",
+                          "SEVERITY_INFO",
+                          "SEVERITY_DEBUG"
+                        ],
+                        "x-order": 2
+                      },
+                      "labels": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 3
+                      },
+                      "read_more_url": {
+                        "description": "URL containing information on how to resolve an issue detected by an Advisor check.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "service_name": {
+                        "description": "Name of the monitored service on which the check ran.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "service_id": {
+                        "description": "ID of the monitored service on which the check ran.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "check_name": {
+                        "type": "string",
+                        "title": "Name of the check that failed",
+                        "x-order": 7
+                      },
+                      "silenced": {
+                        "type": "boolean",
+                        "title": "Silence status of the check result",
+                        "x-order": 8
+                      }
+                    }
+                  },
+                  "x-order": 0
+                },
+                "page_totals": {
+                  "description": "PageTotals represents total values for pagination.",
+                  "type": "object",
+                  "properties": {
+                    "total_items": {
+                      "description": "Total number of results.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 0
+                    },
+                    "total_pages": {
+                      "description": "Total number of pages.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/Advisors/List": {
       "post": {
         "description": "Returns a list of advisors available to the user.",
         "tags": [
-          "SecurityChecksService"
+          "AdvisorService"
         ],
         "summary": "List advisors",
         "operationId": "ListAdvisors",
@@ -5138,7 +5403,7 @@
                         "description": "Advisor checks.",
                         "type": "array",
                         "items": {
-                          "description": "SecurityCheck contains check name and status.",
+                          "description": "AdvisorCheck contains check name and status.",
                           "type": "object",
                           "properties": {
                             "name": {
@@ -5162,14 +5427,14 @@
                               "x-order": 3
                             },
                             "interval": {
-                              "description": "SecurityCheckInterval represents possible execution interval values for checks.",
+                              "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
                               "type": "string",
-                              "default": "SECURITY_CHECK_INTERVAL_UNSPECIFIED",
+                              "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
                               "enum": [
-                                "SECURITY_CHECK_INTERVAL_UNSPECIFIED",
-                                "SECURITY_CHECK_INTERVAL_STANDARD",
-                                "SECURITY_CHECK_INTERVAL_FREQUENT",
-                                "SECURITY_CHECK_INTERVAL_RARE"
+                                "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                                "ADVISOR_CHECK_INTERVAL_STANDARD",
+                                "ADVISOR_CHECK_INTERVAL_FREQUENT",
+                                "ADVISOR_CHECK_INTERVAL_RARE"
                               ],
                               "x-order": 4
                             },
@@ -5193,6 +5458,316 @@
                   "x-order": 0
                 }
               }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/Advisors/ListChecks": {
+      "post": {
+        "description": "Returns a list of checks available to the user.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "List advisor checks",
+        "operationId": "ListAdvisorChecks",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "checks": {
+                  "type": "array",
+                  "items": {
+                    "description": "AdvisorCheck contains check name and status.",
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "Machine-readable name (ID) that is used in expression.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "enabled": {
+                        "description": "True if that check is enabled.",
+                        "type": "boolean",
+                        "x-order": 1
+                      },
+                      "description": {
+                        "description": "Long human-readable description.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "summary": {
+                        "description": "Short human-readable summary.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "interval": {
+                        "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
+                        "type": "string",
+                        "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                        "enum": [
+                          "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                          "ADVISOR_CHECK_INTERVAL_STANDARD",
+                          "ADVISOR_CHECK_INTERVAL_FREQUENT",
+                          "ADVISOR_CHECK_INTERVAL_RARE"
+                        ],
+                        "x-order": 4
+                      },
+                      "family": {
+                        "type": "string",
+                        "default": "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                        "enum": [
+                          "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                          "ADVISOR_CHECK_FAMILY_MYSQL",
+                          "ADVISOR_CHECK_FAMILY_POSTGRESQL",
+                          "ADVISOR_CHECK_FAMILY_MONGODB"
+                        ],
+                        "x-order": 5
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/Advisors/ListFailedServices": {
+      "post": {
+        "description": "Returns a list of services with failed checks and a summary of check results.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "List Failed Services",
+        "operationId": "ListFailedServices",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "type": "array",
+                  "items": {
+                    "description": "CheckResultSummary is a summary of check results.",
+                    "type": "object",
+                    "properties": {
+                      "service_name": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_id": {
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "emergency_count": {
+                        "description": "Number of failed checks for this service with severity level \"EMERGENCY\".",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 2
+                      },
+                      "alert_count": {
+                        "description": "Number of failed checks for this service with severity level \"ALERT\".",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 3
+                      },
+                      "critical_count": {
+                        "description": "Number of failed checks for this service with severity level \"CRITICAL\".",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 4
+                      },
+                      "error_count": {
+                        "description": "Number of failed checks for this service with severity level \"ERROR\".",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 5
+                      },
+                      "warning_count": {
+                        "description": "Number of failed checks for this service with severity level \"WARNING\".",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 6
+                      },
+                      "notice_count": {
+                        "description": "Number of failed checks for this service with severity level \"NOTICE\".",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 7
+                      },
+                      "info_count": {
+                        "description": "Number of failed checks for this service with severity level \"INFO\".",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 8
+                      },
+                      "debug_count": {
+                        "description": "Number of failed checks for this service with severity level \"DEBUG\".",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 9
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/Advisors/StartChecks": {
+      "post": {
+        "description": "Executes Advisor checks and returns when all checks are executed. All available checks will be started if check names aren't specified.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "Start Advisor Checks",
+        "operationId": "StartAdvisorChecks",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "names": {
+                  "description": "Names of the checks that should be started.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
             }
           },
           "default": {
@@ -9943,581 +10518,6 @@
         }
       }
     },
-    "/v1/management/SecurityChecks/Change": {
-      "post": {
-        "description": "Enables/disables Security Thread Tool checks or changes their interval by names.",
-        "tags": [
-          "SecurityChecksService"
-        ],
-        "summary": "Change Security Checks",
-        "operationId": "ChangeSecurityChecks",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "params": {
-                  "type": "array",
-                  "items": {
-                    "description": "ChangeSecurityCheckParams specifies a single check parameters.",
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "description": "The name of the check to change.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "enable": {
-                        "type": "boolean",
-                        "x-nullable": true,
-                        "x-order": 1
-                      },
-                      "interval": {
-                        "description": "SecurityCheckInterval represents possible execution interval values for checks.",
-                        "type": "string",
-                        "default": "SECURITY_CHECK_INTERVAL_UNSPECIFIED",
-                        "enum": [
-                          "SECURITY_CHECK_INTERVAL_UNSPECIFIED",
-                          "SECURITY_CHECK_INTERVAL_STANDARD",
-                          "SECURITY_CHECK_INTERVAL_FREQUENT",
-                          "SECURITY_CHECK_INTERVAL_RARE"
-                        ],
-                        "x-order": 2
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/SecurityChecks/FailedChecks": {
-      "post": {
-        "description": "Returns the latest check results for a given service.",
-        "tags": [
-          "SecurityChecksService"
-        ],
-        "summary": "Get Failed Checks",
-        "operationId": "GetFailedChecks",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "service_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "page_params": {
-                  "description": "PageParams represents page request parameters for pagination.",
-                  "type": "object",
-                  "properties": {
-                    "page_size": {
-                      "description": "Maximum number of results per page.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "index": {
-                      "description": "Index of the requested page, starts from 0.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "results": {
-                  "type": "array",
-                  "items": {
-                    "description": "CheckResult represents the check results for a given service.",
-                    "type": "object",
-                    "properties": {
-                      "summary": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "description": {
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "severity": {
-                        "description": "Severity represents severity level of the check result or alert.",
-                        "type": "string",
-                        "default": "SEVERITY_UNSPECIFIED",
-                        "enum": [
-                          "SEVERITY_UNSPECIFIED",
-                          "SEVERITY_EMERGENCY",
-                          "SEVERITY_ALERT",
-                          "SEVERITY_CRITICAL",
-                          "SEVERITY_ERROR",
-                          "SEVERITY_WARNING",
-                          "SEVERITY_NOTICE",
-                          "SEVERITY_INFO",
-                          "SEVERITY_DEBUG"
-                        ],
-                        "x-order": 2
-                      },
-                      "labels": {
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        },
-                        "x-order": 3
-                      },
-                      "read_more_url": {
-                        "description": "URL containing information on how to resolve an issue detected by an Advisor check.",
-                        "type": "string",
-                        "x-order": 4
-                      },
-                      "service_name": {
-                        "description": "Name of the monitored service on which the check ran.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "service_id": {
-                        "description": "ID of the monitored service on which the check ran.",
-                        "type": "string",
-                        "x-order": 6
-                      },
-                      "check_name": {
-                        "type": "string",
-                        "title": "Name of the check that failed",
-                        "x-order": 7
-                      },
-                      "silenced": {
-                        "type": "boolean",
-                        "title": "Silence status of the check result",
-                        "x-order": 8
-                      }
-                    }
-                  },
-                  "x-order": 0
-                },
-                "page_totals": {
-                  "description": "PageTotals represents total values for pagination.",
-                  "type": "object",
-                  "properties": {
-                    "total_items": {
-                      "description": "Total number of results.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "total_pages": {
-                      "description": "Total number of pages.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/SecurityChecks/List": {
-      "post": {
-        "description": "Returns a list of checks available to the user.",
-        "tags": [
-          "SecurityChecksService"
-        ],
-        "summary": "List advisor checks",
-        "operationId": "ListSecurityChecks",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "checks": {
-                  "type": "array",
-                  "items": {
-                    "description": "SecurityCheck contains check name and status.",
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "description": "Machine-readable name (ID) that is used in expression.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "enabled": {
-                        "description": "True if that check is enabled.",
-                        "type": "boolean",
-                        "x-order": 1
-                      },
-                      "description": {
-                        "description": "Long human-readable description.",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "summary": {
-                        "description": "Short human-readable summary.",
-                        "type": "string",
-                        "x-order": 3
-                      },
-                      "interval": {
-                        "description": "SecurityCheckInterval represents possible execution interval values for checks.",
-                        "type": "string",
-                        "default": "SECURITY_CHECK_INTERVAL_UNSPECIFIED",
-                        "enum": [
-                          "SECURITY_CHECK_INTERVAL_UNSPECIFIED",
-                          "SECURITY_CHECK_INTERVAL_STANDARD",
-                          "SECURITY_CHECK_INTERVAL_FREQUENT",
-                          "SECURITY_CHECK_INTERVAL_RARE"
-                        ],
-                        "x-order": 4
-                      },
-                      "family": {
-                        "type": "string",
-                        "default": "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
-                        "enum": [
-                          "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
-                          "ADVISOR_CHECK_FAMILY_MYSQL",
-                          "ADVISOR_CHECK_FAMILY_POSTGRESQL",
-                          "ADVISOR_CHECK_FAMILY_MONGODB"
-                        ],
-                        "x-order": 5
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/SecurityChecks/ListFailedServices": {
-      "post": {
-        "description": "Returns a list of services with failed checks and a summary of check results.",
-        "tags": [
-          "SecurityChecksService"
-        ],
-        "summary": "List Failed Services",
-        "operationId": "ListFailedServices",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "result": {
-                  "type": "array",
-                  "items": {
-                    "description": "CheckResultSummary is a summary of check results.",
-                    "type": "object",
-                    "properties": {
-                      "service_name": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "service_id": {
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "emergency_count": {
-                        "description": "Number of failed checks for this service with severity level \"EMERGENCY\".",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 2
-                      },
-                      "alert_count": {
-                        "description": "Number of failed checks for this service with severity level \"ALERT\".",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 3
-                      },
-                      "critical_count": {
-                        "description": "Number of failed checks for this service with severity level \"CRITICAL\".",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 4
-                      },
-                      "error_count": {
-                        "description": "Number of failed checks for this service with severity level \"ERROR\".",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 5
-                      },
-                      "warning_count": {
-                        "description": "Number of failed checks for this service with severity level \"WARNING\".",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 6
-                      },
-                      "notice_count": {
-                        "description": "Number of failed checks for this service with severity level \"NOTICE\".",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 7
-                      },
-                      "info_count": {
-                        "description": "Number of failed checks for this service with severity level \"INFO\".",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 8
-                      },
-                      "debug_count": {
-                        "description": "Number of failed checks for this service with severity level \"DEBUG\".",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 9
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/SecurityChecks/Start": {
-      "post": {
-        "description": "Executes Security Thread Tool checks and returns when all checks are executed. All available checks will be started if check names aren't specified.",
-        "tags": [
-          "SecurityChecksService"
-        ],
-        "summary": "Start Security Checks",
-        "operationId": "StartSecurityChecks",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "names": {
-                  "description": "Names of the checks that should be started.",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/management/Service/Remove": {
       "post": {
         "description": "Removes a Service along with Agents.",
@@ -11037,7 +11037,7 @@
       "name": "AnnotationService"
     },
     {
-      "name": "SecurityChecksService"
+      "name": "AdvisorService"
     },
     {
       "name": "ExternalService"
