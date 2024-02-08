@@ -347,19 +347,6 @@ func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role
 	return c.convertRole(role), nil
 }
 
-func (c *Client) getServiceAccountIDForServiceToken(ctx context.Context, token string) (int, error) {
-	header := http.Header{}
-	header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-
-	var k map[string]interface{}
-	if err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &k); err != nil {
-		return 0, err
-	}
-
-	id, _ := k["id"].(float64)
-	return int(id), nil
-}
-
 type serviceAccountSearch struct {
 	TotalCount      int              `json:"totalCount"`
 	ServiceAccounts []serviceAccount `json:"serviceAccounts"`
