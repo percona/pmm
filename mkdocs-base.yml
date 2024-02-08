@@ -264,7 +264,8 @@ nav:
     - PMM Inventory: use/dashboard-inventory.md
     - Metrics monitoring: 
       - use/monitor.md
-      - PMM metrics: use/metrics/index.md
+      - PMM metrics: 
+        - use/metrics/index.md
         - use/metrics/extend_metrics.md
       - Dashboards:
         - use/dashboards-panels/index.md
