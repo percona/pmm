@@ -232,8 +232,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 	if token != "" {
 		role, err := c.getRoleForServiceToken(ctx, token)
 		if err != nil {
-			// TODO better err check
-			if e, ok := status.FromError(err); !ok && strings.Contains(e.Message(), "Auth method is not service account token") {
+			if strings.Contains(err.Error(), "Auth method is not service account token") {
 				role, err := c.getRoleForAPIKey(ctx, authHeaders)
 				return authUser{
 					role:   role,

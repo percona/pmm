@@ -57,7 +57,7 @@ func GetHeadersFromContext(ctx context.Context) (http.Header, error) {
 	if !ok {
 		return nil, fmt.Errorf("cannot get headers from metadata")
 	}
-	// get authorization from headers.
+
 	authorizationHeaders := headers.Get("Authorization")
 	cookieHeaders := headers.Get("grpcgateway-cookie")
 	if len(authorizationHeaders) == 0 && len(cookieHeaders) == 0 {
