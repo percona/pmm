@@ -1,5 +1,8 @@
 # Configure PMM
 
+!!! note alert alert-primary "Note"
+    This section provides the instructions to configure your PMM instance after you have installed PMM.
+   
 The **Settings** page is where you configure PMM.
 
 Open the **Settings** page from the [main menu](../details/interface.md#main-menu) with <i class="uil uil-cog"></i> **Configuration** → <i class="uil uil-setting"></i> **Settings**. The page opens with the **Metrics Resolution** settings tab selected.
