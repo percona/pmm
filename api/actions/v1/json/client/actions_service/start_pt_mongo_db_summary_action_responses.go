@@ -58,7 +58,7 @@ type StartPTMongoDBSummaryActionOK struct {
 }
 
 func (o *StartPTMongoDBSummaryActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMongoDBSummary][%d] startPtMongoDbSummaryActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/actions/StartPTMongoDBSummary][%d] startPtMongoDbSummaryActionOk  %+v", 200, o.Payload)
 }
 
 func (o *StartPTMongoDBSummaryActionOK) GetPayload() *StartPTMongoDBSummaryActionOKBody {
@@ -100,7 +100,7 @@ func (o *StartPTMongoDBSummaryActionDefault) Code() int {
 }
 
 func (o *StartPTMongoDBSummaryActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMongoDBSummary][%d] StartPTMongoDBSummaryAction default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/actions/StartPTMongoDBSummary][%d] StartPTMongoDBSummaryAction default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *StartPTMongoDBSummaryActionDefault) GetPayload() *StartPTMongoDBSummaryActionDefaultBody {

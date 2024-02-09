@@ -45,29 +45,29 @@ var rules = map[string]role{
 
 	"/inventory.":                     admin,
 	"/management.":                    admin,
-	"/management.Actions/":            viewer,
+	"/actions/":                       viewer,
 	"/server.Server/CheckUpdates":     viewer,
 	"/server.Server/UpdateStatus":     none, // special token-based auth
 	"/server.Server/AWSInstanceCheck": none, // special case - used before Grafana can be accessed
 	"/server.":                        admin,
 
-	"/v1/alerting":                                viewer,
-	"/v1/backup":                                  admin,
-	"/v1/dump":                                    admin,
-	"/v1/role":                                    admin,
-	"/v1/inventory/":                              admin,
-	"/v1/inventory/Services/ListTypes":            viewer,
-	"/v1/management/":                             admin,
-	"/v1/management/Actions/":                     viewer,
-	"/v1/management/Jobs":                         viewer,
-	"/v1/Updates/Check":                           viewer,
-	"/v1/Updates/Status":                          none, // special token-based auth
-	"/v1/AWSInstanceCheck":                        none, // special case - used before Grafana can be accessed
-	"/v1/Updates/":                                admin,
-	"/v1/Settings/":                               admin,
-	"/v1/Platform/Connect":                        admin,
-	"/v1/Platform/Disconnect":                     admin,
-	"/v1/Platform/SearchOrganizationTickets":      viewer,
+	"/v1/alerting":                           viewer,
+	"/v1/backup":                             admin,
+	"/v1/dump":                               admin,
+	"/v1/role":                               admin,
+	"/v1/inventory/":                         admin,
+	"/v1/inventory/Services/ListTypes":       viewer,
+	"/v1/management/":                        admin,
+	"/v1/actions/":                           viewer,
+	"/v1/management/Jobs":                    viewer,
+	"/v1/Updates/Check":                      viewer,
+	"/v1/Updates/Status":                     none, // special token-based auth
+	"/v1/AWSInstanceCheck":                   none, // special case - used before Grafana can be accessed
+	"/v1/Updates/":                           admin,
+	"/v1/Settings/":                          admin,
+	"/v1/Platform/Connect":                   admin,
+	"/v1/Platform/Disconnect":                admin,
+	"/v1/Platform/SearchOrganizationTickets": viewer,
 	"/v1/Platform/SearchOrganizationEntitlements": viewer,
 	"/v1/Platform/GetContactInformation":          viewer,
 	"/v1/Platform/ServerInfo":                     viewer,

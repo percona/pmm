@@ -58,7 +58,7 @@ type StartMySQLExplainActionOK struct {
 }
 
 func (o *StartMySQLExplainActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplain][%d] startMySqlExplainActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/actions/StartMySQLExplain][%d] startMySqlExplainActionOk  %+v", 200, o.Payload)
 }
 
 func (o *StartMySQLExplainActionOK) GetPayload() *StartMySQLExplainActionOKBody {
@@ -100,7 +100,7 @@ func (o *StartMySQLExplainActionDefault) Code() int {
 }
 
 func (o *StartMySQLExplainActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplain][%d] StartMySQLExplainAction default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/actions/StartMySQLExplain][%d] StartMySQLExplainAction default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *StartMySQLExplainActionDefault) GetPayload() *StartMySQLExplainActionDefaultBody {

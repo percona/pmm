@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: management/v1/actions.proto
+// source: actions/v1/actions.proto
 
-package managementv1
+package actionsv1
 
 import (
 	context "context"
@@ -20,21 +20,21 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ActionsService_GetAction_FullMethodName                              = "/management.v1.ActionsService/GetAction"
-	ActionsService_StartMySQLExplainAction_FullMethodName                = "/management.v1.ActionsService/StartMySQLExplainAction"
-	ActionsService_StartMySQLExplainJSONAction_FullMethodName            = "/management.v1.ActionsService/StartMySQLExplainJSONAction"
-	ActionsService_StartMySQLExplainTraditionalJSONAction_FullMethodName = "/management.v1.ActionsService/StartMySQLExplainTraditionalJSONAction"
-	ActionsService_StartMySQLShowCreateTableAction_FullMethodName        = "/management.v1.ActionsService/StartMySQLShowCreateTableAction"
-	ActionsService_StartMySQLShowTableStatusAction_FullMethodName        = "/management.v1.ActionsService/StartMySQLShowTableStatusAction"
-	ActionsService_StartMySQLShowIndexAction_FullMethodName              = "/management.v1.ActionsService/StartMySQLShowIndexAction"
-	ActionsService_StartPostgreSQLShowCreateTableAction_FullMethodName   = "/management.v1.ActionsService/StartPostgreSQLShowCreateTableAction"
-	ActionsService_StartPostgreSQLShowIndexAction_FullMethodName         = "/management.v1.ActionsService/StartPostgreSQLShowIndexAction"
-	ActionsService_StartMongoDBExplainAction_FullMethodName              = "/management.v1.ActionsService/StartMongoDBExplainAction"
-	ActionsService_StartPTSummaryAction_FullMethodName                   = "/management.v1.ActionsService/StartPTSummaryAction"
-	ActionsService_StartPTPgSummaryAction_FullMethodName                 = "/management.v1.ActionsService/StartPTPgSummaryAction"
-	ActionsService_StartPTMongoDBSummaryAction_FullMethodName            = "/management.v1.ActionsService/StartPTMongoDBSummaryAction"
-	ActionsService_StartPTMySQLSummaryAction_FullMethodName              = "/management.v1.ActionsService/StartPTMySQLSummaryAction"
-	ActionsService_CancelAction_FullMethodName                           = "/management.v1.ActionsService/CancelAction"
+	ActionsService_GetAction_FullMethodName                              = "/actions.v1.ActionsService/GetAction"
+	ActionsService_StartMySQLExplainAction_FullMethodName                = "/actions.v1.ActionsService/StartMySQLExplainAction"
+	ActionsService_StartMySQLExplainJSONAction_FullMethodName            = "/actions.v1.ActionsService/StartMySQLExplainJSONAction"
+	ActionsService_StartMySQLExplainTraditionalJSONAction_FullMethodName = "/actions.v1.ActionsService/StartMySQLExplainTraditionalJSONAction"
+	ActionsService_StartMySQLShowCreateTableAction_FullMethodName        = "/actions.v1.ActionsService/StartMySQLShowCreateTableAction"
+	ActionsService_StartMySQLShowTableStatusAction_FullMethodName        = "/actions.v1.ActionsService/StartMySQLShowTableStatusAction"
+	ActionsService_StartMySQLShowIndexAction_FullMethodName              = "/actions.v1.ActionsService/StartMySQLShowIndexAction"
+	ActionsService_StartPostgreSQLShowCreateTableAction_FullMethodName   = "/actions.v1.ActionsService/StartPostgreSQLShowCreateTableAction"
+	ActionsService_StartPostgreSQLShowIndexAction_FullMethodName         = "/actions.v1.ActionsService/StartPostgreSQLShowIndexAction"
+	ActionsService_StartMongoDBExplainAction_FullMethodName              = "/actions.v1.ActionsService/StartMongoDBExplainAction"
+	ActionsService_StartPTSummaryAction_FullMethodName                   = "/actions.v1.ActionsService/StartPTSummaryAction"
+	ActionsService_StartPTPgSummaryAction_FullMethodName                 = "/actions.v1.ActionsService/StartPTPgSummaryAction"
+	ActionsService_StartPTMongoDBSummaryAction_FullMethodName            = "/actions.v1.ActionsService/StartPTMongoDBSummaryAction"
+	ActionsService_StartPTMySQLSummaryAction_FullMethodName              = "/actions.v1.ActionsService/StartPTMySQLSummaryAction"
+	ActionsService_CancelAction_FullMethodName                           = "/actions.v1.ActionsService/CancelAction"
 )
 
 // ActionsServiceClient is the client API for ActionsService service.
@@ -602,7 +602,7 @@ func _ActionsService_CancelAction_Handler(srv interface{}, ctx context.Context, 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ActionsService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.v1.ActionsService",
+	ServiceName: "actions.v1.ActionsService",
 	HandlerType: (*ActionsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -667,5 +667,5 @@ var ActionsService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "management/v1/actions.proto",
+	Metadata: "actions/v1/actions.proto",
 }

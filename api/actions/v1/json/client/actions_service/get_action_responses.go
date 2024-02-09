@@ -58,7 +58,7 @@ type GetActionOK struct {
 }
 
 func (o *GetActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/Get][%d] getActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/actions/Get][%d] getActionOk  %+v", 200, o.Payload)
 }
 
 func (o *GetActionOK) GetPayload() *GetActionOKBody {
@@ -100,7 +100,7 @@ func (o *GetActionDefault) Code() int {
 }
 
 func (o *GetActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/Get][%d] GetAction default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/actions/Get][%d] GetAction default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetActionDefault) GetPayload() *GetActionDefaultBody {

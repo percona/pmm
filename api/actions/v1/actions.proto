@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package management.v1;
+package actions.v1;
 
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -282,7 +282,7 @@ service ActionsService {
   // GetAction gets result of a given Action.
   rpc GetAction(GetActionRequest) returns (GetActionResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Actions/Get"
+      post: "/v1/actions/Get"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -293,7 +293,7 @@ service ActionsService {
   // StartMySQLExplainAction starts MySQL EXPLAIN Action with traditional output.
   rpc StartMySQLExplainAction(StartMySQLExplainActionRequest) returns (StartMySQLExplainActionResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Actions/StartMySQLExplain"
+      post: "/v1/actions/StartMySQLExplain"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -304,7 +304,7 @@ service ActionsService {
   // StartMySQLExplainJSONAction starts MySQL EXPLAIN Action with JSON output.
   rpc StartMySQLExplainJSONAction(StartMySQLExplainJSONActionRequest) returns (StartMySQLExplainJSONActionResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Actions/StartMySQLExplainJSON"
+      post: "/v1/actions/StartMySQLExplainJSON"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -315,7 +315,7 @@ service ActionsService {
   // StartMySQLExplainTraditionalJSONAction starts MySQL EXPLAIN Action with traditional JSON output.
   rpc StartMySQLExplainTraditionalJSONAction(StartMySQLExplainTraditionalJSONActionRequest) returns (StartMySQLExplainTraditionalJSONActionResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Actions/StartMySQLExplainTraditionalJSON"
+      post: "/v1/actions/StartMySQLExplainTraditionalJSON"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -326,7 +326,7 @@ service ActionsService {
   // StartMySQLShowCreateTableAction starts MySQL SHOW CREATE TABLE Action.
   rpc StartMySQLShowCreateTableAction(StartMySQLShowCreateTableActionRequest) returns (StartMySQLShowCreateTableActionResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Actions/StartMySQLShowCreateTable"
+      post: "/v1/actions/StartMySQLShowCreateTable"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -337,7 +337,7 @@ service ActionsService {
   // StartMySQLShowTableStatusAction starts MySQL SHOW TABLE STATUS Action.
   rpc StartMySQLShowTableStatusAction(StartMySQLShowTableStatusActionRequest) returns (StartMySQLShowTableStatusActionResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Actions/StartMySQLShowTableStatus"
+      post: "/v1/actions/StartMySQLShowTableStatus"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -348,7 +348,7 @@ service ActionsService {
   // StartMySQLShowIndexAction starts MySQL SHOW INDEX Action.
   rpc StartMySQLShowIndexAction(StartMySQLShowIndexActionRequest) returns (StartMySQLShowIndexActionResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Actions/StartMySQLShowIndex"
+      post: "/v1/actions/StartMySQLShowIndex"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -359,7 +359,7 @@ service ActionsService {
   // StartPostgreSQLShowCreateTableAction starts PostgreSQL SHOW CREATE TABLE Action.
   rpc StartPostgreSQLShowCreateTableAction(StartPostgreSQLShowCreateTableActionRequest) returns (StartPostgreSQLShowCreateTableActionResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Actions/StartPostgreSQLShowCreateTable"
+      post: "/v1/actions/StartPostgreSQLShowCreateTable"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -370,7 +370,7 @@ service ActionsService {
   // StartPostgreSQLShowIndexAction starts PostgreSQL SHOW INDEX Action.
   rpc StartPostgreSQLShowIndexAction(StartPostgreSQLShowIndexActionRequest) returns (StartPostgreSQLShowIndexActionResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Actions/StartPostgreSQLShowIndex"
+      post: "/v1/actions/StartPostgreSQLShowIndex"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -381,7 +381,7 @@ service ActionsService {
   // StartMongoDBExplainAction starts MongoDB EXPLAIN Action.
   rpc StartMongoDBExplainAction(StartMongoDBExplainActionRequest) returns (StartMongoDBExplainActionResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Actions/StartMongoDBExplain"
+      post: "/v1/actions/StartMongoDBExplain"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -392,7 +392,7 @@ service ActionsService {
   // StartPTSummaryAction starts pt-summary Action.
   rpc StartPTSummaryAction(StartPTSummaryActionRequest) returns (StartPTSummaryActionResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Actions/StartPTSummary"
+      post: "/v1/actions/StartPTSummary"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -403,7 +403,7 @@ service ActionsService {
   // StartPTPgSummaryAction starts pt-pg-summary Action.
   rpc StartPTPgSummaryAction(StartPTPgSummaryActionRequest) returns (StartPTPgSummaryActionResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Actions/StartPTPgSummary"
+      post: "/v1/actions/StartPTPgSummary"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -414,7 +414,7 @@ service ActionsService {
   // StartPTMongoDBSummaryAction starts pt-mongodb-summary Action.
   rpc StartPTMongoDBSummaryAction(StartPTMongoDBSummaryActionRequest) returns (StartPTMongoDBSummaryActionResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Actions/StartPTMongoDBSummary"
+      post: "/v1/actions/StartPTMongoDBSummary"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -425,7 +425,7 @@ service ActionsService {
   // StartPTMySQLSummaryAction starts pt-mysql-summary Action.
   rpc StartPTMySQLSummaryAction(StartPTMySQLSummaryActionRequest) returns (StartPTMySQLSummaryActionResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Actions/StartPTMySQLSummary"
+      post: "/v1/actions/StartPTMySQLSummary"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -436,7 +436,7 @@ service ActionsService {
   // CancelAction stops an Action.
   rpc CancelAction(CancelActionRequest) returns (CancelActionResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Actions/Cancel"
+      post: "/v1/actions/Cancel"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {

@@ -58,7 +58,7 @@ type StartMySQLShowTableStatusActionOK struct {
 }
 
 func (o *StartMySQLShowTableStatusActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowTableStatus][%d] startMySqlShowTableStatusActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/actions/StartMySQLShowTableStatus][%d] startMySqlShowTableStatusActionOk  %+v", 200, o.Payload)
 }
 
 func (o *StartMySQLShowTableStatusActionOK) GetPayload() *StartMySQLShowTableStatusActionOKBody {
@@ -100,7 +100,7 @@ func (o *StartMySQLShowTableStatusActionDefault) Code() int {
 }
 
 func (o *StartMySQLShowTableStatusActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowTableStatus][%d] StartMySQLShowTableStatusAction default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/actions/StartMySQLShowTableStatus][%d] StartMySQLShowTableStatusAction default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *StartMySQLShowTableStatusActionDefault) GetPayload() *StartMySQLShowTableStatusActionDefaultBody {

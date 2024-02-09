@@ -74,7 +74,7 @@ func (a *Client) CancelAction(params *CancelActionParams, opts ...ClientOption) 
 	op := &runtime.ClientOperation{
 		ID:                 "CancelAction",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Actions/Cancel",
+		PathPattern:        "/v1/actions/Cancel",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -113,7 +113,7 @@ func (a *Client) GetAction(params *GetActionParams, opts ...ClientOption) (*GetA
 	op := &runtime.ClientOperation{
 		ID:                 "GetAction",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Actions/Get",
+		PathPattern:        "/v1/actions/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -152,7 +152,7 @@ func (a *Client) StartMongoDBExplainAction(params *StartMongoDBExplainActionPara
 	op := &runtime.ClientOperation{
 		ID:                 "StartMongoDBExplainAction",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Actions/StartMongoDBExplain",
+		PathPattern:        "/v1/actions/StartMongoDBExplain",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -191,7 +191,7 @@ func (a *Client) StartMySQLExplainAction(params *StartMySQLExplainActionParams, 
 	op := &runtime.ClientOperation{
 		ID:                 "StartMySQLExplainAction",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Actions/StartMySQLExplain",
+		PathPattern:        "/v1/actions/StartMySQLExplain",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -230,7 +230,7 @@ func (a *Client) StartMySQLExplainJSONAction(params *StartMySQLExplainJSONAction
 	op := &runtime.ClientOperation{
 		ID:                 "StartMySQLExplainJSONAction",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Actions/StartMySQLExplainJSON",
+		PathPattern:        "/v1/actions/StartMySQLExplainJSON",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -269,7 +269,7 @@ func (a *Client) StartMySQLExplainTraditionalJSONAction(params *StartMySQLExplai
 	op := &runtime.ClientOperation{
 		ID:                 "StartMySQLExplainTraditionalJSONAction",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Actions/StartMySQLExplainTraditionalJSON",
+		PathPattern:        "/v1/actions/StartMySQLExplainTraditionalJSON",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -308,7 +308,7 @@ func (a *Client) StartMySQLShowCreateTableAction(params *StartMySQLShowCreateTab
 	op := &runtime.ClientOperation{
 		ID:                 "StartMySQLShowCreateTableAction",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Actions/StartMySQLShowCreateTable",
+		PathPattern:        "/v1/actions/StartMySQLShowCreateTable",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -347,7 +347,7 @@ func (a *Client) StartMySQLShowIndexAction(params *StartMySQLShowIndexActionPara
 	op := &runtime.ClientOperation{
 		ID:                 "StartMySQLShowIndexAction",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Actions/StartMySQLShowIndex",
+		PathPattern:        "/v1/actions/StartMySQLShowIndex",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -386,7 +386,7 @@ func (a *Client) StartMySQLShowTableStatusAction(params *StartMySQLShowTableStat
 	op := &runtime.ClientOperation{
 		ID:                 "StartMySQLShowTableStatusAction",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Actions/StartMySQLShowTableStatus",
+		PathPattern:        "/v1/actions/StartMySQLShowTableStatus",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -425,7 +425,7 @@ func (a *Client) StartPTMongoDBSummaryAction(params *StartPTMongoDBSummaryAction
 	op := &runtime.ClientOperation{
 		ID:                 "StartPTMongoDBSummaryAction",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Actions/StartPTMongoDBSummary",
+		PathPattern:        "/v1/actions/StartPTMongoDBSummary",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -464,7 +464,7 @@ func (a *Client) StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionPara
 	op := &runtime.ClientOperation{
 		ID:                 "StartPTMySQLSummaryAction",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Actions/StartPTMySQLSummary",
+		PathPattern:        "/v1/actions/StartPTMySQLSummary",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -503,7 +503,7 @@ func (a *Client) StartPTPgSummaryAction(params *StartPTPgSummaryActionParams, op
 	op := &runtime.ClientOperation{
 		ID:                 "StartPTPgSummaryAction",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Actions/StartPTPgSummary",
+		PathPattern:        "/v1/actions/StartPTPgSummary",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -542,7 +542,7 @@ func (a *Client) StartPTSummaryAction(params *StartPTSummaryActionParams, opts .
 	op := &runtime.ClientOperation{
 		ID:                 "StartPTSummaryAction",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Actions/StartPTSummary",
+		PathPattern:        "/v1/actions/StartPTSummary",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -581,7 +581,7 @@ func (a *Client) StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLSho
 	op := &runtime.ClientOperation{
 		ID:                 "StartPostgreSQLShowCreateTableAction",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Actions/StartPostgreSQLShowCreateTable",
+		PathPattern:        "/v1/actions/StartPostgreSQLShowCreateTable",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -620,7 +620,7 @@ func (a *Client) StartPostgreSQLShowIndexAction(params *StartPostgreSQLShowIndex
 	op := &runtime.ClientOperation{
 		ID:                 "StartPostgreSQLShowIndexAction",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Actions/StartPostgreSQLShowIndex",
+		PathPattern:        "/v1/actions/StartPostgreSQLShowIndex",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

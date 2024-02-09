@@ -59,6 +59,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	actionsv1 "github.com/percona/pmm/api/actions/v1"
 	advisorsv1 "github.com/percona/pmm/api/advisors/v1"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	alertingpb "github.com/percona/pmm/api/alerting/v1"
@@ -281,7 +282,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementv1.RegisterMongoDBServiceServer(gRPCServer, managementgrpc.NewManagementMongoDBServer(mongodbSvc))
 	managementv1.RegisterPostgreSQLServiceServer(gRPCServer, managementgrpc.NewManagementPostgreSQLServer(postgresqlSvc))
 	managementv1.RegisterProxySQLServiceServer(gRPCServer, managementgrpc.NewManagementProxySQLServer(proxysqlSvc))
-	managementv1.RegisterActionsServiceServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
+	actionsv1.RegisterActionsServiceServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
 	managementv1.RegisterRDSServiceServer(gRPCServer, management.NewRDSService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker))
 	azurev1beta1.RegisterAzureDatabaseServiceServer(gRPCServer, management.NewAzureDatabaseService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker))
 	managementv1.RegisterHAProxyServiceServer(gRPCServer, management.NewHAProxyService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
@@ -386,7 +387,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		managementv1.RegisterMongoDBServiceHandlerFromEndpoint,
 		managementv1.RegisterPostgreSQLServiceHandlerFromEndpoint,
 		managementv1.RegisterProxySQLServiceHandlerFromEndpoint,
-		managementv1.RegisterActionsServiceHandlerFromEndpoint,
+		actionsv1.RegisterActionsServiceHandlerFromEndpoint,
 		managementv1.RegisterRDSServiceHandlerFromEndpoint,
 		azurev1beta1.RegisterAzureDatabaseServiceHandlerFromEndpoint,
 		managementv1.RegisterHAProxyServiceHandlerFromEndpoint,

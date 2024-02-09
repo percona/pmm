@@ -58,7 +58,7 @@ type StartPostgreSQLShowIndexActionOK struct {
 }
 
 func (o *StartPostgreSQLShowIndexActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowIndex][%d] startPostgreSqlShowIndexActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/actions/StartPostgreSQLShowIndex][%d] startPostgreSqlShowIndexActionOk  %+v", 200, o.Payload)
 }
 
 func (o *StartPostgreSQLShowIndexActionOK) GetPayload() *StartPostgreSQLShowIndexActionOKBody {
@@ -100,7 +100,7 @@ func (o *StartPostgreSQLShowIndexActionDefault) Code() int {
 }
 
 func (o *StartPostgreSQLShowIndexActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowIndex][%d] StartPostgreSQLShowIndexAction default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/actions/StartPostgreSQLShowIndex][%d] StartPostgreSQLShowIndexAction default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *StartPostgreSQLShowIndexActionDefault) GetPayload() *StartPostgreSQLShowIndexActionDefaultBody {

@@ -58,7 +58,7 @@ type StartPTPgSummaryActionOK struct {
 }
 
 func (o *StartPTPgSummaryActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPTPgSummary][%d] startPtPgSummaryActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/actions/StartPTPgSummary][%d] startPtPgSummaryActionOk  %+v", 200, o.Payload)
 }
 
 func (o *StartPTPgSummaryActionOK) GetPayload() *StartPTPgSummaryActionOKBody {
@@ -100,7 +100,7 @@ func (o *StartPTPgSummaryActionDefault) Code() int {
 }
 
 func (o *StartPTPgSummaryActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPTPgSummary][%d] StartPTPgSummaryAction default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/actions/StartPTPgSummary][%d] StartPTPgSummaryAction default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *StartPTPgSummaryActionDefault) GetPayload() *StartPTPgSummaryActionDefaultBody {

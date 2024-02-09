@@ -58,7 +58,7 @@ type StartPTMySQLSummaryActionOK struct {
 }
 
 func (o *StartPTMySQLSummaryActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMySQLSummary][%d] startPtMySqlSummaryActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/actions/StartPTMySQLSummary][%d] startPtMySqlSummaryActionOk  %+v", 200, o.Payload)
 }
 
 func (o *StartPTMySQLSummaryActionOK) GetPayload() *StartPTMySQLSummaryActionOKBody {
@@ -100,7 +100,7 @@ func (o *StartPTMySQLSummaryActionDefault) Code() int {
 }
 
 func (o *StartPTMySQLSummaryActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMySQLSummary][%d] StartPTMySQLSummaryAction default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/actions/StartPTMySQLSummary][%d] StartPTMySQLSummaryAction default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *StartPTMySQLSummaryActionDefault) GetPayload() *StartPTMySQLSummaryActionDefaultBody {
