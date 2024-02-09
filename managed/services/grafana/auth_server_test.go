@@ -231,7 +231,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 
 		"/v1/version": viewer,
 
-		"/v0/qan/ObjectDetails/GetQueryExample": viewer,
+		"/v1/qan/ObjectDetails/GetQueryExample": viewer,
 
 		"/prometheus/": admin,
 		"/logs.zip":    admin,

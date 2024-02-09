@@ -16,7 +16,7 @@
 package analytics
 
 import (
-	qanpb "github.com/percona/pmm/api/qan/v1beta1"
+	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
 )
 
@@ -25,10 +25,7 @@ type Service struct {
 	rm models.Reporter
 	mm models.Metrics
 
-	qanpb.UnimplementedProfileServiceServer
-	qanpb.UnimplementedFiltersServiceServer
-	qanpb.UnimplementedObjectDetailsServiceServer
-	qanpb.UnimplementedMetricsNamesServiceServer
+	qanpb.UnimplementedQANServiceServer
 }
 
 // NewService create new insstance of Service.

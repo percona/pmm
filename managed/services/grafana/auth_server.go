@@ -83,7 +83,7 @@ var rules = map[string]role{
 	// must not be available without authentication as it can leak data
 	"/v1/version": viewer,
 
-	"/v0/qan/": viewer,
+	"/v1/qan/": viewer,
 
 	// mustSetupRules group
 	"/prometheus":      admin,
