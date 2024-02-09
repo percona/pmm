@@ -1,6 +1,6 @@
 # Why PMM?
 
-There are several compelling reasons why you should choose to use Percona Monitoring and Management (PMM) for your database monitoring and management needs:
+There are several reasons why you should choose to use Percona Monitoring and Management (PMM) for your database monitoring and management needs:
 
 -  **Comprehensive monitoring**: PMM provides comprehensive monitoring capabilities for database systems, such as MySQL, MariaDB, MongoDB, and PostgreSQL.
 
@@ -8,7 +8,7 @@ There are several compelling reasons why you should choose to use Percona Monito
 
 -  **Specialized for databases**: PMM is explicitly designed to monitor databases, providing specialized features and insight into the unique performance aspects of different database engines. As a result of this specialization, these systems can be monitored more thoroughly and effectively.
 
--  **Security**: PMM includes security features like SSL encryption for communications, access controls, and authentication mechanisms. These features ensure that sensitive data related to your databases remains secure while being monitored.
+-  **Security**: PMM includes security features like SSL encryption for access controls, and authentication mechanisms. These features ensure that sensitive data related to your databases remains secure while being monitored.
 
 -  **Customization**: PMM enables you to customize and extend it by creating custom dashboards, adding new metrics, or integrating additional exporters to monitor specific database aspects based on your requirements.
 
