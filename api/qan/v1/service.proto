@@ -3,11 +3,9 @@ syntax = "proto3";
 package qan.v1;
 
 import "google/api/annotations.proto";
-import "google/protobuf/timestamp.proto";
 import "qan/v1/filters.proto";
 import "qan/v1/object_details.proto";
 import "qan/v1/profile.proto";
-import "qan/v1/qan.proto";
 
 // Profile of metrics by QueryID, Host etc.
 
