@@ -46,7 +46,7 @@ func (a *Client) AddAzureDatabase(params *AddAzureDatabaseParams, opts ...Client
 	op := &runtime.ClientOperation{
 		ID:                 "AddAzureDatabase",
 		Method:             "POST",
-		PathPattern:        "/v1/management/azure/AzureDatabase/Add",
+		PathPattern:        "/v1/management/AzureDatabase/Add",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -83,7 +83,7 @@ func (a *Client) DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams, opts
 	op := &runtime.ClientOperation{
 		ID:                 "DiscoverAzureDatabase",
 		Method:             "POST",
-		PathPattern:        "/v1/management/azure/AzureDatabase/Discover",
+		PathPattern:        "/v1/management/AzureDatabase/Discover",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

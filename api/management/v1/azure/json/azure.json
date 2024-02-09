@@ -15,7 +15,7 @@
     "version": "v1beta1"
   },
   "paths": {
-    "/v1/management/azure/AzureDatabase/Add": {
+    "/v1/management/AzureDatabase/Add": {
       "post": {
         "tags": [
           "AzureDatabaseService"
@@ -211,7 +211,7 @@
         }
       }
     },
-    "/v1/management/azure/AzureDatabase/Discover": {
+    "/v1/management/AzureDatabase/Discover": {
       "post": {
         "tags": [
           "AzureDatabaseService"
