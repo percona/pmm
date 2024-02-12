@@ -118,6 +118,7 @@ func (c ComponentsService) GetPSMDBComponents(ctx context.Context, req *dbaasv1b
 	return &dbaasv1beta1.GetPSMDBComponentsResponse{Versions: versions}, nil
 }
 
+// GetPXCComponents returns versions details.
 func (c ComponentsService) GetPXCComponents(ctx context.Context, req *dbaasv1beta1.GetPXCComponentsRequest) (*dbaasv1beta1.GetPXCComponentsResponse, error) {
 	var kubernetesCluster *models.KubernetesCluster
 	params := componentsParams{
@@ -149,6 +150,7 @@ func (c ComponentsService) GetPXCComponents(ctx context.Context, req *dbaasv1bet
 	return &dbaasv1beta1.GetPXCComponentsResponse{Versions: versions}, nil
 }
 
+// ChangePSMDBComponents will apply changes on cluster.
 func (c ComponentsService) ChangePSMDBComponents(_ context.Context, req *dbaasv1beta1.ChangePSMDBComponentsRequest) (*dbaasv1beta1.ChangePSMDBComponentsResponse, error) {
 	err := c.db.InTransaction(func(tx *reform.TX) error {
 		kubernetesCluster, e := models.FindKubernetesClusterByName(tx.Querier, req.KubernetesClusterName)
@@ -178,7 +180,8 @@ func (c ComponentsService) ChangePSMDBComponents(_ context.Context, req *dbaasv1
 	return &dbaasv1beta1.ChangePSMDBComponentsResponse{}, nil
 }
 
-func (c ComponentsService) ChangePXCComponents(ctx context.Context, req *dbaasv1beta1.ChangePXCComponentsRequest) (*dbaasv1beta1.ChangePXCComponentsResponse, error) {
+// ChangePXCComponents apply new values on PXC components.
+func (c ComponentsService) ChangePXCComponents(_ context.Context, req *dbaasv1beta1.ChangePXCComponentsRequest) (*dbaasv1beta1.ChangePXCComponentsResponse, error) {
 	err := c.db.InTransaction(func(tx *reform.TX) error {
 		kubernetesCluster, e := models.FindKubernetesClusterByName(tx.Querier, req.KubernetesClusterName)
 		if e != nil {
@@ -248,6 +251,7 @@ func (c ComponentsService) installedOperatorsVersion(ctx context.Context, wg *sy
 	}
 }
 
+// CheckForOperatorUpdate check if update for operator is available.
 func (c ComponentsService) CheckForOperatorUpdate(ctx context.Context, _ *dbaasv1beta1.CheckForOperatorUpdateRequest) (*dbaasv1beta1.CheckForOperatorUpdateResponse, error) { //nolint:lll
 	if pmmversion.PMMVersion == "" {
 		return nil, status.Error(codes.Internal, "failed to get current PMM version")
@@ -429,6 +433,7 @@ func setComponent(kc *models.Component, rc *dbaasv1beta1.ChangeComponent) (*mode
 	return kc, nil
 }
 
+// InstallOperator upgrade current operator.
 func (c ComponentsService) InstallOperator(ctx context.Context, req *dbaasv1beta1.InstallOperatorRequest) (*dbaasv1beta1.InstallOperatorResponse, error) {
 	kubernetesCluster, err := models.FindKubernetesClusterByName(c.db.Querier, req.KubernetesClusterName)
 	if err != nil {

@@ -28,7 +28,7 @@ import (
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
-type TemplateService struct {
+type templateService struct {
 	db          *reform.DB
 	l           *logrus.Entry
 	kubeStorage *KubeStorage
@@ -39,7 +39,7 @@ type TemplateService struct {
 // NewTemplateService creates DB Clusters Service.
 func NewTemplateService(db *reform.DB) dbaasv1beta1.TemplatesServer { //nolint:ireturn
 	l := logrus.WithField("component", "dbaas_db_cluster")
-	return &TemplateService{
+	return &templateService{
 		db:          db,
 		l:           l,
 		kubeStorage: NewKubeStorage(db),
@@ -47,7 +47,7 @@ func NewTemplateService(db *reform.DB) dbaasv1beta1.TemplatesServer { //nolint:i
 }
 
 // ListTemplates returns a list of templates.
-func (s TemplateService) ListTemplates(ctx context.Context, req *dbaasv1beta1.ListTemplatesRequest) (*dbaasv1beta1.ListTemplatesResponse, error) {
+func (s templateService) ListTemplates(ctx context.Context, req *dbaasv1beta1.ListTemplatesRequest) (*dbaasv1beta1.ListTemplatesResponse, error) {
 	var clusterType string
 	switch req.ClusterType {
 	case dbaasv1beta1.DBClusterType_DB_CLUSTER_TYPE_PXC:

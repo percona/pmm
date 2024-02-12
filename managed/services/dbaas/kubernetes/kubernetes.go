@@ -51,13 +51,14 @@ import (
 	"github.com/percona/pmm/managed/services/dbaas/utils/convertors"
 )
 
+// ClusterType is used by Kubernetes.
 type ClusterType string
 
 const (
-	ClusterTypeUnknown         ClusterType = "unknown"
-	ClusterTypeMinikube        ClusterType = "minikube"
-	ClusterTypeEKS             ClusterType = "eks"
-	ClusterTypeGeneric         ClusterType = "generic"
+	ClusterTypeUnknown         ClusterType = "unknown"  //nolint:revive
+	ClusterTypeMinikube        ClusterType = "minikube" //nolint:revive
+	ClusterTypeEKS             ClusterType = "eks"      //nolint:revive
+	ClusterTypeGeneric         ClusterType = "generic"  //nolint:revive
 	pxcDeploymentName                      = "percona-xtradb-cluster-operator"
 	psmdbDeploymentName                    = "percona-server-mongodb-operator"
 	dbaasDeploymentName                    = "dbaas-operator-controller-manager"
@@ -381,6 +382,7 @@ func (k *Kubernetes) CreatePMMSecret(secretName string, secrets map[string][]byt
 	return k.client.ApplyObject(secret)
 }
 
+// CreateRestore will apply restore.
 func (k *Kubernetes) CreateRestore(restore *dbaasv1.DatabaseClusterRestore) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()

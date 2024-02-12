@@ -57,12 +57,12 @@ func (n *NoOp) Changes() <-chan agents.Change {
 }
 
 // Describe implements prometheus.Collector.
-func (n *NoOp) Describe(ch chan<- *prometheus.Desc) {
+func (n *NoOp) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (n *NoOp) Collect(ch chan<- prometheus.Metric) {
+func (n *NoOp) Collect(ch chan<- prometheus.Metric) { //nolint:revive
 	// This method is needed to satisfy interface.
 }
 

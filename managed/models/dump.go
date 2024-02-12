@@ -22,14 +22,15 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+// DumpStatus represents the status of a dump process.
+//
 //go:generate ../../bin/reform
-
 type DumpStatus string
 
 const (
-	DumpStatusInProgress = DumpStatus("in_progress")
-	DumpStatusSuccess    = DumpStatus("success")
-	DumpStatusError      = DumpStatus("error")
+	DumpStatusInProgress = DumpStatus("in_progress") //nolint:revive
+	DumpStatusSuccess    = DumpStatus("success")     //nolint:revive
+	DumpStatusError      = DumpStatus("error")       //nolint:revive
 )
 
 // Validate validates Dumps status.
