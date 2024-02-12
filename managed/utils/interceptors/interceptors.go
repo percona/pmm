@@ -80,6 +80,7 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) error {
 	return err
 }
 
+// UnaryInterceptorType represents the type of a unary gRPC interceptor.
 type UnaryInterceptorType = func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error)
 
 // Unary adds context logger and Prometheus metrics to unary server RPC.

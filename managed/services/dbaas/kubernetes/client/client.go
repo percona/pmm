@@ -89,11 +89,11 @@ const (
 //
 //nolint:stylecheck
 const (
-	LEVEL_0 = iota
-	LEVEL_1
-	LEVEL_2
-	LEVEL_3
-	LEVEL_4
+	LEVEL_0 = iota //nolint:revive
+	LEVEL_1        //nolint:revive
+	LEVEL_2        //nolint:revive
+	LEVEL_3        //nolint:revive
+	LEVEL_4        //nolint:revive
 )
 
 // Client is the internal client for Kubernetes.
@@ -101,7 +101,7 @@ type Client struct {
 	clientset        kubernetes.Interface
 	apiextClientset  apiextv1clientset.Interface
 	dynamicClientset dynamic.Interface
-	dbClusterClient  *database.DatabaseClusterClient
+	dbClusterClient  *database.ClusterClient
 	rcLock           *sync.Mutex
 	restConfig       *rest.Config
 	namespace        string
@@ -377,6 +377,7 @@ func deleteObject(helper *resource.Helper, namespace, name string) error {
 	return nil
 }
 
+// ApplyObject update new values on object.
 func (c *Client) ApplyObject(obj runtime.Object) error {
 	groupResources, err := restmapper.GetAPIGroupResources(c.clientset.Discovery())
 	if err != nil {
@@ -504,6 +505,7 @@ func (c *Client) GetLogs(ctx context.Context, pod, container string) (string, er
 	return buf.String(), nil
 }
 
+// GetEvents return events.
 func (c *Client) GetEvents(ctx context.Context, name string) (string, error) {
 	pod, err := c.clientset.CoreV1().Pods(c.namespace).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
@@ -572,6 +574,7 @@ func tabbedString(f func(io.Writer) error) (string, error) {
 	return str, nil
 }
 
+// DescribeEvents show more detailed info.
 func DescribeEvents(el *corev1.EventList, w PrefixWriter) {
 	if len(el.Items) == 0 {
 		w.Writef(LEVEL_0, "Events:\t<none>\n")

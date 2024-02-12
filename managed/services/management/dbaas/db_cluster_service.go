@@ -318,6 +318,7 @@ func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.D
 	return c, nil
 }
 
+// GetDBCluster returns info about PXC and PSMDB clusters.
 func (s DBClusterService) GetDBCluster(ctx context.Context, req *dbaasv1beta1.GetDBClusterRequest) (*dbaasv1beta1.GetDBClusterResponse, error) {
 	kubeClient, err := s.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
@@ -399,7 +400,7 @@ func (s DBClusterService) DeleteDBCluster(ctx context.Context, req *dbaasv1beta1
 }
 
 // ListS3Backups returns list of backup artifacts stored on s3.
-func (s DBClusterService) ListS3Backups(ctx context.Context, req *dbaasv1beta1.ListS3BackupsRequest) (*dbaasv1beta1.ListS3BackupsResponse, error) {
+func (s DBClusterService) ListS3Backups(_ context.Context, req *dbaasv1beta1.ListS3BackupsRequest) (*dbaasv1beta1.ListS3BackupsResponse, error) {
 	if req == nil || (req != nil && req.LocationId == "") {
 		return nil, errors.New("location_id cannot be empty")
 	}

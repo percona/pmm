@@ -136,7 +136,7 @@ func (s *Server) Run(ctx context.Context, reloadCh chan bool) {
 }
 
 // Status returns current pmm-agent status.
-func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*agentlocalpb.StatusResponse, error) {
+func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*agentlocalpb.StatusResponse, error) { //nolint:revive
 	connected := true
 	md := s.client.GetServerConnectMetadata()
 	if md == nil {
@@ -184,7 +184,7 @@ func roundFloat(upTime float32, numAfterDot int) float32 {
 }
 
 // Reload reloads pmm-agent and its configuration.
-func (s *Server) Reload(ctx context.Context, req *agentlocalpb.ReloadRequest) (*agentlocalpb.ReloadResponse, error) {
+func (s *Server) Reload(ctx context.Context, req *agentlocalpb.ReloadRequest) (*agentlocalpb.ReloadResponse, error) { //nolint:revive
 	// sync errors with setup command
 
 	if _, err := s.cfg.Reload(s.l); err != nil {
@@ -365,7 +365,7 @@ func addData(zipW *zip.Writer, name string, data []byte) error {
 }
 
 // ZipLogs Handle function for generate zip file with logs.
-func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
+func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) { //nolint:revive
 	zipBuffer := &bytes.Buffer{}
 	zipWriter := zip.NewWriter(zipBuffer)
 

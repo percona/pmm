@@ -68,6 +68,7 @@ func (c *PMMAdminCommands) Run(ctx *kong.Context, globals *flags.GlobalFlags) er
 	return run(ctx, globals)
 }
 
+// GetGlobalFlags returns the global flags for PMMAdminCommands.
 func (c *PMMAdminCommands) GetGlobalFlags() *flags.GlobalFlags {
 	return &c.GlobalFlags
 }
@@ -81,6 +82,7 @@ type PMMCommands struct {
 	Completion commands.CompletionCommand `cmd:"" help:"Outputs shell code for initialising tab completions"`
 }
 
+// GetGlobalFlags returns the global flags for PMMAdminCommands.
 func (c *PMMCommands) GetGlobalFlags() *flags.GlobalFlags {
 	return &c.GlobalFlags
 }

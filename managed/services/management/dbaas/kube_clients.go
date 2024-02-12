@@ -32,7 +32,7 @@ type KubeStorage struct {
 	clients map[string]kubernetesClient
 }
 
-var ErrDatabaseNotSet = errors.New("Database connection not set")
+var errDatabaseNotSet = errors.New("Database connection not set")
 
 // NewKubeStorage returns a created KubeStorage.
 func NewKubeStorage(db *reform.DB) *KubeStorage {
@@ -53,7 +53,7 @@ func (k *KubeStorage) GetOrSetClient(name string) (kubernetesClient, error) { //
 	}
 
 	if k.db == nil {
-		return nil, ErrDatabaseNotSet
+		return nil, errDatabaseNotSet
 	}
 
 	kubernetesCluster, err := models.FindKubernetesClusterByName(k.db.Querier, name)

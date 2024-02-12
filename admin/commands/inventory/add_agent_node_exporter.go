@@ -51,6 +51,7 @@ type AddAgentNodeExporterCommand struct {
 	LogLevel          string            `enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [debug, info, warn, error]"`
 }
 
+// RunCmd runs the command for AddAgentNodeExporterCommand.
 func (cmd *AddAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &agents.AddNodeExporterParams{

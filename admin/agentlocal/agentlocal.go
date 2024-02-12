@@ -46,13 +46,14 @@ func SetTransport(ctx context.Context, debug bool, port uint32) {
 	client.Default.SetTransport(transport)
 }
 
+// NetworkInfo represents information about the network.
 type NetworkInfo bool
 
 const (
-	RequestNetworkInfo        NetworkInfo = true
-	DoNotRequestNetworkInfo   NetworkInfo = false
-	Localhost                             = "127.0.0.1"
-	DefaultPMMAgentListenPort             = 7777
+	RequestNetworkInfo        NetworkInfo = true        //nolint:revive
+	DoNotRequestNetworkInfo   NetworkInfo = false       //nolint:revive
+	Localhost                             = "127.0.0.1" //nolint:revive
+	DefaultPMMAgentListenPort             = 7777        //nolint:revive
 )
 
 // ErrNotSetUp is returned by GetStatus when pmm-agent is running, but not set up.
@@ -81,6 +82,7 @@ type Status struct {
 	ConnectionUptime float32 `json:"connection_uptime"`
 }
 
+// AgentStatus represents the status of the agent.
 type AgentStatus struct {
 	AgentID   string `json:"agent_id"`
 	AgentType string `json:"agent_type"`
