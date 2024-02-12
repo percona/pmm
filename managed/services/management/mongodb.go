@@ -34,6 +34,8 @@ type MongoDBService struct {
 	cc    connectionChecker
 	sib   serviceInfoBroker
 	vc    versionCache
+
+	managementv1.UnimplementedMongoDBServiceServer
 }
 
 // NewMongoDBService creates new MongoDB Management Service.
@@ -47,8 +49,8 @@ func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChe
 	}
 }
 
-// Add adds "MongoDB Service", "MongoDB Exporter Agent" and "QAN MongoDB Profiler".
-func (s *MongoDBService) Add(ctx context.Context, req *managementv1.AddMongoDBRequest) (*managementv1.AddMongoDBResponse, error) {
+// AddMongoDB adds "MongoDB Service", "MongoDB Exporter Agent" and "QAN MongoDB Profiler".
+func (s *MongoDBService) AddMongoDB(ctx context.Context, req *managementv1.AddMongoDBRequest) (*managementv1.AddMongoDBResponse, error) {
 	res := &managementv1.AddMongoDBResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {

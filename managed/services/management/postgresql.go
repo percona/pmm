@@ -37,6 +37,8 @@ type PostgreSQLService struct {
 	state agentsStateUpdater
 	cc    connectionChecker
 	sib   serviceInfoBroker
+
+	managementv1.UnimplementedPostgreSQLServiceServer
 }
 
 // NewPostgreSQLService creates new PostgreSQL Management Service.
@@ -49,8 +51,8 @@ func NewPostgreSQLService(db *reform.DB, state agentsStateUpdater, cc connection
 	}
 }
 
-// Add adds "PostgreSQL Service", "PostgreSQL Exporter Agent" and "QAN PostgreSQL PerfSchema Agent".
-func (s *PostgreSQLService) Add(ctx context.Context, req *managementv1.AddPostgreSQLRequest) (*managementv1.AddPostgreSQLResponse, error) {
+// AddPostgreSQL adds "PostgreSQL Service", "PostgreSQL Exporter Agent" and "QAN PostgreSQL PerfSchema Agent".
+func (s *PostgreSQLService) AddPostgreSQL(ctx context.Context, req *managementv1.AddPostgreSQLRequest) (*managementv1.AddPostgreSQLResponse, error) {
 	res := &managementv1.AddPostgreSQLResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
