@@ -53,7 +53,7 @@ func NewNodeService(db *reform.DB, akp apiKeyProvider) *NodeService {
 	}
 }
 
-// Register performs the registration of a new node.
+// RegisterNode performs the registration of a new node.
 func (s *NodeService) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) {
 	res := &managementv1.RegisterNodeResponse{}
 
