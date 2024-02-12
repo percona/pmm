@@ -53,6 +53,7 @@ type AddNodeRemoteRDSCommand struct {
 	CustomLabels map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 }
 
+// RunCmd executes the AddNodeRemoteRDSCommand and returns the result.
 func (cmd *AddNodeRemoteRDSCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &nodes.AddRemoteRDSNodeParams{

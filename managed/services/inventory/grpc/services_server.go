@@ -99,7 +99,7 @@ func (s *servicesServer) ListServices(ctx context.Context, req *inventorypb.List
 // ListActiveServiceTypes returns list of active Services.
 func (s *servicesServer) ListActiveServiceTypes(
 	ctx context.Context,
-	req *inventorypb.ListActiveServiceTypesRequest,
+	req *inventorypb.ListActiveServiceTypesRequest, //nolint:revive
 ) (*inventorypb.ListActiveServiceTypesResponse, error) {
 	types, err := s.s.ListActiveServiceTypes(ctx)
 	if err != nil {

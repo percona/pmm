@@ -383,6 +383,7 @@ func (s *ScheduledTask) ServiceID() (string, error) {
 	return data.ServiceID, nil
 }
 
+// CommonBackupData returns the common backup data for the scheduled task.
 func (s *ScheduledTask) CommonBackupData() (*CommonBackupTaskData, error) {
 	if s.Data != nil {
 		switch s.Type {

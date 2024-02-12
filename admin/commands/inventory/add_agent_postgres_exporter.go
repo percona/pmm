@@ -68,6 +68,7 @@ type AddAgentPostgresExporterCommand struct {
 	AutoDiscoveryLimit  int32             `default:"0" placeholder:"NUMBER" help:"Auto-discovery will be disabled if there are more than that number of databases (default: server-defined, -1: always disabled)"`
 }
 
+// RunCmd executes the AddAgentPostgresExporterCommand and returns the result.
 func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
