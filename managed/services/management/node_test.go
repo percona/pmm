@@ -71,7 +71,7 @@ func TestNodeService(t *testing.T) {
 			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
-			res, err := s.Register(ctx, &managementv1.RegisterNodeRequest{
+			res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
 				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 				NodeName: "node",
 				Address:  "some.address.org",
@@ -95,7 +95,7 @@ func TestNodeService(t *testing.T) {
 			assert.NoError(t, err)
 
 			t.Run("Exist", func(t *testing.T) {
-				res, err = s.Register(ctx, &managementv1.RegisterNodeRequest{
+				res, err = s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
 					NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 					NodeName: "node",
 				})
@@ -104,7 +104,7 @@ func TestNodeService(t *testing.T) {
 			})
 
 			t.Run("Reregister", func(t *testing.T) {
-				res, err = s.Register(ctx, &managementv1.RegisterNodeRequest{
+				res, err = s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
 					NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 					NodeName:   "node",
 					Address:    "some.address.org",
@@ -129,7 +129,7 @@ func TestNodeService(t *testing.T) {
 				assert.NoError(t, err)
 			})
 			t.Run("Reregister-force", func(t *testing.T) {
-				res, err = s.Register(ctx, &managementv1.RegisterNodeRequest{
+				res, err = s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
 					NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 					NodeName:   "node-name-new",
 					Address:    "some.address.org",
