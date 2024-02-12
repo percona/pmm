@@ -32,6 +32,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
 )
 
+// ErrorResponse represents the response structure for error scenarios.
 type ErrorResponse interface {
 	Code() int
 }
@@ -80,7 +81,8 @@ func AssertAPIErrorf(t TestingT, actual error, httpStatus int, grpcCode codes.Co
 	assert.Contains(t, errorField.String(), format)
 }
 
-func ExpectFailure(t *testing.T, link string) *expectedFailureTestingT {
+// ExpectFailure sets up expectations for a test case to fail.
+func ExpectFailure(t *testing.T, link string) *expectedFailureTestingT { //nolint:revive
 	t.Helper()
 	return &expectedFailureTestingT{
 		t:    t,
@@ -128,6 +130,7 @@ func (tt *expectedFailureTestingT) Check() {
 	tt.t.Fatalf("%s expected to fail, but didn't: %s", tt.Name(), tt.link)
 }
 
+// RemoveNodes removes specified nodes.
 func RemoveNodes(t TestingT, nodeIDs ...string) {
 	t.Helper()
 
@@ -144,6 +147,7 @@ func RemoveNodes(t TestingT, nodeIDs ...string) {
 	}
 }
 
+// RemoveServices removes specified services.
 func RemoveServices(t TestingT, serviceIDs ...string) {
 	t.Helper()
 
@@ -161,6 +165,7 @@ func RemoveServices(t TestingT, serviceIDs ...string) {
 	}
 }
 
+// RemoveAgents removes specified agents.
 func RemoveAgents(t TestingT, agentIDs ...string) {
 	t.Helper()
 
@@ -177,6 +182,7 @@ func RemoveAgents(t TestingT, agentIDs ...string) {
 	}
 }
 
+// AddGenericNode adds a generic node.
 func AddGenericNode(t TestingT, nodeName string) *nodes.AddGenericNodeOKBodyGeneric {
 	t.Helper()
 
@@ -195,6 +201,7 @@ func AddGenericNode(t TestingT, nodeName string) *nodes.AddGenericNodeOKBodyGene
 	return res.Payload.Generic
 }
 
+// AddRemoteNode adds a remote node.
 func AddRemoteNode(t TestingT, nodeName string) *nodes.AddRemoteNodeOKBody {
 	t.Helper()
 
@@ -211,6 +218,7 @@ func AddRemoteNode(t TestingT, nodeName string) *nodes.AddRemoteNodeOKBody {
 	return res.Payload
 }
 
+// AddNode adds a node.
 func AddNode(t TestingT, nodeBody *nodes.AddNodeBody) *nodes.AddNodeOKBody {
 	t.Helper()
 
@@ -226,6 +234,7 @@ func AddNode(t TestingT, nodeBody *nodes.AddNodeBody) *nodes.AddNodeOKBody {
 	return res.Payload
 }
 
+// AddPMMAgent adds a PMM agent.
 func AddPMMAgent(t TestingT, nodeID string) *agents.AddPMMAgentOKBody {
 	t.Helper()
 

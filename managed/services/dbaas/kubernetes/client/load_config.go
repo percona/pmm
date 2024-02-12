@@ -26,7 +26,7 @@ type configGetter struct {
 }
 
 // NewConfigGetter creates a new configGetter struct.
-func NewConfigGetter(kubeconfig string) *configGetter {
+func NewConfigGetter(kubeconfig string) *configGetter { //nolint:revive
 	return &configGetter{kubeconfig: kubeconfig}
 }
 
