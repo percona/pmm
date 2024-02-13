@@ -18,6 +18,7 @@ package serviceinfobroker
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"math"
 	"path/filepath"
@@ -230,6 +231,12 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 		res.Error = err.Error()
 	}
 	res.Version = version
+
+	var pgsmVersion string
+	if err = db.QueryRowContext(ctx, "SELECT /* agent='serviceinfobroker' */ extversion FROM pg_extension WHERE extname = 'pg_stat_monitor';").Scan(&pgsmVersion); err != nil && !errors.Is(err, sql.ErrNoRows) {
+		res.Error = err.Error()
+	}
+	res.PgsmVersion = pgsmVersion
 
 	return &res
 }
