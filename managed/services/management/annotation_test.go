@@ -24,6 +24,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -36,10 +37,12 @@ import (
 )
 
 func TestAnnotations(t *testing.T) {
+	authorization := "admin:admin"
 	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, teardown func(t *testing.T)) {
 		t.Helper()
 
-		ctx = logger.Set(context.Background(), t.Name())
+		ctx = metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{"authorization": authorization}))
+		ctx = logger.Set(ctx, t.Name())
 		uuid.SetRand(&tests.IDReader{})
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
@@ -54,16 +57,13 @@ func TestAnnotations(t *testing.T) {
 
 		return
 	}
-	authorization := "admin:admin"
-	authorizationHeaders := []string{authorization}
 
 	t.Run("Non-existing service", func(t *testing.T) {
 		ctx, db, teardown := setup(t)
 		defer teardown(t)
 		grafanaClient := &mockGrafanaClient{}
 		s := NewAnnotationService(db, grafanaClient)
-
-		_, err := s.AddAnnotation(ctx, authorizationHeaders, &managementv1.AddAnnotationRequest{
+		_, err := s.AddAnnotation(ctx, &managementv1.AddAnnotationRequest{
 			Text:         "Some text",
 			ServiceNames: []string{"no-service"},
 		})
@@ -78,7 +78,7 @@ func TestAnnotations(t *testing.T) {
 		grafanaClient := &mockGrafanaClient{}
 		s := NewAnnotationService(db, grafanaClient)
 
-		_, err := s.AddAnnotation(ctx, authorizationHeaders, &managementv1.AddAnnotationRequest{
+		_, err := s.AddAnnotation(ctx, &managementv1.AddAnnotationRequest{
 			Text:     "Some text",
 			NodeName: "no-node",
 		})
@@ -104,7 +104,7 @@ func TestAnnotations(t *testing.T) {
 		expectedTags := []string{"service-test"}
 		expectedText := "Some text (Service Name: service-test)"
 		grafanaClient.On("CreateAnnotation", ctx, expectedTags, mock.Anything, expectedText, authorization).Return("", nil)
-		_, err = s.AddAnnotation(ctx, authorizationHeaders, &managementv1.AddAnnotationRequest{
+		_, err = s.AddAnnotation(ctx, &managementv1.AddAnnotationRequest{
 			Text:         "Some text",
 			ServiceNames: []string{"service-test"},
 		})
@@ -127,7 +127,7 @@ func TestAnnotations(t *testing.T) {
 		expectedTags := []string{"node-test"}
 		expectedText := "Some text (Node Name: node-test)"
 		grafanaClient.On("CreateAnnotation", ctx, expectedTags, mock.Anything, expectedText, authorization).Return("", nil)
-		_, err = s.AddAnnotation(ctx, authorizationHeaders, &managementv1.AddAnnotationRequest{
+		_, err = s.AddAnnotation(ctx, &managementv1.AddAnnotationRequest{
 			Text:     "Some text",
 			NodeName: "node-test",
 		})
@@ -142,7 +142,7 @@ func TestAnnotations(t *testing.T) {
 		grafanaClient := &mockGrafanaClient{}
 		s := NewAnnotationService(db, grafanaClient)
 
-		_, err := s.AddAnnotation(ctx, authorizationHeaders, &managementv1.AddAnnotationRequest{
+		_, err := s.AddAnnotation(ctx, &managementv1.AddAnnotationRequest{
 			Text:         "Some text",
 			NodeName:     "no-node",
 			ServiceNames: []string{"no-service"},
@@ -161,7 +161,7 @@ func TestAnnotations(t *testing.T) {
 		expectedTags := []string{"pmm_annotation"}
 		expectedText := "Some text"
 		grafanaClient.On("CreateAnnotation", ctx, expectedTags, mock.Anything, expectedText, authorization).Return("", nil)
-		_, err := s.AddAnnotation(ctx, authorizationHeaders, &managementv1.AddAnnotationRequest{
+		_, err := s.AddAnnotation(ctx, &managementv1.AddAnnotationRequest{
 			Text: "Some text",
 		})
 		require.NoError(t, err)
@@ -183,7 +183,7 @@ func TestAnnotations(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		_, err = s.AddAnnotation(ctx, authorizationHeaders, &managementv1.AddAnnotationRequest{
+		_, err = s.AddAnnotation(ctx, &managementv1.AddAnnotationRequest{
 			Text:         "Some text",
 			ServiceNames: []string{"service-test"},
 			NodeName:     "node-test",
@@ -215,7 +215,7 @@ func TestAnnotations(t *testing.T) {
 		expectedTags := []string{"service-test", "node-test"}
 		expectedText := "Some text (Service Name: service-test. Node Name: node-test)"
 		grafanaClient.On("CreateAnnotation", ctx, expectedTags, mock.Anything, expectedText, authorization).Return("", nil)
-		_, err = s.AddAnnotation(ctx, authorizationHeaders, &managementv1.AddAnnotationRequest{
+		_, err = s.AddAnnotation(ctx, &managementv1.AddAnnotationRequest{
 			Text:         "Some text",
 			ServiceNames: []string{"service-test"},
 			NodeName:     "node-test",
@@ -250,7 +250,7 @@ func TestAnnotations(t *testing.T) {
 		expectedTags := []string{"service-test", "service-test2"}
 		expectedText := "Some text (Service Name: service-test, service-test2)"
 		grafanaClient.On("CreateAnnotation", ctx, expectedTags, mock.Anything, expectedText, authorization).Return("", nil)
-		_, err = s.AddAnnotation(ctx, authorizationHeaders, &managementv1.AddAnnotationRequest{
+		_, err = s.AddAnnotation(ctx, &managementv1.AddAnnotationRequest{
 			Text:         "Some text",
 			ServiceNames: []string{"service-test", "service-test2"},
 		})
@@ -273,7 +273,7 @@ func TestAnnotations(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		_, err = s.AddAnnotation(ctx, authorizationHeaders, &managementv1.AddAnnotationRequest{
+		_, err = s.AddAnnotation(ctx, &managementv1.AddAnnotationRequest{
 			Text:         "Some text",
 			ServiceNames: []string{"service-test", "no-service"},
 		})
