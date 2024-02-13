@@ -30,19 +30,6 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// type AnnotationServer struct {
-// 	svc *management.AnnotationService
-
-// 	managementv1.UnimplementedAnnotationServiceServer
-// }
-
-// NewAnnotationServer creates Annotation Server.
-// func NewAnnotationServer(db *reform.DB, grafanaClient *grafana.Client) *AnnotationServer {
-// 	return &AnnotationServer{
-// 		svc: management.NewAnnotationService(db, grafanaClient),
-// 	}
-// }
-
 // AnnotationService Annotation Service.
 type AnnotationService struct {
 	db            *reform.DB
