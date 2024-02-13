@@ -233,7 +233,8 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 	res.Version = version
 
 	var pgsmVersion string
-	if err = db.QueryRowContext(ctx, "SELECT /* agent='serviceinfobroker' */ extversion FROM pg_extension WHERE extname = 'pg_stat_monitor';").Scan(&pgsmVersion); err != nil && !errors.Is(err, sql.ErrNoRows) {
+	err = db.QueryRowContext(ctx, "SELECT /* agent='serviceinfobroker' */ extversion FROM pg_extension WHERE extname = 'pg_stat_monitor';").Scan(&pgsmVersion)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		res.Error = err.Error()
 	}
 	res.PgsmVersion = pgsmVersion
