@@ -6,6 +6,17 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "qan/v1/qan.proto";
 
+// Filters serves list of names of metrics.
+service FiltersService {
+  // Get gets map of metrics names.
+  rpc GetFilteredMetricsNames(GetFilteredMetricsNamesRequest) returns (GetFilteredMetricsNamesResponse) {
+    option (google.api.http) = {
+      post: "/v0/qan/Filters/Get"
+      body: "*"
+    };
+  }
+}
+
 // GetFilteredMetricsNamesRequest contains period for which we need filters.
 message GetFilteredMetricsNamesRequest {
   google.protobuf.Timestamp period_start_from = 1;

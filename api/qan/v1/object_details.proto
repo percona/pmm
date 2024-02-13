@@ -7,6 +7,64 @@ import "google/protobuf/timestamp.proto";
 import "qan/v1/qan.proto";
 
 // ObjectDetails serves agregated metrics filtered by given dimension value and period.
+service ObjectDetailsService {
+  // GetMetrics gets map of metrics for specific filtering.
+  rpc GetMetrics(GetMetricsRequest) returns (GetMetricsResponse) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/GetMetrics"
+      body: "*"
+    };
+  }
+  // GetQueryExample gets list of query examples.
+  rpc GetQueryExample(GetQueryExampleRequest) returns (GetQueryExampleResponse) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/GetQueryExample"
+      body: "*"
+    };
+  }
+  // GetLabels gets list of labels for object details.
+  rpc GetLabels(GetLabelsRequest) returns (GetLabelsResponse) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/GetLabels"
+      body: "*"
+    };
+  }
+  // GetQueryPlan gets query plan and plan id for specific filtering.
+  rpc GetQueryPlan(GetQueryPlanRequest) returns (GetQueryPlanResponse) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/GetQueryPlan"
+      body: "*"
+    };
+  }
+  // GetHistogram gets histogram items for specific filtering.
+  rpc GetHistogram(GetHistogramRequest) returns (GetHistogramResponse) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/GetHistogram"
+      body: "*"
+    };
+  }
+  // QueryExists check if query exists in clickhouse.
+  rpc QueryExists(QueryExistsRequest) returns (QueryExistsResponse) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/QueryExists"
+      body: "*"
+    };
+  }
+  // ExplainFingerprintByQueryID get explain fingerprint for given query ID.
+  rpc ExplainFingerprintByQueryID(ExplainFingerprintByQueryIDRequest) returns (ExplainFingerprintByQueryIDResponse) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/ExplainFingerprintByQueryID"
+      body: "*"
+    };
+  }
+  // SchemaByQueryID returns schema for given queryID and serviceID.
+  rpc SchemaByQueryID(SchemaByQueryIDRequest) returns (SchemaByQueryIDResponse) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/SchemaByQueryID"
+      body: "*"
+    };
+  }
+}
 
 // GetMetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 message GetMetricsRequest {

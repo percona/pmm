@@ -15,10 +15,10 @@
     "version": "v0"
   },
   "paths": {
-    "/v1/qan/Filters/Get": {
+    "/v0/qan/Filters/Get": {
       "post": {
         "tags": [
-          "QANService"
+          "FiltersService"
         ],
         "summary": "Get gets map of metrics names.",
         "operationId": "GetFilteredMetricsNames",
@@ -149,10 +149,10 @@
         }
       }
     },
-    "/v1/qan/GetMetricsNames": {
+    "/v0/qan/GetMetricsNames": {
       "post": {
         "tags": [
-          "QANService"
+          "MetricsNamesService"
         ],
         "summary": "GetMetricsNames gets map of metrics names.",
         "operationId": "GetMetricsNames",
@@ -219,12 +219,12 @@
         }
       }
     },
-    "/v1/qan/GetReport": {
+    "/v0/qan/GetReport": {
       "post": {
         "tags": [
-          "QANService"
+          "ProfileService"
         ],
-        "summary": "GetReport returns list of metrics grouped by queryid or other dimensions.",
+        "summary": "GetReport returns list of metrics group by queryid or other dimentions.",
         "operationId": "GetReport",
         "parameters": [
           {
@@ -843,12 +843,12 @@
         }
       }
     },
-    "/v1/qan/ObjectDetails/ExplainFingerprintByQueryID": {
+    "/v0/qan/ObjectDetails/ExplainFingerprintByQueryID": {
       "post": {
         "tags": [
-          "QANService"
+          "ObjectDetailsService"
         ],
-        "summary": "ExplainFingerprintByQueryID gets an explain fingerprint for given query ID.",
+        "summary": "ExplainFingerprintByQueryID get explain fingerprint for given query ID.",
         "operationId": "ExplainFingerprintByQueryID",
         "parameters": [
           {
@@ -925,10 +925,10 @@
         }
       }
     },
-    "/v1/qan/ObjectDetails/GetHistogram": {
+    "/v0/qan/ObjectDetails/GetHistogram": {
       "post": {
         "tags": [
-          "QANService"
+          "ObjectDetailsService"
         ],
         "summary": "GetHistogram gets histogram items for specific filtering.",
         "operationId": "GetHistogram",
@@ -1044,12 +1044,12 @@
         }
       }
     },
-    "/v1/qan/ObjectDetails/GetLabels": {
+    "/v0/qan/ObjectDetails/GetLabels": {
       "post": {
         "tags": [
-          "QANService"
+          "ObjectDetailsService"
         ],
-        "summary": "GetLabels gets a list of labels for object details.",
+        "summary": "GetLabels gets list of labels for object details.",
         "operationId": "GetLabels",
         "parameters": [
           {
@@ -1146,12 +1146,12 @@
         }
       }
     },
-    "/v1/qan/ObjectDetails/GetMetrics": {
+    "/v0/qan/ObjectDetails/GetMetrics": {
       "post": {
         "tags": [
-          "QANService"
+          "ObjectDetailsService"
         ],
-        "summary": "GetMetrics gets a map of metrics for specific filtering.",
+        "summary": "GetMetrics gets map of metrics for specific filtering.",
         "operationId": "GetMetrics",
         "parameters": [
           {
@@ -1811,12 +1811,12 @@
         }
       }
     },
-    "/v1/qan/ObjectDetails/GetQueryExample": {
+    "/v0/qan/ObjectDetails/GetQueryExample": {
       "post": {
         "tags": [
-          "QANService"
+          "ObjectDetailsService"
         ],
-        "summary": "GetQueryExample gets a list of query examples.",
+        "summary": "GetQueryExample gets list of query examples.",
         "operationId": "GetQueryExample",
         "parameters": [
           {
@@ -1990,12 +1990,12 @@
         }
       }
     },
-    "/v1/qan/ObjectDetails/GetQueryPlan": {
+    "/v0/qan/ObjectDetails/GetQueryPlan": {
       "post": {
         "tags": [
-          "QANService"
+          "ObjectDetailsService"
         ],
-        "summary": "GetQueryPlan gets a query plan and plan id for specific filtering.",
+        "summary": "GetQueryPlan gets query plan and plan id for specific filtering.",
         "operationId": "GetQueryPlan",
         "parameters": [
           {
@@ -2067,12 +2067,12 @@
         }
       }
     },
-    "/v1/qan/ObjectDetails/QueryExists": {
+    "/v0/qan/ObjectDetails/QueryExists": {
       "post": {
         "tags": [
-          "QANService"
+          "ObjectDetailsService"
         ],
-        "summary": "QueryExists checks if query exists in clickhouse.",
+        "summary": "QueryExists check if query exists in clickhouse.",
         "operationId": "QueryExists",
         "parameters": [
           {
@@ -2144,12 +2144,12 @@
         }
       }
     },
-    "/v1/qan/ObjectDetails/SchemaByQueryID": {
+    "/v0/qan/ObjectDetails/SchemaByQueryID": {
       "post": {
         "tags": [
-          "QANService"
+          "ObjectDetailsService"
         ],
-        "summary": "SchemaByQueryID returns a schema for given queryID and serviceID.",
+        "summary": "SchemaByQueryID returns schema for given queryID and serviceID.",
         "operationId": "SchemaByQueryID",
         "parameters": [
           {
@@ -2227,7 +2227,16 @@
       "name": "CollectorService"
     },
     {
-      "name": "QANService"
+      "name": "FiltersService"
+    },
+    {
+      "name": "MetricsNamesService"
+    },
+    {
+      "name": "ObjectDetailsService"
+    },
+    {
+      "name": "ProfileService"
     }
   ]
 }
