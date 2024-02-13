@@ -35,11 +35,10 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
-func logRequest(l *logrus.Entry, prefix string, f func() error) error {
+func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 	start := time.Now()
 	l.Infof("Starting %s ...", prefix)
 
-	var err error
 	defer func() {
 		dur := time.Since(start)
 
@@ -77,8 +76,7 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) error {
 	}()
 
 	err = f()
-	return err
-}
+	return //nolint:nakedret
 
 // UnaryInterceptorType represents the type of a unary gRPC interceptor.
 type UnaryInterceptorType = func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error)
