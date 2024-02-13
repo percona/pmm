@@ -58,7 +58,7 @@ func (a *Client) Connect(params *ConnectParams, opts ...ClientOption) (*ConnectO
 	op := &runtime.ClientOperation{
 		ID:                 "Connect",
 		Method:             "POST",
-		PathPattern:        "/v1/Platform/Connect",
+		PathPattern:        "/v1/platform/Connect",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -97,7 +97,7 @@ func (a *Client) Disconnect(params *DisconnectParams, opts ...ClientOption) (*Di
 	op := &runtime.ClientOperation{
 		ID:                 "Disconnect",
 		Method:             "POST",
-		PathPattern:        "/v1/Platform/Disconnect",
+		PathPattern:        "/v1/platform/Disconnect",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -136,7 +136,7 @@ func (a *Client) GetContactInformation(params *GetContactInformationParams, opts
 	op := &runtime.ClientOperation{
 		ID:                 "GetContactInformation",
 		Method:             "POST",
-		PathPattern:        "/v1/Platform/GetContactInformation",
+		PathPattern:        "/v1/platform/GetContactInformation",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -175,7 +175,7 @@ func (a *Client) SearchOrganizationEntitlements(params *SearchOrganizationEntitl
 	op := &runtime.ClientOperation{
 		ID:                 "SearchOrganizationEntitlements",
 		Method:             "POST",
-		PathPattern:        "/v1/Platform/SearchOrganizationEntitlements",
+		PathPattern:        "/v1/platform/SearchOrganizationEntitlements",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -214,7 +214,7 @@ func (a *Client) SearchOrganizationTickets(params *SearchOrganizationTicketsPara
 	op := &runtime.ClientOperation{
 		ID:                 "SearchOrganizationTickets",
 		Method:             "POST",
-		PathPattern:        "/v1/Platform/SearchOrganizationTickets",
+		PathPattern:        "/v1/platform/SearchOrganizationTickets",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -253,7 +253,7 @@ func (a *Client) ServerInfo(params *ServerInfoParams, opts ...ClientOption) (*Se
 	op := &runtime.ClientOperation{
 		ID:                 "ServerInfo",
 		Method:             "POST",
-		PathPattern:        "/v1/Platform/ServerInfo",
+		PathPattern:        "/v1/platform/ServerInfo",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -292,7 +292,7 @@ func (a *Client) UserStatus(params *UserStatusParams, opts ...ClientOption) (*Us
 	op := &runtime.ClientOperation{
 		ID:                 "UserStatus",
 		Method:             "POST",
-		PathPattern:        "/v1/Platform/UserStatus",
+		PathPattern:        "/v1/platform/UserStatus",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

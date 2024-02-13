@@ -132,633 +132,6 @@
         }
       }
     },
-    "/v1/Platform/Connect": {
-      "post": {
-        "description": "Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "Connect",
-        "operationId": "Connect",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "server_name": {
-                  "description": "User defined human readable PMM Server Name.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "personal_access_token": {
-                  "description": "Personal Access Token that the user obtains from Percona Portal.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/Platform/Disconnect": {
-      "post": {
-        "description": "Disconnect a PMM server from the organization created on Percona Portal.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "Disconnect",
-        "operationId": "Disconnect",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "force": {
-                  "type": "boolean",
-                  "title": "Forces the cleanup process for connected PMM instances regardless of the Portal API response",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/Platform/GetContactInformation": {
-      "post": {
-        "description": "GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "GetContactInformation",
-        "operationId": "GetContactInformation",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "customer_success": {
-                  "description": "CustomerSuccess contains the contanct details of the customer success employee assigned to a customer's account.",
-                  "type": "object",
-                  "properties": {
-                    "name": {
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "email": {
-                      "type": "string",
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 0
-                },
-                "new_ticket_url": {
-                  "description": "URL to open a new support ticket.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/Platform/SearchOrganizationEntitlements": {
-      "post": {
-        "description": "SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "SearchOrganizationEntitlements",
-        "operationId": "SearchOrganizationEntitlements",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "entitlements": {
-                  "type": "array",
-                  "items": {
-                    "description": "OrganizationEntitlement contains information about Organization entitlement.",
-                    "type": "object",
-                    "properties": {
-                      "number": {
-                        "description": "Entitlement number.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "name": {
-                        "description": "Entitlement name.",
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "summary": {
-                        "description": "Entitlement short summary.",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "tier": {
-                        "description": "Entitlement tier.",
-                        "type": "string",
-                        "x-nullable": true,
-                        "x-order": 3
-                      },
-                      "total_units": {
-                        "description": "Total units covered by this entitlement.",
-                        "type": "string",
-                        "x-nullable": true,
-                        "x-order": 4
-                      },
-                      "unlimited_units": {
-                        "description": "Flag indicates that unlimited units are covered.",
-                        "type": "boolean",
-                        "x-nullable": true,
-                        "x-order": 5
-                      },
-                      "support_level": {
-                        "description": "Support level covered by this entitlement.",
-                        "type": "string",
-                        "x-nullable": true,
-                        "x-order": 6
-                      },
-                      "software_families": {
-                        "description": "Percona product families covered by this entitlement.",
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        },
-                        "x-order": 7
-                      },
-                      "start_date": {
-                        "description": "Entitlement start data.\nNote: only date is used here but not time.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 8
-                      },
-                      "end_date": {
-                        "description": "Entitlement end date.\nNote: only date is used here but not time.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 9
-                      },
-                      "platform": {
-                        "description": "Platform indicates platform specific entitlements.",
-                        "type": "object",
-                        "properties": {
-                          "security_advisor": {
-                            "description": "Flag indicates that security advisors are covered by this entitlement.",
-                            "type": "string",
-                            "x-nullable": true,
-                            "x-order": 0
-                          },
-                          "config_advisor": {
-                            "description": "Flag indicates that config advisors are covered by this entitlement.",
-                            "type": "string",
-                            "x-nullable": true,
-                            "x-order": 1
-                          }
-                        },
-                        "x-order": 10
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/Platform/SearchOrganizationTickets": {
-      "post": {
-        "description": "SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "SearchOrganizationTickets",
-        "operationId": "SearchOrganizationTickets",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "tickets": {
-                  "description": "Support tickets belonging to the Percona Portal Organization.",
-                  "type": "array",
-                  "items": {
-                    "description": "OrganizationTicket contains information about the support ticket.",
-                    "type": "object",
-                    "properties": {
-                      "number": {
-                        "description": "Ticket number.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "short_description": {
-                        "description": "Ticket short description.",
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "priority": {
-                        "description": "Ticket priority.",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "state": {
-                        "description": "Ticket state.",
-                        "type": "string",
-                        "x-order": 3
-                      },
-                      "create_time": {
-                        "description": "Ticket creation time.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 4
-                      },
-                      "department": {
-                        "description": "Department.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "requester": {
-                        "description": "Ticket requester.",
-                        "type": "string",
-                        "x-order": 6
-                      },
-                      "task_type": {
-                        "description": "Task type.",
-                        "type": "string",
-                        "x-order": 7
-                      },
-                      "url": {
-                        "description": "Ticket url.",
-                        "type": "string",
-                        "x-order": 8
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/Platform/ServerInfo": {
-      "post": {
-        "description": "ServerInfo returns PMM server ID and name.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "ServerInfo",
-        "operationId": "ServerInfo",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pmm_server_name": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "pmm_server_id": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "pmm_server_telemetry_id": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "connected_to_portal": {
-                  "type": "boolean",
-                  "x-order": 3
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/Platform/UserStatus": {
-      "post": {
-        "description": "UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "UserStatus",
-        "operationId": "UserStatus",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "is_platform_user": {
-                  "type": "boolean",
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/Settings/Change": {
       "post": {
         "description": "Changes PMM Server settings.",
@@ -24541,6 +23914,633 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/platform/Connect": {
+      "post": {
+        "description": "Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.",
+        "tags": [
+          "PlatformService"
+        ],
+        "summary": "Connect",
+        "operationId": "Connect",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "server_name": {
+                  "description": "User defined human readable PMM Server Name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "personal_access_token": {
+                  "description": "Personal Access Token that the user obtains from Percona Portal.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/platform/Disconnect": {
+      "post": {
+        "description": "Disconnect a PMM server from the organization created on Percona Portal.",
+        "tags": [
+          "PlatformService"
+        ],
+        "summary": "Disconnect",
+        "operationId": "Disconnect",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "force": {
+                  "type": "boolean",
+                  "title": "Forces the cleanup process for connected PMM instances regardless of the Portal API response",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/platform/GetContactInformation": {
+      "post": {
+        "description": "GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.",
+        "tags": [
+          "PlatformService"
+        ],
+        "summary": "GetContactInformation",
+        "operationId": "GetContactInformation",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "customer_success": {
+                  "description": "CustomerSuccess contains the contanct details of the customer success employee assigned to a customer's account.",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "email": {
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 0
+                },
+                "new_ticket_url": {
+                  "description": "URL to open a new support ticket.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/platform/SearchOrganizationEntitlements": {
+      "post": {
+        "description": "SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.",
+        "tags": [
+          "PlatformService"
+        ],
+        "summary": "SearchOrganizationEntitlements",
+        "operationId": "SearchOrganizationEntitlements",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "entitlements": {
+                  "type": "array",
+                  "items": {
+                    "description": "OrganizationEntitlement contains information about Organization entitlement.",
+                    "type": "object",
+                    "properties": {
+                      "number": {
+                        "description": "Entitlement number.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "name": {
+                        "description": "Entitlement name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "summary": {
+                        "description": "Entitlement short summary.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "tier": {
+                        "description": "Entitlement tier.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 3
+                      },
+                      "total_units": {
+                        "description": "Total units covered by this entitlement.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 4
+                      },
+                      "unlimited_units": {
+                        "description": "Flag indicates that unlimited units are covered.",
+                        "type": "boolean",
+                        "x-nullable": true,
+                        "x-order": 5
+                      },
+                      "support_level": {
+                        "description": "Support level covered by this entitlement.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 6
+                      },
+                      "software_families": {
+                        "description": "Percona product families covered by this entitlement.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 7
+                      },
+                      "start_date": {
+                        "description": "Entitlement start data.\nNote: only date is used here but not time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 8
+                      },
+                      "end_date": {
+                        "description": "Entitlement end date.\nNote: only date is used here but not time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 9
+                      },
+                      "platform": {
+                        "description": "Platform indicates platform specific entitlements.",
+                        "type": "object",
+                        "properties": {
+                          "security_advisor": {
+                            "description": "Flag indicates that security advisors are covered by this entitlement.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 0
+                          },
+                          "config_advisor": {
+                            "description": "Flag indicates that config advisors are covered by this entitlement.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 1
+                          }
+                        },
+                        "x-order": 10
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/platform/SearchOrganizationTickets": {
+      "post": {
+        "description": "SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.",
+        "tags": [
+          "PlatformService"
+        ],
+        "summary": "SearchOrganizationTickets",
+        "operationId": "SearchOrganizationTickets",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "tickets": {
+                  "description": "Support tickets belonging to the Percona Portal Organization.",
+                  "type": "array",
+                  "items": {
+                    "description": "OrganizationTicket contains information about the support ticket.",
+                    "type": "object",
+                    "properties": {
+                      "number": {
+                        "description": "Ticket number.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "short_description": {
+                        "description": "Ticket short description.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "priority": {
+                        "description": "Ticket priority.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "state": {
+                        "description": "Ticket state.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "create_time": {
+                        "description": "Ticket creation time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 4
+                      },
+                      "department": {
+                        "description": "Department.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "requester": {
+                        "description": "Ticket requester.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "task_type": {
+                        "description": "Task type.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "url": {
+                        "description": "Ticket url.",
+                        "type": "string",
+                        "x-order": 8
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/platform/ServerInfo": {
+      "post": {
+        "description": "ServerInfo returns PMM server ID and name.",
+        "tags": [
+          "PlatformService"
+        ],
+        "summary": "ServerInfo",
+        "operationId": "ServerInfo",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pmm_server_name": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "pmm_server_id": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "pmm_server_telemetry_id": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "connected_to_portal": {
+                  "type": "boolean",
+                  "x-order": 3
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/platform/UserStatus": {
+      "post": {
+        "description": "UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.",
+        "tags": [
+          "PlatformService"
+        ],
+        "summary": "UserStatus",
+        "operationId": "UserStatus",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "is_platform_user": {
+                  "type": "boolean",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {

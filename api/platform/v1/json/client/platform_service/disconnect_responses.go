@@ -58,7 +58,7 @@ type DisconnectOK struct {
 }
 
 func (o *DisconnectOK) Error() string {
-	return fmt.Sprintf("[POST /v1/Platform/Disconnect][%d] disconnectOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/platform/Disconnect][%d] disconnectOk  %+v", 200, o.Payload)
 }
 
 func (o *DisconnectOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *DisconnectDefault) Code() int {
 }
 
 func (o *DisconnectDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/Platform/Disconnect][%d] Disconnect default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/platform/Disconnect][%d] Disconnect default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *DisconnectDefault) GetPayload() *DisconnectDefaultBody {

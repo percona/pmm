@@ -65,13 +65,13 @@ var rules = map[string]role{
 	"/v1/AWSInstanceCheck":                   none, // special case - used before Grafana can be accessed
 	"/v1/Updates/":                           admin,
 	"/v1/Settings/":                          admin,
-	"/v1/Platform/Connect":                   admin,
-	"/v1/Platform/Disconnect":                admin,
-	"/v1/Platform/SearchOrganizationTickets": viewer,
-	"/v1/Platform/SearchOrganizationEntitlements": viewer,
-	"/v1/Platform/GetContactInformation":          viewer,
-	"/v1/Platform/ServerInfo":                     viewer,
-	"/v1/Platform/UserStatus":                     viewer,
+	"/v1/platform/Connect":                   admin,
+	"/v1/platform/Disconnect":                admin,
+	"/v1/platform/SearchOrganizationTickets": viewer,
+	"/v1/platform/SearchOrganizationEntitlements": viewer,
+	"/v1/platform/GetContactInformation":          viewer,
+	"/v1/platform/ServerInfo":                     viewer,
+	"/v1/platform/UserStatus":                     viewer,
 
 	"/v1/user": viewer,
 

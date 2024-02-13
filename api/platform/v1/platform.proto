@@ -130,7 +130,7 @@ service PlatformService {
   // Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
   rpc Connect(ConnectRequest) returns (ConnectResponse) {
     option (google.api.http) = {
-      post: "/v1/Platform/Connect"
+      post: "/v1/platform/Connect"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -141,7 +141,7 @@ service PlatformService {
   // Disconnect a PMM server from the organization created on Percona Portal.
   rpc Disconnect(DisconnectRequest) returns (DisconnectResponse) {
     option (google.api.http) = {
-      post: "/v1/Platform/Disconnect"
+      post: "/v1/platform/Disconnect"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -152,7 +152,7 @@ service PlatformService {
   // SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.
   rpc SearchOrganizationTickets(SearchOrganizationTicketsRequest) returns (SearchOrganizationTicketsResponse) {
     option (google.api.http) = {
-      post: "/v1/Platform/SearchOrganizationTickets"
+      post: "/v1/platform/SearchOrganizationTickets"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -163,7 +163,7 @@ service PlatformService {
   // SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.
   rpc SearchOrganizationEntitlements(SearchOrganizationEntitlementsRequest) returns (SearchOrganizationEntitlementsResponse) {
     option (google.api.http) = {
-      post: "/v1/Platform/SearchOrganizationEntitlements"
+      post: "/v1/platform/SearchOrganizationEntitlements"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -174,7 +174,7 @@ service PlatformService {
   // GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.
   rpc GetContactInformation(GetContactInformationRequest) returns (GetContactInformationResponse) {
     option (google.api.http) = {
-      post: "/v1/Platform/GetContactInformation"
+      post: "/v1/platform/GetContactInformation"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -185,7 +185,7 @@ service PlatformService {
   // ServerInfo returns PMM server ID and name.
   rpc ServerInfo(ServerInfoRequest) returns (ServerInfoResponse) {
     option (google.api.http) = {
-      post: "/v1/Platform/ServerInfo"
+      post: "/v1/platform/ServerInfo"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -197,7 +197,7 @@ service PlatformService {
   // UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.
   rpc UserStatus(UserStatusRequest) returns (UserStatusResponse) {
     option (google.api.http) = {
-      post: "/v1/Platform/UserStatus"
+      post: "/v1/platform/UserStatus"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
