@@ -108,7 +108,7 @@ func TestAddMongoDB(t *testing.T) {
 	})
 
 	t.Run("With agents", func(t *testing.T) {
-		nodeName := pmmapitests.TestString(t, "all-fields")
+		nodeName := pmmapitests.TestString(t, "with-agents")
 		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
 			NodeName: nodeName,
 			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
