@@ -30,7 +30,7 @@ const (
 type NodeClient interface {
 	// RegisterNode registers a new Node, pmm-agent and create service account and it's token.
 	RegisterNode(ctx context.Context, in *RegisterNodeRequest, opts ...grpc.CallOption) (*RegisterNodeResponse, error)
-	// UnregisterNode unregister a Node,pmm-agent and remove service account and it's token.
+	// UnregisterNode unregister a Node, pmm-agent and remove service account and it's token.
 	UnregisterNode(ctx context.Context, in *UnregisterNodeRequest, opts ...grpc.CallOption) (*UnregisterNodeResponse, error)
 }
 
@@ -66,7 +66,7 @@ func (c *nodeClient) UnregisterNode(ctx context.Context, in *UnregisterNodeReque
 type NodeServer interface {
 	// RegisterNode registers a new Node, pmm-agent and create service account and it's token.
 	RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error)
-	// UnregisterNode unregister a Node,pmm-agent and remove service account and it's token.
+	// UnregisterNode unregister a Node, pmm-agent and remove service account and it's token.
 	UnregisterNode(context.Context, *UnregisterNodeRequest) (*UnregisterNodeResponse, error)
 	mustEmbedUnimplementedNodeServer()
 }
