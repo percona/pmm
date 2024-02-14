@@ -48,7 +48,7 @@ func NewPostgreSQLService(db *reform.DB, state agentsStateUpdater, cc connection
 		state: state,
 		cc:    cc,
 		sib:   sib,
-		l:     logrus.WithField("component", "postgesql"),
+		l:     logrus.WithField("component", "postgresql"),
 	}
 }
 
