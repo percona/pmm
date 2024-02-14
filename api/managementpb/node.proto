@@ -83,7 +83,7 @@ service Node {
       description: "Registers a new Node and pmm-agent."
     };
   }
-  // UnregisterNode unregister a Node,pmm-agent and remove service account and it's token.
+  // UnregisterNode unregister a Node, pmm-agent and remove service account and it's token.
   rpc UnregisterNode(UnregisterNodeRequest) returns (UnregisterNodeResponse) {
     option (google.api.http) = {
       post: "/v1/management/Node/Unregister"
