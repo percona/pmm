@@ -474,7 +474,7 @@ message ServiceInfoResponse {
   string version = 3;
   // A list of PostgreSQL databases.
   repeated string database_list = 4;
-  // A version of PGSM, empty if PGSM is not available.
+  // A version of pg_stat_monitor, empty if unavailable.
   string pgsm_version = 5;
 }
 
