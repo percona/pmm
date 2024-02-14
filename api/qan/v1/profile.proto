@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package qan.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "qan/v1/qan.proto";
+
+// Profile of metrics by QueryID, Host etc.
+service ProfileService {
+  // GetReport returns list of metrics group by queryid or other dimentions.
+  rpc GetReport(GetReportRequest) returns (GetReportResponse) {
+    option (google.api.http) = {
+      post: "/v0/qan/GetReport"
+      body: "*"
+    };
+  }
+}
+
+// ReportRequest defines filtering of metrics report for db server or other dimentions.
+message GetReportRequest {
+  google.protobuf.Timestamp period_start_from = 1;
+  google.protobuf.Timestamp period_start_to = 2;
+  string group_by = 3;
+  repeated ReportMapFieldEntry labels = 4;
+  repeated string columns = 5;
+  string order_by = 6;
+  uint32 offset = 7;
+  uint32 limit = 8;
+  string main_metric = 9;
+  string search = 10;
+}
+
+// ReportMapFieldEntry allows to pass labels/dimentions in form like {"server": ["db1", "db2"...]}.
+message ReportMapFieldEntry {
+  string key = 1;
+  repeated string value = 2;
+}
+
+// ReportReply is list of reports per quieryids, hosts etc.
+message GetReportResponse {
+  uint32 total_rows = 1;
+  uint32 offset = 2;
+  uint32 limit = 3;
+  repeated Row rows = 4;
+}
+
+// Row define metrics for selected dimention.
+message Row {
+  uint32 rank = 1;
+  string dimension = 2;
+  string database = 3;
+  map<string, Metric> metrics = 4;
+  repeated Point sparkline = 5;
+  string fingerprint = 6;
+  uint32 num_queries = 7;
+  float qps = 8;
+  float load = 9;
+}
+
+// Metric cell.
+message Metric {
+  Stat stats = 1;
+}
+
+// Stat is statistics of specific metric.
+message Stat {
+  float rate = 1;
+  float cnt = 2;
+  float sum = 3;
+  float min = 4;
+  float max = 5;
+  float p99 = 6;
+  float avg = 7;
+  float sum_per_sec = 8;
+}

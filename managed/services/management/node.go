@@ -40,6 +40,8 @@ type NodeService struct {
 	akp apiKeyProvider
 
 	l *logrus.Entry
+
+	managementv1.UnimplementedNodeServiceServer
 }
 
 // NewNodeService creates NodeService instance.
@@ -51,8 +53,8 @@ func NewNodeService(db *reform.DB, akp apiKeyProvider) *NodeService {
 	}
 }
 
-// Register do registration of the new node.
-func (s *NodeService) Register(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) {
+// RegisterNode performs the registration of a new node.
+func (s *NodeService) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) {
 	res := &managementv1.RegisterNodeResponse{}
 
 	e := s.db.InTransaction(func(tx *reform.TX) error {

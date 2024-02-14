@@ -110,7 +110,7 @@ func RegisterAzureDatabaseServiceHandlerServer(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/azure.v1beta1.AzureDatabaseService/DiscoverAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/azure/AzureDatabase/Discover"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/azure.v1beta1.AzureDatabaseService/DiscoverAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/AzureDatabase/Discover"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -134,7 +134,7 @@ func RegisterAzureDatabaseServiceHandlerServer(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/azure.v1beta1.AzureDatabaseService/AddAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/azure/AzureDatabase/Add"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/azure.v1beta1.AzureDatabaseService/AddAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/AzureDatabase/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -196,7 +196,7 @@ func RegisterAzureDatabaseServiceHandlerClient(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/azure.v1beta1.AzureDatabaseService/DiscoverAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/azure/AzureDatabase/Discover"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/azure.v1beta1.AzureDatabaseService/DiscoverAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/AzureDatabase/Discover"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -217,7 +217,7 @@ func RegisterAzureDatabaseServiceHandlerClient(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/azure.v1beta1.AzureDatabaseService/AddAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/azure/AzureDatabase/Add"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/azure.v1beta1.AzureDatabaseService/AddAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/AzureDatabase/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -236,9 +236,9 @@ func RegisterAzureDatabaseServiceHandlerClient(ctx context.Context, mux *runtime
 }
 
 var (
-	pattern_AzureDatabaseService_DiscoverAzureDatabase_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "azure", "AzureDatabase", "Discover"}, ""))
+	pattern_AzureDatabaseService_DiscoverAzureDatabase_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "AzureDatabase", "Discover"}, ""))
 
-	pattern_AzureDatabaseService_AddAzureDatabase_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "azure", "AzureDatabase", "Add"}, ""))
+	pattern_AzureDatabaseService_AddAzureDatabase_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "AzureDatabase", "Add"}, ""))
 )
 
 var (

@@ -60,7 +60,7 @@ type DiscoverAzureDatabaseOK struct {
 }
 
 func (o *DiscoverAzureDatabaseOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/azure/AzureDatabase/Discover][%d] discoverAzureDatabaseOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/AzureDatabase/Discover][%d] discoverAzureDatabaseOk  %+v", 200, o.Payload)
 }
 
 func (o *DiscoverAzureDatabaseOK) GetPayload() *DiscoverAzureDatabaseOKBody {
@@ -102,7 +102,7 @@ func (o *DiscoverAzureDatabaseDefault) Code() int {
 }
 
 func (o *DiscoverAzureDatabaseDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/azure/AzureDatabase/Discover][%d] DiscoverAzureDatabase default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/AzureDatabase/Discover][%d] DiscoverAzureDatabase default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *DiscoverAzureDatabaseDefault) GetPayload() *DiscoverAzureDatabaseDefaultBody {

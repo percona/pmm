@@ -33,6 +33,8 @@ type ProxySQLService struct {
 	state agentsStateUpdater
 	cc    connectionChecker
 	sib   serviceInfoBroker
+
+	managementv1.UnimplementedProxySQLServiceServer
 }
 
 // NewProxySQLService creates new ProxySQL Management Service.
@@ -45,8 +47,8 @@ func NewProxySQLService(db *reform.DB, state agentsStateUpdater, cc connectionCh
 	}
 }
 
-// Add adds "ProxySQL Service", "ProxySQL Exporter Agent" and "QAN ProxySQL PerfSchema Agent".
-func (s *ProxySQLService) Add(ctx context.Context, req *managementv1.AddProxySQLRequest) (*managementv1.AddProxySQLResponse, error) {
+// AddProxySQL adds "ProxySQL Service", "ProxySQL Exporter Agent" and "QAN ProxySQL PerfSchema Agent".
+func (s *ProxySQLService) AddProxySQL(ctx context.Context, req *managementv1.AddProxySQLRequest) (*managementv1.AddProxySQLResponse, error) {
 	res := &managementv1.AddProxySQLResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {

@@ -25,8 +25,8 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	managementClient "github.com/percona/pmm/api/management/v1/json/client"
-	advisor "github.com/percona/pmm/api/management/v1/json/client/advisor_service"
+	advisorClient "github.com/percona/pmm/api/advisors/v1/json/client"
+	advisor "github.com/percona/pmm/api/advisors/v1/json/client/advisor_service"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	"github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
@@ -36,7 +36,7 @@ func TestStartChecks(t *testing.T) {
 		toggleAdvisorChecks(t, true)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-		resp, err := managementClient.Default.AdvisorService.StartAdvisorChecks(nil)
+		resp, err := advisorClient.Default.AdvisorService.StartAdvisorChecks(nil)
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
 	})
@@ -45,7 +45,7 @@ func TestStartChecks(t *testing.T) {
 		toggleAdvisorChecks(t, false)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-		resp, err := managementClient.Default.AdvisorService.StartAdvisorChecks(nil)
+		resp, err := advisorClient.Default.AdvisorService.StartAdvisorChecks(nil)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Advisor checks are disabled.`)
 		assert.Nil(t, resp)
 	})
@@ -60,7 +60,7 @@ func TestGetAdvisorCheckResults(t *testing.T) {
 		toggleAdvisorChecks(t, true)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-		results, err := managementClient.Default.AdvisorService.GetFailedChecks(nil)
+		results, err := advisorClient.Default.AdvisorService.GetFailedChecks(nil)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Advisor checks are disabled.`)
 		assert.Nil(t, results)
 	})
@@ -69,11 +69,11 @@ func TestGetAdvisorCheckResults(t *testing.T) {
 		toggleAdvisorChecks(t, true)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-		resp, err := managementClient.Default.AdvisorService.StartAdvisorChecks(nil)
+		resp, err := advisorClient.Default.AdvisorService.StartAdvisorChecks(nil)
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
 
-		results, err := managementClient.Default.AdvisorService.GetFailedChecks(nil)
+		results, err := advisorClient.Default.AdvisorService.GetFailedChecks(nil)
 		require.NoError(t, err)
 		assert.NotNil(t, results)
 	})
@@ -83,7 +83,7 @@ func TestListAdvisorChecks(t *testing.T) {
 	toggleAdvisorChecks(t, true)
 	t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-	resp, err := managementClient.Default.AdvisorService.ListAdvisorChecks(nil)
+	resp, err := advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
 	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.NotEmpty(t, resp.Payload.Checks)
@@ -98,7 +98,7 @@ func TestListAdvisors(t *testing.T) {
 	toggleAdvisorChecks(t, true)
 	t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-	resp, err := managementClient.Default.AdvisorService.ListAdvisors(nil)
+	resp, err := advisorClient.Default.AdvisorService.ListAdvisors(nil)
 	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.NotEmpty(t, resp.Payload.Advisors)
@@ -124,7 +124,7 @@ func TestChangeAdvisorChecks(t *testing.T) {
 
 	t.Run("enable disable", func(t *testing.T) {
 		t.Run("enable disable", func(t *testing.T) {
-			resp, err := managementClient.Default.AdvisorService.ListAdvisorChecks(nil)
+			resp, err := advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
 			require.NoError(t, err)
 			require.NotEmpty(t, resp.Payload.Checks)
 
@@ -146,10 +146,10 @@ func TestChangeAdvisorChecks(t *testing.T) {
 					Context: pmmapitests.Context,
 				}
 
-				_, err = managementClient.Default.AdvisorService.ChangeAdvisorChecks(params)
+				_, err = advisorClient.Default.AdvisorService.ChangeAdvisorChecks(params)
 				require.NoError(t, err)
 
-				resp, err = managementClient.Default.AdvisorService.ListAdvisorChecks(nil)
+				resp, err = advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
 				require.NoError(t, err)
 				require.NotEmpty(t, resp.Payload.Checks)
 
@@ -165,7 +165,7 @@ func TestChangeAdvisorChecks(t *testing.T) {
 		t.Run("change interval error", func(t *testing.T) {
 			t.Cleanup(func() { restoreCheckIntervalDefaults(t) })
 
-			resp, err := managementClient.Default.AdvisorService.ListAdvisorChecks(nil)
+			resp, err := advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
 			require.NoError(t, err)
 			require.NotEmpty(t, resp.Payload.Checks)
 
@@ -183,10 +183,10 @@ func TestChangeAdvisorChecks(t *testing.T) {
 				Context: pmmapitests.Context,
 			}
 
-			_, err = managementClient.Default.AdvisorService.ChangeAdvisorChecks(params)
+			_, err = advisorClient.Default.AdvisorService.ChangeAdvisorChecks(params)
 			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid value for enum type: \"unknown_interval\"")
 
-			resp, err = managementClient.Default.AdvisorService.ListAdvisorChecks(nil)
+			resp, err = advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
 			require.NoError(t, err)
 			require.NotEmpty(t, resp.Payload.Checks)
 
@@ -204,7 +204,7 @@ func TestChangeAdvisorChecks(t *testing.T) {
 		t.Run("change interval normal", func(t *testing.T) {
 			t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-			resp, err := managementClient.Default.AdvisorService.ListAdvisorChecks(nil)
+			resp, err := advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
 			require.NoError(t, err)
 			require.NotEmpty(t, resp.Payload.Checks)
 
@@ -221,10 +221,10 @@ func TestChangeAdvisorChecks(t *testing.T) {
 				Body:    advisor.ChangeAdvisorChecksBody{Params: pp},
 				Context: pmmapitests.Context,
 			}
-			_, err = managementClient.Default.AdvisorService.ChangeAdvisorChecks(params)
+			_, err = advisorClient.Default.AdvisorService.ChangeAdvisorChecks(params)
 			require.NoError(t, err)
 
-			resp, err = managementClient.Default.AdvisorService.ListAdvisorChecks(nil)
+			resp, err = advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
 			require.NoError(t, err)
 			require.NotEmpty(t, resp.Payload.Checks)
 
@@ -233,7 +233,7 @@ func TestChangeAdvisorChecks(t *testing.T) {
 			}
 
 			t.Run("intervals should be preserved on restart", func(t *testing.T) {
-				resp, err := managementClient.Default.AdvisorService.ListAdvisorChecks(nil)
+				resp, err := advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
 				require.NoError(t, err)
 				require.NotEmpty(t, resp.Payload.Checks)
 				assert.Equal(t, "ADVISOR_CHECK_INTERVAL_RARE", *resp.Payload.Checks[0].Interval)

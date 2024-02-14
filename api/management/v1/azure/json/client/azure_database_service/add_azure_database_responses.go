@@ -60,7 +60,7 @@ type AddAzureDatabaseOK struct {
 }
 
 func (o *AddAzureDatabaseOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/azure/AzureDatabase/Add][%d] addAzureDatabaseOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/AzureDatabase/Add][%d] addAzureDatabaseOk  %+v", 200, o.Payload)
 }
 
 func (o *AddAzureDatabaseOK) GetPayload() interface{} {
@@ -100,7 +100,7 @@ func (o *AddAzureDatabaseDefault) Code() int {
 }
 
 func (o *AddAzureDatabaseDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/azure/AzureDatabase/Add][%d] AddAzureDatabase default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/AzureDatabase/Add][%d] AddAzureDatabase default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddAzureDatabaseDefault) GetPayload() *AddAzureDatabaseDefaultBody {

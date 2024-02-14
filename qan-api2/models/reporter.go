@@ -26,7 +26,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 
-	qanpb "github.com/percona/pmm/api/qan/v1beta1"
+	qanpb "github.com/percona/pmm/api/qan/v1"
 )
 
 // Reporter implements models to select metrics bucket by params.

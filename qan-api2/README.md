@@ -8,29 +8,29 @@ Examples:
 
 ```bash
 
-curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "group_by": "queryid"}' http://127.0.0.1:9922/v0/qan/GetReport | jq
+curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "group_by": "queryid"}' http://127.0.0.1:9922/v1/qan/GetReport | jq
 
-curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "group_by": "client_host"}' http://127.0.0.1:9922/v0/qan/GetReport | jq
+curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "group_by": "client_host"}' http://127.0.0.1:9922/v1/qan/GetReport | jq
 
-curl -X POST -s -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z",  "labels": [{"key": "client_host", "value": ["10.11.12.4", "10.11.12.59"]}]}' http://127.0.0.1:9922/v0/qan/GetReport | jq
+curl -X POST -s -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z",  "labels": [{"key": "client_host", "value": ["10.11.12.4", "10.11.12.59"]}]}' http://127.0.0.1:9922/v1/qan/GetReport | jq
 
-curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "group_by": "client_host", "offset": 10}' http://127.0.0.1:9922/v0/qan/GetReport | jq
+curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "group_by": "client_host", "offset": 10}' http://127.0.0.1:9922/v1/qan/GetReport | jq
 
-curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "order_by": "num_queries"}' http://127.0.0.1:9922/v0/qan/GetReport | jq
+curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "order_by": "num_queries"}' http://127.0.0.1:9922/v1/qan/GetReport | jq
 
 ```
 
 ```bash
-curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "order_by": "num_queries", "columns": ["lock_time", "sort_scan"], "group_by": "server"}' http://127.0.0.1:9922/v0/qan/GetReport | jq
+curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "order_by": "num_queries", "columns": ["lock_time", "sort_scan"], "group_by": "server"}' http://127.0.0.1:9922/v1/qan/GetReport | jq
 ```
 
 ```bash
-curl -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z"}'  http://127.0.0.1:9922/v0/qan/Filters/Get
+curl -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z"}'  http://127.0.0.1:9922/v1/qan/Filters/Get
 ```
 
 ## Get list of availible metrics.
 
-`curl -X POST -d '{}' http://127.0.0.1:9922/v0/qan/GetMetricsNames -s | jq`
+`curl -X POST -d '{}' http://127.0.0.1:9922/v1/qan/GetMetricsNames -s | jq`
 
 ```json
 {
@@ -80,7 +80,7 @@ curl -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to"
 
 ## Get Query Exemples
 
-`curl 'http://localhost:9922/v0/qan/ObjectDetails/GetQueryExample' -XPOST -d '{"filter_by":"1D410B4BE5060972","group_by":"queryid","limit":5,"period_start_from":"2018-12-31T22:00:00+00:00","period_start_to":"2019-01-01T06:00:00+00:00"}' -s | jq`
+`curl 'http://localhost:9922/v1/qan/ObjectDetails/GetQueryExample' -XPOST -d '{"filter_by":"1D410B4BE5060972","group_by":"queryid","limit":5,"period_start_from":"2018-12-31T22:00:00+00:00","period_start_to":"2019-01-01T06:00:00+00:00"}' -s | jq`
 
 ```json
 {
@@ -111,12 +111,12 @@ curl -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to"
 
 ## Get metrics
 
-`curl -X POST -s -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "filter_by": "1D410B4BE5060972", "group_by": "queryid"}' http://127.0.0.1:9922/v0/qan/ObjectDetails/GetMetrics`
+`curl -X POST -s -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "filter_by": "1D410B4BE5060972", "group_by": "queryid"}' http://127.0.0.1:9922/v1/qan/ObjectDetails/GetMetrics`
 
 ```
-curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "order_by": "num_queries", "columns": ["lock_time", "sort_scan"], "group_by": "server"}' http://127.0.0.1:9922/v0/qan/GetReport -s | jq '.rows[].load'
+curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "order_by": "num_queries", "columns": ["lock_time", "sort_scan"], "group_by": "server"}' http://127.0.0.1:9922/v1/qan/GetReport -s | jq '.rows[].load'
 ```
 
 ```
-curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "filter_by": "1D410B4BE5060972", "group_by": "queryid"}' http://127.0.0.1:9922/v0/qan/ObjectDetails/GetLabels | jq
+curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "filter_by": "1D410B4BE5060972", "group_by": "queryid"}' http://127.0.0.1:9922/v1/qan/ObjectDetails/GetLabels | jq
 ```

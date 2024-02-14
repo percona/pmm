@@ -15,7 +15,7 @@
     "version": "v0"
   },
   "paths": {
-    "/v1/Platform/Connect": {
+    "/v1/platform/Connect": {
       "post": {
         "description": "Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.",
         "tags": [
@@ -86,7 +86,7 @@
         }
       }
     },
-    "/v1/Platform/Disconnect": {
+    "/v1/platform/Disconnect": {
       "post": {
         "description": "Disconnect a PMM server from the organization created on Percona Portal.",
         "tags": [
@@ -152,7 +152,7 @@
         }
       }
     },
-    "/v1/Platform/GetContactInformation": {
+    "/v1/platform/GetContactInformation": {
       "post": {
         "description": "GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.",
         "tags": [
@@ -233,7 +233,7 @@
         }
       }
     },
-    "/v1/Platform/SearchOrganizationEntitlements": {
+    "/v1/platform/SearchOrganizationEntitlements": {
       "post": {
         "description": "SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.",
         "tags": [
@@ -382,7 +382,7 @@
         }
       }
     },
-    "/v1/Platform/SearchOrganizationTickets": {
+    "/v1/platform/SearchOrganizationTickets": {
       "post": {
         "description": "SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.",
         "tags": [
@@ -500,7 +500,7 @@
         }
       }
     },
-    "/v1/Platform/ServerInfo": {
+    "/v1/platform/ServerInfo": {
       "post": {
         "description": "ServerInfo returns PMM server ID and name.",
         "tags": [
@@ -577,7 +577,7 @@
         }
       }
     },
-    "/v1/Platform/UserStatus": {
+    "/v1/platform/UserStatus": {
       "post": {
         "description": "UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.",
         "tags": [

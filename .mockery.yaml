@@ -47,7 +47,7 @@ packages:
       serviceInfoBroker:
       versionCache:
       victoriaMetricsClient:
-  github.com/percona/pmm/managed/services/management/alerting:
+  github.com/percona/pmm/managed/services/alerting:
     interfaces:
       grafanaClient:
   github.com/percona/pmm/managed/services/management/backup:

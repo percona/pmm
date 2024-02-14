@@ -1,0 +1,242 @@
+syntax = "proto3";
+
+package qan.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "qan/v1/qan.proto";
+
+// ObjectDetails serves agregated metrics filtered by given dimension value and period.
+service ObjectDetailsService {
+  // GetMetrics gets map of metrics for specific filtering.
+  rpc GetMetrics(GetMetricsRequest) returns (GetMetricsResponse) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/GetMetrics"
+      body: "*"
+    };
+  }
+  // GetQueryExample gets list of query examples.
+  rpc GetQueryExample(GetQueryExampleRequest) returns (GetQueryExampleResponse) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/GetQueryExample"
+      body: "*"
+    };
+  }
+  // GetLabels gets list of labels for object details.
+  rpc GetLabels(GetLabelsRequest) returns (GetLabelsResponse) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/GetLabels"
+      body: "*"
+    };
+  }
+  // GetQueryPlan gets query plan and plan id for specific filtering.
+  rpc GetQueryPlan(GetQueryPlanRequest) returns (GetQueryPlanResponse) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/GetQueryPlan"
+      body: "*"
+    };
+  }
+  // GetHistogram gets histogram items for specific filtering.
+  rpc GetHistogram(GetHistogramRequest) returns (GetHistogramResponse) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/GetHistogram"
+      body: "*"
+    };
+  }
+  // QueryExists check if query exists in clickhouse.
+  rpc QueryExists(QueryExistsRequest) returns (QueryExistsResponse) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/QueryExists"
+      body: "*"
+    };
+  }
+  // ExplainFingerprintByQueryID get explain fingerprint for given query ID.
+  rpc ExplainFingerprintByQueryID(ExplainFingerprintByQueryIDRequest) returns (ExplainFingerprintByQueryIDResponse) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/ExplainFingerprintByQueryID"
+      body: "*"
+    };
+  }
+  // SchemaByQueryID returns schema for given queryID and serviceID.
+  rpc SchemaByQueryID(SchemaByQueryIDRequest) returns (SchemaByQueryIDResponse) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/SchemaByQueryID"
+      body: "*"
+    };
+  }
+}
+
+// GetMetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+message GetMetricsRequest {
+  google.protobuf.Timestamp period_start_from = 1;
+  google.protobuf.Timestamp period_start_to = 2;
+  // dimension value: ex: queryid - 1D410B4BE5060972.
+  string filter_by = 3;
+  // one of dimension: queryid | host ...
+  string group_by = 4;
+  repeated MapFieldEntry labels = 5;
+  repeated string include_only_fields = 6;
+  // retrieve only values for totals, excluding N/A values
+  bool totals = 7;
+}
+
+// GetMetricsResponse defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+message GetMetricsResponse {
+  map<string, MetricValues> metrics = 3;
+  map<string, string> text_metrics = 7;
+  repeated Point sparkline = 4;
+  map<string, MetricValues> totals = 5;
+  string fingerprint = 6;
+  GetSelectedQueryMetadataResponse metadata = 8;
+}
+
+// MetricValues is statistics of specific metric.
+message MetricValues {
+  float rate = 1;
+  float cnt = 2;
+  float sum = 3;
+  float min = 4;
+  float max = 5;
+  float avg = 6;
+  float p99 = 7;
+  float percent_of_total = 8;
+}
+
+// Labels are list of labels or dimensions values.
+message Labels {
+  repeated string value = 1;
+}
+
+// GetQueryExampleRequest defines filtering of query examples for specific value of
+// dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+message GetQueryExampleRequest {
+  google.protobuf.Timestamp period_start_from = 1;
+  google.protobuf.Timestamp period_start_to = 2;
+  // dimension value: ex: queryid - 1D410B4BE5060972.
+  string filter_by = 3;
+  // one of dimension: queryid | host ...
+  string group_by = 4;
+  repeated MapFieldEntry labels = 5;
+  uint32 limit = 6;
+}
+
+// GetQueryExampleResponse list of query examples.
+message GetQueryExampleResponse {
+  repeated QueryExample query_examples = 1;
+}
+
+// QueryExample shows query examples and their metrics.
+message QueryExample {
+  string example = 1;
+  ExampleType example_type = 2;
+  uint32 is_truncated = 3;
+  uint32 placeholders_count = 4;
+  string explain_fingerprint = 5;
+  string query_id = 6;
+  string example_metrics = 7;
+  string service_id = 8;
+  string service_type = 9;
+  string schema = 10;
+  repeated string tables = 11;
+}
+
+// GetLabelsRequest defines filtering of object detail's labels for specific value of
+// dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+message GetLabelsRequest {
+  google.protobuf.Timestamp period_start_from = 1;
+  google.protobuf.Timestamp period_start_to = 2;
+  // dimension value: ex: queryid - 1D410B4BE5060972.
+  string filter_by = 3;
+  // one of dimension: queryid | host ...
+  string group_by = 4;
+}
+
+// GetLabelsResponse is a map of labels names as keys and labels values as a list.
+message GetLabelsResponse {
+  map<string, ListLabelValues> labels = 1;
+}
+
+// ListLabelValues is list of label's values.
+message ListLabelValues {
+  repeated string values = 1;
+}
+
+// GetQueryPlanRequest defines filtering by queryid.
+message GetQueryPlanRequest {
+  string queryid = 1;
+}
+
+// GetQueryPlanResponse contains planid and query_plan.
+message GetQueryPlanResponse {
+  string planid = 1;
+  string query_plan = 2;
+}
+
+// GetHistogramRequest defines filtering by time range, labels and queryid.
+message GetHistogramRequest {
+  google.protobuf.Timestamp period_start_from = 1;
+  google.protobuf.Timestamp period_start_to = 2;
+  repeated MapFieldEntry labels = 3;
+  string queryid = 4;
+}
+
+// GetHistogramResponse is histogram items as a list.
+message GetHistogramResponse {
+  repeated HistogramItem histogram_items = 1;
+}
+
+// HistogramItem represents one item in histogram.
+message HistogramItem {
+  string range = 1;
+  uint32 frequency = 2;
+}
+
+// QueryExistsRequest check if provided query exists or not.
+message QueryExistsRequest {
+  string serviceid = 1;
+  string query = 2;
+}
+
+// QueryExistsResponse returns true if query exists.
+message QueryExistsResponse {
+  bool exists = 1;
+}
+
+// SchemaByQueryIDRequest returns schema for given query ID and service ID.
+message SchemaByQueryIDRequest {
+  string service_id = 1;
+  string query_id = 2;
+}
+
+// SchemaByQueryIDResponse is schema for given query ID and service ID.
+message SchemaByQueryIDResponse {
+  string schema = 1;
+}
+
+// ExplainFingerprintByQueryIDRequest get explain fingerprint for given query ID.
+message ExplainFingerprintByQueryIDRequest {
+  string serviceid = 1;
+  string query_id = 2;
+}
+
+// ExplainFingerprintByQueryIDResponse is explain fingerprint and placeholders count for given query ID.
+message ExplainFingerprintByQueryIDResponse {
+  string explain_fingerprint = 1;
+  uint32 placeholders_count = 2;
+}
+
+// GetSlecetedQueryMetadataResponse consists selected query metadata to show in details for given query ID.
+message GetSelectedQueryMetadataResponse {
+  string service_name = 1;
+  string database = 2;
+  string schema = 3;
+  string username = 4;
+  string replication_set = 5;
+  string cluster = 6;
+  string service_type = 7;
+  string service_id = 8;
+  string environment = 9;
+  string node_id = 10;
+  string node_name = 11;
+  string node_type = 12;
+}

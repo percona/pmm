@@ -59,24 +59,27 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	actionsv1 "github.com/percona/pmm/api/actions/v1"
+	advisorsv1 "github.com/percona/pmm/api/advisors/v1"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
+	alertingpb "github.com/percona/pmm/api/alerting/v1"
+	backuppb "github.com/percona/pmm/api/backup/v1"
+	dumpv1beta1 "github.com/percona/pmm/api/dump/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	agentv1beta1 "github.com/percona/pmm/api/management/v1/agent"
-	alertingpb "github.com/percona/pmm/api/management/v1/alerting"
 	azurev1beta1 "github.com/percona/pmm/api/management/v1/azure"
-	backuppb "github.com/percona/pmm/api/management/v1/backup"
-	dumpv1beta1 "github.com/percona/pmm/api/management/v1/dump"
 	nodev1beta1 "github.com/percona/pmm/api/management/v1/node"
-	rolev1beta1 "github.com/percona/pmm/api/management/v1/role"
 	servicev1beta1 "github.com/percona/pmm/api/management/v1/service"
 	platformv1 "github.com/percona/pmm/api/platform/v1"
+	rolev1beta1 "github.com/percona/pmm/api/role/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	uieventsv1 "github.com/percona/pmm/api/uievents/v1"
 	userv1 "github.com/percona/pmm/api/user/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
 	agentgrpc "github.com/percona/pmm/managed/services/agents/grpc"
+	"github.com/percona/pmm/managed/services/alerting"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/managed/services/config" //nolint:staticcheck
@@ -86,7 +89,6 @@ import (
 	"github.com/percona/pmm/managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm/managed/services/inventory/grpc"
 	"github.com/percona/pmm/managed/services/management"
-	"github.com/percona/pmm/managed/services/management/alerting"
 	managementbackup "github.com/percona/pmm/managed/services/management/backup"
 	"github.com/percona/pmm/managed/services/management/common"
 	managementdump "github.com/percona/pmm/managed/services/management/dump"
@@ -271,22 +273,22 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker)
 	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker)
 
-	managementv1.RegisterNodeServiceServer(gRPCServer, managementgrpc.NewManagementNodeServer(nodeSvc))
+	managementv1.RegisterNodeServiceServer(gRPCServer, nodeSvc)
 	agentv1beta1.RegisterAgentServiceServer(gRPCServer, agentSvc)
 	nodev1beta1.RegisterMgmtNodeServiceServer(gRPCServer, management.NewMgmtNodeService(deps.db, deps.agentsRegistry, v1.NewAPI(*deps.vmClient)))
 	servicev1beta1.RegisterMgmtServiceServer(gRPCServer, management.NewMgmtServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, v1.NewAPI(*deps.vmClient)))
 	managementv1.RegisterServiceServer(gRPCServer, serviceSvc)
-	managementv1.RegisterMySQLServiceServer(gRPCServer, managementgrpc.NewManagementMySQLServer(mysqlSvc))
-	managementv1.RegisterMongoDBServiceServer(gRPCServer, managementgrpc.NewManagementMongoDBServer(mongodbSvc))
-	managementv1.RegisterPostgreSQLServiceServer(gRPCServer, managementgrpc.NewManagementPostgreSQLServer(postgresqlSvc))
-	managementv1.RegisterProxySQLServiceServer(gRPCServer, managementgrpc.NewManagementProxySQLServer(proxysqlSvc))
-	managementv1.RegisterActionsServiceServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
+	managementv1.RegisterMySQLServiceServer(gRPCServer, mysqlSvc)
+	managementv1.RegisterMongoDBServiceServer(gRPCServer, mongodbSvc)
+	managementv1.RegisterPostgreSQLServiceServer(gRPCServer, postgresqlSvc)
+	managementv1.RegisterProxySQLServiceServer(gRPCServer, proxysqlSvc)
+	actionsv1.RegisterActionsServiceServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
 	managementv1.RegisterRDSServiceServer(gRPCServer, management.NewRDSService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker))
 	azurev1beta1.RegisterAzureDatabaseServiceServer(gRPCServer, management.NewAzureDatabaseService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker))
 	managementv1.RegisterHAProxyServiceServer(gRPCServer, management.NewHAProxyService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
 	managementv1.RegisterExternalServiceServer(gRPCServer, management.NewExternalService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
-	managementv1.RegisterAnnotationServiceServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
-	managementv1.RegisterAdvisorServiceServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
+	managementv1.RegisterAnnotationServiceServer(gRPCServer, management.NewAnnotationService(deps.db, deps.grafanaClient))
+	advisorsv1.RegisterAdvisorServiceServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
 
 	rolev1beta1.RegisterRoleServiceServer(gRPCServer, management.NewRoleService(deps.db))
 
@@ -385,13 +387,13 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		managementv1.RegisterMongoDBServiceHandlerFromEndpoint,
 		managementv1.RegisterPostgreSQLServiceHandlerFromEndpoint,
 		managementv1.RegisterProxySQLServiceHandlerFromEndpoint,
-		managementv1.RegisterActionsServiceHandlerFromEndpoint,
+		actionsv1.RegisterActionsServiceHandlerFromEndpoint,
 		managementv1.RegisterRDSServiceHandlerFromEndpoint,
 		azurev1beta1.RegisterAzureDatabaseServiceHandlerFromEndpoint,
 		managementv1.RegisterHAProxyServiceHandlerFromEndpoint,
 		managementv1.RegisterExternalServiceHandlerFromEndpoint,
 		managementv1.RegisterAnnotationServiceHandlerFromEndpoint,
-		managementv1.RegisterAdvisorServiceHandlerFromEndpoint,
+		advisorsv1.RegisterAdvisorServiceHandlerFromEndpoint,
 		rolev1beta1.RegisterRoleServiceHandlerFromEndpoint,
 
 		alertingpb.RegisterAlertingServiceHandlerFromEndpoint,

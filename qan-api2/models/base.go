@@ -20,7 +20,7 @@ import (
 	"time"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
-	qanpb "github.com/percona/pmm/api/qan/v1beta1"
+	qanpb "github.com/percona/pmm/api/qan/v1"
 )
 
 const queryTimeout = 30 * time.Second

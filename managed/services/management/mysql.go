@@ -39,6 +39,8 @@ type MySQLService struct {
 	cc    connectionChecker
 	vc    versionCache
 	sib   serviceInfoBroker
+
+	managementv1.UnimplementedMySQLServiceServer
 }
 
 // NewMySQLService creates new MySQL Management Service.
@@ -52,8 +54,8 @@ func NewMySQLService(db *reform.DB, state agentsStateUpdater, cc connectionCheck
 	}
 }
 
-// Add adds "MySQL Service", "MySQL Exporter Agent" and "QAN MySQL PerfSchema Agent".
-func (s *MySQLService) Add(ctx context.Context, req *managementv1.AddMySQLRequest) (*managementv1.AddMySQLResponse, error) {
+// AddMySQL adds "MySQL Service", "MySQL Exporter Agent" and "QAN MySQL PerfSchema Agent".
+func (s *MySQLService) AddMySQL(ctx context.Context, req *managementv1.AddMySQLRequest) (*managementv1.AddMySQLResponse, error) {
 	res := &managementv1.AddMySQLResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {

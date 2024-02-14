@@ -18,7 +18,7 @@ package analytics
 import (
 	"context"
 
-	qanpb "github.com/percona/pmm/api/qan/v1beta1"
+	qanpb "github.com/percona/pmm/api/qan/v1"
 )
 
 // metricsNames is a map of metrics names and keys.

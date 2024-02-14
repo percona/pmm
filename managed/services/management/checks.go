@@ -26,6 +26,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	advisorsv1 "github.com/percona/pmm/api/advisors/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/services"
 )
@@ -35,7 +36,7 @@ type ChecksAPIService struct {
 	checksService checksService
 	l             *logrus.Entry
 
-	managementv1.UnimplementedAdvisorServiceServer
+	advisorsv1.UnimplementedAdvisorServiceServer
 }
 
 // NewChecksAPIService creates new Checks API Service.
@@ -47,7 +48,7 @@ func NewChecksAPIService(checksService checksService) *ChecksAPIService {
 }
 
 // ListFailedServices returns a list of services with failed checks and their summaries.
-func (s *ChecksAPIService) ListFailedServices(ctx context.Context, _ *managementv1.ListFailedServicesRequest) (*managementv1.ListFailedServicesResponse, error) {
+func (s *ChecksAPIService) ListFailedServices(ctx context.Context, _ *advisorsv1.ListFailedServicesRequest) (*advisorsv1.ListFailedServicesResponse, error) {
 	results, err := s.checksService.GetChecksResults(ctx, "")
 	if err != nil {
 		if errors.Is(err, services.ErrAdvisorsDisabled) {
@@ -90,9 +91,9 @@ func (s *ChecksAPIService) ListFailedServices(ctx context.Context, _ *management
 		}
 	}
 
-	failedServices := make([]*managementv1.CheckResultSummary, 0, len(summaries))
+	failedServices := make([]*advisorsv1.CheckResultSummary, 0, len(summaries))
 	for _, result := range summaries {
-		failedServices = append(failedServices, &managementv1.CheckResultSummary{
+		failedServices = append(failedServices, &advisorsv1.CheckResultSummary{
 			ServiceId:      result.ServiceID,
 			ServiceName:    result.ServiceName,
 			EmergencyCount: result.EmergencyCount,
@@ -106,11 +107,11 @@ func (s *ChecksAPIService) ListFailedServices(ctx context.Context, _ *management
 		})
 	}
 
-	return &managementv1.ListFailedServicesResponse{Result: failedServices}, nil
+	return &advisorsv1.ListFailedServicesResponse{Result: failedServices}, nil
 }
 
 // GetFailedChecks returns details of failed checks for a given service.
-func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementv1.GetFailedChecksRequest) (*managementv1.GetFailedChecksResponse, error) {
+func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *advisorsv1.GetFailedChecksRequest) (*advisorsv1.GetFailedChecksResponse, error) {
 	results, err := s.checksService.GetChecksResults(ctx, req.ServiceId)
 	if err != nil {
 		if errors.Is(err, services.ErrAdvisorsDisabled) {
@@ -120,7 +121,7 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementv
 		return nil, errors.Wrapf(err, "failed to get check results for service '%s'", req.ServiceId)
 	}
 
-	failedChecks := make([]*managementv1.CheckResult, 0, len(results))
+	failedChecks := make([]*advisorsv1.CheckResult, 0, len(results))
 	for _, result := range results {
 		labels := make(map[string]string, len(result.Target.Labels)+len(result.Result.Labels))
 		for k, v := range result.Result.Labels {
@@ -130,7 +131,7 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementv
 			labels[k] = v
 		}
 
-		failedChecks = append(failedChecks, &managementv1.CheckResult{
+		failedChecks = append(failedChecks, &advisorsv1.CheckResult{
 			Summary:     result.Result.Summary,
 			CheckName:   result.CheckName,
 			Description: result.Result.Description,
@@ -168,11 +169,11 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementv
 		}
 	}
 
-	return &managementv1.GetFailedChecksResponse{Results: failedChecks[from:to], PageTotals: pageTotals}, nil
+	return &advisorsv1.GetFailedChecksResponse{Results: failedChecks[from:to], PageTotals: pageTotals}, nil
 }
 
 // StartAdvisorChecks executes advisor checks and returns when all checks are executed.
-func (s *ChecksAPIService) StartAdvisorChecks(_ context.Context, req *managementv1.StartAdvisorChecksRequest) (*managementv1.StartAdvisorChecksResponse, error) {
+func (s *ChecksAPIService) StartAdvisorChecks(_ context.Context, req *advisorsv1.StartAdvisorChecksRequest) (*advisorsv1.StartAdvisorChecksResponse, error) {
 	// Start only specified checks from any group.
 	err := s.checksService.StartChecks(req.Names)
 	if err != nil {
@@ -183,11 +184,11 @@ func (s *ChecksAPIService) StartAdvisorChecks(_ context.Context, req *management
 		return nil, errors.Wrap(err, "failed to start advisor checks")
 	}
 
-	return &managementv1.StartAdvisorChecksResponse{}, nil
+	return &advisorsv1.StartAdvisorChecksResponse{}, nil
 }
 
 // ListAdvisorChecks returns a list of available advisor checks and their statuses.
-func (s *ChecksAPIService) ListAdvisorChecks(_ context.Context, _ *managementv1.ListAdvisorChecksRequest) (*managementv1.ListAdvisorChecksResponse, error) {
+func (s *ChecksAPIService) ListAdvisorChecks(_ context.Context, _ *advisorsv1.ListAdvisorChecksRequest) (*advisorsv1.ListAdvisorChecksResponse, error) {
 	disChecks, err := s.checksService.GetDisabledChecks()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get disabled checks list")
@@ -203,10 +204,10 @@ func (s *ChecksAPIService) ListAdvisorChecks(_ context.Context, _ *managementv1.
 		return nil, errors.Wrap(err, "failed to get available checks list")
 	}
 
-	res := make([]*managementv1.AdvisorCheck, 0, len(checks))
+	res := make([]*advisorsv1.AdvisorCheck, 0, len(checks))
 	for _, c := range checks {
 		_, disabled := m[c.Name]
-		res = append(res, &managementv1.AdvisorCheck{
+		res = append(res, &advisorsv1.AdvisorCheck{
 			Name:        c.Name,
 			Enabled:     !disabled,
 			Summary:     c.Summary,
@@ -216,10 +217,10 @@ func (s *ChecksAPIService) ListAdvisorChecks(_ context.Context, _ *managementv1.
 		})
 	}
 
-	return &managementv1.ListAdvisorChecksResponse{Checks: res}, nil
+	return &advisorsv1.ListAdvisorChecksResponse{Checks: res}, nil
 }
 
-func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *managementv1.ListAdvisorsRequest) (*managementv1.ListAdvisorsResponse, error) {
+func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *advisorsv1.ListAdvisorsRequest) (*advisorsv1.ListAdvisorsResponse, error) {
 	disChecks, err := s.checksService.GetDisabledChecks()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get disabled checks list")
@@ -235,12 +236,12 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *managementv1.ListA
 		return nil, errors.Wrap(err, "failed to get available checks list")
 	}
 
-	res := make([]*managementv1.Advisor, 0, len(advisors))
+	res := make([]*advisorsv1.Advisor, 0, len(advisors))
 	for _, a := range advisors {
-		checks := make([]*managementv1.AdvisorCheck, 0, len(a.Checks))
+		checks := make([]*advisorsv1.AdvisorCheck, 0, len(a.Checks))
 		for _, c := range a.Checks {
 			_, disabled := m[c.Name]
-			checks = append(checks, &managementv1.AdvisorCheck{
+			checks = append(checks, &advisorsv1.AdvisorCheck{
 				Name:        c.Name,
 				Enabled:     !disabled,
 				Summary:     c.Summary,
@@ -250,7 +251,7 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *managementv1.ListA
 			})
 		}
 
-		res = append(res, &managementv1.Advisor{
+		res = append(res, &advisorsv1.Advisor{
 			Name:        a.Name,
 			Description: a.Description,
 			Summary:     a.Summary,
@@ -260,7 +261,7 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *managementv1.ListA
 		})
 	}
 
-	return &managementv1.ListAdvisorsResponse{Advisors: res}, nil
+	return &advisorsv1.ListAdvisorsResponse{Advisors: res}, nil
 }
 
 func createComment(checks []check.Check) string {
@@ -295,11 +296,11 @@ func createComment(checks []check.Check) string {
 }
 
 // ChangeAdvisorChecks enables/disables advisor checks by names or changes its execution interval.
-func (s *ChecksAPIService) ChangeAdvisorChecks(_ context.Context, req *managementv1.ChangeAdvisorChecksRequest) (*managementv1.ChangeAdvisorChecksResponse, error) {
+func (s *ChecksAPIService) ChangeAdvisorChecks(_ context.Context, req *advisorsv1.ChangeAdvisorChecksRequest) (*advisorsv1.ChangeAdvisorChecksResponse, error) {
 	var enableChecks, disableChecks []string
 	changeIntervalParams := make(map[string]check.Interval)
 	for _, check := range req.Params {
-		if check.Interval != managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED {
+		if check.Interval != advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED {
 			interval, err := convertAPIInterval(check.Interval)
 			if err != nil {
 				return nil, errors.Wrap(err, "failed to change advisor check interval")
@@ -333,47 +334,47 @@ func (s *ChecksAPIService) ChangeAdvisorChecks(_ context.Context, req *managemen
 		return nil, errors.Wrap(err, "failed to disable advisor checks")
 	}
 
-	return &managementv1.ChangeAdvisorChecksResponse{}, nil
+	return &advisorsv1.ChangeAdvisorChecksResponse{}, nil
 }
 
-// convertInterval converts check.Interval type to managementv1.AdvisorCheckInterval.
-func convertInterval(interval check.Interval) managementv1.AdvisorCheckInterval {
+// convertInterval converts check.Interval type to advisorsv1.AdvisorCheckInterval.
+func convertInterval(interval check.Interval) advisorsv1.AdvisorCheckInterval {
 	switch interval {
 	case check.Standard, "": // empty interval means standard
-		return managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD
+		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD
 	case check.Frequent:
-		return managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT
+		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT
 	case check.Rare:
-		return managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE
+		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE
 	default:
-		return managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED
+		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED
 	}
 }
 
-// convertFamily converts check.Family type to managementv1.AdvisorCheckFamily.
-func convertFamily(family check.Family) managementv1.AdvisorCheckFamily {
+// convertFamily converts check.Family type to advisorsv1.AdvisorCheckFamily.
+func convertFamily(family check.Family) advisorsv1.AdvisorCheckFamily {
 	switch family {
 	case check.MySQL:
-		return managementv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MYSQL
+		return advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MYSQL
 	case check.PostgreSQL:
-		return managementv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_POSTGRESQL
+		return advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_POSTGRESQL
 	case check.MongoDB:
-		return managementv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MONGODB
+		return advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MONGODB
 	default:
-		return managementv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_UNSPECIFIED
+		return advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_UNSPECIFIED
 	}
 }
 
-// convertAPIInterval converts managementv1.AdvisorCheckInterval type to check.Interval.
-func convertAPIInterval(interval managementv1.AdvisorCheckInterval) (check.Interval, error) {
+// convertAPIInterval converts advisorsv1.AdvisorCheckInterval type to check.Interval.
+func convertAPIInterval(interval advisorsv1.AdvisorCheckInterval) (check.Interval, error) {
 	switch interval {
-	case managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD:
+	case advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD:
 		return check.Standard, nil
-	case managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT:
+	case advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT:
 		return check.Frequent, nil
-	case managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE:
+	case advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE:
 		return check.Rare, nil
-	case managementv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED:
+	case advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED:
 		return "", errors.New("invalid advisor check interval")
 	default:
 		return "", errors.New("unknown advisor check interval")
