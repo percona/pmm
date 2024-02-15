@@ -60,11 +60,11 @@ var rules = map[string]role{
 	"/v1/management/":                        admin,
 	"/v1/actions/":                           viewer,
 	"/v1/management/Jobs":                    viewer,
-	"/v1/Updates/Check":                      viewer,
-	"/v1/Updates/Status":                     none, // special token-based auth
+	"/v1/updates/Check":                      viewer,
+	"/v1/updates/Status":                     none, // special token-based auth
 	"/v1/AWSInstanceCheck":                   none, // special case - used before Grafana can be accessed
-	"/v1/Updates/":                           admin,
-	"/v1/Settings/":                          admin,
+	"/v1/updates/":                           admin,
+	"/v1/settings/":                          admin,
 	"/v1/platform/Connect":                   admin,
 	"/v1/platform/Disconnect":                admin,
 	"/v1/platform/SearchOrganizationTickets": viewer,

@@ -45,7 +45,7 @@ export const verifyPmmServerProperties = async (checks: {
     const httpClient = new PmmRestClient('admin', checks.adminPassword, checks.httpPort);
 
     await expect(async () => {
-      const resp = await httpClient.post('/v1/Settings/Get', {});
+      const resp = await httpClient.post('/v1/settings/Get', {});
       await expect(resp, `http ${checks.httpPort} port and password should work`).toBeOK();
       expect(await resp.json(), 'response body should have "settings"').toHaveProperty('settings');
     }).toPass({
@@ -60,7 +60,7 @@ export const verifyPmmServerProperties = async (checks: {
     const httpsClient = new PmmRestClient('admin', checks.adminPassword, checks.httpsPort, 'https');
 
     await expect(async () => {
-      const resp = await httpsClient.post('/v1/Settings/Get', {});
+      const resp = await httpsClient.post('/v1/settings/Get', {});
       await expect(resp, `https ${checks.httpsPort} port and password should work`).toBeOK();
       expect(await resp.json(), 'response body should have "settings"').toHaveProperty('settings');
     }).toPass({

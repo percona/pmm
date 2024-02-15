@@ -101,7 +101,7 @@ func (a *Client) ChangeSettings(params *ChangeSettingsParams, opts ...ClientOpti
 	op := &runtime.ClientOperation{
 		ID:                 "ChangeSettings",
 		Method:             "POST",
-		PathPattern:        "/v1/Settings/Change",
+		PathPattern:        "/v1/settings/Change",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -140,7 +140,7 @@ func (a *Client) CheckUpdates(params *CheckUpdatesParams, opts ...ClientOption) 
 	op := &runtime.ClientOperation{
 		ID:                 "CheckUpdates",
 		Method:             "POST",
-		PathPattern:        "/v1/Updates/Check",
+		PathPattern:        "/v1/updates/Check",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -179,7 +179,7 @@ func (a *Client) GetSettings(params *GetSettingsParams, opts ...ClientOption) (*
 	op := &runtime.ClientOperation{
 		ID:                 "GetSettings",
 		Method:             "POST",
-		PathPattern:        "/v1/Settings/Get",
+		PathPattern:        "/v1/settings/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -296,7 +296,7 @@ func (a *Client) StartUpdate(params *StartUpdateParams, opts ...ClientOption) (*
 	op := &runtime.ClientOperation{
 		ID:                 "StartUpdate",
 		Method:             "POST",
-		PathPattern:        "/v1/Updates/Start",
+		PathPattern:        "/v1/updates/Start",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -335,7 +335,7 @@ func (a *Client) UpdateStatus(params *UpdateStatusParams, opts ...ClientOption) 
 	op := &runtime.ClientOperation{
 		ID:                 "UpdateStatus",
 		Method:             "POST",
-		PathPattern:        "/v1/Updates/Status",
+		PathPattern:        "/v1/updates/Status",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

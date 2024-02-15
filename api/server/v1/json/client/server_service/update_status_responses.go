@@ -58,7 +58,7 @@ type UpdateStatusOK struct {
 }
 
 func (o *UpdateStatusOK) Error() string {
-	return fmt.Sprintf("[POST /v1/Updates/Status][%d] updateStatusOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/updates/Status][%d] updateStatusOk  %+v", 200, o.Payload)
 }
 
 func (o *UpdateStatusOK) GetPayload() *UpdateStatusOKBody {
@@ -100,7 +100,7 @@ func (o *UpdateStatusDefault) Code() int {
 }
 
 func (o *UpdateStatusDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/Updates/Status][%d] UpdateStatus default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/updates/Status][%d] UpdateStatus default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *UpdateStatusDefault) GetPayload() *UpdateStatusDefaultBody {

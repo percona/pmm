@@ -58,7 +58,7 @@ type StartUpdateOK struct {
 }
 
 func (o *StartUpdateOK) Error() string {
-	return fmt.Sprintf("[POST /v1/Updates/Start][%d] startUpdateOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/updates/Start][%d] startUpdateOk  %+v", 200, o.Payload)
 }
 
 func (o *StartUpdateOK) GetPayload() *StartUpdateOKBody {
@@ -100,7 +100,7 @@ func (o *StartUpdateDefault) Code() int {
 }
 
 func (o *StartUpdateDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/Updates/Start][%d] StartUpdate default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/updates/Start][%d] StartUpdate default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *StartUpdateDefault) GetPayload() *StartUpdateDefaultBody {
