@@ -38,6 +38,7 @@ type RemoveAgentCommand struct {
 	Force   bool   `help:"Remove agent with all dependencies"`
 }
 
+// RunCmd executes the RemoveAgentCommand and returns the result.
 func (cmd *RemoveAgentCommand) RunCmd() (commands.Result, error) {
 	params := &agents.RemoveAgentParams{
 		Body: agents.RemoveAgentBody{

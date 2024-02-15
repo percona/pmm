@@ -67,6 +67,7 @@ func NewJobsService(db *reform.DB, registry *Registry, retention retentionServic
 	}
 }
 
+// RestartJob restarts a job with the given jobID.
 func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 	var job *models.Job
 	var artifact *models.Artifact

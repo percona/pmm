@@ -301,6 +301,7 @@ func (s *Agent) DBConfig(service *Service) *DBConfig {
 	}
 }
 
+// DSNParams represents the parameters for configuring a Data Source Name (DSN).
 type DSNParams struct {
 	DialTimeout time.Duration
 	Database    string
