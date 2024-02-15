@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -28,7 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceClient interface {
 	// RemoveService removes Service with Agents.
-	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error)
+	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type serviceClient struct {
@@ -39,8 +40,8 @@ func NewServiceClient(cc grpc.ClientConnInterface) ServiceClient {
 	return &serviceClient{cc}
 }
 
-func (c *serviceClient) RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error) {
-	out := new(RemoveServiceResponse)
+func (c *serviceClient) RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, Service_RemoveService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -53,14 +54,14 @@ func (c *serviceClient) RemoveService(ctx context.Context, in *RemoveServiceRequ
 // for forward compatibility
 type ServiceServer interface {
 	// RemoveService removes Service with Agents.
-	RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error)
+	RemoveService(context.Context, *RemoveServiceRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedServiceServer()
 }
 
 // UnimplementedServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedServiceServer struct{}
 
-func (UnimplementedServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error) {
+func (UnimplementedServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveService not implemented")
 }
 func (UnimplementedServiceServer) mustEmbedUnimplementedServiceServer() {}

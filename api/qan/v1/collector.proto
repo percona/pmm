@@ -2,13 +2,14 @@ syntax = "proto3";
 
 package qan.v1;
 
+import "google/protobuf/empty.proto";
 import "inventory/v1/agents.proto";
 import "qan/v1/qan.proto";
 
 // Collector service accepts data from pmm-agent (via pmm-managed).
 service CollectorService {
   // Collect accepts data from pmm-agent (via pmm-managed).
-  rpc Collect(CollectRequest) returns (CollectResponse);
+  rpc Collect(CollectRequest) returns (google.protobuf.Empty);
 }
 
 message CollectRequest {
@@ -385,5 +386,3 @@ message MetricsBucket {
   string query_plan = 267;
   repeated string histogram_items = 268;
 }
-
-message CollectResponse {}

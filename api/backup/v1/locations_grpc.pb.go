@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -32,15 +33,15 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type LocationsServiceClient interface {
 	// ListLocations returns a list of all backup locations.
-	ListLocations(ctx context.Context, in *ListLocationsRequest, opts ...grpc.CallOption) (*ListLocationsResponse, error)
+	ListLocations(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListLocationsResponse, error)
 	// AddLocation adds backup location.
 	AddLocation(ctx context.Context, in *AddLocationRequest, opts ...grpc.CallOption) (*AddLocationResponse, error)
 	// ChangeLocation changes backup location.
-	ChangeLocation(ctx context.Context, in *ChangeLocationRequest, opts ...grpc.CallOption) (*ChangeLocationResponse, error)
+	ChangeLocation(ctx context.Context, in *ChangeLocationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// RemoveLocation removes existing backup location.
-	RemoveLocation(ctx context.Context, in *RemoveLocationRequest, opts ...grpc.CallOption) (*RemoveLocationResponse, error)
+	RemoveLocation(ctx context.Context, in *RemoveLocationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// TestLocationConfig tests backup location and credentials.
-	TestLocationConfig(ctx context.Context, in *TestLocationConfigRequest, opts ...grpc.CallOption) (*TestLocationConfigResponse, error)
+	TestLocationConfig(ctx context.Context, in *TestLocationConfigRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type locationsServiceClient struct {
@@ -51,7 +52,7 @@ func NewLocationsServiceClient(cc grpc.ClientConnInterface) LocationsServiceClie
 	return &locationsServiceClient{cc}
 }
 
-func (c *locationsServiceClient) ListLocations(ctx context.Context, in *ListLocationsRequest, opts ...grpc.CallOption) (*ListLocationsResponse, error) {
+func (c *locationsServiceClient) ListLocations(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListLocationsResponse, error) {
 	out := new(ListLocationsResponse)
 	err := c.cc.Invoke(ctx, LocationsService_ListLocations_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -69,8 +70,8 @@ func (c *locationsServiceClient) AddLocation(ctx context.Context, in *AddLocatio
 	return out, nil
 }
 
-func (c *locationsServiceClient) ChangeLocation(ctx context.Context, in *ChangeLocationRequest, opts ...grpc.CallOption) (*ChangeLocationResponse, error) {
-	out := new(ChangeLocationResponse)
+func (c *locationsServiceClient) ChangeLocation(ctx context.Context, in *ChangeLocationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, LocationsService_ChangeLocation_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -78,8 +79,8 @@ func (c *locationsServiceClient) ChangeLocation(ctx context.Context, in *ChangeL
 	return out, nil
 }
 
-func (c *locationsServiceClient) RemoveLocation(ctx context.Context, in *RemoveLocationRequest, opts ...grpc.CallOption) (*RemoveLocationResponse, error) {
-	out := new(RemoveLocationResponse)
+func (c *locationsServiceClient) RemoveLocation(ctx context.Context, in *RemoveLocationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, LocationsService_RemoveLocation_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -87,8 +88,8 @@ func (c *locationsServiceClient) RemoveLocation(ctx context.Context, in *RemoveL
 	return out, nil
 }
 
-func (c *locationsServiceClient) TestLocationConfig(ctx context.Context, in *TestLocationConfigRequest, opts ...grpc.CallOption) (*TestLocationConfigResponse, error) {
-	out := new(TestLocationConfigResponse)
+func (c *locationsServiceClient) TestLocationConfig(ctx context.Context, in *TestLocationConfigRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, LocationsService_TestLocationConfig_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -101,22 +102,22 @@ func (c *locationsServiceClient) TestLocationConfig(ctx context.Context, in *Tes
 // for forward compatibility
 type LocationsServiceServer interface {
 	// ListLocations returns a list of all backup locations.
-	ListLocations(context.Context, *ListLocationsRequest) (*ListLocationsResponse, error)
+	ListLocations(context.Context, *emptypb.Empty) (*ListLocationsResponse, error)
 	// AddLocation adds backup location.
 	AddLocation(context.Context, *AddLocationRequest) (*AddLocationResponse, error)
 	// ChangeLocation changes backup location.
-	ChangeLocation(context.Context, *ChangeLocationRequest) (*ChangeLocationResponse, error)
+	ChangeLocation(context.Context, *ChangeLocationRequest) (*emptypb.Empty, error)
 	// RemoveLocation removes existing backup location.
-	RemoveLocation(context.Context, *RemoveLocationRequest) (*RemoveLocationResponse, error)
+	RemoveLocation(context.Context, *RemoveLocationRequest) (*emptypb.Empty, error)
 	// TestLocationConfig tests backup location and credentials.
-	TestLocationConfig(context.Context, *TestLocationConfigRequest) (*TestLocationConfigResponse, error)
+	TestLocationConfig(context.Context, *TestLocationConfigRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedLocationsServiceServer()
 }
 
 // UnimplementedLocationsServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedLocationsServiceServer struct{}
 
-func (UnimplementedLocationsServiceServer) ListLocations(context.Context, *ListLocationsRequest) (*ListLocationsResponse, error) {
+func (UnimplementedLocationsServiceServer) ListLocations(context.Context, *emptypb.Empty) (*ListLocationsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListLocations not implemented")
 }
 
@@ -124,15 +125,15 @@ func (UnimplementedLocationsServiceServer) AddLocation(context.Context, *AddLoca
 	return nil, status.Errorf(codes.Unimplemented, "method AddLocation not implemented")
 }
 
-func (UnimplementedLocationsServiceServer) ChangeLocation(context.Context, *ChangeLocationRequest) (*ChangeLocationResponse, error) {
+func (UnimplementedLocationsServiceServer) ChangeLocation(context.Context, *ChangeLocationRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeLocation not implemented")
 }
 
-func (UnimplementedLocationsServiceServer) RemoveLocation(context.Context, *RemoveLocationRequest) (*RemoveLocationResponse, error) {
+func (UnimplementedLocationsServiceServer) RemoveLocation(context.Context, *RemoveLocationRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveLocation not implemented")
 }
 
-func (UnimplementedLocationsServiceServer) TestLocationConfig(context.Context, *TestLocationConfigRequest) (*TestLocationConfigResponse, error) {
+func (UnimplementedLocationsServiceServer) TestLocationConfig(context.Context, *TestLocationConfigRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TestLocationConfig not implemented")
 }
 func (UnimplementedLocationsServiceServer) mustEmbedUnimplementedLocationsServiceServer() {}
@@ -149,7 +150,7 @@ func RegisterLocationsServiceServer(s grpc.ServiceRegistrar, srv LocationsServic
 }
 
 func _LocationsService_ListLocations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListLocationsRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -161,7 +162,7 @@ func _LocationsService_ListLocations_Handler(srv interface{}, ctx context.Contex
 		FullMethod: LocationsService_ListLocations_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LocationsServiceServer).ListLocations(ctx, req.(*ListLocationsRequest))
+		return srv.(LocationsServiceServer).ListLocations(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }

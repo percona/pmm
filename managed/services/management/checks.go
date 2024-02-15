@@ -19,6 +19,7 @@ import (
 	"context"
 	"strings"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
@@ -48,7 +49,7 @@ func NewChecksAPIService(checksService checksService) *ChecksAPIService {
 }
 
 // ListFailedServices returns a list of services with failed checks and their summaries.
-func (s *ChecksAPIService) ListFailedServices(ctx context.Context, _ *advisorsv1.ListFailedServicesRequest) (*advisorsv1.ListFailedServicesResponse, error) {
+func (s *ChecksAPIService) ListFailedServices(ctx context.Context, _ *empty.Empty) (*advisorsv1.ListFailedServicesResponse, error) {
 	results, err := s.checksService.GetChecksResults(ctx, "")
 	if err != nil {
 		if errors.Is(err, services.ErrAdvisorsDisabled) {
@@ -173,7 +174,7 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *advisorsv1.
 }
 
 // StartAdvisorChecks executes advisor checks and returns when all checks are executed.
-func (s *ChecksAPIService) StartAdvisorChecks(_ context.Context, req *advisorsv1.StartAdvisorChecksRequest) (*advisorsv1.StartAdvisorChecksResponse, error) {
+func (s *ChecksAPIService) StartAdvisorChecks(_ context.Context, req *advisorsv1.StartAdvisorChecksRequest) (*empty.Empty, error) {
 	// Start only specified checks from any group.
 	err := s.checksService.StartChecks(req.Names)
 	if err != nil {
@@ -184,11 +185,11 @@ func (s *ChecksAPIService) StartAdvisorChecks(_ context.Context, req *advisorsv1
 		return nil, errors.Wrap(err, "failed to start advisor checks")
 	}
 
-	return &advisorsv1.StartAdvisorChecksResponse{}, nil
+	return &empty.Empty{}, nil
 }
 
 // ListAdvisorChecks returns a list of available advisor checks and their statuses.
-func (s *ChecksAPIService) ListAdvisorChecks(_ context.Context, _ *advisorsv1.ListAdvisorChecksRequest) (*advisorsv1.ListAdvisorChecksResponse, error) {
+func (s *ChecksAPIService) ListAdvisorChecks(_ context.Context, _ *empty.Empty) (*advisorsv1.ListAdvisorChecksResponse, error) {
 	disChecks, err := s.checksService.GetDisabledChecks()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get disabled checks list")
@@ -220,7 +221,7 @@ func (s *ChecksAPIService) ListAdvisorChecks(_ context.Context, _ *advisorsv1.Li
 	return &advisorsv1.ListAdvisorChecksResponse{Checks: res}, nil
 }
 
-func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *advisorsv1.ListAdvisorsRequest) (*advisorsv1.ListAdvisorsResponse, error) {
+func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *empty.Empty) (*advisorsv1.ListAdvisorsResponse, error) {
 	disChecks, err := s.checksService.GetDisabledChecks()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get disabled checks list")
@@ -296,7 +297,7 @@ func createComment(checks []check.Check) string {
 }
 
 // ChangeAdvisorChecks enables/disables advisor checks by names or changes its execution interval.
-func (s *ChecksAPIService) ChangeAdvisorChecks(_ context.Context, req *advisorsv1.ChangeAdvisorChecksRequest) (*advisorsv1.ChangeAdvisorChecksResponse, error) {
+func (s *ChecksAPIService) ChangeAdvisorChecks(_ context.Context, req *advisorsv1.ChangeAdvisorChecksRequest) (*empty.Empty, error) {
 	var enableChecks, disableChecks []string
 	changeIntervalParams := make(map[string]check.Interval)
 	for _, check := range req.Params {
@@ -334,7 +335,7 @@ func (s *ChecksAPIService) ChangeAdvisorChecks(_ context.Context, req *advisorsv
 		return nil, errors.Wrap(err, "failed to disable advisor checks")
 	}
 
-	return &advisorsv1.ChangeAdvisorChecksResponse{}, nil
+	return &empty.Empty{}, nil
 }
 
 // convertInterval converts check.Interval type to advisorsv1.AdvisorCheckInterval.

@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -37,19 +38,19 @@ type ServicesServiceClient interface {
 	// ListServices returns a list of Services filtered by type.
 	ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error)
 	// ListActiveServiceTypes returns a list of active Services.
-	ListActiveServiceTypes(ctx context.Context, in *ListActiveServiceTypesRequest, opts ...grpc.CallOption) (*ListActiveServiceTypesResponse, error)
+	ListActiveServiceTypes(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListActiveServiceTypesResponse, error)
 	// GetService returns a single Service by ID.
 	GetService(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*GetServiceResponse, error)
 	// AddService adds any type of Service.
 	AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error)
 	// RemoveService removes a Service.
-	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error)
+	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// AddCustomLabels adds custom labels to a Service.
-	AddCustomLabels(ctx context.Context, in *AddCustomLabelsRequest, opts ...grpc.CallOption) (*AddCustomLabelsResponse, error)
+	AddCustomLabels(ctx context.Context, in *AddCustomLabelsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// RemoveCustomLabels removes custom labels from a Service.
-	RemoveCustomLabels(ctx context.Context, in *RemoveCustomLabelsRequest, opts ...grpc.CallOption) (*RemoveCustomLabelsResponse, error)
+	RemoveCustomLabels(ctx context.Context, in *RemoveCustomLabelsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// ChangeService allows changing configuration of a Service.
-	ChangeService(ctx context.Context, in *ChangeServiceRequest, opts ...grpc.CallOption) (*ChangeServiceResponse, error)
+	ChangeService(ctx context.Context, in *ChangeServiceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type servicesServiceClient struct {
@@ -69,7 +70,7 @@ func (c *servicesServiceClient) ListServices(ctx context.Context, in *ListServic
 	return out, nil
 }
 
-func (c *servicesServiceClient) ListActiveServiceTypes(ctx context.Context, in *ListActiveServiceTypesRequest, opts ...grpc.CallOption) (*ListActiveServiceTypesResponse, error) {
+func (c *servicesServiceClient) ListActiveServiceTypes(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListActiveServiceTypesResponse, error) {
 	out := new(ListActiveServiceTypesResponse)
 	err := c.cc.Invoke(ctx, ServicesService_ListActiveServiceTypes_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -96,8 +97,8 @@ func (c *servicesServiceClient) AddService(ctx context.Context, in *AddServiceRe
 	return out, nil
 }
 
-func (c *servicesServiceClient) RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error) {
-	out := new(RemoveServiceResponse)
+func (c *servicesServiceClient) RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, ServicesService_RemoveService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -105,8 +106,8 @@ func (c *servicesServiceClient) RemoveService(ctx context.Context, in *RemoveSer
 	return out, nil
 }
 
-func (c *servicesServiceClient) AddCustomLabels(ctx context.Context, in *AddCustomLabelsRequest, opts ...grpc.CallOption) (*AddCustomLabelsResponse, error) {
-	out := new(AddCustomLabelsResponse)
+func (c *servicesServiceClient) AddCustomLabels(ctx context.Context, in *AddCustomLabelsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, ServicesService_AddCustomLabels_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -114,8 +115,8 @@ func (c *servicesServiceClient) AddCustomLabels(ctx context.Context, in *AddCust
 	return out, nil
 }
 
-func (c *servicesServiceClient) RemoveCustomLabels(ctx context.Context, in *RemoveCustomLabelsRequest, opts ...grpc.CallOption) (*RemoveCustomLabelsResponse, error) {
-	out := new(RemoveCustomLabelsResponse)
+func (c *servicesServiceClient) RemoveCustomLabels(ctx context.Context, in *RemoveCustomLabelsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, ServicesService_RemoveCustomLabels_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -123,8 +124,8 @@ func (c *servicesServiceClient) RemoveCustomLabels(ctx context.Context, in *Remo
 	return out, nil
 }
 
-func (c *servicesServiceClient) ChangeService(ctx context.Context, in *ChangeServiceRequest, opts ...grpc.CallOption) (*ChangeServiceResponse, error) {
-	out := new(ChangeServiceResponse)
+func (c *servicesServiceClient) ChangeService(ctx context.Context, in *ChangeServiceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, ServicesService_ChangeService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -139,19 +140,19 @@ type ServicesServiceServer interface {
 	// ListServices returns a list of Services filtered by type.
 	ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error)
 	// ListActiveServiceTypes returns a list of active Services.
-	ListActiveServiceTypes(context.Context, *ListActiveServiceTypesRequest) (*ListActiveServiceTypesResponse, error)
+	ListActiveServiceTypes(context.Context, *emptypb.Empty) (*ListActiveServiceTypesResponse, error)
 	// GetService returns a single Service by ID.
 	GetService(context.Context, *GetServiceRequest) (*GetServiceResponse, error)
 	// AddService adds any type of Service.
 	AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error)
 	// RemoveService removes a Service.
-	RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error)
+	RemoveService(context.Context, *RemoveServiceRequest) (*emptypb.Empty, error)
 	// AddCustomLabels adds custom labels to a Service.
-	AddCustomLabels(context.Context, *AddCustomLabelsRequest) (*AddCustomLabelsResponse, error)
+	AddCustomLabels(context.Context, *AddCustomLabelsRequest) (*emptypb.Empty, error)
 	// RemoveCustomLabels removes custom labels from a Service.
-	RemoveCustomLabels(context.Context, *RemoveCustomLabelsRequest) (*RemoveCustomLabelsResponse, error)
+	RemoveCustomLabels(context.Context, *RemoveCustomLabelsRequest) (*emptypb.Empty, error)
 	// ChangeService allows changing configuration of a Service.
-	ChangeService(context.Context, *ChangeServiceRequest) (*ChangeServiceResponse, error)
+	ChangeService(context.Context, *ChangeServiceRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedServicesServiceServer()
 }
 
@@ -162,7 +163,7 @@ func (UnimplementedServicesServiceServer) ListServices(context.Context, *ListSer
 	return nil, status.Errorf(codes.Unimplemented, "method ListServices not implemented")
 }
 
-func (UnimplementedServicesServiceServer) ListActiveServiceTypes(context.Context, *ListActiveServiceTypesRequest) (*ListActiveServiceTypesResponse, error) {
+func (UnimplementedServicesServiceServer) ListActiveServiceTypes(context.Context, *emptypb.Empty) (*ListActiveServiceTypesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListActiveServiceTypes not implemented")
 }
 
@@ -174,19 +175,19 @@ func (UnimplementedServicesServiceServer) AddService(context.Context, *AddServic
 	return nil, status.Errorf(codes.Unimplemented, "method AddService not implemented")
 }
 
-func (UnimplementedServicesServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error) {
+func (UnimplementedServicesServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveService not implemented")
 }
 
-func (UnimplementedServicesServiceServer) AddCustomLabels(context.Context, *AddCustomLabelsRequest) (*AddCustomLabelsResponse, error) {
+func (UnimplementedServicesServiceServer) AddCustomLabels(context.Context, *AddCustomLabelsRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddCustomLabels not implemented")
 }
 
-func (UnimplementedServicesServiceServer) RemoveCustomLabels(context.Context, *RemoveCustomLabelsRequest) (*RemoveCustomLabelsResponse, error) {
+func (UnimplementedServicesServiceServer) RemoveCustomLabels(context.Context, *RemoveCustomLabelsRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveCustomLabels not implemented")
 }
 
-func (UnimplementedServicesServiceServer) ChangeService(context.Context, *ChangeServiceRequest) (*ChangeServiceResponse, error) {
+func (UnimplementedServicesServiceServer) ChangeService(context.Context, *ChangeServiceRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeService not implemented")
 }
 func (UnimplementedServicesServiceServer) mustEmbedUnimplementedServicesServiceServer() {}
@@ -221,7 +222,7 @@ func _ServicesService_ListServices_Handler(srv interface{}, ctx context.Context,
 }
 
 func _ServicesService_ListActiveServiceTypes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListActiveServiceTypesRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -233,7 +234,7 @@ func _ServicesService_ListActiveServiceTypes_Handler(srv interface{}, ctx contex
 		FullMethod: ServicesService_ListActiveServiceTypes_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServiceServer).ListActiveServiceTypes(ctx, req.(*ListActiveServiceTypesRequest))
+		return srv.(ServicesServiceServer).ListActiveServiceTypes(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }

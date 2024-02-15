@@ -38,7 +38,7 @@ type ClientService interface {
 }
 
 /*
-Reload reloads reloads pmm agent configuration
+Reload reloads reloads pmm agent configuration the reload request may not be received by the client due to pmm agent restart
 */
 func (a *Client) Reload(params *ReloadParams, opts ...ClientOption) (*ReloadOK, error) {
 	// TODO: Validate the params before sending

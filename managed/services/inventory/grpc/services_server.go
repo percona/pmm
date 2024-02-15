@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/AlekSi/pointer"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -97,10 +98,7 @@ func (s *servicesServer) ListServices(ctx context.Context, req *inventoryv1.List
 }
 
 // ListActiveServiceTypes returns list of active Services.
-func (s *servicesServer) ListActiveServiceTypes(
-	ctx context.Context,
-	req *inventoryv1.ListActiveServiceTypesRequest,
-) (*inventoryv1.ListActiveServiceTypesResponse, error) {
+func (s *servicesServer) ListActiveServiceTypes(ctx context.Context, req *empty.Empty) (*inventoryv1.ListActiveServiceTypesResponse, error) {
 	types, err := s.s.ListActiveServiceTypes(ctx)
 	if err != nil {
 		return nil, err
@@ -301,26 +299,26 @@ func (s *servicesServer) addExternalService(ctx context.Context, params *invento
 }
 
 // RemoveService removes Service.
-func (s *servicesServer) RemoveService(ctx context.Context, req *inventoryv1.RemoveServiceRequest) (*inventoryv1.RemoveServiceResponse, error) {
+func (s *servicesServer) RemoveService(ctx context.Context, req *inventoryv1.RemoveServiceRequest) (*empty.Empty, error) {
 	if err := s.s.Remove(ctx, req.ServiceId, req.Force); err != nil {
 		return nil, err
 	}
 
-	return &inventoryv1.RemoveServiceResponse{}, nil
+	return &empty.Empty{}, nil
 }
 
 // AddCustomLabels adds or replaces (if key exists) custom labels for a service.
-func (s *servicesServer) AddCustomLabels(ctx context.Context, req *inventoryv1.AddCustomLabelsRequest) (*inventoryv1.AddCustomLabelsResponse, error) {
+func (s *servicesServer) AddCustomLabels(ctx context.Context, req *inventoryv1.AddCustomLabelsRequest) (*empty.Empty, error) {
 	return s.s.AddCustomLabels(ctx, req)
 }
 
 // RemoveCustomLabels removes custom labels from a service.
-func (s *servicesServer) RemoveCustomLabels(ctx context.Context, req *inventoryv1.RemoveCustomLabelsRequest) (*inventoryv1.RemoveCustomLabelsResponse, error) {
+func (s *servicesServer) RemoveCustomLabels(ctx context.Context, req *inventoryv1.RemoveCustomLabelsRequest) (*empty.Empty, error) {
 	return s.s.RemoveCustomLabels(ctx, req)
 }
 
 // ChangeService changes service configuration.
-func (s *servicesServer) ChangeService(ctx context.Context, req *inventoryv1.ChangeServiceRequest) (*inventoryv1.ChangeServiceResponse, error) {
+func (s *servicesServer) ChangeService(ctx context.Context, req *inventoryv1.ChangeServiceRequest) (*empty.Empty, error) {
 	err := s.s.ChangeService(ctx, s.mgmtServices, &models.ChangeStandardLabelsParams{
 		ServiceID:      req.ServiceId,
 		Cluster:        req.Cluster,
@@ -332,7 +330,7 @@ func (s *servicesServer) ChangeService(ctx context.Context, req *inventoryv1.Cha
 		return nil, toAPIError(err)
 	}
 
-	return &inventoryv1.ChangeServiceResponse{}, nil
+	return &empty.Empty{}, nil
 }
 
 // toAPIError converts GO errors into API-level errors.

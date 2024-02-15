@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -388,7 +389,7 @@ func TestScheduledBackups(t *testing.T) {
 		})
 
 		t.Run("list", func(t *testing.T) {
-			res, err := backupSvc.ListScheduledBackups(ctx, &backuppb.ListScheduledBackupsRequest{})
+			res, err := backupSvc.ListScheduledBackups(ctx, &empty.Empty{})
 
 			assert.NoError(t, err)
 			assert.Len(t, res.ScheduledBackups, 1)

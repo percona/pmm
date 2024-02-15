@@ -3,6 +3,7 @@ syntax = "proto3";
 package backup.v1;
 
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 import "validate/validate.proto";
 
 // FilesystemLocationConfig represents file system location config.
@@ -31,8 +32,6 @@ message Location {
     S3LocationConfig s3_config = 5;
   }
 }
-
-message ListLocationsRequest {}
 
 message ListLocationsResponse {
   repeated Location locations = 1;
@@ -65,16 +64,12 @@ message ChangeLocationRequest {
   S3LocationConfig s3_config = 5;
 }
 
-message ChangeLocationResponse {}
-
 message RemoveLocationRequest {
   // Machine-readable ID.
   string location_id = 1;
   // Force mode
   bool force = 2;
 }
-
-message RemoveLocationResponse {}
 
 message TestLocationConfigRequest {
   // Filesystem location configuration. Exactly one config should be set.
@@ -83,12 +78,10 @@ message TestLocationConfigRequest {
   S3LocationConfig s3_config = 2;
 }
 
-message TestLocationConfigResponse {}
-
 // Locations service provides access to Backup Locations.
 service LocationsService {
   // ListLocations returns a list of all backup locations.
-  rpc ListLocations(ListLocationsRequest) returns (ListLocationsResponse) {
+  rpc ListLocations(google.protobuf.Empty) returns (ListLocationsResponse) {
     option (google.api.http) = {
       post: "/v1/backup/Locations/List"
       body: "*"
@@ -102,21 +95,21 @@ service LocationsService {
     };
   }
   // ChangeLocation changes backup location.
-  rpc ChangeLocation(ChangeLocationRequest) returns (ChangeLocationResponse) {
+  rpc ChangeLocation(ChangeLocationRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/backup/Locations/Change"
       body: "*"
     };
   }
   // RemoveLocation removes existing backup location.
-  rpc RemoveLocation(RemoveLocationRequest) returns (RemoveLocationResponse) {
+  rpc RemoveLocation(RemoveLocationRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/backup/Locations/Remove"
       body: "*"
     };
   }
   // TestLocationConfig tests backup location and credentials.
-  rpc TestLocationConfig(TestLocationConfigRequest) returns (TestLocationConfigResponse) {
+  rpc TestLocationConfig(TestLocationConfigRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/backup/Locations/TestConfig"
       body: "*"

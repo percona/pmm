@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -31,7 +32,7 @@ type AzureDatabaseServiceClient interface {
 	// DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
 	DiscoverAzureDatabase(ctx context.Context, in *DiscoverAzureDatabaseRequest, opts ...grpc.CallOption) (*DiscoverAzureDatabaseResponse, error)
 	// AddAzureDatabase adds Azure Database instance.
-	AddAzureDatabase(ctx context.Context, in *AddAzureDatabaseRequest, opts ...grpc.CallOption) (*AddAzureDatabaseResponse, error)
+	AddAzureDatabase(ctx context.Context, in *AddAzureDatabaseRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type azureDatabaseServiceClient struct {
@@ -51,8 +52,8 @@ func (c *azureDatabaseServiceClient) DiscoverAzureDatabase(ctx context.Context, 
 	return out, nil
 }
 
-func (c *azureDatabaseServiceClient) AddAzureDatabase(ctx context.Context, in *AddAzureDatabaseRequest, opts ...grpc.CallOption) (*AddAzureDatabaseResponse, error) {
-	out := new(AddAzureDatabaseResponse)
+func (c *azureDatabaseServiceClient) AddAzureDatabase(ctx context.Context, in *AddAzureDatabaseRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, AzureDatabaseService_AddAzureDatabase_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -67,7 +68,7 @@ type AzureDatabaseServiceServer interface {
 	// DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
 	DiscoverAzureDatabase(context.Context, *DiscoverAzureDatabaseRequest) (*DiscoverAzureDatabaseResponse, error)
 	// AddAzureDatabase adds Azure Database instance.
-	AddAzureDatabase(context.Context, *AddAzureDatabaseRequest) (*AddAzureDatabaseResponse, error)
+	AddAzureDatabase(context.Context, *AddAzureDatabaseRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedAzureDatabaseServiceServer()
 }
 
@@ -78,7 +79,7 @@ func (UnimplementedAzureDatabaseServiceServer) DiscoverAzureDatabase(context.Con
 	return nil, status.Errorf(codes.Unimplemented, "method DiscoverAzureDatabase not implemented")
 }
 
-func (UnimplementedAzureDatabaseServiceServer) AddAzureDatabase(context.Context, *AddAzureDatabaseRequest) (*AddAzureDatabaseResponse, error) {
+func (UnimplementedAzureDatabaseServiceServer) AddAzureDatabase(context.Context, *AddAzureDatabaseRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddAzureDatabase not implemented")
 }
 func (UnimplementedAzureDatabaseServiceServer) mustEmbedUnimplementedAzureDatabaseServiceServer() {}

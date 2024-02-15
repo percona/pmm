@@ -3,13 +3,12 @@ syntax = "proto3";
 package user.v1;
 
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {title: "User API"}
 };
-
-message GetUserRequest {}
 
 message GetUserResponse {
   // User ID
@@ -36,8 +35,6 @@ message UpdateUserResponse {
   bool alerting_tour_completed = 3;
 }
 
-message ListUsersRequest {}
-
 message ListUsersResponse {
   message UserDetail {
     uint32 user_id = 1;
@@ -50,7 +47,7 @@ message ListUsersResponse {
 
 // UserService contains rpcs related to user data
 service UserService {
-  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+  rpc GetUser(google.protobuf.Empty) returns (GetUserResponse) {
     option (google.api.http) = {get: "/v1/user"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get user details"
@@ -67,7 +64,7 @@ service UserService {
       description: "Update details of given user in PMM server"
     };
   }
-  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+  rpc ListUsers(google.protobuf.Empty) returns (ListUsersResponse) {
     option (google.api.http) = {post: "/v1/user/list"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List all users with details"

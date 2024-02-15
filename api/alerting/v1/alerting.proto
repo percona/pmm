@@ -5,6 +5,7 @@ package alerting.v1;
 import "alerting/v1/params.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "management/v1/boolean_flag.proto";
 import "management/v1/pagination.proto";
@@ -118,8 +119,6 @@ message CreateTemplateRequest {
   string yaml = 1 [(validate.rules).string.min_len = 1];
 }
 
-message CreateTemplateResponse {}
-
 message UpdateTemplateRequest {
   // Machine-readable name (ID).
   string name = 1 [(validate.rules).string.min_len = 1];
@@ -127,13 +126,9 @@ message UpdateTemplateRequest {
   string yaml = 2 [(validate.rules).string.min_len = 1];
 }
 
-message UpdateTemplateResponse {}
-
 message DeleteTemplateRequest {
   string name = 1 [(validate.rules).string.min_len = 1];
 }
-
-message DeleteTemplateResponse {}
 
 // FilterType represents filter matching type.
 enum FilterType {
@@ -187,8 +182,6 @@ message CreateRuleRequest {
   repeated Filter filters = 9;
 }
 
-message CreateRuleResponse {}
-
 // Alerting service lets to manage alerting templates and create alerting rules from them.
 service AlertingService {
   // ListTemplates returns a list of all collected alert rule templates.
@@ -199,28 +192,28 @@ service AlertingService {
     };
   }
   // CreateTemplate creates a new template.
-  rpc CreateTemplate(CreateTemplateRequest) returns (CreateTemplateResponse) {
+  rpc CreateTemplate(CreateTemplateRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/alerting/Templates/Create"
       body: "*"
     };
   }
   // UpdateTemplate updates existing template, previously created via API.
-  rpc UpdateTemplate(UpdateTemplateRequest) returns (UpdateTemplateResponse) {
+  rpc UpdateTemplate(UpdateTemplateRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/alerting/Templates/Update"
       body: "*"
     };
   }
   // DeleteTemplate deletes existing, previously created via API.
-  rpc DeleteTemplate(DeleteTemplateRequest) returns (DeleteTemplateResponse) {
+  rpc DeleteTemplate(DeleteTemplateRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/alerting/Templates/Delete"
       body: "*"
     };
   }
   // CreateRule creates alerting rule from the given template.
-  rpc CreateRule(CreateRuleRequest) returns (CreateRuleResponse) {
+  rpc CreateRule(CreateRuleRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/alerting/Rules/Create"
       body: "*"

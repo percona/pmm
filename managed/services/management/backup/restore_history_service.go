@@ -19,6 +19,7 @@ package backup
 import (
 	"context"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -55,10 +56,7 @@ func (s *RestoreHistoryService) Enabled() bool {
 }
 
 // ListRestoreHistory returns a list of restore history.
-func (s *RestoreHistoryService) ListRestoreHistory(
-	context.Context,
-	*backuppb.ListRestoreHistoryRequest,
-) (*backuppb.ListRestoreHistoryResponse, error) {
+func (s *RestoreHistoryService) ListRestoreHistory(context.Context, *empty.Empty) (*backuppb.ListRestoreHistoryResponse, error) {
 	var items []*models.RestoreHistoryItem
 	var services map[string]*models.Service
 	var artifacts map[string]*models.Artifact

@@ -4,6 +4,7 @@ package inventory.v1;
 
 import "common/common.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 import "inventory/v1/agent_status.proto";
 import "inventory/v1/log_level.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -1260,8 +1261,6 @@ message RemoveAgentRequest {
   bool force = 2;
 }
 
-message RemoveAgentResponse {}
-
 // Agents service provides public methods for managing Agents.
 service AgentsService {
   // ListAgents returns a list of all Agents.
@@ -1322,7 +1321,7 @@ service AgentsService {
   }
 
   // RemoveAgent removes an Agent.
-  rpc RemoveAgent(RemoveAgentRequest) returns (RemoveAgentResponse) {
+  rpc RemoveAgent(RemoveAgentRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/Remove"
       body: "*"

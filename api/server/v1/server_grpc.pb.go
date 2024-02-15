@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -39,21 +40,21 @@ type ServerServiceClient interface {
 	Version(ctx context.Context, in *VersionRequest, opts ...grpc.CallOption) (*VersionResponse, error)
 	// Readiness returns an error when Server components being restarted are not ready yet.
 	// Use this API for checking the health of Docker containers and for probing Kubernetes readiness.
-	Readiness(ctx context.Context, in *ReadinessRequest, opts ...grpc.CallOption) (*ReadinessResponse, error)
+	Readiness(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ReadinessResponse, error)
 	// LeaderHealthCheck checks if the instance is the leader in a cluster.
-	LeaderHealthCheck(ctx context.Context, in *LeaderHealthCheckRequest, opts ...grpc.CallOption) (*LeaderHealthCheckResponse, error)
+	LeaderHealthCheck(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*LeaderHealthCheckResponse, error)
 	// CheckUpdates checks for available PMM Server updates.
 	CheckUpdates(ctx context.Context, in *CheckUpdatesRequest, opts ...grpc.CallOption) (*CheckUpdatesResponse, error)
 	// StartUpdate starts PMM Server update.
-	StartUpdate(ctx context.Context, in *StartUpdateRequest, opts ...grpc.CallOption) (*StartUpdateResponse, error)
+	StartUpdate(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*StartUpdateResponse, error)
 	// UpdateStatus returns PMM Server update status.
 	UpdateStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*UpdateStatusResponse, error)
 	// GetSettings returns current PMM Server settings.
-	GetSettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetSettingsResponse, error)
+	GetSettings(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetSettingsResponse, error)
 	// ChangeSettings changes PMM Server settings.
 	ChangeSettings(ctx context.Context, in *ChangeSettingsRequest, opts ...grpc.CallOption) (*ChangeSettingsResponse, error)
 	// AWSInstanceCheck checks AWS EC2 instance ID.
-	AWSInstanceCheck(ctx context.Context, in *AWSInstanceCheckRequest, opts ...grpc.CallOption) (*AWSInstanceCheckResponse, error)
+	AWSInstanceCheck(ctx context.Context, in *AWSInstanceCheckRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type serverServiceClient struct {
@@ -73,7 +74,7 @@ func (c *serverServiceClient) Version(ctx context.Context, in *VersionRequest, o
 	return out, nil
 }
 
-func (c *serverServiceClient) Readiness(ctx context.Context, in *ReadinessRequest, opts ...grpc.CallOption) (*ReadinessResponse, error) {
+func (c *serverServiceClient) Readiness(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ReadinessResponse, error) {
 	out := new(ReadinessResponse)
 	err := c.cc.Invoke(ctx, ServerService_Readiness_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -82,7 +83,7 @@ func (c *serverServiceClient) Readiness(ctx context.Context, in *ReadinessReques
 	return out, nil
 }
 
-func (c *serverServiceClient) LeaderHealthCheck(ctx context.Context, in *LeaderHealthCheckRequest, opts ...grpc.CallOption) (*LeaderHealthCheckResponse, error) {
+func (c *serverServiceClient) LeaderHealthCheck(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*LeaderHealthCheckResponse, error) {
 	out := new(LeaderHealthCheckResponse)
 	err := c.cc.Invoke(ctx, ServerService_LeaderHealthCheck_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -100,7 +101,7 @@ func (c *serverServiceClient) CheckUpdates(ctx context.Context, in *CheckUpdates
 	return out, nil
 }
 
-func (c *serverServiceClient) StartUpdate(ctx context.Context, in *StartUpdateRequest, opts ...grpc.CallOption) (*StartUpdateResponse, error) {
+func (c *serverServiceClient) StartUpdate(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*StartUpdateResponse, error) {
 	out := new(StartUpdateResponse)
 	err := c.cc.Invoke(ctx, ServerService_StartUpdate_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -118,7 +119,7 @@ func (c *serverServiceClient) UpdateStatus(ctx context.Context, in *UpdateStatus
 	return out, nil
 }
 
-func (c *serverServiceClient) GetSettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetSettingsResponse, error) {
+func (c *serverServiceClient) GetSettings(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetSettingsResponse, error) {
 	out := new(GetSettingsResponse)
 	err := c.cc.Invoke(ctx, ServerService_GetSettings_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -136,8 +137,8 @@ func (c *serverServiceClient) ChangeSettings(ctx context.Context, in *ChangeSett
 	return out, nil
 }
 
-func (c *serverServiceClient) AWSInstanceCheck(ctx context.Context, in *AWSInstanceCheckRequest, opts ...grpc.CallOption) (*AWSInstanceCheckResponse, error) {
-	out := new(AWSInstanceCheckResponse)
+func (c *serverServiceClient) AWSInstanceCheck(ctx context.Context, in *AWSInstanceCheckRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, ServerService_AWSInstanceCheck_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -153,21 +154,21 @@ type ServerServiceServer interface {
 	Version(context.Context, *VersionRequest) (*VersionResponse, error)
 	// Readiness returns an error when Server components being restarted are not ready yet.
 	// Use this API for checking the health of Docker containers and for probing Kubernetes readiness.
-	Readiness(context.Context, *ReadinessRequest) (*ReadinessResponse, error)
+	Readiness(context.Context, *emptypb.Empty) (*ReadinessResponse, error)
 	// LeaderHealthCheck checks if the instance is the leader in a cluster.
-	LeaderHealthCheck(context.Context, *LeaderHealthCheckRequest) (*LeaderHealthCheckResponse, error)
+	LeaderHealthCheck(context.Context, *emptypb.Empty) (*LeaderHealthCheckResponse, error)
 	// CheckUpdates checks for available PMM Server updates.
 	CheckUpdates(context.Context, *CheckUpdatesRequest) (*CheckUpdatesResponse, error)
 	// StartUpdate starts PMM Server update.
-	StartUpdate(context.Context, *StartUpdateRequest) (*StartUpdateResponse, error)
+	StartUpdate(context.Context, *emptypb.Empty) (*StartUpdateResponse, error)
 	// UpdateStatus returns PMM Server update status.
 	UpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatusResponse, error)
 	// GetSettings returns current PMM Server settings.
-	GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error)
+	GetSettings(context.Context, *emptypb.Empty) (*GetSettingsResponse, error)
 	// ChangeSettings changes PMM Server settings.
 	ChangeSettings(context.Context, *ChangeSettingsRequest) (*ChangeSettingsResponse, error)
 	// AWSInstanceCheck checks AWS EC2 instance ID.
-	AWSInstanceCheck(context.Context, *AWSInstanceCheckRequest) (*AWSInstanceCheckResponse, error)
+	AWSInstanceCheck(context.Context, *AWSInstanceCheckRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedServerServiceServer()
 }
 
@@ -178,11 +179,11 @@ func (UnimplementedServerServiceServer) Version(context.Context, *VersionRequest
 	return nil, status.Errorf(codes.Unimplemented, "method Version not implemented")
 }
 
-func (UnimplementedServerServiceServer) Readiness(context.Context, *ReadinessRequest) (*ReadinessResponse, error) {
+func (UnimplementedServerServiceServer) Readiness(context.Context, *emptypb.Empty) (*ReadinessResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Readiness not implemented")
 }
 
-func (UnimplementedServerServiceServer) LeaderHealthCheck(context.Context, *LeaderHealthCheckRequest) (*LeaderHealthCheckResponse, error) {
+func (UnimplementedServerServiceServer) LeaderHealthCheck(context.Context, *emptypb.Empty) (*LeaderHealthCheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LeaderHealthCheck not implemented")
 }
 
@@ -190,7 +191,7 @@ func (UnimplementedServerServiceServer) CheckUpdates(context.Context, *CheckUpda
 	return nil, status.Errorf(codes.Unimplemented, "method CheckUpdates not implemented")
 }
 
-func (UnimplementedServerServiceServer) StartUpdate(context.Context, *StartUpdateRequest) (*StartUpdateResponse, error) {
+func (UnimplementedServerServiceServer) StartUpdate(context.Context, *emptypb.Empty) (*StartUpdateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartUpdate not implemented")
 }
 
@@ -198,7 +199,7 @@ func (UnimplementedServerServiceServer) UpdateStatus(context.Context, *UpdateSta
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateStatus not implemented")
 }
 
-func (UnimplementedServerServiceServer) GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error) {
+func (UnimplementedServerServiceServer) GetSettings(context.Context, *emptypb.Empty) (*GetSettingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSettings not implemented")
 }
 
@@ -206,7 +207,7 @@ func (UnimplementedServerServiceServer) ChangeSettings(context.Context, *ChangeS
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeSettings not implemented")
 }
 
-func (UnimplementedServerServiceServer) AWSInstanceCheck(context.Context, *AWSInstanceCheckRequest) (*AWSInstanceCheckResponse, error) {
+func (UnimplementedServerServiceServer) AWSInstanceCheck(context.Context, *AWSInstanceCheckRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AWSInstanceCheck not implemented")
 }
 func (UnimplementedServerServiceServer) mustEmbedUnimplementedServerServiceServer() {}
@@ -241,7 +242,7 @@ func _ServerService_Version_Handler(srv interface{}, ctx context.Context, dec fu
 }
 
 func _ServerService_Readiness_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ReadinessRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -253,13 +254,13 @@ func _ServerService_Readiness_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: ServerService_Readiness_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServiceServer).Readiness(ctx, req.(*ReadinessRequest))
+		return srv.(ServerServiceServer).Readiness(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _ServerService_LeaderHealthCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LeaderHealthCheckRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -271,7 +272,7 @@ func _ServerService_LeaderHealthCheck_Handler(srv interface{}, ctx context.Conte
 		FullMethod: ServerService_LeaderHealthCheck_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServiceServer).LeaderHealthCheck(ctx, req.(*LeaderHealthCheckRequest))
+		return srv.(ServerServiceServer).LeaderHealthCheck(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -295,7 +296,7 @@ func _ServerService_CheckUpdates_Handler(srv interface{}, ctx context.Context, d
 }
 
 func _ServerService_StartUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StartUpdateRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -307,7 +308,7 @@ func _ServerService_StartUpdate_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: ServerService_StartUpdate_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServiceServer).StartUpdate(ctx, req.(*StartUpdateRequest))
+		return srv.(ServerServiceServer).StartUpdate(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -331,7 +332,7 @@ func _ServerService_UpdateStatus_Handler(srv interface{}, ctx context.Context, d
 }
 
 func _ServerService_GetSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetSettingsRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -343,7 +344,7 @@ func _ServerService_GetSettings_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: ServerService_GetSettings_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServiceServer).GetSettings(ctx, req.(*GetSettingsRequest))
+		return srv.(ServerServiceServer).GetSettings(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }

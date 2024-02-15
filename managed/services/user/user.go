@@ -19,6 +19,7 @@ package user
 import (
 	"context"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -56,7 +57,7 @@ func NewUserService(db *reform.DB, client grafanaClient) *Service {
 }
 
 // GetUser creates a new user.
-func (s *Service) GetUser(ctx context.Context, _ *userv1.GetUserRequest) (*userv1.GetUserResponse, error) {
+func (s *Service) GetUser(ctx context.Context, _ *empty.Empty) (*userv1.GetUserResponse, error) {
 	userID, err := s.c.GetUserID(ctx)
 	if err != nil {
 		return nil, err
@@ -119,7 +120,7 @@ func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest)
 }
 
 // ListUsers lists all users and their details.
-func (s *Service) ListUsers(_ context.Context, _ *userv1.ListUsersRequest) (*userv1.ListUsersResponse, error) {
+func (s *Service) ListUsers(_ context.Context, _ *empty.Empty) (*userv1.ListUsersResponse, error) {
 	userRoles, err := models.ListUsers(s.db.Querier)
 	if err != nil {
 		return nil, err

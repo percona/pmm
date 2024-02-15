@@ -19,6 +19,7 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
+	"github.com/golang/protobuf/ptypes/empty"
 	"gopkg.in/reform.v1"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -343,7 +344,7 @@ func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) er
 }
 
 // AddCustomLabels adds or replaces (if key exists) custom labels for a service.
-func (ss *ServicesService) AddCustomLabels(ctx context.Context, req *inventoryv1.AddCustomLabelsRequest) (*inventoryv1.AddCustomLabelsResponse, error) {
+func (ss *ServicesService) AddCustomLabels(ctx context.Context, req *inventoryv1.AddCustomLabelsRequest) (*empty.Empty, error) {
 	errTx := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
 		if err != nil {
@@ -382,11 +383,11 @@ func (ss *ServicesService) AddCustomLabels(ctx context.Context, req *inventoryv1
 		return nil, err
 	}
 
-	return &inventoryv1.AddCustomLabelsResponse{}, nil
+	return &empty.Empty{}, nil
 }
 
 // RemoveCustomLabels removes custom labels from a service.
-func (ss *ServicesService) RemoveCustomLabels(ctx context.Context, req *inventoryv1.RemoveCustomLabelsRequest) (*inventoryv1.RemoveCustomLabelsResponse, error) {
+func (ss *ServicesService) RemoveCustomLabels(ctx context.Context, req *inventoryv1.RemoveCustomLabelsRequest) (*empty.Empty, error) {
 	errTx := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
 		if err != nil {
@@ -425,7 +426,7 @@ func (ss *ServicesService) RemoveCustomLabels(ctx context.Context, req *inventor
 		return nil, err
 	}
 
-	return &inventoryv1.RemoveCustomLabelsResponse{}, nil
+	return &empty.Empty{}, nil
 }
 
 // ChangeService changes service configuration.

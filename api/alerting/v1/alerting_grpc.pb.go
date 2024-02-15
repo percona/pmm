@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -34,13 +35,13 @@ type AlertingServiceClient interface {
 	// ListTemplates returns a list of all collected alert rule templates.
 	ListTemplates(ctx context.Context, in *ListTemplatesRequest, opts ...grpc.CallOption) (*ListTemplatesResponse, error)
 	// CreateTemplate creates a new template.
-	CreateTemplate(ctx context.Context, in *CreateTemplateRequest, opts ...grpc.CallOption) (*CreateTemplateResponse, error)
+	CreateTemplate(ctx context.Context, in *CreateTemplateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// UpdateTemplate updates existing template, previously created via API.
-	UpdateTemplate(ctx context.Context, in *UpdateTemplateRequest, opts ...grpc.CallOption) (*UpdateTemplateResponse, error)
+	UpdateTemplate(ctx context.Context, in *UpdateTemplateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// DeleteTemplate deletes existing, previously created via API.
-	DeleteTemplate(ctx context.Context, in *DeleteTemplateRequest, opts ...grpc.CallOption) (*DeleteTemplateResponse, error)
+	DeleteTemplate(ctx context.Context, in *DeleteTemplateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// CreateRule creates alerting rule from the given template.
-	CreateRule(ctx context.Context, in *CreateRuleRequest, opts ...grpc.CallOption) (*CreateRuleResponse, error)
+	CreateRule(ctx context.Context, in *CreateRuleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type alertingServiceClient struct {
@@ -60,8 +61,8 @@ func (c *alertingServiceClient) ListTemplates(ctx context.Context, in *ListTempl
 	return out, nil
 }
 
-func (c *alertingServiceClient) CreateTemplate(ctx context.Context, in *CreateTemplateRequest, opts ...grpc.CallOption) (*CreateTemplateResponse, error) {
-	out := new(CreateTemplateResponse)
+func (c *alertingServiceClient) CreateTemplate(ctx context.Context, in *CreateTemplateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, AlertingService_CreateTemplate_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -69,8 +70,8 @@ func (c *alertingServiceClient) CreateTemplate(ctx context.Context, in *CreateTe
 	return out, nil
 }
 
-func (c *alertingServiceClient) UpdateTemplate(ctx context.Context, in *UpdateTemplateRequest, opts ...grpc.CallOption) (*UpdateTemplateResponse, error) {
-	out := new(UpdateTemplateResponse)
+func (c *alertingServiceClient) UpdateTemplate(ctx context.Context, in *UpdateTemplateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, AlertingService_UpdateTemplate_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -78,8 +79,8 @@ func (c *alertingServiceClient) UpdateTemplate(ctx context.Context, in *UpdateTe
 	return out, nil
 }
 
-func (c *alertingServiceClient) DeleteTemplate(ctx context.Context, in *DeleteTemplateRequest, opts ...grpc.CallOption) (*DeleteTemplateResponse, error) {
-	out := new(DeleteTemplateResponse)
+func (c *alertingServiceClient) DeleteTemplate(ctx context.Context, in *DeleteTemplateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, AlertingService_DeleteTemplate_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -87,8 +88,8 @@ func (c *alertingServiceClient) DeleteTemplate(ctx context.Context, in *DeleteTe
 	return out, nil
 }
 
-func (c *alertingServiceClient) CreateRule(ctx context.Context, in *CreateRuleRequest, opts ...grpc.CallOption) (*CreateRuleResponse, error) {
-	out := new(CreateRuleResponse)
+func (c *alertingServiceClient) CreateRule(ctx context.Context, in *CreateRuleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, AlertingService_CreateRule_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -103,13 +104,13 @@ type AlertingServiceServer interface {
 	// ListTemplates returns a list of all collected alert rule templates.
 	ListTemplates(context.Context, *ListTemplatesRequest) (*ListTemplatesResponse, error)
 	// CreateTemplate creates a new template.
-	CreateTemplate(context.Context, *CreateTemplateRequest) (*CreateTemplateResponse, error)
+	CreateTemplate(context.Context, *CreateTemplateRequest) (*emptypb.Empty, error)
 	// UpdateTemplate updates existing template, previously created via API.
-	UpdateTemplate(context.Context, *UpdateTemplateRequest) (*UpdateTemplateResponse, error)
+	UpdateTemplate(context.Context, *UpdateTemplateRequest) (*emptypb.Empty, error)
 	// DeleteTemplate deletes existing, previously created via API.
-	DeleteTemplate(context.Context, *DeleteTemplateRequest) (*DeleteTemplateResponse, error)
+	DeleteTemplate(context.Context, *DeleteTemplateRequest) (*emptypb.Empty, error)
 	// CreateRule creates alerting rule from the given template.
-	CreateRule(context.Context, *CreateRuleRequest) (*CreateRuleResponse, error)
+	CreateRule(context.Context, *CreateRuleRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedAlertingServiceServer()
 }
 
@@ -120,19 +121,19 @@ func (UnimplementedAlertingServiceServer) ListTemplates(context.Context, *ListTe
 	return nil, status.Errorf(codes.Unimplemented, "method ListTemplates not implemented")
 }
 
-func (UnimplementedAlertingServiceServer) CreateTemplate(context.Context, *CreateTemplateRequest) (*CreateTemplateResponse, error) {
+func (UnimplementedAlertingServiceServer) CreateTemplate(context.Context, *CreateTemplateRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTemplate not implemented")
 }
 
-func (UnimplementedAlertingServiceServer) UpdateTemplate(context.Context, *UpdateTemplateRequest) (*UpdateTemplateResponse, error) {
+func (UnimplementedAlertingServiceServer) UpdateTemplate(context.Context, *UpdateTemplateRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateTemplate not implemented")
 }
 
-func (UnimplementedAlertingServiceServer) DeleteTemplate(context.Context, *DeleteTemplateRequest) (*DeleteTemplateResponse, error) {
+func (UnimplementedAlertingServiceServer) DeleteTemplate(context.Context, *DeleteTemplateRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteTemplate not implemented")
 }
 
-func (UnimplementedAlertingServiceServer) CreateRule(context.Context, *CreateRuleRequest) (*CreateRuleResponse, error) {
+func (UnimplementedAlertingServiceServer) CreateRule(context.Context, *CreateRuleRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateRule not implemented")
 }
 func (UnimplementedAlertingServiceServer) mustEmbedUnimplementedAlertingServiceServer() {}

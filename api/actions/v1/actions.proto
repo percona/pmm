@@ -3,6 +3,7 @@ syntax = "proto3";
 package actions.v1;
 
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
@@ -275,8 +276,6 @@ message CancelActionRequest {
   string action_id = 1 [(validate.rules).string.min_len = 1];
 }
 
-message CancelActionResponse {}
-
 // Actions service provides public Management API methods for Actions.
 service ActionsService {
   // GetAction gets result of a given Action.
@@ -434,7 +433,7 @@ service ActionsService {
     };
   }
   // CancelAction stops an Action.
-  rpc CancelAction(CancelActionRequest) returns (CancelActionResponse) {
+  rpc CancelAction(CancelActionRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/actions/Cancel"
       body: "*"

@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -70,7 +71,7 @@ type ActionsServiceClient interface {
 	// StartPTMySQLSummaryAction starts pt-mysql-summary Action.
 	StartPTMySQLSummaryAction(ctx context.Context, in *StartPTMySQLSummaryActionRequest, opts ...grpc.CallOption) (*StartPTMySQLSummaryActionResponse, error)
 	// CancelAction stops an Action.
-	CancelAction(ctx context.Context, in *CancelActionRequest, opts ...grpc.CallOption) (*CancelActionResponse, error)
+	CancelAction(ctx context.Context, in *CancelActionRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type actionsServiceClient struct {
@@ -207,8 +208,8 @@ func (c *actionsServiceClient) StartPTMySQLSummaryAction(ctx context.Context, in
 	return out, nil
 }
 
-func (c *actionsServiceClient) CancelAction(ctx context.Context, in *CancelActionRequest, opts ...grpc.CallOption) (*CancelActionResponse, error) {
-	out := new(CancelActionResponse)
+func (c *actionsServiceClient) CancelAction(ctx context.Context, in *CancelActionRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, ActionsService_CancelAction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -249,7 +250,7 @@ type ActionsServiceServer interface {
 	// StartPTMySQLSummaryAction starts pt-mysql-summary Action.
 	StartPTMySQLSummaryAction(context.Context, *StartPTMySQLSummaryActionRequest) (*StartPTMySQLSummaryActionResponse, error)
 	// CancelAction stops an Action.
-	CancelAction(context.Context, *CancelActionRequest) (*CancelActionResponse, error)
+	CancelAction(context.Context, *CancelActionRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedActionsServiceServer()
 }
 
@@ -312,7 +313,7 @@ func (UnimplementedActionsServiceServer) StartPTMySQLSummaryAction(context.Conte
 	return nil, status.Errorf(codes.Unimplemented, "method StartPTMySQLSummaryAction not implemented")
 }
 
-func (UnimplementedActionsServiceServer) CancelAction(context.Context, *CancelActionRequest) (*CancelActionResponse, error) {
+func (UnimplementedActionsServiceServer) CancelAction(context.Context, *CancelActionRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelAction not implemented")
 }
 func (UnimplementedActionsServiceServer) mustEmbedUnimplementedActionsServiceServer() {}

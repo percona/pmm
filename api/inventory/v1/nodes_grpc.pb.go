@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -37,7 +38,7 @@ type NodesServiceClient interface {
 	// AddNode adds any type of Node.
 	AddNode(ctx context.Context, in *AddNodeRequest, opts ...grpc.CallOption) (*AddNodeResponse, error)
 	// RemoveNode removes a Node.
-	RemoveNode(ctx context.Context, in *RemoveNodeRequest, opts ...grpc.CallOption) (*RemoveNodeResponse, error)
+	RemoveNode(ctx context.Context, in *RemoveNodeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type nodesServiceClient struct {
@@ -75,8 +76,8 @@ func (c *nodesServiceClient) AddNode(ctx context.Context, in *AddNodeRequest, op
 	return out, nil
 }
 
-func (c *nodesServiceClient) RemoveNode(ctx context.Context, in *RemoveNodeRequest, opts ...grpc.CallOption) (*RemoveNodeResponse, error) {
-	out := new(RemoveNodeResponse)
+func (c *nodesServiceClient) RemoveNode(ctx context.Context, in *RemoveNodeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, NodesService_RemoveNode_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -95,7 +96,7 @@ type NodesServiceServer interface {
 	// AddNode adds any type of Node.
 	AddNode(context.Context, *AddNodeRequest) (*AddNodeResponse, error)
 	// RemoveNode removes a Node.
-	RemoveNode(context.Context, *RemoveNodeRequest) (*RemoveNodeResponse, error)
+	RemoveNode(context.Context, *RemoveNodeRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedNodesServiceServer()
 }
 
@@ -114,7 +115,7 @@ func (UnimplementedNodesServiceServer) AddNode(context.Context, *AddNodeRequest)
 	return nil, status.Errorf(codes.Unimplemented, "method AddNode not implemented")
 }
 
-func (UnimplementedNodesServiceServer) RemoveNode(context.Context, *RemoveNodeRequest) (*RemoveNodeResponse, error) {
+func (UnimplementedNodesServiceServer) RemoveNode(context.Context, *RemoveNodeRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveNode not implemented")
 }
 func (UnimplementedNodesServiceServer) mustEmbedUnimplementedNodesServiceServer() {}

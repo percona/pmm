@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -77,7 +78,7 @@ func (r *RoleService) CreateRole(_ context.Context, req *rolev1beta1.CreateRoleR
 // UpdateRole updates a Role.
 //
 //nolint:unparam
-func (r *RoleService) UpdateRole(_ context.Context, req *rolev1beta1.UpdateRoleRequest) (*rolev1beta1.UpdateRoleResponse, error) {
+func (r *RoleService) UpdateRole(_ context.Context, req *rolev1beta1.UpdateRoleRequest) (*empty.Empty, error) {
 	var role models.Role
 	if err := r.db.FindByPrimaryKeyTo(&role, req.RoleId); err != nil {
 		if errors.As(err, &reform.ErrNoRows) {
@@ -100,14 +101,12 @@ func (r *RoleService) UpdateRole(_ context.Context, req *rolev1beta1.UpdateRoleR
 		return nil, err
 	}
 
-	return &rolev1beta1.UpdateRoleResponse{}, nil
+	return &empty.Empty{}, nil
 }
 
 // DeleteRole deletes a Role.
-//
-//nolint:unparam
-func (r *RoleService) DeleteRole(_ context.Context, req *rolev1beta1.DeleteRoleRequest) (*rolev1beta1.DeleteRoleResponse, error) {
-	errTx := r.db.InTransaction(func(tx *reform.TX) error {
+func (r *RoleService) DeleteRole(ctx context.Context, req *rolev1beta1.DeleteRoleRequest) (*empty.Empty, error) {
+	errTx := r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		if err := models.DeleteRole(tx, int(req.RoleId), int(req.ReplacementRoleId)); err != nil {
 			if errors.Is(err, models.ErrRoleNotFound) {
 				return status.Errorf(codes.NotFound, "Role not found")
@@ -122,7 +121,7 @@ func (r *RoleService) DeleteRole(_ context.Context, req *rolev1beta1.DeleteRoleR
 		return nil, errTx
 	}
 
-	return &rolev1beta1.DeleteRoleResponse{}, nil
+	return &empty.Empty{}, nil
 }
 
 // GetRole retrieves a Role.
@@ -145,7 +144,7 @@ func (r *RoleService) GetRole(_ context.Context, req *rolev1beta1.GetRoleRequest
 }
 
 // ListRoles lists all Roles.
-func (r *RoleService) ListRoles(_ context.Context, _ *rolev1beta1.ListRolesRequest) (*rolev1beta1.ListRolesResponse, error) {
+func (r *RoleService) ListRoles(_ context.Context, _ *empty.Empty) (*rolev1beta1.ListRolesResponse, error) {
 	rows, err := r.db.Querier.SelectAllFrom(models.RoleTable, "")
 	if err != nil {
 		return nil, err
@@ -174,10 +173,8 @@ func (r *RoleService) ListRoles(_ context.Context, _ *rolev1beta1.ListRolesReque
 }
 
 // AssignRoles assigns a Role to a user.
-//
-//nolint:unparam
-func (r *RoleService) AssignRoles(_ context.Context, req *rolev1beta1.AssignRolesRequest) (*rolev1beta1.AssignRolesResponse, error) {
-	err := r.db.InTransaction(func(tx *reform.TX) error {
+func (r *RoleService) AssignRoles(ctx context.Context, req *rolev1beta1.AssignRolesRequest) (*empty.Empty, error) {
+	err := r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		roleIDs := make([]int, 0, len(req.RoleIds))
 		for _, id := range req.RoleIds {
 			roleIDs = append(roleIDs, int(id))
@@ -191,19 +188,17 @@ func (r *RoleService) AssignRoles(_ context.Context, req *rolev1beta1.AssignRole
 		return nil, err
 	}
 
-	return &rolev1beta1.AssignRolesResponse{}, nil
+	return &empty.Empty{}, nil
 }
 
 // SetDefaultRole configures default role to be assigned to users.
-//
-//nolint:unparam
-func (r *RoleService) SetDefaultRole(_ context.Context, req *rolev1beta1.SetDefaultRoleRequest) (*rolev1beta1.SetDefaultRoleResponse, error) {
-	err := r.db.InTransaction(func(tx *reform.TX) error {
+func (r *RoleService) SetDefaultRole(ctx context.Context, req *rolev1beta1.SetDefaultRoleRequest) (*empty.Empty, error) {
+	err := r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		return models.ChangeDefaultRole(tx, int(req.RoleId))
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return &rolev1beta1.SetDefaultRoleResponse{}, nil
+	return &empty.Empty{}, nil
 }

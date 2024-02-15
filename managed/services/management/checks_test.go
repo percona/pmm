@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
@@ -223,7 +224,7 @@ func TestListFailedServices(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListFailedServices(context.Background(), &advisorsv1.ListFailedServicesRequest{})
+		resp, err := s.ListFailedServices(context.Background(), &empty.Empty{})
 		assert.EqualError(t, err, "failed to get check results: random error")
 		assert.Nil(t, resp)
 	})
@@ -298,7 +299,7 @@ func TestListFailedServices(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListFailedServices(context.Background(), &advisorsv1.ListFailedServicesRequest{})
+		resp, err := s.ListFailedServices(context.Background(), &empty.Empty{})
 		require.NoError(t, err)
 		assert.ElementsMatch(t, resp.Result, response.Result)
 	})
@@ -399,7 +400,7 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 			}},
 		})
 		require.NoError(t, err)
-		assert.Equal(t, &advisorsv1.ChangeAdvisorChecksResponse{}, resp)
+		assert.Equal(t, &empty.Empty{}, resp)
 	})
 }
 

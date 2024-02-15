@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/HdrHistogram/hdrhistogram-go"
+	"github.com/golang/protobuf/ptypes/empty"
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/sirupsen/logrus"
 
@@ -239,7 +240,7 @@ func (s *Service) processUserFlowEvents() []*pmmv1.ServerMetric_Metric {
 }
 
 // Store stores metrics for further processing and sending to Portal.
-func (s *Service) Store(_ context.Context, request *uieventsv1.StoreRequest) (*uieventsv1.StoreResponse, error) { //nolint:unparam
+func (s *Service) Store(_ context.Context, request *uieventsv1.StoreRequest) (*empty.Empty, error) { //nolint:unparam
 	s.stateM.Lock()
 	defer s.stateM.Unlock()
 
@@ -279,7 +280,7 @@ func (s *Service) Store(_ context.Context, request *uieventsv1.StoreRequest) (*u
 
 	s.userFlowEvents = append(s.userFlowEvents, request.UserFlowEvents...)
 
-	return &uieventsv1.StoreResponse{}, nil
+	return &empty.Empty{}, nil
 }
 
 func (s *Service) cleanup() {

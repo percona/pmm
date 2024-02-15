@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -28,7 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CollectorServiceClient interface {
 	// Collect accepts data from pmm-agent (via pmm-managed).
-	Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*CollectResponse, error)
+	Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type collectorServiceClient struct {
@@ -39,8 +40,8 @@ func NewCollectorServiceClient(cc grpc.ClientConnInterface) CollectorServiceClie
 	return &collectorServiceClient{cc}
 }
 
-func (c *collectorServiceClient) Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*CollectResponse, error) {
-	out := new(CollectResponse)
+func (c *collectorServiceClient) Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, CollectorService_Collect_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -53,14 +54,14 @@ func (c *collectorServiceClient) Collect(ctx context.Context, in *CollectRequest
 // for forward compatibility
 type CollectorServiceServer interface {
 	// Collect accepts data from pmm-agent (via pmm-managed).
-	Collect(context.Context, *CollectRequest) (*CollectResponse, error)
+	Collect(context.Context, *CollectRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCollectorServiceServer()
 }
 
 // UnimplementedCollectorServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedCollectorServiceServer struct{}
 
-func (UnimplementedCollectorServiceServer) Collect(context.Context, *CollectRequest) (*CollectResponse, error) {
+func (UnimplementedCollectorServiceServer) Collect(context.Context, *CollectRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Collect not implemented")
 }
 func (UnimplementedCollectorServiceServer) mustEmbedUnimplementedCollectorServiceServer() {}

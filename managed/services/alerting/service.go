@@ -30,6 +30,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/percona-platform/saas/pkg/alert"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
@@ -477,7 +478,7 @@ func (s *Service) ListTemplates(ctx context.Context, req *alerting.ListTemplates
 }
 
 // CreateTemplate creates a new template.
-func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTemplateRequest) (*alerting.CreateTemplateResponse, error) {
+func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTemplateRequest) (*empty.Empty, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return nil, err
@@ -527,11 +528,11 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 
 	s.CollectTemplates(ctx)
 
-	return &alerting.CreateTemplateResponse{}, nil
+	return &empty.Empty{}, nil
 }
 
 // UpdateTemplate updates existing template, previously created via API.
-func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTemplateRequest) (*alerting.UpdateTemplateResponse, error) {
+func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTemplateRequest) (*empty.Empty, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return nil, err
@@ -578,11 +579,11 @@ func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTempla
 
 	s.CollectTemplates(ctx)
 
-	return &alerting.UpdateTemplateResponse{}, nil
+	return &empty.Empty{}, nil
 }
 
 // DeleteTemplate deletes existing, previously created via API.
-func (s *Service) DeleteTemplate(ctx context.Context, req *alerting.DeleteTemplateRequest) (*alerting.DeleteTemplateResponse, error) {
+func (s *Service) DeleteTemplate(ctx context.Context, req *alerting.DeleteTemplateRequest) (*empty.Empty, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return nil, err
@@ -601,7 +602,7 @@ func (s *Service) DeleteTemplate(ctx context.Context, req *alerting.DeleteTempla
 
 	s.CollectTemplates(ctx)
 
-	return &alerting.DeleteTemplateResponse{}, nil
+	return &empty.Empty{}, nil
 }
 
 func convertTemplate(l *logrus.Entry, template models.Template) (*alerting.Template, error) {
@@ -679,7 +680,7 @@ func convertParamDefinitions(l *logrus.Entry, params models.AlertExprParamsDefin
 }
 
 // CreateRule creates alert rule from the given template.
-func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleRequest) (*alerting.CreateRuleResponse, error) {
+func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleRequest) (*empty.Empty, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return nil, err
@@ -808,7 +809,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, err
 	}
 
-	return &alerting.CreateRuleResponse{}, nil
+	return &empty.Empty{}, nil
 }
 
 func convertParamsValuesToModel(params []*alerting.ParamValue) (AlertExprParamsValues, error) {

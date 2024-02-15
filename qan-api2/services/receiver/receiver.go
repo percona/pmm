@@ -19,7 +19,7 @@ package receiver
 import (
 	"context"
 
-	"github.com/sirupsen/logrus"
+	"github.com/golang/protobuf/ptypes/empty"
 
 	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
@@ -29,7 +29,6 @@ import (
 // Service implements gRPC service to communicate with agent.
 type Service struct {
 	mbm *models.MetricsBucket
-	l   *logrus.Entry //nolint:unused
 
 	qanpb.UnimplementedCollectorServiceServer
 }
@@ -42,11 +41,11 @@ func NewService(mbm *models.MetricsBucket) *Service {
 }
 
 // Collect implements rpc to store data collected from slowlog/perf schema etc.
-func (s *Service) Collect(ctx context.Context, req *qanpb.CollectRequest) (*qanpb.CollectResponse, error) {
+func (s *Service) Collect(ctx context.Context, req *qanpb.CollectRequest) (*empty.Empty, error) {
 	logger.Get(ctx).Infof("Saving %d MetricsBucket.", len(req.MetricsBucket))
 
 	if err := s.mbm.Save(req); err != nil {
 		return nil, err
 	}
-	return &qanpb.CollectResponse{}, nil
+	return &empty.Empty{}, nil
 }

@@ -3,6 +3,7 @@ syntax = "proto3";
 package management.v1;
 
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
@@ -18,12 +19,10 @@ message AddAnnotationRequest {
   repeated string service_names = 4;
 }
 
-message AddAnnotationResponse {}
-
 // Annotation service provides public methods for managing Annotations.
 service AnnotationService {
   // AddAnnotation adds annotation.
-  rpc AddAnnotation(AddAnnotationRequest) returns (AddAnnotationResponse) {
+  rpc AddAnnotation(AddAnnotationRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/management/Annotations/Add"
       body: "*"

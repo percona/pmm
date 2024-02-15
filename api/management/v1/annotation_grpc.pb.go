@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -28,7 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AnnotationServiceClient interface {
 	// AddAnnotation adds annotation.
-	AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*AddAnnotationResponse, error)
+	AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type annotationServiceClient struct {
@@ -39,8 +40,8 @@ func NewAnnotationServiceClient(cc grpc.ClientConnInterface) AnnotationServiceCl
 	return &annotationServiceClient{cc}
 }
 
-func (c *annotationServiceClient) AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*AddAnnotationResponse, error) {
-	out := new(AddAnnotationResponse)
+func (c *annotationServiceClient) AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, AnnotationService_AddAnnotation_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -53,14 +54,14 @@ func (c *annotationServiceClient) AddAnnotation(ctx context.Context, in *AddAnno
 // for forward compatibility
 type AnnotationServiceServer interface {
 	// AddAnnotation adds annotation.
-	AddAnnotation(context.Context, *AddAnnotationRequest) (*AddAnnotationResponse, error)
+	AddAnnotation(context.Context, *AddAnnotationRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedAnnotationServiceServer()
 }
 
 // UnimplementedAnnotationServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedAnnotationServiceServer struct{}
 
-func (UnimplementedAnnotationServiceServer) AddAnnotation(context.Context, *AddAnnotationRequest) (*AddAnnotationResponse, error) {
+func (UnimplementedAnnotationServiceServer) AddAnnotation(context.Context, *AddAnnotationRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddAnnotation not implemented")
 }
 func (UnimplementedAnnotationServiceServer) mustEmbedUnimplementedAnnotationServiceServer() {}

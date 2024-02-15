@@ -3,6 +3,7 @@ syntax = "proto3";
 package inventory.v1;
 
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
@@ -274,8 +275,6 @@ message RemoveNodeRequest {
   bool force = 2;
 }
 
-message RemoveNodeResponse {}
-
 // Nodes service provides public methods for managing Nodes.
 service NodesService {
   // ListNodes returns a list of all Nodes.
@@ -312,7 +311,7 @@ service NodesService {
     };
   }
   // RemoveNode removes a Node.
-  rpc RemoveNode(RemoveNodeRequest) returns (RemoveNodeResponse) {
+  rpc RemoveNode(RemoveNodeRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/inventory/Nodes/Remove"
       body: "*"

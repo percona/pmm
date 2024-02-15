@@ -3,6 +3,7 @@ syntax = "proto3";
 package platform.v1;
 
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
@@ -18,16 +19,10 @@ message ConnectRequest {
   string personal_access_token = 2;
 }
 
-message ConnectResponse {}
-
 message DisconnectRequest {
   // Forces the cleanup process for connected PMM instances regardless of the Portal API response
   bool force = 1;
 }
-
-message DisconnectResponse {}
-
-message SearchOrganizationTicketsRequest {}
 
 message SearchOrganizationTicketsResponse {
   // Support tickets belonging to the Percona Portal Organization.
@@ -55,8 +50,6 @@ message OrganizationTicket {
   // Ticket url.
   string url = 9;
 }
-
-message SearchOrganizationEntitlementsRequest {}
 
 message SearchOrganizationEntitlementsResponse {
   repeated OrganizationEntitlement entitlements = 1;
@@ -97,8 +90,6 @@ message OrganizationEntitlement {
   Platform platform = 11;
 }
 
-message GetContactInformationRequest {}
-
 message GetContactInformationResponse {
   // CustomerSuccess contains the contanct details of the customer success employee assigned to a customer's account.
   message CustomerSuccess {
@@ -110,16 +101,12 @@ message GetContactInformationResponse {
   string new_ticket_url = 2;
 }
 
-message ServerInfoRequest {}
-
 message ServerInfoResponse {
   string pmm_server_name = 1;
   string pmm_server_id = 2;
   string pmm_server_telemetry_id = 3;
   bool connected_to_portal = 4;
 }
-
-message UserStatusRequest {}
 
 message UserStatusResponse {
   bool is_platform_user = 1;
@@ -128,7 +115,7 @@ message UserStatusResponse {
 // Platform contains rpcs related to Percona Platform.
 service PlatformService {
   // Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
-  rpc Connect(ConnectRequest) returns (ConnectResponse) {
+  rpc Connect(ConnectRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/platform/Connect"
       body: "*"
@@ -139,7 +126,7 @@ service PlatformService {
     };
   }
   // Disconnect a PMM server from the organization created on Percona Portal.
-  rpc Disconnect(DisconnectRequest) returns (DisconnectResponse) {
+  rpc Disconnect(DisconnectRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/platform/Disconnect"
       body: "*"
@@ -150,7 +137,7 @@ service PlatformService {
     };
   }
   // SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.
-  rpc SearchOrganizationTickets(SearchOrganizationTicketsRequest) returns (SearchOrganizationTicketsResponse) {
+  rpc SearchOrganizationTickets(google.protobuf.Empty) returns (SearchOrganizationTicketsResponse) {
     option (google.api.http) = {
       post: "/v1/platform/SearchOrganizationTickets"
       body: "*"
@@ -161,7 +148,7 @@ service PlatformService {
     };
   }
   // SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.
-  rpc SearchOrganizationEntitlements(SearchOrganizationEntitlementsRequest) returns (SearchOrganizationEntitlementsResponse) {
+  rpc SearchOrganizationEntitlements(google.protobuf.Empty) returns (SearchOrganizationEntitlementsResponse) {
     option (google.api.http) = {
       post: "/v1/platform/SearchOrganizationEntitlements"
       body: "*"
@@ -172,7 +159,7 @@ service PlatformService {
     };
   }
   // GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.
-  rpc GetContactInformation(GetContactInformationRequest) returns (GetContactInformationResponse) {
+  rpc GetContactInformation(google.protobuf.Empty) returns (GetContactInformationResponse) {
     option (google.api.http) = {
       post: "/v1/platform/GetContactInformation"
       body: "*"
@@ -183,7 +170,7 @@ service PlatformService {
     };
   }
   // ServerInfo returns PMM server ID and name.
-  rpc ServerInfo(ServerInfoRequest) returns (ServerInfoResponse) {
+  rpc ServerInfo(google.protobuf.Empty) returns (ServerInfoResponse) {
     option (google.api.http) = {
       post: "/v1/platform/ServerInfo"
       body: "*"
@@ -195,7 +182,7 @@ service PlatformService {
   }
 
   // UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.
-  rpc UserStatus(UserStatusRequest) returns (UserStatusResponse) {
+  rpc UserStatus(google.protobuf.Empty) returns (UserStatusResponse) {
     option (google.api.http) = {
       post: "/v1/platform/UserStatus"
       body: "*"

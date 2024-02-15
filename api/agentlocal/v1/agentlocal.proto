@@ -4,6 +4,7 @@ package agentlocal.v1;
 
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
 import "inventory/v1/agent_status.proto";
 import "inventory/v1/agents.proto";
 
@@ -53,11 +54,6 @@ message StatusResponse {
   float connection_uptime = 8;
 }
 
-message ReloadRequest {}
-
-// ReloadRequest may not be received by the client due to pmm-agent restart.
-message ReloadResponse {}
-
 // AgentLocal service provides public methods for checking pmm-agent status locally.
 service AgentLocalService {
   // Status returns current pmm-agent status.
@@ -68,8 +64,8 @@ service AgentLocalService {
       additional_bindings: {get: "/local/Status"}
     };
   }
-  // Reload reloads pmm-agent configuration.
-  rpc Reload(ReloadRequest) returns (ReloadResponse) {
+  // Reload reloads pmm-agent configuration. The Reload request may not be received by the client due to pmm-agent restart.
+  rpc Reload(google.protobuf.Empty) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/local/Reload"
       body: "*"

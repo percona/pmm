@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -28,7 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UIEventsServiceClient interface {
 	// Store persists received UI events for further processing.
-	Store(ctx context.Context, in *StoreRequest, opts ...grpc.CallOption) (*StoreResponse, error)
+	Store(ctx context.Context, in *StoreRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type uIEventsServiceClient struct {
@@ -39,8 +40,8 @@ func NewUIEventsServiceClient(cc grpc.ClientConnInterface) UIEventsServiceClient
 	return &uIEventsServiceClient{cc}
 }
 
-func (c *uIEventsServiceClient) Store(ctx context.Context, in *StoreRequest, opts ...grpc.CallOption) (*StoreResponse, error) {
-	out := new(StoreResponse)
+func (c *uIEventsServiceClient) Store(ctx context.Context, in *StoreRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, UIEventsService_Store_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -53,14 +54,14 @@ func (c *uIEventsServiceClient) Store(ctx context.Context, in *StoreRequest, opt
 // for forward compatibility
 type UIEventsServiceServer interface {
 	// Store persists received UI events for further processing.
-	Store(context.Context, *StoreRequest) (*StoreResponse, error)
+	Store(context.Context, *StoreRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedUIEventsServiceServer()
 }
 
 // UnimplementedUIEventsServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedUIEventsServiceServer struct{}
 
-func (UnimplementedUIEventsServiceServer) Store(context.Context, *StoreRequest) (*StoreResponse, error) {
+func (UnimplementedUIEventsServiceServer) Store(context.Context, *StoreRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Store not implemented")
 }
 func (UnimplementedUIEventsServiceServer) mustEmbedUnimplementedUIEventsServiceServer() {}

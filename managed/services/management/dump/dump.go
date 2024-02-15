@@ -26,6 +26,7 @@ import (
 	"strings"
 
 	"github.com/AlekSi/pointer"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
 	"github.com/pkg/sftp"
 	"github.com/sirupsen/logrus"
@@ -138,7 +139,7 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 	return &dumpv1beta1.StartDumpResponse{DumpId: dumpID}, nil
 }
 
-func (s *Service) ListDumps(_ context.Context, _ *dumpv1beta1.ListDumpsRequest) (*dumpv1beta1.ListDumpsResponse, error) {
+func (s *Service) ListDumps(_ context.Context, _ *empty.Empty) (*dumpv1beta1.ListDumpsResponse, error) {
 	dumps, err := models.FindDumps(s.db.Querier, models.DumpFilters{})
 	if err != nil {
 		return nil, err
@@ -159,14 +160,14 @@ func (s *Service) ListDumps(_ context.Context, _ *dumpv1beta1.ListDumpsRequest) 
 	}, nil
 }
 
-func (s *Service) DeleteDump(_ context.Context, req *dumpv1beta1.DeleteDumpRequest) (*dumpv1beta1.DeleteDumpResponse, error) {
+func (s *Service) DeleteDump(_ context.Context, req *dumpv1beta1.DeleteDumpRequest) (*empty.Empty, error) {
 	for _, id := range req.DumpIds {
 		if err := s.dumpService.DeleteDump(id); err != nil {
 			return nil, err
 		}
 	}
 
-	return &dumpv1beta1.DeleteDumpResponse{}, nil
+	return &empty.Empty{}, nil
 }
 
 func (s *Service) GetDumpLogs(_ context.Context, req *dumpv1beta1.GetDumpLogsRequest) (*dumpv1beta1.GetDumpLogsResponse, error) {
@@ -200,7 +201,7 @@ func (s *Service) GetDumpLogs(_ context.Context, req *dumpv1beta1.GetDumpLogsReq
 	return res, nil
 }
 
-func (s *Service) UploadDump(_ context.Context, req *dumpv1beta1.UploadDumpRequest) (*dumpv1beta1.UploadDumpResponse, error) {
+func (s *Service) UploadDump(_ context.Context, req *dumpv1beta1.UploadDumpRequest) (*empty.Empty, error) {
 	filePaths, err := s.dumpService.GetFilePathsForDumps(req.DumpIds)
 	if err != nil {
 		return nil, err
@@ -243,7 +244,7 @@ func (s *Service) UploadDump(_ context.Context, req *dumpv1beta1.UploadDumpReque
 		}
 	}
 
-	return &dumpv1beta1.UploadDumpResponse{}, nil
+	return &empty.Empty{}, nil
 }
 
 func (s *Service) uploadFile(client *sftp.Client, localFilePath, remoteDir string) error {

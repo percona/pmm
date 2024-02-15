@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -131,7 +132,7 @@ func TestListBackupLocations(t *testing.T) {
 	require.Nil(t, err)
 
 	t.Run("list", func(t *testing.T) {
-		res, err := svc.ListLocations(ctx, &backuppb.ListLocationsRequest{})
+		res, err := svc.ListLocations(ctx, &empty.Empty{})
 		require.Nil(t, err)
 
 		checkLocation := func(id string, req *backuppb.AddLocationRequest) func() bool {
@@ -312,7 +313,7 @@ func TestRemoveBackupLocation(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	res, err := svc.ListLocations(ctx, &backuppb.ListLocationsRequest{})
+	res, err := svc.ListLocations(ctx, &empty.Empty{})
 	require.NoError(t, err)
 
 	assert.False(t, foundLocation(res1.LocationId, res.Locations))

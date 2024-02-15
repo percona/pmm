@@ -18,6 +18,8 @@ package analytics
 import (
 	"context"
 
+	"github.com/golang/protobuf/ptypes/empty"
+
 	qanpb "github.com/percona/pmm/api/qan/v1"
 )
 
@@ -89,6 +91,6 @@ var metricsNames = map[string]string{
 }
 
 // GetMetricsNames implements rpc to get list of available metrics.
-func (s *Service) GetMetricsNames(_ context.Context, _ *qanpb.GetMetricsNamesRequest) (*qanpb.GetMetricsNamesResponse, error) { //nolint:unparam
+func (s *Service) GetMetricsNames(_ context.Context, _ *empty.Empty) (*qanpb.GetMetricsNamesResponse, error) { //nolint:unparam
 	return &qanpb.GetMetricsNamesResponse{Data: metricsNames}, nil
 }

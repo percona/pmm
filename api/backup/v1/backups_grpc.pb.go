@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -43,11 +44,11 @@ type BackupsServiceClient interface {
 	// ScheduleBackup schedules repeated backup.
 	ScheduleBackup(ctx context.Context, in *ScheduleBackupRequest, opts ...grpc.CallOption) (*ScheduleBackupResponse, error)
 	// ListScheduledBackups returns all scheduled backups.
-	ListScheduledBackups(ctx context.Context, in *ListScheduledBackupsRequest, opts ...grpc.CallOption) (*ListScheduledBackupsResponse, error)
+	ListScheduledBackups(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListScheduledBackupsResponse, error)
 	// ChangeScheduledBackup changes existing scheduled backup.
-	ChangeScheduledBackup(ctx context.Context, in *ChangeScheduledBackupRequest, opts ...grpc.CallOption) (*ChangeScheduledBackupResponse, error)
+	ChangeScheduledBackup(ctx context.Context, in *ChangeScheduledBackupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// RemoveScheduledBackup removes existing scheduled backup.
-	RemoveScheduledBackup(ctx context.Context, in *RemoveScheduledBackupRequest, opts ...grpc.CallOption) (*RemoveScheduledBackupResponse, error)
+	RemoveScheduledBackup(ctx context.Context, in *RemoveScheduledBackupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// GetLogs returns logs from the underlying tools for a backup/restore job.
 	GetLogs(ctx context.Context, in *GetLogsRequest, opts ...grpc.CallOption) (*GetLogsResponse, error)
 }
@@ -96,7 +97,7 @@ func (c *backupsServiceClient) ScheduleBackup(ctx context.Context, in *ScheduleB
 	return out, nil
 }
 
-func (c *backupsServiceClient) ListScheduledBackups(ctx context.Context, in *ListScheduledBackupsRequest, opts ...grpc.CallOption) (*ListScheduledBackupsResponse, error) {
+func (c *backupsServiceClient) ListScheduledBackups(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListScheduledBackupsResponse, error) {
 	out := new(ListScheduledBackupsResponse)
 	err := c.cc.Invoke(ctx, BackupsService_ListScheduledBackups_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -105,8 +106,8 @@ func (c *backupsServiceClient) ListScheduledBackups(ctx context.Context, in *Lis
 	return out, nil
 }
 
-func (c *backupsServiceClient) ChangeScheduledBackup(ctx context.Context, in *ChangeScheduledBackupRequest, opts ...grpc.CallOption) (*ChangeScheduledBackupResponse, error) {
-	out := new(ChangeScheduledBackupResponse)
+func (c *backupsServiceClient) ChangeScheduledBackup(ctx context.Context, in *ChangeScheduledBackupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, BackupsService_ChangeScheduledBackup_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -114,8 +115,8 @@ func (c *backupsServiceClient) ChangeScheduledBackup(ctx context.Context, in *Ch
 	return out, nil
 }
 
-func (c *backupsServiceClient) RemoveScheduledBackup(ctx context.Context, in *RemoveScheduledBackupRequest, opts ...grpc.CallOption) (*RemoveScheduledBackupResponse, error) {
-	out := new(RemoveScheduledBackupResponse)
+func (c *backupsServiceClient) RemoveScheduledBackup(ctx context.Context, in *RemoveScheduledBackupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, BackupsService_RemoveScheduledBackup_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -145,11 +146,11 @@ type BackupsServiceServer interface {
 	// ScheduleBackup schedules repeated backup.
 	ScheduleBackup(context.Context, *ScheduleBackupRequest) (*ScheduleBackupResponse, error)
 	// ListScheduledBackups returns all scheduled backups.
-	ListScheduledBackups(context.Context, *ListScheduledBackupsRequest) (*ListScheduledBackupsResponse, error)
+	ListScheduledBackups(context.Context, *emptypb.Empty) (*ListScheduledBackupsResponse, error)
 	// ChangeScheduledBackup changes existing scheduled backup.
-	ChangeScheduledBackup(context.Context, *ChangeScheduledBackupRequest) (*ChangeScheduledBackupResponse, error)
+	ChangeScheduledBackup(context.Context, *ChangeScheduledBackupRequest) (*emptypb.Empty, error)
 	// RemoveScheduledBackup removes existing scheduled backup.
-	RemoveScheduledBackup(context.Context, *RemoveScheduledBackupRequest) (*RemoveScheduledBackupResponse, error)
+	RemoveScheduledBackup(context.Context, *RemoveScheduledBackupRequest) (*emptypb.Empty, error)
 	// GetLogs returns logs from the underlying tools for a backup/restore job.
 	GetLogs(context.Context, *GetLogsRequest) (*GetLogsResponse, error)
 	mustEmbedUnimplementedBackupsServiceServer()
@@ -174,15 +175,15 @@ func (UnimplementedBackupsServiceServer) ScheduleBackup(context.Context, *Schedu
 	return nil, status.Errorf(codes.Unimplemented, "method ScheduleBackup not implemented")
 }
 
-func (UnimplementedBackupsServiceServer) ListScheduledBackups(context.Context, *ListScheduledBackupsRequest) (*ListScheduledBackupsResponse, error) {
+func (UnimplementedBackupsServiceServer) ListScheduledBackups(context.Context, *emptypb.Empty) (*ListScheduledBackupsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListScheduledBackups not implemented")
 }
 
-func (UnimplementedBackupsServiceServer) ChangeScheduledBackup(context.Context, *ChangeScheduledBackupRequest) (*ChangeScheduledBackupResponse, error) {
+func (UnimplementedBackupsServiceServer) ChangeScheduledBackup(context.Context, *ChangeScheduledBackupRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeScheduledBackup not implemented")
 }
 
-func (UnimplementedBackupsServiceServer) RemoveScheduledBackup(context.Context, *RemoveScheduledBackupRequest) (*RemoveScheduledBackupResponse, error) {
+func (UnimplementedBackupsServiceServer) RemoveScheduledBackup(context.Context, *RemoveScheduledBackupRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveScheduledBackup not implemented")
 }
 
@@ -275,7 +276,7 @@ func _BackupsService_ScheduleBackup_Handler(srv interface{}, ctx context.Context
 }
 
 func _BackupsService_ListScheduledBackups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListScheduledBackupsRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -287,7 +288,7 @@ func _BackupsService_ListScheduledBackups_Handler(srv interface{}, ctx context.C
 		FullMethod: BackupsService_ListScheduledBackups_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BackupsServiceServer).ListScheduledBackups(ctx, req.(*ListScheduledBackupsRequest))
+		return srv.(BackupsServiceServer).ListScheduledBackups(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -21,6 +21,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // Suppress "imported and not used" errors
@@ -34,7 +35,7 @@ var (
 )
 
 func request_ArtifactsService_ListArtifacts_0(ctx context.Context, marshaler runtime.Marshaler, client ArtifactsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListArtifactsRequest
+	var protoReq emptypb.Empty
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -50,7 +51,7 @@ func request_ArtifactsService_ListArtifacts_0(ctx context.Context, marshaler run
 }
 
 func local_request_ArtifactsService_ListArtifacts_0(ctx context.Context, marshaler runtime.Marshaler, server ArtifactsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListArtifactsRequest
+	var protoReq emptypb.Empty
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)

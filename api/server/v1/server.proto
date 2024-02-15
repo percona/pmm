@@ -5,6 +5,7 @@ package server.v1;
 import "common/common.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
@@ -46,13 +47,9 @@ message VersionResponse {
   // TODO Versions and statuses of Grafana, Prometheus, PostgreSQL, qan-api2, ClickHouse, pmm-agent, etc.
 }
 
-message ReadinessRequest {}
-
 message ReadinessResponse {
   // This probe is available without authentication, so it should not contain any data.
 }
-
-message LeaderHealthCheckRequest {}
 
 message LeaderHealthCheckResponse {
   // This probe is available without authentication, so it should not contain any data.
@@ -77,8 +74,6 @@ message CheckUpdatesResponse {
   // Last check time.
   google.protobuf.Timestamp last_check = 5;
 }
-
-message StartUpdateRequest {}
 
 message StartUpdateResponse {
   // Authentication token for getting update statuses.
@@ -157,8 +152,6 @@ message Settings {
   uint32 default_role_id = 18;
 }
 
-message GetSettingsRequest {}
-
 message GetSettingsResponse {
   Settings settings = 1;
 }
@@ -196,8 +189,6 @@ message AWSInstanceCheckRequest {
   string instance_id = 1 [(validate.rules).string.min_len = 1];
 }
 
-message AWSInstanceCheckResponse {}
-
 // Server service provides generic PMM Server public APIs.
 service ServerService {
   // Version returns PMM Server versions.
@@ -210,7 +201,7 @@ service ServerService {
   }
   // Readiness returns an error when Server components being restarted are not ready yet.
   // Use this API for checking the health of Docker containers and for probing Kubernetes readiness.
-  rpc Readiness(ReadinessRequest) returns (ReadinessResponse) {
+  rpc Readiness(google.protobuf.Empty) returns (ReadinessResponse) {
     option (google.api.http) = {get: "/v1/readyz"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Check server readiness"
@@ -218,7 +209,7 @@ service ServerService {
     };
   }
   // LeaderHealthCheck checks if the instance is the leader in a cluster.
-  rpc LeaderHealthCheck(LeaderHealthCheckRequest) returns (LeaderHealthCheckResponse) {
+  rpc LeaderHealthCheck(google.protobuf.Empty) returns (LeaderHealthCheckResponse) {
     option (google.api.http) = {
       post: "/v1/leaderHealthCheck"
       body: "*"
@@ -240,7 +231,7 @@ service ServerService {
     };
   }
   // StartUpdate starts PMM Server update.
-  rpc StartUpdate(StartUpdateRequest) returns (StartUpdateResponse) {
+  rpc StartUpdate(google.protobuf.Empty) returns (StartUpdateResponse) {
     option (google.api.http) = {
       post: "/v1/Updates/Start"
       body: "*"
@@ -262,7 +253,7 @@ service ServerService {
     };
   }
   // GetSettings returns current PMM Server settings.
-  rpc GetSettings(GetSettingsRequest) returns (GetSettingsResponse) {
+  rpc GetSettings(google.protobuf.Empty) returns (GetSettingsResponse) {
     option (google.api.http) = {
       post: "/v1/Settings/Get"
       body: "*"
@@ -284,7 +275,7 @@ service ServerService {
     };
   }
   // AWSInstanceCheck checks AWS EC2 instance ID.
-  rpc AWSInstanceCheck(AWSInstanceCheckRequest) returns (AWSInstanceCheckResponse) {
+  rpc AWSInstanceCheck(AWSInstanceCheckRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/AWSInstanceCheck"
       body: "*"

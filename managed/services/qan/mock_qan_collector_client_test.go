@@ -7,6 +7,7 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 	grpc "google.golang.org/grpc"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 
 	qanv1 "github.com/percona/pmm/api/qan/v1"
 )
@@ -17,7 +18,7 @@ type mockQanCollectorClient struct {
 }
 
 // Collect provides a mock function with given fields: ctx, in, opts
-func (_m *mockQanCollectorClient) Collect(ctx context.Context, in *qanv1.CollectRequest, opts ...grpc.CallOption) (*qanv1.CollectResponse, error) {
+func (_m *mockQanCollectorClient) Collect(ctx context.Context, in *qanv1.CollectRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -31,16 +32,16 @@ func (_m *mockQanCollectorClient) Collect(ctx context.Context, in *qanv1.Collect
 		panic("no return value specified for Collect")
 	}
 
-	var r0 *qanv1.CollectResponse
+	var r0 *emptypb.Empty
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *qanv1.CollectRequest, ...grpc.CallOption) (*qanv1.CollectResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *qanv1.CollectRequest, ...grpc.CallOption) (*emptypb.Empty, error)); ok {
 		return rf(ctx, in, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *qanv1.CollectRequest, ...grpc.CallOption) *qanv1.CollectResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *qanv1.CollectRequest, ...grpc.CallOption) *emptypb.Empty); ok {
 		r0 = rf(ctx, in, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*qanv1.CollectResponse)
+			r0 = ret.Get(0).(*emptypb.Empty)
 		}
 	}
 

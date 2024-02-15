@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -34,19 +35,19 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PlatformServiceClient interface {
 	// Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
-	Connect(ctx context.Context, in *ConnectRequest, opts ...grpc.CallOption) (*ConnectResponse, error)
+	Connect(ctx context.Context, in *ConnectRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Disconnect a PMM server from the organization created on Percona Portal.
-	Disconnect(ctx context.Context, in *DisconnectRequest, opts ...grpc.CallOption) (*DisconnectResponse, error)
+	Disconnect(ctx context.Context, in *DisconnectRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.
-	SearchOrganizationTickets(ctx context.Context, in *SearchOrganizationTicketsRequest, opts ...grpc.CallOption) (*SearchOrganizationTicketsResponse, error)
+	SearchOrganizationTickets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SearchOrganizationTicketsResponse, error)
 	// SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.
-	SearchOrganizationEntitlements(ctx context.Context, in *SearchOrganizationEntitlementsRequest, opts ...grpc.CallOption) (*SearchOrganizationEntitlementsResponse, error)
+	SearchOrganizationEntitlements(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SearchOrganizationEntitlementsResponse, error)
 	// GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.
-	GetContactInformation(ctx context.Context, in *GetContactInformationRequest, opts ...grpc.CallOption) (*GetContactInformationResponse, error)
+	GetContactInformation(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetContactInformationResponse, error)
 	// ServerInfo returns PMM server ID and name.
-	ServerInfo(ctx context.Context, in *ServerInfoRequest, opts ...grpc.CallOption) (*ServerInfoResponse, error)
+	ServerInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ServerInfoResponse, error)
 	// UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.
-	UserStatus(ctx context.Context, in *UserStatusRequest, opts ...grpc.CallOption) (*UserStatusResponse, error)
+	UserStatus(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserStatusResponse, error)
 }
 
 type platformServiceClient struct {
@@ -57,8 +58,8 @@ func NewPlatformServiceClient(cc grpc.ClientConnInterface) PlatformServiceClient
 	return &platformServiceClient{cc}
 }
 
-func (c *platformServiceClient) Connect(ctx context.Context, in *ConnectRequest, opts ...grpc.CallOption) (*ConnectResponse, error) {
-	out := new(ConnectResponse)
+func (c *platformServiceClient) Connect(ctx context.Context, in *ConnectRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, PlatformService_Connect_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -66,8 +67,8 @@ func (c *platformServiceClient) Connect(ctx context.Context, in *ConnectRequest,
 	return out, nil
 }
 
-func (c *platformServiceClient) Disconnect(ctx context.Context, in *DisconnectRequest, opts ...grpc.CallOption) (*DisconnectResponse, error) {
-	out := new(DisconnectResponse)
+func (c *platformServiceClient) Disconnect(ctx context.Context, in *DisconnectRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, PlatformService_Disconnect_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -75,7 +76,7 @@ func (c *platformServiceClient) Disconnect(ctx context.Context, in *DisconnectRe
 	return out, nil
 }
 
-func (c *platformServiceClient) SearchOrganizationTickets(ctx context.Context, in *SearchOrganizationTicketsRequest, opts ...grpc.CallOption) (*SearchOrganizationTicketsResponse, error) {
+func (c *platformServiceClient) SearchOrganizationTickets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SearchOrganizationTicketsResponse, error) {
 	out := new(SearchOrganizationTicketsResponse)
 	err := c.cc.Invoke(ctx, PlatformService_SearchOrganizationTickets_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -84,7 +85,7 @@ func (c *platformServiceClient) SearchOrganizationTickets(ctx context.Context, i
 	return out, nil
 }
 
-func (c *platformServiceClient) SearchOrganizationEntitlements(ctx context.Context, in *SearchOrganizationEntitlementsRequest, opts ...grpc.CallOption) (*SearchOrganizationEntitlementsResponse, error) {
+func (c *platformServiceClient) SearchOrganizationEntitlements(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SearchOrganizationEntitlementsResponse, error) {
 	out := new(SearchOrganizationEntitlementsResponse)
 	err := c.cc.Invoke(ctx, PlatformService_SearchOrganizationEntitlements_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -93,7 +94,7 @@ func (c *platformServiceClient) SearchOrganizationEntitlements(ctx context.Conte
 	return out, nil
 }
 
-func (c *platformServiceClient) GetContactInformation(ctx context.Context, in *GetContactInformationRequest, opts ...grpc.CallOption) (*GetContactInformationResponse, error) {
+func (c *platformServiceClient) GetContactInformation(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetContactInformationResponse, error) {
 	out := new(GetContactInformationResponse)
 	err := c.cc.Invoke(ctx, PlatformService_GetContactInformation_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -102,7 +103,7 @@ func (c *platformServiceClient) GetContactInformation(ctx context.Context, in *G
 	return out, nil
 }
 
-func (c *platformServiceClient) ServerInfo(ctx context.Context, in *ServerInfoRequest, opts ...grpc.CallOption) (*ServerInfoResponse, error) {
+func (c *platformServiceClient) ServerInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ServerInfoResponse, error) {
 	out := new(ServerInfoResponse)
 	err := c.cc.Invoke(ctx, PlatformService_ServerInfo_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -111,7 +112,7 @@ func (c *platformServiceClient) ServerInfo(ctx context.Context, in *ServerInfoRe
 	return out, nil
 }
 
-func (c *platformServiceClient) UserStatus(ctx context.Context, in *UserStatusRequest, opts ...grpc.CallOption) (*UserStatusResponse, error) {
+func (c *platformServiceClient) UserStatus(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserStatusResponse, error) {
 	out := new(UserStatusResponse)
 	err := c.cc.Invoke(ctx, PlatformService_UserStatus_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -125,50 +126,50 @@ func (c *platformServiceClient) UserStatus(ctx context.Context, in *UserStatusRe
 // for forward compatibility
 type PlatformServiceServer interface {
 	// Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
-	Connect(context.Context, *ConnectRequest) (*ConnectResponse, error)
+	Connect(context.Context, *ConnectRequest) (*emptypb.Empty, error)
 	// Disconnect a PMM server from the organization created on Percona Portal.
-	Disconnect(context.Context, *DisconnectRequest) (*DisconnectResponse, error)
+	Disconnect(context.Context, *DisconnectRequest) (*emptypb.Empty, error)
 	// SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.
-	SearchOrganizationTickets(context.Context, *SearchOrganizationTicketsRequest) (*SearchOrganizationTicketsResponse, error)
+	SearchOrganizationTickets(context.Context, *emptypb.Empty) (*SearchOrganizationTicketsResponse, error)
 	// SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.
-	SearchOrganizationEntitlements(context.Context, *SearchOrganizationEntitlementsRequest) (*SearchOrganizationEntitlementsResponse, error)
+	SearchOrganizationEntitlements(context.Context, *emptypb.Empty) (*SearchOrganizationEntitlementsResponse, error)
 	// GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.
-	GetContactInformation(context.Context, *GetContactInformationRequest) (*GetContactInformationResponse, error)
+	GetContactInformation(context.Context, *emptypb.Empty) (*GetContactInformationResponse, error)
 	// ServerInfo returns PMM server ID and name.
-	ServerInfo(context.Context, *ServerInfoRequest) (*ServerInfoResponse, error)
+	ServerInfo(context.Context, *emptypb.Empty) (*ServerInfoResponse, error)
 	// UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.
-	UserStatus(context.Context, *UserStatusRequest) (*UserStatusResponse, error)
+	UserStatus(context.Context, *emptypb.Empty) (*UserStatusResponse, error)
 	mustEmbedUnimplementedPlatformServiceServer()
 }
 
 // UnimplementedPlatformServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedPlatformServiceServer struct{}
 
-func (UnimplementedPlatformServiceServer) Connect(context.Context, *ConnectRequest) (*ConnectResponse, error) {
+func (UnimplementedPlatformServiceServer) Connect(context.Context, *ConnectRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Connect not implemented")
 }
 
-func (UnimplementedPlatformServiceServer) Disconnect(context.Context, *DisconnectRequest) (*DisconnectResponse, error) {
+func (UnimplementedPlatformServiceServer) Disconnect(context.Context, *DisconnectRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Disconnect not implemented")
 }
 
-func (UnimplementedPlatformServiceServer) SearchOrganizationTickets(context.Context, *SearchOrganizationTicketsRequest) (*SearchOrganizationTicketsResponse, error) {
+func (UnimplementedPlatformServiceServer) SearchOrganizationTickets(context.Context, *emptypb.Empty) (*SearchOrganizationTicketsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchOrganizationTickets not implemented")
 }
 
-func (UnimplementedPlatformServiceServer) SearchOrganizationEntitlements(context.Context, *SearchOrganizationEntitlementsRequest) (*SearchOrganizationEntitlementsResponse, error) {
+func (UnimplementedPlatformServiceServer) SearchOrganizationEntitlements(context.Context, *emptypb.Empty) (*SearchOrganizationEntitlementsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchOrganizationEntitlements not implemented")
 }
 
-func (UnimplementedPlatformServiceServer) GetContactInformation(context.Context, *GetContactInformationRequest) (*GetContactInformationResponse, error) {
+func (UnimplementedPlatformServiceServer) GetContactInformation(context.Context, *emptypb.Empty) (*GetContactInformationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetContactInformation not implemented")
 }
 
-func (UnimplementedPlatformServiceServer) ServerInfo(context.Context, *ServerInfoRequest) (*ServerInfoResponse, error) {
+func (UnimplementedPlatformServiceServer) ServerInfo(context.Context, *emptypb.Empty) (*ServerInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ServerInfo not implemented")
 }
 
-func (UnimplementedPlatformServiceServer) UserStatus(context.Context, *UserStatusRequest) (*UserStatusResponse, error) {
+func (UnimplementedPlatformServiceServer) UserStatus(context.Context, *emptypb.Empty) (*UserStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserStatus not implemented")
 }
 func (UnimplementedPlatformServiceServer) mustEmbedUnimplementedPlatformServiceServer() {}
@@ -221,7 +222,7 @@ func _PlatformService_Disconnect_Handler(srv interface{}, ctx context.Context, d
 }
 
 func _PlatformService_SearchOrganizationTickets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SearchOrganizationTicketsRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -233,13 +234,13 @@ func _PlatformService_SearchOrganizationTickets_Handler(srv interface{}, ctx con
 		FullMethod: PlatformService_SearchOrganizationTickets_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PlatformServiceServer).SearchOrganizationTickets(ctx, req.(*SearchOrganizationTicketsRequest))
+		return srv.(PlatformServiceServer).SearchOrganizationTickets(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _PlatformService_SearchOrganizationEntitlements_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SearchOrganizationEntitlementsRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -251,13 +252,13 @@ func _PlatformService_SearchOrganizationEntitlements_Handler(srv interface{}, ct
 		FullMethod: PlatformService_SearchOrganizationEntitlements_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PlatformServiceServer).SearchOrganizationEntitlements(ctx, req.(*SearchOrganizationEntitlementsRequest))
+		return srv.(PlatformServiceServer).SearchOrganizationEntitlements(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _PlatformService_GetContactInformation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetContactInformationRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -269,13 +270,13 @@ func _PlatformService_GetContactInformation_Handler(srv interface{}, ctx context
 		FullMethod: PlatformService_GetContactInformation_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PlatformServiceServer).GetContactInformation(ctx, req.(*GetContactInformationRequest))
+		return srv.(PlatformServiceServer).GetContactInformation(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _PlatformService_ServerInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ServerInfoRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -287,13 +288,13 @@ func _PlatformService_ServerInfo_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: PlatformService_ServerInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PlatformServiceServer).ServerInfo(ctx, req.(*ServerInfoRequest))
+		return srv.(PlatformServiceServer).ServerInfo(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _PlatformService_UserStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserStatusRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -305,7 +306,7 @@ func _PlatformService_UserStatus_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: PlatformService_UserStatus_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PlatformServiceServer).UserStatus(ctx, req.(*UserStatusRequest))
+		return srv.(PlatformServiceServer).UserStatus(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }

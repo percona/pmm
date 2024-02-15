@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -133,7 +134,7 @@ func TestClient(t *testing.T) {
 			db: db,
 			l:  logrus.WithField("test", t.Name()),
 		}
-		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
+		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&empty.Empty{}, nil)
 		metricsBuckets := []*agentv1.MetricsBucket{
 			{
 				Common: &agentv1.MetricsBucket_Common{
@@ -219,7 +220,7 @@ func TestClient(t *testing.T) {
 			db: db,
 			l:  logrus.WithField("test", t.Name()),
 		}
-		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
+		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&empty.Empty{}, nil)
 		metricsBuckets := []*agentv1.MetricsBucket{
 			{
 				Common: &agentv1.MetricsBucket_Common{
@@ -281,7 +282,7 @@ func TestClient(t *testing.T) {
 			db: db,
 			l:  logrus.WithField("test", t.Name()),
 		}
-		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
+		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&empty.Empty{}, nil)
 		metricsBuckets := []*agentv1.MetricsBucket{
 			{
 				Common: &agentv1.MetricsBucket_Common{
@@ -408,7 +409,7 @@ func TestClient(t *testing.T) {
 			db: db,
 			l:  logrus.WithField("test", t.Name()),
 		}
-		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
+		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&empty.Empty{}, nil)
 		metricsBuckets := []*agentv1.MetricsBucket{
 			{
 				Common: &agentv1.MetricsBucket_Common{
@@ -458,7 +459,7 @@ func TestClientPerformance(t *testing.T) {
 	ctx := logger.Set(context.Background(), t.Name())
 	c := &mockQanCollectorClient{}
 	c.Test(t)
-	c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
+	c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&empty.Empty{}, nil)
 	defer c.AssertExpectations(t)
 
 	reformL.Reset()

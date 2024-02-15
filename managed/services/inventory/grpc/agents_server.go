@@ -20,6 +20,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/golang/protobuf/ptypes/empty"
+
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/inventory"
@@ -244,10 +246,10 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 }
 
 // RemoveAgent removes Agent.
-func (s *agentsServer) RemoveAgent(ctx context.Context, req *inventoryv1.RemoveAgentRequest) (*inventoryv1.RemoveAgentResponse, error) {
+func (s *agentsServer) RemoveAgent(ctx context.Context, req *inventoryv1.RemoveAgentRequest) (*empty.Empty, error) {
 	if err := s.s.Remove(ctx, req.AgentId, req.Force); err != nil {
 		return nil, err
 	}
 
-	return &inventoryv1.RemoveAgentResponse{}, nil
+	return &empty.Empty{}, nil
 }

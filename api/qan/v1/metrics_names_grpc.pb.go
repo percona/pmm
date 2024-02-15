@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -28,7 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MetricsNamesServiceClient interface {
 	// GetMetricsNames gets map of metrics names.
-	GetMetricsNames(ctx context.Context, in *GetMetricsNamesRequest, opts ...grpc.CallOption) (*GetMetricsNamesResponse, error)
+	GetMetricsNames(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMetricsNamesResponse, error)
 }
 
 type metricsNamesServiceClient struct {
@@ -39,7 +40,7 @@ func NewMetricsNamesServiceClient(cc grpc.ClientConnInterface) MetricsNamesServi
 	return &metricsNamesServiceClient{cc}
 }
 
-func (c *metricsNamesServiceClient) GetMetricsNames(ctx context.Context, in *GetMetricsNamesRequest, opts ...grpc.CallOption) (*GetMetricsNamesResponse, error) {
+func (c *metricsNamesServiceClient) GetMetricsNames(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMetricsNamesResponse, error) {
 	out := new(GetMetricsNamesResponse)
 	err := c.cc.Invoke(ctx, MetricsNamesService_GetMetricsNames_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -53,14 +54,14 @@ func (c *metricsNamesServiceClient) GetMetricsNames(ctx context.Context, in *Get
 // for forward compatibility
 type MetricsNamesServiceServer interface {
 	// GetMetricsNames gets map of metrics names.
-	GetMetricsNames(context.Context, *GetMetricsNamesRequest) (*GetMetricsNamesResponse, error)
+	GetMetricsNames(context.Context, *emptypb.Empty) (*GetMetricsNamesResponse, error)
 	mustEmbedUnimplementedMetricsNamesServiceServer()
 }
 
 // UnimplementedMetricsNamesServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedMetricsNamesServiceServer struct{}
 
-func (UnimplementedMetricsNamesServiceServer) GetMetricsNames(context.Context, *GetMetricsNamesRequest) (*GetMetricsNamesResponse, error) {
+func (UnimplementedMetricsNamesServiceServer) GetMetricsNames(context.Context, *emptypb.Empty) (*GetMetricsNamesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMetricsNames not implemented")
 }
 func (UnimplementedMetricsNamesServiceServer) mustEmbedUnimplementedMetricsNamesServiceServer() {}
@@ -77,7 +78,7 @@ func RegisterMetricsNamesServiceServer(s grpc.ServiceRegistrar, srv MetricsNames
 }
 
 func _MetricsNamesService_GetMetricsNames_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetMetricsNamesRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -89,7 +90,7 @@ func _MetricsNamesService_GetMetricsNames_Handler(srv interface{}, ctx context.C
 		FullMethod: MetricsNamesService_GetMetricsNames_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MetricsNamesServiceServer).GetMetricsNames(ctx, req.(*GetMetricsNamesRequest))
+		return srv.(MetricsNamesServiceServer).GetMetricsNames(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }

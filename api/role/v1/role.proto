@@ -3,6 +3,7 @@ syntax = "proto3";
 package role.v1beta1;
 
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
@@ -22,15 +23,12 @@ message UpdateRoleRequest {
   optional string filter = 3;
   optional string description = 4;
 }
-message UpdateRoleResponse {}
 
 message DeleteRoleRequest {
   uint32 role_id = 1 [(validate.rules).uint32.gt = 0];
   // Role ID to be used as a replacement for the role. Additional logic applies.
   uint32 replacement_role_id = 2;
 }
-
-message DeleteRoleResponse {}
 
 message GetRoleRequest {
   uint32 role_id = 1 [(validate.rules).uint32.gt = 0];
@@ -47,16 +45,10 @@ message SetDefaultRoleRequest {
   uint32 role_id = 1 [(validate.rules).uint32.gt = 0];
 }
 
-message SetDefaultRoleResponse {}
-
 message AssignRolesRequest {
   repeated uint32 role_ids = 1;
   uint32 user_id = 2 [(validate.rules).uint32.gt = 0];
 }
-
-message AssignRolesResponse {}
-
-message ListRolesRequest {}
 
 message ListRolesResponse {
   message RoleData {
@@ -84,7 +76,7 @@ service RoleService {
   }
 
   // UpdateRole creates a new role.
-  rpc UpdateRole(UpdateRoleRequest) returns (UpdateRoleResponse) {
+  rpc UpdateRole(UpdateRoleRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/role/Update"
       body: "*"
@@ -96,7 +88,7 @@ service RoleService {
   }
 
   // DeleteRole creates a new role.
-  rpc DeleteRole(DeleteRoleRequest) returns (DeleteRoleResponse) {
+  rpc DeleteRole(DeleteRoleRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/role/Delete"
       body: "*"
@@ -120,7 +112,7 @@ service RoleService {
   }
 
   // ListRoles retrieves a roles.
-  rpc ListRoles(ListRolesRequest) returns (ListRolesResponse) {
+  rpc ListRoles(google.protobuf.Empty) returns (ListRolesResponse) {
     option (google.api.http) = {
       post: "/v1/role/List"
       body: "*"
@@ -132,7 +124,7 @@ service RoleService {
   }
 
   // AssignRoles replaces all assigned roles for a user.
-  rpc AssignRoles(AssignRolesRequest) returns (AssignRolesResponse) {
+  rpc AssignRoles(AssignRolesRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/role/Assign"
       body: "*"
@@ -144,7 +136,7 @@ service RoleService {
   }
 
   // SetDefaultRole configures default role assigned to users.
-  rpc SetDefaultRole(SetDefaultRoleRequest) returns (SetDefaultRoleResponse) {
+  rpc SetDefaultRole(SetDefaultRoleRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/role/SetDefault"
       body: "*"

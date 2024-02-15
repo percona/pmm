@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -43,7 +44,7 @@ type AgentsServiceClient interface {
 	// ChangeAgent changes any type of Agent record in Inventory.
 	ChangeAgent(ctx context.Context, in *ChangeAgentRequest, opts ...grpc.CallOption) (*ChangeAgentResponse, error)
 	// RemoveAgent removes an Agent.
-	RemoveAgent(ctx context.Context, in *RemoveAgentRequest, opts ...grpc.CallOption) (*RemoveAgentResponse, error)
+	RemoveAgent(ctx context.Context, in *RemoveAgentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type agentsServiceClient struct {
@@ -99,8 +100,8 @@ func (c *agentsServiceClient) ChangeAgent(ctx context.Context, in *ChangeAgentRe
 	return out, nil
 }
 
-func (c *agentsServiceClient) RemoveAgent(ctx context.Context, in *RemoveAgentRequest, opts ...grpc.CallOption) (*RemoveAgentResponse, error) {
-	out := new(RemoveAgentResponse)
+func (c *agentsServiceClient) RemoveAgent(ctx context.Context, in *RemoveAgentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, AgentsService_RemoveAgent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -123,7 +124,7 @@ type AgentsServiceServer interface {
 	// ChangeAgent changes any type of Agent record in Inventory.
 	ChangeAgent(context.Context, *ChangeAgentRequest) (*ChangeAgentResponse, error)
 	// RemoveAgent removes an Agent.
-	RemoveAgent(context.Context, *RemoveAgentRequest) (*RemoveAgentResponse, error)
+	RemoveAgent(context.Context, *RemoveAgentRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedAgentsServiceServer()
 }
 
@@ -150,7 +151,7 @@ func (UnimplementedAgentsServiceServer) ChangeAgent(context.Context, *ChangeAgen
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeAgent not implemented")
 }
 
-func (UnimplementedAgentsServiceServer) RemoveAgent(context.Context, *RemoveAgentRequest) (*RemoveAgentResponse, error) {
+func (UnimplementedAgentsServiceServer) RemoveAgent(context.Context, *RemoveAgentRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveAgent not implemented")
 }
 func (UnimplementedAgentsServiceServer) mustEmbedUnimplementedAgentsServiceServer() {}

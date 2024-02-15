@@ -19,6 +19,7 @@ package common
 import (
 	"context"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
@@ -71,7 +72,7 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 		sMap[service.ServiceID] = struct{}{}
 	}
 
-	scheduledTasks, err := s.BackupsService.ListScheduledBackups(ctx, &backuppb.ListScheduledBackupsRequest{})
+	scheduledTasks, err := s.BackupsService.ListScheduledBackups(ctx, &empty.Empty{})
 	if err != nil {
 		return err
 	}
@@ -87,7 +88,7 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 	}
 
 	// Check no backup tasks running.
-	artifacts, err := s.ArtifactsService.ListArtifacts(ctx, &backuppb.ListArtifactsRequest{})
+	artifacts, err := s.ArtifactsService.ListArtifacts(ctx, &empty.Empty{})
 	if err != nil {
 		return err
 	}
@@ -111,7 +112,7 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 	}
 
 	// Check no restore tasks running.
-	restores, err := s.RestoreHistoryService.ListRestoreHistory(ctx, &backuppb.ListRestoreHistoryRequest{})
+	restores, err := s.RestoreHistoryService.ListRestoreHistory(ctx, &empty.Empty{})
 	if err != nil {
 		return err
 	}

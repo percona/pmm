@@ -21,6 +21,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // Suppress "imported and not used" errors
@@ -66,7 +67,7 @@ func local_request_ServerService_Version_0(ctx context.Context, marshaler runtim
 }
 
 func request_ServerService_Readiness_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ReadinessRequest
+	var protoReq emptypb.Empty
 	var metadata runtime.ServerMetadata
 
 	msg, err := client.Readiness(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -74,7 +75,7 @@ func request_ServerService_Readiness_0(ctx context.Context, marshaler runtime.Ma
 }
 
 func local_request_ServerService_Readiness_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ReadinessRequest
+	var protoReq emptypb.Empty
 	var metadata runtime.ServerMetadata
 
 	msg, err := server.Readiness(ctx, &protoReq)
@@ -82,7 +83,7 @@ func local_request_ServerService_Readiness_0(ctx context.Context, marshaler runt
 }
 
 func request_ServerService_LeaderHealthCheck_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq LeaderHealthCheckRequest
+	var protoReq emptypb.Empty
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -98,7 +99,7 @@ func request_ServerService_LeaderHealthCheck_0(ctx context.Context, marshaler ru
 }
 
 func local_request_ServerService_LeaderHealthCheck_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq LeaderHealthCheckRequest
+	var protoReq emptypb.Empty
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -146,7 +147,7 @@ func local_request_ServerService_CheckUpdates_0(ctx context.Context, marshaler r
 }
 
 func request_ServerService_StartUpdate_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq StartUpdateRequest
+	var protoReq emptypb.Empty
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -162,7 +163,7 @@ func request_ServerService_StartUpdate_0(ctx context.Context, marshaler runtime.
 }
 
 func local_request_ServerService_StartUpdate_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq StartUpdateRequest
+	var protoReq emptypb.Empty
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -210,7 +211,7 @@ func local_request_ServerService_UpdateStatus_0(ctx context.Context, marshaler r
 }
 
 func request_ServerService_GetSettings_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetSettingsRequest
+	var protoReq emptypb.Empty
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -226,7 +227,7 @@ func request_ServerService_GetSettings_0(ctx context.Context, marshaler runtime.
 }
 
 func local_request_ServerService_GetSettings_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetSettingsRequest
+	var protoReq emptypb.Empty
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
