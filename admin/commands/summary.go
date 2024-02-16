@@ -38,6 +38,7 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/helpers"
+	"github.com/percona/pmm/admin/pkg/iputils"
 	agents_info "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
 	"github.com/percona/pmm/api/inventorypb/types"
 	"github.com/percona/pmm/api/serverpb/json/client"
@@ -150,7 +151,7 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 
 	addData(zipW, "client/pmm-admin-version.txt", now, bytes.NewReader([]byte(version.FullInfo())))
 
-	host := net.JoinHostPort(agentlocal.Localhost, fmt.Sprintf("%d", agentlocal.DefaultPMMAgentListenPort))
+	host := net.JoinHostPort(iputils.GetLoopbackAddress(), fmt.Sprintf("%d", agentlocal.DefaultPMMAgentListenPort))
 	err = downloadFile(ctx, zipW, fmt.Sprintf("http://%s/logs.zip", host), "client/pmm-agent")
 	if err != nil {
 		logrus.Warnf("%s", err)
@@ -197,7 +198,7 @@ func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agen
 
 	for _, agent := range agentsInfo {
 		if pointer.GetString(agent.AgentType) == types.AgentTypeVMAgent {
-			host := net.JoinHostPort(agentlocal.Localhost, fmt.Sprintf("%d", agent.ListenPort))
+			host := net.JoinHostPort(iputils.GetLoopbackAddress(), fmt.Sprintf("%d", agent.ListenPort))
 			b, err := getURL(ctx, fmt.Sprintf("http://%s/api/v1/targets", host))
 			if err != nil {
 				logrus.Debugf("%s", err)
@@ -304,7 +305,7 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool, global
 		},
 	}
 
-	host := net.JoinHostPort(agentlocal.Localhost, fmt.Sprintf("%d", globals.PMMAgentListenPort))
+	host := net.JoinHostPort(iputils.GetLoopbackAddress(), fmt.Sprintf("%d", globals.PMMAgentListenPort))
 	sources := map[string]string{
 		"client/pprof/pmm-agent": fmt.Sprintf("http://%s/debug/pprof", host),
 	}
@@ -312,7 +313,7 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool, global
 	isRunOnPmmServer, _ := helpers.IsOnPmmServer() //nolint:contextcheck
 
 	if !skipServer && isRunOnPmmServer {
-		sources["server/pprof/qan-api2"] = fmt.Sprintf("http://%s/debug/pprof", net.JoinHostPort(agentlocal.Localhost, "9933"))
+		sources["server/pprof/qan-api2"] = fmt.Sprintf("http://%s/debug/pprof", net.JoinHostPort(iputils.GetLoopbackAddress(), "9933"))
 	}
 
 	for _, p := range profiles {

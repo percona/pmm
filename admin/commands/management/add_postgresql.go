@@ -16,6 +16,7 @@ package management
 
 import (
 	"fmt"
+	"net"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -24,6 +25,7 @@ import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	postgresql "github.com/percona/pmm/api/managementpb/json/client/postgre_sql"
+	"github.com/percona/pmm/utils/iputils"
 )
 
 var addPostgreSQLResultT = commands.ParseTemplate(`
@@ -47,7 +49,7 @@ func (res *addPostgreSQLResult) String() string {
 //nolint:lll
 type AddPostgreSQLCommand struct {
 	ServiceName       string `name:"name" arg:"" default:"${hostname}-postgresql" help:"Service name (autodetected default: ${hostname}-postgresql)"`
-	Address           string `arg:"" optional:"" help:"PostgreSQL address and port (default: 127.0.0.1:5432)"`
+	Address           string `arg:"" optional:"" help:"PostgreSQL address and port (default: 127.0.0.1:5432 (ipv6: [::1]:5432))"`
 	Socket            string `help:"Path to socket"`
 	Username          string `default:"postgres" help:"PostgreSQL username"`
 	Password          string `help:"PostgreSQL password"`
@@ -92,7 +94,7 @@ func (cmd *AddPostgreSQLCommand) GetAddress() string {
 
 // GetDefaultAddress returns the default address for AddPostgreSQLCommand.
 func (cmd *AddPostgreSQLCommand) GetDefaultAddress() string {
-	return "127.0.0.1:5432"
+	return net.JoinHostPort(iputils.GetLoopbackAddress(), "5432")
 }
 
 // GetSocket returns the socket for AddPostgreSQLCommand.

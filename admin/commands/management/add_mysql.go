@@ -16,6 +16,7 @@ package management
 
 import (
 	"fmt"
+	"net"
 	"strconv"
 	"strings"
 
@@ -27,6 +28,7 @@ import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	mysql "github.com/percona/pmm/api/managementpb/json/client/my_sql"
+	"github.com/percona/pmm/utils/iputils"
 )
 
 const (
@@ -92,7 +94,7 @@ func (res *addMySQLResult) TablestatStatus() string {
 //nolint:lll
 type AddMySQLCommand struct {
 	ServiceName   string `name:"name" arg:"" default:"${hostname}-mysql" help:"Service name (autodetected default: ${hostname}-mysql)"`
-	Address       string `arg:"" optional:"" help:"MySQL address and port (default: 127.0.0.1:3306)"`
+	Address       string `arg:"" optional:"" help:"MySQL address and port (default: 127.0.0.1:3306 (ipv6: [::1]:3306))"`
 	Socket        string `help:"Path to MySQL socket"`
 	NodeID        string `help:"Node ID (default is autodetected)"`
 	PMMAgentID    string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
@@ -138,7 +140,7 @@ func (cmd *AddMySQLCommand) GetAddress() string {
 
 // GetDefaultAddress returns the default address for AddMySQLCommand.
 func (cmd *AddMySQLCommand) GetDefaultAddress() string {
-	return "127.0.0.1:3306"
+	return net.JoinHostPort(iputils.GetLoopbackAddress(), "3306")
 }
 
 // GetSocket returns the socket for AddMySQLCommand.

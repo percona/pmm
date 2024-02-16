@@ -29,6 +29,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/collectors"
+	"github.com/percona/pmm/utils/iputils"
 	"github.com/percona/pmm/version"
 )
 
@@ -55,7 +56,7 @@ func scrapeConfigForAlertmanager(interval time.Duration) *config.ScrapeConfig {
 		MetricsPath:    "/alertmanager/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:9093"},
+				Targets: []string{net.JoinHostPort(iputils.GetLoopbackAddress(), "9093")},
 				Labels:  map[string]string{"instance": "pmm-server"},
 			}},
 		},
@@ -70,7 +71,7 @@ func scrapeConfigForGrafana(interval time.Duration) *config.ScrapeConfig {
 		MetricsPath:    "/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:3000"},
+				Targets: []string{net.JoinHostPort(iputils.GetLoopbackAddress(), "3000")},
 				Labels:  map[string]string{"instance": "pmm-server"},
 			}},
 		},
@@ -85,7 +86,7 @@ func scrapeConfigForPMMManaged(interval time.Duration) *config.ScrapeConfig {
 		MetricsPath:    "/debug/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:7773"},
+				Targets: []string{net.JoinHostPort(iputils.GetLoopbackAddress(), "7773")},
 				Labels:  map[string]string{"instance": "pmm-server"},
 			}},
 		},
@@ -100,7 +101,7 @@ func scrapeConfigForQANAPI2(interval time.Duration) *config.ScrapeConfig {
 		MetricsPath:    "/debug/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:9933"},
+				Targets: []string{net.JoinHostPort(iputils.GetLoopbackAddress(), "9933")},
 				Labels:  map[string]string{"instance": "pmm-server"},
 			}},
 		},
@@ -115,7 +116,7 @@ func scrapeConfigForDBaaSController(interval time.Duration) *config.ScrapeConfig
 		MetricsPath:    "/debug/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:20203"},
+				Targets: []string{net.JoinHostPort(iputils.GetLoopbackAddress(), "20203")},
 				Labels:  map[string]string{"instance": "pmm-server"},
 			}},
 		},

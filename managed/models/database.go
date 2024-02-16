@@ -31,6 +31,7 @@ import (
 	"strings"
 
 	"github.com/lib/pq"
+	"github.com/percona/pmm/utils/iputils"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -43,8 +44,6 @@ const (
 	PMMServerPostgreSQLServiceName = "pmm-server-postgresql"
 	// - minPGVersion stands for minimal required PostgreSQL server version for PMM Server.
 	minPGVersion float64 = 14
-	// DefaultPostgreSQLAddr represent default local PostgreSQL database server address.
-	DefaultPostgreSQLAddr = "127.0.0.1:5432"
 	// PMMServerPostgreSQLNodeName is a special Node Name representing PMM Server's External PostgreSQL Node.
 	PMMServerPostgreSQLNodeName = "pmm-server-db"
 
@@ -57,6 +56,11 @@ const (
 	// VerifyFullSSLMode represent verify-full PostgreSQL ssl mode.
 	VerifyFullSSLMode string = "verify-full"
 )
+
+// DefaultPostgreSQLAddr represent default local PostgreSQL database server address.
+func DefaultPostgreSQLAddr() string {
+	return net.JoinHostPort(iputils.GetLoopbackAddress(), "5432")
+}
 
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
 var databaseSchema = [][]string{
@@ -1171,7 +1175,7 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents
 	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
 		NodeName: "pmm-server",
-		Address:  "127.0.0.1",
+		Address:  iputils.GetLoopbackAddress(),
 	})
 	if err != nil {
 		if status.Code(err) == codes.AlreadyExists {
@@ -1190,7 +1194,7 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	if err != nil {
 		return err
 	}
-	if params.Address != DefaultPostgreSQLAddr {
+	if params.Address != DefaultPostgreSQLAddr() {
 		if node, err = CreateNode(q, RemoteNodeType, &CreateNodeParams{
 			NodeName: PMMServerPostgreSQLNodeName,
 			Address:  address,
@@ -1257,17 +1261,41 @@ func setupFixture2(q *reform.Querier, username, password string) error { //nolin
 }
 
 // parsePGAddress parses PostgreSQL address into address:port; if no port specified returns default port number.
+// It supports both IPv4 and IPv6 addresses.
 func parsePGAddress(address string) (string, uint16, error) {
-	if !strings.Contains(address, ":") {
-		return address, 5432, nil
+	const defaultPort = 5432 // Default PostgreSQL port
+
+	// Check if the address is in IPv6 format (enclosed in square brackets)
+	isIPv6 := strings.HasPrefix(address, "[")
+
+	if !isIPv6 {
+		// For IPv4 or hostname, check if a port is specified
+		if !strings.Contains(address, ":") {
+			return address, defaultPort, nil
+		}
+	} else {
+		// For IPv6, if there's no closing bracket followed by a colon, no port is specified
+		if !strings.Contains(address, "]:") {
+			return strings.Trim(address, "[]"), defaultPort, nil
+		}
 	}
-	address, portStr, err := net.SplitHostPort(address)
+
+	// Split the address and port
+	host, portStr, err := net.SplitHostPort(address)
 	if err != nil {
 		return "", 0, err
 	}
+
+	// Parse the port number
 	parsedPort, err := strconv.ParseUint(portStr, 10, 16)
 	if err != nil {
 		return "", 0, err
 	}
-	return address, uint16(parsedPort), nil
+
+	// Remove square brackets for IPv6 addresses
+	if isIPv6 {
+		host = strings.Trim(host, "[]")
+	}
+
+	return host, uint16(parsedPort), nil
 }

@@ -19,6 +19,7 @@ package victoriametrics
 import (
 	"context"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -39,6 +40,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/dir"
+	"github.com/percona/pmm/utils/iputils"
 	"github.com/percona/pmm/utils/pdeathsig"
 )
 
@@ -258,7 +260,7 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 	}
 	svc.l.Debugf("%s", b)
 
-	args = append(args, "-promscrape.config.strictParse", "true")
+	args = append(args, "-promscrape.config.strictParse=true")
 	cmd = exec.CommandContext(ctx, "victoriametrics", args...) //nolint:gosec
 	pdeathsig.Set(cmd, unix.SIGKILL)
 
@@ -395,7 +397,7 @@ func scrapeConfigForVMAlert(interval time.Duration) *config.ScrapeConfig {
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{
 				{
-					Targets: []string{"127.0.0.1:8880"},
+					Targets: []string{net.JoinHostPort(iputils.GetLoopbackAddress(), "8880")},
 					Labels:  map[string]string{"instance": "pmm-server"},
 				},
 			},

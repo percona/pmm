@@ -24,6 +24,7 @@ import (
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/utils/iputils"
 	"github.com/percona/pmm/version"
 )
 
@@ -143,13 +144,13 @@ func ensureAuthParams(exporter *models.Agent, params *agentpb.SetStateRequest_Ag
 }
 
 // getExporterListenAddress returns the appropriate listen address to use for a given exporter.
-func getExporterListenAddress(_ *models.Node, exporter *models.Agent) string {
+func getExporterListenAddress(node *models.Node, exporter *models.Agent) string {
 	switch {
 	case exporter.ExposeExporter:
-		return "0.0.0.0"
+		return iputils.GetAllInterfacesAddress()
 	case exporter.PushMetrics:
-		return "127.0.0.1"
+		return iputils.GetLoopbackAddress()
 	default:
-		return "0.0.0.0"
+		return iputils.GetAllInterfacesAddress()
 	}
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
-
+	"github.com/percona/pmm/utils/iputils"
 	"github.com/percona/pmm/api/managementpb/agent/json/client/agent"
 )
 
@@ -17,9 +17,6 @@ import (
 var Default = NewHTTPClient(nil)
 
 const (
-	// DefaultHost is the default Host
-	// found in Meta (info) section of spec file
-	DefaultHost string = "localhost"
 	// DefaultBasePath is the default BasePath
 	// found in Meta (info) section of spec file
 	DefaultBasePath string = "/"
@@ -63,7 +60,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagem
 // default settings taken from the meta section of the spec file.
 func DefaultTransportConfig() *TransportConfig {
 	return &TransportConfig{
-		Host:     DefaultHost,
+		Host:     iputils.GetLoopbackAddress(),
 		BasePath: DefaultBasePath,
 		Schemes:  DefaultSchemes,
 	}
