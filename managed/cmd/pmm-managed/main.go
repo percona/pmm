@@ -969,6 +969,20 @@ func main() { //nolint:cyclop,maintidx
 
 	dumpService := dump.New(db)
 
+	// Get the hostname from the environment variable
+	watchtowerHostname := os.Getenv("PMM_WATCHTOWER_HOSTNAME")
+	if watchtowerHostname == "" {
+		watchtowerHostname = "http://watchtower:8080"
+	}
+
+	// Create a URL with the images and new image name as query parameters
+	u, err := url.Parse(watchtowerHostname)
+	if err != nil {
+		l.Fatalf("Failed to parse watchtower hostname: %s", err)
+	}
+
+	updater := server.NewUpdater(supervisord, u)
+
 	serverParams := &server.Params{
 		DB:                   db,
 		VMDB:                 vmdb,
@@ -981,6 +995,7 @@ func main() { //nolint:cyclop,maintidx
 		AwsInstanceChecker:   awsInstanceChecker,
 		GrafanaClient:        grafanaClient,
 		VMAlertExternalRules: externalRules,
+		Updater:              updater,
 	}
 
 	server, err := server.NewServer(serverParams)

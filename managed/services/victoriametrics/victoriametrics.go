@@ -258,7 +258,7 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 	}
 	svc.l.Debugf("%s", b)
 
-	args = append(args, "-promscrape.config.strictParse", "true")
+	args = append(args, "-promscrape.config.strictParse=true")
 	cmd = exec.CommandContext(ctx, "victoriametrics", args...) //nolint:gosec
 	pdeathsig.Set(cmd, unix.SIGKILL)
 

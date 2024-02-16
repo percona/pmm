@@ -805,7 +805,13 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "new_image": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           }
         ],
