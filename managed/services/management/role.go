@@ -105,6 +105,8 @@ func (r *RoleService) UpdateRole(_ context.Context, req *rolev1beta1.UpdateRoleR
 }
 
 // DeleteRole deletes a Role.
+//
+//nolint:unparam
 func (r *RoleService) DeleteRole(ctx context.Context, req *rolev1beta1.DeleteRoleRequest) (*empty.Empty, error) {
 	errTx := r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		if err := models.DeleteRole(tx, int(req.RoleId), int(req.ReplacementRoleId)); err != nil {
@@ -173,6 +175,8 @@ func (r *RoleService) ListRoles(_ context.Context, _ *empty.Empty) (*rolev1beta1
 }
 
 // AssignRoles assigns a Role to a user.
+//
+//nolint:unparam
 func (r *RoleService) AssignRoles(ctx context.Context, req *rolev1beta1.AssignRolesRequest) (*empty.Empty, error) {
 	err := r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		roleIDs := make([]int, 0, len(req.RoleIds))
@@ -192,6 +196,8 @@ func (r *RoleService) AssignRoles(ctx context.Context, req *rolev1beta1.AssignRo
 }
 
 // SetDefaultRole configures default role to be assigned to users.
+//
+//nolint:unparam
 func (r *RoleService) SetDefaultRole(ctx context.Context, req *rolev1beta1.SetDefaultRoleRequest) (*empty.Empty, error) {
 	err := r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		return models.ChangeDefaultRole(tx, int(req.RoleId))

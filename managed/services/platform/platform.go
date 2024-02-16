@@ -221,7 +221,7 @@ func (s *Service) UpdateSupervisordConfigurations(ctx context.Context) error {
 }
 
 // SearchOrganizationTickets fetches the list of ticket associated with the Portal organization this PMM server is registered with.
-func (s *Service) SearchOrganizationTickets(ctx context.Context, _ *empty.Empty) (*platformv1.SearchOrganizationTicketsResponse, error) { //nolint:lll
+func (s *Service) SearchOrganizationTickets(ctx context.Context, _ *empty.Empty) (*platformv1.SearchOrganizationTicketsResponse, error) {
 	accessToken, err := s.grafanaClient.GetCurrentUserAccessToken(ctx)
 	if err != nil {
 		if errors.Is(err, grafana.ErrFailedToGetToken) {
@@ -275,7 +275,7 @@ func convertTicket(t *platform.TicketResponse) (*platformv1.OrganizationTicket, 
 }
 
 // SearchOrganizationEntitlements fetches customer entitlements for a particular organization.
-func (s *Service) SearchOrganizationEntitlements(ctx context.Context, _ *empty.Empty) (*platformv1.SearchOrganizationEntitlementsResponse, error) { //nolint:lll
+func (s *Service) SearchOrganizationEntitlements(ctx context.Context, _ *empty.Empty) (*platformv1.SearchOrganizationEntitlementsResponse, error) {
 	accessToken, err := s.grafanaClient.GetCurrentUserAccessToken(ctx)
 	if err != nil {
 		if errors.Is(err, grafana.ErrFailedToGetToken) {
