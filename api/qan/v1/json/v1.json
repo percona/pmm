@@ -17,10 +17,11 @@
   "paths": {
     "/v1/qan/Filters/Get": {
       "post": {
+        "description": "Provides a filtered map of metrics names.",
         "tags": [
           "QANService"
         ],
-        "summary": "Get gets map of metrics names.",
+        "summary": "Get Filters",
         "operationId": "GetFilteredMetricsNames",
         "parameters": [
           {
@@ -151,10 +152,11 @@
     },
     "/v1/qan/GetMetricsNames": {
       "post": {
+        "description": "Provides a map of all metrics names.",
         "tags": [
           "QANService"
         ],
-        "summary": "GetMetricsNames gets map of metrics names.",
+        "summary": "Get Metrics Names",
         "operationId": "GetMetricsNames",
         "parameters": [
           {
@@ -219,10 +221,11 @@
     },
     "/v1/qan/GetReport": {
       "post": {
+        "description": "Returns a list of metrics grouped by queryid or other dimensions.",
         "tags": [
           "QANService"
         ],
-        "summary": "GetReport returns list of metrics grouped by queryid or other dimensions.",
+        "summary": "Get Report",
         "operationId": "GetReport",
         "parameters": [
           {
@@ -843,10 +846,11 @@
     },
     "/v1/qan/ObjectDetails/ExplainFingerprintByQueryID": {
       "post": {
+        "description": "Provides an explain fingerprint for given query ID.",
         "tags": [
           "QANService"
         ],
-        "summary": "ExplainFingerprintByQueryID gets an explain fingerprint for given query ID.",
+        "summary": "Get Explain Fingerprint",
         "operationId": "ExplainFingerprintByQueryID",
         "parameters": [
           {
@@ -925,10 +929,11 @@
     },
     "/v1/qan/ObjectDetails/GetHistogram": {
       "post": {
+        "description": "Provides histogram items for specific filtering.",
         "tags": [
           "QANService"
         ],
-        "summary": "GetHistogram gets histogram items for specific filtering.",
+        "summary": "Get Histogram",
         "operationId": "GetHistogram",
         "parameters": [
           {
@@ -1044,10 +1049,11 @@
     },
     "/v1/qan/ObjectDetails/GetLabels": {
       "post": {
+        "description": "Provides a list of labels for object details.",
         "tags": [
           "QANService"
         ],
-        "summary": "GetLabels gets a list of labels for object details.",
+        "summary": "Get Labels",
         "operationId": "GetLabels",
         "parameters": [
           {
@@ -1146,10 +1152,11 @@
     },
     "/v1/qan/ObjectDetails/GetMetrics": {
       "post": {
+        "description": "Provides a map of metrics for specific filtering.",
         "tags": [
           "QANService"
         ],
-        "summary": "GetMetrics gets a map of metrics for specific filtering.",
+        "summary": "Get Metrics",
         "operationId": "GetMetrics",
         "parameters": [
           {
@@ -1811,10 +1818,11 @@
     },
     "/v1/qan/ObjectDetails/GetQueryExample": {
       "post": {
+        "description": "Provides a list of query examples.",
         "tags": [
           "QANService"
         ],
-        "summary": "GetQueryExample gets a list of query examples.",
+        "summary": "Get Query Example",
         "operationId": "GetQueryExample",
         "parameters": [
           {
@@ -1990,10 +1998,11 @@
     },
     "/v1/qan/ObjectDetails/GetQueryPlan": {
       "post": {
+        "description": "Provides a query plan and plan id for specific filtering.",
         "tags": [
           "QANService"
         ],
-        "summary": "GetQueryPlan gets a query plan and plan id for specific filtering.",
+        "summary": "Get Query Plan",
         "operationId": "GetQueryPlan",
         "parameters": [
           {
@@ -2067,10 +2076,11 @@
     },
     "/v1/qan/ObjectDetails/QueryExists": {
       "post": {
+        "description": "Checks if query exists in clickhouse.",
         "tags": [
           "QANService"
         ],
-        "summary": "QueryExists checks if query exists in clickhouse.",
+        "summary": "Check Query Existence",
         "operationId": "QueryExists",
         "parameters": [
           {
@@ -2144,10 +2154,11 @@
     },
     "/v1/qan/ObjectDetails/SchemaByQueryID": {
       "post": {
+        "description": "Provides the schema for a given queryID and serviceID.",
         "tags": [
           "QANService"
         ],
-        "summary": "SchemaByQueryID returns a schema for given queryID and serviceID.",
+        "summary": "Get Schema",
         "operationId": "SchemaByQueryID",
         "parameters": [
           {

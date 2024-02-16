@@ -54,7 +54,9 @@ type ClientService interface {
 }
 
 /*
-ExplainFingerprintByQueryID explains fingerprint by query ID gets an explain fingerprint for given query ID
+ExplainFingerprintByQueryID gets explain fingerprint
+
+Provides an explain fingerprint for given query ID.
 */
 func (a *Client) ExplainFingerprintByQueryID(params *ExplainFingerprintByQueryIDParams, opts ...ClientOption) (*ExplainFingerprintByQueryIDOK, error) {
 	// TODO: Validate the params before sending
@@ -91,7 +93,9 @@ func (a *Client) ExplainFingerprintByQueryID(params *ExplainFingerprintByQueryID
 }
 
 /*
-GetFilteredMetricsNames gets gets map of metrics names
+GetFilteredMetricsNames gets filters
+
+Provides a filtered map of metrics names.
 */
 func (a *Client) GetFilteredMetricsNames(params *GetFilteredMetricsNamesParams, opts ...ClientOption) (*GetFilteredMetricsNamesOK, error) {
 	// TODO: Validate the params before sending
@@ -128,7 +132,9 @@ func (a *Client) GetFilteredMetricsNames(params *GetFilteredMetricsNamesParams, 
 }
 
 /*
-GetHistogram gets histogram gets histogram items for specific filtering
+GetHistogram gets histogram
+
+Provides histogram items for specific filtering.
 */
 func (a *Client) GetHistogram(params *GetHistogramParams, opts ...ClientOption) (*GetHistogramOK, error) {
 	// TODO: Validate the params before sending
@@ -165,7 +171,9 @@ func (a *Client) GetHistogram(params *GetHistogramParams, opts ...ClientOption) 
 }
 
 /*
-GetLabels gets labels gets a list of labels for object details
+GetLabels gets labels
+
+Provides a list of labels for object details.
 */
 func (a *Client) GetLabels(params *GetLabelsParams, opts ...ClientOption) (*GetLabelsOK, error) {
 	// TODO: Validate the params before sending
@@ -202,7 +210,9 @@ func (a *Client) GetLabels(params *GetLabelsParams, opts ...ClientOption) (*GetL
 }
 
 /*
-GetMetrics gets metrics gets a map of metrics for specific filtering
+GetMetrics gets metrics
+
+Provides a map of metrics for specific filtering.
 */
 func (a *Client) GetMetrics(params *GetMetricsParams, opts ...ClientOption) (*GetMetricsOK, error) {
 	// TODO: Validate the params before sending
@@ -239,7 +249,9 @@ func (a *Client) GetMetrics(params *GetMetricsParams, opts ...ClientOption) (*Ge
 }
 
 /*
-GetMetricsNames gets metrics names gets map of metrics names
+GetMetricsNames gets metrics names
+
+Provides a map of all metrics names.
 */
 func (a *Client) GetMetricsNames(params *GetMetricsNamesParams, opts ...ClientOption) (*GetMetricsNamesOK, error) {
 	// TODO: Validate the params before sending
@@ -276,7 +288,9 @@ func (a *Client) GetMetricsNames(params *GetMetricsNamesParams, opts ...ClientOp
 }
 
 /*
-GetQueryExample gets query example gets a list of query examples
+GetQueryExample gets query example
+
+Provides a list of query examples.
 */
 func (a *Client) GetQueryExample(params *GetQueryExampleParams, opts ...ClientOption) (*GetQueryExampleOK, error) {
 	// TODO: Validate the params before sending
@@ -313,7 +327,9 @@ func (a *Client) GetQueryExample(params *GetQueryExampleParams, opts ...ClientOp
 }
 
 /*
-GetQueryPlan gets query plan gets a query plan and plan id for specific filtering
+GetQueryPlan gets query plan
+
+Provides a query plan and plan id for specific filtering.
 */
 func (a *Client) GetQueryPlan(params *GetQueryPlanParams, opts ...ClientOption) (*GetQueryPlanOK, error) {
 	// TODO: Validate the params before sending
@@ -350,7 +366,9 @@ func (a *Client) GetQueryPlan(params *GetQueryPlanParams, opts ...ClientOption) 
 }
 
 /*
-GetReport gets report returns list of metrics grouped by queryid or other dimensions
+GetReport gets report
+
+Returns a list of metrics grouped by queryid or other dimensions.
 */
 func (a *Client) GetReport(params *GetReportParams, opts ...ClientOption) (*GetReportOK, error) {
 	// TODO: Validate the params before sending
@@ -387,7 +405,9 @@ func (a *Client) GetReport(params *GetReportParams, opts ...ClientOption) (*GetR
 }
 
 /*
-QueryExists queries exists checks if query exists in clickhouse
+QueryExists checks query existence
+
+Checks if query exists in clickhouse.
 */
 func (a *Client) QueryExists(params *QueryExistsParams, opts ...ClientOption) (*QueryExistsOK, error) {
 	// TODO: Validate the params before sending
@@ -424,7 +444,9 @@ func (a *Client) QueryExists(params *QueryExistsParams, opts ...ClientOption) (*
 }
 
 /*
-SchemaByQueryID schemas by query ID returns a schema for given query ID and service ID
+SchemaByQueryID gets schema
+
+Provides the schema for a given queryID and serviceID.
 */
 func (a *Client) SchemaByQueryID(params *SchemaByQueryIDParams, opts ...ClientOption) (*SchemaByQueryIDOK, error) {
 	// TODO: Validate the params before sending

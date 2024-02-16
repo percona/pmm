@@ -38,27 +38,27 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type QANServiceClient interface {
-	// GetReport returns list of metrics grouped by queryid or other dimensions.
+	// GetReport returns a list of metrics grouped by queryid or other dimensions.
 	GetReport(ctx context.Context, in *GetReportRequest, opts ...grpc.CallOption) (*GetReportResponse, error)
-	// Get gets map of metrics names.
+	// Get provides a map of metrics names.
 	GetFilteredMetricsNames(ctx context.Context, in *GetFilteredMetricsNamesRequest, opts ...grpc.CallOption) (*GetFilteredMetricsNamesResponse, error)
-	// GetMetricsNames gets map of metrics names.
+	// GetMetricsNames provides a map of metrics names.
 	GetMetricsNames(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMetricsNamesResponse, error)
-	// GetMetrics gets a map of metrics for specific filtering.
+	// GetMetrics returns a map of metrics for specific filtering.
 	GetMetrics(ctx context.Context, in *GetMetricsRequest, opts ...grpc.CallOption) (*GetMetricsResponse, error)
-	// GetQueryExample gets a list of query examples.
+	// GetQueryExample returns a list of query examples.
 	GetQueryExample(ctx context.Context, in *GetQueryExampleRequest, opts ...grpc.CallOption) (*GetQueryExampleResponse, error)
-	// GetLabels gets a list of labels for object details.
+	// GetLabels return a list of labels for object details.
 	GetLabels(ctx context.Context, in *GetLabelsRequest, opts ...grpc.CallOption) (*GetLabelsResponse, error)
-	// GetQueryPlan gets a query plan and plan id for specific filtering.
+	// GetQueryPlan returns a query plan and plan id for specific filtering.
 	GetQueryPlan(ctx context.Context, in *GetQueryPlanRequest, opts ...grpc.CallOption) (*GetQueryPlanResponse, error)
-	// GetHistogram gets histogram items for specific filtering.
+	// GetHistogram returns histogram items for specific filtering.
 	GetHistogram(ctx context.Context, in *GetHistogramRequest, opts ...grpc.CallOption) (*GetHistogramResponse, error)
 	// QueryExists checks if query exists in clickhouse.
 	QueryExists(ctx context.Context, in *QueryExistsRequest, opts ...grpc.CallOption) (*QueryExistsResponse, error)
-	// ExplainFingerprintByQueryID gets an explain fingerprint for given query ID.
+	// ExplainFingerprintByQueryID returns an explain fingerprint for given query ID.
 	ExplainFingerprintByQueryID(ctx context.Context, in *ExplainFingerprintByQueryIDRequest, opts ...grpc.CallOption) (*ExplainFingerprintByQueryIDResponse, error)
-	// SchemaByQueryID returns a schema for given queryID and serviceID.
+	// SchemaByQueryID returns the schema for a given queryID and serviceID.
 	SchemaByQueryID(ctx context.Context, in *SchemaByQueryIDRequest, opts ...grpc.CallOption) (*SchemaByQueryIDResponse, error)
 }
 
@@ -173,27 +173,27 @@ func (c *qANServiceClient) SchemaByQueryID(ctx context.Context, in *SchemaByQuer
 // All implementations must embed UnimplementedQANServiceServer
 // for forward compatibility
 type QANServiceServer interface {
-	// GetReport returns list of metrics grouped by queryid or other dimensions.
+	// GetReport returns a list of metrics grouped by queryid or other dimensions.
 	GetReport(context.Context, *GetReportRequest) (*GetReportResponse, error)
-	// Get gets map of metrics names.
+	// Get provides a map of metrics names.
 	GetFilteredMetricsNames(context.Context, *GetFilteredMetricsNamesRequest) (*GetFilteredMetricsNamesResponse, error)
-	// GetMetricsNames gets map of metrics names.
+	// GetMetricsNames provides a map of metrics names.
 	GetMetricsNames(context.Context, *emptypb.Empty) (*GetMetricsNamesResponse, error)
-	// GetMetrics gets a map of metrics for specific filtering.
+	// GetMetrics returns a map of metrics for specific filtering.
 	GetMetrics(context.Context, *GetMetricsRequest) (*GetMetricsResponse, error)
-	// GetQueryExample gets a list of query examples.
+	// GetQueryExample returns a list of query examples.
 	GetQueryExample(context.Context, *GetQueryExampleRequest) (*GetQueryExampleResponse, error)
-	// GetLabels gets a list of labels for object details.
+	// GetLabels return a list of labels for object details.
 	GetLabels(context.Context, *GetLabelsRequest) (*GetLabelsResponse, error)
-	// GetQueryPlan gets a query plan and plan id for specific filtering.
+	// GetQueryPlan returns a query plan and plan id for specific filtering.
 	GetQueryPlan(context.Context, *GetQueryPlanRequest) (*GetQueryPlanResponse, error)
-	// GetHistogram gets histogram items for specific filtering.
+	// GetHistogram returns histogram items for specific filtering.
 	GetHistogram(context.Context, *GetHistogramRequest) (*GetHistogramResponse, error)
 	// QueryExists checks if query exists in clickhouse.
 	QueryExists(context.Context, *QueryExistsRequest) (*QueryExistsResponse, error)
-	// ExplainFingerprintByQueryID gets an explain fingerprint for given query ID.
+	// ExplainFingerprintByQueryID returns an explain fingerprint for given query ID.
 	ExplainFingerprintByQueryID(context.Context, *ExplainFingerprintByQueryIDRequest) (*ExplainFingerprintByQueryIDResponse, error)
-	// SchemaByQueryID returns a schema for given queryID and serviceID.
+	// SchemaByQueryID returns the schema for a given queryID and serviceID.
 	SchemaByQueryID(context.Context, *SchemaByQueryIDRequest) (*SchemaByQueryIDResponse, error)
 	mustEmbedUnimplementedQANServiceServer()
 }
