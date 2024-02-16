@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package qan.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "qan/v1/filters.proto";
+import "qan/v1/object_details.proto";
+import "qan/v1/profile.proto";
+
+// Profile of metrics by QueryID, Host etc.
+
+service QANService {
+  // GetReport returns list of metrics grouped by queryid or other dimensions.
+  rpc GetReport(GetReportRequest) returns (GetReportResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/GetReport"
+      body: "*"
+    };
+  }
+  // Get gets map of metrics names.
+  rpc GetFilteredMetricsNames(GetFilteredMetricsNamesRequest) returns (GetFilteredMetricsNamesResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/Filters/Get"
+      body: "*"
+    };
+  }
+  // GetMetricsNames gets map of metrics names.
+  rpc GetMetricsNames(google.protobuf.Empty) returns (GetMetricsNamesResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/GetMetricsNames"
+      body: "*"
+    };
+  }
+  // GetMetrics gets a map of metrics for specific filtering.
+  rpc GetMetrics(GetMetricsRequest) returns (GetMetricsResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/ObjectDetails/GetMetrics"
+      body: "*"
+    };
+  }
+  // GetQueryExample gets a list of query examples.
+  rpc GetQueryExample(GetQueryExampleRequest) returns (GetQueryExampleResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/ObjectDetails/GetQueryExample"
+      body: "*"
+    };
+  }
+  // GetLabels gets a list of labels for object details.
+  rpc GetLabels(GetLabelsRequest) returns (GetLabelsResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/ObjectDetails/GetLabels"
+      body: "*"
+    };
+  }
+  // GetQueryPlan gets a query plan and plan id for specific filtering.
+  rpc GetQueryPlan(GetQueryPlanRequest) returns (GetQueryPlanResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/ObjectDetails/GetQueryPlan"
+      body: "*"
+    };
+  }
+  // GetHistogram gets histogram items for specific filtering.
+  rpc GetHistogram(GetHistogramRequest) returns (GetHistogramResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/ObjectDetails/GetHistogram"
+      body: "*"
+    };
+  }
+  // QueryExists checks if query exists in clickhouse.
+  rpc QueryExists(QueryExistsRequest) returns (QueryExistsResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/ObjectDetails/QueryExists"
+      body: "*"
+    };
+  }
+  // ExplainFingerprintByQueryID gets an explain fingerprint for given query ID.
+  rpc ExplainFingerprintByQueryID(ExplainFingerprintByQueryIDRequest) returns (ExplainFingerprintByQueryIDResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/ObjectDetails/ExplainFingerprintByQueryID"
+      body: "*"
+    };
+  }
+  // SchemaByQueryID returns a schema for given queryID and serviceID.
+  rpc SchemaByQueryID(SchemaByQueryIDRequest) returns (SchemaByQueryIDResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/ObjectDetails/SchemaByQueryID"
+      body: "*"
+    };
+  }
+}
+
+// MetricsNamesReply is map of stored metrics:
+// key is root of metric name in db (Ex:. [m_]query_time[_sum]);
+// value - Human readable name of metrics.
+message GetMetricsNamesResponse {
+  map<string, string> data = 1;
+}

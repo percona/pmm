@@ -37,7 +37,7 @@ import (
 // Client represents qan-api client for data collection.
 type Client struct {
 	c   qanCollectorClient
-	odc qanpb.ObjectDetailsServiceClient
+	qsc qanpb.QANServiceClient
 	db  *reform.DB
 	l   *logrus.Entry
 }
@@ -46,7 +46,7 @@ type Client struct {
 func NewClient(cc *grpc.ClientConn, db *reform.DB) *Client {
 	return &Client{
 		c:   qanpb.NewCollectorServiceClient(cc),
-		odc: qanpb.NewObjectDetailsServiceClient(cc),
+		qsc: qanpb.NewQANServiceClient(cc),
 		db:  db,
 		l:   logrus.WithField("component", "qan"),
 	}
@@ -114,7 +114,7 @@ func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error
 		Query:     query,
 	}
 	c.l.Debugf("%+v", qanReq)
-	resp, err := c.odc.QueryExists(ctx, qanReq)
+	resp, err := c.qsc.QueryExists(ctx, qanReq)
 	if err != nil {
 		return err
 	}
@@ -133,7 +133,7 @@ func (c *Client) ExplainFingerprintByQueryID(ctx context.Context, serviceID, que
 		QueryId:   queryID,
 	}
 	c.l.Debugf("%+v", qanReq)
-	res, err := c.odc.ExplainFingerprintByQueryID(ctx, qanReq)
+	res, err := c.qsc.ExplainFingerprintByQueryID(ctx, qanReq)
 	if err != nil {
 		return res, err
 	}
@@ -148,7 +148,7 @@ func (c *Client) SchemaByQueryID(ctx context.Context, serviceID, queryID string)
 		QueryId:   queryID,
 	}
 	c.l.Debugf("%+v", qanReq)
-	res, err := c.odc.SchemaByQueryID(ctx, qanReq)
+	res, err := c.qsc.SchemaByQueryID(ctx, qanReq)
 	if err != nil {
 		return nil, err
 	}

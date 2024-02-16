@@ -25,10 +25,7 @@ type Service struct {
 	rm models.Reporter
 	mm models.Metrics
 
-	qanpb.UnimplementedProfileServiceServer
-	qanpb.UnimplementedFiltersServiceServer
-	qanpb.UnimplementedObjectDetailsServiceServer
-	qanpb.UnimplementedMetricsNamesServiceServer
+	qanpb.UnimplementedQANServiceServer
 }
 
 // NewService create new insstance of Service.

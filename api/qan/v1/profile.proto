@@ -6,17 +6,6 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "qan/v1/qan.proto";
 
-// Profile of metrics by QueryID, Host etc.
-service ProfileService {
-  // GetReport returns list of metrics group by queryid or other dimentions.
-  rpc GetReport(GetReportRequest) returns (GetReportResponse) {
-    option (google.api.http) = {
-      post: "/v0/qan/GetReport"
-      body: "*"
-    };
-  }
-}
-
 // ReportRequest defines filtering of metrics report for db server or other dimentions.
 message GetReportRequest {
   google.protobuf.Timestamp period_start_from = 1;
