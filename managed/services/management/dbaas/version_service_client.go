@@ -62,6 +62,7 @@ type matrix struct {
 	PSMDBOperator map[string]componentVersion `json:"psmdbOperator,omitempty"`
 }
 
+// Version contains versions info.
 type Version struct {
 	Product        string `json:"product"`
 	ProductVersion string `json:"operator"`

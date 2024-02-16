@@ -60,6 +60,7 @@ type AddServiceProxySQLCommand struct {
 	CustomLabels   map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 }
 
+// RunCmd executes the AddServiceProxySQLCommand and returns the result.
 func (cmd *AddServiceProxySQLCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &services.AddProxySQLServiceParams{

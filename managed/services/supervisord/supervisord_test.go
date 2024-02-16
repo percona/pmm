@@ -51,8 +51,9 @@ func TestConfig(t *testing.T) {
 	}
 	s := New(configDir, pmmUpdateCheck, &models.Params{VMParams: vmParams, PGParams: pgParams, HAParams: &models.HAParams{}}, gRPCMessageMaxSize)
 	settings := &models.Settings{
-		DataRetention:   30 * 24 * time.Hour,
-		AlertManagerURL: "https://external-user:passw!,ord@external-alertmanager:6443/alerts",
+		DataRetention:    30 * 24 * time.Hour,
+		AlertManagerURL:  "https://external-user:passw!,ord@external-alertmanager:6443/alerts",
+		PMMPublicAddress: "192.168.0.42:8443",
 	}
 	settings.VictoriaMetrics.CacheEnabled = false
 
