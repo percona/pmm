@@ -5,7 +5,6 @@ package qan.v1;
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
-import "qan/v1/collector.proto";
 import "qan/v1/filters.proto";
 import "qan/v1/object_details.proto";
 import "qan/v1/profile.proto";
