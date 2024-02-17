@@ -27,28 +27,8 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-// ProxySQLService ProxySQL Management Service.
-type ProxySQLService struct {
-	db    *reform.DB
-	state agentsStateUpdater
-	cc    connectionChecker
-	sib   serviceInfoBroker
-
-	managementv1.UnimplementedProxySQLServiceServer
-}
-
-// NewProxySQLService creates new ProxySQL Management Service.
-func NewProxySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, sib serviceInfoBroker) *ProxySQLService {
-	return &ProxySQLService{
-		db:    db,
-		state: state,
-		cc:    cc,
-		sib:   sib,
-	}
-}
-
 // AddProxySQL adds "ProxySQL Service", "ProxySQL Exporter Agent" and "QAN ProxySQL PerfSchema Agent".
-func (s *ProxySQLService) AddProxySQL(ctx context.Context, req *managementv1.AddProxySQLRequest) (*managementv1.AddProxySQLResponse, error) {
+func (s *ServiceService) AddProxySQL(ctx context.Context, req *managementv1.AddProxySQLRequest) (*managementv1.AddProxySQLResponse, error) {
 	res := &managementv1.AddProxySQLResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {

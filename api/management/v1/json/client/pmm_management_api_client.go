@@ -16,7 +16,6 @@ import (
 	"github.com/percona/pmm/api/management/v1/json/client/my_sql_service"
 	"github.com/percona/pmm/api/management/v1/json/client/node_service"
 	"github.com/percona/pmm/api/management/v1/json/client/postgre_sql_service"
-	"github.com/percona/pmm/api/management/v1/json/client/proxy_sql_service"
 	"github.com/percona/pmm/api/management/v1/json/client/rds_service"
 	"github.com/percona/pmm/api/management/v1/json/client/service"
 )
@@ -69,7 +68,6 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagem
 	cli.MySQLService = my_sql_service.New(transport, formats)
 	cli.NodeService = node_service.New(transport, formats)
 	cli.PostgreSQLService = postgre_sql_service.New(transport, formats)
-	cli.ProxySQLService = proxy_sql_service.New(transport, formats)
 	cli.RDSService = rds_service.New(transport, formats)
 	cli.Service = service.New(transport, formats)
 	return cli
@@ -128,8 +126,6 @@ type PMMManagementAPI struct {
 
 	PostgreSQLService postgre_sql_service.ClientService
 
-	ProxySQLService proxy_sql_service.ClientService
-
 	RDSService rds_service.ClientService
 
 	Service service.ClientService
@@ -146,7 +142,6 @@ func (c *PMMManagementAPI) SetTransport(transport runtime.ClientTransport) {
 	c.MySQLService.SetTransport(transport)
 	c.NodeService.SetTransport(transport)
 	c.PostgreSQLService.SetTransport(transport)
-	c.ProxySQLService.SetTransport(transport)
 	c.RDSService.SetTransport(transport)
 	c.Service.SetTransport(transport)
 }

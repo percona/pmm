@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Service_AddMongoDB_FullMethodName    = "/management.v1.Service/AddMongoDB"
+	Service_AddProxySQL_FullMethodName   = "/management.v1.Service/AddProxySQL"
 	Service_RemoveService_FullMethodName = "/management.v1.Service/RemoveService"
 )
 
@@ -34,6 +35,10 @@ type ServiceClient interface {
 	// then adds "mongodb_exporter", and "qan_mongodb_profiler" agents
 	// with provided "pmm_agent_id" and other parameters.
 	AddMongoDB(ctx context.Context, in *AddMongoDBRequest, opts ...grpc.CallOption) (*AddMongoDBResponse, error)
+	// AddProxySQL adds ProxySQL Service and starts several Agents.
+	// It automatically adds a service to inventory, which is running on provided "node_id",
+	// then adds "proxysql_exporter" with provided "pmm_agent_id" and other parameters.
+	AddProxySQL(ctx context.Context, in *AddProxySQLRequest, opts ...grpc.CallOption) (*AddProxySQLResponse, error)
 	// RemoveService removes Service with Agents.
 	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -49,6 +54,15 @@ func NewServiceClient(cc grpc.ClientConnInterface) ServiceClient {
 func (c *serviceClient) AddMongoDB(ctx context.Context, in *AddMongoDBRequest, opts ...grpc.CallOption) (*AddMongoDBResponse, error) {
 	out := new(AddMongoDBResponse)
 	err := c.cc.Invoke(ctx, Service_AddMongoDB_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) AddProxySQL(ctx context.Context, in *AddProxySQLRequest, opts ...grpc.CallOption) (*AddProxySQLResponse, error) {
+	out := new(AddProxySQLResponse)
+	err := c.cc.Invoke(ctx, Service_AddProxySQL_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -73,6 +87,10 @@ type ServiceServer interface {
 	// then adds "mongodb_exporter", and "qan_mongodb_profiler" agents
 	// with provided "pmm_agent_id" and other parameters.
 	AddMongoDB(context.Context, *AddMongoDBRequest) (*AddMongoDBResponse, error)
+	// AddProxySQL adds ProxySQL Service and starts several Agents.
+	// It automatically adds a service to inventory, which is running on provided "node_id",
+	// then adds "proxysql_exporter" with provided "pmm_agent_id" and other parameters.
+	AddProxySQL(context.Context, *AddProxySQLRequest) (*AddProxySQLResponse, error)
 	// RemoveService removes Service with Agents.
 	RemoveService(context.Context, *RemoveServiceRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedServiceServer()
@@ -83,6 +101,10 @@ type UnimplementedServiceServer struct{}
 
 func (UnimplementedServiceServer) AddMongoDB(context.Context, *AddMongoDBRequest) (*AddMongoDBResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddMongoDB not implemented")
+}
+
+func (UnimplementedServiceServer) AddProxySQL(context.Context, *AddProxySQLRequest) (*AddProxySQLResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddProxySQL not implemented")
 }
 
 func (UnimplementedServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*emptypb.Empty, error) {
@@ -119,6 +141,24 @@ func _Service_AddMongoDB_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Service_AddProxySQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddProxySQLRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).AddProxySQL(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_AddProxySQL_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).AddProxySQL(ctx, req.(*AddProxySQLRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Service_RemoveService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveServiceRequest)
 	if err := dec(in); err != nil {
@@ -147,6 +187,10 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddMongoDB",
 			Handler:    _Service_AddMongoDB_Handler,
+		},
+		{
+			MethodName: "AddProxySQL",
+			Handler:    _Service_AddProxySQL_Handler,
 		},
 		{
 			MethodName: "RemoveService",

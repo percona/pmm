@@ -270,7 +270,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	serviceSvc := management.NewServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb, deps.versionCache)
 	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.versionCache)
 	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker)
-	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker)
 
 	managementv1.RegisterNodeServiceServer(gRPCServer, nodeSvc)
 	agentv1beta1.RegisterAgentServiceServer(gRPCServer, agentSvc)
@@ -279,7 +278,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementv1.RegisterServiceServer(gRPCServer, serviceSvc)
 	managementv1.RegisterMySQLServiceServer(gRPCServer, mysqlSvc)
 	managementv1.RegisterPostgreSQLServiceServer(gRPCServer, postgresqlSvc)
-	managementv1.RegisterProxySQLServiceServer(gRPCServer, proxysqlSvc)
 	actionsv1.RegisterActionsServiceServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
 	managementv1.RegisterRDSServiceServer(gRPCServer, management.NewRDSService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker))
 	azurev1beta1.RegisterAzureDatabaseServiceServer(gRPCServer, management.NewAzureDatabaseService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker))
@@ -383,7 +381,6 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		managementv1.RegisterServiceHandlerFromEndpoint,
 		managementv1.RegisterMySQLServiceHandlerFromEndpoint,
 		managementv1.RegisterPostgreSQLServiceHandlerFromEndpoint,
-		managementv1.RegisterProxySQLServiceHandlerFromEndpoint,
 		actionsv1.RegisterActionsServiceHandlerFromEndpoint,
 		managementv1.RegisterRDSServiceHandlerFromEndpoint,
 		azurev1beta1.RegisterAzureDatabaseServiceHandlerFromEndpoint,
