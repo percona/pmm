@@ -30,6 +30,10 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	AddMongoDB(params *AddMongoDBParams, opts ...ClientOption) (*AddMongoDBOK, error)
 
+	AddMySQL(params *AddMySQLParams, opts ...ClientOption) (*AddMySQLOK, error)
+
+	AddPostgreSQL(params *AddPostgreSQLParams, opts ...ClientOption) (*AddPostgreSQLOK, error)
+
 	AddProxySQL(params *AddProxySQLParams, opts ...ClientOption) (*AddProxySQLOK, error)
 
 	RemoveService(params *RemoveServiceParams, opts ...ClientOption) (*RemoveServiceOK, error)
@@ -73,6 +77,84 @@ func (a *Client) AddMongoDB(params *AddMongoDBParams, opts ...ClientOption) (*Ad
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*AddMongoDBDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+AddMySQL adds my SQL
+
+Adds MySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided "node_id", then adds "mysqld_exporter", and "qan_mysql_perfschema" agents with the provided "pmm_agent_id" and other parameters.
+*/
+func (a *Client) AddMySQL(params *AddMySQLParams, opts ...ClientOption) (*AddMySQLOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddMySQLParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "AddMySQL",
+		Method:             "POST",
+		PathPattern:        "/v1/management/MySQL/Add",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddMySQLReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AddMySQLOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddMySQLDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+AddPostgreSQL adds postgre SQL
+
+Adds PostgreSQL Service and starts postgres exporter. It automatically adds a service to inventory, which is running on provided "node_id", then adds "postgres_exporter" with provided "pmm_agent_id" and other parameters.
+*/
+func (a *Client) AddPostgreSQL(params *AddPostgreSQLParams, opts ...ClientOption) (*AddPostgreSQLOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddPostgreSQLParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "AddPostgreSQL",
+		Method:             "POST",
+		PathPattern:        "/v1/management/PostgreSQL/Add",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddPostgreSQLReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AddPostgreSQLOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddPostgreSQLDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -13,9 +13,7 @@ import (
 	"github.com/percona/pmm/api/management/v1/json/client/annotation_service"
 	"github.com/percona/pmm/api/management/v1/json/client/external_service"
 	"github.com/percona/pmm/api/management/v1/json/client/ha_proxy_service"
-	"github.com/percona/pmm/api/management/v1/json/client/my_sql_service"
 	"github.com/percona/pmm/api/management/v1/json/client/node_service"
-	"github.com/percona/pmm/api/management/v1/json/client/postgre_sql_service"
 	"github.com/percona/pmm/api/management/v1/json/client/rds_service"
 	"github.com/percona/pmm/api/management/v1/json/client/service"
 )
@@ -65,9 +63,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagem
 	cli.AnnotationService = annotation_service.New(transport, formats)
 	cli.ExternalService = external_service.New(transport, formats)
 	cli.HAProxyService = ha_proxy_service.New(transport, formats)
-	cli.MySQLService = my_sql_service.New(transport, formats)
 	cli.NodeService = node_service.New(transport, formats)
-	cli.PostgreSQLService = postgre_sql_service.New(transport, formats)
 	cli.RDSService = rds_service.New(transport, formats)
 	cli.Service = service.New(transport, formats)
 	return cli
@@ -120,11 +116,7 @@ type PMMManagementAPI struct {
 
 	HAProxyService ha_proxy_service.ClientService
 
-	MySQLService my_sql_service.ClientService
-
 	NodeService node_service.ClientService
-
-	PostgreSQLService postgre_sql_service.ClientService
 
 	RDSService rds_service.ClientService
 
@@ -139,9 +131,7 @@ func (c *PMMManagementAPI) SetTransport(transport runtime.ClientTransport) {
 	c.AnnotationService.SetTransport(transport)
 	c.ExternalService.SetTransport(transport)
 	c.HAProxyService.SetTransport(transport)
-	c.MySQLService.SetTransport(transport)
 	c.NodeService.SetTransport(transport)
-	c.PostgreSQLService.SetTransport(transport)
 	c.RDSService.SetTransport(transport)
 	c.Service.SetTransport(transport)
 }

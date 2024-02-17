@@ -21,7 +21,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
+	Service_AddMySQL_FullMethodName      = "/management.v1.Service/AddMySQL"
 	Service_AddMongoDB_FullMethodName    = "/management.v1.Service/AddMongoDB"
+	Service_AddPostgreSQL_FullMethodName = "/management.v1.Service/AddPostgreSQL"
 	Service_AddProxySQL_FullMethodName   = "/management.v1.Service/AddProxySQL"
 	Service_RemoveService_FullMethodName = "/management.v1.Service/RemoveService"
 )
@@ -30,11 +32,20 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceClient interface {
+	// AddMySQL adds MySQL Service and starts several Agents.
+	// It automatically adds a service to inventory, which is running on provided "node_id",
+	// then adds "mysqld_exporter", and "qan_mysql_perfschema" agents
+	// with provided "pmm_agent_id" and other parameters.
+	AddMySQL(ctx context.Context, in *AddMySQLRequest, opts ...grpc.CallOption) (*AddMySQLResponse, error)
 	// AddMongoDB adds MongoDB Service and starts several Agents.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds "mongodb_exporter", and "qan_mongodb_profiler" agents
 	// with provided "pmm_agent_id" and other parameters.
 	AddMongoDB(ctx context.Context, in *AddMongoDBRequest, opts ...grpc.CallOption) (*AddMongoDBResponse, error)
+	// AddPostgreSQL adds PostgreSQL Service and starts postgres exporter.
+	// It automatically adds a service to inventory, which is running on provided "node_id",
+	// then adds "postgres_exporter" with provided "pmm_agent_id" and other parameters.
+	AddPostgreSQL(ctx context.Context, in *AddPostgreSQLRequest, opts ...grpc.CallOption) (*AddPostgreSQLResponse, error)
 	// AddProxySQL adds ProxySQL Service and starts several Agents.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds "proxysql_exporter" with provided "pmm_agent_id" and other parameters.
@@ -51,9 +62,27 @@ func NewServiceClient(cc grpc.ClientConnInterface) ServiceClient {
 	return &serviceClient{cc}
 }
 
+func (c *serviceClient) AddMySQL(ctx context.Context, in *AddMySQLRequest, opts ...grpc.CallOption) (*AddMySQLResponse, error) {
+	out := new(AddMySQLResponse)
+	err := c.cc.Invoke(ctx, Service_AddMySQL_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *serviceClient) AddMongoDB(ctx context.Context, in *AddMongoDBRequest, opts ...grpc.CallOption) (*AddMongoDBResponse, error) {
 	out := new(AddMongoDBResponse)
 	err := c.cc.Invoke(ctx, Service_AddMongoDB_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) AddPostgreSQL(ctx context.Context, in *AddPostgreSQLRequest, opts ...grpc.CallOption) (*AddPostgreSQLResponse, error) {
+	out := new(AddPostgreSQLResponse)
+	err := c.cc.Invoke(ctx, Service_AddPostgreSQL_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -82,11 +111,20 @@ func (c *serviceClient) RemoveService(ctx context.Context, in *RemoveServiceRequ
 // All implementations must embed UnimplementedServiceServer
 // for forward compatibility
 type ServiceServer interface {
+	// AddMySQL adds MySQL Service and starts several Agents.
+	// It automatically adds a service to inventory, which is running on provided "node_id",
+	// then adds "mysqld_exporter", and "qan_mysql_perfschema" agents
+	// with provided "pmm_agent_id" and other parameters.
+	AddMySQL(context.Context, *AddMySQLRequest) (*AddMySQLResponse, error)
 	// AddMongoDB adds MongoDB Service and starts several Agents.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds "mongodb_exporter", and "qan_mongodb_profiler" agents
 	// with provided "pmm_agent_id" and other parameters.
 	AddMongoDB(context.Context, *AddMongoDBRequest) (*AddMongoDBResponse, error)
+	// AddPostgreSQL adds PostgreSQL Service and starts postgres exporter.
+	// It automatically adds a service to inventory, which is running on provided "node_id",
+	// then adds "postgres_exporter" with provided "pmm_agent_id" and other parameters.
+	AddPostgreSQL(context.Context, *AddPostgreSQLRequest) (*AddPostgreSQLResponse, error)
 	// AddProxySQL adds ProxySQL Service and starts several Agents.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds "proxysql_exporter" with provided "pmm_agent_id" and other parameters.
@@ -99,8 +137,16 @@ type ServiceServer interface {
 // UnimplementedServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedServiceServer struct{}
 
+func (UnimplementedServiceServer) AddMySQL(context.Context, *AddMySQLRequest) (*AddMySQLResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddMySQL not implemented")
+}
+
 func (UnimplementedServiceServer) AddMongoDB(context.Context, *AddMongoDBRequest) (*AddMongoDBResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddMongoDB not implemented")
+}
+
+func (UnimplementedServiceServer) AddPostgreSQL(context.Context, *AddPostgreSQLRequest) (*AddPostgreSQLResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddPostgreSQL not implemented")
 }
 
 func (UnimplementedServiceServer) AddProxySQL(context.Context, *AddProxySQLRequest) (*AddProxySQLResponse, error) {
@@ -123,6 +169,24 @@ func RegisterServiceServer(s grpc.ServiceRegistrar, srv ServiceServer) {
 	s.RegisterService(&Service_ServiceDesc, srv)
 }
 
+func _Service_AddMySQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddMySQLRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).AddMySQL(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_AddMySQL_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).AddMySQL(ctx, req.(*AddMySQLRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Service_AddMongoDB_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddMongoDBRequest)
 	if err := dec(in); err != nil {
@@ -137,6 +201,24 @@ func _Service_AddMongoDB_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServiceServer).AddMongoDB(ctx, req.(*AddMongoDBRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_AddPostgreSQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddPostgreSQLRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).AddPostgreSQL(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_AddPostgreSQL_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).AddPostgreSQL(ctx, req.(*AddPostgreSQLRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -185,8 +267,16 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "AddMySQL",
+			Handler:    _Service_AddMySQL_Handler,
+		},
+		{
 			MethodName: "AddMongoDB",
 			Handler:    _Service_AddMongoDB_Handler,
+		},
+		{
+			MethodName: "AddPostgreSQL",
+			Handler:    _Service_AddPostgreSQL_Handler,
 		},
 		{
 			MethodName: "AddProxySQL",

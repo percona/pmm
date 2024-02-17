@@ -18751,7 +18751,7 @@
       "post": {
         "description": "Adds MySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided \"node_id\", then adds \"mysqld_exporter\", and \"qan_mysql_perfschema\" agents with the provided \"pmm_agent_id\" and other parameters.",
         "tags": [
-          "MySQLService"
+          "Service"
         ],
         "summary": "Add MySQL",
         "operationId": "AddMySQL",
@@ -20285,7 +20285,7 @@
       "post": {
         "description": "Adds PostgreSQL Service and starts postgres exporter. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds \"postgres_exporter\" with provided \"pmm_agent_id\" and other parameters.",
         "tags": [
-          "PostgreSQLService"
+          "Service"
         ],
         "summary": "Add PostgreSQL",
         "operationId": "AddPostgreSQL",
@@ -27782,13 +27782,7 @@
       "name": "HAProxyService"
     },
     {
-      "name": "MySQLService"
-    },
-    {
       "name": "NodeService"
-    },
-    {
-      "name": "PostgreSQLService"
     },
     {
       "name": "RDSService"

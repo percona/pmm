@@ -28,7 +28,6 @@ import (
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 	"github.com/percona/pmm/api/management/v1/json/client"
-	mysql "github.com/percona/pmm/api/management/v1/json/client/my_sql_service"
 	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
 	"github.com/percona/pmm/api/management/v1/json/client/service"
 )
@@ -45,9 +44,9 @@ func TestAddMySQL(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-for-basic-name")
 
-		params := &mysql.AddMySQLParams{
+		params := &service.AddMySQLParams{
 			Context: pmmapitests.Context,
-			Body: mysql.AddMySQLBody{
+			Body: service.AddMySQLBody{
 				NodeID:      nodeID,
 				PMMAgentID:  pmmAgentID,
 				ServiceName: serviceName,
@@ -59,7 +58,7 @@ func TestAddMySQL(t *testing.T) {
 				DisableCollectors:   []string{"global_status", "perf_schema.tablelocks"},
 			},
 		}
-		addMySQLOK, err := client.Default.MySQLService.AddMySQL(params)
+		addMySQLOK, err := client.Default.Service.AddMySQL(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMySQLOK)
 		require.NotNil(t, addMySQLOK.Payload.Service)
@@ -122,9 +121,9 @@ func TestAddMySQL(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-for-all-fields-name")
 
-		params := &mysql.AddMySQLParams{
+		params := &service.AddMySQLParams{
 			Context: pmmapitests.Context,
-			Body: mysql.AddMySQLBody{
+			Body: service.AddMySQLBody{
 				NodeID:             nodeID,
 				PMMAgentID:         pmmAgentID,
 				ServiceName:        serviceName,
@@ -139,7 +138,7 @@ func TestAddMySQL(t *testing.T) {
 				TablestatsGroupTableLimit: -1,
 			},
 		}
-		addMySQLOK, err := client.Default.MySQLService.AddMySQL(params)
+		addMySQLOK, err := client.Default.Service.AddMySQL(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMySQLOK)
 		require.NotNil(t, addMySQLOK.Payload.Service)
@@ -233,9 +232,9 @@ func TestAddMySQL(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-for-all-fields-name")
 
-		params := &mysql.AddMySQLParams{
+		params := &service.AddMySQLParams{
 			Context: pmmapitests.Context,
-			Body: mysql.AddMySQLBody{
+			Body: service.AddMySQLBody{
 				NodeID:         nodeID,
 				PMMAgentID:     pmmAgentID,
 				ServiceName:    serviceName,
@@ -251,7 +250,7 @@ func TestAddMySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addMySQLOK, err := client.Default.MySQLService.AddMySQL(params)
+		addMySQLOK, err := client.Default.Service.AddMySQL(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMySQLOK)
 		require.NotNil(t, addMySQLOK.Payload.Service)
@@ -294,9 +293,9 @@ func TestAddMySQL(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-for-the-same-name")
 
-		params := &mysql.AddMySQLParams{
+		params := &service.AddMySQLParams{
 			Context: pmmapitests.Context,
-			Body: mysql.AddMySQLBody{
+			Body: service.AddMySQLBody{
 				NodeID:      nodeID,
 				PMMAgentID:  pmmAgentID,
 				ServiceName: serviceName,
@@ -307,7 +306,7 @@ func TestAddMySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addMySQLOK, err := client.Default.MySQLService.AddMySQL(params)
+		addMySQLOK, err := client.Default.Service.AddMySQL(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMySQLOK)
 		require.NotNil(t, addMySQLOK.Payload.Service)
@@ -315,9 +314,9 @@ func TestAddMySQL(t *testing.T) {
 		defer pmmapitests.RemoveServices(t, serviceID)
 		defer removeServiceAgents(t, serviceID)
 
-		params = &mysql.AddMySQLParams{
+		params = &service.AddMySQLParams{
 			Context: pmmapitests.Context,
-			Body: mysql.AddMySQLBody{
+			Body: service.AddMySQLBody{
 				NodeID:      nodeID,
 				PMMAgentID:  pmmAgentID,
 				ServiceName: serviceName,
@@ -326,7 +325,7 @@ func TestAddMySQL(t *testing.T) {
 				Username:    "username",
 			},
 		}
-		addMySQLOK, err = client.Default.MySQLService.AddMySQL(params)
+		addMySQLOK, err = client.Default.Service.AddMySQL(params)
 		require.Nil(t, addMySQLOK)
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, `Service with name %q already exists.`, serviceName)
 	})
@@ -343,11 +342,11 @@ func TestAddMySQL(t *testing.T) {
 		nodeNameAddNode := pmmapitests.TestString(t, "node-for-add-node-name")
 		serviceName := pmmapitests.TestString(t, "service-name-for-basic-name")
 
-		params := &mysql.AddMySQLParams{
+		params := &service.AddMySQLParams{
 			Context: pmmapitests.Context,
-			Body: mysql.AddMySQLBody{
-				AddNode: &mysql.AddMySQLParamsBodyAddNode{
-					NodeType: pointer.ToString(mysql.AddMySQLParamsBodyAddNodeNodeTypeNODETYPEGENERICNODE),
+			Body: service.AddMySQLBody{
+				AddNode: &service.AddMySQLParamsBodyAddNode{
+					NodeType: pointer.ToString(service.AddMySQLParamsBodyAddNodeNodeTypeNODETYPEGENERICNODE),
 					NodeName: nodeNameAddNode,
 				},
 				PMMAgentID:  pmmAgentID,
@@ -359,14 +358,14 @@ func TestAddMySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		_, err := client.Default.MySQLService.AddMySQL(params)
+		_, err := client.Default.Service.AddMySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "add_node structure can be used only for remote nodes")
 
-		params = &mysql.AddMySQLParams{
+		params = &service.AddMySQLParams{
 			Context: pmmapitests.Context,
-			Body: mysql.AddMySQLBody{
-				AddNode: &mysql.AddMySQLParamsBodyAddNode{
-					NodeType: pointer.ToString(mysql.AddMySQLParamsBodyAddNodeNodeTypeNODETYPEREMOTERDSNODE),
+			Body: service.AddMySQLBody{
+				AddNode: &service.AddMySQLParamsBodyAddNode{
+					NodeType: pointer.ToString(service.AddMySQLParamsBodyAddNodeNodeTypeNODETYPEREMOTERDSNODE),
 					NodeName: nodeNameAddNode,
 				},
 				PMMAgentID:  pmmAgentID,
@@ -378,14 +377,14 @@ func TestAddMySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		_, err = client.Default.MySQLService.AddMySQL(params)
+		_, err = client.Default.Service.AddMySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "add_node structure can be used only for remote nodes")
 
-		params = &mysql.AddMySQLParams{
+		params = &service.AddMySQLParams{
 			Context: pmmapitests.Context,
-			Body: mysql.AddMySQLBody{
-				AddNode: &mysql.AddMySQLParamsBodyAddNode{
-					NodeType: pointer.ToString(mysql.AddMySQLParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE),
+			Body: service.AddMySQLBody{
+				AddNode: &service.AddMySQLParamsBodyAddNode{
+					NodeType: pointer.ToString(service.AddMySQLParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE),
 					NodeName: nodeNameAddNode,
 				},
 				PMMAgentID:  pmmAgentID,
@@ -397,7 +396,7 @@ func TestAddMySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addMySQLOK, err := client.Default.MySQLService.AddMySQL(params)
+		addMySQLOK, err := client.Default.Service.AddMySQL(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMySQLOK)
 		require.NotNil(t, addMySQLOK.Payload.Service)
@@ -468,9 +467,9 @@ func TestAddMySQL(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, remoteNodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &mysql.AddMySQLParams{
+		params := &service.AddMySQLParams{
 			Context: pmmapitests.Context,
-			Body: mysql.AddMySQLBody{
+			Body: service.AddMySQLBody{
 				NodeID:      remoteNodeID,
 				ServiceName: serviceName,
 				Address:     "10.10.10.10",
@@ -481,7 +480,7 @@ func TestAddMySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addMySQLOK, err := client.Default.MySQLService.AddMySQL(params)
+		addMySQLOK, err := client.Default.Service.AddMySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "node_id or node_name can be used only for generic nodes or container nodes")
 		assert.Nil(t, addMySQLOK)
 	})
@@ -495,11 +494,11 @@ func TestAddMySQL(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
-		params := &mysql.AddMySQLParams{
+		params := &service.AddMySQLParams{
 			Context: pmmapitests.Context,
-			Body:    mysql.AddMySQLBody{NodeID: nodeID},
+			Body:    service.AddMySQLBody{NodeID: nodeID},
 		}
-		addMySQLOK, err := client.Default.MySQLService.AddMySQL(params)
+		addMySQLOK, err := client.Default.Service.AddMySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLRequest.ServiceName: value length must be at least 1 runes")
 		assert.Nil(t, addMySQLOK)
 	})
@@ -514,9 +513,9 @@ func TestAddMySQL(t *testing.T) {
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &mysql.AddMySQLParams{
+		params := &service.AddMySQLParams{
 			Context: pmmapitests.Context,
-			Body: mysql.AddMySQLBody{
+			Body: service.AddMySQLBody{
 				PMMAgentID:  pmmAgentID,
 				Username:    "username",
 				Password:    "password",
@@ -524,7 +523,7 @@ func TestAddMySQL(t *testing.T) {
 				ServiceName: serviceName,
 			},
 		}
-		addMySQLOK, err := client.Default.MySQLService.AddMySQL(params)
+		addMySQLOK, err := client.Default.Service.AddMySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Neither socket nor address passed.")
 		assert.Nil(t, addMySQLOK)
 	})
@@ -539,9 +538,9 @@ func TestAddMySQL(t *testing.T) {
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &mysql.AddMySQLParams{
+		params := &service.AddMySQLParams{
 			Context: pmmapitests.Context,
-			Body: mysql.AddMySQLBody{
+			Body: service.AddMySQLBody{
 				PMMAgentID:  pmmAgentID,
 				Username:    "username",
 				Password:    "password",
@@ -550,7 +549,7 @@ func TestAddMySQL(t *testing.T) {
 				Address:     "10.10.10.10",
 			},
 		}
-		addMySQLOK, err := client.Default.MySQLService.AddMySQL(params)
+		addMySQLOK, err := client.Default.Service.AddMySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port are expected to be passed with address.")
 		assert.Nil(t, addMySQLOK)
 	})
@@ -565,9 +564,9 @@ func TestAddMySQL(t *testing.T) {
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &mysql.AddMySQLParams{
+		params := &service.AddMySQLParams{
 			Context: pmmapitests.Context,
-			Body: mysql.AddMySQLBody{
+			Body: service.AddMySQLBody{
 				PMMAgentID:  pmmAgentID,
 				Username:    "username",
 				Password:    "password",
@@ -578,7 +577,7 @@ func TestAddMySQL(t *testing.T) {
 				Socket:      "/var/run/mysqld/mysqld.sock",
 			},
 		}
-		addMySQLOK, err := client.Default.MySQLService.AddMySQL(params)
+		addMySQLOK, err := client.Default.Service.AddMySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and address cannot be specified together.")
 		assert.Nil(t, addMySQLOK)
 	})
@@ -593,16 +592,16 @@ func TestAddMySQL(t *testing.T) {
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &mysql.AddMySQLParams{
+		params := &service.AddMySQLParams{
 			Context: pmmapitests.Context,
-			Body: mysql.AddMySQLBody{
+			Body: service.AddMySQLBody{
 				NodeID:      nodeID,
 				ServiceName: serviceName,
 				Address:     "10.10.10.10",
 				Port:        3306,
 			},
 		}
-		addMySQLOK, err := client.Default.MySQLService.AddMySQL(params)
+		addMySQLOK, err := client.Default.Service.AddMySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLRequest.PmmAgentId: value length must be at least 1 runes")
 		assert.Nil(t, addMySQLOK)
 	})
@@ -617,9 +616,9 @@ func TestAddMySQL(t *testing.T) {
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &mysql.AddMySQLParams{
+		params := &service.AddMySQLParams{
 			Context: pmmapitests.Context,
-			Body: mysql.AddMySQLBody{
+			Body: service.AddMySQLBody{
 				NodeID:      nodeID,
 				ServiceName: serviceName,
 				Address:     "10.10.10.10",
@@ -627,7 +626,7 @@ func TestAddMySQL(t *testing.T) {
 				PMMAgentID:  pmmAgentID,
 			},
 		}
-		addMySQLOK, err := client.Default.MySQLService.AddMySQL(params)
+		addMySQLOK, err := client.Default.Service.AddMySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLRequest.Username: value length must be at least 1 runes")
 		assert.Nil(t, addMySQLOK)
 	})
@@ -643,9 +642,9 @@ func TestAddMySQL(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-for-basic-name")
 
-		params := &mysql.AddMySQLParams{
+		params := &service.AddMySQLParams{
 			Context: pmmapitests.Context,
-			Body: mysql.AddMySQLBody{
+			Body: service.AddMySQLBody{
 				NodeID:      nodeID,
 				PMMAgentID:  pmmAgentID,
 				ServiceName: serviceName,
@@ -657,7 +656,7 @@ func TestAddMySQL(t *testing.T) {
 				MetricsMode:         pointer.ToString("METRICS_MODE_PUSH"),
 			},
 		}
-		addMySQLOK, err := client.Default.MySQLService.AddMySQL(params)
+		addMySQLOK, err := client.Default.Service.AddMySQL(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMySQLOK)
 		require.NotNil(t, addMySQLOK.Payload.Service)
@@ -720,9 +719,9 @@ func TestAddMySQL(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-for-basic-name")
 
-		params := &mysql.AddMySQLParams{
+		params := &service.AddMySQLParams{
 			Context: pmmapitests.Context,
-			Body: mysql.AddMySQLBody{
+			Body: service.AddMySQLBody{
 				NodeID:      nodeID,
 				PMMAgentID:  pmmAgentID,
 				ServiceName: serviceName,
@@ -734,7 +733,7 @@ func TestAddMySQL(t *testing.T) {
 				MetricsMode:         pointer.ToString("METRICS_MODE_PULL"),
 			},
 		}
-		addMySQLOK, err := client.Default.MySQLService.AddMySQL(params)
+		addMySQLOK, err := client.Default.Service.AddMySQL(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMySQLOK)
 		require.NotNil(t, addMySQLOK.Payload.Service)
@@ -796,9 +795,9 @@ func TestAddMySQL(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-for-basic-name")
 
-		params := &mysql.AddMySQLParams{
+		params := &service.AddMySQLParams{
 			Context: pmmapitests.Context,
-			Body: mysql.AddMySQLBody{
+			Body: service.AddMySQLBody{
 				NodeID:      nodeID,
 				PMMAgentID:  pmmAgentID,
 				ServiceName: serviceName,
@@ -810,7 +809,7 @@ func TestAddMySQL(t *testing.T) {
 				MetricsMode:         pointer.ToString("METRICS_MODE_UNSPECIFIED"),
 			},
 		}
-		addMySQLOK, err := client.Default.MySQLService.AddMySQL(params)
+		addMySQLOK, err := client.Default.Service.AddMySQL(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMySQLOK)
 		require.NotNil(t, addMySQLOK.Payload.Service)
@@ -871,9 +870,9 @@ func TestRemoveMySQL(t *testing.T) {
 			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 
-		params := &mysql.AddMySQLParams{
+		params := &service.AddMySQLParams{
 			Context: pmmapitests.Context,
-			Body: mysql.AddMySQLBody{
+			Body: service.AddMySQLBody{
 				NodeID:             nodeID,
 				PMMAgentID:         pmmAgentID,
 				ServiceName:        serviceName,
@@ -887,7 +886,7 @@ func TestRemoveMySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addMySQLOK, err := client.Default.MySQLService.AddMySQL(params)
+		addMySQLOK, err := client.Default.Service.AddMySQL(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMySQLOK)
 		require.NotNil(t, addMySQLOK.Payload.Service)

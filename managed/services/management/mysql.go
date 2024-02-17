@@ -32,33 +32,11 @@ const (
 	defaultMaxSlowlogFileSize        = 1 << 30 // 1 GB
 )
 
-// MySQLService MySQL Management Service.
-type MySQLService struct {
-	db    *reform.DB
-	state agentsStateUpdater
-	cc    connectionChecker
-	vc    versionCache
-	sib   serviceInfoBroker
-
-	managementv1.UnimplementedMySQLServiceServer
-}
-
-// NewMySQLService creates new MySQL Management Service.
-func NewMySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, sib serviceInfoBroker, vc versionCache) *MySQLService {
-	return &MySQLService{
-		db:    db,
-		state: state,
-		cc:    cc,
-		sib:   sib,
-		vc:    vc,
-	}
-}
-
 // AddMySQL adds "MySQL Service", "MySQL Exporter Agent" and "QAN MySQL PerfSchema Agent".
-func (s *MySQLService) AddMySQL(ctx context.Context, req *managementv1.AddMySQLRequest) (*managementv1.AddMySQLResponse, error) {
+func (s *ServiceService) AddMySQL(ctx context.Context, req *managementv1.AddMySQLRequest) (*managementv1.AddMySQLResponse, error) {
 	res := &managementv1.AddMySQLResponse{}
 
-	if e := s.db.InTransaction(func(tx *reform.TX) error {
+	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		// tweak according to API docs
 		tablestatsGroupTableLimit := req.TablestatsGroupTableLimit
 		if tablestatsGroupTableLimit == 0 {

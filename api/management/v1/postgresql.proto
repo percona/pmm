@@ -8,7 +8,6 @@ import "inventory/v1/log_level.proto";
 import "inventory/v1/services.proto";
 import "management/v1/metrics.proto";
 import "management/v1/node.proto";
-import "management/v1/service.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
@@ -94,21 +93,4 @@ message AddPostgreSQLResponse {
   inventory.v1.PostgresExporter postgres_exporter = 2;
   inventory.v1.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 3;
   inventory.v1.QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 4;
-}
-
-// PostgreSQL service provides public Management API methods for PostgreSQL Service.
-service PostgreSQLService {
-  // AddPostgreSQL adds PostgreSQL Service and starts postgres exporter.
-  // It automatically adds a service to inventory, which is running on provided "node_id",
-  // then adds "postgres_exporter" with provided "pmm_agent_id" and other parameters.
-  rpc AddPostgreSQL(AddPostgreSQLRequest) returns (AddPostgreSQLResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/PostgreSQL/Add"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add PostgreSQL"
-      description: "Adds PostgreSQL Service and starts postgres exporter. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds \"postgres_exporter\" with provided \"pmm_agent_id\" and other parameters."
-    };
-  }
 }
