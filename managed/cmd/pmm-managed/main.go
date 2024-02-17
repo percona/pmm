@@ -267,9 +267,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient)
 	agentSvc := management.NewAgentService(deps.db, deps.agentsRegistry)
-	serviceSvc := management.NewServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
+	serviceSvc := management.NewServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb, deps.versionCache)
 	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.versionCache)
-	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.versionCache)
 	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker)
 	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker)
 
@@ -279,7 +278,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	servicev1beta1.RegisterMgmtServiceServer(gRPCServer, management.NewMgmtServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, v1.NewAPI(*deps.vmClient)))
 	managementv1.RegisterServiceServer(gRPCServer, serviceSvc)
 	managementv1.RegisterMySQLServiceServer(gRPCServer, mysqlSvc)
-	managementv1.RegisterMongoDBServiceServer(gRPCServer, mongodbSvc)
 	managementv1.RegisterPostgreSQLServiceServer(gRPCServer, postgresqlSvc)
 	managementv1.RegisterProxySQLServiceServer(gRPCServer, proxysqlSvc)
 	actionsv1.RegisterActionsServiceServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
@@ -384,7 +382,6 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		servicev1beta1.RegisterMgmtServiceHandlerFromEndpoint,
 		managementv1.RegisterServiceHandlerFromEndpoint,
 		managementv1.RegisterMySQLServiceHandlerFromEndpoint,
-		managementv1.RegisterMongoDBServiceHandlerFromEndpoint,
 		managementv1.RegisterPostgreSQLServiceHandlerFromEndpoint,
 		managementv1.RegisterProxySQLServiceHandlerFromEndpoint,
 		actionsv1.RegisterActionsServiceHandlerFromEndpoint,

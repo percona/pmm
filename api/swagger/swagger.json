@@ -5759,7 +5759,7 @@
       "post": {
         "description": "Adds MongoDB Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided \"node_id\", then adds \"mongodb_exporter\", and \"qan_mongodb_profiler\" agents with the provided \"pmm_agent_id\" and other parameters.",
         "tags": [
-          "MongoDBService"
+          "Service"
         ],
         "summary": "Add MongoDB",
         "operationId": "AddMongoDB",
@@ -13253,9 +13253,6 @@
     },
     {
       "name": "HAProxyService"
-    },
-    {
-      "name": "MongoDBService"
     },
     {
       "name": "MySQLService"

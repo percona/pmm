@@ -30,8 +30,8 @@ import (
 	backups "github.com/percona/pmm/api/backup/v1/json/client/backups_service"
 	locations "github.com/percona/pmm/api/backup/v1/json/client/locations_service"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
-	mongodb "github.com/percona/pmm/api/management/v1/json/client/mongo_db_service"
 	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
+	service "github.com/percona/pmm/api/management/v1/json/client/service"
 )
 
 func TestScheduleBackup(t *testing.T) {
@@ -46,9 +46,9 @@ func TestScheduleBackup(t *testing.T) {
 		mongo1Name := pmmapitests.TestString(t, "mongo")
 		mongo2Name := pmmapitests.TestString(t, "mongo")
 
-		mongo1Resp, err := managementClient.Default.MongoDBService.AddMongoDB(&mongodb.AddMongoDBParams{
+		mongo1Resp, err := managementClient.Default.Service.AddMongoDB(&service.AddMongoDBParams{
 			Context: pmmapitests.Context,
-			Body: mongodb.AddMongoDBBody{
+			Body: service.AddMongoDBBody{
 				NodeID:      nodeID,
 				Cluster:     "test_cluster",
 				PMMAgentID:  pmmAgentID,
@@ -65,9 +65,9 @@ func TestScheduleBackup(t *testing.T) {
 		mongo1ID := mongo1Resp.Payload.Service.ServiceID
 		defer pmmapitests.RemoveServices(t, mongo1ID)
 
-		mongo2Resp, err := managementClient.Default.MongoDBService.AddMongoDB(&mongodb.AddMongoDBParams{
+		mongo2Resp, err := managementClient.Default.Service.AddMongoDB(&service.AddMongoDBParams{
 			Context: pmmapitests.Context,
-			Body: mongodb.AddMongoDBBody{
+			Body: service.AddMongoDBBody{
 				NodeID:      nodeID,
 				Cluster:     "test_cluster",
 				PMMAgentID:  pmmAgentID,

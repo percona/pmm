@@ -35,18 +35,32 @@ type ServiceService struct {
 	db    *reform.DB
 	r     agentsRegistry
 	state agentsStateUpdater
+	cc    connectionChecker
+	sib   serviceInfoBroker
 	vmdb  prometheusService
+	vc    versionCache
 
 	managementv1.UnimplementedServiceServer
 }
 
 // NewServiceService creates ServiceService instance.
-func NewServiceService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService) *ServiceService {
+func NewServiceService(
+	db *reform.DB,
+	r agentsRegistry,
+	state agentsStateUpdater,
+	cc connectionChecker,
+	sib serviceInfoBroker,
+	vmdb prometheusService,
+	vc versionCache,
+) *ServiceService {
 	return &ServiceService{
 		db:    db,
 		r:     r,
 		state: state,
+		cc:    cc,
+		sib:   sib,
 		vmdb:  vmdb,
+		vc:    vc,
 	}
 }
 

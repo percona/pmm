@@ -20,7 +20,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	mongodb "github.com/percona/pmm/api/management/v1/json/client/mongo_db_service"
+	mongodb "github.com/percona/pmm/api/management/v1/json/client/service"
 )
 
 func TestAddMongoDB(t *testing.T) {

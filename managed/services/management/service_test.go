@@ -57,6 +57,15 @@ func TestServiceService(t *testing.T) {
 			ar := &mockAgentsRegistry{}
 			ar.Test(t)
 
+			cc := &mockConnectionChecker{}
+			cc.Test(t)
+
+			sib := &mockServiceInfoBroker{}
+			sib.Test(t)
+
+			vc := &mockVersionCache{}
+			vc.Test(t)
+
 			teardown := func(t *testing.T) {
 				t.Helper()
 				uuid.SetRand(nil)
@@ -66,7 +75,7 @@ func TestServiceService(t *testing.T) {
 				state.AssertExpectations(t)
 				ar.AssertExpectations(t)
 			}
-			s := NewServiceService(db, ar, state, vmdb)
+			s := NewServiceService(db, ar, state, cc, sib, vmdb, vc)
 
 			return ctx, s, teardown, vmdb
 		}

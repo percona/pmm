@@ -28,9 +28,50 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	AddMongoDB(params *AddMongoDBParams, opts ...ClientOption) (*AddMongoDBOK, error)
+
 	RemoveService(params *RemoveServiceParams, opts ...ClientOption) (*RemoveServiceOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+AddMongoDB adds mongo DB
+
+Adds MongoDB Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided "node_id", then adds "mongodb_exporter", and "qan_mongodb_profiler" agents with the provided "pmm_agent_id" and other parameters.
+*/
+func (a *Client) AddMongoDB(params *AddMongoDBParams, opts ...ClientOption) (*AddMongoDBOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddMongoDBParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "AddMongoDB",
+		Method:             "POST",
+		PathPattern:        "/v1/management/MongoDB/Add",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddMongoDBReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AddMongoDBOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddMongoDBDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*

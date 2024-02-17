@@ -6,32 +6,9 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "inventory/v1/nodes.proto";
 import "inventory/v1/services.proto";
+import "management/v1/mongodb.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
-
-// AddNodeParams holds node params and is used to add new node to inventory while adding new service.
-message AddNodeParams {
-  // Node type to be registered.
-  inventory.v1.NodeType node_type = 1;
-  // Unique across all Nodes user-defined name.
-  string node_name = 2 [(validate.rules).string.min_len = 1];
-  // Linux machine-id.
-  string machine_id = 3;
-  // Linux distribution name and version.
-  string distro = 4;
-  // Container identifier. If specified, must be a unique Docker container identifier.
-  string container_id = 5;
-  // Container name.
-  string container_name = 6;
-  // Node model.
-  string node_model = 7;
-  // Node region.
-  string region = 8;
-  // Node availability zone.
-  string az = 9;
-  // Custom user-assigned labels for Node.
-  map<string, string> custom_labels = 10;
-}
 
 message RemoveServiceRequest {
   // Service type.
@@ -45,6 +22,20 @@ message RemoveServiceRequest {
 
 // Service service provides public methods for managing and querying Services.
 service Service {
+  // AddMongoDB adds MongoDB Service and starts several Agents.
+  // It automatically adds a service to inventory, which is running on provided "node_id",
+  // then adds "mongodb_exporter", and "qan_mongodb_profiler" agents
+  // with provided "pmm_agent_id" and other parameters.
+  rpc AddMongoDB(AddMongoDBRequest) returns (AddMongoDBResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/MongoDB/Add"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add MongoDB"
+      description: "Adds MongoDB Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided \"node_id\", then adds \"mongodb_exporter\", and \"qan_mongodb_profiler\" agents with the provided \"pmm_agent_id\" and other parameters."
+    };
+  }
   // RemoveService removes Service with Agents.
   rpc RemoveService(RemoveServiceRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
