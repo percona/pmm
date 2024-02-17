@@ -28,6 +28,10 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	AddExternal(params *AddExternalParams, opts ...ClientOption) (*AddExternalOK, error)
+
+	AddHAProxy(params *AddHAProxyParams, opts ...ClientOption) (*AddHAProxyOK, error)
+
 	AddMongoDB(params *AddMongoDBParams, opts ...ClientOption) (*AddMongoDBOK, error)
 
 	AddMySQL(params *AddMySQLParams, opts ...ClientOption) (*AddMySQLOK, error)
@@ -36,9 +40,91 @@ type ClientService interface {
 
 	AddProxySQL(params *AddProxySQLParams, opts ...ClientOption) (*AddProxySQLOK, error)
 
+	AddRDS(params *AddRDSParams, opts ...ClientOption) (*AddRDSOK, error)
+
+	DiscoverRDS(params *DiscoverRDSParams, opts ...ClientOption) (*DiscoverRDSOK, error)
+
 	RemoveService(params *RemoveServiceParams, opts ...ClientOption) (*RemoveServiceOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+AddExternal adds external service
+
+Adds external service and adds external exporter. It automatically adds a service to inventory, which is running on provided "node_id", then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
+*/
+func (a *Client) AddExternal(params *AddExternalParams, opts ...ClientOption) (*AddExternalOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddExternalParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "AddExternal",
+		Method:             "POST",
+		PathPattern:        "/v1/management/External/Add",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddExternalReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AddExternalOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddExternalDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+AddHAProxy adds HA proxy
+
+Adds HAProxy service and external exporter. It automatically adds a service to inventory, which is running on the provided "node_id", then adds an "external exporter" agent to the inventory.
+*/
+func (a *Client) AddHAProxy(params *AddHAProxyParams, opts ...ClientOption) (*AddHAProxyOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddHAProxyParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "AddHAProxy",
+		Method:             "POST",
+		PathPattern:        "/v1/management/HAProxy/Add",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddHAProxyReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AddHAProxyOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddHAProxyDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -194,6 +280,84 @@ func (a *Client) AddProxySQL(params *AddProxySQLParams, opts ...ClientOption) (*
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*AddProxySQLDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+AddRDS adds RDS
+
+Adds RDS instance.
+*/
+func (a *Client) AddRDS(params *AddRDSParams, opts ...ClientOption) (*AddRDSOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddRDSParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "AddRDS",
+		Method:             "POST",
+		PathPattern:        "/v1/management/RDS/Add",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddRDSReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AddRDSOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddRDSDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+DiscoverRDS discovers RDS
+
+Discovers RDS instances.
+*/
+func (a *Client) DiscoverRDS(params *DiscoverRDSParams, opts ...ClientOption) (*DiscoverRDSOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDiscoverRDSParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "DiscoverRDS",
+		Method:             "POST",
+		PathPattern:        "/v1/management/RDS/Discover",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &DiscoverRDSReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*DiscoverRDSOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*DiscoverRDSDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

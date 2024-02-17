@@ -769,8 +769,6 @@ func (m *AddRDSResponse) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for TableCount
-
 	if all {
 		switch v := interface{}(m.GetPostgresql()).(type) {
 		case interface{ ValidateAll() error }:
@@ -857,6 +855,8 @@ func (m *AddRDSResponse) validate(all bool) error {
 			}
 		}
 	}
+
+	// no validation rules for TableCount
 
 	if len(errors) > 0 {
 		return AddRDSResponseMultiError(errors)

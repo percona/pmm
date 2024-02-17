@@ -59,11 +59,23 @@ func TestRDSService(t *testing.T) {
 	sib.Test(t)
 	state := &mockAgentsStateUpdater{}
 	state.Test(t)
+	ar := &mockAgentsRegistry{}
+	ar.Test(t)
+	vmdb := &mockPrometheusService{}
+	vmdb.Test(t)
+	vc := &mockVersionCache{}
+	vc.Test(t)
+
 	defer func() {
 		cc.AssertExpectations(t)
 		state.AssertExpectations(t)
+		ar.AssertExpectations(t)
+		vmdb.AssertExpectations(t)
+		sib.AssertExpectations(t)
+		vc.AssertExpectations(t)
 	}()
-	s := NewRDSService(db, state, cc, sib)
+
+	s := NewServiceService(db, ar, state, cc, sib, vmdb, vc)
 
 	t.Run("DiscoverRDS", func(t *testing.T) {
 		t.Run("ListRegions", func(t *testing.T) {

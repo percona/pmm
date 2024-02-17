@@ -30,7 +30,7 @@ import (
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 	"github.com/percona/pmm/api/management/v1/json/client"
-	rds "github.com/percona/pmm/api/management/v1/json/client/rds_service"
+	"github.com/percona/pmm/api/management/v1/json/client/service"
 )
 
 func TestRDSDiscovery(t *testing.T) {
@@ -41,14 +41,14 @@ func TestRDSDiscovery(t *testing.T) {
 			t.Skip("Environment variables AWS_ACCESS_KEY / AWS_SECRET_KEY are not defined, skipping test")
 		}
 
-		params := &rds.DiscoverRDSParams{
-			Body: rds.DiscoverRDSBody{
+		params := &service.DiscoverRDSParams{
+			Body: service.DiscoverRDSBody{
 				AWSAccessKey: accessKey,
 				AWSSecretKey: secretKey,
 			},
 			Context: pmmapitests.Context,
 		}
-		discoverOK, err := client.Default.RDSService.DiscoverRDS(params)
+		discoverOK, err := client.Default.Service.DiscoverRDS(params)
 		require.NoError(t, err)
 		require.NotNil(t, discoverOK.Payload)
 		assert.NotEmpty(t, discoverOK.Payload.RDSInstances)
@@ -59,8 +59,8 @@ func TestRDSDiscovery(t *testing.T) {
 
 func TestAddRds(t *testing.T) {
 	t.Run("BasicAddRDS", func(t *testing.T) {
-		params := &rds.AddRDSParams{
-			Body: rds.AddRDSBody{
+		params := &service.AddRDSParams{
+			Body: service.AddRDSBody{
 				Region:                    "region",
 				Az:                        "az",
 				InstanceID:                "d752f1a9-31c9-4b8c-bb2d-d26bc000001",
@@ -90,7 +90,7 @@ func TestAddRds(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		addRDSOK, err := client.Default.RDSService.AddRDS(params)
+		addRDSOK, err := client.Default.Service.AddRDS(params)
 		require.NoError(t, err)
 		require.NotNil(t, addRDSOK.Payload)
 
@@ -120,8 +120,8 @@ func TestAddRds(t *testing.T) {
 	})
 
 	t.Run("AddRDSPostgres", func(t *testing.T) {
-		params := &rds.AddRDSParams{
-			Body: rds.AddRDSBody{
+		params := &service.AddRDSParams{
+			Body: service.AddRDSBody{
 				Region:                    "region",
 				Az:                        "az",
 				InstanceID:                "d752f1a9-31c9-4b8c-bb2d-d26bc000009",
@@ -150,7 +150,7 @@ func TestAddRds(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		addRDSOK, err := client.Default.RDSService.AddRDS(params)
+		addRDSOK, err := client.Default.Service.AddRDS(params)
 		require.NoError(t, err)
 		require.NotNil(t, addRDSOK.Payload)
 

@@ -29,7 +29,6 @@ import (
 	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 	"github.com/percona/pmm/api/management/v1/json/client"
-	ha_proxy "github.com/percona/pmm/api/management/v1/json/client/ha_proxy_service"
 	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
 	"github.com/percona/pmm/api/management/v1/json/client/service"
 )
@@ -46,16 +45,16 @@ func TestAddHAProxy(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-for-basic-name")
 
-		params := &ha_proxy.AddHAProxyParams{
+		params := &service.AddHAProxyParams{
 			Context: pmmapitests.Context,
-			Body: ha_proxy.AddHAProxyBody{
+			Body: service.AddHAProxyBody{
 				ServiceName:         serviceName,
 				ListenPort:          8404,
 				NodeID:              nodeID,
 				SkipConnectionCheck: true,
 			},
 		}
-		addHAProxyOK, err := client.Default.HAProxyService.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.Service.AddHAProxy(params)
 		require.NoError(t, err)
 		require.NotNil(t, addHAProxyOK)
 		require.NotNil(t, addHAProxyOK.Payload.Service)
@@ -114,9 +113,9 @@ func TestAddHAProxy(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-for-all-fields-name")
 
-		params := &ha_proxy.AddHAProxyParams{
+		params := &service.AddHAProxyParams{
 			Context: pmmapitests.Context,
-			Body: ha_proxy.AddHAProxyBody{
+			Body: service.AddHAProxyBody{
 				ServiceName:         serviceName,
 				Username:            "username",
 				Password:            "password",
@@ -131,7 +130,7 @@ func TestAddHAProxy(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addHAProxyOK, err := client.Default.HAProxyService.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.Service.AddHAProxy(params)
 		require.NoError(t, err)
 		require.NotNil(t, addHAProxyOK)
 		require.NotNil(t, addHAProxyOK.Payload.Service)
@@ -166,11 +165,11 @@ func TestAddHAProxy(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-for-basic-name")
 
-		params := &ha_proxy.AddHAProxyParams{
+		params := &service.AddHAProxyParams{
 			Context: pmmapitests.Context,
-			Body: ha_proxy.AddHAProxyBody{
-				AddNode: &ha_proxy.AddHAProxyParamsBodyAddNode{
-					NodeType:     pointer.ToString(ha_proxy.AddHAProxyParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE),
+			Body: service.AddHAProxyBody{
+				AddNode: &service.AddHAProxyParamsBodyAddNode{
+					NodeType:     pointer.ToString(service.AddHAProxyParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE),
 					NodeName:     nodeName,
 					MachineID:    "/machine-id/",
 					Distro:       "linux",
@@ -183,7 +182,7 @@ func TestAddHAProxy(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addHAProxyOK, err := client.Default.HAProxyService.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.Service.AddHAProxy(params)
 		require.NoError(t, err)
 		require.NotNil(t, addHAProxyOK)
 		require.NotNil(t, addHAProxyOK.Payload.Service)
@@ -262,16 +261,16 @@ func TestAddHAProxy(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-for-the-same-name")
 
-		params := &ha_proxy.AddHAProxyParams{
+		params := &service.AddHAProxyParams{
 			Context: pmmapitests.Context,
-			Body: ha_proxy.AddHAProxyBody{
+			Body: service.AddHAProxyBody{
 				NodeID:              nodeID,
 				ServiceName:         serviceName,
 				ListenPort:          9250,
 				SkipConnectionCheck: true,
 			},
 		}
-		addHAProxyOK, err := client.Default.HAProxyService.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.Service.AddHAProxy(params)
 		require.NoError(t, err)
 		require.NotNil(t, addHAProxyOK)
 		require.NotNil(t, addHAProxyOK.Payload.Service)
@@ -279,15 +278,15 @@ func TestAddHAProxy(t *testing.T) {
 		defer pmmapitests.RemoveServices(t, serviceID)
 		defer removeServiceAgents(t, serviceID)
 
-		params = &ha_proxy.AddHAProxyParams{
+		params = &service.AddHAProxyParams{
 			Context: pmmapitests.Context,
-			Body: ha_proxy.AddHAProxyBody{
+			Body: service.AddHAProxyBody{
 				NodeID:      nodeID,
 				ServiceName: serviceName,
 				ListenPort:  9260,
 			},
 		}
-		addHAProxyOK, err = client.Default.HAProxyService.AddHAProxy(params)
+		addHAProxyOK, err = client.Default.Service.AddHAProxy(params)
 		require.Nil(t, addHAProxyOK)
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, `Service with name %q already exists.`, serviceName)
 	})
@@ -298,13 +297,13 @@ func TestAddHAProxy(t *testing.T) {
 		nodeID := genericNode.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		params := &ha_proxy.AddHAProxyParams{
+		params := &service.AddHAProxyParams{
 			Context: pmmapitests.Context,
-			Body: ha_proxy.AddHAProxyBody{
+			Body: service.AddHAProxyBody{
 				NodeID: nodeID,
 			},
 		}
-		addHAProxyOK, err := client.Default.HAProxyService.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.Service.AddHAProxy(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddHAProxyRequest.ServiceName: value length must be at least 1 runes")
 		assert.Nil(t, addHAProxyOK)
 	})
@@ -316,14 +315,14 @@ func TestAddHAProxy(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &ha_proxy.AddHAProxyParams{
+		params := &service.AddHAProxyParams{
 			Context: pmmapitests.Context,
-			Body: ha_proxy.AddHAProxyBody{
+			Body: service.AddHAProxyBody{
 				NodeID:      nodeID,
 				ServiceName: serviceName,
 			},
 		}
-		addHAProxyOK, err := client.Default.HAProxyService.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.Service.AddHAProxy(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddHAProxyRequest.ListenPort: value must be inside range (0, 65536)")
 		assert.Nil(t, addHAProxyOK)
 	})
@@ -335,14 +334,14 @@ func TestAddHAProxy(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &ha_proxy.AddHAProxyParams{
+		params := &service.AddHAProxyParams{
 			Context: pmmapitests.Context,
-			Body: ha_proxy.AddHAProxyBody{
+			Body: service.AddHAProxyBody{
 				ServiceName: serviceName,
 				ListenPort:  12345,
 			},
 		}
-		addHAProxyOK, err := client.Default.HAProxyService.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.Service.AddHAProxy(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "expected only one param; node id, node name or register node params")
 		assert.Nil(t, addHAProxyOK)
 	})
@@ -354,18 +353,18 @@ func TestAddHAProxy(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &ha_proxy.AddHAProxyParams{
+		params := &service.AddHAProxyParams{
 			Context: pmmapitests.Context,
-			Body: ha_proxy.AddHAProxyBody{
-				AddNode: &ha_proxy.AddHAProxyParamsBodyAddNode{
-					NodeType: pointer.ToString(ha_proxy.AddHAProxyParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE),
+			Body: service.AddHAProxyBody{
+				AddNode: &service.AddHAProxyParamsBodyAddNode{
+					NodeType: pointer.ToString(service.AddHAProxyParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE),
 					NodeName: "haproxy-serverless",
 				},
 				ServiceName: serviceName,
 				ListenPort:  12345,
 			},
 		}
-		addHAProxyOK, err := client.Default.HAProxyService.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.Service.AddHAProxy(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "address can't be empty for add node request.")
 		assert.Nil(t, addHAProxyOK)
 	})
@@ -377,9 +376,9 @@ func TestRemoveHAProxy(t *testing.T) {
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
 		nodeID = genericNode.NodeID
 
-		params := &ha_proxy.AddHAProxyParams{
+		params := &service.AddHAProxyParams{
 			Context: pmmapitests.Context,
-			Body: ha_proxy.AddHAProxyBody{
+			Body: service.AddHAProxyBody{
 				NodeID:              nodeID,
 				ServiceName:         serviceName,
 				Username:            "username",
@@ -388,7 +387,7 @@ func TestRemoveHAProxy(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addHAProxyOK, err := client.Default.HAProxyService.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.Service.AddHAProxy(params)
 		require.NoError(t, err)
 		require.NotNil(t, addHAProxyOK)
 		require.NotNil(t, addHAProxyOK.Payload.Service)

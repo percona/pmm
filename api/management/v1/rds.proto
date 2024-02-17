@@ -122,35 +122,9 @@ message AddRDSResponse {
   inventory.v1.MySQLService mysql = 3;
   inventory.v1.MySQLdExporter mysqld_exporter = 4;
   inventory.v1.QANMySQLPerfSchemaAgent qan_mysql_perfschema = 5;
+  inventory.v1.PostgreSQLService postgresql = 6;
+  inventory.v1.PostgresExporter postgresql_exporter = 7;
+  inventory.v1.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements = 8;
   // Actual table count at the moment of adding.
-  int32 table_count = 6;
-  inventory.v1.PostgreSQLService postgresql = 7;
-  inventory.v1.PostgresExporter postgresql_exporter = 8;
-  inventory.v1.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements = 9;
-}
-
-// RDS service provides Node and Service Discovery APIs.
-service RDSService {
-  // DiscoverRDS discovers RDS instances.
-  rpc DiscoverRDS(DiscoverRDSRequest) returns (DiscoverRDSResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/RDS/Discover"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Discover RDS"
-      description: "Discovers RDS instances."
-    };
-  }
-  // AddRDS adds RDS instance.
-  rpc AddRDS(AddRDSRequest) returns (AddRDSResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/RDS/Add"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add RDS"
-      description: "Adds RDS instance."
-    };
-  }
+  int32 table_count = 9;
 }

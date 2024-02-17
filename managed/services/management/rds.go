@@ -47,26 +47,6 @@ const (
 	awsDiscoverTimeout = 7 * time.Second
 )
 
-// RDSService represents instance discovery service.
-type RDSService struct {
-	db    *reform.DB
-	state agentsStateUpdater
-	cc    connectionChecker
-	sib   serviceInfoBroker
-
-	managementv1.UnimplementedRDSServiceServer
-}
-
-// NewRDSService creates new instance discovery service.
-func NewRDSService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, sib serviceInfoBroker) *RDSService {
-	return &RDSService{
-		db:    db,
-		state: state,
-		cc:    cc,
-		sib:   sib,
-	}
-}
-
 var (
 	// See https://pkg.go.dev/github.com/aws/aws-sdk-go/service/rds?tab=doc#CreateDBInstanceInput, Engine field.
 
@@ -137,7 +117,7 @@ func listRegions(partitions []string) []string {
 }
 
 // DiscoverRDS discovers RDS instances.
-func (s *RDSService) DiscoverRDS(ctx context.Context, req *managementv1.DiscoverRDSRequest) (*managementv1.DiscoverRDSResponse, error) {
+func (s *ServiceService) DiscoverRDS(ctx context.Context, req *managementv1.DiscoverRDSRequest) (*managementv1.DiscoverRDSResponse, error) {
 	l := logger.Get(ctx).WithField("component", "discover/rds")
 
 	settings, err := models.GetSettings(s.db.Querier)
@@ -242,7 +222,7 @@ func (s *RDSService) DiscoverRDS(ctx context.Context, req *managementv1.Discover
 }
 
 // AddRDS adds RDS instance.
-func (s *RDSService) AddRDS(ctx context.Context, req *managementv1.AddRDSRequest) (*managementv1.AddRDSResponse, error) { //nolint:cyclop,maintidx
+func (s *ServiceService) AddRDS(ctx context.Context, req *managementv1.AddRDSRequest) (*managementv1.AddRDSResponse, error) { //nolint:cyclop,maintidx
 	res := &managementv1.AddRDSResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {

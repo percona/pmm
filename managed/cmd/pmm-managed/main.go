@@ -275,10 +275,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	servicev1beta1.RegisterMgmtServiceServer(gRPCServer, management.NewMgmtServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, v1.NewAPI(*deps.vmClient)))
 	managementv1.RegisterServiceServer(gRPCServer, serviceSvc)
 	actionsv1.RegisterActionsServiceServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
-	managementv1.RegisterRDSServiceServer(gRPCServer, management.NewRDSService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker))
 	azurev1beta1.RegisterAzureDatabaseServiceServer(gRPCServer, management.NewAzureDatabaseService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker))
-	managementv1.RegisterHAProxyServiceServer(gRPCServer, management.NewHAProxyService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
-	managementv1.RegisterExternalServiceServer(gRPCServer, management.NewExternalService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
 	managementv1.RegisterAnnotationServiceServer(gRPCServer, management.NewAnnotationService(deps.db, deps.grafanaClient))
 	advisorsv1.RegisterAdvisorServiceServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
 
@@ -376,10 +373,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		servicev1beta1.RegisterMgmtServiceHandlerFromEndpoint,
 		managementv1.RegisterServiceHandlerFromEndpoint,
 		actionsv1.RegisterActionsServiceHandlerFromEndpoint,
-		managementv1.RegisterRDSServiceHandlerFromEndpoint,
 		azurev1beta1.RegisterAzureDatabaseServiceHandlerFromEndpoint,
-		managementv1.RegisterHAProxyServiceHandlerFromEndpoint,
-		managementv1.RegisterExternalServiceHandlerFromEndpoint,
 		managementv1.RegisterAnnotationServiceHandlerFromEndpoint,
 		advisorsv1.RegisterAdvisorServiceHandlerFromEndpoint,
 		rolev1beta1.RegisterRoleServiceHandlerFromEndpoint,

@@ -20,13 +20,13 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	external "github.com/percona/pmm/api/management/v1/json/client/external_service"
+	"github.com/percona/pmm/api/management/v1/json/client/service"
 )
 
 func TestAddExternal(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		res := &addExternalResult{
-			Service: &external.AddExternalOKBodyService{
+			Service: &service.AddExternalOKBodyService{
 				ServiceID:   "/service_id/1",
 				ServiceName: "myhost-redis",
 				Group:       "redis",

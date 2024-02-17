@@ -21,10 +21,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
+	Service_AddExternal_FullMethodName   = "/management.v1.Service/AddExternal"
+	Service_AddHAProxy_FullMethodName    = "/management.v1.Service/AddHAProxy"
 	Service_AddMySQL_FullMethodName      = "/management.v1.Service/AddMySQL"
 	Service_AddMongoDB_FullMethodName    = "/management.v1.Service/AddMongoDB"
 	Service_AddPostgreSQL_FullMethodName = "/management.v1.Service/AddPostgreSQL"
 	Service_AddProxySQL_FullMethodName   = "/management.v1.Service/AddProxySQL"
+	Service_DiscoverRDS_FullMethodName   = "/management.v1.Service/DiscoverRDS"
+	Service_AddRDS_FullMethodName        = "/management.v1.Service/AddRDS"
 	Service_RemoveService_FullMethodName = "/management.v1.Service/RemoveService"
 )
 
@@ -32,6 +36,14 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceClient interface {
+	// AddExternal adds external service and adds external exporter.
+	// It automatically adds a service to inventory, which is running on provided "node_id",
+	// then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
+	AddExternal(ctx context.Context, in *AddExternalRequest, opts ...grpc.CallOption) (*AddExternalResponse, error)
+	// AddHAProxy adds HAProxy service and adds external exporter.
+	// It automatically adds a service to inventory, which is running on provided "node_id",
+	// then adds an "external exporter" agent to inventory.
+	AddHAProxy(ctx context.Context, in *AddHAProxyRequest, opts ...grpc.CallOption) (*AddHAProxyResponse, error)
 	// AddMySQL adds MySQL Service and starts several Agents.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds "mysqld_exporter", and "qan_mysql_perfschema" agents
@@ -50,6 +62,10 @@ type ServiceClient interface {
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds "proxysql_exporter" with provided "pmm_agent_id" and other parameters.
 	AddProxySQL(ctx context.Context, in *AddProxySQLRequest, opts ...grpc.CallOption) (*AddProxySQLResponse, error)
+	// DiscoverRDS discovers RDS instances.
+	DiscoverRDS(ctx context.Context, in *DiscoverRDSRequest, opts ...grpc.CallOption) (*DiscoverRDSResponse, error)
+	// AddRDS adds RDS instance.
+	AddRDS(ctx context.Context, in *AddRDSRequest, opts ...grpc.CallOption) (*AddRDSResponse, error)
 	// RemoveService removes Service with Agents.
 	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -60,6 +76,24 @@ type serviceClient struct {
 
 func NewServiceClient(cc grpc.ClientConnInterface) ServiceClient {
 	return &serviceClient{cc}
+}
+
+func (c *serviceClient) AddExternal(ctx context.Context, in *AddExternalRequest, opts ...grpc.CallOption) (*AddExternalResponse, error) {
+	out := new(AddExternalResponse)
+	err := c.cc.Invoke(ctx, Service_AddExternal_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) AddHAProxy(ctx context.Context, in *AddHAProxyRequest, opts ...grpc.CallOption) (*AddHAProxyResponse, error) {
+	out := new(AddHAProxyResponse)
+	err := c.cc.Invoke(ctx, Service_AddHAProxy_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *serviceClient) AddMySQL(ctx context.Context, in *AddMySQLRequest, opts ...grpc.CallOption) (*AddMySQLResponse, error) {
@@ -98,6 +132,24 @@ func (c *serviceClient) AddProxySQL(ctx context.Context, in *AddProxySQLRequest,
 	return out, nil
 }
 
+func (c *serviceClient) DiscoverRDS(ctx context.Context, in *DiscoverRDSRequest, opts ...grpc.CallOption) (*DiscoverRDSResponse, error) {
+	out := new(DiscoverRDSResponse)
+	err := c.cc.Invoke(ctx, Service_DiscoverRDS_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) AddRDS(ctx context.Context, in *AddRDSRequest, opts ...grpc.CallOption) (*AddRDSResponse, error) {
+	out := new(AddRDSResponse)
+	err := c.cc.Invoke(ctx, Service_AddRDS_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *serviceClient) RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, Service_RemoveService_FullMethodName, in, out, opts...)
@@ -111,6 +163,14 @@ func (c *serviceClient) RemoveService(ctx context.Context, in *RemoveServiceRequ
 // All implementations must embed UnimplementedServiceServer
 // for forward compatibility
 type ServiceServer interface {
+	// AddExternal adds external service and adds external exporter.
+	// It automatically adds a service to inventory, which is running on provided "node_id",
+	// then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
+	AddExternal(context.Context, *AddExternalRequest) (*AddExternalResponse, error)
+	// AddHAProxy adds HAProxy service and adds external exporter.
+	// It automatically adds a service to inventory, which is running on provided "node_id",
+	// then adds an "external exporter" agent to inventory.
+	AddHAProxy(context.Context, *AddHAProxyRequest) (*AddHAProxyResponse, error)
 	// AddMySQL adds MySQL Service and starts several Agents.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds "mysqld_exporter", and "qan_mysql_perfschema" agents
@@ -129,6 +189,10 @@ type ServiceServer interface {
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds "proxysql_exporter" with provided "pmm_agent_id" and other parameters.
 	AddProxySQL(context.Context, *AddProxySQLRequest) (*AddProxySQLResponse, error)
+	// DiscoverRDS discovers RDS instances.
+	DiscoverRDS(context.Context, *DiscoverRDSRequest) (*DiscoverRDSResponse, error)
+	// AddRDS adds RDS instance.
+	AddRDS(context.Context, *AddRDSRequest) (*AddRDSResponse, error)
 	// RemoveService removes Service with Agents.
 	RemoveService(context.Context, *RemoveServiceRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedServiceServer()
@@ -136,6 +200,14 @@ type ServiceServer interface {
 
 // UnimplementedServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedServiceServer struct{}
+
+func (UnimplementedServiceServer) AddExternal(context.Context, *AddExternalRequest) (*AddExternalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddExternal not implemented")
+}
+
+func (UnimplementedServiceServer) AddHAProxy(context.Context, *AddHAProxyRequest) (*AddHAProxyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddHAProxy not implemented")
+}
 
 func (UnimplementedServiceServer) AddMySQL(context.Context, *AddMySQLRequest) (*AddMySQLResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddMySQL not implemented")
@@ -153,6 +225,14 @@ func (UnimplementedServiceServer) AddProxySQL(context.Context, *AddProxySQLReque
 	return nil, status.Errorf(codes.Unimplemented, "method AddProxySQL not implemented")
 }
 
+func (UnimplementedServiceServer) DiscoverRDS(context.Context, *DiscoverRDSRequest) (*DiscoverRDSResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DiscoverRDS not implemented")
+}
+
+func (UnimplementedServiceServer) AddRDS(context.Context, *AddRDSRequest) (*AddRDSResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddRDS not implemented")
+}
+
 func (UnimplementedServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveService not implemented")
 }
@@ -167,6 +247,42 @@ type UnsafeServiceServer interface {
 
 func RegisterServiceServer(s grpc.ServiceRegistrar, srv ServiceServer) {
 	s.RegisterService(&Service_ServiceDesc, srv)
+}
+
+func _Service_AddExternal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddExternalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).AddExternal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_AddExternal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).AddExternal(ctx, req.(*AddExternalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_AddHAProxy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddHAProxyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).AddHAProxy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_AddHAProxy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).AddHAProxy(ctx, req.(*AddHAProxyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Service_AddMySQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -241,6 +357,42 @@ func _Service_AddProxySQL_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Service_DiscoverRDS_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DiscoverRDSRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).DiscoverRDS(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_DiscoverRDS_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).DiscoverRDS(ctx, req.(*DiscoverRDSRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_AddRDS_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddRDSRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).AddRDS(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_AddRDS_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).AddRDS(ctx, req.(*AddRDSRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Service_RemoveService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveServiceRequest)
 	if err := dec(in); err != nil {
@@ -267,6 +419,14 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "AddExternal",
+			Handler:    _Service_AddExternal_Handler,
+		},
+		{
+			MethodName: "AddHAProxy",
+			Handler:    _Service_AddHAProxy_Handler,
+		},
+		{
 			MethodName: "AddMySQL",
 			Handler:    _Service_AddMySQL_Handler,
 		},
@@ -281,6 +441,14 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddProxySQL",
 			Handler:    _Service_AddProxySQL_Handler,
+		},
+		{
+			MethodName: "DiscoverRDS",
+			Handler:    _Service_DiscoverRDS_Handler,
+		},
+		{
+			MethodName: "AddRDS",
+			Handler:    _Service_AddRDS_Handler,
 		},
 		{
 			MethodName: "RemoveService",

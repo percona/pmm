@@ -28,30 +28,10 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-// HAProxyService HAProxy Management Service.
-type HAProxyService struct {
-	db    *reform.DB
-	vmdb  prometheusService
-	state agentsStateUpdater
-	cc    connectionChecker
-
-	managementv1.UnimplementedHAProxyServiceServer
-}
-
-// NewHAProxyService creates new HAProxy Management Service.
-func NewHAProxyService(db *reform.DB, vmdb prometheusService, state agentsStateUpdater, cc connectionChecker) *HAProxyService {
-	return &HAProxyService{
-		db:    db,
-		vmdb:  vmdb,
-		state: state,
-		cc:    cc,
-	}
-}
-
-func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementv1.AddHAProxyRequest) (*managementv1.AddHAProxyResponse, error) {
+func (s *ServiceService) AddHAProxy(ctx context.Context, req *managementv1.AddHAProxyRequest) (*managementv1.AddHAProxyResponse, error) {
 	res := &managementv1.AddHAProxyResponse{}
 	var pmmAgentID *string
-	if e := e.db.InTransaction(func(tx *reform.TX) error {
+	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		if req.Address == "" && req.AddNode != nil {
 			return status.Error(codes.InvalidArgument, "address can't be empty for add node request.")
 		}
@@ -108,7 +88,7 @@ func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementv1.AddHAP
 		}
 
 		if !req.SkipConnectionCheck {
-			if err = e.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
 		}
@@ -127,9 +107,9 @@ func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementv1.AddHAP
 	// we have to trigger after transaction
 	if pmmAgentID != nil {
 		// It's required to regenerate victoriametrics config file.
-		e.state.RequestStateUpdate(ctx, *pmmAgentID)
+		s.state.RequestStateUpdate(ctx, *pmmAgentID)
 	} else {
-		e.vmdb.RequestConfigurationUpdate()
+		s.vmdb.RequestConfigurationUpdate()
 	}
 	return res, nil
 }

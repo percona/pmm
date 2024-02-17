@@ -108,7 +108,7 @@
       "post": {
         "description": "Adds external service and adds external exporter. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds an \"external exporter\" agent to inventory, which is running on provided \"runs_on_node_id\".",
         "tags": [
-          "ExternalService"
+          "Service"
         ],
         "summary": "Add External Service",
         "operationId": "AddExternal",
@@ -451,7 +451,7 @@
       "post": {
         "description": "Adds HAProxy service and external exporter. It automatically adds a service to inventory, which is running on the provided \"node_id\", then adds an \"external exporter\" agent to the inventory.",
         "tags": [
-          "HAProxyService"
+          "Service"
         ],
         "summary": "Add HAProxy",
         "operationId": "AddHAProxy",
@@ -3603,7 +3603,7 @@
       "post": {
         "description": "Adds RDS instance.",
         "tags": [
-          "RDSService"
+          "Service"
         ],
         "summary": "Add RDS",
         "operationId": "AddRDS",
@@ -4125,7 +4125,7 @@
                       "x-order": 11
                     }
                   },
-                  "x-order": 6
+                  "x-order": 5
                 },
                 "postgresql_exporter": {
                   "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.",
@@ -4240,7 +4240,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 7
+                  "x-order": 6
                 },
                 "qan_mysql_perfschema": {
                   "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -4452,7 +4452,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 8
+                  "x-order": 7
                 },
                 "rds_exporter": {
                   "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
@@ -4560,7 +4560,7 @@
                   "description": "Actual table count at the moment of adding.",
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 5
+                  "x-order": 8
                 }
               }
             }
@@ -4603,7 +4603,7 @@
       "post": {
         "description": "Discovers RDS instances.",
         "tags": [
-          "RDSService"
+          "Service"
         ],
         "summary": "Discover RDS",
         "operationId": "DiscoverRDS",
@@ -4821,16 +4821,7 @@
       "name": "AnnotationService"
     },
     {
-      "name": "ExternalService"
-    },
-    {
-      "name": "HAProxyService"
-    },
-    {
       "name": "NodeService"
-    },
-    {
-      "name": "RDSService"
     },
     {
       "name": "Service"
