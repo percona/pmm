@@ -29,19 +29,19 @@ import (
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 	"github.com/percona/pmm/api/management/v1/json/client"
-	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
+	"github.com/percona/pmm/api/management/v1/json/client/service"
 )
 
 // AgentStatusUnknown means agent is not connected and we don't know anything about its status.
 var AgentStatusUnknown = inventoryv1.AgentStatus_name[int32(inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN)]
 
-func RegisterGenericNode(t pmmapitests.TestingT, body node.RegisterNodeBody) (string, string) {
+func RegisterGenericNode(t pmmapitests.TestingT, body service.RegisterNodeBody) (string, string) {
 	t.Helper()
-	params := node.RegisterNodeParams{
+	params := service.RegisterNodeParams{
 		Context: pmmapitests.Context,
 		Body:    body,
 	}
-	registerOK, err := client.Default.NodeService.RegisterNode(&params)
+	registerOK, err := client.Default.Service.RegisterNode(&params)
 	require.NoError(t, err)
 	require.NotNil(t, registerOK)
 	require.NotNil(t, registerOK.Payload.PMMAgent)
@@ -51,14 +51,14 @@ func RegisterGenericNode(t pmmapitests.TestingT, body node.RegisterNodeBody) (st
 	return registerOK.Payload.GenericNode.NodeID, registerOK.Payload.PMMAgent.AgentID
 }
 
-func registerContainerNode(t pmmapitests.TestingT, body node.RegisterNodeBody) (string, string) {
+func registerContainerNode(t pmmapitests.TestingT, body service.RegisterNodeBody) (string, string) {
 	t.Helper()
 
-	params := node.RegisterNodeParams{
+	params := service.RegisterNodeParams{
 		Context: pmmapitests.Context,
 		Body:    body,
 	}
-	registerOK, err := client.Default.NodeService.RegisterNode(&params)
+	registerOK, err := client.Default.Service.RegisterNode(&params)
 	require.NoError(t, err)
 	require.NotNil(t, registerOK)
 	require.NotNil(t, registerOK.Payload.PMMAgent)

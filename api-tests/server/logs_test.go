@@ -27,12 +27,12 @@ import (
 
 	pmmapitests "github.com/percona/pmm/api-tests"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
-	"github.com/percona/pmm/api/server/v1/json/client/server"
+	"github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
 func TestDownloadLogs(t *testing.T) {
 	var buf bytes.Buffer
-	res, err := serverClient.Default.Server.Logs(&server.LogsParams{
+	res, err := serverClient.Default.ServerService.Logs(&server_service.LogsParams{
 		Context: pmmapitests.Context,
 	}, &buf)
 	require.NoError(t, err)

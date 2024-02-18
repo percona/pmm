@@ -265,18 +265,15 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	inventoryv1.RegisterServicesServiceServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc, mgmtServices))
 	inventoryv1.RegisterAgentsServiceServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
-	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient)
 	agentSvc := management.NewAgentService(deps.db, deps.agentsRegistry)
-	serviceSvc := management.NewServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb, deps.versionCache)
+	serviceSvc := management.NewServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb, deps.versionCache, deps.grafanaClient)
 
-	managementv1.RegisterNodeServiceServer(gRPCServer, nodeSvc)
 	agentv1beta1.RegisterAgentServiceServer(gRPCServer, agentSvc)
 	nodev1beta1.RegisterMgmtNodeServiceServer(gRPCServer, management.NewMgmtNodeService(deps.db, deps.agentsRegistry, v1.NewAPI(*deps.vmClient)))
 	servicev1beta1.RegisterMgmtServiceServer(gRPCServer, management.NewMgmtServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, v1.NewAPI(*deps.vmClient)))
 	managementv1.RegisterServiceServer(gRPCServer, serviceSvc)
 	actionsv1.RegisterActionsServiceServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
 	azurev1beta1.RegisterAzureDatabaseServiceServer(gRPCServer, management.NewAzureDatabaseService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker))
-	managementv1.RegisterAnnotationServiceServer(gRPCServer, management.NewAnnotationService(deps.db, deps.grafanaClient))
 	advisorsv1.RegisterAdvisorServiceServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
 
 	rolev1beta1.RegisterRoleServiceServer(gRPCServer, management.NewRoleService(deps.db))
@@ -367,14 +364,12 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		inventoryv1.RegisterServicesServiceHandlerFromEndpoint,
 		inventoryv1.RegisterAgentsServiceHandlerFromEndpoint,
 
-		managementv1.RegisterNodeServiceHandlerFromEndpoint,
 		agentv1beta1.RegisterAgentServiceHandlerFromEndpoint,
 		nodev1beta1.RegisterMgmtNodeServiceHandlerFromEndpoint,
 		servicev1beta1.RegisterMgmtServiceHandlerFromEndpoint,
 		managementv1.RegisterServiceHandlerFromEndpoint,
 		actionsv1.RegisterActionsServiceHandlerFromEndpoint,
 		azurev1beta1.RegisterAzureDatabaseServiceHandlerFromEndpoint,
-		managementv1.RegisterAnnotationServiceHandlerFromEndpoint,
 		advisorsv1.RegisterAdvisorServiceHandlerFromEndpoint,
 		rolev1beta1.RegisterRoleServiceHandlerFromEndpoint,
 

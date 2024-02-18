@@ -66,6 +66,9 @@ func TestServiceService(t *testing.T) {
 			vc := &mockVersionCache{}
 			vc.Test(t)
 
+			grafanaClient := &mockGrafanaClient{}
+			grafanaClient.Test(t)
+
 			teardown := func(t *testing.T) {
 				t.Helper()
 				uuid.SetRand(nil)
@@ -74,8 +77,13 @@ func TestServiceService(t *testing.T) {
 				vmdb.AssertExpectations(t)
 				state.AssertExpectations(t)
 				ar.AssertExpectations(t)
+				cc.AssertExpectations(t)
+				sib.AssertExpectations(t)
+				vc.AssertExpectations(t)
+				grafanaClient.AssertExpectations(t)
 			}
-			s := NewServiceService(db, ar, state, cc, sib, vmdb, vc)
+
+			s := NewServiceService(db, ar, state, cc, sib, vmdb, vc, grafanaClient)
 
 			return ctx, s, teardown, vmdb
 		}

@@ -65,6 +65,8 @@ func TestRDSService(t *testing.T) {
 	vmdb.Test(t)
 	vc := &mockVersionCache{}
 	vc.Test(t)
+	grafanaClient := &mockGrafanaClient{}
+	grafanaClient.Test(t)
 
 	defer func() {
 		cc.AssertExpectations(t)
@@ -75,7 +77,7 @@ func TestRDSService(t *testing.T) {
 		vc.AssertExpectations(t)
 	}()
 
-	s := NewServiceService(db, ar, state, cc, sib, vmdb, vc)
+	s := NewServiceService(db, ar, state, cc, sib, vmdb, vc, grafanaClient)
 
 	t.Run("DiscoverRDS", func(t *testing.T) {
 		t.Run("ListRegions", func(t *testing.T) {

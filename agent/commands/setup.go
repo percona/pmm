@@ -27,7 +27,7 @@ import (
 
 	"github.com/percona/pmm/agent/config"
 	agent_local "github.com/percona/pmm/api/agentlocal/v1/json/client/agent_local_service"
-	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
+	"github.com/percona/pmm/api/management/v1/json/client/service"
 )
 
 // Setup implements `pmm-agent setup` command.
@@ -142,7 +142,7 @@ func register(cfg *config.Config, l *logrus.Entry) {
 	l.Debugf("Register error: %#v", err)
 	if err != nil {
 		msg := err.Error()
-		if e, _ := err.(*node.RegisterNodeDefault); e != nil { //nolint:errorlint
+		if e, _ := err.(*service.RegisterNodeDefault); e != nil { //nolint:errorlint
 			msg = e.Payload.Message + ""
 			switch e.Code() {
 			case http.StatusConflict:

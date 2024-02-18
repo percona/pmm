@@ -28,6 +28,8 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	AddAnnotation(params *AddAnnotationParams, opts ...ClientOption) (*AddAnnotationOK, error)
+
 	AddExternal(params *AddExternalParams, opts ...ClientOption) (*AddExternalOK, error)
 
 	AddHAProxy(params *AddHAProxyParams, opts ...ClientOption) (*AddHAProxyOK, error)
@@ -44,9 +46,50 @@ type ClientService interface {
 
 	DiscoverRDS(params *DiscoverRDSParams, opts ...ClientOption) (*DiscoverRDSOK, error)
 
+	RegisterNode(params *RegisterNodeParams, opts ...ClientOption) (*RegisterNodeOK, error)
+
 	RemoveService(params *RemoveServiceParams, opts ...ClientOption) (*RemoveServiceOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+AddAnnotation adds annotation
+
+Adds an annotation.
+*/
+func (a *Client) AddAnnotation(params *AddAnnotationParams, opts ...ClientOption) (*AddAnnotationOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddAnnotationParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "AddAnnotation",
+		Method:             "POST",
+		PathPattern:        "/v1/management/Annotations/Add",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddAnnotationReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AddAnnotationOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddAnnotationDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -358,6 +401,45 @@ func (a *Client) DiscoverRDS(params *DiscoverRDSParams, opts ...ClientOption) (*
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*DiscoverRDSDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+RegisterNode registers node
+
+Registers a new Node and pmm-agent.
+*/
+func (a *Client) RegisterNode(params *RegisterNodeParams, opts ...ClientOption) (*RegisterNodeOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewRegisterNodeParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "RegisterNode",
+		Method:             "POST",
+		PathPattern:        "/v1/management/Node/Register",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &RegisterNodeReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*RegisterNodeOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*RegisterNodeDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

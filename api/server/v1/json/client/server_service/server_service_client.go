@@ -6,6 +6,8 @@ package server_service
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"io"
+
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 )
@@ -37,6 +39,8 @@ type ClientService interface {
 	GetSettings(params *GetSettingsParams, opts ...ClientOption) (*GetSettingsOK, error)
 
 	LeaderHealthCheck(params *LeaderHealthCheckParams, opts ...ClientOption) (*LeaderHealthCheckOK, error)
+
+	Logs(params *LogsParams, writer io.Writer, opts ...ClientOption) (*LogsOK, error)
 
 	Readiness(params *ReadinessParams, opts ...ClientOption) (*ReadinessOK, error)
 
@@ -241,6 +245,45 @@ func (a *Client) LeaderHealthCheck(params *LeaderHealthCheckParams, opts ...Clie
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*LeaderHealthCheckDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+Logs logs
+
+Returns the PMM Server logs.
+*/
+func (a *Client) Logs(params *LogsParams, writer io.Writer, opts ...ClientOption) (*LogsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewLogsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "Logs",
+		Method:             "GET",
+		PathPattern:        "/logs.zip",
+		ProducesMediaTypes: []string{"application/zip"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &LogsReader{formats: a.formats, writer: writer},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*LogsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*LogsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -17,9 +17,9 @@
   "paths": {
     "/v1/management/Annotations/Add": {
       "post": {
-        "description": "Adds annotation.",
+        "description": "Adds an annotation.",
         "tags": [
-          "AnnotationService"
+          "Service"
         ],
         "summary": "Add Annotation",
         "operationId": "AddAnnotation",
@@ -2143,7 +2143,7 @@
       "post": {
         "description": "Registers a new Node and pmm-agent.",
         "tags": [
-          "NodeService"
+          "Service"
         ],
         "summary": "Register Node",
         "operationId": "RegisterNode",
@@ -4817,12 +4817,6 @@
     }
   },
   "tags": [
-    {
-      "name": "AnnotationService"
-    },
-    {
-      "name": "NodeService"
-    },
     {
       "name": "Service"
     }

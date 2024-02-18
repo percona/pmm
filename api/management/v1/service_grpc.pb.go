@@ -21,6 +21,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
+	Service_AddAnnotation_FullMethodName = "/management.v1.Service/AddAnnotation"
+	Service_RegisterNode_FullMethodName  = "/management.v1.Service/RegisterNode"
 	Service_AddExternal_FullMethodName   = "/management.v1.Service/AddExternal"
 	Service_AddHAProxy_FullMethodName    = "/management.v1.Service/AddHAProxy"
 	Service_AddMySQL_FullMethodName      = "/management.v1.Service/AddMySQL"
@@ -36,6 +38,10 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceClient interface {
+	// AddAnnotation adds an annotation.
+	AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// RegisterNode registers a new Node and pmm-agent.
+	RegisterNode(ctx context.Context, in *RegisterNodeRequest, opts ...grpc.CallOption) (*RegisterNodeResponse, error)
 	// AddExternal adds external service and adds external exporter.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
@@ -76,6 +82,24 @@ type serviceClient struct {
 
 func NewServiceClient(cc grpc.ClientConnInterface) ServiceClient {
 	return &serviceClient{cc}
+}
+
+func (c *serviceClient) AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Service_AddAnnotation_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) RegisterNode(ctx context.Context, in *RegisterNodeRequest, opts ...grpc.CallOption) (*RegisterNodeResponse, error) {
+	out := new(RegisterNodeResponse)
+	err := c.cc.Invoke(ctx, Service_RegisterNode_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *serviceClient) AddExternal(ctx context.Context, in *AddExternalRequest, opts ...grpc.CallOption) (*AddExternalResponse, error) {
@@ -163,6 +187,10 @@ func (c *serviceClient) RemoveService(ctx context.Context, in *RemoveServiceRequ
 // All implementations must embed UnimplementedServiceServer
 // for forward compatibility
 type ServiceServer interface {
+	// AddAnnotation adds an annotation.
+	AddAnnotation(context.Context, *AddAnnotationRequest) (*emptypb.Empty, error)
+	// RegisterNode registers a new Node and pmm-agent.
+	RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error)
 	// AddExternal adds external service and adds external exporter.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
@@ -200,6 +228,14 @@ type ServiceServer interface {
 
 // UnimplementedServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedServiceServer struct{}
+
+func (UnimplementedServiceServer) AddAnnotation(context.Context, *AddAnnotationRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddAnnotation not implemented")
+}
+
+func (UnimplementedServiceServer) RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterNode not implemented")
+}
 
 func (UnimplementedServiceServer) AddExternal(context.Context, *AddExternalRequest) (*AddExternalResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddExternal not implemented")
@@ -247,6 +283,42 @@ type UnsafeServiceServer interface {
 
 func RegisterServiceServer(s grpc.ServiceRegistrar, srv ServiceServer) {
 	s.RegisterService(&Service_ServiceDesc, srv)
+}
+
+func _Service_AddAnnotation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddAnnotationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).AddAnnotation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_AddAnnotation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).AddAnnotation(ctx, req.(*AddAnnotationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_RegisterNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterNodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).RegisterNode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_RegisterNode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).RegisterNode(ctx, req.(*RegisterNodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Service_AddExternal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -418,6 +490,14 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "management.v1.Service",
 	HandlerType: (*ServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "AddAnnotation",
+			Handler:    _Service_AddAnnotation_Handler,
+		},
+		{
+			MethodName: "RegisterNode",
+			Handler:    _Service_RegisterNode_Handler,
+		},
 		{
 			MethodName: "AddExternal",
 			Handler:    _Service_AddExternal_Handler,

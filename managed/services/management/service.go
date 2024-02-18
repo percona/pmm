@@ -32,13 +32,14 @@ import (
 
 // ServiceService represents service for working with services.
 type ServiceService struct {
-	db    *reform.DB
-	r     agentsRegistry
-	state agentsStateUpdater
-	cc    connectionChecker
-	sib   serviceInfoBroker
-	vmdb  prometheusService
-	vc    versionCache
+	db            *reform.DB
+	r             agentsRegistry
+	state         agentsStateUpdater
+	cc            connectionChecker
+	sib           serviceInfoBroker
+	vmdb          prometheusService
+	vc            versionCache
+	grafanaClient grafanaClient
 
 	managementv1.UnimplementedServiceServer
 }
@@ -52,15 +53,17 @@ func NewServiceService(
 	sib serviceInfoBroker,
 	vmdb prometheusService,
 	vc versionCache,
+	grafanaClient grafanaClient,
 ) *ServiceService {
 	return &ServiceService{
-		db:    db,
-		r:     r,
-		state: state,
-		cc:    cc,
-		sib:   sib,
-		vmdb:  vmdb,
-		vc:    vc,
+		db:            db,
+		r:             r,
+		state:         state,
+		cc:            cc,
+		sib:           sib,
+		vmdb:          vmdb,
+		vc:            vc,
+		grafanaClient: grafanaClient,
 	}
 }
 

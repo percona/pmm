@@ -29,16 +29,15 @@ import (
 	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 	"github.com/percona/pmm/api/management/v1/json/client"
-	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
 	"github.com/percona/pmm/api/management/v1/json/client/service"
 )
 
 func TestAddHAProxy(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "genericNode-for-basic-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterGenericNode(t, service.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: pointer.ToString(service.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
@@ -104,9 +103,9 @@ func TestAddHAProxy(t *testing.T) {
 
 	t.Run("With labels", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "genericNode-for-basic-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterGenericNode(t, service.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: pointer.ToString(service.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
@@ -252,9 +251,9 @@ func TestAddHAProxy(t *testing.T) {
 
 	t.Run("With the same name", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "genericNode-for-basic-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterGenericNode(t, service.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: pointer.ToString(service.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)

@@ -21,7 +21,7 @@ import (
 
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/management/v1/json/client"
-	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
+	"github.com/percona/pmm/api/management/v1/json/client/service"
 )
 
 var registerResultT = commands.ParseTemplate(`
@@ -34,10 +34,10 @@ Warning: {{ .Warning }}
 `)
 
 type registerResult struct {
-	GenericNode   *node.RegisterNodeOKBodyGenericNode   `json:"generic_node"`
-	ContainerNode *node.RegisterNodeOKBodyContainerNode `json:"container_node"`
-	PMMAgent      *node.RegisterNodeOKBodyPMMAgent      `json:"pmm_agent"`
-	Warning       string                                `json:"warning"`
+	GenericNode   *service.RegisterNodeOKBodyGenericNode   `json:"generic_node"`
+	ContainerNode *service.RegisterNodeOKBodyContainerNode `json:"container_node"`
+	PMMAgent      *service.RegisterNodeOKBodyPMMAgent      `json:"pmm_agent"`
+	Warning       string                                   `json:"warning"`
 }
 
 func (res *registerResult) Result() {}
@@ -70,8 +70,8 @@ type RegisterCommand struct {
 func (cmd *RegisterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
-	params := &node.RegisterNodeParams{
-		Body: node.RegisterNodeBody{
+	params := &service.RegisterNodeParams{
+		Body: service.RegisterNodeBody{
 			NodeType:      pointer.ToString(allNodeTypes[cmd.NodeType]),
 			NodeName:      cmd.NodeName,
 			MachineID:     cmd.MachineID,
@@ -91,7 +91,7 @@ func (cmd *RegisterCommand) RunCmd() (commands.Result, error) {
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.NodeService.RegisterNode(params)
+	resp, err := client.Default.Service.RegisterNode(params)
 	if err != nil {
 		return nil, err
 	}

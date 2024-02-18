@@ -16,15 +16,14 @@
 package management
 
 import (
-	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
 	"github.com/percona/pmm/api/management/v1/json/client/service"
 )
 
 var (
 	allNodeTypes = map[string]string{
-		"generic":   node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE,
-		"container": node.RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE,
-		"remote":    node.RegisterNodeBodyNodeTypeNODETYPEREMOTENODE,
+		"generic":   service.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE,
+		"container": service.RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE,
+		"remote":    service.RegisterNodeBodyNodeTypeNODETYPEREMOTENODE,
 	}
 
 	allServiceTypes = map[string]string{

@@ -38,60 +38,77 @@ import (
 
 func TestAnnotations(t *testing.T) {
 	authorization := "admin:admin"
-	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, teardown func(t *testing.T)) {
+
+	setup := func(t *testing.T) (context.Context, *ServiceService, *reform.DB, *mockGrafanaClient, func(t *testing.T)) {
 		t.Helper()
 
-		ctx = metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{"authorization": authorization}))
+		ctx := metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{"authorization": authorization}))
 		ctx = logger.Set(ctx, t.Name())
 		uuid.SetRand(&tests.IDReader{})
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-		teardown = func(t *testing.T) {
+		ar := &mockAgentsRegistry{}
+		ar.Test(t)
+		state := &mockAgentsStateUpdater{}
+		state.Test(t)
+		cc := &mockConnectionChecker{}
+		cc.Test(t)
+		sib := &mockServiceInfoBroker{}
+		sib.Test(t)
+		vmdb := &mockPrometheusService{}
+		vmdb.Test(t)
+		vc := &mockVersionCache{}
+		vc.Test(t)
+		grafanaClient := &mockGrafanaClient{}
+		grafanaClient.Test(t)
+
+		s := NewServiceService(db, ar, state, cc, sib, vmdb, vc, grafanaClient)
+
+		teardown := func(t *testing.T) {
 			t.Helper()
 			uuid.SetRand(nil)
 
 			require.NoError(t, sqlDB.Close())
+
+			ar.AssertExpectations(t)
+			state.AssertExpectations(t)
+			cc.AssertExpectations(t)
+			sib.AssertExpectations(t)
+			vmdb.AssertExpectations(t)
+			vc.AssertExpectations(t)
+			grafanaClient.AssertExpectations(t)
 		}
 
-		return
+		return ctx, s, db, grafanaClient, teardown
 	}
 
 	t.Run("Non-existing service", func(t *testing.T) {
-		ctx, db, teardown := setup(t)
-		defer teardown(t)
-		grafanaClient := &mockGrafanaClient{}
-		s := NewAnnotationService(db, grafanaClient)
-		_, err := s.AddAnnotation(ctx, &managementv1.AddAnnotationRequest{
+		ctx, ss, _, _, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		_, err := ss.AddAnnotation(ctx, &managementv1.AddAnnotationRequest{
 			Text:         "Some text",
 			ServiceNames: []string{"no-service"},
 		})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with name "no-service" not found.`), err)
-
-		grafanaClient.AssertExpectations(t)
 	})
 
 	t.Run("Non-existing node", func(t *testing.T) {
-		ctx, db, teardown := setup(t)
-		defer teardown(t)
-		grafanaClient := &mockGrafanaClient{}
-		s := NewAnnotationService(db, grafanaClient)
+		ctx, s, _, _, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
 
 		_, err := s.AddAnnotation(ctx, &managementv1.AddAnnotationRequest{
 			Text:     "Some text",
 			NodeName: "no-node",
 		})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with name "no-node" not found.`), err)
-
-		grafanaClient.AssertExpectations(t)
 	})
 
 	t.Run("Existing service", func(t *testing.T) {
-		ctx, db, teardown := setup(t)
-		defer teardown(t)
-		grafanaClient := &mockGrafanaClient{}
-		s := NewAnnotationService(db, grafanaClient)
+		ctx, s, db, grafanaClient, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
 
 		_, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "service-test",
@@ -109,15 +126,11 @@ func TestAnnotations(t *testing.T) {
 			ServiceNames: []string{"service-test"},
 		})
 		require.NoError(t, err)
-
-		grafanaClient.AssertExpectations(t)
 	})
 
 	t.Run("Existing node", func(t *testing.T) {
-		ctx, db, teardown := setup(t)
-		defer teardown(t)
-		grafanaClient := &mockGrafanaClient{}
-		s := NewAnnotationService(db, grafanaClient)
+		ctx, s, db, grafanaClient, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
 
 		_, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
 			NodeName: "node-test",
@@ -132,15 +145,11 @@ func TestAnnotations(t *testing.T) {
 			NodeName: "node-test",
 		})
 		require.NoError(t, err)
-
-		grafanaClient.AssertExpectations(t)
 	})
 
 	t.Run("Non-existing service and non-existing node", func(t *testing.T) {
-		ctx, db, teardown := setup(t)
-		defer teardown(t)
-		grafanaClient := &mockGrafanaClient{}
-		s := NewAnnotationService(db, grafanaClient)
+		ctx, s, _, _, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
 
 		_, err := s.AddAnnotation(ctx, &managementv1.AddAnnotationRequest{
 			Text:         "Some text",
@@ -148,15 +157,11 @@ func TestAnnotations(t *testing.T) {
 			ServiceNames: []string{"no-service"},
 		})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with name "no-service" not found.`), err)
-
-		grafanaClient.AssertExpectations(t)
 	})
 
 	t.Run("Empty service and empty node", func(t *testing.T) {
-		ctx, db, teardown := setup(t)
-		defer teardown(t)
-		grafanaClient := &mockGrafanaClient{}
-		s := NewAnnotationService(db, grafanaClient)
+		ctx, s, _, grafanaClient, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
 
 		expectedTags := []string{"pmm_annotation"}
 		expectedText := "Some text"
@@ -170,10 +175,8 @@ func TestAnnotations(t *testing.T) {
 	})
 
 	t.Run("Existing service and non-existing node", func(t *testing.T) {
-		ctx, db, teardown := setup(t)
-		defer teardown(t)
-		grafanaClient := &mockGrafanaClient{}
-		s := NewAnnotationService(db, grafanaClient)
+		ctx, s, db, _, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
 
 		_, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "service-test",
@@ -189,15 +192,11 @@ func TestAnnotations(t *testing.T) {
 			NodeName:     "node-test",
 		})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with name "node-test" not found.`), err)
-
-		grafanaClient.AssertExpectations(t)
 	})
 
 	t.Run("Existing service and existing node", func(t *testing.T) {
-		ctx, db, teardown := setup(t)
-		defer teardown(t)
-		grafanaClient := &mockGrafanaClient{}
-		s := NewAnnotationService(db, grafanaClient)
+		ctx, s, db, grafanaClient, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
 
 		_, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
 			NodeName: "node-test",
@@ -221,15 +220,11 @@ func TestAnnotations(t *testing.T) {
 			NodeName:     "node-test",
 		})
 		require.NoError(t, err)
-
-		grafanaClient.AssertExpectations(t)
 	})
 
 	t.Run("More services", func(t *testing.T) {
-		ctx, db, teardown := setup(t)
-		defer teardown(t)
-		grafanaClient := &mockGrafanaClient{}
-		s := NewAnnotationService(db, grafanaClient)
+		ctx, s, db, grafanaClient, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
 
 		_, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "service-test",
@@ -255,15 +250,11 @@ func TestAnnotations(t *testing.T) {
 			ServiceNames: []string{"service-test", "service-test2"},
 		})
 		require.NoError(t, err)
-
-		grafanaClient.AssertExpectations(t)
 	})
 
 	t.Run("More services, but one non-existing", func(t *testing.T) {
-		ctx, db, teardown := setup(t)
-		defer teardown(t)
-		grafanaClient := &mockGrafanaClient{}
-		s := NewAnnotationService(db, grafanaClient)
+		ctx, s, db, _, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
 
 		_, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "service-test",
@@ -278,7 +269,5 @@ func TestAnnotations(t *testing.T) {
 			ServiceNames: []string{"service-test", "no-service"},
 		})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with name "no-service" not found.`), err)
-
-		grafanaClient.AssertExpectations(t)
 	})
 }

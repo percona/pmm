@@ -30,16 +30,15 @@ import (
 	backups "github.com/percona/pmm/api/backup/v1/json/client/backups_service"
 	locations "github.com/percona/pmm/api/backup/v1/json/client/locations_service"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
-	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
 	service "github.com/percona/pmm/api/management/v1/json/client/service"
 )
 
 func TestScheduleBackup(t *testing.T) {
 	t.Run("mongo", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
-		nodeID, pmmAgentID := management.RegisterGenericNode(t, node.RegisterNodeBody{
+		nodeID, pmmAgentID := management.RegisterGenericNode(t, service.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: pointer.ToString(service.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer management.RemovePMMAgentWithSubAgents(t, pmmAgentID)

@@ -27,7 +27,7 @@ import (
 	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 	"github.com/percona/pmm/api/management/v1/json/client"
-	annotation "github.com/percona/pmm/api/management/v1/json/client/annotation_service"
+	annotation "github.com/percona/pmm/api/management/v1/json/client/service"
 )
 
 func TestAddAnnotation(t *testing.T) {
@@ -39,7 +39,7 @@ func TestAddAnnotation(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		_, err := client.Default.AnnotationService.AddAnnotation(params)
+		_, err := client.Default.Service.AddAnnotation(params)
 		require.NoError(t, err)
 	})
 
@@ -51,7 +51,7 @@ func TestAddAnnotation(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		_, err := client.Default.AnnotationService.AddAnnotation(params)
+		_, err := client.Default.Service.AddAnnotation(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAnnotationRequest.Text: value length must be at least 1 runes")
 	})
 
@@ -63,7 +63,7 @@ func TestAddAnnotation(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		_, err := client.Default.AnnotationService.AddAnnotation(params)
+		_, err := client.Default.Service.AddAnnotation(params)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, `Service with name "no-service" not found.`)
 	})
 
@@ -75,7 +75,7 @@ func TestAddAnnotation(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		_, err := client.Default.AnnotationService.AddAnnotation(params)
+		_, err := client.Default.Service.AddAnnotation(params)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, `Node with name "no-node" not found.`)
 	})
 
@@ -121,7 +121,7 @@ func TestAddAnnotation(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		_, err = client.Default.AnnotationService.AddAnnotation(paramsAdd)
+		_, err = client.Default.Service.AddAnnotation(paramsAdd)
 		require.NoError(t, err)
 	})
 
@@ -147,7 +147,7 @@ func TestAddAnnotation(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		_, err = client.Default.AnnotationService.AddAnnotation(paramsAdd)
+		_, err = client.Default.Service.AddAnnotation(paramsAdd)
 		require.NoError(t, err)
 	})
 }

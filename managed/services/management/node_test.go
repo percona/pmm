@@ -39,16 +39,16 @@ import (
 
 func TestNodeService(t *testing.T) {
 	t.Run("Register", func(t *testing.T) {
-		setup := func(t *testing.T) (ctx context.Context, s *NodeService, teardown func(t *testing.T)) {
+		setup := func(t *testing.T) (context.Context, *ServiceService, func(t *testing.T)) {
 			t.Helper()
 
-			ctx = logger.Set(context.Background(), t.Name())
+			ctx := logger.Set(context.Background(), t.Name())
 			uuid.SetRand(&tests.IDReader{})
 
 			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 			db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-			teardown = func(t *testing.T) {
+			teardown := func(t *testing.T) {
 				t.Helper()
 				uuid.SetRand(nil)
 
@@ -58,18 +58,39 @@ func TestNodeService(t *testing.T) {
 				"Authorization": "Basic username:password",
 			})
 			ctx = metadata.NewIncomingContext(ctx, md)
-			var apiKeyProvider mockApiKeyProvider
-			apiKeyProvider.Test(t)
-			apiKeyProvider.On("IsAPIKeyAuth", mock.Anything).Return(false)
-			apiKeyProvider.On("CreateAdminAPIKey", ctx, mock.AnythingOfType("string")).Return(int64(0), "test-token", nil)
-			s = NewNodeService(db, &apiKeyProvider)
+			vmdb := &mockPrometheusService{}
+			vmdb.Test(t)
 
-			return
+			state := &mockAgentsStateUpdater{}
+			state.Test(t)
+
+			ar := &mockAgentsRegistry{}
+			ar.Test(t)
+
+			cc := &mockConnectionChecker{}
+			cc.Test(t)
+
+			sib := &mockServiceInfoBroker{}
+			sib.Test(t)
+
+			vc := &mockVersionCache{}
+			vc.Test(t)
+
+			grafanaClient := &mockGrafanaClient{}
+			grafanaClient.Test(t)
+
+			grafanaClient.Test(t)
+			grafanaClient.On("IsAPIKeyAuth", mock.Anything).Return(false)
+			grafanaClient.On("CreateAdminAPIKey", ctx, mock.AnythingOfType("string")).Return(int64(0), "test-token", nil)
+
+			s := NewServiceService(db, ar, state, cc, sib, vmdb, vc, grafanaClient)
+
+			return ctx, s, teardown
 		}
 
 		t.Run("New", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
-			defer teardown(t)
+			t.Cleanup(func() { teardown(t) })
 
 			res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
 				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,

@@ -29,7 +29,7 @@ import (
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 	"github.com/percona/pmm/api/management/v1/json/client"
-	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
+	node "github.com/percona/pmm/api/management/v1/json/client/service"
 )
 
 func TestNodeRegister(t *testing.T) {
@@ -79,7 +79,7 @@ func TestNodeRegister(t *testing.T) {
 				Context: pmmapitests.Context,
 				Body:    body,
 			}
-			_, err := client.Default.NodeService.RegisterNode(&params)
+			_, err := client.Default.Service.RegisterNode(&params)
 			wantErr := fmt.Sprintf("Node with name %q already exists.", nodeName)
 			pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, wantErr)
 		})
@@ -106,7 +106,7 @@ func TestNodeRegister(t *testing.T) {
 				Context: pmmapitests.Context,
 				Body:    body,
 			}
-			node, err := client.Default.NodeService.RegisterNode(&params)
+			node, err := client.Default.Service.RegisterNode(&params)
 			assert.NoError(t, err)
 
 			defer pmmapitests.RemoveNodes(t, node.Payload.GenericNode.NodeID)
@@ -135,7 +135,7 @@ func TestNodeRegister(t *testing.T) {
 				Context: pmmapitests.Context,
 				Body:    body,
 			}
-			_, err := client.Default.NodeService.RegisterNode(&params)
+			_, err := client.Default.Service.RegisterNode(&params)
 			wantErr := fmt.Sprintf("Node with instance %q and region %q already exists.", body.Address, body.Region)
 			pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, wantErr)
 		})
@@ -163,7 +163,7 @@ func TestNodeRegister(t *testing.T) {
 				Context: pmmapitests.Context,
 				Body:    body,
 			}
-			node, err := client.Default.NodeService.RegisterNode(&params)
+			node, err := client.Default.Service.RegisterNode(&params)
 			assert.NoError(t, err)
 
 			defer pmmapitests.RemoveNodes(t, node.Payload.GenericNode.NodeID)
@@ -430,7 +430,7 @@ func TestNodeRegister(t *testing.T) {
 			Context: pmmapitests.Context,
 			Body:    node.RegisterNodeBody{},
 		}
-		registerOK, err := client.Default.NodeService.RegisterNode(&params)
+		registerOK, err := client.Default.Service.RegisterNode(&params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid RegisterNodeRequest.NodeName: value length must be at least 1 runes")
 		require.Nil(t, registerOK)
 	})
@@ -442,7 +442,7 @@ func TestNodeRegister(t *testing.T) {
 				NodeName: pmmapitests.TestString(t, "node-name"),
 			},
 		}
-		registerOK, err := client.Default.NodeService.RegisterNode(&params)
+		registerOK, err := client.Default.Service.RegisterNode(&params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Unsupported Node type "NODE_TYPE_UNSPECIFIED".`)
 		require.Nil(t, registerOK)
 	})

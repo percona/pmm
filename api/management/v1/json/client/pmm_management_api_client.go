@@ -10,8 +10,6 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/management/v1/json/client/annotation_service"
-	"github.com/percona/pmm/api/management/v1/json/client/node_service"
 	"github.com/percona/pmm/api/management/v1/json/client/service"
 )
 
@@ -57,8 +55,6 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagem
 
 	cli := new(PMMManagementAPI)
 	cli.Transport = transport
-	cli.AnnotationService = annotation_service.New(transport, formats)
-	cli.NodeService = node_service.New(transport, formats)
 	cli.Service = service.New(transport, formats)
 	return cli
 }
@@ -104,10 +100,6 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // PMMManagementAPI is a client for PMM management API
 type PMMManagementAPI struct {
-	AnnotationService annotation_service.ClientService
-
-	NodeService node_service.ClientService
-
 	Service service.ClientService
 
 	Transport runtime.ClientTransport
@@ -116,7 +108,5 @@ type PMMManagementAPI struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *PMMManagementAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.AnnotationService.SetTransport(transport)
-	c.NodeService.SetTransport(transport)
 	c.Service.SetTransport(transport)
 }

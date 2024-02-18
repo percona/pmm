@@ -22,7 +22,7 @@
           "application/zip"
         ],
         "tags": [
-          "Server"
+          "ServerService"
         ],
         "summary": "Logs",
         "operationId": "Logs",

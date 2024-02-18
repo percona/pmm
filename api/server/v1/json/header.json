@@ -12,7 +12,7 @@
     "/logs.zip": {
       "get": {
         "tags": [
-          "Server"
+          "ServerService"
         ],
         "description": "Returns the PMM Server logs.",
         "summary": "Logs",
