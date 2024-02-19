@@ -56,6 +56,7 @@ func TestMgmtServiceService(t *testing.T) {
 			ar.Test(t)
 
 			vmClient := &mockVictoriaMetricsClient{}
+			vmClient.Test(t)
 
 			teardown := func(t *testing.T) {
 				t.Helper()
@@ -65,6 +66,7 @@ func TestMgmtServiceService(t *testing.T) {
 				vmdb.AssertExpectations(t)
 				state.AssertExpectations(t)
 				ar.AssertExpectations(t)
+				vmClient.AssertExpectations(t)
 			}
 			s := NewMgmtServiceService(db, ar, state, vmdb, vmClient)
 

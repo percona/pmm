@@ -69,7 +69,6 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	agentv1beta1 "github.com/percona/pmm/api/management/v1/agent"
 	azurev1beta1 "github.com/percona/pmm/api/management/v1/azure"
-	nodev1beta1 "github.com/percona/pmm/api/management/v1/node"
 	servicev1beta1 "github.com/percona/pmm/api/management/v1/service"
 	platformv1 "github.com/percona/pmm/api/platform/v1"
 	rolev1beta1 "github.com/percona/pmm/api/role/v1"
@@ -269,7 +268,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	serviceSvc := management.NewServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb, deps.versionCache, deps.grafanaClient)
 
 	agentv1beta1.RegisterAgentServiceServer(gRPCServer, agentSvc)
-	nodev1beta1.RegisterMgmtNodeServiceServer(gRPCServer, management.NewMgmtNodeService(deps.db, deps.agentsRegistry, v1.NewAPI(*deps.vmClient)))
+	// nodev1beta1.RegisterMgmtNodeServiceServer(gRPCServer, management.NewMgmtNodeService(deps.db, deps.agentsRegistry, v1.NewAPI(*deps.vmClient)))
 	servicev1beta1.RegisterMgmtServiceServer(gRPCServer, management.NewMgmtServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, v1.NewAPI(*deps.vmClient)))
 	managementv1.RegisterServiceServer(gRPCServer, serviceSvc)
 	actionsv1.RegisterActionsServiceServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
@@ -365,7 +364,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		inventoryv1.RegisterAgentsServiceHandlerFromEndpoint,
 
 		agentv1beta1.RegisterAgentServiceHandlerFromEndpoint,
-		nodev1beta1.RegisterMgmtNodeServiceHandlerFromEndpoint,
+		// nodev1beta1.RegisterMgmtNodeServiceHandlerFromEndpoint,
 		servicev1beta1.RegisterMgmtServiceHandlerFromEndpoint,
 		managementv1.RegisterServiceHandlerFromEndpoint,
 		actionsv1.RegisterActionsServiceHandlerFromEndpoint,

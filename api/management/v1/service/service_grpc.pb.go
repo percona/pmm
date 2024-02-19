@@ -12,6 +12,8 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+
+	node "github.com/percona/pmm/api/management/v1/node"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -20,6 +22,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
+	MgmtService_ListNodes_FullMethodName    = "/service.v1beta1.MgmtService/ListNodes"
+	MgmtService_GetNode_FullMethodName      = "/service.v1beta1.MgmtService/GetNode"
 	MgmtService_ListServices_FullMethodName = "/service.v1beta1.MgmtService/ListServices"
 )
 
@@ -27,6 +31,10 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MgmtServiceClient interface {
+	// ListNode returns a list of nodes.
+	ListNodes(ctx context.Context, in *node.ListNodesRequest, opts ...grpc.CallOption) (*node.ListNodesResponse, error)
+	// GetNode returns a single Node by ID.
+	GetNode(ctx context.Context, in *node.GetNodeRequest, opts ...grpc.CallOption) (*node.GetNodeResponse, error)
 	// ListServices returns a list of Services with a rich set of properties.
 	ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error)
 }
@@ -37,6 +45,24 @@ type mgmtServiceClient struct {
 
 func NewMgmtServiceClient(cc grpc.ClientConnInterface) MgmtServiceClient {
 	return &mgmtServiceClient{cc}
+}
+
+func (c *mgmtServiceClient) ListNodes(ctx context.Context, in *node.ListNodesRequest, opts ...grpc.CallOption) (*node.ListNodesResponse, error) {
+	out := new(node.ListNodesResponse)
+	err := c.cc.Invoke(ctx, MgmtService_ListNodes_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mgmtServiceClient) GetNode(ctx context.Context, in *node.GetNodeRequest, opts ...grpc.CallOption) (*node.GetNodeResponse, error) {
+	out := new(node.GetNodeResponse)
+	err := c.cc.Invoke(ctx, MgmtService_GetNode_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *mgmtServiceClient) ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error) {
@@ -52,6 +78,10 @@ func (c *mgmtServiceClient) ListServices(ctx context.Context, in *ListServicesRe
 // All implementations must embed UnimplementedMgmtServiceServer
 // for forward compatibility
 type MgmtServiceServer interface {
+	// ListNode returns a list of nodes.
+	ListNodes(context.Context, *node.ListNodesRequest) (*node.ListNodesResponse, error)
+	// GetNode returns a single Node by ID.
+	GetNode(context.Context, *node.GetNodeRequest) (*node.GetNodeResponse, error)
 	// ListServices returns a list of Services with a rich set of properties.
 	ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error)
 	mustEmbedUnimplementedMgmtServiceServer()
@@ -59,6 +89,14 @@ type MgmtServiceServer interface {
 
 // UnimplementedMgmtServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedMgmtServiceServer struct{}
+
+func (UnimplementedMgmtServiceServer) ListNodes(context.Context, *node.ListNodesRequest) (*node.ListNodesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListNodes not implemented")
+}
+
+func (UnimplementedMgmtServiceServer) GetNode(context.Context, *node.GetNodeRequest) (*node.GetNodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNode not implemented")
+}
 
 func (UnimplementedMgmtServiceServer) ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListServices not implemented")
@@ -74,6 +112,42 @@ type UnsafeMgmtServiceServer interface {
 
 func RegisterMgmtServiceServer(s grpc.ServiceRegistrar, srv MgmtServiceServer) {
 	s.RegisterService(&MgmtService_ServiceDesc, srv)
+}
+
+func _MgmtService_ListNodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(node.ListNodesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MgmtServiceServer).ListNodes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MgmtService_ListNodes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MgmtServiceServer).ListNodes(ctx, req.(*node.ListNodesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MgmtService_GetNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(node.GetNodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MgmtServiceServer).GetNode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MgmtService_GetNode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MgmtServiceServer).GetNode(ctx, req.(*node.GetNodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _MgmtService_ListServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -101,6 +175,14 @@ var MgmtService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "service.v1beta1.MgmtService",
 	HandlerType: (*MgmtServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListNodes",
+			Handler:    _MgmtService_ListNodes_Handler,
+		},
+		{
+			MethodName: "GetNode",
+			Handler:    _MgmtService_GetNode_Handler,
+		},
 		{
 			MethodName: "ListServices",
 			Handler:    _MgmtService_ListServices_Handler,

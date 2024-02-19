@@ -5,7 +5,6 @@ package node.v1beta1;
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "inventory/v1/nodes.proto";
-import "protoc-gen-openapiv2/options/annotations.proto";
 
 message UniversalNode {
   // Node status.
@@ -92,33 +91,4 @@ message GetNodeRequest {
 
 message GetNodeResponse {
   UniversalNode node = 1;
-}
-
-// NOTE: the GA version of this API will be integrated into managementv1/node.proto.
-// all `/v1/management/Node/...` endpoints are singular, which follows the convention of that API.
-
-// MgmtNode service provides public Management API methods for Nodes.
-service MgmtNodeService {
-  // ListNode returns a list of nodes.
-  rpc ListNodes(ListNodesRequest) returns (ListNodesResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/Node/List"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "List Nodes"
-      description: "Returns a filtered list of Nodes."
-    };
-  }
-  // GetNode returns a single Node by ID.
-  rpc GetNode(GetNodeRequest) returns (GetNodeResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/Node/Get"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Get Node"
-      description: "Returns a single Node by ID."
-    };
-  }
 }

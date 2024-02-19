@@ -8,7 +8,6 @@ import "inventory/v1/log_level.proto";
 import "inventory/v1/services.proto";
 import "management/v1/metrics.proto";
 import "management/v1/node.proto";
-import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
 // Add MongoDB

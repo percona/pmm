@@ -19515,10 +19515,10 @@
       "post": {
         "description": "Returns a single Node by ID.",
         "tags": [
-          "MgmtNodeService"
+          "MgmtService"
         ],
         "summary": "Get Node",
-        "operationId": "GetNodeMixin12",
+        "operationId": "GetNodeMixin13",
         "parameters": [
           {
             "name": "body",
@@ -19732,10 +19732,10 @@
       "post": {
         "description": "Returns a filtered list of Nodes.",
         "tags": [
-          "MgmtNodeService"
+          "MgmtService"
         ],
         "summary": "List Nodes",
-        "operationId": "ListNodesMixin12",
+        "operationId": "ListNodesMixin13",
         "parameters": [
           {
             "name": "body",
@@ -27807,9 +27807,6 @@
     },
     {
       "name": "AgentService"
-    },
-    {
-      "name": "MgmtNodeService"
     },
     {
       "name": "MgmtService"
