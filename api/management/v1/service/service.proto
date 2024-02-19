@@ -79,11 +79,23 @@ message ListServicesResponse {
   repeated UniversalService services = 1;
 }
 
-// NOTE: the GA version of /services will be integrated into management/v1/service.proto.
+// NOTE: the GA version of /agents will be integrated into management/v1/agent.proto.
 // NOTE: the GA version of /nodes will be integrated into management/v1/node.proto.
+// NOTE: the GA version of /services will be integrated into management/v1/service.proto.
 
 // MgmtService service provides public methods for manipulating Services.
 service MgmtService {
+  // ListAgents returns a list of Agents filtered by service_id.
+  rpc ListAgents(agent.v1beta1.ListAgentsRequest) returns (agent.v1beta1.ListAgentsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Agent/List"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Agents"
+      description: "Returns a filtered list of Agents."
+    };
+  }
   // ListNode returns a list of nodes.
   rpc ListNodes(node.v1beta1.ListNodesRequest) returns (node.v1beta1.ListNodesResponse) {
     option (google.api.http) = {

@@ -13,6 +13,7 @@ import (
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 
+	agent "github.com/percona/pmm/api/management/v1/agent"
 	node "github.com/percona/pmm/api/management/v1/node"
 )
 
@@ -22,6 +23,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
+	MgmtService_ListAgents_FullMethodName   = "/service.v1beta1.MgmtService/ListAgents"
 	MgmtService_ListNodes_FullMethodName    = "/service.v1beta1.MgmtService/ListNodes"
 	MgmtService_GetNode_FullMethodName      = "/service.v1beta1.MgmtService/GetNode"
 	MgmtService_ListServices_FullMethodName = "/service.v1beta1.MgmtService/ListServices"
@@ -31,6 +33,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MgmtServiceClient interface {
+	// ListAgents returns a list of Agents filtered by service_id.
+	ListAgents(ctx context.Context, in *agent.ListAgentsRequest, opts ...grpc.CallOption) (*agent.ListAgentsResponse, error)
 	// ListNode returns a list of nodes.
 	ListNodes(ctx context.Context, in *node.ListNodesRequest, opts ...grpc.CallOption) (*node.ListNodesResponse, error)
 	// GetNode returns a single Node by ID.
@@ -45,6 +49,15 @@ type mgmtServiceClient struct {
 
 func NewMgmtServiceClient(cc grpc.ClientConnInterface) MgmtServiceClient {
 	return &mgmtServiceClient{cc}
+}
+
+func (c *mgmtServiceClient) ListAgents(ctx context.Context, in *agent.ListAgentsRequest, opts ...grpc.CallOption) (*agent.ListAgentsResponse, error) {
+	out := new(agent.ListAgentsResponse)
+	err := c.cc.Invoke(ctx, MgmtService_ListAgents_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *mgmtServiceClient) ListNodes(ctx context.Context, in *node.ListNodesRequest, opts ...grpc.CallOption) (*node.ListNodesResponse, error) {
@@ -78,6 +91,8 @@ func (c *mgmtServiceClient) ListServices(ctx context.Context, in *ListServicesRe
 // All implementations must embed UnimplementedMgmtServiceServer
 // for forward compatibility
 type MgmtServiceServer interface {
+	// ListAgents returns a list of Agents filtered by service_id.
+	ListAgents(context.Context, *agent.ListAgentsRequest) (*agent.ListAgentsResponse, error)
 	// ListNode returns a list of nodes.
 	ListNodes(context.Context, *node.ListNodesRequest) (*node.ListNodesResponse, error)
 	// GetNode returns a single Node by ID.
@@ -89,6 +104,10 @@ type MgmtServiceServer interface {
 
 // UnimplementedMgmtServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedMgmtServiceServer struct{}
+
+func (UnimplementedMgmtServiceServer) ListAgents(context.Context, *agent.ListAgentsRequest) (*agent.ListAgentsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListAgents not implemented")
+}
 
 func (UnimplementedMgmtServiceServer) ListNodes(context.Context, *node.ListNodesRequest) (*node.ListNodesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListNodes not implemented")
@@ -112,6 +131,24 @@ type UnsafeMgmtServiceServer interface {
 
 func RegisterMgmtServiceServer(s grpc.ServiceRegistrar, srv MgmtServiceServer) {
 	s.RegisterService(&MgmtService_ServiceDesc, srv)
+}
+
+func _MgmtService_ListAgents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(agent.ListAgentsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MgmtServiceServer).ListAgents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MgmtService_ListAgents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MgmtServiceServer).ListAgents(ctx, req.(*agent.ListAgentsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _MgmtService_ListNodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -175,6 +212,10 @@ var MgmtService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "service.v1beta1.MgmtService",
 	HandlerType: (*MgmtServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListAgents",
+			Handler:    _MgmtService_ListAgents_Handler,
+		},
 		{
 			MethodName: "ListNodes",
 			Handler:    _MgmtService_ListNodes_Handler,

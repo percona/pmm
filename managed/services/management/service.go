@@ -167,3 +167,13 @@ func (s *ServiceService) checkServiceType(service *models.Service, serviceType i
 	}
 	return status.Error(codes.InvalidArgument, "wrong service type")
 }
+
+func (s *ServiceService) validateRequest(request *managementv1.RemoveServiceRequest) error {
+	if request.ServiceName == "" && request.ServiceId == "" {
+		return status.Error(codes.InvalidArgument, "service_id or service_name expected")
+	}
+	if request.ServiceName != "" && request.ServiceId != "" {
+		return status.Error(codes.InvalidArgument, "service_id or service_name expected; not both")
+	}
+	return nil
+}

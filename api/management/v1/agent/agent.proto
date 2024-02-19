@@ -4,7 +4,6 @@ package agent.v1beta1;
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-import "protoc-gen-openapiv2/options/annotations.proto";
 
 message UniversalAgent {
   message MySQLOptions {
@@ -145,19 +144,4 @@ message ListAgentsRequest {
 message ListAgentsResponse {
   // List of Agents.
   repeated UniversalAgent agents = 1;
-}
-
-// Agent service provides public methods for managing and querying Agents.
-service AgentService {
-  // ListAgents returns a list of Agents filtered by service_id.
-  rpc ListAgents(ListAgentsRequest) returns (ListAgentsResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/Agent/List"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "List Agents"
-      description: "Returns a filtered list of Agents."
-    };
-  }
 }

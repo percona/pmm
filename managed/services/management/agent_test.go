@@ -39,7 +39,7 @@ import (
 
 var now time.Time
 
-func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T)) {
+func setup(t *testing.T) (context.Context, *MgmtServiceService, func(t *testing.T)) {
 	t.Helper()
 
 	now = models.Now()
@@ -60,6 +60,12 @@ func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T)) {
 	ar := &mockAgentsRegistry{}
 	ar.Test(t)
 
+	vmdb := &mockPrometheusService{}
+	vmdb.Test(t)
+
+	vmClient := &mockVictoriaMetricsClient{}
+	vmClient.Test(t)
+
 	teardown := func(t *testing.T) {
 		t.Helper()
 		models.Now = origNowF
@@ -68,8 +74,11 @@ func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T)) {
 		require.NoError(t, sqlDB.Close())
 		state.AssertExpectations(t)
 		ar.AssertExpectations(t)
+		vmdb.AssertExpectations(t)
+		vmClient.AssertExpectations(t)
 	}
-	s := NewAgentService(db, ar)
+
+	s := NewMgmtServiceService(db, ar, state, vmdb, vmClient)
 
 	return ctx, s, teardown
 }

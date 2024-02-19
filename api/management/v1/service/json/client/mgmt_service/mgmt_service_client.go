@@ -30,6 +30,8 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeOK, error)
 
+	ListAgents(params *ListAgentsParams, opts ...ClientOption) (*ListAgentsOK, error)
+
 	ListNodes(params *ListNodesParams, opts ...ClientOption) (*ListNodesOK, error)
 
 	ListServices(params *ListServicesParams, opts ...ClientOption) (*ListServicesOK, error)
@@ -73,6 +75,45 @@ func (a *Client) GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeO
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetNodeDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListAgents lists agents
+
+Returns a filtered list of Agents.
+*/
+func (a *Client) ListAgents(params *ListAgentsParams, opts ...ClientOption) (*ListAgentsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListAgentsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListAgents",
+		Method:             "POST",
+		PathPattern:        "/v1/management/Agent/List",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListAgentsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListAgentsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListAgentsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

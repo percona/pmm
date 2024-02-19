@@ -16662,10 +16662,10 @@
       "post": {
         "description": "Returns a filtered list of Agents.",
         "tags": [
-          "AgentService"
+          "MgmtService"
         ],
         "summary": "List Agents",
-        "operationId": "ListAgentsMixin11",
+        "operationId": "ListAgentsMixin13",
         "parameters": [
           {
             "description": "Only one of the parameters below must be set.",
@@ -27804,9 +27804,6 @@
     },
     {
       "name": "RoleService"
-    },
-    {
-      "name": "AgentService"
     },
     {
       "name": "MgmtService"
