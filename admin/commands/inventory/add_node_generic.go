@@ -57,6 +57,7 @@ type AddNodeGenericCommand struct {
 	NodeModel    string            `help:"Node mddel"`
 }
 
+// RunCmd executes the AddNodeGenericCommand and returns the result.
 func (cmd *AddNodeGenericCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &nodes.AddGenericNodeParams{

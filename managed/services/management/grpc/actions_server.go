@@ -51,7 +51,7 @@ func NewActionsServer(a *agents.ActionsService, db *reform.DB) managementpb.Acti
 }
 
 // GetAction gets an action result.
-func (s *actionsServer) GetAction(ctx context.Context, req *managementpb.GetActionRequest) (*managementpb.GetActionResponse, error) {
+func (s *actionsServer) GetAction(ctx context.Context, req *managementpb.GetActionRequest) (*managementpb.GetActionResponse, error) { //nolint:revive
 	res, err := models.FindActionResultByID(s.db.Querier, req.ActionId)
 	if err != nil {
 		return nil, err
