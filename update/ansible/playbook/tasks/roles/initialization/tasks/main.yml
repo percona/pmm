@@ -69,23 +69,50 @@
   become: true
   changed_when: True
 
+- name: Create clickhouse data directory
+  file:
+    path: "/srv/clickhouse"
+    state: directory
+    owner: root
+    group: pmm
+
 - name: Update (both)
   block:
-    # This will implicitly create /srv/clickhouse
-    - name: Create clickhouse data directory
-      file:
-        path: "/srv/clickhouse/flags"
-        state: directory
-        owner: root
-        group: pmm
-        recurse: true
+    - name: Check that conversion flag isn't created
+      stat:
+        path: /srv/clickhouse/flags/convert_ordinary_to_atomic
+      register: is_gf_database_converted
 
-    - name: Create empty file to convert clickhouse databases from ordinary to atomic
-      file:
-        path: "/srv/clickhouse/flags/convert_ordinary_to_atomic"
-        state: touch
-        owner: root
-        group: pmm
+    - name: Convert clickhouse engine from ordinary to atomic
+      block:
+        # This will implicitly create /srv/clickhouse
+        - name: Create clickhouse data directory
+          file:
+            path: "/srv/clickhouse/flags"
+            state: directory
+            owner: root
+            group: pmm
+            recurse: true
+
+        - name: Create empty file to convert clickhouse databases from ordinary to atomic
+          file:
+            path: "/srv/clickhouse/flags/convert_ordinary_to_atomic"
+            state: touch
+            owner: root
+            group: pmm
+
+        - name: Restart clickhouse EL7
+          when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+          command: supervisorctl restart clickhouse
+          become: true
+          changed_when: true
+
+        - name: Restart clickhouse EL9
+          when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+          command: /usr/local/bin/supervisorctl restart clickhouse
+          become: true
+          changed_when: true
+      when: not is_gf_database_converted.stat.exists and current_version_file['failed'] != true
 
     - name: Upgrade dashboards
       include_role:
