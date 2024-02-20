@@ -16,6 +16,8 @@ pmm_branch=$(git rev-parse --abbrev-ref HEAD)
 
 pmm_base_version=$(cat ${root_dir}/VERSION)
 full_pmm_version=${pmm_base_version}-${pmm_branch}-$(git rev-parse --short HEAD)
+# Replace '/' with '-' to prevent sed from failing on dependabot-authored PRs
+full_pmm_version=${full_pmm_version//\//-}
 
 # TODO Maybe it makes sense to use variable from job here
 if [[ ${pmm_branch} =~ release-* || \
