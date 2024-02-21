@@ -126,7 +126,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 
 			// In case of not available PGSM extension it is switch to PGSS.
 			if req.QanPostgresqlPgstatmonitorAgent && row.PostgreSQLOptions.PGSMVersion == "" {
-				s.l.Warningln("Extension pg_stat_monitor is not available. Switching to pg_stats_statements.")
+				res.Warning = "Extension pg_stat_monitor is not available. Switching to pg_stats_statements."
 				req.QanPostgresqlPgstatementsAgent = true
 				req.QanPostgresqlPgstatmonitorAgent = false
 			}
