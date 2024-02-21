@@ -12,8 +12,10 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 
 	agent "github.com/percona/pmm/api/management/v1/agent"
+	azure "github.com/percona/pmm/api/management/v1/azure"
 	node "github.com/percona/pmm/api/management/v1/node"
 )
 
@@ -23,10 +25,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	MgmtService_ListAgents_FullMethodName   = "/service.v1beta1.MgmtService/ListAgents"
-	MgmtService_ListNodes_FullMethodName    = "/service.v1beta1.MgmtService/ListNodes"
-	MgmtService_GetNode_FullMethodName      = "/service.v1beta1.MgmtService/GetNode"
-	MgmtService_ListServices_FullMethodName = "/service.v1beta1.MgmtService/ListServices"
+	MgmtService_ListAgents_FullMethodName            = "/service.v1beta1.MgmtService/ListAgents"
+	MgmtService_ListNodes_FullMethodName             = "/service.v1beta1.MgmtService/ListNodes"
+	MgmtService_GetNode_FullMethodName               = "/service.v1beta1.MgmtService/GetNode"
+	MgmtService_ListServices_FullMethodName          = "/service.v1beta1.MgmtService/ListServices"
+	MgmtService_DiscoverAzureDatabase_FullMethodName = "/service.v1beta1.MgmtService/DiscoverAzureDatabase"
+	MgmtService_AddAzureDatabase_FullMethodName      = "/service.v1beta1.MgmtService/AddAzureDatabase"
 )
 
 // MgmtServiceClient is the client API for MgmtService service.
@@ -41,6 +45,10 @@ type MgmtServiceClient interface {
 	GetNode(ctx context.Context, in *node.GetNodeRequest, opts ...grpc.CallOption) (*node.GetNodeResponse, error)
 	// ListServices returns a list of Services with a rich set of properties.
 	ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error)
+	// DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
+	DiscoverAzureDatabase(ctx context.Context, in *azure.DiscoverAzureDatabaseRequest, opts ...grpc.CallOption) (*azure.DiscoverAzureDatabaseResponse, error)
+	// AddAzureDatabase adds Azure Database instance.
+	AddAzureDatabase(ctx context.Context, in *azure.AddAzureDatabaseRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type mgmtServiceClient struct {
@@ -87,6 +95,24 @@ func (c *mgmtServiceClient) ListServices(ctx context.Context, in *ListServicesRe
 	return out, nil
 }
 
+func (c *mgmtServiceClient) DiscoverAzureDatabase(ctx context.Context, in *azure.DiscoverAzureDatabaseRequest, opts ...grpc.CallOption) (*azure.DiscoverAzureDatabaseResponse, error) {
+	out := new(azure.DiscoverAzureDatabaseResponse)
+	err := c.cc.Invoke(ctx, MgmtService_DiscoverAzureDatabase_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mgmtServiceClient) AddAzureDatabase(ctx context.Context, in *azure.AddAzureDatabaseRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, MgmtService_AddAzureDatabase_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MgmtServiceServer is the server API for MgmtService service.
 // All implementations must embed UnimplementedMgmtServiceServer
 // for forward compatibility
@@ -99,6 +125,10 @@ type MgmtServiceServer interface {
 	GetNode(context.Context, *node.GetNodeRequest) (*node.GetNodeResponse, error)
 	// ListServices returns a list of Services with a rich set of properties.
 	ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error)
+	// DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
+	DiscoverAzureDatabase(context.Context, *azure.DiscoverAzureDatabaseRequest) (*azure.DiscoverAzureDatabaseResponse, error)
+	// AddAzureDatabase adds Azure Database instance.
+	AddAzureDatabase(context.Context, *azure.AddAzureDatabaseRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedMgmtServiceServer()
 }
 
@@ -119,6 +149,14 @@ func (UnimplementedMgmtServiceServer) GetNode(context.Context, *node.GetNodeRequ
 
 func (UnimplementedMgmtServiceServer) ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListServices not implemented")
+}
+
+func (UnimplementedMgmtServiceServer) DiscoverAzureDatabase(context.Context, *azure.DiscoverAzureDatabaseRequest) (*azure.DiscoverAzureDatabaseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DiscoverAzureDatabase not implemented")
+}
+
+func (UnimplementedMgmtServiceServer) AddAzureDatabase(context.Context, *azure.AddAzureDatabaseRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddAzureDatabase not implemented")
 }
 func (UnimplementedMgmtServiceServer) mustEmbedUnimplementedMgmtServiceServer() {}
 
@@ -205,6 +243,42 @@ func _MgmtService_ListServices_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MgmtService_DiscoverAzureDatabase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(azure.DiscoverAzureDatabaseRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MgmtServiceServer).DiscoverAzureDatabase(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MgmtService_DiscoverAzureDatabase_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MgmtServiceServer).DiscoverAzureDatabase(ctx, req.(*azure.DiscoverAzureDatabaseRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MgmtService_AddAzureDatabase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(azure.AddAzureDatabaseRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MgmtServiceServer).AddAzureDatabase(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MgmtService_AddAzureDatabase_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MgmtServiceServer).AddAzureDatabase(ctx, req.(*azure.AddAzureDatabaseRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MgmtService_ServiceDesc is the grpc.ServiceDesc for MgmtService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -227,6 +301,14 @@ var MgmtService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListServices",
 			Handler:    _MgmtService_ListServices_Handler,
+		},
+		{
+			MethodName: "DiscoverAzureDatabase",
+			Handler:    _MgmtService_DiscoverAzureDatabase_Handler,
+		},
+		{
+			MethodName: "AddAzureDatabase",
+			Handler:    _MgmtService_AddAzureDatabase_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

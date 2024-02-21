@@ -28,6 +28,10 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	AddAzureDatabase(params *AddAzureDatabaseParams, opts ...ClientOption) (*AddAzureDatabaseOK, error)
+
+	DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams, opts ...ClientOption) (*DiscoverAzureDatabaseOK, error)
+
 	GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeOK, error)
 
 	ListAgents(params *ListAgentsParams, opts ...ClientOption) (*ListAgentsOK, error)
@@ -37,6 +41,84 @@ type ClientService interface {
 	ListServices(params *ListServicesParams, opts ...ClientOption) (*ListServicesOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+AddAzureDatabase adds azure database
+
+Adds an Azure Database instance.
+*/
+func (a *Client) AddAzureDatabase(params *AddAzureDatabaseParams, opts ...ClientOption) (*AddAzureDatabaseOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddAzureDatabaseParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "AddAzureDatabase",
+		Method:             "POST",
+		PathPattern:        "/v1/management/AzureDatabase/Add",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddAzureDatabaseReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AddAzureDatabaseOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddAzureDatabaseDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+DiscoverAzureDatabase discovers azure database
+
+Discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
+*/
+func (a *Client) DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams, opts ...ClientOption) (*DiscoverAzureDatabaseOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDiscoverAzureDatabaseParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "DiscoverAzureDatabase",
+		Method:             "POST",
+		PathPattern:        "/v1/management/AzureDatabase/Discover",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &DiscoverAzureDatabaseReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*DiscoverAzureDatabaseOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*DiscoverAzureDatabaseDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*

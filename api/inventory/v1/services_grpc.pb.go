@@ -26,9 +26,9 @@ const (
 	ServicesService_GetService_FullMethodName             = "/inventory.v1.ServicesService/GetService"
 	ServicesService_AddService_FullMethodName             = "/inventory.v1.ServicesService/AddService"
 	ServicesService_RemoveService_FullMethodName          = "/inventory.v1.ServicesService/RemoveService"
+	ServicesService_ChangeService_FullMethodName          = "/inventory.v1.ServicesService/ChangeService"
 	ServicesService_AddCustomLabels_FullMethodName        = "/inventory.v1.ServicesService/AddCustomLabels"
 	ServicesService_RemoveCustomLabels_FullMethodName     = "/inventory.v1.ServicesService/RemoveCustomLabels"
-	ServicesService_ChangeService_FullMethodName          = "/inventory.v1.ServicesService/ChangeService"
 )
 
 // ServicesServiceClient is the client API for ServicesService service.
@@ -45,12 +45,12 @@ type ServicesServiceClient interface {
 	AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error)
 	// RemoveService removes a Service.
 	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// ChangeService allows changing configuration of a Service.
+	ChangeService(ctx context.Context, in *ChangeServiceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// AddCustomLabels adds custom labels to a Service.
 	AddCustomLabels(ctx context.Context, in *AddCustomLabelsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// RemoveCustomLabels removes custom labels from a Service.
 	RemoveCustomLabels(ctx context.Context, in *RemoveCustomLabelsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// ChangeService allows changing configuration of a Service.
-	ChangeService(ctx context.Context, in *ChangeServiceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type servicesServiceClient struct {
@@ -106,6 +106,15 @@ func (c *servicesServiceClient) RemoveService(ctx context.Context, in *RemoveSer
 	return out, nil
 }
 
+func (c *servicesServiceClient) ChangeService(ctx context.Context, in *ChangeServiceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ServicesService_ChangeService_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *servicesServiceClient) AddCustomLabels(ctx context.Context, in *AddCustomLabelsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, ServicesService_AddCustomLabels_FullMethodName, in, out, opts...)
@@ -118,15 +127,6 @@ func (c *servicesServiceClient) AddCustomLabels(ctx context.Context, in *AddCust
 func (c *servicesServiceClient) RemoveCustomLabels(ctx context.Context, in *RemoveCustomLabelsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, ServicesService_RemoveCustomLabels_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *servicesServiceClient) ChangeService(ctx context.Context, in *ChangeServiceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, ServicesService_ChangeService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -147,12 +147,12 @@ type ServicesServiceServer interface {
 	AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error)
 	// RemoveService removes a Service.
 	RemoveService(context.Context, *RemoveServiceRequest) (*emptypb.Empty, error)
+	// ChangeService allows changing configuration of a Service.
+	ChangeService(context.Context, *ChangeServiceRequest) (*emptypb.Empty, error)
 	// AddCustomLabels adds custom labels to a Service.
 	AddCustomLabels(context.Context, *AddCustomLabelsRequest) (*emptypb.Empty, error)
 	// RemoveCustomLabels removes custom labels from a Service.
 	RemoveCustomLabels(context.Context, *RemoveCustomLabelsRequest) (*emptypb.Empty, error)
-	// ChangeService allows changing configuration of a Service.
-	ChangeService(context.Context, *ChangeServiceRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedServicesServiceServer()
 }
 
@@ -179,16 +179,16 @@ func (UnimplementedServicesServiceServer) RemoveService(context.Context, *Remove
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveService not implemented")
 }
 
+func (UnimplementedServicesServiceServer) ChangeService(context.Context, *ChangeServiceRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangeService not implemented")
+}
+
 func (UnimplementedServicesServiceServer) AddCustomLabels(context.Context, *AddCustomLabelsRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddCustomLabels not implemented")
 }
 
 func (UnimplementedServicesServiceServer) RemoveCustomLabels(context.Context, *RemoveCustomLabelsRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveCustomLabels not implemented")
-}
-
-func (UnimplementedServicesServiceServer) ChangeService(context.Context, *ChangeServiceRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeService not implemented")
 }
 func (UnimplementedServicesServiceServer) mustEmbedUnimplementedServicesServiceServer() {}
 
@@ -293,6 +293,24 @@ func _ServicesService_RemoveService_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServicesService_ChangeService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeServiceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServicesServiceServer).ChangeService(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServicesService_ChangeService_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServicesServiceServer).ChangeService(ctx, req.(*ChangeServiceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ServicesService_AddCustomLabels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddCustomLabelsRequest)
 	if err := dec(in); err != nil {
@@ -329,24 +347,6 @@ func _ServicesService_RemoveCustomLabels_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ServicesService_ChangeService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeServiceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServicesServiceServer).ChangeService(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ServicesService_ChangeService_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServiceServer).ChangeService(ctx, req.(*ChangeServiceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // ServicesService_ServiceDesc is the grpc.ServiceDesc for ServicesService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -375,16 +375,16 @@ var ServicesService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ServicesService_RemoveService_Handler,
 		},
 		{
+			MethodName: "ChangeService",
+			Handler:    _ServicesService_ChangeService_Handler,
+		},
+		{
 			MethodName: "AddCustomLabels",
 			Handler:    _ServicesService_AddCustomLabels_Handler,
 		},
 		{
 			MethodName: "RemoveCustomLabels",
 			Handler:    _ServicesService_RemoveCustomLabels_Handler,
-		},
-		{
-			MethodName: "ChangeService",
-			Handler:    _ServicesService_ChangeService_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

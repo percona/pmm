@@ -3,7 +3,6 @@ syntax = "proto3";
 package azure.v1beta1;
 
 import "google/api/annotations.proto";
-import "google/protobuf/empty.proto";
 import "validate/validate.proto";
 
 // DiscoverAzureDatabaseRequest discover azure databases request.
@@ -111,22 +110,4 @@ message AddAzureDatabaseRequest {
   int32 tablestats_group_table_limit = 24;
   // Azure database resource type (mysql, maria, postgres)
   DiscoverAzureDatabaseType type = 25;
-}
-
-// AzureDatabase service provides Service Discovery APIs.
-service AzureDatabaseService {
-  // DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
-  rpc DiscoverAzureDatabase(DiscoverAzureDatabaseRequest) returns (DiscoverAzureDatabaseResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/AzureDatabase/Discover"
-      body: "*"
-    };
-  }
-  // AddAzureDatabase adds Azure Database instance.
-  rpc AddAzureDatabase(AddAzureDatabaseRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      post: "/v1/management/AzureDatabase/Add"
-      body: "*"
-    };
-  }
 }

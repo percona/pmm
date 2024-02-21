@@ -17131,10 +17131,11 @@
     },
     "/v1/management/AzureDatabase/Add": {
       "post": {
+        "description": "Adds an Azure Database instance.",
         "tags": [
-          "AzureDatabaseService"
+          "MgmtService"
         ],
-        "summary": "AddAzureDatabase adds Azure Database instance.",
+        "summary": "Add Azure Database",
         "operationId": "AddAzureDatabase",
         "parameters": [
           {
@@ -17327,10 +17328,11 @@
     },
     "/v1/management/AzureDatabase/Discover": {
       "post": {
+        "description": "Discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.",
         "tags": [
-          "AzureDatabaseService"
+          "MgmtService"
         ],
-        "summary": "DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.",
+        "summary": "Discover Azure Database",
         "operationId": "DiscoverAzureDatabase",
         "parameters": [
           {
@@ -27798,9 +27800,6 @@
     },
     {
       "name": "DumpsService"
-    },
-    {
-      "name": "AzureDatabaseService"
     },
     {
       "name": "RoleService"

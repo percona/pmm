@@ -67,7 +67,6 @@ import (
 	dumpv1beta1 "github.com/percona/pmm/api/dump/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
-	azurev1beta1 "github.com/percona/pmm/api/management/v1/azure"
 	servicev1beta1 "github.com/percona/pmm/api/management/v1/service"
 	platformv1 "github.com/percona/pmm/api/platform/v1"
 	rolev1beta1 "github.com/percona/pmm/api/role/v1"
@@ -268,7 +267,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	servicev1beta1.RegisterMgmtServiceServer(gRPCServer, management.NewMgmtServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, v1.NewAPI(*deps.vmClient)))
 	managementv1.RegisterServiceServer(gRPCServer, serviceSvc)
 	actionsv1.RegisterActionsServiceServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
-	azurev1beta1.RegisterAzureDatabaseServiceServer(gRPCServer, management.NewAzureDatabaseService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker))
 	advisorsv1.RegisterAdvisorServiceServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
 
 	rolev1beta1.RegisterRoleServiceServer(gRPCServer, management.NewRoleService(deps.db))
@@ -362,7 +360,6 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		servicev1beta1.RegisterMgmtServiceHandlerFromEndpoint,
 		managementv1.RegisterServiceHandlerFromEndpoint,
 		actionsv1.RegisterActionsServiceHandlerFromEndpoint,
-		azurev1beta1.RegisterAzureDatabaseServiceHandlerFromEndpoint,
 		advisorsv1.RegisterAdvisorServiceHandlerFromEndpoint,
 		rolev1beta1.RegisterRoleServiceHandlerFromEndpoint,
 
