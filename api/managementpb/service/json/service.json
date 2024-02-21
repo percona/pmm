@@ -298,6 +298,12 @@
                                   "description": "True if TLS key is set.",
                                   "type": "boolean",
                                   "x-order": 0
+                                },
+                                "max_connections": {
+                                  "description": "Maximum number of connections to PostgreSQL instance.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 2
                                 }
                               },
                               "x-order": 21

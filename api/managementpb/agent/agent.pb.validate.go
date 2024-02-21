@@ -975,6 +975,8 @@ func (m *UniversalAgent_PostgreSQLOptions) validate(all bool) error {
 
 	// no validation rules for AutoDiscoveryLimit
 
+	// no validation rules for MaxConnections
+
 	if len(errors) > 0 {
 		return UniversalAgent_PostgreSQLOptionsMultiError(errors)
 	}

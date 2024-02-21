@@ -917,6 +917,9 @@ type ListAgentsOKBodyAgentsItems0PostgresqlOptions struct {
 
 	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// Maximum number of connections to PostgreSQL instance.
+	MaxConnections int32 `json:"max_connections,omitempty"`
 }
 
 // Validate validates this list agents OK body agents items0 postgresql options

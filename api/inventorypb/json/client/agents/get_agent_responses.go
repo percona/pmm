@@ -2058,6 +2058,9 @@ type GetAgentOKBodyPostgresExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Maximum number of connections to the database instance.
+	MaxConnections int32 `json:"max_connections,omitempty"`
 }
 
 // Validate validates this get agent OK body postgres exporter

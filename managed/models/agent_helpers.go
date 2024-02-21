@@ -59,6 +59,7 @@ type PostgreSQLOptionsParams interface {
 // PostgreSQLExtendedOptionsParams contains extended parameters for PostgreSQL exporter.
 type PostgreSQLExtendedOptionsParams interface {
 	GetAutoDiscoveryLimit() int32
+	GetMaxExporterConnections() int32
 }
 
 // PostgreSQLOptionsFromRequest creates PostgreSQLOptions object from request.
@@ -73,6 +74,7 @@ func PostgreSQLOptionsFromRequest(params PostgreSQLOptionsParams) *PostgreSQLOpt
 	// PostgreSQL exporter has these parameters but they are not needed for QAN agent.
 	if extendedOptions, ok := params.(PostgreSQLExtendedOptionsParams); ok && extendedOptions != nil {
 		res.AutoDiscoveryLimit = extendedOptions.GetAutoDiscoveryLimit()
+		res.MaxExporterConnections = extendedOptions.GetMaxExporterConnections() // TODO: is it a right place for this?
 	}
 
 	return res
