@@ -67,7 +67,7 @@ import (
 	dumpv1beta1 "github.com/percona/pmm/api/dump/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
-	servicev1beta1 "github.com/percona/pmm/api/management/v1/service"
+	managementv1beta1 "github.com/percona/pmm/api/management/v1/service"
 	platformv1 "github.com/percona/pmm/api/platform/v1"
 	rolev1beta1 "github.com/percona/pmm/api/role/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
@@ -262,10 +262,10 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	inventoryv1.RegisterServicesServiceServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc, mgmtServices))
 	inventoryv1.RegisterAgentsServiceServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
-	serviceSvc := management.NewServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb, deps.versionCache, deps.grafanaClient)
+	managementSvc := management.NewManagementService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb, deps.versionCache, deps.grafanaClient)
 
-	servicev1beta1.RegisterMgmtServiceServer(gRPCServer, management.NewMgmtServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, v1.NewAPI(*deps.vmClient)))
-	managementv1.RegisterServiceServer(gRPCServer, serviceSvc)
+	managementv1beta1.RegisterMgmtServiceServer(gRPCServer, management.NewMgmtServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, v1.NewAPI(*deps.vmClient)))
+	managementv1.RegisterManagementServiceServer(gRPCServer, managementSvc)
 	actionsv1.RegisterActionsServiceServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
 	advisorsv1.RegisterAdvisorServiceServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
 
@@ -357,8 +357,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		inventoryv1.RegisterServicesServiceHandlerFromEndpoint,
 		inventoryv1.RegisterAgentsServiceHandlerFromEndpoint,
 
-		servicev1beta1.RegisterMgmtServiceHandlerFromEndpoint,
-		managementv1.RegisterServiceHandlerFromEndpoint,
+		managementv1beta1.RegisterMgmtServiceHandlerFromEndpoint,
+		managementv1.RegisterManagementServiceHandlerFromEndpoint,
 		actionsv1.RegisterActionsServiceHandlerFromEndpoint,
 		advisorsv1.RegisterAdvisorServiceHandlerFromEndpoint,
 		rolev1beta1.RegisterRoleServiceHandlerFromEndpoint,

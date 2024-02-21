@@ -26,7 +26,7 @@ import (
 
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/management/v1/json/client"
-	"github.com/percona/pmm/api/management/v1/json/client/service"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 var addExternalServerlessResultT = commands.ParseTemplate(`
@@ -37,7 +37,7 @@ Group       : {{ .Service.Group }}
 `)
 
 type addExternalServerlessResult struct {
-	Service *service.AddExternalOKBodyService `json:"service"`
+	Service *mservice.AddExternalOKBodyService `json:"service"`
 }
 
 func (res *addExternalServerlessResult) Result() {}
@@ -123,10 +123,10 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &service.AddExternalParams{
-		Body: service.AddExternalBody{
-			AddNode: &service.AddExternalParamsBodyAddNode{
-				NodeType:      pointer.ToString(service.AddExternalParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE),
+	params := &mservice.AddExternalParams{
+		Body: mservice.AddExternalBody{
+			AddNode: &mservice.AddExternalParamsBodyAddNode{
+				NodeType:      pointer.ToString(mservice.AddExternalParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE),
 				NodeName:      serviceName,
 				MachineID:     cmd.MachineID,
 				Distro:        cmd.Distro,
@@ -148,13 +148,13 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 			Cluster:             cmd.Cluster,
 			ReplicationSet:      cmd.ReplicationSet,
 			CustomLabels:        customLabels,
-			MetricsMode:         pointer.ToString(service.AddExternalBodyMetricsModeMETRICSMODEPULL),
+			MetricsMode:         pointer.ToString(mservice.AddExternalBodyMetricsModeMETRICSMODEPULL),
 			Group:               cmd.Group,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.Service.AddExternal(params)
+	resp, err := client.Default.ManagementService.AddExternal(params)
 	if err != nil {
 		return nil, err
 	}

@@ -30,8 +30,8 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-// ServiceService represents service for working with services.
-type ServiceService struct {
+// ManagementService allows to interact with services.
+type ManagementService struct {
 	db            *reform.DB
 	r             agentsRegistry
 	state         agentsStateUpdater
@@ -41,11 +41,11 @@ type ServiceService struct {
 	vc            versionCache
 	grafanaClient grafanaClient
 
-	managementv1.UnimplementedServiceServer
+	managementv1.UnimplementedManagementServiceServer
 }
 
-// NewServiceService creates ServiceService instance.
-func NewServiceService(
+// NewManagementService creates a ManagementService instance.
+func NewManagementService(
 	db *reform.DB,
 	r agentsRegistry,
 	state agentsStateUpdater,
@@ -54,8 +54,8 @@ func NewServiceService(
 	vmdb prometheusService,
 	vc versionCache,
 	grafanaClient grafanaClient,
-) *ServiceService {
-	return &ServiceService{
+) *ManagementService {
+	return &ManagementService{
 		db:            db,
 		r:             r,
 		state:         state,
@@ -68,7 +68,7 @@ func NewServiceService(
 }
 
 // RemoveService removes Service with Agents.
-func (s *ServiceService) RemoveService(ctx context.Context, req *managementv1.RemoveServiceRequest) (*empty.Empty, error) {
+func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1.RemoveServiceRequest) (*empty.Empty, error) {
 	err := s.validateRequest(req)
 	if err != nil {
 		return nil, err
@@ -161,14 +161,14 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementv1.Re
 	return &empty.Empty{}, nil
 }
 
-func (s *ServiceService) checkServiceType(service *models.Service, serviceType inventoryv1.ServiceType) error {
+func (s *ManagementService) checkServiceType(service *models.Service, serviceType inventoryv1.ServiceType) error {
 	if expected, ok := services.ServiceTypes[serviceType]; ok && expected == service.ServiceType {
 		return nil
 	}
 	return status.Error(codes.InvalidArgument, "wrong service type")
 }
 
-func (s *ServiceService) validateRequest(request *managementv1.RemoveServiceRequest) error {
+func (s *ManagementService) validateRequest(request *managementv1.RemoveServiceRequest) error {
 	if request.ServiceName == "" && request.ServiceId == "" {
 		return status.Error(codes.InvalidArgument, "service_id or service_name expected")
 	}

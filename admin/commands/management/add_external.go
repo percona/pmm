@@ -24,7 +24,7 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/management/v1/json/client"
-	"github.com/percona/pmm/api/management/v1/json/client/service"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 const (
@@ -42,7 +42,7 @@ Group       : {{ .Service.Group }}
 `)
 
 type addExternalResult struct {
-	Service *service.AddExternalOKBodyService `json:"service"`
+	Service *mservice.AddExternalOKBodyService `json:"service"`
 }
 
 func (res *addExternalResult) Result() {}
@@ -118,8 +118,8 @@ func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &service.AddExternalParams{
-		Body: service.AddExternalBody{
+	params := &mservice.AddExternalParams{
+		Body: mservice.AddExternalBody{
 			RunsOnNodeID:        cmd.RunsOnNodeID,
 			ServiceName:         cmd.ServiceName,
 			Username:            cmd.Username,
@@ -138,7 +138,7 @@ func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.Service.AddExternal(params)
+	resp, err := client.Default.ManagementService.AddExternal(params)
 	if err != nil {
 		return nil, err
 	}

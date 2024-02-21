@@ -27,55 +27,55 @@ import (
 	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 	"github.com/percona/pmm/api/management/v1/json/client"
-	annotation "github.com/percona/pmm/api/management/v1/json/client/service"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 func TestAddAnnotation(t *testing.T) {
 	t.Run("Add Basic Annotation", func(t *testing.T) {
-		params := &annotation.AddAnnotationParams{
-			Body: annotation.AddAnnotationBody{
+		params := &mservice.AddAnnotationParams{
+			Body: mservice.AddAnnotationBody{
 				Text: "Annotation Text",
 				Tags: []string{"tag1", "tag2"},
 			},
 			Context: pmmapitests.Context,
 		}
-		_, err := client.Default.Service.AddAnnotation(params)
+		_, err := client.Default.ManagementService.AddAnnotation(params)
 		require.NoError(t, err)
 	})
 
 	t.Run("Add Empty Annotation", func(t *testing.T) {
-		params := &annotation.AddAnnotationParams{
-			Body: annotation.AddAnnotationBody{
+		params := &mservice.AddAnnotationParams{
+			Body: mservice.AddAnnotationBody{
 				Text: "",
 				Tags: []string{},
 			},
 			Context: pmmapitests.Context,
 		}
-		_, err := client.Default.Service.AddAnnotation(params)
+		_, err := client.Default.ManagementService.AddAnnotation(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAnnotationRequest.Text: value length must be at least 1 runes")
 	})
 
 	t.Run("Non-existing service", func(t *testing.T) {
-		params := &annotation.AddAnnotationParams{
-			Body: annotation.AddAnnotationBody{
+		params := &mservice.AddAnnotationParams{
+			Body: mservice.AddAnnotationBody{
 				Text:         "Some text",
 				ServiceNames: []string{"no-service"},
 			},
 			Context: pmmapitests.Context,
 		}
-		_, err := client.Default.Service.AddAnnotation(params)
+		_, err := client.Default.ManagementService.AddAnnotation(params)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, `Service with name "no-service" not found.`)
 	})
 
 	t.Run("Non-existing node", func(t *testing.T) {
-		params := &annotation.AddAnnotationParams{
-			Body: annotation.AddAnnotationBody{
+		params := &mservice.AddAnnotationParams{
+			Body: mservice.AddAnnotationBody{
 				Text:     "Some text",
 				NodeName: "no-node",
 			},
 			Context: pmmapitests.Context,
 		}
-		_, err := client.Default.Service.AddAnnotation(params)
+		_, err := client.Default.ManagementService.AddAnnotation(params)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, `Node with name "no-node" not found.`)
 	})
 
@@ -114,14 +114,14 @@ func TestAddAnnotation(t *testing.T) {
 		serviceID := resService.Payload.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		paramsAdd := &annotation.AddAnnotationParams{
-			Body: annotation.AddAnnotationBody{
+		paramsAdd := &mservice.AddAnnotationParams{
+			Body: mservice.AddAnnotationBody{
 				Text:         "Some text",
 				ServiceNames: []string{serviceName},
 			},
 			Context: pmmapitests.Context,
 		}
-		_, err = client.Default.Service.AddAnnotation(paramsAdd)
+		_, err = client.Default.ManagementService.AddAnnotation(paramsAdd)
 		require.NoError(t, err)
 	})
 
@@ -140,14 +140,14 @@ func TestAddAnnotation(t *testing.T) {
 		assert.NoError(t, err)
 		defer pmmapitests.RemoveNodes(t, res.Payload.Generic.NodeID)
 
-		paramsAdd := &annotation.AddAnnotationParams{
-			Body: annotation.AddAnnotationBody{
+		paramsAdd := &mservice.AddAnnotationParams{
+			Body: mservice.AddAnnotationBody{
 				Text:     "Some text",
 				NodeName: nodeName,
 			},
 			Context: pmmapitests.Context,
 		}
-		_, err = client.Default.Service.AddAnnotation(paramsAdd)
+		_, err = client.Default.ManagementService.AddAnnotation(paramsAdd)
 		require.NoError(t, err)
 	})
 }

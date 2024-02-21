@@ -17044,7 +17044,7 @@
       "post": {
         "description": "Adds an annotation.",
         "tags": [
-          "Service"
+          "ManagementService"
         ],
         "summary": "Add Annotation",
         "operationId": "AddAnnotation",
@@ -17482,7 +17482,7 @@
       "post": {
         "description": "Adds external service and adds external exporter. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds an \"external exporter\" agent to inventory, which is running on provided \"runs_on_node_id\".",
         "tags": [
-          "Service"
+          "ManagementService"
         ],
         "summary": "Add External Service",
         "operationId": "AddExternal",
@@ -17825,7 +17825,7 @@
       "post": {
         "description": "Adds HAProxy service and external exporter. It automatically adds a service to inventory, which is running on the provided \"node_id\", then adds an \"external exporter\" agent to the inventory.",
         "tags": [
-          "Service"
+          "ManagementService"
         ],
         "summary": "Add HAProxy",
         "operationId": "AddHAProxy",
@@ -18153,7 +18153,7 @@
       "post": {
         "description": "Adds MongoDB Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided \"node_id\", then adds \"mongodb_exporter\", and \"qan_mongodb_profiler\" agents with the provided \"pmm_agent_id\" and other parameters.",
         "tags": [
-          "Service"
+          "ManagementService"
         ],
         "summary": "Add MongoDB",
         "operationId": "AddMongoDB",
@@ -18753,7 +18753,7 @@
       "post": {
         "description": "Adds MySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided \"node_id\", then adds \"mysqld_exporter\", and \"qan_mysql_perfschema\" agents with the provided \"pmm_agent_id\" and other parameters.",
         "tags": [
-          "Service"
+          "ManagementService"
         ],
         "summary": "Add MySQL",
         "operationId": "AddMySQL",
@@ -19963,7 +19963,7 @@
       "post": {
         "description": "Registers a new Node and pmm-agent.",
         "tags": [
-          "Service"
+          "ManagementService"
         ],
         "summary": "Register Node",
         "operationId": "RegisterNode",
@@ -20287,7 +20287,7 @@
       "post": {
         "description": "Adds PostgreSQL Service and starts postgres exporter. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds \"postgres_exporter\" with provided \"pmm_agent_id\" and other parameters.",
         "tags": [
-          "Service"
+          "ManagementService"
         ],
         "summary": "Add PostgreSQL",
         "operationId": "AddPostgreSQL",
@@ -20988,7 +20988,7 @@
       "post": {
         "description": "Adds ProxySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds \"proxysql_exporter\" with provided \"pmm_agent_id\" and other parameters.",
         "tags": [
-          "Service"
+          "ManagementService"
         ],
         "summary": "Add ProxySQL",
         "operationId": "AddProxySQL",
@@ -21423,7 +21423,7 @@
       "post": {
         "description": "Adds RDS instance.",
         "tags": [
-          "Service"
+          "ManagementService"
         ],
         "summary": "Add RDS",
         "operationId": "AddRDS",
@@ -22423,7 +22423,7 @@
       "post": {
         "description": "Discovers RDS instances.",
         "tags": [
-          "Service"
+          "ManagementService"
         ],
         "summary": "Discover RDS",
         "operationId": "DiscoverRDS",
@@ -23061,7 +23061,7 @@
       "post": {
         "description": "Removes a Service along with Agents.",
         "tags": [
-          "Service"
+          "ManagementService"
         ],
         "summary": "Remove Service",
         "operationId": "RemoveServiceMixin3",
@@ -27775,7 +27775,7 @@
       "name": "ServicesService"
     },
     {
-      "name": "Service"
+      "name": "ManagementService"
     },
     {
       "name": "ActionsService"

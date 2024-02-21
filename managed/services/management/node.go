@@ -35,7 +35,7 @@ import (
 )
 
 // RegisterNode performs the registration of a new node.
-func (s *ServiceService) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) {
+func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) {
 	res := &managementv1.RegisterNodeResponse{}
 
 	e := s.db.InTransaction(func(tx *reform.TX) error {

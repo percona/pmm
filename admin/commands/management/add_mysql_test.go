@@ -20,17 +20,17 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/percona/pmm/api/management/v1/json/client/service"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 func TestAddMySQL(t *testing.T) {
 	t.Run("TablestatEnabled", func(t *testing.T) {
 		res := &addMySQLResult{
-			Service: &service.AddMySQLOKBodyService{
+			Service: &mservice.AddMySQLOKBodyService{
 				ServiceID:   "/service_id/1",
 				ServiceName: "mysql-1",
 			},
-			MysqldExporter: &service.AddMySQLOKBodyMysqldExporter{
+			MysqldExporter: &mservice.AddMySQLOKBodyMysqldExporter{
 				TablestatsGroupTableLimit: 1000,
 				TablestatsGroupDisabled:   false,
 			},
@@ -48,11 +48,11 @@ Table statistics collection enabled (the limit is 1000, the actual table count i
 
 	t.Run("TablestatEnabledNoLimit", func(t *testing.T) {
 		res := &addMySQLResult{
-			Service: &service.AddMySQLOKBodyService{
+			Service: &mservice.AddMySQLOKBodyService{
 				ServiceID:   "/service_id/1",
 				ServiceName: "mysql-1",
 			},
-			MysqldExporter: &service.AddMySQLOKBodyMysqldExporter{
+			MysqldExporter: &mservice.AddMySQLOKBodyMysqldExporter{
 				TablestatsGroupTableLimit: 0,
 				TablestatsGroupDisabled:   false,
 			},
@@ -70,11 +70,11 @@ Table statistics collection enabled (the table count limit is not set).
 
 	t.Run("TablestatEnabledUnknown", func(t *testing.T) {
 		res := &addMySQLResult{
-			Service: &service.AddMySQLOKBodyService{
+			Service: &mservice.AddMySQLOKBodyService{
 				ServiceID:   "/service_id/1",
 				ServiceName: "mysql-1",
 			},
-			MysqldExporter: &service.AddMySQLOKBodyMysqldExporter{
+			MysqldExporter: &mservice.AddMySQLOKBodyMysqldExporter{
 				TablestatsGroupTableLimit: 1000,
 				TablestatsGroupDisabled:   false,
 			},
@@ -92,11 +92,11 @@ Table statistics collection enabled (the limit is 1000, the actual table count i
 
 	t.Run("TablestatDisabled", func(t *testing.T) {
 		res := &addMySQLResult{
-			Service: &service.AddMySQLOKBodyService{
+			Service: &mservice.AddMySQLOKBodyService{
 				ServiceID:   "/service_id/1",
 				ServiceName: "mysql-1",
 			},
-			MysqldExporter: &service.AddMySQLOKBodyMysqldExporter{
+			MysqldExporter: &mservice.AddMySQLOKBodyMysqldExporter{
 				TablestatsGroupTableLimit: 1000,
 				TablestatsGroupDisabled:   true,
 				TLS:                       true,
@@ -118,11 +118,11 @@ Table statistics collection disabled (the limit is 1000, the actual table count 
 
 	t.Run("TablestatDisabledAlways", func(t *testing.T) {
 		res := &addMySQLResult{
-			Service: &service.AddMySQLOKBodyService{
+			Service: &mservice.AddMySQLOKBodyService{
 				ServiceID:   "/service_id/1",
 				ServiceName: "mysql-1",
 			},
-			MysqldExporter: &service.AddMySQLOKBodyMysqldExporter{
+			MysqldExporter: &mservice.AddMySQLOKBodyMysqldExporter{
 				TablestatsGroupTableLimit: -1,
 				TablestatsGroupDisabled:   true,
 			},

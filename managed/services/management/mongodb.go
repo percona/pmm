@@ -28,7 +28,7 @@ import (
 )
 
 // AddMongoDB adds "MongoDB Service", "MongoDB Exporter Agent" and "QAN MongoDB Profiler".
-func (s *ServiceService) AddMongoDB(ctx context.Context, req *managementv1.AddMongoDBRequest) (*managementv1.AddMongoDBResponse, error) {
+func (s *ManagementService) AddMongoDB(ctx context.Context, req *managementv1.AddMongoDBRequest) (*managementv1.AddMongoDBResponse, error) {
 	res := &managementv1.AddMongoDBResponse{}
 
 	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {

@@ -23,7 +23,7 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/management/v1/json/client"
-	"github.com/percona/pmm/api/management/v1/json/client/service"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 var addProxySQLResultT = commands.ParseTemplate(`
@@ -33,7 +33,7 @@ Service name: {{ .Service.ServiceName }}
 `)
 
 type addProxySQLResult struct {
-	Service *service.AddProxySQLOKBodyService `json:"service"`
+	Service *mservice.AddProxySQLOKBodyService `json:"service"`
 }
 
 func (res *addProxySQLResult) Result() {}
@@ -126,8 +126,8 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &service.AddProxySQLParams{
-		Body: service.AddProxySQLBody{
+	params := &mservice.AddProxySQLParams{
+		Body: mservice.AddProxySQLBody{
 			NodeID:         cmd.NodeID,
 			ServiceName:    serviceName,
 			Address:        host,
@@ -152,7 +152,7 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.Service.AddProxySQL(params)
+	resp, err := client.Default.ManagementService.AddProxySQL(params)
 	if err != nil {
 		return nil, err
 	}

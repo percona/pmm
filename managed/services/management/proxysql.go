@@ -28,7 +28,7 @@ import (
 )
 
 // AddProxySQL adds "ProxySQL Service", "ProxySQL Exporter Agent" and "QAN ProxySQL PerfSchema Agent".
-func (s *ServiceService) AddProxySQL(ctx context.Context, req *managementv1.AddProxySQLRequest) (*managementv1.AddProxySQLResponse, error) {
+func (s *ManagementService) AddProxySQL(ctx context.Context, req *managementv1.AddProxySQLRequest) (*managementv1.AddProxySQLResponse, error) {
 	res := &managementv1.AddProxySQLResponse{}
 
 	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {

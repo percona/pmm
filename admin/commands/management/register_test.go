@@ -19,7 +19,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/percona/pmm/api/management/v1/json/client/service"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 func TestRegisterResult(t *testing.T) {
@@ -31,7 +31,7 @@ func TestRegisterResult(t *testing.T) {
 		{
 			name: "Success",
 			result: registerResult{
-				PMMAgent: &service.RegisterNodeOKBodyPMMAgent{
+				PMMAgent: &mservice.RegisterNodeOKBodyPMMAgent{
 					AgentID:      "/agent_id/new_id",
 					RunsOnNodeID: "/node_id/second_id",
 				},
@@ -45,7 +45,7 @@ Node ID     : /node_id/second_id
 		{
 			name: "With warning",
 			result: registerResult{
-				PMMAgent: &service.RegisterNodeOKBodyPMMAgent{
+				PMMAgent: &mservice.RegisterNodeOKBodyPMMAgent{
 					AgentID:      "/agent_id/warning",
 					RunsOnNodeID: "/node_id/warning_node",
 				},

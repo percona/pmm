@@ -32,7 +32,7 @@ const (
 )
 
 // AddPostgreSQL adds "PostgreSQL Service", "PostgreSQL Exporter Agent" and "QAN PostgreSQL PerfSchema Agent".
-func (s *ServiceService) AddPostgreSQL(ctx context.Context, req *managementv1.AddPostgreSQLRequest) (*managementv1.AddPostgreSQLResponse, error) {
+func (s *ManagementService) AddPostgreSQL(ctx context.Context, req *managementv1.AddPostgreSQLRequest) (*managementv1.AddPostgreSQLResponse, error) {
 	res := &managementv1.AddPostgreSQLResponse{}
 
 	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {

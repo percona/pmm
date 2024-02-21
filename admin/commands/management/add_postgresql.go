@@ -23,7 +23,7 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/management/v1/json/client"
-	"github.com/percona/pmm/api/management/v1/json/client/service"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 var addPostgreSQLResultT = commands.ParseTemplate(`
@@ -33,7 +33,7 @@ Service name: {{ .Service.ServiceName }}
 `)
 
 type addPostgreSQLResult struct {
-	Service *service.AddPostgreSQLOKBodyService `json:"service"`
+	Service *mservice.AddPostgreSQLOKBodyService `json:"service"`
 }
 
 func (res *addPostgreSQLResult) Result() {}
@@ -171,8 +171,8 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &service.AddPostgreSQLParams{
-		Body: service.AddPostgreSQLBody{
+	params := &mservice.AddPostgreSQLParams{
+		Body: mservice.AddPostgreSQLBody{
 			NodeID:                 cmd.NodeID,
 			ServiceName:            serviceName,
 			Address:                host,
@@ -210,7 +210,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.Service.AddPostgreSQL(params)
+	resp, err := client.Default.ManagementService.AddPostgreSQL(params)
 	if err != nil {
 		return nil, err
 	}

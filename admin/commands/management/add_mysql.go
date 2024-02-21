@@ -26,7 +26,7 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/management/v1/json/client"
-	"github.com/percona/pmm/api/management/v1/json/client/service"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 const (
@@ -47,9 +47,9 @@ Service name: {{ .Service.ServiceName }}
 `)
 
 type addMySQLResult struct {
-	Service        *service.AddMySQLOKBodyService        `json:"service"`
-	MysqldExporter *service.AddMySQLOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
-	TableCount     int32                                 `json:"table_count,omitempty"`
+	Service        *mservice.AddMySQLOKBodyService        `json:"service"`
+	MysqldExporter *mservice.AddMySQLOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
+	TableCount     int32                                  `json:"table_count,omitempty"`
 }
 
 func (res *addMySQLResult) Result() {}
@@ -203,8 +203,8 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 		tablestatsGroupTableLimit = -1
 	}
 
-	params := &service.AddMySQLParams{
-		Body: service.AddMySQLBody{
+	params := &mservice.AddMySQLParams{
+		Body: mservice.AddMySQLBody{
 			NodeID:         cmd.NodeID,
 			ServiceName:    serviceName,
 			Address:        host,
@@ -241,7 +241,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.Service.AddMySQL(params)
+	resp, err := client.Default.ManagementService.AddMySQL(params)
 	if err != nil {
 		return nil, err
 	}

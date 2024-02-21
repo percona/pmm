@@ -36,7 +36,7 @@ import (
 	"github.com/percona/pmm/agent/config"
 	agentlocalClient "github.com/percona/pmm/api/agentlocal/v1/json/client"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
-	"github.com/percona/pmm/api/management/v1/json/client/service"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 
@@ -162,8 +162,8 @@ func ParseCustomLabels(labels string) (map[string]string, error) {
 // This method is not thread-safe.
 func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { //nolint:nonamedreturns
 	nodeTypes := map[string]string{
-		"generic":   service.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE,
-		"container": service.RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE,
+		"generic":   mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE,
+		"container": mservice.RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE,
 	}
 
 	var disableCollectors []string
@@ -179,8 +179,8 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 		return "", "", err
 	}
 
-	res, err := managementClient.Default.Service.RegisterNode(&service.RegisterNodeParams{
-		Body: service.RegisterNodeBody{
+	res, err := managementClient.Default.ManagementService.RegisterNode(&mservice.RegisterNodeParams{
+		Body: mservice.RegisterNodeBody{
 			NodeType:      pointer.ToString(nodeTypes[cfgSetup.NodeType]),
 			NodeName:      cfgSetup.NodeName,
 			MachineID:     cfgSetup.MachineID,

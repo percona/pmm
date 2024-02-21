@@ -39,7 +39,7 @@ import (
 
 func TestNodeService(t *testing.T) {
 	t.Run("Register", func(t *testing.T) {
-		setup := func(t *testing.T) (context.Context, *ServiceService, func(t *testing.T)) {
+		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T)) {
 			t.Helper()
 
 			ctx := logger.Set(context.Background(), t.Name())
@@ -83,7 +83,7 @@ func TestNodeService(t *testing.T) {
 			grafanaClient.On("IsAPIKeyAuth", mock.Anything).Return(false)
 			grafanaClient.On("CreateAdminAPIKey", ctx, mock.AnythingOfType("string")).Return(int64(0), "test-token", nil)
 
-			s := NewServiceService(db, ar, state, cc, sib, vmdb, vc, grafanaClient)
+			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient)
 
 			return ctx, s, teardown
 		}

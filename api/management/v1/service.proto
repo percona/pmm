@@ -28,8 +28,8 @@ message RemoveServiceRequest {
   string service_name = 3;
 }
 
-// Service service provides public methods for managing and querying Services.
-service Service {
+// ManagementService provides public methods for managing and querying Services.
+service ManagementService {
   // AddAnnotation adds an annotation.
   rpc AddAnnotation(AddAnnotationRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {

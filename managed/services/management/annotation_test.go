@@ -39,7 +39,7 @@ import (
 func TestAnnotations(t *testing.T) {
 	authorization := "admin:admin"
 
-	setup := func(t *testing.T) (context.Context, *ServiceService, *reform.DB, *mockGrafanaClient, func(t *testing.T)) {
+	setup := func(t *testing.T) (context.Context, *ManagementService, *reform.DB, *mockGrafanaClient, func(t *testing.T)) {
 		t.Helper()
 
 		ctx := metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{"authorization": authorization}))
@@ -64,7 +64,7 @@ func TestAnnotations(t *testing.T) {
 		grafanaClient := &mockGrafanaClient{}
 		grafanaClient.Test(t)
 
-		s := NewServiceService(db, ar, state, cc, sib, vmdb, vc, grafanaClient)
+		s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient)
 
 		teardown := func(t *testing.T) {
 			t.Helper()

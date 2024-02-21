@@ -33,7 +33,7 @@ import (
 // AddAnnotation create annotation in grafana.
 //
 //nolint:unparam
-func (s *ServiceService) AddAnnotation(ctx context.Context, req *managementv1.AddAnnotationRequest) (*empty.Empty, error) {
+func (s *ManagementService) AddAnnotation(ctx context.Context, req *managementv1.AddAnnotationRequest) (*empty.Empty, error) {
 	headers, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return nil, fmt.Errorf("cannot get headers from metadata")

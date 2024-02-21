@@ -33,7 +33,7 @@ var (
 	_ = metadata.Join
 )
 
-func request_Service_AddAnnotation_0(ctx context.Context, marshaler runtime.Marshaler, client ServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ManagementService_AddAnnotation_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddAnnotationRequest
 	var metadata runtime.ServerMetadata
 
@@ -49,7 +49,7 @@ func request_Service_AddAnnotation_0(ctx context.Context, marshaler runtime.Mars
 	return msg, metadata, err
 }
 
-func local_request_Service_AddAnnotation_0(ctx context.Context, marshaler runtime.Marshaler, server ServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ManagementService_AddAnnotation_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddAnnotationRequest
 	var metadata runtime.ServerMetadata
 
@@ -65,7 +65,7 @@ func local_request_Service_AddAnnotation_0(ctx context.Context, marshaler runtim
 	return msg, metadata, err
 }
 
-func request_Service_RegisterNode_0(ctx context.Context, marshaler runtime.Marshaler, client ServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ManagementService_RegisterNode_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq RegisterNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -81,7 +81,7 @@ func request_Service_RegisterNode_0(ctx context.Context, marshaler runtime.Marsh
 	return msg, metadata, err
 }
 
-func local_request_Service_RegisterNode_0(ctx context.Context, marshaler runtime.Marshaler, server ServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ManagementService_RegisterNode_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq RegisterNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -97,7 +97,7 @@ func local_request_Service_RegisterNode_0(ctx context.Context, marshaler runtime
 	return msg, metadata, err
 }
 
-func request_Service_AddExternal_0(ctx context.Context, marshaler runtime.Marshaler, client ServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ManagementService_AddExternal_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddExternalRequest
 	var metadata runtime.ServerMetadata
 
@@ -113,7 +113,7 @@ func request_Service_AddExternal_0(ctx context.Context, marshaler runtime.Marsha
 	return msg, metadata, err
 }
 
-func local_request_Service_AddExternal_0(ctx context.Context, marshaler runtime.Marshaler, server ServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ManagementService_AddExternal_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddExternalRequest
 	var metadata runtime.ServerMetadata
 
@@ -129,7 +129,7 @@ func local_request_Service_AddExternal_0(ctx context.Context, marshaler runtime.
 	return msg, metadata, err
 }
 
-func request_Service_AddHAProxy_0(ctx context.Context, marshaler runtime.Marshaler, client ServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ManagementService_AddHAProxy_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddHAProxyRequest
 	var metadata runtime.ServerMetadata
 
@@ -145,7 +145,7 @@ func request_Service_AddHAProxy_0(ctx context.Context, marshaler runtime.Marshal
 	return msg, metadata, err
 }
 
-func local_request_Service_AddHAProxy_0(ctx context.Context, marshaler runtime.Marshaler, server ServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ManagementService_AddHAProxy_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddHAProxyRequest
 	var metadata runtime.ServerMetadata
 
@@ -161,7 +161,7 @@ func local_request_Service_AddHAProxy_0(ctx context.Context, marshaler runtime.M
 	return msg, metadata, err
 }
 
-func request_Service_AddMySQL_0(ctx context.Context, marshaler runtime.Marshaler, client ServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ManagementService_AddMySQL_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddMySQLRequest
 	var metadata runtime.ServerMetadata
 
@@ -177,7 +177,7 @@ func request_Service_AddMySQL_0(ctx context.Context, marshaler runtime.Marshaler
 	return msg, metadata, err
 }
 
-func local_request_Service_AddMySQL_0(ctx context.Context, marshaler runtime.Marshaler, server ServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ManagementService_AddMySQL_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddMySQLRequest
 	var metadata runtime.ServerMetadata
 
@@ -193,7 +193,7 @@ func local_request_Service_AddMySQL_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-func request_Service_AddMongoDB_0(ctx context.Context, marshaler runtime.Marshaler, client ServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ManagementService_AddMongoDB_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddMongoDBRequest
 	var metadata runtime.ServerMetadata
 
@@ -209,7 +209,7 @@ func request_Service_AddMongoDB_0(ctx context.Context, marshaler runtime.Marshal
 	return msg, metadata, err
 }
 
-func local_request_Service_AddMongoDB_0(ctx context.Context, marshaler runtime.Marshaler, server ServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ManagementService_AddMongoDB_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddMongoDBRequest
 	var metadata runtime.ServerMetadata
 
@@ -225,7 +225,7 @@ func local_request_Service_AddMongoDB_0(ctx context.Context, marshaler runtime.M
 	return msg, metadata, err
 }
 
-func request_Service_AddPostgreSQL_0(ctx context.Context, marshaler runtime.Marshaler, client ServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ManagementService_AddPostgreSQL_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddPostgreSQLRequest
 	var metadata runtime.ServerMetadata
 
@@ -241,7 +241,7 @@ func request_Service_AddPostgreSQL_0(ctx context.Context, marshaler runtime.Mars
 	return msg, metadata, err
 }
 
-func local_request_Service_AddPostgreSQL_0(ctx context.Context, marshaler runtime.Marshaler, server ServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ManagementService_AddPostgreSQL_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddPostgreSQLRequest
 	var metadata runtime.ServerMetadata
 
@@ -257,7 +257,7 @@ func local_request_Service_AddPostgreSQL_0(ctx context.Context, marshaler runtim
 	return msg, metadata, err
 }
 
-func request_Service_AddProxySQL_0(ctx context.Context, marshaler runtime.Marshaler, client ServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ManagementService_AddProxySQL_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddProxySQLRequest
 	var metadata runtime.ServerMetadata
 
@@ -273,7 +273,7 @@ func request_Service_AddProxySQL_0(ctx context.Context, marshaler runtime.Marsha
 	return msg, metadata, err
 }
 
-func local_request_Service_AddProxySQL_0(ctx context.Context, marshaler runtime.Marshaler, server ServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ManagementService_AddProxySQL_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddProxySQLRequest
 	var metadata runtime.ServerMetadata
 
@@ -289,7 +289,7 @@ func local_request_Service_AddProxySQL_0(ctx context.Context, marshaler runtime.
 	return msg, metadata, err
 }
 
-func request_Service_DiscoverRDS_0(ctx context.Context, marshaler runtime.Marshaler, client ServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ManagementService_DiscoverRDS_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq DiscoverRDSRequest
 	var metadata runtime.ServerMetadata
 
@@ -305,7 +305,7 @@ func request_Service_DiscoverRDS_0(ctx context.Context, marshaler runtime.Marsha
 	return msg, metadata, err
 }
 
-func local_request_Service_DiscoverRDS_0(ctx context.Context, marshaler runtime.Marshaler, server ServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ManagementService_DiscoverRDS_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq DiscoverRDSRequest
 	var metadata runtime.ServerMetadata
 
@@ -321,7 +321,7 @@ func local_request_Service_DiscoverRDS_0(ctx context.Context, marshaler runtime.
 	return msg, metadata, err
 }
 
-func request_Service_AddRDS_0(ctx context.Context, marshaler runtime.Marshaler, client ServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ManagementService_AddRDS_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddRDSRequest
 	var metadata runtime.ServerMetadata
 
@@ -337,7 +337,7 @@ func request_Service_AddRDS_0(ctx context.Context, marshaler runtime.Marshaler, 
 	return msg, metadata, err
 }
 
-func local_request_Service_AddRDS_0(ctx context.Context, marshaler runtime.Marshaler, server ServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ManagementService_AddRDS_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddRDSRequest
 	var metadata runtime.ServerMetadata
 
@@ -353,7 +353,7 @@ func local_request_Service_AddRDS_0(ctx context.Context, marshaler runtime.Marsh
 	return msg, metadata, err
 }
 
-func request_Service_RemoveService_0(ctx context.Context, marshaler runtime.Marshaler, client ServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ManagementService_RemoveService_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq RemoveServiceRequest
 	var metadata runtime.ServerMetadata
 
@@ -369,7 +369,7 @@ func request_Service_RemoveService_0(ctx context.Context, marshaler runtime.Mars
 	return msg, metadata, err
 }
 
-func local_request_Service_RemoveService_0(ctx context.Context, marshaler runtime.Marshaler, server ServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ManagementService_RemoveService_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq RemoveServiceRequest
 	var metadata runtime.ServerMetadata
 
@@ -385,12 +385,12 @@ func local_request_Service_RemoveService_0(ctx context.Context, marshaler runtim
 	return msg, metadata, err
 }
 
-// RegisterServiceHandlerServer registers the http handlers for service Service to "mux".
-// UnaryRPC     :call ServiceServer directly.
+// RegisterManagementServiceHandlerServer registers the http handlers for service ManagementService to "mux".
+// UnaryRPC     :call ManagementServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterServiceHandlerFromEndpoint instead.
-func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ServiceServer) error {
-	mux.Handle("POST", pattern_Service_AddAnnotation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterManagementServiceHandlerFromEndpoint instead.
+func RegisterManagementServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ManagementServiceServer) error {
+	mux.Handle("POST", pattern_ManagementService_AddAnnotation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -398,12 +398,12 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.Service/AddAnnotation", runtime.WithHTTPPathPattern("/v1/management/Annotations/Add"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.ManagementService/AddAnnotation", runtime.WithHTTPPathPattern("/v1/management/Annotations/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Service_AddAnnotation_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ManagementService_AddAnnotation_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -411,10 +411,10 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Service_AddAnnotation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_AddAnnotation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Service_RegisterNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementService_RegisterNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -422,12 +422,12 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.Service/RegisterNode", runtime.WithHTTPPathPattern("/v1/management/Node/Register"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.ManagementService/RegisterNode", runtime.WithHTTPPathPattern("/v1/management/Node/Register"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Service_RegisterNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ManagementService_RegisterNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -435,10 +435,10 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Service_RegisterNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_RegisterNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Service_AddExternal_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementService_AddExternal_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -446,12 +446,12 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.Service/AddExternal", runtime.WithHTTPPathPattern("/v1/management/External/Add"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.ManagementService/AddExternal", runtime.WithHTTPPathPattern("/v1/management/External/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Service_AddExternal_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ManagementService_AddExternal_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -459,10 +459,10 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Service_AddExternal_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_AddExternal_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Service_AddHAProxy_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementService_AddHAProxy_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -470,12 +470,12 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.Service/AddHAProxy", runtime.WithHTTPPathPattern("/v1/management/HAProxy/Add"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.ManagementService/AddHAProxy", runtime.WithHTTPPathPattern("/v1/management/HAProxy/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Service_AddHAProxy_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ManagementService_AddHAProxy_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -483,10 +483,10 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Service_AddHAProxy_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_AddHAProxy_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Service_AddMySQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementService_AddMySQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -494,12 +494,12 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.Service/AddMySQL", runtime.WithHTTPPathPattern("/v1/management/MySQL/Add"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.ManagementService/AddMySQL", runtime.WithHTTPPathPattern("/v1/management/MySQL/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Service_AddMySQL_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ManagementService_AddMySQL_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -507,10 +507,10 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Service_AddMySQL_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_AddMySQL_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Service_AddMongoDB_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementService_AddMongoDB_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -518,12 +518,12 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.Service/AddMongoDB", runtime.WithHTTPPathPattern("/v1/management/MongoDB/Add"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.ManagementService/AddMongoDB", runtime.WithHTTPPathPattern("/v1/management/MongoDB/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Service_AddMongoDB_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ManagementService_AddMongoDB_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -531,10 +531,10 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Service_AddMongoDB_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_AddMongoDB_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Service_AddPostgreSQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementService_AddPostgreSQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -542,12 +542,12 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.Service/AddPostgreSQL", runtime.WithHTTPPathPattern("/v1/management/PostgreSQL/Add"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.ManagementService/AddPostgreSQL", runtime.WithHTTPPathPattern("/v1/management/PostgreSQL/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Service_AddPostgreSQL_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ManagementService_AddPostgreSQL_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -555,10 +555,10 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Service_AddPostgreSQL_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_AddPostgreSQL_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Service_AddProxySQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementService_AddProxySQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -566,12 +566,12 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.Service/AddProxySQL", runtime.WithHTTPPathPattern("/v1/management/ProxySQL/Add"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.ManagementService/AddProxySQL", runtime.WithHTTPPathPattern("/v1/management/ProxySQL/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Service_AddProxySQL_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ManagementService_AddProxySQL_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -579,10 +579,10 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Service_AddProxySQL_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_AddProxySQL_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Service_DiscoverRDS_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementService_DiscoverRDS_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -590,12 +590,12 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.Service/DiscoverRDS", runtime.WithHTTPPathPattern("/v1/management/RDS/Discover"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.ManagementService/DiscoverRDS", runtime.WithHTTPPathPattern("/v1/management/RDS/Discover"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Service_DiscoverRDS_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ManagementService_DiscoverRDS_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -603,10 +603,10 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Service_DiscoverRDS_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_DiscoverRDS_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Service_AddRDS_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementService_AddRDS_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -614,12 +614,12 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.Service/AddRDS", runtime.WithHTTPPathPattern("/v1/management/RDS/Add"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.ManagementService/AddRDS", runtime.WithHTTPPathPattern("/v1/management/RDS/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Service_AddRDS_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ManagementService_AddRDS_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -627,10 +627,10 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Service_AddRDS_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_AddRDS_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Service_RemoveService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementService_RemoveService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -638,12 +638,12 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.Service/RemoveService", runtime.WithHTTPPathPattern("/v1/management/Service/Remove"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.v1.ManagementService/RemoveService", runtime.WithHTTPPathPattern("/v1/management/Service/Remove"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Service_RemoveService_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ManagementService_RemoveService_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -651,15 +651,15 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Service_RemoveService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_RemoveService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterServiceHandlerFromEndpoint is same as RegisterServiceHandler but
+// RegisterManagementServiceHandlerFromEndpoint is same as RegisterManagementServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterManagementServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -679,299 +679,299 @@ func RegisterServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeM
 		}()
 	}()
 
-	return RegisterServiceHandler(ctx, mux, conn)
+	return RegisterManagementServiceHandler(ctx, mux, conn)
 }
 
-// RegisterServiceHandler registers the http handlers for service Service to "mux".
+// RegisterManagementServiceHandler registers the http handlers for service ManagementService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterServiceHandlerClient(ctx, mux, NewServiceClient(conn))
+func RegisterManagementServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterManagementServiceHandlerClient(ctx, mux, NewManagementServiceClient(conn))
 }
 
-// RegisterServiceHandlerClient registers the http handlers for service Service
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ServiceClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ServiceClient"
+// RegisterManagementServiceHandlerClient registers the http handlers for service ManagementService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ManagementServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ManagementServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "ServiceClient" to call the correct interceptors.
-func RegisterServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ServiceClient) error {
-	mux.Handle("POST", pattern_Service_AddAnnotation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "ManagementServiceClient" to call the correct interceptors.
+func RegisterManagementServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ManagementServiceClient) error {
+	mux.Handle("POST", pattern_ManagementService_AddAnnotation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.Service/AddAnnotation", runtime.WithHTTPPathPattern("/v1/management/Annotations/Add"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.ManagementService/AddAnnotation", runtime.WithHTTPPathPattern("/v1/management/Annotations/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Service_AddAnnotation_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ManagementService_AddAnnotation_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Service_AddAnnotation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_AddAnnotation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Service_RegisterNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementService_RegisterNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.Service/RegisterNode", runtime.WithHTTPPathPattern("/v1/management/Node/Register"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.ManagementService/RegisterNode", runtime.WithHTTPPathPattern("/v1/management/Node/Register"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Service_RegisterNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ManagementService_RegisterNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Service_RegisterNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_RegisterNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Service_AddExternal_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementService_AddExternal_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.Service/AddExternal", runtime.WithHTTPPathPattern("/v1/management/External/Add"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.ManagementService/AddExternal", runtime.WithHTTPPathPattern("/v1/management/External/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Service_AddExternal_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ManagementService_AddExternal_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Service_AddExternal_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_AddExternal_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Service_AddHAProxy_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementService_AddHAProxy_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.Service/AddHAProxy", runtime.WithHTTPPathPattern("/v1/management/HAProxy/Add"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.ManagementService/AddHAProxy", runtime.WithHTTPPathPattern("/v1/management/HAProxy/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Service_AddHAProxy_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ManagementService_AddHAProxy_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Service_AddHAProxy_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_AddHAProxy_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Service_AddMySQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementService_AddMySQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.Service/AddMySQL", runtime.WithHTTPPathPattern("/v1/management/MySQL/Add"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.ManagementService/AddMySQL", runtime.WithHTTPPathPattern("/v1/management/MySQL/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Service_AddMySQL_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ManagementService_AddMySQL_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Service_AddMySQL_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_AddMySQL_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Service_AddMongoDB_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementService_AddMongoDB_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.Service/AddMongoDB", runtime.WithHTTPPathPattern("/v1/management/MongoDB/Add"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.ManagementService/AddMongoDB", runtime.WithHTTPPathPattern("/v1/management/MongoDB/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Service_AddMongoDB_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ManagementService_AddMongoDB_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Service_AddMongoDB_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_AddMongoDB_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Service_AddPostgreSQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementService_AddPostgreSQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.Service/AddPostgreSQL", runtime.WithHTTPPathPattern("/v1/management/PostgreSQL/Add"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.ManagementService/AddPostgreSQL", runtime.WithHTTPPathPattern("/v1/management/PostgreSQL/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Service_AddPostgreSQL_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ManagementService_AddPostgreSQL_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Service_AddPostgreSQL_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_AddPostgreSQL_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Service_AddProxySQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementService_AddProxySQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.Service/AddProxySQL", runtime.WithHTTPPathPattern("/v1/management/ProxySQL/Add"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.ManagementService/AddProxySQL", runtime.WithHTTPPathPattern("/v1/management/ProxySQL/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Service_AddProxySQL_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ManagementService_AddProxySQL_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Service_AddProxySQL_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_AddProxySQL_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Service_DiscoverRDS_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementService_DiscoverRDS_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.Service/DiscoverRDS", runtime.WithHTTPPathPattern("/v1/management/RDS/Discover"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.ManagementService/DiscoverRDS", runtime.WithHTTPPathPattern("/v1/management/RDS/Discover"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Service_DiscoverRDS_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ManagementService_DiscoverRDS_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Service_DiscoverRDS_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_DiscoverRDS_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Service_AddRDS_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementService_AddRDS_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.Service/AddRDS", runtime.WithHTTPPathPattern("/v1/management/RDS/Add"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.ManagementService/AddRDS", runtime.WithHTTPPathPattern("/v1/management/RDS/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Service_AddRDS_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ManagementService_AddRDS_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Service_AddRDS_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_AddRDS_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Service_RemoveService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementService_RemoveService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.Service/RemoveService", runtime.WithHTTPPathPattern("/v1/management/Service/Remove"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.v1.ManagementService/RemoveService", runtime.WithHTTPPathPattern("/v1/management/Service/Remove"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Service_RemoveService_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ManagementService_RemoveService_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Service_RemoveService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementService_RemoveService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
 var (
-	pattern_Service_AddAnnotation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Annotations", "Add"}, ""))
+	pattern_ManagementService_AddAnnotation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Annotations", "Add"}, ""))
 
-	pattern_Service_RegisterNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Node", "Register"}, ""))
+	pattern_ManagementService_RegisterNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Node", "Register"}, ""))
 
-	pattern_Service_AddExternal_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "External", "Add"}, ""))
+	pattern_ManagementService_AddExternal_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "External", "Add"}, ""))
 
-	pattern_Service_AddHAProxy_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "HAProxy", "Add"}, ""))
+	pattern_ManagementService_AddHAProxy_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "HAProxy", "Add"}, ""))
 
-	pattern_Service_AddMySQL_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "MySQL", "Add"}, ""))
+	pattern_ManagementService_AddMySQL_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "MySQL", "Add"}, ""))
 
-	pattern_Service_AddMongoDB_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "MongoDB", "Add"}, ""))
+	pattern_ManagementService_AddMongoDB_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "MongoDB", "Add"}, ""))
 
-	pattern_Service_AddPostgreSQL_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "PostgreSQL", "Add"}, ""))
+	pattern_ManagementService_AddPostgreSQL_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "PostgreSQL", "Add"}, ""))
 
-	pattern_Service_AddProxySQL_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "ProxySQL", "Add"}, ""))
+	pattern_ManagementService_AddProxySQL_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "ProxySQL", "Add"}, ""))
 
-	pattern_Service_DiscoverRDS_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "RDS", "Discover"}, ""))
+	pattern_ManagementService_DiscoverRDS_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "RDS", "Discover"}, ""))
 
-	pattern_Service_AddRDS_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "RDS", "Add"}, ""))
+	pattern_ManagementService_AddRDS_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "RDS", "Add"}, ""))
 
-	pattern_Service_RemoveService_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Service", "Remove"}, ""))
+	pattern_ManagementService_RemoveService_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Service", "Remove"}, ""))
 )
 
 var (
-	forward_Service_AddAnnotation_0 = runtime.ForwardResponseMessage
+	forward_ManagementService_AddAnnotation_0 = runtime.ForwardResponseMessage
 
-	forward_Service_RegisterNode_0 = runtime.ForwardResponseMessage
+	forward_ManagementService_RegisterNode_0 = runtime.ForwardResponseMessage
 
-	forward_Service_AddExternal_0 = runtime.ForwardResponseMessage
+	forward_ManagementService_AddExternal_0 = runtime.ForwardResponseMessage
 
-	forward_Service_AddHAProxy_0 = runtime.ForwardResponseMessage
+	forward_ManagementService_AddHAProxy_0 = runtime.ForwardResponseMessage
 
-	forward_Service_AddMySQL_0 = runtime.ForwardResponseMessage
+	forward_ManagementService_AddMySQL_0 = runtime.ForwardResponseMessage
 
-	forward_Service_AddMongoDB_0 = runtime.ForwardResponseMessage
+	forward_ManagementService_AddMongoDB_0 = runtime.ForwardResponseMessage
 
-	forward_Service_AddPostgreSQL_0 = runtime.ForwardResponseMessage
+	forward_ManagementService_AddPostgreSQL_0 = runtime.ForwardResponseMessage
 
-	forward_Service_AddProxySQL_0 = runtime.ForwardResponseMessage
+	forward_ManagementService_AddProxySQL_0 = runtime.ForwardResponseMessage
 
-	forward_Service_DiscoverRDS_0 = runtime.ForwardResponseMessage
+	forward_ManagementService_DiscoverRDS_0 = runtime.ForwardResponseMessage
 
-	forward_Service_AddRDS_0 = runtime.ForwardResponseMessage
+	forward_ManagementService_AddRDS_0 = runtime.ForwardResponseMessage
 
-	forward_Service_RemoveService_0 = runtime.ForwardResponseMessage
+	forward_ManagementService_RemoveService_0 = runtime.ForwardResponseMessage
 )

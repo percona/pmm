@@ -21,23 +21,23 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Service_AddAnnotation_FullMethodName = "/management.v1.Service/AddAnnotation"
-	Service_RegisterNode_FullMethodName  = "/management.v1.Service/RegisterNode"
-	Service_AddExternal_FullMethodName   = "/management.v1.Service/AddExternal"
-	Service_AddHAProxy_FullMethodName    = "/management.v1.Service/AddHAProxy"
-	Service_AddMySQL_FullMethodName      = "/management.v1.Service/AddMySQL"
-	Service_AddMongoDB_FullMethodName    = "/management.v1.Service/AddMongoDB"
-	Service_AddPostgreSQL_FullMethodName = "/management.v1.Service/AddPostgreSQL"
-	Service_AddProxySQL_FullMethodName   = "/management.v1.Service/AddProxySQL"
-	Service_DiscoverRDS_FullMethodName   = "/management.v1.Service/DiscoverRDS"
-	Service_AddRDS_FullMethodName        = "/management.v1.Service/AddRDS"
-	Service_RemoveService_FullMethodName = "/management.v1.Service/RemoveService"
+	ManagementService_AddAnnotation_FullMethodName = "/management.v1.ManagementService/AddAnnotation"
+	ManagementService_RegisterNode_FullMethodName  = "/management.v1.ManagementService/RegisterNode"
+	ManagementService_AddExternal_FullMethodName   = "/management.v1.ManagementService/AddExternal"
+	ManagementService_AddHAProxy_FullMethodName    = "/management.v1.ManagementService/AddHAProxy"
+	ManagementService_AddMySQL_FullMethodName      = "/management.v1.ManagementService/AddMySQL"
+	ManagementService_AddMongoDB_FullMethodName    = "/management.v1.ManagementService/AddMongoDB"
+	ManagementService_AddPostgreSQL_FullMethodName = "/management.v1.ManagementService/AddPostgreSQL"
+	ManagementService_AddProxySQL_FullMethodName   = "/management.v1.ManagementService/AddProxySQL"
+	ManagementService_DiscoverRDS_FullMethodName   = "/management.v1.ManagementService/DiscoverRDS"
+	ManagementService_AddRDS_FullMethodName        = "/management.v1.ManagementService/AddRDS"
+	ManagementService_RemoveService_FullMethodName = "/management.v1.ManagementService/RemoveService"
 )
 
-// ServiceClient is the client API for Service service.
+// ManagementServiceClient is the client API for ManagementService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ServiceClient interface {
+type ManagementServiceClient interface {
 	// AddAnnotation adds an annotation.
 	AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// RegisterNode registers a new Node and pmm-agent.
@@ -76,117 +76,117 @@ type ServiceClient interface {
 	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
-type serviceClient struct {
+type managementServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewServiceClient(cc grpc.ClientConnInterface) ServiceClient {
-	return &serviceClient{cc}
+func NewManagementServiceClient(cc grpc.ClientConnInterface) ManagementServiceClient {
+	return &managementServiceClient{cc}
 }
 
-func (c *serviceClient) AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *managementServiceClient) AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Service_AddAnnotation_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ManagementService_AddAnnotation_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serviceClient) RegisterNode(ctx context.Context, in *RegisterNodeRequest, opts ...grpc.CallOption) (*RegisterNodeResponse, error) {
+func (c *managementServiceClient) RegisterNode(ctx context.Context, in *RegisterNodeRequest, opts ...grpc.CallOption) (*RegisterNodeResponse, error) {
 	out := new(RegisterNodeResponse)
-	err := c.cc.Invoke(ctx, Service_RegisterNode_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ManagementService_RegisterNode_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serviceClient) AddExternal(ctx context.Context, in *AddExternalRequest, opts ...grpc.CallOption) (*AddExternalResponse, error) {
+func (c *managementServiceClient) AddExternal(ctx context.Context, in *AddExternalRequest, opts ...grpc.CallOption) (*AddExternalResponse, error) {
 	out := new(AddExternalResponse)
-	err := c.cc.Invoke(ctx, Service_AddExternal_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ManagementService_AddExternal_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serviceClient) AddHAProxy(ctx context.Context, in *AddHAProxyRequest, opts ...grpc.CallOption) (*AddHAProxyResponse, error) {
+func (c *managementServiceClient) AddHAProxy(ctx context.Context, in *AddHAProxyRequest, opts ...grpc.CallOption) (*AddHAProxyResponse, error) {
 	out := new(AddHAProxyResponse)
-	err := c.cc.Invoke(ctx, Service_AddHAProxy_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ManagementService_AddHAProxy_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serviceClient) AddMySQL(ctx context.Context, in *AddMySQLRequest, opts ...grpc.CallOption) (*AddMySQLResponse, error) {
+func (c *managementServiceClient) AddMySQL(ctx context.Context, in *AddMySQLRequest, opts ...grpc.CallOption) (*AddMySQLResponse, error) {
 	out := new(AddMySQLResponse)
-	err := c.cc.Invoke(ctx, Service_AddMySQL_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ManagementService_AddMySQL_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serviceClient) AddMongoDB(ctx context.Context, in *AddMongoDBRequest, opts ...grpc.CallOption) (*AddMongoDBResponse, error) {
+func (c *managementServiceClient) AddMongoDB(ctx context.Context, in *AddMongoDBRequest, opts ...grpc.CallOption) (*AddMongoDBResponse, error) {
 	out := new(AddMongoDBResponse)
-	err := c.cc.Invoke(ctx, Service_AddMongoDB_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ManagementService_AddMongoDB_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serviceClient) AddPostgreSQL(ctx context.Context, in *AddPostgreSQLRequest, opts ...grpc.CallOption) (*AddPostgreSQLResponse, error) {
+func (c *managementServiceClient) AddPostgreSQL(ctx context.Context, in *AddPostgreSQLRequest, opts ...grpc.CallOption) (*AddPostgreSQLResponse, error) {
 	out := new(AddPostgreSQLResponse)
-	err := c.cc.Invoke(ctx, Service_AddPostgreSQL_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ManagementService_AddPostgreSQL_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serviceClient) AddProxySQL(ctx context.Context, in *AddProxySQLRequest, opts ...grpc.CallOption) (*AddProxySQLResponse, error) {
+func (c *managementServiceClient) AddProxySQL(ctx context.Context, in *AddProxySQLRequest, opts ...grpc.CallOption) (*AddProxySQLResponse, error) {
 	out := new(AddProxySQLResponse)
-	err := c.cc.Invoke(ctx, Service_AddProxySQL_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ManagementService_AddProxySQL_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serviceClient) DiscoverRDS(ctx context.Context, in *DiscoverRDSRequest, opts ...grpc.CallOption) (*DiscoverRDSResponse, error) {
+func (c *managementServiceClient) DiscoverRDS(ctx context.Context, in *DiscoverRDSRequest, opts ...grpc.CallOption) (*DiscoverRDSResponse, error) {
 	out := new(DiscoverRDSResponse)
-	err := c.cc.Invoke(ctx, Service_DiscoverRDS_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ManagementService_DiscoverRDS_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serviceClient) AddRDS(ctx context.Context, in *AddRDSRequest, opts ...grpc.CallOption) (*AddRDSResponse, error) {
+func (c *managementServiceClient) AddRDS(ctx context.Context, in *AddRDSRequest, opts ...grpc.CallOption) (*AddRDSResponse, error) {
 	out := new(AddRDSResponse)
-	err := c.cc.Invoke(ctx, Service_AddRDS_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ManagementService_AddRDS_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serviceClient) RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *managementServiceClient) RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Service_RemoveService_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ManagementService_RemoveService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ServiceServer is the server API for Service service.
-// All implementations must embed UnimplementedServiceServer
+// ManagementServiceServer is the server API for ManagementService service.
+// All implementations must embed UnimplementedManagementServiceServer
 // for forward compatibility
-type ServiceServer interface {
+type ManagementServiceServer interface {
 	// AddAnnotation adds an annotation.
 	AddAnnotation(context.Context, *AddAnnotationRequest) (*emptypb.Empty, error)
 	// RegisterNode registers a new Node and pmm-agent.
@@ -223,316 +223,316 @@ type ServiceServer interface {
 	AddRDS(context.Context, *AddRDSRequest) (*AddRDSResponse, error)
 	// RemoveService removes Service with Agents.
 	RemoveService(context.Context, *RemoveServiceRequest) (*emptypb.Empty, error)
-	mustEmbedUnimplementedServiceServer()
+	mustEmbedUnimplementedManagementServiceServer()
 }
 
-// UnimplementedServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedServiceServer struct{}
+// UnimplementedManagementServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedManagementServiceServer struct{}
 
-func (UnimplementedServiceServer) AddAnnotation(context.Context, *AddAnnotationRequest) (*emptypb.Empty, error) {
+func (UnimplementedManagementServiceServer) AddAnnotation(context.Context, *AddAnnotationRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddAnnotation not implemented")
 }
 
-func (UnimplementedServiceServer) RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error) {
+func (UnimplementedManagementServiceServer) RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterNode not implemented")
 }
 
-func (UnimplementedServiceServer) AddExternal(context.Context, *AddExternalRequest) (*AddExternalResponse, error) {
+func (UnimplementedManagementServiceServer) AddExternal(context.Context, *AddExternalRequest) (*AddExternalResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddExternal not implemented")
 }
 
-func (UnimplementedServiceServer) AddHAProxy(context.Context, *AddHAProxyRequest) (*AddHAProxyResponse, error) {
+func (UnimplementedManagementServiceServer) AddHAProxy(context.Context, *AddHAProxyRequest) (*AddHAProxyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddHAProxy not implemented")
 }
 
-func (UnimplementedServiceServer) AddMySQL(context.Context, *AddMySQLRequest) (*AddMySQLResponse, error) {
+func (UnimplementedManagementServiceServer) AddMySQL(context.Context, *AddMySQLRequest) (*AddMySQLResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddMySQL not implemented")
 }
 
-func (UnimplementedServiceServer) AddMongoDB(context.Context, *AddMongoDBRequest) (*AddMongoDBResponse, error) {
+func (UnimplementedManagementServiceServer) AddMongoDB(context.Context, *AddMongoDBRequest) (*AddMongoDBResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddMongoDB not implemented")
 }
 
-func (UnimplementedServiceServer) AddPostgreSQL(context.Context, *AddPostgreSQLRequest) (*AddPostgreSQLResponse, error) {
+func (UnimplementedManagementServiceServer) AddPostgreSQL(context.Context, *AddPostgreSQLRequest) (*AddPostgreSQLResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddPostgreSQL not implemented")
 }
 
-func (UnimplementedServiceServer) AddProxySQL(context.Context, *AddProxySQLRequest) (*AddProxySQLResponse, error) {
+func (UnimplementedManagementServiceServer) AddProxySQL(context.Context, *AddProxySQLRequest) (*AddProxySQLResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddProxySQL not implemented")
 }
 
-func (UnimplementedServiceServer) DiscoverRDS(context.Context, *DiscoverRDSRequest) (*DiscoverRDSResponse, error) {
+func (UnimplementedManagementServiceServer) DiscoverRDS(context.Context, *DiscoverRDSRequest) (*DiscoverRDSResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DiscoverRDS not implemented")
 }
 
-func (UnimplementedServiceServer) AddRDS(context.Context, *AddRDSRequest) (*AddRDSResponse, error) {
+func (UnimplementedManagementServiceServer) AddRDS(context.Context, *AddRDSRequest) (*AddRDSResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddRDS not implemented")
 }
 
-func (UnimplementedServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*emptypb.Empty, error) {
+func (UnimplementedManagementServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveService not implemented")
 }
-func (UnimplementedServiceServer) mustEmbedUnimplementedServiceServer() {}
+func (UnimplementedManagementServiceServer) mustEmbedUnimplementedManagementServiceServer() {}
 
-// UnsafeServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ServiceServer will
+// UnsafeManagementServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ManagementServiceServer will
 // result in compilation errors.
-type UnsafeServiceServer interface {
-	mustEmbedUnimplementedServiceServer()
+type UnsafeManagementServiceServer interface {
+	mustEmbedUnimplementedManagementServiceServer()
 }
 
-func RegisterServiceServer(s grpc.ServiceRegistrar, srv ServiceServer) {
-	s.RegisterService(&Service_ServiceDesc, srv)
+func RegisterManagementServiceServer(s grpc.ServiceRegistrar, srv ManagementServiceServer) {
+	s.RegisterService(&ManagementService_ServiceDesc, srv)
 }
 
-func _Service_AddAnnotation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ManagementService_AddAnnotation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddAnnotationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceServer).AddAnnotation(ctx, in)
+		return srv.(ManagementServiceServer).AddAnnotation(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Service_AddAnnotation_FullMethodName,
+		FullMethod: ManagementService_AddAnnotation_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).AddAnnotation(ctx, req.(*AddAnnotationRequest))
+		return srv.(ManagementServiceServer).AddAnnotation(ctx, req.(*AddAnnotationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Service_RegisterNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ManagementService_RegisterNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RegisterNodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceServer).RegisterNode(ctx, in)
+		return srv.(ManagementServiceServer).RegisterNode(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Service_RegisterNode_FullMethodName,
+		FullMethod: ManagementService_RegisterNode_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).RegisterNode(ctx, req.(*RegisterNodeRequest))
+		return srv.(ManagementServiceServer).RegisterNode(ctx, req.(*RegisterNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Service_AddExternal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ManagementService_AddExternal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddExternalRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceServer).AddExternal(ctx, in)
+		return srv.(ManagementServiceServer).AddExternal(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Service_AddExternal_FullMethodName,
+		FullMethod: ManagementService_AddExternal_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).AddExternal(ctx, req.(*AddExternalRequest))
+		return srv.(ManagementServiceServer).AddExternal(ctx, req.(*AddExternalRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Service_AddHAProxy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ManagementService_AddHAProxy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddHAProxyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceServer).AddHAProxy(ctx, in)
+		return srv.(ManagementServiceServer).AddHAProxy(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Service_AddHAProxy_FullMethodName,
+		FullMethod: ManagementService_AddHAProxy_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).AddHAProxy(ctx, req.(*AddHAProxyRequest))
+		return srv.(ManagementServiceServer).AddHAProxy(ctx, req.(*AddHAProxyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Service_AddMySQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ManagementService_AddMySQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddMySQLRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceServer).AddMySQL(ctx, in)
+		return srv.(ManagementServiceServer).AddMySQL(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Service_AddMySQL_FullMethodName,
+		FullMethod: ManagementService_AddMySQL_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).AddMySQL(ctx, req.(*AddMySQLRequest))
+		return srv.(ManagementServiceServer).AddMySQL(ctx, req.(*AddMySQLRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Service_AddMongoDB_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ManagementService_AddMongoDB_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddMongoDBRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceServer).AddMongoDB(ctx, in)
+		return srv.(ManagementServiceServer).AddMongoDB(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Service_AddMongoDB_FullMethodName,
+		FullMethod: ManagementService_AddMongoDB_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).AddMongoDB(ctx, req.(*AddMongoDBRequest))
+		return srv.(ManagementServiceServer).AddMongoDB(ctx, req.(*AddMongoDBRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Service_AddPostgreSQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ManagementService_AddPostgreSQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddPostgreSQLRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceServer).AddPostgreSQL(ctx, in)
+		return srv.(ManagementServiceServer).AddPostgreSQL(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Service_AddPostgreSQL_FullMethodName,
+		FullMethod: ManagementService_AddPostgreSQL_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).AddPostgreSQL(ctx, req.(*AddPostgreSQLRequest))
+		return srv.(ManagementServiceServer).AddPostgreSQL(ctx, req.(*AddPostgreSQLRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Service_AddProxySQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ManagementService_AddProxySQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddProxySQLRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceServer).AddProxySQL(ctx, in)
+		return srv.(ManagementServiceServer).AddProxySQL(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Service_AddProxySQL_FullMethodName,
+		FullMethod: ManagementService_AddProxySQL_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).AddProxySQL(ctx, req.(*AddProxySQLRequest))
+		return srv.(ManagementServiceServer).AddProxySQL(ctx, req.(*AddProxySQLRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Service_DiscoverRDS_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ManagementService_DiscoverRDS_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DiscoverRDSRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceServer).DiscoverRDS(ctx, in)
+		return srv.(ManagementServiceServer).DiscoverRDS(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Service_DiscoverRDS_FullMethodName,
+		FullMethod: ManagementService_DiscoverRDS_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).DiscoverRDS(ctx, req.(*DiscoverRDSRequest))
+		return srv.(ManagementServiceServer).DiscoverRDS(ctx, req.(*DiscoverRDSRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Service_AddRDS_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ManagementService_AddRDS_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddRDSRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceServer).AddRDS(ctx, in)
+		return srv.(ManagementServiceServer).AddRDS(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Service_AddRDS_FullMethodName,
+		FullMethod: ManagementService_AddRDS_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).AddRDS(ctx, req.(*AddRDSRequest))
+		return srv.(ManagementServiceServer).AddRDS(ctx, req.(*AddRDSRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Service_RemoveService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ManagementService_RemoveService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceServer).RemoveService(ctx, in)
+		return srv.(ManagementServiceServer).RemoveService(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Service_RemoveService_FullMethodName,
+		FullMethod: ManagementService_RemoveService_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).RemoveService(ctx, req.(*RemoveServiceRequest))
+		return srv.(ManagementServiceServer).RemoveService(ctx, req.(*RemoveServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Service_ServiceDesc is the grpc.ServiceDesc for Service service.
+// ManagementService_ServiceDesc is the grpc.ServiceDesc for ManagementService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Service_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.v1.Service",
-	HandlerType: (*ServiceServer)(nil),
+var ManagementService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "management.v1.ManagementService",
+	HandlerType: (*ManagementServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "AddAnnotation",
-			Handler:    _Service_AddAnnotation_Handler,
+			Handler:    _ManagementService_AddAnnotation_Handler,
 		},
 		{
 			MethodName: "RegisterNode",
-			Handler:    _Service_RegisterNode_Handler,
+			Handler:    _ManagementService_RegisterNode_Handler,
 		},
 		{
 			MethodName: "AddExternal",
-			Handler:    _Service_AddExternal_Handler,
+			Handler:    _ManagementService_AddExternal_Handler,
 		},
 		{
 			MethodName: "AddHAProxy",
-			Handler:    _Service_AddHAProxy_Handler,
+			Handler:    _ManagementService_AddHAProxy_Handler,
 		},
 		{
 			MethodName: "AddMySQL",
-			Handler:    _Service_AddMySQL_Handler,
+			Handler:    _ManagementService_AddMySQL_Handler,
 		},
 		{
 			MethodName: "AddMongoDB",
-			Handler:    _Service_AddMongoDB_Handler,
+			Handler:    _ManagementService_AddMongoDB_Handler,
 		},
 		{
 			MethodName: "AddPostgreSQL",
-			Handler:    _Service_AddPostgreSQL_Handler,
+			Handler:    _ManagementService_AddPostgreSQL_Handler,
 		},
 		{
 			MethodName: "AddProxySQL",
-			Handler:    _Service_AddProxySQL_Handler,
+			Handler:    _ManagementService_AddProxySQL_Handler,
 		},
 		{
 			MethodName: "DiscoverRDS",
-			Handler:    _Service_DiscoverRDS_Handler,
+			Handler:    _ManagementService_DiscoverRDS_Handler,
 		},
 		{
 			MethodName: "AddRDS",
-			Handler:    _Service_AddRDS_Handler,
+			Handler:    _ManagementService_AddRDS_Handler,
 		},
 		{
 			MethodName: "RemoveService",
-			Handler:    _Service_RemoveService_Handler,
+			Handler:    _ManagementService_RemoveService_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

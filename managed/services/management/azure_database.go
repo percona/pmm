@@ -54,7 +54,7 @@ const (
 )
 
 // Enabled returns if service is enabled and can be used.
-func (s *ServiceService) Enabled() bool {
+func (s *ManagementService) Enabled() bool {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		logrus.WithField("component", "management/azure_database").WithError(err).Error("can't get settings")
@@ -76,7 +76,7 @@ type AzureDatabaseInstanceData struct {
 	Zones         string                 `json:"zones"`
 }
 
-func (s *ServiceService) getAzureClient(req *azurev1beta1.DiscoverAzureDatabaseRequest) (*armresourcegraph.Client, error) {
+func (s *ManagementService) getAzureClient(req *azurev1beta1.DiscoverAzureDatabaseRequest) (*armresourcegraph.Client, error) {
 	credential, err := azidentity.NewClientSecretCredential(req.AzureTenantId, req.AzureClientId, req.AzureClientSecret, nil)
 	if err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ func (s *ServiceService) getAzureClient(req *azurev1beta1.DiscoverAzureDatabaseR
 	return client, nil
 }
 
-func (s *ServiceService) fetchAzureDatabaseInstancesData(
+func (s *ManagementService) fetchAzureDatabaseInstancesData(
 	ctx context.Context,
 	req *azurev1beta1.DiscoverAzureDatabaseRequest,
 	client *armresourcegraph.Client,
@@ -130,7 +130,7 @@ func (s *ServiceService) fetchAzureDatabaseInstancesData(
 }
 
 // DiscoverAzureDatabase discovers database instances on Azure.
-func (s *ServiceService) DiscoverAzureDatabase(
+func (s *ManagementService) DiscoverAzureDatabase(
 	ctx context.Context,
 	req *azurev1beta1.DiscoverAzureDatabaseRequest,
 ) (*azurev1beta1.DiscoverAzureDatabaseResponse, error) {
@@ -185,7 +185,7 @@ func (s *ServiceService) DiscoverAzureDatabase(
 }
 
 // AddAzureDatabase add azure database to monitoring.
-func (s *ServiceService) AddAzureDatabase(ctx context.Context, req *azurev1beta1.AddAzureDatabaseRequest) (*empty.Empty, error) {
+func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *azurev1beta1.AddAzureDatabaseRequest) (*empty.Empty, error) {
 	l := logger.Get(ctx).WithField("component", "discover/azureDatabase")
 	// tweak according to API docs
 	if req.NodeName == "" {

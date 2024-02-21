@@ -77,7 +77,7 @@ func TestRDSService(t *testing.T) {
 		vc.AssertExpectations(t)
 	}()
 
-	s := NewServiceService(db, ar, state, cc, sib, vmdb, vc, grafanaClient)
+	s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient)
 
 	t.Run("DiscoverRDS", func(t *testing.T) {
 		t.Run("ListRegions", func(t *testing.T) {
