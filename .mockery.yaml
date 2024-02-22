@@ -21,6 +21,11 @@ packages:
   github.com/percona/pmm/managed/services/checks:
     interfaces:
       agentsRegistry:
+  github.com/percona/pmm/managed/services/dbaas/kubernetes:
+    interfaces:
+      KubeClientConnector:
+        config:
+          mockname: "Mock{{ .InterfaceName | camelcase }}"
   github.com/percona/pmm/managed/services/grafana:
     interfaces:
       awsInstanceChecker:
@@ -52,9 +57,6 @@ packages:
       grafanaClient:
   github.com/percona/pmm/managed/services/management/dbaas:
     interfaces:
-      KubeClientConnector:
-        config:
-          mockname: "Mock{{ .InterfaceName | camelcase }}"
       dbaasClient:
       versionService:
       grafanaClient:
