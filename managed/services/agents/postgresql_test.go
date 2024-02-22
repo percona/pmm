@@ -16,6 +16,7 @@
 package agents
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/AlekSi/pointer"
@@ -283,6 +284,84 @@ func TestAutoDiscovery(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Contains(t, res.Args, discoveryFlag)
 		assert.Contains(t, res.Args, excludedFlag)
+	})
+}
+
+func TestMaxConnections(t *testing.T) {
+	const maxConnectionsFlag = "--max-connections"
+
+	pmmAgentVersion := version.MustParse("2.42.0")
+	node := &models.Node{
+		Address: "1.2.3.4",
+	}
+
+	postgresql := &models.Service{
+		Address:      pointer.ToString("1.2.3.4"),
+		Port:         pointer.ToUint16(5432),
+		DatabaseName: "postgres",
+	}
+	exporter := &models.Agent{
+		AgentID:   "agent-id",
+		AgentType: models.PostgresExporterType,
+		Username:  pointer.ToString("username"),
+		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+		PostgreSQLOptions: &models.PostgreSQLOptions{
+			MaxExporterConnections: 10,
+		},
+	}
+	expected := &agentpb.SetStateRequest_AgentProcess{
+		Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
+		TemplateLeftDelim:  "{{",
+		TemplateRightDelim: "}}",
+		Args: []string{
+			"--auto-discover-databases",
+			"--collect.custom_query.hr",
+			"--collect.custom_query.hr.directory=" + pathsBase(pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/high-resolution",
+			"--collect.custom_query.lr",
+			"--collect.custom_query.lr.directory=" + pathsBase(pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
+			"--collect.custom_query.mr",
+			"--collect.custom_query.mr.directory=" + pathsBase(pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
+			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
+			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+		},
+		Env: []string{
+			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable",
+		},
+		TextFiles: map[string]string{
+			"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-id\n",
+		}, RedactWords: []string{"s3cur3 p@$$w0r4."},
+	}
+
+	t.Run("Not supported version - disabled", func(t *testing.T) {
+		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, version.MustParse("2.41.0"))
+		assert.NoError(t, err)
+		assert.Equal(t, expected, res)
+		assert.NotContains(t, res.Args, maxConnectionsFlag)
+	})
+
+	t.Run("Supported version - enabled", func(t *testing.T) {
+		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
+		assert.NoError(t, err)
+		assert.Contains(t, res.Args, fmt.Sprintf("%s=%d", maxConnectionsFlag, 10))
+	})
+
+	t.Run("Max exporter connections set to 0 - ignore", func(t *testing.T) {
+		exporter.PostgreSQLOptions = &models.PostgreSQLOptions{
+			MaxExporterConnections: 0,
+		}
+		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
+		assert.NoError(t, err)
+		assert.NotContains(t, res.Args, maxConnectionsFlag)
+	})
+
+	t.Run("Max exporter connections set to 0 - apply", func(t *testing.T) {
+		exporter.PostgreSQLOptions = &models.PostgreSQLOptions{
+			MaxExporterConnections: 5,
+		}
+		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
+		assert.NoError(t, err)
+		assert.Contains(t, res.Args, fmt.Sprintf("%s=%d", maxConnectionsFlag, 5))
 	})
 }
 

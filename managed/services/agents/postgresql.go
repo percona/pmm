@@ -34,8 +34,8 @@ import (
 var (
 	postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
 	postgresExporterWebConfigVersion     = version.MustParse("2.30.99")
-	postgresMaxExporterConnsVersion      = version.MustParse("2.35.99")
 	postgresSSLSniVersion                = version.MustParse("2.40.99")
+	postgresMaxExporterConnsVersion      = version.MustParse("2.41.99")
 )
 
 func postgresExcludedDatabases() []string {
