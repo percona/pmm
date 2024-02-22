@@ -178,7 +178,7 @@ type AddPostgresExporterBody struct {
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
 	// Maximum number of connections from exporter to the database instance.
-	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
+	MaxConnections int32 `json:"max_connections,omitempty"`
 }
 
 // Validate validates this add postgres exporter body

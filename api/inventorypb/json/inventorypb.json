@@ -1400,7 +1400,7 @@
                   ],
                   "x-order": 14
                 },
-                "max_exporter_connections": {
+                "max_connections": {
                   "description": "Maximum number of connections from exporter to the database instance.",
                   "type": "integer",
                   "format": "int32",
