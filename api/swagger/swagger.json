@@ -2762,8 +2762,8 @@
                   "title": "Optionally expose the exporter process on all public interfaces",
                   "x-order": 16
                 },
-                "max_connections": {
-                  "description": "Maximum number of connections from exporter to the database instance.",
+                "max_exporter_connections": {
+                  "description": "Maximum number of connections that exporter can open to the database instance.",
                   "type": "integer",
                   "format": "int32",
                   "x-order": 17
@@ -2889,8 +2889,8 @@
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 15
                     },
-                    "max_connections": {
-                      "description": "Maximum number of connections to the database instance.",
+                    "max_exporter_connections": {
+                      "description": "Maximum number of connections that exporter can open to the database instance.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 16
@@ -5910,8 +5910,8 @@
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 15
                     },
-                    "max_connections": {
-                      "description": "Maximum number of connections to the database instance.",
+                    "max_exporter_connections": {
+                      "description": "Maximum number of connections that exporter can open to the database instance.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 16
@@ -8004,8 +8004,8 @@
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 15
                     },
-                    "max_connections": {
-                      "description": "Maximum number of connections to the database instance.",
+                    "max_exporter_connections": {
+                      "description": "Maximum number of connections that exporter can open to the database instance.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 16
@@ -9642,8 +9642,8 @@
                         "title": "Optionally expose the exporter process on all public interfaces",
                         "x-order": 15
                       },
-                      "max_connections": {
-                        "description": "Maximum number of connections to the database instance.",
+                      "max_exporter_connections": {
+                        "description": "Maximum number of connections that exporter can open to the database instance.",
                         "type": "integer",
                         "format": "int32",
                         "x-order": 16
@@ -19289,7 +19289,7 @@
                   "x-order": 31
                 },
                 "max_exporter_connections": {
-                  "description": "Maximum number of connections from exporter to PostgreSQL instance.",
+                  "description": "Maximum number of connections that exporter can open to the database instance.",
                   "type": "integer",
                   "format": "int32",
                   "x-order": 32
@@ -19492,8 +19492,8 @@
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 15
                     },
-                    "max_connections": {
-                      "description": "Maximum number of connections to the database instance.",
+                    "max_exporter_connections": {
+                      "description": "Maximum number of connections that exporter can open to the database instance.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 16
@@ -21025,8 +21025,8 @@
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 15
                     },
-                    "max_connections": {
-                      "description": "Maximum number of connections to the database instance.",
+                    "max_exporter_connections": {
+                      "description": "Maximum number of connections that exporter can open to the database instance.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 16

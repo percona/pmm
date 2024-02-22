@@ -103,7 +103,7 @@ type AddPostgreSQLRequest struct {
 	AutoDiscoveryLimit int32 `protobuf:"varint,31,opt,name=auto_discovery_limit,json=autoDiscoveryLimit,proto3" json:"auto_discovery_limit,omitempty"`
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,32,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
-	// Maximum number of connections from exporter to PostgreSQL instance.
+	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections int32 `protobuf:"varint,33,opt,name=max_exporter_connections,json=maxExporterConnections,proto3" json:"max_exporter_connections,omitempty"`
 }
 

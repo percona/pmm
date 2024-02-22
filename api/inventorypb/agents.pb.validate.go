@@ -693,7 +693,7 @@ func (m *PostgresExporter) validate(all bool) error {
 
 	// no validation rules for ExposeExporter
 
-	// no validation rules for MaxConnections
+	// no validation rules for MaxExporterConnections
 
 	if len(errors) > 0 {
 		return PostgresExporterMultiError(errors)
@@ -5805,7 +5805,7 @@ func (m *AddPostgresExporterRequest) validate(all bool) error {
 
 	// no validation rules for ExposeExporter
 
-	// no validation rules for MaxConnections
+	// no validation rules for MaxExporterConnections
 
 	if len(errors) > 0 {
 		return AddPostgresExporterRequestMultiError(errors)

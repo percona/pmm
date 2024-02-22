@@ -2300,8 +2300,8 @@ type ListAgentsOKBodyPostgresExporterItems0 struct {
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
-	// Maximum number of connections to the database instance.
-	MaxConnections int32 `json:"max_connections,omitempty"`
+	// Maximum number of connections that exporter can open to the database instance.
+	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
 }
 
 // Validate validates this list agents OK body postgres exporter items0
