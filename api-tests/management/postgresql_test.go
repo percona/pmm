@@ -57,9 +57,10 @@ func TestAddPostgreSQL(t *testing.T) {
 				Port:        5432,
 				Username:    "username",
 
-				SkipConnectionCheck: true,
-				DisableCollectors:   []string{"custom_query.ml", "custom_query.mr.directory"},
-				AutoDiscoveryLimit:  0,
+				SkipConnectionCheck:    true,
+				DisableCollectors:      []string{"custom_query.ml", "custom_query.mr.directory"},
+				AutoDiscoveryLimit:     0,
+				MaxExporterConnections: 0,
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
@@ -108,6 +109,7 @@ func TestAddPostgreSQL(t *testing.T) {
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
 					AutoDiscoveryLimit: 10,
+					MaxConnections:     0,
 				},
 			},
 		}, *listAgents.Payload)
@@ -139,8 +141,9 @@ func TestAddPostgreSQL(t *testing.T) {
 				QANPostgresqlPgstatmonitorAgent: true,
 				DisableQueryExamples:            true,
 
-				SkipConnectionCheck: true,
-				AutoDiscoveryLimit:  15,
+				SkipConnectionCheck:    true,
+				AutoDiscoveryLimit:     15,
+				MaxExporterConnections: 10,
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
@@ -193,6 +196,7 @@ func TestAddPostgreSQL(t *testing.T) {
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
 					AutoDiscoveryLimit: 15,
+					MaxConnections:     10,
 				},
 			},
 			QANPostgresqlPgstatementsAgent: []*agents.ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0{
