@@ -105,12 +105,13 @@ func TestPostgresExporter(t *testing.T) {
 		assert.Equal(t, &agents.ChangePostgresExporterOK{
 			Payload: &agents.ChangePostgresExporterOKBody{
 				PostgresExporter: &agents.ChangePostgresExporterOKBodyPostgresExporter{
-					AgentID:    agentID,
-					ServiceID:  serviceID,
-					Username:   "username",
-					PMMAgentID: pmmAgentID,
-					Disabled:   true,
-					Status:     &AgentStatusUnknown,
+					AgentID:                agentID,
+					ServiceID:              serviceID,
+					Username:               "username",
+					PMMAgentID:             pmmAgentID,
+					Disabled:               true,
+					Status:                 &AgentStatusUnknown,
+					MaxExporterConnections: 10,
 				},
 			},
 		}, changePostgresExporterOK)
@@ -139,7 +140,8 @@ func TestPostgresExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "postgres_exporter",
 					},
-					Status: &AgentStatusUnknown,
+					Status:                 &AgentStatusUnknown,
+					MaxExporterConnections: 10,
 				},
 			},
 		}, changePostgresExporterOK)
