@@ -34,7 +34,7 @@ import (
 var (
 	postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
 	postgresExporterWebConfigVersion     = version.MustParse("2.30.99")
-	postgresMaxConnConfigVersion         = version.MustParse("2.35.99")
+	postgresMaxExporterConnsVersion      = version.MustParse("2.35.99")
 	postgresSSLSniVersion                = version.MustParse("2.40.99")
 )
 
@@ -87,7 +87,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 			fmt.Sprintf("--exclude-databases=%s", strings.Join(postgresExcludedDatabases(), ",")))
 	}
 
-	if !pmmAgentVersion.Less(postgresMaxConnConfigVersion) &&
+	if !pmmAgentVersion.Less(postgresMaxExporterConnsVersion) &&
 		exporter.PostgreSQLOptions != nil &&
 		exporter.PostgreSQLOptions.MaxExporterConnections != 0 {
 		args = append(args, "--max-connections="+strconv.Itoa(int(exporter.PostgreSQLOptions.MaxExporterConnections)))
