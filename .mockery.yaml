@@ -21,7 +21,7 @@ packages:
   github.com/percona/pmm/managed/services/checks:
     interfaces:
       agentsRegistry:
-  github.com/percona/pmm/managed/services/dbaas/kubernetes:
+  github.com/percona/pmm/managed/services/dbaas/kubernetes/client:
     interfaces:
       KubeClientConnector:
         config:
