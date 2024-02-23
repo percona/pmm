@@ -26,6 +26,7 @@ packages:
       KubeClientConnector:
         config:
           mockname: "Mock{{ .InterfaceName | camelcase }}"
+          filename: "mock_{{ .InterfaceName | snakecase }}.go"          
   github.com/percona/pmm/managed/services/grafana:
     interfaces:
       awsInstanceChecker:
