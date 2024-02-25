@@ -524,6 +524,8 @@ func (m *AddRDSRequest) validate(all bool) error {
 
 	// no validation rules for AutoDiscoveryLimit
 
+	// no validation rules for DisableCommentsParsing
+
 	if len(errors) > 0 {
 		return AddRDSRequestMultiError(errors)
 	}

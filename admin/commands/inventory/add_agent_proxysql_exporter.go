@@ -62,6 +62,7 @@ type AddAgentProxysqlExporterCommand struct {
 	LogLevel            string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
 }
 
+// RunCmd executes the AddAgentProxysqlExporterCommand and returns the result.
 func (cmd *AddAgentProxysqlExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &agents.AddAgentParams{

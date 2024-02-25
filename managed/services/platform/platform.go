@@ -202,6 +202,7 @@ func (s *Service) forceDisconnect(ctx context.Context) error {
 	return nil
 }
 
+// UpdateSupervisordConfigurations updates supervisord configurations for the service.
 func (s *Service) UpdateSupervisordConfigurations(ctx context.Context) error {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {

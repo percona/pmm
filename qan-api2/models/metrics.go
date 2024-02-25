@@ -1011,7 +1011,6 @@ func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string
 	res := &qanpb.SchemaByQueryIDResponse{}
 	for rows.Next() {
 		err = rows.Scan(&res.Schema)
-
 		if err != nil {
 			return res, errors.Wrap(err, "failed to scan query")
 		}
@@ -1063,7 +1062,6 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 			&fingerprint,
 			&example,
 			&res.PlaceholdersCount)
-
 		if err != nil {
 			return res, errors.Wrap(err, "failed to scan query")
 		}

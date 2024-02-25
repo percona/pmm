@@ -42,6 +42,7 @@ import (
 	"github.com/percona/pmm/managed/services/grafana"
 )
 
+// Service represents a structure for managing dump-related operations.
 type Service struct {
 	db *reform.DB
 	l  *logrus.Entry
@@ -52,6 +53,7 @@ type Service struct {
 	dumpv1beta1.UnimplementedDumpsServiceServer
 }
 
+// New creates a new instance of the Service with the provided dependencies.
 func New(db *reform.DB, grafanaClient *grafana.Client, dumpService dumpService) *Service {
 	return &Service{
 		db:            db,
@@ -61,6 +63,7 @@ func New(db *reform.DB, grafanaClient *grafana.Client, dumpService dumpService) 
 	}
 }
 
+// StartDump starts a dump based on the provided context and request.
 func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpRequest) (*dumpv1beta1.StartDumpResponse, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
@@ -138,6 +141,7 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 	return &dumpv1beta1.StartDumpResponse{DumpId: dumpID}, nil
 }
 
+// ListDumps lists dumps based on the provided context and request.
 func (s *Service) ListDumps(_ context.Context, _ *dumpv1beta1.ListDumpsRequest) (*dumpv1beta1.ListDumpsResponse, error) {
 	dumps, err := models.FindDumps(s.db.Querier, models.DumpFilters{})
 	if err != nil {
@@ -159,6 +163,7 @@ func (s *Service) ListDumps(_ context.Context, _ *dumpv1beta1.ListDumpsRequest) 
 	}, nil
 }
 
+// DeleteDump deletes a dump based on the provided context and request.
 func (s *Service) DeleteDump(_ context.Context, req *dumpv1beta1.DeleteDumpRequest) (*dumpv1beta1.DeleteDumpResponse, error) {
 	for _, id := range req.DumpIds {
 		if err := s.dumpService.DeleteDump(id); err != nil {
@@ -200,6 +205,7 @@ func (s *Service) GetDumpLogs(_ context.Context, req *dumpv1beta1.GetDumpLogsReq
 	return res, nil
 }
 
+// UploadDump uploads a dump based on the provided context and request.
 func (s *Service) UploadDump(_ context.Context, req *dumpv1beta1.UploadDumpRequest) (*dumpv1beta1.UploadDumpResponse, error) {
 	filePaths, err := s.dumpService.GetFilePathsForDumps(req.DumpIds)
 	if err != nil {

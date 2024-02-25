@@ -58,7 +58,7 @@ func (s *LocationsService) Enabled() bool {
 }
 
 // ListLocations returns list of all available backup locations.
-func (s *LocationsService) ListLocations(ctx context.Context, req *backuppb.ListLocationsRequest) (*backuppb.ListLocationsResponse, error) {
+func (s *LocationsService) ListLocations(_ context.Context, _ *backuppb.ListLocationsRequest) (*backuppb.ListLocationsResponse, error) {
 	locations, err := models.FindBackupLocations(s.db.Querier)
 	if err != nil {
 		return nil, err
@@ -222,7 +222,7 @@ func (s *LocationsService) TestLocationConfig(
 }
 
 // RemoveLocation removes backup location.
-func (s *LocationsService) RemoveLocation(ctx context.Context, req *backuppb.RemoveLocationRequest) (*backuppb.RemoveLocationResponse, error) {
+func (s *LocationsService) RemoveLocation(_ context.Context, req *backuppb.RemoveLocationRequest) (*backuppb.RemoveLocationResponse, error) {
 	mode := models.RemoveRestrict
 	if req.Force {
 		mode = models.RemoveCascade

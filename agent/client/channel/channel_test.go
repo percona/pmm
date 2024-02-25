@@ -101,7 +101,7 @@ func setup(t *testing.T, connect func(server agentv1.AgentService_ConnectServer)
 		require.NoError(t, <-serveError)
 	}
 
-	return
+	return channel, cc, teardown
 }
 
 func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {

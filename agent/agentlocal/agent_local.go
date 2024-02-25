@@ -365,7 +365,7 @@ func addData(zipW *zip.Writer, name string, data []byte) error {
 }
 
 // ZipLogs Handle function for generate zip file with logs.
-func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
+func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) { //nolint:revive
 	zipBuffer := &bytes.Buffer{}
 	zipWriter := zip.NewWriter(zipBuffer)
 
