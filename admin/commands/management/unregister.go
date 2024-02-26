@@ -48,6 +48,7 @@ type UnregisterCommand struct {
 	NodeName string `help:"Node name (autodetected default: ${hostname})"`
 }
 
+// RunCmd runs the command for UnregisterCommand.
 func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 	var nodeName string
 	var nodeID string

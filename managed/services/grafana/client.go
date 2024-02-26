@@ -14,8 +14,6 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package grafana provides facilities for working with Grafana.
-//
-
 package grafana
 
 import (
@@ -205,7 +203,6 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 
 	var m map[string]interface{}
 	err = c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
-
 	if err != nil {
 		return 0, err
 	}

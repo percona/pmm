@@ -257,6 +257,12 @@ func TestPostgresAgentTLS(t *testing.T) {
 			agent.TLSSkipVerify = testCase.tlsSkipVerify
 			assert.Equal(t, testCase.expected, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil))
 		})
+		t.Run(fmt.Sprintf("AutodiscoveryLimit set TLS:%v/TLSSkipVerify:%v", testCase.tls, testCase.tlsSkipVerify), func(t *testing.T) {
+			agent.TLS = testCase.tls
+			agent.TLSSkipVerify = testCase.tlsSkipVerify
+			agent.PostgreSQLOptions = &models.PostgreSQLOptions{AutoDiscoveryLimit: 10}
+			assert.Equal(t, testCase.expected, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil))
+		})
 	}
 }
 
@@ -378,12 +384,12 @@ func TestExporterURL(t *testing.T) {
 		require.NoError(t, sqlDB.Close())
 	}()
 
-	setup := func(t *testing.T) (q *reform.Querier, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (*reform.Querier, func(t *testing.T)) {
 		t.Helper()
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		tx, err := db.Begin()
 		require.NoError(t, err)
-		q = tx.Querier
+		q := tx.Querier
 
 		for _, str := range []reform.Struct{
 			&models.Node{
@@ -498,11 +504,11 @@ func TestExporterURL(t *testing.T) {
 			require.NoError(t, q.Insert(str), "failed to INSERT %+v", str)
 		}
 
-		teardown = func(t *testing.T) {
+		teardown := func(t *testing.T) {
 			t.Helper()
 			require.NoError(t, tx.Rollback())
 		}
-		return //nolint:nakedret
+		return q, teardown
 	}
 
 	t.Run("ExporterURL", func(t *testing.T) {

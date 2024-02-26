@@ -64,6 +64,14 @@ telemetry:
       - metric_name: "pmm_server_updates_disabled"
         column: "updates_disabled"
 
+  - id: PMMServerFirstServiceAdded
+    source: PMMDB_SELECT
+    query:  EXTRACT(EPOCH FROM y.created_at::timestamp) - EXTRACT(EPOCH FROM x.created_at::timestamp)  AS value_difference_sec FROM services x JOIN services y ON y.service_name != 'pmm-server-postgresql' WHERE x.service_name = 'pmm-server-postgresql' AND y.created_at = (SELECT MIN(created_at) FROM services WHERE service_name != 'pmm-server-postgresql');
+    summary: "Difference between PMM installation and the first real service added to PMM"
+    data:
+      - metric_name: "pmm_server_first_service_added_sec"
+        column: "value_difference_sec"
+
   # Services Information
   - id: MySQLVersion
     source: VM
@@ -639,6 +647,22 @@ telemetry:
     summary: "PMM node OS version"
     data:
       - metric_name: "pmm_server_node_os_version"
+        label: "release"
+
+  - id: PMMClientNodeOSName
+    source: VM
+    query: node_uname_info{node_id!="pmm-server"}
+    summary: "PMM Client node OS name"
+    data:
+      - metric_name: "pmm_client_node_os_name"
+        label: "sysname"
+
+  - id: PMMClientNodeOSVersion
+    source: VM
+    query: node_uname_info{node_id!="pmm-server"}
+    summary: "PMM Client node OS version"
+    data:
+      - metric_name: "pmm_client_node_os_version"
         label: "release"
 
   - id: PMMOSNameAndVersion

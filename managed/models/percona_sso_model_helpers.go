@@ -31,7 +31,8 @@ import (
 )
 
 var (
-	perconaSSOMtx           sync.Mutex
+	perconaSSOMtx sync.Mutex
+	// ErrNotConnectedToPortal is an error indicating that PMM Server is not connected to the Portal.
 	ErrNotConnectedToPortal = errors.New("PMM Server is not connected to Portal")
 )
 
