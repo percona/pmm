@@ -30,10 +30,14 @@ var addPostgreSQLResultT = commands.ParseTemplate(`
 PostgreSQL Service added.
 Service ID  : {{ .Service.ServiceID }}
 Service name: {{ .Service.ServiceName }}
+{{ if .Warning }}
+Warning: {{ .Warning }}
+{{- end -}}
 `)
 
 type addPostgreSQLResult struct {
 	Service *postgresql.AddPostgreSQLOKBodyService `json:"service"`
+	Warning string                                 `json:"warning"`
 }
 
 func (res *addPostgreSQLResult) Result() {}
@@ -223,5 +227,6 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 
 	return &addPostgreSQLResult{
 		Service: resp.Payload.Service,
+		Warning: resp.Payload.Warning,
 	}, nil
 }

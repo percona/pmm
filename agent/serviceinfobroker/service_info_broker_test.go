@@ -249,6 +249,20 @@ func TestServiceInfoBroker(t *testing.T) {
 		assert.InDelta(t, 250, resp.TableCount, 150)
 	})
 
+	t.Run("PostgreSQLOptions", func(t *testing.T) {
+		cfgStorage := config.NewStorage(&config.Config{
+			Paths: config.Paths{TempDir: t.TempDir()},
+		})
+		c := New(cfgStorage)
+		resp := c.GetInfoFromService(context.Background(), &agentpb.ServiceInfoRequest{
+			Dsn:  tests.GetTestPostgreSQLDSN(t),
+			Type: inventorypb.ServiceType_POSTGRESQL_SERVICE,
+		}, 0)
+		require.NotNil(t, resp)
+		assert.Equal(t, []string{"postgres", "pmm-agent"}, resp.DatabaseList)
+		assert.Equal(t, "", resp.PgsmVersion)
+	})
+
 	t.Run("MongoDBWithSSL", func(t *testing.T) {
 		mongoDBDSNWithSSL, mongoDBTextFiles := tests.GetTestMongoDBWithSSLDSN(t, "../")
 
