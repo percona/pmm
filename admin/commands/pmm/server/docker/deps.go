@@ -27,8 +27,6 @@ import (
 	"github.com/percona/pmm/admin/pkg/docker"
 )
 
-//go:generate ../../../../../bin/mockery --name=Functions --case=snake --inpackage --testonly
-
 // Functions contain methods required to interact with Docker.
 type Functions interface { //nolint:interfacebloat
 	Imager
