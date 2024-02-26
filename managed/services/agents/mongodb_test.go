@@ -249,8 +249,8 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 		AgentPassword: pointer.ToString("agent-password"),
 	}
 	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
-	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MONGODB_EXPORTER,
+	expected := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
