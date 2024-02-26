@@ -26,6 +26,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 
@@ -230,6 +231,13 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 		res.Error = err.Error()
 	}
 	res.Version = version
+
+	var pgsmVersion string
+	err = db.QueryRowContext(ctx, "SELECT /* agent='serviceinfobroker' */ extversion FROM pg_extension WHERE extname = 'pg_stat_monitor';").Scan(&pgsmVersion)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		res.Error = err.Error()
+	}
+	res.PgsmVersion = pgsmVersion
 
 	return &res
 }

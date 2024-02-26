@@ -566,6 +566,9 @@ AddPostgreSQLOKBody add postgre SQL OK body
 swagger:model AddPostgreSQLOKBody
 */
 type AddPostgreSQLOKBody struct {
+	// Warning message.
+	Warning string `json:"warning,omitempty"`
+
 	// postgres exporter
 	PostgresExporter *AddPostgreSQLOKBodyPostgresExporter `json:"postgres_exporter,omitempty"`
 
