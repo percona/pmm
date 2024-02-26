@@ -19291,6 +19291,11 @@
                     }
                   },
                   "x-order": 3
+                },
+                "warning": {
+                  "description": "Warning message.",
+                  "type": "string",
+                  "x-order": 4
                 }
               }
             }
