@@ -201,7 +201,6 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 
 	var m map[string]interface{}
 	err = c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
-
 	if err != nil {
 		return 0, err
 	}

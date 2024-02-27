@@ -25,18 +25,18 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	MgmtService_ListAgents_FullMethodName            = "/service.v1beta1.MgmtService/ListAgents"
-	MgmtService_ListNodes_FullMethodName             = "/service.v1beta1.MgmtService/ListNodes"
-	MgmtService_GetNode_FullMethodName               = "/service.v1beta1.MgmtService/GetNode"
-	MgmtService_ListServices_FullMethodName          = "/service.v1beta1.MgmtService/ListServices"
-	MgmtService_DiscoverAzureDatabase_FullMethodName = "/service.v1beta1.MgmtService/DiscoverAzureDatabase"
-	MgmtService_AddAzureDatabase_FullMethodName      = "/service.v1beta1.MgmtService/AddAzureDatabase"
+	ManagementServiceV1Beta_ListAgents_FullMethodName            = "/service.v1beta1.ManagementServiceV1Beta/ListAgents"
+	ManagementServiceV1Beta_ListNodes_FullMethodName             = "/service.v1beta1.ManagementServiceV1Beta/ListNodes"
+	ManagementServiceV1Beta_GetNode_FullMethodName               = "/service.v1beta1.ManagementServiceV1Beta/GetNode"
+	ManagementServiceV1Beta_ListServices_FullMethodName          = "/service.v1beta1.ManagementServiceV1Beta/ListServices"
+	ManagementServiceV1Beta_DiscoverAzureDatabase_FullMethodName = "/service.v1beta1.ManagementServiceV1Beta/DiscoverAzureDatabase"
+	ManagementServiceV1Beta_AddAzureDatabase_FullMethodName      = "/service.v1beta1.ManagementServiceV1Beta/AddAzureDatabase"
 )
 
-// MgmtServiceClient is the client API for MgmtService service.
+// ManagementServiceV1BetaClient is the client API for ManagementServiceV1Beta service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type MgmtServiceClient interface {
+type ManagementServiceV1BetaClient interface {
 	// ListAgents returns a list of Agents filtered by service_id.
 	ListAgents(ctx context.Context, in *agent.ListAgentsRequest, opts ...grpc.CallOption) (*agent.ListAgentsResponse, error)
 	// ListNode returns a list of nodes.
@@ -51,72 +51,72 @@ type MgmtServiceClient interface {
 	AddAzureDatabase(ctx context.Context, in *azure.AddAzureDatabaseRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
-type mgmtServiceClient struct {
+type managementServiceV1BetaClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewMgmtServiceClient(cc grpc.ClientConnInterface) MgmtServiceClient {
-	return &mgmtServiceClient{cc}
+func NewManagementServiceV1BetaClient(cc grpc.ClientConnInterface) ManagementServiceV1BetaClient {
+	return &managementServiceV1BetaClient{cc}
 }
 
-func (c *mgmtServiceClient) ListAgents(ctx context.Context, in *agent.ListAgentsRequest, opts ...grpc.CallOption) (*agent.ListAgentsResponse, error) {
+func (c *managementServiceV1BetaClient) ListAgents(ctx context.Context, in *agent.ListAgentsRequest, opts ...grpc.CallOption) (*agent.ListAgentsResponse, error) {
 	out := new(agent.ListAgentsResponse)
-	err := c.cc.Invoke(ctx, MgmtService_ListAgents_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ManagementServiceV1Beta_ListAgents_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mgmtServiceClient) ListNodes(ctx context.Context, in *node.ListNodesRequest, opts ...grpc.CallOption) (*node.ListNodesResponse, error) {
+func (c *managementServiceV1BetaClient) ListNodes(ctx context.Context, in *node.ListNodesRequest, opts ...grpc.CallOption) (*node.ListNodesResponse, error) {
 	out := new(node.ListNodesResponse)
-	err := c.cc.Invoke(ctx, MgmtService_ListNodes_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ManagementServiceV1Beta_ListNodes_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mgmtServiceClient) GetNode(ctx context.Context, in *node.GetNodeRequest, opts ...grpc.CallOption) (*node.GetNodeResponse, error) {
+func (c *managementServiceV1BetaClient) GetNode(ctx context.Context, in *node.GetNodeRequest, opts ...grpc.CallOption) (*node.GetNodeResponse, error) {
 	out := new(node.GetNodeResponse)
-	err := c.cc.Invoke(ctx, MgmtService_GetNode_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ManagementServiceV1Beta_GetNode_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mgmtServiceClient) ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error) {
+func (c *managementServiceV1BetaClient) ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error) {
 	out := new(ListServicesResponse)
-	err := c.cc.Invoke(ctx, MgmtService_ListServices_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ManagementServiceV1Beta_ListServices_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mgmtServiceClient) DiscoverAzureDatabase(ctx context.Context, in *azure.DiscoverAzureDatabaseRequest, opts ...grpc.CallOption) (*azure.DiscoverAzureDatabaseResponse, error) {
+func (c *managementServiceV1BetaClient) DiscoverAzureDatabase(ctx context.Context, in *azure.DiscoverAzureDatabaseRequest, opts ...grpc.CallOption) (*azure.DiscoverAzureDatabaseResponse, error) {
 	out := new(azure.DiscoverAzureDatabaseResponse)
-	err := c.cc.Invoke(ctx, MgmtService_DiscoverAzureDatabase_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ManagementServiceV1Beta_DiscoverAzureDatabase_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mgmtServiceClient) AddAzureDatabase(ctx context.Context, in *azure.AddAzureDatabaseRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *managementServiceV1BetaClient) AddAzureDatabase(ctx context.Context, in *azure.AddAzureDatabaseRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, MgmtService_AddAzureDatabase_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ManagementServiceV1Beta_AddAzureDatabase_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// MgmtServiceServer is the server API for MgmtService service.
-// All implementations must embed UnimplementedMgmtServiceServer
+// ManagementServiceV1BetaServer is the server API for ManagementServiceV1Beta service.
+// All implementations must embed UnimplementedManagementServiceV1BetaServer
 // for forward compatibility
-type MgmtServiceServer interface {
+type ManagementServiceV1BetaServer interface {
 	// ListAgents returns a list of Agents filtered by service_id.
 	ListAgents(context.Context, *agent.ListAgentsRequest) (*agent.ListAgentsResponse, error)
 	// ListNode returns a list of nodes.
@@ -129,186 +129,188 @@ type MgmtServiceServer interface {
 	DiscoverAzureDatabase(context.Context, *azure.DiscoverAzureDatabaseRequest) (*azure.DiscoverAzureDatabaseResponse, error)
 	// AddAzureDatabase adds Azure Database instance.
 	AddAzureDatabase(context.Context, *azure.AddAzureDatabaseRequest) (*emptypb.Empty, error)
-	mustEmbedUnimplementedMgmtServiceServer()
+	mustEmbedUnimplementedManagementServiceV1BetaServer()
 }
 
-// UnimplementedMgmtServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedMgmtServiceServer struct{}
+// UnimplementedManagementServiceV1BetaServer must be embedded to have forward compatible implementations.
+type UnimplementedManagementServiceV1BetaServer struct{}
 
-func (UnimplementedMgmtServiceServer) ListAgents(context.Context, *agent.ListAgentsRequest) (*agent.ListAgentsResponse, error) {
+func (UnimplementedManagementServiceV1BetaServer) ListAgents(context.Context, *agent.ListAgentsRequest) (*agent.ListAgentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAgents not implemented")
 }
 
-func (UnimplementedMgmtServiceServer) ListNodes(context.Context, *node.ListNodesRequest) (*node.ListNodesResponse, error) {
+func (UnimplementedManagementServiceV1BetaServer) ListNodes(context.Context, *node.ListNodesRequest) (*node.ListNodesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListNodes not implemented")
 }
 
-func (UnimplementedMgmtServiceServer) GetNode(context.Context, *node.GetNodeRequest) (*node.GetNodeResponse, error) {
+func (UnimplementedManagementServiceV1BetaServer) GetNode(context.Context, *node.GetNodeRequest) (*node.GetNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNode not implemented")
 }
 
-func (UnimplementedMgmtServiceServer) ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error) {
+func (UnimplementedManagementServiceV1BetaServer) ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListServices not implemented")
 }
 
-func (UnimplementedMgmtServiceServer) DiscoverAzureDatabase(context.Context, *azure.DiscoverAzureDatabaseRequest) (*azure.DiscoverAzureDatabaseResponse, error) {
+func (UnimplementedManagementServiceV1BetaServer) DiscoverAzureDatabase(context.Context, *azure.DiscoverAzureDatabaseRequest) (*azure.DiscoverAzureDatabaseResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DiscoverAzureDatabase not implemented")
 }
 
-func (UnimplementedMgmtServiceServer) AddAzureDatabase(context.Context, *azure.AddAzureDatabaseRequest) (*emptypb.Empty, error) {
+func (UnimplementedManagementServiceV1BetaServer) AddAzureDatabase(context.Context, *azure.AddAzureDatabaseRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddAzureDatabase not implemented")
 }
-func (UnimplementedMgmtServiceServer) mustEmbedUnimplementedMgmtServiceServer() {}
 
-// UnsafeMgmtServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to MgmtServiceServer will
+func (UnimplementedManagementServiceV1BetaServer) mustEmbedUnimplementedManagementServiceV1BetaServer() {
+}
+
+// UnsafeManagementServiceV1BetaServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ManagementServiceV1BetaServer will
 // result in compilation errors.
-type UnsafeMgmtServiceServer interface {
-	mustEmbedUnimplementedMgmtServiceServer()
+type UnsafeManagementServiceV1BetaServer interface {
+	mustEmbedUnimplementedManagementServiceV1BetaServer()
 }
 
-func RegisterMgmtServiceServer(s grpc.ServiceRegistrar, srv MgmtServiceServer) {
-	s.RegisterService(&MgmtService_ServiceDesc, srv)
+func RegisterManagementServiceV1BetaServer(s grpc.ServiceRegistrar, srv ManagementServiceV1BetaServer) {
+	s.RegisterService(&ManagementServiceV1Beta_ServiceDesc, srv)
 }
 
-func _MgmtService_ListAgents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ManagementServiceV1Beta_ListAgents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(agent.ListAgentsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MgmtServiceServer).ListAgents(ctx, in)
+		return srv.(ManagementServiceV1BetaServer).ListAgents(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MgmtService_ListAgents_FullMethodName,
+		FullMethod: ManagementServiceV1Beta_ListAgents_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MgmtServiceServer).ListAgents(ctx, req.(*agent.ListAgentsRequest))
+		return srv.(ManagementServiceV1BetaServer).ListAgents(ctx, req.(*agent.ListAgentsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MgmtService_ListNodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ManagementServiceV1Beta_ListNodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(node.ListNodesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MgmtServiceServer).ListNodes(ctx, in)
+		return srv.(ManagementServiceV1BetaServer).ListNodes(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MgmtService_ListNodes_FullMethodName,
+		FullMethod: ManagementServiceV1Beta_ListNodes_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MgmtServiceServer).ListNodes(ctx, req.(*node.ListNodesRequest))
+		return srv.(ManagementServiceV1BetaServer).ListNodes(ctx, req.(*node.ListNodesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MgmtService_GetNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ManagementServiceV1Beta_GetNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(node.GetNodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MgmtServiceServer).GetNode(ctx, in)
+		return srv.(ManagementServiceV1BetaServer).GetNode(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MgmtService_GetNode_FullMethodName,
+		FullMethod: ManagementServiceV1Beta_GetNode_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MgmtServiceServer).GetNode(ctx, req.(*node.GetNodeRequest))
+		return srv.(ManagementServiceV1BetaServer).GetNode(ctx, req.(*node.GetNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MgmtService_ListServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ManagementServiceV1Beta_ListServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListServicesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MgmtServiceServer).ListServices(ctx, in)
+		return srv.(ManagementServiceV1BetaServer).ListServices(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MgmtService_ListServices_FullMethodName,
+		FullMethod: ManagementServiceV1Beta_ListServices_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MgmtServiceServer).ListServices(ctx, req.(*ListServicesRequest))
+		return srv.(ManagementServiceV1BetaServer).ListServices(ctx, req.(*ListServicesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MgmtService_DiscoverAzureDatabase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ManagementServiceV1Beta_DiscoverAzureDatabase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(azure.DiscoverAzureDatabaseRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MgmtServiceServer).DiscoverAzureDatabase(ctx, in)
+		return srv.(ManagementServiceV1BetaServer).DiscoverAzureDatabase(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MgmtService_DiscoverAzureDatabase_FullMethodName,
+		FullMethod: ManagementServiceV1Beta_DiscoverAzureDatabase_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MgmtServiceServer).DiscoverAzureDatabase(ctx, req.(*azure.DiscoverAzureDatabaseRequest))
+		return srv.(ManagementServiceV1BetaServer).DiscoverAzureDatabase(ctx, req.(*azure.DiscoverAzureDatabaseRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MgmtService_AddAzureDatabase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ManagementServiceV1Beta_AddAzureDatabase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(azure.AddAzureDatabaseRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MgmtServiceServer).AddAzureDatabase(ctx, in)
+		return srv.(ManagementServiceV1BetaServer).AddAzureDatabase(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MgmtService_AddAzureDatabase_FullMethodName,
+		FullMethod: ManagementServiceV1Beta_AddAzureDatabase_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MgmtServiceServer).AddAzureDatabase(ctx, req.(*azure.AddAzureDatabaseRequest))
+		return srv.(ManagementServiceV1BetaServer).AddAzureDatabase(ctx, req.(*azure.AddAzureDatabaseRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// MgmtService_ServiceDesc is the grpc.ServiceDesc for MgmtService service.
+// ManagementServiceV1Beta_ServiceDesc is the grpc.ServiceDesc for ManagementServiceV1Beta service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var MgmtService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "service.v1beta1.MgmtService",
-	HandlerType: (*MgmtServiceServer)(nil),
+var ManagementServiceV1Beta_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "service.v1beta1.ManagementServiceV1Beta",
+	HandlerType: (*ManagementServiceV1BetaServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "ListAgents",
-			Handler:    _MgmtService_ListAgents_Handler,
+			Handler:    _ManagementServiceV1Beta_ListAgents_Handler,
 		},
 		{
 			MethodName: "ListNodes",
-			Handler:    _MgmtService_ListNodes_Handler,
+			Handler:    _ManagementServiceV1Beta_ListNodes_Handler,
 		},
 		{
 			MethodName: "GetNode",
-			Handler:    _MgmtService_GetNode_Handler,
+			Handler:    _ManagementServiceV1Beta_GetNode_Handler,
 		},
 		{
 			MethodName: "ListServices",
-			Handler:    _MgmtService_ListServices_Handler,
+			Handler:    _ManagementServiceV1Beta_ListServices_Handler,
 		},
 		{
 			MethodName: "DiscoverAzureDatabase",
-			Handler:    _MgmtService_DiscoverAzureDatabase_Handler,
+			Handler:    _ManagementServiceV1Beta_DiscoverAzureDatabase_Handler,
 		},
 		{
 			MethodName: "AddAzureDatabase",
-			Handler:    _MgmtService_AddAzureDatabase_Handler,
+			Handler:    _ManagementServiceV1Beta_AddAzureDatabase_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

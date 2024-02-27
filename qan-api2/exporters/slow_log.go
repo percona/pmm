@@ -386,7 +386,6 @@ func main() {
 			// Reached end of slowlog. Send all what we have to API.
 			return nil
 		})
-
 		if err != nil {
 			if _, ok := err.(closedChannelError); !ok {
 				log.Fatal("transaction error:", err)

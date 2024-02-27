@@ -19,7 +19,7 @@
       "post": {
         "description": "Returns a filtered list of Agents.",
         "tags": [
-          "MgmtService"
+          "ManagementServiceV1Beta"
         ],
         "summary": "List Agents",
         "operationId": "ListAgents",
@@ -401,7 +401,7 @@
       "post": {
         "description": "Adds an Azure Database instance.",
         "tags": [
-          "MgmtService"
+          "ManagementServiceV1Beta"
         ],
         "summary": "Add Azure Database",
         "operationId": "AddAzureDatabase",
@@ -598,7 +598,7 @@
       "post": {
         "description": "Discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.",
         "tags": [
-          "MgmtService"
+          "ManagementServiceV1Beta"
         ],
         "summary": "Discover Azure Database",
         "operationId": "DiscoverAzureDatabase",
@@ -750,7 +750,7 @@
       "post": {
         "description": "Returns a single Node by ID.",
         "tags": [
-          "MgmtService"
+          "ManagementServiceV1Beta"
         ],
         "summary": "Get Node",
         "operationId": "GetNode",
@@ -967,7 +967,7 @@
       "post": {
         "description": "Returns a filtered list of Nodes.",
         "tags": [
-          "MgmtService"
+          "ManagementServiceV1Beta"
         ],
         "summary": "List Nodes",
         "operationId": "ListNodes",
@@ -1196,7 +1196,7 @@
       "post": {
         "description": "Returns a filtered list of Services.",
         "tags": [
-          "MgmtService"
+          "ManagementServiceV1Beta"
         ],
         "summary": "List Services",
         "operationId": "ListServices",
@@ -1703,7 +1703,7 @@
   },
   "tags": [
     {
-      "name": "MgmtService"
+      "name": "ManagementServiceV1Beta"
     }
   ]
 }

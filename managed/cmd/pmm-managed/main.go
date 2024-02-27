@@ -264,7 +264,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	managementSvc := management.NewManagementService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb, deps.versionCache, deps.grafanaClient)
 
-	managementv1beta1.RegisterMgmtServiceServer(gRPCServer, management.NewMgmtServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, v1.NewAPI(*deps.vmClient)))
+	managementv1beta1.RegisterManagementServiceV1BetaServer(gRPCServer, management.NewMgmtServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, v1.NewAPI(*deps.vmClient)))
 	managementv1.RegisterManagementServiceServer(gRPCServer, managementSvc)
 	actionsv1.RegisterActionsServiceServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
 	advisorsv1.RegisterAdvisorServiceServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
@@ -357,7 +357,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		inventoryv1.RegisterServicesServiceHandlerFromEndpoint,
 		inventoryv1.RegisterAgentsServiceHandlerFromEndpoint,
 
-		managementv1beta1.RegisterMgmtServiceHandlerFromEndpoint,
+		managementv1beta1.RegisterManagementServiceV1BetaHandlerFromEndpoint,
 		managementv1.RegisterManagementServiceHandlerFromEndpoint,
 		actionsv1.RegisterActionsServiceHandlerFromEndpoint,
 		advisorsv1.RegisterAdvisorServiceHandlerFromEndpoint,

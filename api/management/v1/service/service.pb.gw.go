@@ -37,15 +37,11 @@ var (
 	_ = metadata.Join
 )
 
-func request_MgmtService_ListAgents_0(ctx context.Context, marshaler runtime.Marshaler, client MgmtServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ManagementServiceV1Beta_ListAgents_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceV1BetaClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq agentv1beta1.ListAgentsRequest
 	var metadata runtime.ServerMetadata
 
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -53,15 +49,11 @@ func request_MgmtService_ListAgents_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-func local_request_MgmtService_ListAgents_0(ctx context.Context, marshaler runtime.Marshaler, server MgmtServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ManagementServiceV1Beta_ListAgents_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceV1BetaServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq agentv1beta1.ListAgentsRequest
 	var metadata runtime.ServerMetadata
 
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -69,15 +61,11 @@ func local_request_MgmtService_ListAgents_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-func request_MgmtService_ListNodes_0(ctx context.Context, marshaler runtime.Marshaler, client MgmtServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ManagementServiceV1Beta_ListNodes_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceV1BetaClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq nodev1beta1.ListNodesRequest
 	var metadata runtime.ServerMetadata
 
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -85,15 +73,11 @@ func request_MgmtService_ListNodes_0(ctx context.Context, marshaler runtime.Mars
 	return msg, metadata, err
 }
 
-func local_request_MgmtService_ListNodes_0(ctx context.Context, marshaler runtime.Marshaler, server MgmtServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ManagementServiceV1Beta_ListNodes_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceV1BetaServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq nodev1beta1.ListNodesRequest
 	var metadata runtime.ServerMetadata
 
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -101,15 +85,11 @@ func local_request_MgmtService_ListNodes_0(ctx context.Context, marshaler runtim
 	return msg, metadata, err
 }
 
-func request_MgmtService_GetNode_0(ctx context.Context, marshaler runtime.Marshaler, client MgmtServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ManagementServiceV1Beta_GetNode_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceV1BetaClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq nodev1beta1.GetNodeRequest
 	var metadata runtime.ServerMetadata
 
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -117,15 +97,11 @@ func request_MgmtService_GetNode_0(ctx context.Context, marshaler runtime.Marsha
 	return msg, metadata, err
 }
 
-func local_request_MgmtService_GetNode_0(ctx context.Context, marshaler runtime.Marshaler, server MgmtServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ManagementServiceV1Beta_GetNode_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceV1BetaServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq nodev1beta1.GetNodeRequest
 	var metadata runtime.ServerMetadata
 
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -133,15 +109,11 @@ func local_request_MgmtService_GetNode_0(ctx context.Context, marshaler runtime.
 	return msg, metadata, err
 }
 
-func request_MgmtService_ListServices_0(ctx context.Context, marshaler runtime.Marshaler, client MgmtServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ManagementServiceV1Beta_ListServices_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceV1BetaClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListServicesRequest
 	var metadata runtime.ServerMetadata
 
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -149,15 +121,11 @@ func request_MgmtService_ListServices_0(ctx context.Context, marshaler runtime.M
 	return msg, metadata, err
 }
 
-func local_request_MgmtService_ListServices_0(ctx context.Context, marshaler runtime.Marshaler, server MgmtServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ManagementServiceV1Beta_ListServices_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceV1BetaServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListServicesRequest
 	var metadata runtime.ServerMetadata
 
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -165,15 +133,11 @@ func local_request_MgmtService_ListServices_0(ctx context.Context, marshaler run
 	return msg, metadata, err
 }
 
-func request_MgmtService_DiscoverAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, client MgmtServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ManagementServiceV1Beta_DiscoverAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceV1BetaClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq azurev1beta1.DiscoverAzureDatabaseRequest
 	var metadata runtime.ServerMetadata
 
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -181,15 +145,11 @@ func request_MgmtService_DiscoverAzureDatabase_0(ctx context.Context, marshaler 
 	return msg, metadata, err
 }
 
-func local_request_MgmtService_DiscoverAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, server MgmtServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ManagementServiceV1Beta_DiscoverAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceV1BetaServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq azurev1beta1.DiscoverAzureDatabaseRequest
 	var metadata runtime.ServerMetadata
 
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -197,15 +157,11 @@ func local_request_MgmtService_DiscoverAzureDatabase_0(ctx context.Context, mars
 	return msg, metadata, err
 }
 
-func request_MgmtService_AddAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, client MgmtServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ManagementServiceV1Beta_AddAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceV1BetaClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq azurev1beta1.AddAzureDatabaseRequest
 	var metadata runtime.ServerMetadata
 
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -213,15 +169,11 @@ func request_MgmtService_AddAzureDatabase_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-func local_request_MgmtService_AddAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, server MgmtServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ManagementServiceV1Beta_AddAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceV1BetaServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq azurev1beta1.AddAzureDatabaseRequest
 	var metadata runtime.ServerMetadata
 
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -229,12 +181,12 @@ func local_request_MgmtService_AddAzureDatabase_0(ctx context.Context, marshaler
 	return msg, metadata, err
 }
 
-// RegisterMgmtServiceHandlerServer registers the http handlers for service MgmtService to "mux".
-// UnaryRPC     :call MgmtServiceServer directly.
+// RegisterManagementServiceV1BetaHandlerServer registers the http handlers for service ManagementServiceV1Beta to "mux".
+// UnaryRPC     :call ManagementServiceV1BetaServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterMgmtServiceHandlerFromEndpoint instead.
-func RegisterMgmtServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server MgmtServiceServer) error {
-	mux.Handle("POST", pattern_MgmtService_ListAgents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterManagementServiceV1BetaHandlerFromEndpoint instead.
+func RegisterManagementServiceV1BetaHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ManagementServiceV1BetaServer) error {
+	mux.Handle("POST", pattern_ManagementServiceV1Beta_ListAgents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -242,12 +194,12 @@ func RegisterMgmtServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/service.v1beta1.MgmtService/ListAgents", runtime.WithHTTPPathPattern("/v1/management/Agent/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/service.v1beta1.ManagementServiceV1Beta/ListAgents", runtime.WithHTTPPathPattern("/v1/management/Agent/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_MgmtService_ListAgents_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ManagementServiceV1Beta_ListAgents_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -255,10 +207,10 @@ func RegisterMgmtServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			return
 		}
 
-		forward_MgmtService_ListAgents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementServiceV1Beta_ListAgents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_MgmtService_ListNodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementServiceV1Beta_ListNodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -266,12 +218,12 @@ func RegisterMgmtServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/service.v1beta1.MgmtService/ListNodes", runtime.WithHTTPPathPattern("/v1/management/Node/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/service.v1beta1.ManagementServiceV1Beta/ListNodes", runtime.WithHTTPPathPattern("/v1/management/Node/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_MgmtService_ListNodes_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ManagementServiceV1Beta_ListNodes_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -279,10 +231,10 @@ func RegisterMgmtServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			return
 		}
 
-		forward_MgmtService_ListNodes_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementServiceV1Beta_ListNodes_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_MgmtService_GetNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementServiceV1Beta_GetNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -290,12 +242,12 @@ func RegisterMgmtServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/service.v1beta1.MgmtService/GetNode", runtime.WithHTTPPathPattern("/v1/management/Node/Get"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/service.v1beta1.ManagementServiceV1Beta/GetNode", runtime.WithHTTPPathPattern("/v1/management/Node/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_MgmtService_GetNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ManagementServiceV1Beta_GetNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -303,10 +255,10 @@ func RegisterMgmtServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			return
 		}
 
-		forward_MgmtService_GetNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementServiceV1Beta_GetNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_MgmtService_ListServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementServiceV1Beta_ListServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -314,12 +266,12 @@ func RegisterMgmtServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/service.v1beta1.MgmtService/ListServices", runtime.WithHTTPPathPattern("/v1/management/Service/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/service.v1beta1.ManagementServiceV1Beta/ListServices", runtime.WithHTTPPathPattern("/v1/management/Service/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_MgmtService_ListServices_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ManagementServiceV1Beta_ListServices_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -327,10 +279,10 @@ func RegisterMgmtServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			return
 		}
 
-		forward_MgmtService_ListServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementServiceV1Beta_ListServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_MgmtService_DiscoverAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementServiceV1Beta_DiscoverAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -338,12 +290,12 @@ func RegisterMgmtServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/service.v1beta1.MgmtService/DiscoverAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/AzureDatabase/Discover"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/service.v1beta1.ManagementServiceV1Beta/DiscoverAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/AzureDatabase/Discover"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_MgmtService_DiscoverAzureDatabase_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ManagementServiceV1Beta_DiscoverAzureDatabase_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -351,10 +303,10 @@ func RegisterMgmtServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			return
 		}
 
-		forward_MgmtService_DiscoverAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementServiceV1Beta_DiscoverAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_MgmtService_AddAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementServiceV1Beta_AddAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -362,12 +314,12 @@ func RegisterMgmtServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/service.v1beta1.MgmtService/AddAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/AzureDatabase/Add"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/service.v1beta1.ManagementServiceV1Beta/AddAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/AzureDatabase/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_MgmtService_AddAzureDatabase_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ManagementServiceV1Beta_AddAzureDatabase_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -375,15 +327,15 @@ func RegisterMgmtServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			return
 		}
 
-		forward_MgmtService_AddAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementServiceV1Beta_AddAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterMgmtServiceHandlerFromEndpoint is same as RegisterMgmtServiceHandler but
+// RegisterManagementServiceV1BetaHandlerFromEndpoint is same as RegisterManagementServiceV1BetaHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterMgmtServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterManagementServiceV1BetaHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -403,174 +355,174 @@ func RegisterMgmtServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.Se
 		}()
 	}()
 
-	return RegisterMgmtServiceHandler(ctx, mux, conn)
+	return RegisterManagementServiceV1BetaHandler(ctx, mux, conn)
 }
 
-// RegisterMgmtServiceHandler registers the http handlers for service MgmtService to "mux".
+// RegisterManagementServiceV1BetaHandler registers the http handlers for service ManagementServiceV1Beta to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterMgmtServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterMgmtServiceHandlerClient(ctx, mux, NewMgmtServiceClient(conn))
+func RegisterManagementServiceV1BetaHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterManagementServiceV1BetaHandlerClient(ctx, mux, NewManagementServiceV1BetaClient(conn))
 }
 
-// RegisterMgmtServiceHandlerClient registers the http handlers for service MgmtService
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "MgmtServiceClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "MgmtServiceClient"
+// RegisterManagementServiceV1BetaHandlerClient registers the http handlers for service ManagementServiceV1Beta
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ManagementServiceV1BetaClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ManagementServiceV1BetaClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "MgmtServiceClient" to call the correct interceptors.
-func RegisterMgmtServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client MgmtServiceClient) error {
-	mux.Handle("POST", pattern_MgmtService_ListAgents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "ManagementServiceV1BetaClient" to call the correct interceptors.
+func RegisterManagementServiceV1BetaHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ManagementServiceV1BetaClient) error {
+	mux.Handle("POST", pattern_ManagementServiceV1Beta_ListAgents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/service.v1beta1.MgmtService/ListAgents", runtime.WithHTTPPathPattern("/v1/management/Agent/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/service.v1beta1.ManagementServiceV1Beta/ListAgents", runtime.WithHTTPPathPattern("/v1/management/Agent/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_MgmtService_ListAgents_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ManagementServiceV1Beta_ListAgents_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_MgmtService_ListAgents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementServiceV1Beta_ListAgents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_MgmtService_ListNodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementServiceV1Beta_ListNodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/service.v1beta1.MgmtService/ListNodes", runtime.WithHTTPPathPattern("/v1/management/Node/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/service.v1beta1.ManagementServiceV1Beta/ListNodes", runtime.WithHTTPPathPattern("/v1/management/Node/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_MgmtService_ListNodes_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ManagementServiceV1Beta_ListNodes_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_MgmtService_ListNodes_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementServiceV1Beta_ListNodes_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_MgmtService_GetNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementServiceV1Beta_GetNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/service.v1beta1.MgmtService/GetNode", runtime.WithHTTPPathPattern("/v1/management/Node/Get"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/service.v1beta1.ManagementServiceV1Beta/GetNode", runtime.WithHTTPPathPattern("/v1/management/Node/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_MgmtService_GetNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ManagementServiceV1Beta_GetNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_MgmtService_GetNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementServiceV1Beta_GetNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_MgmtService_ListServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementServiceV1Beta_ListServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/service.v1beta1.MgmtService/ListServices", runtime.WithHTTPPathPattern("/v1/management/Service/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/service.v1beta1.ManagementServiceV1Beta/ListServices", runtime.WithHTTPPathPattern("/v1/management/Service/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_MgmtService_ListServices_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ManagementServiceV1Beta_ListServices_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_MgmtService_ListServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementServiceV1Beta_ListServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_MgmtService_DiscoverAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementServiceV1Beta_DiscoverAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/service.v1beta1.MgmtService/DiscoverAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/AzureDatabase/Discover"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/service.v1beta1.ManagementServiceV1Beta/DiscoverAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/AzureDatabase/Discover"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_MgmtService_DiscoverAzureDatabase_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ManagementServiceV1Beta_DiscoverAzureDatabase_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_MgmtService_DiscoverAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementServiceV1Beta_DiscoverAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_MgmtService_AddAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ManagementServiceV1Beta_AddAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/service.v1beta1.MgmtService/AddAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/AzureDatabase/Add"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/service.v1beta1.ManagementServiceV1Beta/AddAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/AzureDatabase/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_MgmtService_AddAzureDatabase_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ManagementServiceV1Beta_AddAzureDatabase_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_MgmtService_AddAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ManagementServiceV1Beta_AddAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
 var (
-	pattern_MgmtService_ListAgents_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Agent", "List"}, ""))
+	pattern_ManagementServiceV1Beta_ListAgents_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Agent", "List"}, ""))
 
-	pattern_MgmtService_ListNodes_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Node", "List"}, ""))
+	pattern_ManagementServiceV1Beta_ListNodes_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Node", "List"}, ""))
 
-	pattern_MgmtService_GetNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Node", "Get"}, ""))
+	pattern_ManagementServiceV1Beta_GetNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Node", "Get"}, ""))
 
-	pattern_MgmtService_ListServices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Service", "List"}, ""))
+	pattern_ManagementServiceV1Beta_ListServices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Service", "List"}, ""))
 
-	pattern_MgmtService_DiscoverAzureDatabase_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "AzureDatabase", "Discover"}, ""))
+	pattern_ManagementServiceV1Beta_DiscoverAzureDatabase_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "AzureDatabase", "Discover"}, ""))
 
-	pattern_MgmtService_AddAzureDatabase_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "AzureDatabase", "Add"}, ""))
+	pattern_ManagementServiceV1Beta_AddAzureDatabase_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "AzureDatabase", "Add"}, ""))
 )
 
 var (
-	forward_MgmtService_ListAgents_0 = runtime.ForwardResponseMessage
+	forward_ManagementServiceV1Beta_ListAgents_0 = runtime.ForwardResponseMessage
 
-	forward_MgmtService_ListNodes_0 = runtime.ForwardResponseMessage
+	forward_ManagementServiceV1Beta_ListNodes_0 = runtime.ForwardResponseMessage
 
-	forward_MgmtService_GetNode_0 = runtime.ForwardResponseMessage
+	forward_ManagementServiceV1Beta_GetNode_0 = runtime.ForwardResponseMessage
 
-	forward_MgmtService_ListServices_0 = runtime.ForwardResponseMessage
+	forward_ManagementServiceV1Beta_ListServices_0 = runtime.ForwardResponseMessage
 
-	forward_MgmtService_DiscoverAzureDatabase_0 = runtime.ForwardResponseMessage
+	forward_ManagementServiceV1Beta_DiscoverAzureDatabase_0 = runtime.ForwardResponseMessage
 
-	forward_MgmtService_AddAzureDatabase_0 = runtime.ForwardResponseMessage
+	forward_ManagementServiceV1Beta_AddAzureDatabase_0 = runtime.ForwardResponseMessage
 )
