@@ -3,7 +3,6 @@ syntax = "proto3";
 package dump.v1beta1;
 
 import "google/api/annotations.proto";
-import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "validate/validate.proto";
 
@@ -35,6 +34,8 @@ message StartDumpResponse {
   string dump_id = 1;
 }
 
+message ListDumpsRequest {}
+
 message ListDumpsResponse {
   repeated Dump dumps = 1;
 }
@@ -45,6 +46,8 @@ message DeleteDumpRequest {
     unique: true
   }];
 }
+
+message DeleteDumpResponse {}
 
 message GetDumpLogsRequest {
   string dump_id = 1 [(validate.rules).string.min_len = 1];
@@ -80,6 +83,8 @@ message UploadDumpRequest {
   SFTPParameters sftp_parameters = 2 [(validate.rules).message.required = true];
 }
 
+message UploadDumpResponse {}
+
 service DumpsService {
   // StartDump request creates pmm dump.
   rpc StartDump(StartDumpRequest) returns (StartDumpResponse) {
@@ -89,14 +94,14 @@ service DumpsService {
     };
   }
   // ListDumps returns a list of all pmm dumps.
-  rpc ListDumps(google.protobuf.Empty) returns (ListDumpsResponse) {
+  rpc ListDumps(ListDumpsRequest) returns (ListDumpsResponse) {
     option (google.api.http) = {
       post: "/v1/dump/List"
       body: "*"
     };
   }
   // DeleteDump deletes specified pmm dump.
-  rpc DeleteDump(DeleteDumpRequest) returns (google.protobuf.Empty) {
+  rpc DeleteDump(DeleteDumpRequest) returns (DeleteDumpResponse) {
     option (google.api.http) = {
       post: "/v1/dump/Delete"
       body: "*"
@@ -110,7 +115,7 @@ service DumpsService {
     };
   }
   // UploadDump uploads selected dumps to remote server.
-  rpc UploadDump(UploadDumpRequest) returns (google.protobuf.Empty) {
+  rpc UploadDump(UploadDumpRequest) returns (UploadDumpResponse) {
     option (google.api.http) = {
       post: "/v1/dump/Upload"
       body: "*"

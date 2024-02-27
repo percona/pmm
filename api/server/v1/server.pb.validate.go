@@ -431,6 +431,106 @@ var _ interface {
 	ErrorName() string
 } = VersionResponseValidationError{}
 
+// Validate checks the field values on ReadinessRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *ReadinessRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ReadinessRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ReadinessRequestMultiError, or nil if none found.
+func (m *ReadinessRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ReadinessRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ReadinessRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ReadinessRequestMultiError is an error wrapping multiple validation errors
+// returned by ReadinessRequest.ValidateAll() if the designated constraints
+// aren't met.
+type ReadinessRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ReadinessRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ReadinessRequestMultiError) AllErrors() []error { return m }
+
+// ReadinessRequestValidationError is the validation error returned by
+// ReadinessRequest.Validate if the designated constraints aren't met.
+type ReadinessRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ReadinessRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ReadinessRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ReadinessRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ReadinessRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ReadinessRequestValidationError) ErrorName() string { return "ReadinessRequestValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ReadinessRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sReadinessRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ReadinessRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ReadinessRequestValidationError{}
+
 // Validate checks the field values on ReadinessResponse with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -532,6 +632,108 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ReadinessResponseValidationError{}
+
+// Validate checks the field values on LeaderHealthCheckRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *LeaderHealthCheckRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LeaderHealthCheckRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// LeaderHealthCheckRequestMultiError, or nil if none found.
+func (m *LeaderHealthCheckRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LeaderHealthCheckRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return LeaderHealthCheckRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// LeaderHealthCheckRequestMultiError is an error wrapping multiple validation
+// errors returned by LeaderHealthCheckRequest.ValidateAll() if the designated
+// constraints aren't met.
+type LeaderHealthCheckRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LeaderHealthCheckRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LeaderHealthCheckRequestMultiError) AllErrors() []error { return m }
+
+// LeaderHealthCheckRequestValidationError is the validation error returned by
+// LeaderHealthCheckRequest.Validate if the designated constraints aren't met.
+type LeaderHealthCheckRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LeaderHealthCheckRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LeaderHealthCheckRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LeaderHealthCheckRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LeaderHealthCheckRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LeaderHealthCheckRequestValidationError) ErrorName() string {
+	return "LeaderHealthCheckRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e LeaderHealthCheckRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLeaderHealthCheckRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LeaderHealthCheckRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LeaderHealthCheckRequestValidationError{}
 
 // Validate checks the field values on LeaderHealthCheckResponse with the rules
 // defined in the proto definition for this message. If any rules are
@@ -933,6 +1135,108 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CheckUpdatesResponseValidationError{}
+
+// Validate checks the field values on StartUpdateRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *StartUpdateRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on StartUpdateRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// StartUpdateRequestMultiError, or nil if none found.
+func (m *StartUpdateRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *StartUpdateRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return StartUpdateRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// StartUpdateRequestMultiError is an error wrapping multiple validation errors
+// returned by StartUpdateRequest.ValidateAll() if the designated constraints
+// aren't met.
+type StartUpdateRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m StartUpdateRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m StartUpdateRequestMultiError) AllErrors() []error { return m }
+
+// StartUpdateRequestValidationError is the validation error returned by
+// StartUpdateRequest.Validate if the designated constraints aren't met.
+type StartUpdateRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e StartUpdateRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e StartUpdateRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e StartUpdateRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e StartUpdateRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e StartUpdateRequestValidationError) ErrorName() string {
+	return "StartUpdateRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e StartUpdateRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sStartUpdateRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = StartUpdateRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = StartUpdateRequestValidationError{}
 
 // Validate checks the field values on StartUpdateResponse with the rules
 // defined in the proto definition for this message. If any rules are
@@ -1840,6 +2144,108 @@ var _ interface {
 	ErrorName() string
 } = SettingsValidationError{}
 
+// Validate checks the field values on GetSettingsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetSettingsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetSettingsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetSettingsRequestMultiError, or nil if none found.
+func (m *GetSettingsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetSettingsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return GetSettingsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetSettingsRequestMultiError is an error wrapping multiple validation errors
+// returned by GetSettingsRequest.ValidateAll() if the designated constraints
+// aren't met.
+type GetSettingsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetSettingsRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetSettingsRequestMultiError) AllErrors() []error { return m }
+
+// GetSettingsRequestValidationError is the validation error returned by
+// GetSettingsRequest.Validate if the designated constraints aren't met.
+type GetSettingsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetSettingsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetSettingsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetSettingsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetSettingsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetSettingsRequestValidationError) ErrorName() string {
+	return "GetSettingsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetSettingsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetSettingsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetSettingsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetSettingsRequestValidationError{}
+
 // Validate checks the field values on GetSettingsResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -2470,3 +2876,105 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AWSInstanceCheckRequestValidationError{}
+
+// Validate checks the field values on AWSInstanceCheckResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AWSInstanceCheckResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AWSInstanceCheckResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AWSInstanceCheckResponseMultiError, or nil if none found.
+func (m *AWSInstanceCheckResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AWSInstanceCheckResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return AWSInstanceCheckResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// AWSInstanceCheckResponseMultiError is an error wrapping multiple validation
+// errors returned by AWSInstanceCheckResponse.ValidateAll() if the designated
+// constraints aren't met.
+type AWSInstanceCheckResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AWSInstanceCheckResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AWSInstanceCheckResponseMultiError) AllErrors() []error { return m }
+
+// AWSInstanceCheckResponseValidationError is the validation error returned by
+// AWSInstanceCheckResponse.Validate if the designated constraints aren't met.
+type AWSInstanceCheckResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AWSInstanceCheckResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AWSInstanceCheckResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AWSInstanceCheckResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AWSInstanceCheckResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AWSInstanceCheckResponseValidationError) ErrorName() string {
+	return "AWSInstanceCheckResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AWSInstanceCheckResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAWSInstanceCheckResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AWSInstanceCheckResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AWSInstanceCheckResponseValidationError{}

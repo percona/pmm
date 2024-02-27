@@ -22,7 +22,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -78,7 +77,7 @@ func New(client *platform.Client, db *reform.DB, supervisord supervisordService,
 }
 
 // Connect connects a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
-func (s *Service) Connect(ctx context.Context, req *platformv1.ConnectRequest) (*empty.Empty, error) {
+func (s *Service) Connect(ctx context.Context, req *platformv1.ConnectRequest) (*platformv1.ConnectResponse, error) {
 	_, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
 	if err == nil {
 		return nil, errPMMServerAlreadyConnected
@@ -125,11 +124,11 @@ func (s *Service) Connect(ctx context.Context, req *platformv1.ConnectRequest) (
 		s.l.Errorf("Failed to update configuration of grafana after connecting PMM to Portal: %s", err)
 		return nil, err
 	}
-	return &empty.Empty{}, nil
+	return &platformv1.ConnectResponse{}, nil
 }
 
 // Disconnect disconnects a PMM server from the organization created on Percona Portal.
-func (s *Service) Disconnect(ctx context.Context, req *platformv1.DisconnectRequest) (*empty.Empty, error) {
+func (s *Service) Disconnect(ctx context.Context, req *platformv1.DisconnectRequest) (*platformv1.DisconnectResponse, error) {
 	_, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
 	if err != nil {
 		s.l.Errorf("Failed to get SSO details: %s", err)
@@ -148,7 +147,7 @@ func (s *Service) Disconnect(ctx context.Context, req *platformv1.DisconnectRequ
 			s.l.Errorf("Force disconnect failed: %s", err)
 			return nil, err
 		}
-		return &empty.Empty{}, nil
+		return &platformv1.DisconnectResponse{}, nil
 	}
 
 	userAccessToken, err := s.grafanaClient.GetCurrentUserAccessToken(ctx)
@@ -184,7 +183,7 @@ func (s *Service) Disconnect(ctx context.Context, req *platformv1.DisconnectRequ
 		return nil, err
 	}
 
-	return &empty.Empty{}, nil
+	return &platformv1.DisconnectResponse{}, nil
 }
 
 // forceDisconnect cleans up records of platform connection only from PMM side.
@@ -221,7 +220,7 @@ func (s *Service) UpdateSupervisordConfigurations(ctx context.Context) error {
 }
 
 // SearchOrganizationTickets fetches the list of ticket associated with the Portal organization this PMM server is registered with.
-func (s *Service) SearchOrganizationTickets(ctx context.Context, _ *empty.Empty) (*platformv1.SearchOrganizationTicketsResponse, error) {
+func (s *Service) SearchOrganizationTickets(ctx context.Context, _ *platformv1.SearchOrganizationTicketsRequest) (*platformv1.SearchOrganizationTicketsResponse, error) { //nolint:lll
 	accessToken, err := s.grafanaClient.GetCurrentUserAccessToken(ctx)
 	if err != nil {
 		if errors.Is(err, grafana.ErrFailedToGetToken) {
@@ -275,7 +274,7 @@ func convertTicket(t *platform.TicketResponse) (*platformv1.OrganizationTicket, 
 }
 
 // SearchOrganizationEntitlements fetches customer entitlements for a particular organization.
-func (s *Service) SearchOrganizationEntitlements(ctx context.Context, _ *empty.Empty) (*platformv1.SearchOrganizationEntitlementsResponse, error) {
+func (s *Service) SearchOrganizationEntitlements(ctx context.Context, _ *platformv1.SearchOrganizationEntitlementsRequest) (*platformv1.SearchOrganizationEntitlementsResponse, error) { //nolint:lll
 	accessToken, err := s.grafanaClient.GetCurrentUserAccessToken(ctx)
 	if err != nil {
 		if errors.Is(err, grafana.ErrFailedToGetToken) {
@@ -339,7 +338,7 @@ func convertEntitlement(ent *platform.EntitlementResponse) (*platformv1.Organiza
 }
 
 // GetContactInformation fetches contact information of the Customer Success employee assigned to the Percona customer from Percona Portal.
-func (s *Service) GetContactInformation(ctx context.Context, _ *empty.Empty) (*platformv1.GetContactInformationResponse, error) {
+func (s *Service) GetContactInformation(ctx context.Context, _ *platformv1.GetContactInformationRequest) (*platformv1.GetContactInformationResponse, error) {
 	accessToken, err := s.grafanaClient.GetCurrentUserAccessToken(ctx)
 	if err != nil {
 		if errors.Is(err, grafana.ErrFailedToGetToken) {
@@ -378,7 +377,7 @@ func (s *Service) GetContactInformation(ctx context.Context, _ *empty.Empty) (*p
 	return response, nil
 }
 
-func (s *Service) ServerInfo(ctx context.Context, _ *empty.Empty) (*platformv1.ServerInfoResponse, error) {
+func (s *Service) ServerInfo(ctx context.Context, _ *platformv1.ServerInfoRequest) (*platformv1.ServerInfoResponse, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		s.l.Errorf("Failed to fetch PMM server ID: %s", err)
@@ -406,7 +405,7 @@ func (s *Service) ServerInfo(ctx context.Context, _ *empty.Empty) (*platformv1.S
 }
 
 // UserStatus API tells whether the logged-in user is a Platform organization member or not.
-func (s *Service) UserStatus(ctx context.Context, _ *empty.Empty) (*platformv1.UserStatusResponse, error) {
+func (s *Service) UserStatus(ctx context.Context, _ *platformv1.UserStatusRequest) (*platformv1.UserStatusResponse, error) {
 	// We use the access token instead of `models.GetPerconaSSODetails()`.
 	// The reason for that is Frontend needs to use this API to know whether they can
 	// show certain menu items to users "logged in with their Percona Accounts" after PMM

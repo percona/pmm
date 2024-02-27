@@ -33,7 +33,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
@@ -185,7 +184,7 @@ func roundFloat(upTime float32, numAfterDot int) float32 {
 }
 
 // Reload reloads pmm-agent and its configuration.
-func (s *Server) Reload(_ context.Context, req *empty.Empty) (*empty.Empty, error) {
+func (s *Server) Reload(ctx context.Context, req *agentlocal.ReloadRequest) (*agentlocal.ReloadResponse, error) {
 	// sync errors with setup command
 
 	if _, err := s.cfg.Reload(s.l); err != nil {
@@ -197,7 +196,7 @@ func (s *Server) Reload(_ context.Context, req *empty.Empty) (*empty.Empty, erro
 	})
 
 	// client may or may not receive this response due to server shutdown
-	return &empty.Empty{}, nil
+	return &agentlocal.ReloadResponse{}, nil
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.

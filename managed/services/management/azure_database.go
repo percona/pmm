@@ -23,7 +23,6 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resourcegraph/armresourcegraph"
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -185,7 +184,7 @@ func (s *ManagementService) DiscoverAzureDatabase(
 }
 
 // AddAzureDatabase add azure database to monitoring.
-func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *azurev1beta1.AddAzureDatabaseRequest) (*empty.Empty, error) {
+func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *azurev1beta1.AddAzureDatabaseRequest) (*azurev1beta1.AddAzureDatabaseResponse, error) {
 	l := logger.Get(ctx).WithField("component", "discover/azureDatabase")
 	// tweak according to API docs
 	if req.NodeName == "" {
@@ -307,5 +306,5 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *azurev1be
 	}
 
 	s.state.RequestStateUpdate(ctx, models.PMMServerAgentID)
-	return &empty.Empty{}, nil
+	return &azurev1beta1.AddAzureDatabaseResponse{}, nil
 }

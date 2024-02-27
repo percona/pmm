@@ -31,7 +31,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -204,7 +203,7 @@ func (s *Server) Version(ctx context.Context, req *serverv1.VersionRequest) (*se
 
 // Readiness returns an error when some PMM Server component is not ready yet or is being restarted.
 // It can be used as for Docker health check or Kubernetes readiness probe.
-func (s *Server) Readiness(ctx context.Context, req *empty.Empty) (*serverv1.ReadinessResponse, error) {
+func (s *Server) Readiness(ctx context.Context, req *serverv1.ReadinessRequest) (*serverv1.ReadinessResponse, error) {
 	var notReady bool
 	for n, svc := range map[string]healthChecker{
 		"grafana":         s.grafanaClient,
@@ -227,7 +226,7 @@ func (s *Server) Readiness(ctx context.Context, req *empty.Empty) (*serverv1.Rea
 // LeaderHealthCheck checks if the instance is the leader in a cluster.
 // Returns an error if the instance isn't the leader.
 // It's used for HA purpose.
-func (s *Server) LeaderHealthCheck(ctx context.Context, req *empty.Empty) (*serverv1.LeaderHealthCheckResponse, error) {
+func (s *Server) LeaderHealthCheck(ctx context.Context, req *serverv1.LeaderHealthCheckRequest) (*serverv1.LeaderHealthCheckResponse, error) {
 	if s.haService.IsLeader() {
 		return &serverv1.LeaderHealthCheckResponse{}, nil
 	}
@@ -307,7 +306,7 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 }
 
 // StartUpdate starts PMM Server update.
-func (s *Server) StartUpdate(ctx context.Context, req *empty.Empty) (*serverv1.StartUpdateResponse, error) {
+func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateRequest) (*serverv1.StartUpdateResponse, error) {
 	s.envRW.RLock()
 	updatesEnabled := s.envSettings.EnableUpdates
 	s.envRW.RUnlock()
@@ -455,7 +454,7 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 }
 
 // GetSettings returns current PMM Server settings.
-func (s *Server) GetSettings(ctx context.Context, req *empty.Empty) (*serverv1.GetSettingsResponse, error) {
+func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsRequest) (*serverv1.GetSettingsResponse, error) {
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
 
@@ -698,11 +697,11 @@ func (s *Server) writeSSHKey(sshKey string) error {
 }
 
 // AWSInstanceCheck checks AWS EC2 instance ID.
-func (s *Server) AWSInstanceCheck(ctx context.Context, req *serverv1.AWSInstanceCheckRequest) (*empty.Empty, error) {
+func (s *Server) AWSInstanceCheck(ctx context.Context, req *serverv1.AWSInstanceCheckRequest) (*serverv1.AWSInstanceCheckResponse, error) {
 	if err := s.awsInstanceChecker.check(req.InstanceId); err != nil {
 		return nil, err
 	}
-	return &empty.Empty{}, nil
+	return &serverv1.AWSInstanceCheckResponse{}, nil
 }
 
 // isAgentsStateUpdateNeeded - checks metrics resolution changes,

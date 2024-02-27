@@ -21,7 +21,6 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // Suppress "imported and not used" errors
@@ -91,7 +90,7 @@ func local_request_AgentLocalService_Status_1(ctx context.Context, marshaler run
 }
 
 func request_AgentLocalService_Reload_0(ctx context.Context, marshaler runtime.Marshaler, client AgentLocalServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq ReloadRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -103,7 +102,7 @@ func request_AgentLocalService_Reload_0(ctx context.Context, marshaler runtime.M
 }
 
 func local_request_AgentLocalService_Reload_0(ctx context.Context, marshaler runtime.Marshaler, server AgentLocalServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq ReloadRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {

@@ -60,7 +60,10 @@ GetMetricsNamesParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type GetMetricsNamesParams struct {
-	// Body.
+	/* Body.
+
+	   MetricsNamesRequest is empty.
+	*/
 	Body interface{}
 
 	timeout    time.Duration

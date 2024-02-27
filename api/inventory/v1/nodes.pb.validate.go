@@ -2832,3 +2832,105 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = RemoveNodeRequestValidationError{}
+
+// Validate checks the field values on RemoveNodeResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RemoveNodeResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RemoveNodeResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RemoveNodeResponseMultiError, or nil if none found.
+func (m *RemoveNodeResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RemoveNodeResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return RemoveNodeResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// RemoveNodeResponseMultiError is an error wrapping multiple validation errors
+// returned by RemoveNodeResponse.ValidateAll() if the designated constraints
+// aren't met.
+type RemoveNodeResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RemoveNodeResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RemoveNodeResponseMultiError) AllErrors() []error { return m }
+
+// RemoveNodeResponseValidationError is the validation error returned by
+// RemoveNodeResponse.Validate if the designated constraints aren't met.
+type RemoveNodeResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RemoveNodeResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RemoveNodeResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RemoveNodeResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RemoveNodeResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RemoveNodeResponseValidationError) ErrorName() string {
+	return "RemoveNodeResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RemoveNodeResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRemoveNodeResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RemoveNodeResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RemoveNodeResponseValidationError{}

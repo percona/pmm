@@ -12,7 +12,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -39,7 +38,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ManagementServiceClient interface {
 	// AddAnnotation adds an annotation.
-	AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*AddAnnotationResponse, error)
 	// RegisterNode registers a new Node and pmm-agent.
 	RegisterNode(ctx context.Context, in *RegisterNodeRequest, opts ...grpc.CallOption) (*RegisterNodeResponse, error)
 	// AddExternal adds external service and adds external exporter.
@@ -73,7 +72,7 @@ type ManagementServiceClient interface {
 	// AddRDS adds RDS instance.
 	AddRDS(ctx context.Context, in *AddRDSRequest, opts ...grpc.CallOption) (*AddRDSResponse, error)
 	// RemoveService removes Service with Agents.
-	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error)
 }
 
 type managementServiceClient struct {
@@ -84,8 +83,8 @@ func NewManagementServiceClient(cc grpc.ClientConnInterface) ManagementServiceCl
 	return &managementServiceClient{cc}
 }
 
-func (c *managementServiceClient) AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *managementServiceClient) AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*AddAnnotationResponse, error) {
+	out := new(AddAnnotationResponse)
 	err := c.cc.Invoke(ctx, ManagementService_AddAnnotation_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -174,8 +173,8 @@ func (c *managementServiceClient) AddRDS(ctx context.Context, in *AddRDSRequest,
 	return out, nil
 }
 
-func (c *managementServiceClient) RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *managementServiceClient) RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error) {
+	out := new(RemoveServiceResponse)
 	err := c.cc.Invoke(ctx, ManagementService_RemoveService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -188,7 +187,7 @@ func (c *managementServiceClient) RemoveService(ctx context.Context, in *RemoveS
 // for forward compatibility
 type ManagementServiceServer interface {
 	// AddAnnotation adds an annotation.
-	AddAnnotation(context.Context, *AddAnnotationRequest) (*emptypb.Empty, error)
+	AddAnnotation(context.Context, *AddAnnotationRequest) (*AddAnnotationResponse, error)
 	// RegisterNode registers a new Node and pmm-agent.
 	RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error)
 	// AddExternal adds external service and adds external exporter.
@@ -222,14 +221,14 @@ type ManagementServiceServer interface {
 	// AddRDS adds RDS instance.
 	AddRDS(context.Context, *AddRDSRequest) (*AddRDSResponse, error)
 	// RemoveService removes Service with Agents.
-	RemoveService(context.Context, *RemoveServiceRequest) (*emptypb.Empty, error)
+	RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error)
 	mustEmbedUnimplementedManagementServiceServer()
 }
 
 // UnimplementedManagementServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedManagementServiceServer struct{}
 
-func (UnimplementedManagementServiceServer) AddAnnotation(context.Context, *AddAnnotationRequest) (*emptypb.Empty, error) {
+func (UnimplementedManagementServiceServer) AddAnnotation(context.Context, *AddAnnotationRequest) (*AddAnnotationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddAnnotation not implemented")
 }
 
@@ -269,7 +268,7 @@ func (UnimplementedManagementServiceServer) AddRDS(context.Context, *AddRDSReque
 	return nil, status.Errorf(codes.Unimplemented, "method AddRDS not implemented")
 }
 
-func (UnimplementedManagementServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*emptypb.Empty, error) {
+func (UnimplementedManagementServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveService not implemented")
 }
 func (UnimplementedManagementServiceServer) mustEmbedUnimplementedManagementServiceServer() {}

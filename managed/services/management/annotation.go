@@ -21,7 +21,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -33,7 +32,7 @@ import (
 // AddAnnotation create annotation in grafana.
 //
 //nolint:unparam
-func (s *ManagementService) AddAnnotation(ctx context.Context, req *managementv1.AddAnnotationRequest) (*empty.Empty, error) {
+func (s *ManagementService) AddAnnotation(ctx context.Context, req *managementv1.AddAnnotationRequest) (*managementv1.AddAnnotationResponse, error) {
 	headers, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return nil, fmt.Errorf("cannot get headers from metadata")
@@ -80,5 +79,5 @@ func (s *ManagementService) AddAnnotation(ctx context.Context, req *managementv1
 		return nil, err
 	}
 
-	return &empty.Empty{}, nil
+	return &managementv1.AddAnnotationResponse{}, nil
 }

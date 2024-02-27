@@ -20,7 +20,6 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -90,7 +89,7 @@ func TestRoleService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			roles, err := s.ListRoles(ctx, &empty.Empty{})
+			roles, err := s.ListRoles(ctx, &rolev1beta1.ListRolesRequest{})
 			require.NoError(t, err)
 			assert.Equal(t, "Role A", roles.Roles[0].Title)
 			assert.Equal(t, "filter A", roles.Roles[0].Filter)
@@ -122,7 +121,7 @@ func TestRoleService(t *testing.T) {
 			_, err := s.DeleteRole(ctx, &rolev1beta1.DeleteRoleRequest{RoleId: roleID})
 			require.NoError(t, err)
 
-			roles, err := s.ListRoles(ctx, &empty.Empty{})
+			roles, err := s.ListRoles(ctx, &rolev1beta1.ListRolesRequest{})
 			require.NoError(t, err)
 			assert.Equal(t, len(roles.Roles), 1)
 			assert.Equal(t, roles.Roles[0].Title, "Role A")
@@ -167,7 +166,7 @@ func TestRoleService(t *testing.T) {
 
 			createDummyRoles(ctx, t, s)
 
-			res, err := s.ListRoles(ctx, &empty.Empty{})
+			res, err := s.ListRoles(ctx, &rolev1beta1.ListRolesRequest{})
 			require.NoError(t, err)
 			assert.Equal(t, len(res.Roles), 2)
 		})

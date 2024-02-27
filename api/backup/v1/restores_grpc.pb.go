@@ -12,7 +12,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -29,7 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RestoreHistoryServiceClient interface {
 	// ListRestoreHistory returns a list of all backup restore history items.
-	ListRestoreHistory(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListRestoreHistoryResponse, error)
+	ListRestoreHistory(ctx context.Context, in *ListRestoreHistoryRequest, opts ...grpc.CallOption) (*ListRestoreHistoryResponse, error)
 }
 
 type restoreHistoryServiceClient struct {
@@ -40,7 +39,7 @@ func NewRestoreHistoryServiceClient(cc grpc.ClientConnInterface) RestoreHistoryS
 	return &restoreHistoryServiceClient{cc}
 }
 
-func (c *restoreHistoryServiceClient) ListRestoreHistory(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListRestoreHistoryResponse, error) {
+func (c *restoreHistoryServiceClient) ListRestoreHistory(ctx context.Context, in *ListRestoreHistoryRequest, opts ...grpc.CallOption) (*ListRestoreHistoryResponse, error) {
 	out := new(ListRestoreHistoryResponse)
 	err := c.cc.Invoke(ctx, RestoreHistoryService_ListRestoreHistory_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -54,14 +53,14 @@ func (c *restoreHistoryServiceClient) ListRestoreHistory(ctx context.Context, in
 // for forward compatibility
 type RestoreHistoryServiceServer interface {
 	// ListRestoreHistory returns a list of all backup restore history items.
-	ListRestoreHistory(context.Context, *emptypb.Empty) (*ListRestoreHistoryResponse, error)
+	ListRestoreHistory(context.Context, *ListRestoreHistoryRequest) (*ListRestoreHistoryResponse, error)
 	mustEmbedUnimplementedRestoreHistoryServiceServer()
 }
 
 // UnimplementedRestoreHistoryServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedRestoreHistoryServiceServer struct{}
 
-func (UnimplementedRestoreHistoryServiceServer) ListRestoreHistory(context.Context, *emptypb.Empty) (*ListRestoreHistoryResponse, error) {
+func (UnimplementedRestoreHistoryServiceServer) ListRestoreHistory(context.Context, *ListRestoreHistoryRequest) (*ListRestoreHistoryResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRestoreHistory not implemented")
 }
 func (UnimplementedRestoreHistoryServiceServer) mustEmbedUnimplementedRestoreHistoryServiceServer() {}
@@ -78,7 +77,7 @@ func RegisterRestoreHistoryServiceServer(s grpc.ServiceRegistrar, srv RestoreHis
 }
 
 func _RestoreHistoryService_ListRestoreHistory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(ListRestoreHistoryRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -90,7 +89,7 @@ func _RestoreHistoryService_ListRestoreHistory_Handler(srv interface{}, ctx cont
 		FullMethod: RestoreHistoryService_ListRestoreHistory_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RestoreHistoryServiceServer).ListRestoreHistory(ctx, req.(*emptypb.Empty))
+		return srv.(RestoreHistoryServiceServer).ListRestoreHistory(ctx, req.(*ListRestoreHistoryRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -21,7 +21,6 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // Suppress "imported and not used" errors
@@ -35,7 +34,7 @@ var (
 )
 
 func request_UserService_GetUser_0(ctx context.Context, marshaler runtime.Marshaler, client UserServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq GetUserRequest
 	var metadata runtime.ServerMetadata
 
 	msg, err := client.GetUser(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -43,7 +42,7 @@ func request_UserService_GetUser_0(ctx context.Context, marshaler runtime.Marsha
 }
 
 func local_request_UserService_GetUser_0(ctx context.Context, marshaler runtime.Marshaler, server UserServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq GetUserRequest
 	var metadata runtime.ServerMetadata
 
 	msg, err := server.GetUser(ctx, &protoReq)
@@ -75,7 +74,7 @@ func local_request_UserService_UpdateUser_0(ctx context.Context, marshaler runti
 }
 
 func request_UserService_ListUsers_0(ctx context.Context, marshaler runtime.Marshaler, client UserServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq ListUsersRequest
 	var metadata runtime.ServerMetadata
 
 	msg, err := client.ListUsers(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -83,7 +82,7 @@ func request_UserService_ListUsers_0(ctx context.Context, marshaler runtime.Mars
 }
 
 func local_request_UserService_ListUsers_0(ctx context.Context, marshaler runtime.Marshaler, server UserServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq ListUsersRequest
 	var metadata runtime.ServerMetadata
 
 	msg, err := server.ListUsers(ctx, &protoReq)

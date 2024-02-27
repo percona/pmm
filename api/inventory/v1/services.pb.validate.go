@@ -1172,6 +1172,109 @@ var _ interface {
 	ErrorName() string
 } = ListServicesResponseValidationError{}
 
+// Validate checks the field values on ListActiveServiceTypesRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListActiveServiceTypesRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListActiveServiceTypesRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// ListActiveServiceTypesRequestMultiError, or nil if none found.
+func (m *ListActiveServiceTypesRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListActiveServiceTypesRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ListActiveServiceTypesRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListActiveServiceTypesRequestMultiError is an error wrapping multiple
+// validation errors returned by ListActiveServiceTypesRequest.ValidateAll()
+// if the designated constraints aren't met.
+type ListActiveServiceTypesRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListActiveServiceTypesRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListActiveServiceTypesRequestMultiError) AllErrors() []error { return m }
+
+// ListActiveServiceTypesRequestValidationError is the validation error
+// returned by ListActiveServiceTypesRequest.Validate if the designated
+// constraints aren't met.
+type ListActiveServiceTypesRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListActiveServiceTypesRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListActiveServiceTypesRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListActiveServiceTypesRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListActiveServiceTypesRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListActiveServiceTypesRequestValidationError) ErrorName() string {
+	return "ListActiveServiceTypesRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListActiveServiceTypesRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListActiveServiceTypesRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListActiveServiceTypesRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListActiveServiceTypesRequestValidationError{}
+
 // Validate checks the field values on ListActiveServiceTypesResponse with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -3382,6 +3485,108 @@ var _ interface {
 	ErrorName() string
 } = RemoveServiceRequestValidationError{}
 
+// Validate checks the field values on RemoveServiceResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RemoveServiceResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RemoveServiceResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RemoveServiceResponseMultiError, or nil if none found.
+func (m *RemoveServiceResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RemoveServiceResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return RemoveServiceResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// RemoveServiceResponseMultiError is an error wrapping multiple validation
+// errors returned by RemoveServiceResponse.ValidateAll() if the designated
+// constraints aren't met.
+type RemoveServiceResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RemoveServiceResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RemoveServiceResponseMultiError) AllErrors() []error { return m }
+
+// RemoveServiceResponseValidationError is the validation error returned by
+// RemoveServiceResponse.Validate if the designated constraints aren't met.
+type RemoveServiceResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RemoveServiceResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RemoveServiceResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RemoveServiceResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RemoveServiceResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RemoveServiceResponseValidationError) ErrorName() string {
+	return "RemoveServiceResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RemoveServiceResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRemoveServiceResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RemoveServiceResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RemoveServiceResponseValidationError{}
+
 // Validate checks the field values on AddCustomLabelsRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -3497,6 +3702,108 @@ var _ interface {
 	ErrorName() string
 } = AddCustomLabelsRequestValidationError{}
 
+// Validate checks the field values on AddCustomLabelsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddCustomLabelsResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddCustomLabelsResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddCustomLabelsResponseMultiError, or nil if none found.
+func (m *AddCustomLabelsResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddCustomLabelsResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return AddCustomLabelsResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddCustomLabelsResponseMultiError is an error wrapping multiple validation
+// errors returned by AddCustomLabelsResponse.ValidateAll() if the designated
+// constraints aren't met.
+type AddCustomLabelsResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddCustomLabelsResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddCustomLabelsResponseMultiError) AllErrors() []error { return m }
+
+// AddCustomLabelsResponseValidationError is the validation error returned by
+// AddCustomLabelsResponse.Validate if the designated constraints aren't met.
+type AddCustomLabelsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddCustomLabelsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddCustomLabelsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddCustomLabelsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddCustomLabelsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddCustomLabelsResponseValidationError) ErrorName() string {
+	return "AddCustomLabelsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddCustomLabelsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddCustomLabelsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddCustomLabelsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddCustomLabelsResponseValidationError{}
+
 // Validate checks the field values on RemoveCustomLabelsRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -3609,6 +3916,108 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = RemoveCustomLabelsRequestValidationError{}
+
+// Validate checks the field values on RemoveCustomLabelsResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RemoveCustomLabelsResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RemoveCustomLabelsResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RemoveCustomLabelsResponseMultiError, or nil if none found.
+func (m *RemoveCustomLabelsResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RemoveCustomLabelsResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return RemoveCustomLabelsResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// RemoveCustomLabelsResponseMultiError is an error wrapping multiple
+// validation errors returned by RemoveCustomLabelsResponse.ValidateAll() if
+// the designated constraints aren't met.
+type RemoveCustomLabelsResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RemoveCustomLabelsResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RemoveCustomLabelsResponseMultiError) AllErrors() []error { return m }
+
+// RemoveCustomLabelsResponseValidationError is the validation error returned
+// by RemoveCustomLabelsResponse.Validate if the designated constraints aren't met.
+type RemoveCustomLabelsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RemoveCustomLabelsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RemoveCustomLabelsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RemoveCustomLabelsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RemoveCustomLabelsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RemoveCustomLabelsResponseValidationError) ErrorName() string {
+	return "RemoveCustomLabelsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RemoveCustomLabelsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRemoveCustomLabelsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RemoveCustomLabelsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RemoveCustomLabelsResponseValidationError{}
 
 // Validate checks the field values on ChangeServiceRequest with the rules
 // defined in the proto definition for this message. If any rules are
@@ -3738,3 +4147,105 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ChangeServiceRequestValidationError{}
+
+// Validate checks the field values on ChangeServiceResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangeServiceResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeServiceResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangeServiceResponseMultiError, or nil if none found.
+func (m *ChangeServiceResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeServiceResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ChangeServiceResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeServiceResponseMultiError is an error wrapping multiple validation
+// errors returned by ChangeServiceResponse.ValidateAll() if the designated
+// constraints aren't met.
+type ChangeServiceResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeServiceResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeServiceResponseMultiError) AllErrors() []error { return m }
+
+// ChangeServiceResponseValidationError is the validation error returned by
+// ChangeServiceResponse.Validate if the designated constraints aren't met.
+type ChangeServiceResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeServiceResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeServiceResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeServiceResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeServiceResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeServiceResponseValidationError) ErrorName() string {
+	return "ChangeServiceResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeServiceResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeServiceResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangeServiceResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeServiceResponseValidationError{}

@@ -490,6 +490,106 @@ var _ interface {
 	ErrorName() string
 } = StartDumpResponseValidationError{}
 
+// Validate checks the field values on ListDumpsRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *ListDumpsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListDumpsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListDumpsRequestMultiError, or nil if none found.
+func (m *ListDumpsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListDumpsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ListDumpsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListDumpsRequestMultiError is an error wrapping multiple validation errors
+// returned by ListDumpsRequest.ValidateAll() if the designated constraints
+// aren't met.
+type ListDumpsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListDumpsRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListDumpsRequestMultiError) AllErrors() []error { return m }
+
+// ListDumpsRequestValidationError is the validation error returned by
+// ListDumpsRequest.Validate if the designated constraints aren't met.
+type ListDumpsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListDumpsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListDumpsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListDumpsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListDumpsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListDumpsRequestValidationError) ErrorName() string { return "ListDumpsRequestValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ListDumpsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListDumpsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListDumpsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListDumpsRequestValidationError{}
+
 // Validate checks the field values on ListDumpsResponse with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -759,6 +859,108 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = DeleteDumpRequestValidationError{}
+
+// Validate checks the field values on DeleteDumpResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *DeleteDumpResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DeleteDumpResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// DeleteDumpResponseMultiError, or nil if none found.
+func (m *DeleteDumpResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DeleteDumpResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return DeleteDumpResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// DeleteDumpResponseMultiError is an error wrapping multiple validation errors
+// returned by DeleteDumpResponse.ValidateAll() if the designated constraints
+// aren't met.
+type DeleteDumpResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DeleteDumpResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DeleteDumpResponseMultiError) AllErrors() []error { return m }
+
+// DeleteDumpResponseValidationError is the validation error returned by
+// DeleteDumpResponse.Validate if the designated constraints aren't met.
+type DeleteDumpResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DeleteDumpResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DeleteDumpResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DeleteDumpResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DeleteDumpResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DeleteDumpResponseValidationError) ErrorName() string {
+	return "DeleteDumpResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DeleteDumpResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDeleteDumpResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DeleteDumpResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DeleteDumpResponseValidationError{}
 
 // Validate checks the field values on GetDumpLogsRequest with the rules
 // defined in the proto definition for this message. If any rules are
@@ -1426,3 +1628,105 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = UploadDumpRequestValidationError{}
+
+// Validate checks the field values on UploadDumpResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UploadDumpResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UploadDumpResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UploadDumpResponseMultiError, or nil if none found.
+func (m *UploadDumpResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UploadDumpResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return UploadDumpResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// UploadDumpResponseMultiError is an error wrapping multiple validation errors
+// returned by UploadDumpResponse.ValidateAll() if the designated constraints
+// aren't met.
+type UploadDumpResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UploadDumpResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UploadDumpResponseMultiError) AllErrors() []error { return m }
+
+// UploadDumpResponseValidationError is the validation error returned by
+// UploadDumpResponse.Validate if the designated constraints aren't met.
+type UploadDumpResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UploadDumpResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UploadDumpResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UploadDumpResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UploadDumpResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UploadDumpResponseValidationError) ErrorName() string {
+	return "UploadDumpResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UploadDumpResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUploadDumpResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UploadDumpResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UploadDumpResponseValidationError{}

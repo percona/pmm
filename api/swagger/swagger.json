@@ -9940,10 +9940,12 @@
         "operationId": "GetMetricsNames",
         "parameters": [
           {
+            "description": "MetricsNamesRequest is empty.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
+              "description": "MetricsNamesRequest is empty.",
               "type": "object"
             }
           }

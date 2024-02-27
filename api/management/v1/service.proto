@@ -3,7 +3,6 @@ syntax = "proto3";
 package management.v1;
 
 import "google/api/annotations.proto";
-import "google/protobuf/empty.proto";
 import "inventory/v1/nodes.proto";
 import "inventory/v1/services.proto";
 import "management/v1/annotation.proto";
@@ -155,7 +154,7 @@ service ManagementService {
     };
   }
   // RemoveService removes Service with Agents.
-  rpc RemoveService(RemoveServiceRequest) returns (google.protobuf.Empty) {
+  rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
     option (google.api.http) = {
       post: "/v1/management/Service/Remove"
       body: "*"

@@ -19,7 +19,6 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
-	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -68,7 +67,7 @@ func NewManagementService(
 }
 
 // RemoveService removes Service with Agents.
-func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1.RemoveServiceRequest) (*empty.Empty, error) {
+func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1.RemoveServiceRequest) (*managementv1.RemoveServiceResponse, error) {
 	err := s.validateRequest(req)
 	if err != nil {
 		return nil, err
@@ -158,7 +157,7 @@ func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1
 		// It's required to regenerate victoriametrics config file for the agents which aren't run by pmm-agent.
 		s.vmdb.RequestConfigurationUpdate()
 	}
-	return &empty.Empty{}, nil
+	return &managementv1.RemoveServiceResponse{}, nil
 }
 
 func (s *ManagementService) checkServiceType(service *models.Service, serviceType inventoryv1.ServiceType) error {

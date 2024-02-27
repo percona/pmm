@@ -15,3 +15,5 @@ message AddAnnotationRequest {
   // Used for annotate services.
   repeated string service_names = 4;
 }
+
+message AddAnnotationResponse {}

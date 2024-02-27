@@ -12,7 +12,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -37,17 +36,17 @@ type RoleServiceClient interface {
 	// CreateRole creates a new role.
 	CreateRole(ctx context.Context, in *CreateRoleRequest, opts ...grpc.CallOption) (*CreateRoleResponse, error)
 	// UpdateRole creates a new role.
-	UpdateRole(ctx context.Context, in *UpdateRoleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateRole(ctx context.Context, in *UpdateRoleRequest, opts ...grpc.CallOption) (*UpdateRoleResponse, error)
 	// DeleteRole creates a new role.
-	DeleteRole(ctx context.Context, in *DeleteRoleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteRole(ctx context.Context, in *DeleteRoleRequest, opts ...grpc.CallOption) (*DeleteRoleResponse, error)
 	// GetRole retrieves a single role.
 	GetRole(ctx context.Context, in *GetRoleRequest, opts ...grpc.CallOption) (*GetRoleResponse, error)
 	// ListRoles retrieves a roles.
-	ListRoles(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListRolesResponse, error)
+	ListRoles(ctx context.Context, in *ListRolesRequest, opts ...grpc.CallOption) (*ListRolesResponse, error)
 	// AssignRoles replaces all assigned roles for a user.
-	AssignRoles(ctx context.Context, in *AssignRolesRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AssignRoles(ctx context.Context, in *AssignRolesRequest, opts ...grpc.CallOption) (*AssignRolesResponse, error)
 	// SetDefaultRole configures default role assigned to users.
-	SetDefaultRole(ctx context.Context, in *SetDefaultRoleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetDefaultRole(ctx context.Context, in *SetDefaultRoleRequest, opts ...grpc.CallOption) (*SetDefaultRoleResponse, error)
 }
 
 type roleServiceClient struct {
@@ -67,8 +66,8 @@ func (c *roleServiceClient) CreateRole(ctx context.Context, in *CreateRoleReques
 	return out, nil
 }
 
-func (c *roleServiceClient) UpdateRole(ctx context.Context, in *UpdateRoleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *roleServiceClient) UpdateRole(ctx context.Context, in *UpdateRoleRequest, opts ...grpc.CallOption) (*UpdateRoleResponse, error) {
+	out := new(UpdateRoleResponse)
 	err := c.cc.Invoke(ctx, RoleService_UpdateRole_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -76,8 +75,8 @@ func (c *roleServiceClient) UpdateRole(ctx context.Context, in *UpdateRoleReques
 	return out, nil
 }
 
-func (c *roleServiceClient) DeleteRole(ctx context.Context, in *DeleteRoleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *roleServiceClient) DeleteRole(ctx context.Context, in *DeleteRoleRequest, opts ...grpc.CallOption) (*DeleteRoleResponse, error) {
+	out := new(DeleteRoleResponse)
 	err := c.cc.Invoke(ctx, RoleService_DeleteRole_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -94,7 +93,7 @@ func (c *roleServiceClient) GetRole(ctx context.Context, in *GetRoleRequest, opt
 	return out, nil
 }
 
-func (c *roleServiceClient) ListRoles(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListRolesResponse, error) {
+func (c *roleServiceClient) ListRoles(ctx context.Context, in *ListRolesRequest, opts ...grpc.CallOption) (*ListRolesResponse, error) {
 	out := new(ListRolesResponse)
 	err := c.cc.Invoke(ctx, RoleService_ListRoles_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -103,8 +102,8 @@ func (c *roleServiceClient) ListRoles(ctx context.Context, in *emptypb.Empty, op
 	return out, nil
 }
 
-func (c *roleServiceClient) AssignRoles(ctx context.Context, in *AssignRolesRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *roleServiceClient) AssignRoles(ctx context.Context, in *AssignRolesRequest, opts ...grpc.CallOption) (*AssignRolesResponse, error) {
+	out := new(AssignRolesResponse)
 	err := c.cc.Invoke(ctx, RoleService_AssignRoles_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -112,8 +111,8 @@ func (c *roleServiceClient) AssignRoles(ctx context.Context, in *AssignRolesRequ
 	return out, nil
 }
 
-func (c *roleServiceClient) SetDefaultRole(ctx context.Context, in *SetDefaultRoleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *roleServiceClient) SetDefaultRole(ctx context.Context, in *SetDefaultRoleRequest, opts ...grpc.CallOption) (*SetDefaultRoleResponse, error) {
+	out := new(SetDefaultRoleResponse)
 	err := c.cc.Invoke(ctx, RoleService_SetDefaultRole_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -128,17 +127,17 @@ type RoleServiceServer interface {
 	// CreateRole creates a new role.
 	CreateRole(context.Context, *CreateRoleRequest) (*CreateRoleResponse, error)
 	// UpdateRole creates a new role.
-	UpdateRole(context.Context, *UpdateRoleRequest) (*emptypb.Empty, error)
+	UpdateRole(context.Context, *UpdateRoleRequest) (*UpdateRoleResponse, error)
 	// DeleteRole creates a new role.
-	DeleteRole(context.Context, *DeleteRoleRequest) (*emptypb.Empty, error)
+	DeleteRole(context.Context, *DeleteRoleRequest) (*DeleteRoleResponse, error)
 	// GetRole retrieves a single role.
 	GetRole(context.Context, *GetRoleRequest) (*GetRoleResponse, error)
 	// ListRoles retrieves a roles.
-	ListRoles(context.Context, *emptypb.Empty) (*ListRolesResponse, error)
+	ListRoles(context.Context, *ListRolesRequest) (*ListRolesResponse, error)
 	// AssignRoles replaces all assigned roles for a user.
-	AssignRoles(context.Context, *AssignRolesRequest) (*emptypb.Empty, error)
+	AssignRoles(context.Context, *AssignRolesRequest) (*AssignRolesResponse, error)
 	// SetDefaultRole configures default role assigned to users.
-	SetDefaultRole(context.Context, *SetDefaultRoleRequest) (*emptypb.Empty, error)
+	SetDefaultRole(context.Context, *SetDefaultRoleRequest) (*SetDefaultRoleResponse, error)
 	mustEmbedUnimplementedRoleServiceServer()
 }
 
@@ -149,11 +148,11 @@ func (UnimplementedRoleServiceServer) CreateRole(context.Context, *CreateRoleReq
 	return nil, status.Errorf(codes.Unimplemented, "method CreateRole not implemented")
 }
 
-func (UnimplementedRoleServiceServer) UpdateRole(context.Context, *UpdateRoleRequest) (*emptypb.Empty, error) {
+func (UnimplementedRoleServiceServer) UpdateRole(context.Context, *UpdateRoleRequest) (*UpdateRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateRole not implemented")
 }
 
-func (UnimplementedRoleServiceServer) DeleteRole(context.Context, *DeleteRoleRequest) (*emptypb.Empty, error) {
+func (UnimplementedRoleServiceServer) DeleteRole(context.Context, *DeleteRoleRequest) (*DeleteRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteRole not implemented")
 }
 
@@ -161,15 +160,15 @@ func (UnimplementedRoleServiceServer) GetRole(context.Context, *GetRoleRequest) 
 	return nil, status.Errorf(codes.Unimplemented, "method GetRole not implemented")
 }
 
-func (UnimplementedRoleServiceServer) ListRoles(context.Context, *emptypb.Empty) (*ListRolesResponse, error) {
+func (UnimplementedRoleServiceServer) ListRoles(context.Context, *ListRolesRequest) (*ListRolesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRoles not implemented")
 }
 
-func (UnimplementedRoleServiceServer) AssignRoles(context.Context, *AssignRolesRequest) (*emptypb.Empty, error) {
+func (UnimplementedRoleServiceServer) AssignRoles(context.Context, *AssignRolesRequest) (*AssignRolesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AssignRoles not implemented")
 }
 
-func (UnimplementedRoleServiceServer) SetDefaultRole(context.Context, *SetDefaultRoleRequest) (*emptypb.Empty, error) {
+func (UnimplementedRoleServiceServer) SetDefaultRole(context.Context, *SetDefaultRoleRequest) (*SetDefaultRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetDefaultRole not implemented")
 }
 func (UnimplementedRoleServiceServer) mustEmbedUnimplementedRoleServiceServer() {}
@@ -258,7 +257,7 @@ func _RoleService_GetRole_Handler(srv interface{}, ctx context.Context, dec func
 }
 
 func _RoleService_ListRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(ListRolesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -270,7 +269,7 @@ func _RoleService_ListRoles_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: RoleService_ListRoles_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RoleServiceServer).ListRoles(ctx, req.(*emptypb.Empty))
+		return srv.(RoleServiceServer).ListRoles(ctx, req.(*ListRolesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

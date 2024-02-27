@@ -12,7 +12,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -31,9 +30,9 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ArtifactsServiceClient interface {
 	// ListArtifacts returns a list of all backup artifacts.
-	ListArtifacts(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListArtifactsResponse, error)
+	ListArtifacts(ctx context.Context, in *ListArtifactsRequest, opts ...grpc.CallOption) (*ListArtifactsResponse, error)
 	// DeleteArtifact deletes specified artifact.
-	DeleteArtifact(ctx context.Context, in *DeleteArtifactRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteArtifact(ctx context.Context, in *DeleteArtifactRequest, opts ...grpc.CallOption) (*DeleteArtifactResponse, error)
 	// ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location
 	ListPitrTimeranges(ctx context.Context, in *ListPitrTimerangesRequest, opts ...grpc.CallOption) (*ListPitrTimerangesResponse, error)
 }
@@ -46,7 +45,7 @@ func NewArtifactsServiceClient(cc grpc.ClientConnInterface) ArtifactsServiceClie
 	return &artifactsServiceClient{cc}
 }
 
-func (c *artifactsServiceClient) ListArtifacts(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListArtifactsResponse, error) {
+func (c *artifactsServiceClient) ListArtifacts(ctx context.Context, in *ListArtifactsRequest, opts ...grpc.CallOption) (*ListArtifactsResponse, error) {
 	out := new(ListArtifactsResponse)
 	err := c.cc.Invoke(ctx, ArtifactsService_ListArtifacts_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -55,8 +54,8 @@ func (c *artifactsServiceClient) ListArtifacts(ctx context.Context, in *emptypb.
 	return out, nil
 }
 
-func (c *artifactsServiceClient) DeleteArtifact(ctx context.Context, in *DeleteArtifactRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *artifactsServiceClient) DeleteArtifact(ctx context.Context, in *DeleteArtifactRequest, opts ...grpc.CallOption) (*DeleteArtifactResponse, error) {
+	out := new(DeleteArtifactResponse)
 	err := c.cc.Invoke(ctx, ArtifactsService_DeleteArtifact_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -78,9 +77,9 @@ func (c *artifactsServiceClient) ListPitrTimeranges(ctx context.Context, in *Lis
 // for forward compatibility
 type ArtifactsServiceServer interface {
 	// ListArtifacts returns a list of all backup artifacts.
-	ListArtifacts(context.Context, *emptypb.Empty) (*ListArtifactsResponse, error)
+	ListArtifacts(context.Context, *ListArtifactsRequest) (*ListArtifactsResponse, error)
 	// DeleteArtifact deletes specified artifact.
-	DeleteArtifact(context.Context, *DeleteArtifactRequest) (*emptypb.Empty, error)
+	DeleteArtifact(context.Context, *DeleteArtifactRequest) (*DeleteArtifactResponse, error)
 	// ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location
 	ListPitrTimeranges(context.Context, *ListPitrTimerangesRequest) (*ListPitrTimerangesResponse, error)
 	mustEmbedUnimplementedArtifactsServiceServer()
@@ -89,11 +88,11 @@ type ArtifactsServiceServer interface {
 // UnimplementedArtifactsServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedArtifactsServiceServer struct{}
 
-func (UnimplementedArtifactsServiceServer) ListArtifacts(context.Context, *emptypb.Empty) (*ListArtifactsResponse, error) {
+func (UnimplementedArtifactsServiceServer) ListArtifacts(context.Context, *ListArtifactsRequest) (*ListArtifactsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListArtifacts not implemented")
 }
 
-func (UnimplementedArtifactsServiceServer) DeleteArtifact(context.Context, *DeleteArtifactRequest) (*emptypb.Empty, error) {
+func (UnimplementedArtifactsServiceServer) DeleteArtifact(context.Context, *DeleteArtifactRequest) (*DeleteArtifactResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteArtifact not implemented")
 }
 
@@ -114,7 +113,7 @@ func RegisterArtifactsServiceServer(s grpc.ServiceRegistrar, srv ArtifactsServic
 }
 
 func _ArtifactsService_ListArtifacts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(ListArtifactsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -126,7 +125,7 @@ func _ArtifactsService_ListArtifacts_Handler(srv interface{}, ctx context.Contex
 		FullMethod: ArtifactsService_ListArtifacts_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ArtifactsServiceServer).ListArtifacts(ctx, req.(*emptypb.Empty))
+		return srv.(ArtifactsServiceServer).ListArtifacts(ctx, req.(*ListArtifactsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -21,7 +21,6 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // Suppress "imported and not used" errors
@@ -83,7 +82,7 @@ func local_request_PlatformService_Disconnect_0(ctx context.Context, marshaler r
 }
 
 func request_PlatformService_SearchOrganizationTickets_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq SearchOrganizationTicketsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -95,7 +94,7 @@ func request_PlatformService_SearchOrganizationTickets_0(ctx context.Context, ma
 }
 
 func local_request_PlatformService_SearchOrganizationTickets_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq SearchOrganizationTicketsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -107,7 +106,7 @@ func local_request_PlatformService_SearchOrganizationTickets_0(ctx context.Conte
 }
 
 func request_PlatformService_SearchOrganizationEntitlements_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq SearchOrganizationEntitlementsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -119,7 +118,7 @@ func request_PlatformService_SearchOrganizationEntitlements_0(ctx context.Contex
 }
 
 func local_request_PlatformService_SearchOrganizationEntitlements_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq SearchOrganizationEntitlementsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -131,7 +130,7 @@ func local_request_PlatformService_SearchOrganizationEntitlements_0(ctx context.
 }
 
 func request_PlatformService_GetContactInformation_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq GetContactInformationRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -143,7 +142,7 @@ func request_PlatformService_GetContactInformation_0(ctx context.Context, marsha
 }
 
 func local_request_PlatformService_GetContactInformation_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq GetContactInformationRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -155,7 +154,7 @@ func local_request_PlatformService_GetContactInformation_0(ctx context.Context, 
 }
 
 func request_PlatformService_ServerInfo_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq ServerInfoRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -167,7 +166,7 @@ func request_PlatformService_ServerInfo_0(ctx context.Context, marshaler runtime
 }
 
 func local_request_PlatformService_ServerInfo_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq ServerInfoRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -179,7 +178,7 @@ func local_request_PlatformService_ServerInfo_0(ctx context.Context, marshaler r
 }
 
 func request_PlatformService_UserStatus_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq UserStatusRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -191,7 +190,7 @@ func request_PlatformService_UserStatus_0(ctx context.Context, marshaler runtime
 }
 
 func local_request_PlatformService_UserStatus_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq UserStatusRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {

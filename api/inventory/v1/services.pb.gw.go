@@ -21,7 +21,6 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // Suppress "imported and not used" errors
@@ -59,7 +58,7 @@ func local_request_ServicesService_ListServices_0(ctx context.Context, marshaler
 }
 
 func request_ServicesService_ListActiveServiceTypes_0(ctx context.Context, marshaler runtime.Marshaler, client ServicesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq ListActiveServiceTypesRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -71,7 +70,7 @@ func request_ServicesService_ListActiveServiceTypes_0(ctx context.Context, marsh
 }
 
 func local_request_ServicesService_ListActiveServiceTypes_0(ctx context.Context, marshaler runtime.Marshaler, server ServicesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq ListActiveServiceTypesRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {

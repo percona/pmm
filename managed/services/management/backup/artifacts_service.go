@@ -20,7 +20,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -64,7 +63,7 @@ func (s *ArtifactsService) Enabled() bool {
 }
 
 // ListArtifacts returns a list of all artifacts.
-func (s *ArtifactsService) ListArtifacts(context.Context, *empty.Empty) (*backuppb.ListArtifactsResponse, error) {
+func (s *ArtifactsService) ListArtifacts(context.Context, *backuppb.ListArtifactsRequest) (*backuppb.ListArtifactsResponse, error) {
 	q := s.db.Querier
 
 	artifacts, err := models.FindArtifacts(q, models.ArtifactFilters{})
@@ -107,7 +106,10 @@ func (s *ArtifactsService) ListArtifacts(context.Context, *empty.Empty) (*backup
 }
 
 // DeleteArtifact deletes specified artifact and its files.
-func (s *ArtifactsService) DeleteArtifact(ctx context.Context, req *backuppb.DeleteArtifactRequest) (*empty.Empty, error) {
+func (s *ArtifactsService) DeleteArtifact(
+	ctx context.Context,
+	req *backuppb.DeleteArtifactRequest,
+) (*backuppb.DeleteArtifactResponse, error) {
 	artifact, err := models.FindArtifactByID(s.db.Querier, req.ArtifactId)
 	if err != nil {
 		return nil, err
@@ -123,7 +125,7 @@ func (s *ArtifactsService) DeleteArtifact(ctx context.Context, req *backuppb.Del
 	if err := s.removalSVC.DeleteArtifact(storage, req.ArtifactId, req.RemoveFiles); err != nil {
 		return nil, err
 	}
-	return &empty.Empty{}, nil
+	return &backuppb.DeleteArtifactResponse{}, nil
 }
 
 // ListPitrTimeranges lists available PITR timelines/time-ranges (for MongoDB).

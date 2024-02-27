@@ -3,7 +3,6 @@ syntax = "proto3";
 package advisors.v1;
 
 import "google/api/annotations.proto";
-import "google/protobuf/empty.proto";
 import "management/v1/pagination.proto";
 import "management/v1/severity.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -120,9 +119,15 @@ message StartAdvisorChecksRequest {
   repeated string names = 1;
 }
 
+message StartAdvisorChecksResponse {}
+
+message ListAdvisorChecksRequest {}
+
 message ListAdvisorChecksResponse {
   repeated AdvisorCheck checks = 1;
 }
+
+message ListAdvisorsRequest {}
 
 message ListAdvisorsResponse {
   repeated Advisor advisors = 1;
@@ -131,6 +136,10 @@ message ListAdvisorsResponse {
 message ChangeAdvisorChecksRequest {
   repeated ChangeAdvisorCheckParams params = 1;
 }
+
+message ChangeAdvisorChecksResponse {}
+
+message ListFailedServicesRequest {}
 
 message ListFailedServicesResponse {
   repeated CheckResultSummary result = 1;
@@ -149,7 +158,7 @@ message GetFailedChecksResponse {
 // AdvisorService service provides public Management API methods for Advisor Service.
 service AdvisorService {
   // ListFailedServices returns a list of services with failed checks.
-  rpc ListFailedServices(google.protobuf.Empty) returns (ListFailedServicesResponse) {
+  rpc ListFailedServices(ListFailedServicesRequest) returns (ListFailedServicesResponse) {
     option (google.api.http) = {
       post: "/v1/advisors/ListFailedServices"
       body: "*"
@@ -171,7 +180,7 @@ service AdvisorService {
     };
   }
   // StartAdvisorChecks executes Advisor checks and returns when all checks are executed.
-  rpc StartAdvisorChecks(StartAdvisorChecksRequest) returns (google.protobuf.Empty) {
+  rpc StartAdvisorChecks(StartAdvisorChecksRequest) returns (StartAdvisorChecksResponse) {
     option (google.api.http) = {
       post: "/v1/advisors/StartChecks"
       body: "*"
@@ -182,7 +191,7 @@ service AdvisorService {
     };
   }
   // ListAdvisorChecks returns a list of advisor checks available to the user..
-  rpc ListAdvisorChecks(google.protobuf.Empty) returns (ListAdvisorChecksResponse) {
+  rpc ListAdvisorChecks(ListAdvisorChecksRequest) returns (ListAdvisorChecksResponse) {
     option (google.api.http) = {
       post: "/v1/advisors/ListChecks"
       body: "*"
@@ -193,7 +202,7 @@ service AdvisorService {
     };
   }
   // ListAdvisors returns a list of advisors available for the user.
-  rpc ListAdvisors(google.protobuf.Empty) returns (ListAdvisorsResponse) {
+  rpc ListAdvisors(ListAdvisorsRequest) returns (ListAdvisorsResponse) {
     option (google.api.http) = {
       post: "/v1/advisors/List"
       body: "*"
@@ -204,7 +213,7 @@ service AdvisorService {
     };
   }
   // ChangeAdvisorChecks enables/disables Advisor checks or changes their exec interval.
-  rpc ChangeAdvisorChecks(ChangeAdvisorChecksRequest) returns (google.protobuf.Empty) {
+  rpc ChangeAdvisorChecks(ChangeAdvisorChecksRequest) returns (ChangeAdvisorChecksResponse) {
     option (google.api.http) = {
       post: "/v1/advisors/Change"
       body: "*"

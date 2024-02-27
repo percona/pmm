@@ -3,7 +3,6 @@ syntax = "proto3";
 package uievents.v1;
 
 import "google/api/annotations.proto";
-import "google/protobuf/empty.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 message NotificationEvent {
@@ -43,10 +42,12 @@ message StoreRequest {
   repeated UserFlowEvent user_flow_events = 4;
 }
 
+message StoreResponse {}
+
 // UIEvents collects UI related events.
 service UIEventsService {
   // Store persists received UI events for further processing.
-  rpc Store(StoreRequest) returns (google.protobuf.Empty) {
+  rpc Store(StoreRequest) returns (StoreResponse) {
     option (google.api.http) = {
       post: "/v1/ui-events/Store"
       body: "*"

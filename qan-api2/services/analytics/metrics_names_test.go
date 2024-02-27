@@ -20,8 +20,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/golang/protobuf/ptypes/empty"
-
 	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
 )
@@ -34,14 +32,14 @@ func TestService_GetMetricsNames(t *testing.T) {
 	tests := []struct {
 		name    string
 		fields  fields
-		in      *empty.Empty
+		in      *qanpb.GetMetricsNamesRequest
 		want    *qanpb.GetMetricsNamesResponse
 		wantErr bool
 	}{
 		{
 			name:    "success",
 			fields:  fields{},
-			in:      &empty.Empty{},
+			in:      &qanpb.GetMetricsNamesRequest{},
 			want:    &qanpb.GetMetricsNamesResponse{Data: metricsNames},
 			wantErr: false,
 		},

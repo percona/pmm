@@ -221,6 +221,108 @@ var _ interface {
 	ErrorName() string
 } = ArtifactValidationError{}
 
+// Validate checks the field values on ListArtifactsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListArtifactsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListArtifactsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListArtifactsRequestMultiError, or nil if none found.
+func (m *ListArtifactsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListArtifactsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ListArtifactsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListArtifactsRequestMultiError is an error wrapping multiple validation
+// errors returned by ListArtifactsRequest.ValidateAll() if the designated
+// constraints aren't met.
+type ListArtifactsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListArtifactsRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListArtifactsRequestMultiError) AllErrors() []error { return m }
+
+// ListArtifactsRequestValidationError is the validation error returned by
+// ListArtifactsRequest.Validate if the designated constraints aren't met.
+type ListArtifactsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListArtifactsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListArtifactsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListArtifactsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListArtifactsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListArtifactsRequestValidationError) ErrorName() string {
+	return "ListArtifactsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListArtifactsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListArtifactsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListArtifactsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListArtifactsRequestValidationError{}
+
 // Validate checks the field values on ListArtifactsResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -462,6 +564,108 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = DeleteArtifactRequestValidationError{}
+
+// Validate checks the field values on DeleteArtifactResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *DeleteArtifactResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DeleteArtifactResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// DeleteArtifactResponseMultiError, or nil if none found.
+func (m *DeleteArtifactResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DeleteArtifactResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return DeleteArtifactResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// DeleteArtifactResponseMultiError is an error wrapping multiple validation
+// errors returned by DeleteArtifactResponse.ValidateAll() if the designated
+// constraints aren't met.
+type DeleteArtifactResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DeleteArtifactResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DeleteArtifactResponseMultiError) AllErrors() []error { return m }
+
+// DeleteArtifactResponseValidationError is the validation error returned by
+// DeleteArtifactResponse.Validate if the designated constraints aren't met.
+type DeleteArtifactResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DeleteArtifactResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DeleteArtifactResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DeleteArtifactResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DeleteArtifactResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DeleteArtifactResponseValidationError) ErrorName() string {
+	return "DeleteArtifactResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DeleteArtifactResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDeleteArtifactResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DeleteArtifactResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DeleteArtifactResponseValidationError{}
 
 // Validate checks the field values on PitrTimerange with the rules defined in
 // the proto definition for this message. If any rules are violated, the first

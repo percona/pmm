@@ -20,7 +20,7 @@
         "tags": [
           "AgentLocalService"
         ],
-        "summary": "Reload reloads pmm-agent configuration. The Reload request may not be received by the client due to pmm-agent restart.",
+        "summary": "Reload reloads pmm-agent configuration.",
         "operationId": "Reload",
         "parameters": [
           {
@@ -36,6 +36,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
+              "description": "ReloadRequest may not be received by the client due to pmm-agent restart.",
               "type": "object"
             }
           },

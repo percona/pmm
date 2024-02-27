@@ -19,7 +19,6 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -596,7 +595,7 @@ func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *acti
 }
 
 // CancelAction stops an Action.
-func (s *actionsServer) CancelAction(ctx context.Context, req *actionsv1.CancelActionRequest) (*empty.Empty, error) {
+func (s *actionsServer) CancelAction(ctx context.Context, req *actionsv1.CancelActionRequest) (*actionsv1.CancelActionResponse, error) {
 	ar, err := models.FindActionResultByID(s.db.Querier, req.ActionId)
 	if err != nil {
 		return nil, err
@@ -607,5 +606,5 @@ func (s *actionsServer) CancelAction(ctx context.Context, req *actionsv1.CancelA
 		return nil, err
 	}
 
-	return &empty.Empty{}, nil
+	return &actionsv1.CancelActionResponse{}, nil
 }

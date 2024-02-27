@@ -12,7 +12,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -34,17 +33,17 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AdvisorServiceClient interface {
 	// ListFailedServices returns a list of services with failed checks.
-	ListFailedServices(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListFailedServicesResponse, error)
+	ListFailedServices(ctx context.Context, in *ListFailedServicesRequest, opts ...grpc.CallOption) (*ListFailedServicesResponse, error)
 	// GetFailedChecks returns the checks result for a given service.
 	GetFailedChecks(ctx context.Context, in *GetFailedChecksRequest, opts ...grpc.CallOption) (*GetFailedChecksResponse, error)
 	// StartAdvisorChecks executes Advisor checks and returns when all checks are executed.
-	StartAdvisorChecks(ctx context.Context, in *StartAdvisorChecksRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	StartAdvisorChecks(ctx context.Context, in *StartAdvisorChecksRequest, opts ...grpc.CallOption) (*StartAdvisorChecksResponse, error)
 	// ListAdvisorChecks returns a list of advisor checks available to the user..
-	ListAdvisorChecks(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListAdvisorChecksResponse, error)
+	ListAdvisorChecks(ctx context.Context, in *ListAdvisorChecksRequest, opts ...grpc.CallOption) (*ListAdvisorChecksResponse, error)
 	// ListAdvisors returns a list of advisors available for the user.
-	ListAdvisors(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListAdvisorsResponse, error)
+	ListAdvisors(ctx context.Context, in *ListAdvisorsRequest, opts ...grpc.CallOption) (*ListAdvisorsResponse, error)
 	// ChangeAdvisorChecks enables/disables Advisor checks or changes their exec interval.
-	ChangeAdvisorChecks(ctx context.Context, in *ChangeAdvisorChecksRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ChangeAdvisorChecks(ctx context.Context, in *ChangeAdvisorChecksRequest, opts ...grpc.CallOption) (*ChangeAdvisorChecksResponse, error)
 }
 
 type advisorServiceClient struct {
@@ -55,7 +54,7 @@ func NewAdvisorServiceClient(cc grpc.ClientConnInterface) AdvisorServiceClient {
 	return &advisorServiceClient{cc}
 }
 
-func (c *advisorServiceClient) ListFailedServices(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListFailedServicesResponse, error) {
+func (c *advisorServiceClient) ListFailedServices(ctx context.Context, in *ListFailedServicesRequest, opts ...grpc.CallOption) (*ListFailedServicesResponse, error) {
 	out := new(ListFailedServicesResponse)
 	err := c.cc.Invoke(ctx, AdvisorService_ListFailedServices_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -73,8 +72,8 @@ func (c *advisorServiceClient) GetFailedChecks(ctx context.Context, in *GetFaile
 	return out, nil
 }
 
-func (c *advisorServiceClient) StartAdvisorChecks(ctx context.Context, in *StartAdvisorChecksRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *advisorServiceClient) StartAdvisorChecks(ctx context.Context, in *StartAdvisorChecksRequest, opts ...grpc.CallOption) (*StartAdvisorChecksResponse, error) {
+	out := new(StartAdvisorChecksResponse)
 	err := c.cc.Invoke(ctx, AdvisorService_StartAdvisorChecks_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -82,7 +81,7 @@ func (c *advisorServiceClient) StartAdvisorChecks(ctx context.Context, in *Start
 	return out, nil
 }
 
-func (c *advisorServiceClient) ListAdvisorChecks(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListAdvisorChecksResponse, error) {
+func (c *advisorServiceClient) ListAdvisorChecks(ctx context.Context, in *ListAdvisorChecksRequest, opts ...grpc.CallOption) (*ListAdvisorChecksResponse, error) {
 	out := new(ListAdvisorChecksResponse)
 	err := c.cc.Invoke(ctx, AdvisorService_ListAdvisorChecks_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -91,7 +90,7 @@ func (c *advisorServiceClient) ListAdvisorChecks(ctx context.Context, in *emptyp
 	return out, nil
 }
 
-func (c *advisorServiceClient) ListAdvisors(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListAdvisorsResponse, error) {
+func (c *advisorServiceClient) ListAdvisors(ctx context.Context, in *ListAdvisorsRequest, opts ...grpc.CallOption) (*ListAdvisorsResponse, error) {
 	out := new(ListAdvisorsResponse)
 	err := c.cc.Invoke(ctx, AdvisorService_ListAdvisors_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -100,8 +99,8 @@ func (c *advisorServiceClient) ListAdvisors(ctx context.Context, in *emptypb.Emp
 	return out, nil
 }
 
-func (c *advisorServiceClient) ChangeAdvisorChecks(ctx context.Context, in *ChangeAdvisorChecksRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *advisorServiceClient) ChangeAdvisorChecks(ctx context.Context, in *ChangeAdvisorChecksRequest, opts ...grpc.CallOption) (*ChangeAdvisorChecksResponse, error) {
+	out := new(ChangeAdvisorChecksResponse)
 	err := c.cc.Invoke(ctx, AdvisorService_ChangeAdvisorChecks_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -114,24 +113,24 @@ func (c *advisorServiceClient) ChangeAdvisorChecks(ctx context.Context, in *Chan
 // for forward compatibility
 type AdvisorServiceServer interface {
 	// ListFailedServices returns a list of services with failed checks.
-	ListFailedServices(context.Context, *emptypb.Empty) (*ListFailedServicesResponse, error)
+	ListFailedServices(context.Context, *ListFailedServicesRequest) (*ListFailedServicesResponse, error)
 	// GetFailedChecks returns the checks result for a given service.
 	GetFailedChecks(context.Context, *GetFailedChecksRequest) (*GetFailedChecksResponse, error)
 	// StartAdvisorChecks executes Advisor checks and returns when all checks are executed.
-	StartAdvisorChecks(context.Context, *StartAdvisorChecksRequest) (*emptypb.Empty, error)
+	StartAdvisorChecks(context.Context, *StartAdvisorChecksRequest) (*StartAdvisorChecksResponse, error)
 	// ListAdvisorChecks returns a list of advisor checks available to the user..
-	ListAdvisorChecks(context.Context, *emptypb.Empty) (*ListAdvisorChecksResponse, error)
+	ListAdvisorChecks(context.Context, *ListAdvisorChecksRequest) (*ListAdvisorChecksResponse, error)
 	// ListAdvisors returns a list of advisors available for the user.
-	ListAdvisors(context.Context, *emptypb.Empty) (*ListAdvisorsResponse, error)
+	ListAdvisors(context.Context, *ListAdvisorsRequest) (*ListAdvisorsResponse, error)
 	// ChangeAdvisorChecks enables/disables Advisor checks or changes their exec interval.
-	ChangeAdvisorChecks(context.Context, *ChangeAdvisorChecksRequest) (*emptypb.Empty, error)
+	ChangeAdvisorChecks(context.Context, *ChangeAdvisorChecksRequest) (*ChangeAdvisorChecksResponse, error)
 	mustEmbedUnimplementedAdvisorServiceServer()
 }
 
 // UnimplementedAdvisorServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedAdvisorServiceServer struct{}
 
-func (UnimplementedAdvisorServiceServer) ListFailedServices(context.Context, *emptypb.Empty) (*ListFailedServicesResponse, error) {
+func (UnimplementedAdvisorServiceServer) ListFailedServices(context.Context, *ListFailedServicesRequest) (*ListFailedServicesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListFailedServices not implemented")
 }
 
@@ -139,19 +138,19 @@ func (UnimplementedAdvisorServiceServer) GetFailedChecks(context.Context, *GetFa
 	return nil, status.Errorf(codes.Unimplemented, "method GetFailedChecks not implemented")
 }
 
-func (UnimplementedAdvisorServiceServer) StartAdvisorChecks(context.Context, *StartAdvisorChecksRequest) (*emptypb.Empty, error) {
+func (UnimplementedAdvisorServiceServer) StartAdvisorChecks(context.Context, *StartAdvisorChecksRequest) (*StartAdvisorChecksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartAdvisorChecks not implemented")
 }
 
-func (UnimplementedAdvisorServiceServer) ListAdvisorChecks(context.Context, *emptypb.Empty) (*ListAdvisorChecksResponse, error) {
+func (UnimplementedAdvisorServiceServer) ListAdvisorChecks(context.Context, *ListAdvisorChecksRequest) (*ListAdvisorChecksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAdvisorChecks not implemented")
 }
 
-func (UnimplementedAdvisorServiceServer) ListAdvisors(context.Context, *emptypb.Empty) (*ListAdvisorsResponse, error) {
+func (UnimplementedAdvisorServiceServer) ListAdvisors(context.Context, *ListAdvisorsRequest) (*ListAdvisorsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAdvisors not implemented")
 }
 
-func (UnimplementedAdvisorServiceServer) ChangeAdvisorChecks(context.Context, *ChangeAdvisorChecksRequest) (*emptypb.Empty, error) {
+func (UnimplementedAdvisorServiceServer) ChangeAdvisorChecks(context.Context, *ChangeAdvisorChecksRequest) (*ChangeAdvisorChecksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeAdvisorChecks not implemented")
 }
 func (UnimplementedAdvisorServiceServer) mustEmbedUnimplementedAdvisorServiceServer() {}
@@ -168,7 +167,7 @@ func RegisterAdvisorServiceServer(s grpc.ServiceRegistrar, srv AdvisorServiceSer
 }
 
 func _AdvisorService_ListFailedServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(ListFailedServicesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -180,7 +179,7 @@ func _AdvisorService_ListFailedServices_Handler(srv interface{}, ctx context.Con
 		FullMethod: AdvisorService_ListFailedServices_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdvisorServiceServer).ListFailedServices(ctx, req.(*emptypb.Empty))
+		return srv.(AdvisorServiceServer).ListFailedServices(ctx, req.(*ListFailedServicesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -222,7 +221,7 @@ func _AdvisorService_StartAdvisorChecks_Handler(srv interface{}, ctx context.Con
 }
 
 func _AdvisorService_ListAdvisorChecks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(ListAdvisorChecksRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -234,13 +233,13 @@ func _AdvisorService_ListAdvisorChecks_Handler(srv interface{}, ctx context.Cont
 		FullMethod: AdvisorService_ListAdvisorChecks_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdvisorServiceServer).ListAdvisorChecks(ctx, req.(*emptypb.Empty))
+		return srv.(AdvisorServiceServer).ListAdvisorChecks(ctx, req.(*ListAdvisorChecksRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _AdvisorService_ListAdvisors_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(ListAdvisorsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -252,7 +251,7 @@ func _AdvisorService_ListAdvisors_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: AdvisorService_ListAdvisors_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdvisorServiceServer).ListAdvisors(ctx, req.(*emptypb.Empty))
+		return srv.(AdvisorServiceServer).ListAdvisors(ctx, req.(*ListAdvisorsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

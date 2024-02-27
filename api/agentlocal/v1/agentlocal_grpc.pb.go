@@ -12,7 +12,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -31,8 +30,8 @@ const (
 type AgentLocalServiceClient interface {
 	// Status returns current pmm-agent status.
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
-	// Reload reloads pmm-agent configuration. The Reload request may not be received by the client due to pmm-agent restart.
-	Reload(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Reload reloads pmm-agent configuration.
+	Reload(ctx context.Context, in *ReloadRequest, opts ...grpc.CallOption) (*ReloadResponse, error)
 }
 
 type agentLocalServiceClient struct {
@@ -52,8 +51,8 @@ func (c *agentLocalServiceClient) Status(ctx context.Context, in *StatusRequest,
 	return out, nil
 }
 
-func (c *agentLocalServiceClient) Reload(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *agentLocalServiceClient) Reload(ctx context.Context, in *ReloadRequest, opts ...grpc.CallOption) (*ReloadResponse, error) {
+	out := new(ReloadResponse)
 	err := c.cc.Invoke(ctx, AgentLocalService_Reload_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -67,8 +66,8 @@ func (c *agentLocalServiceClient) Reload(ctx context.Context, in *emptypb.Empty,
 type AgentLocalServiceServer interface {
 	// Status returns current pmm-agent status.
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
-	// Reload reloads pmm-agent configuration. The Reload request may not be received by the client due to pmm-agent restart.
-	Reload(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	// Reload reloads pmm-agent configuration.
+	Reload(context.Context, *ReloadRequest) (*ReloadResponse, error)
 	mustEmbedUnimplementedAgentLocalServiceServer()
 }
 
@@ -79,7 +78,7 @@ func (UnimplementedAgentLocalServiceServer) Status(context.Context, *StatusReque
 	return nil, status.Errorf(codes.Unimplemented, "method Status not implemented")
 }
 
-func (UnimplementedAgentLocalServiceServer) Reload(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+func (UnimplementedAgentLocalServiceServer) Reload(context.Context, *ReloadRequest) (*ReloadResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Reload not implemented")
 }
 func (UnimplementedAgentLocalServiceServer) mustEmbedUnimplementedAgentLocalServiceServer() {}
@@ -114,7 +113,7 @@ func _AgentLocalService_Status_Handler(srv interface{}, ctx context.Context, dec
 }
 
 func _AgentLocalService_Reload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(ReloadRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -126,7 +125,7 @@ func _AgentLocalService_Reload_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: AgentLocalService_Reload_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentLocalServiceServer).Reload(ctx, req.(*emptypb.Empty))
+		return srv.(AgentLocalServiceServer).Reload(ctx, req.(*ReloadRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

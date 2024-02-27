@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -237,7 +236,7 @@ func TestServer(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, s)
 
-		settings, err := server.GetSettings(ctx, &empty.Empty{})
+		settings, err := server.GetSettings(ctx, &serverv1.GetSettingsRequest{})
 
 		require.NoError(t, err)
 		assert.True(t, settings.Settings.AlertingEnabled)

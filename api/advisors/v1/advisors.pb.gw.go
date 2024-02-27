@@ -21,7 +21,6 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // Suppress "imported and not used" errors
@@ -35,7 +34,7 @@ var (
 )
 
 func request_AdvisorService_ListFailedServices_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq ListFailedServicesRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -47,7 +46,7 @@ func request_AdvisorService_ListFailedServices_0(ctx context.Context, marshaler 
 }
 
 func local_request_AdvisorService_ListFailedServices_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq ListFailedServicesRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -107,7 +106,7 @@ func local_request_AdvisorService_StartAdvisorChecks_0(ctx context.Context, mars
 }
 
 func request_AdvisorService_ListAdvisorChecks_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq ListAdvisorChecksRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -119,7 +118,7 @@ func request_AdvisorService_ListAdvisorChecks_0(ctx context.Context, marshaler r
 }
 
 func local_request_AdvisorService_ListAdvisorChecks_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq ListAdvisorChecksRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -131,7 +130,7 @@ func local_request_AdvisorService_ListAdvisorChecks_0(ctx context.Context, marsh
 }
 
 func request_AdvisorService_ListAdvisors_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq ListAdvisorsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -143,7 +142,7 @@ func request_AdvisorService_ListAdvisors_0(ctx context.Context, marshaler runtim
 }
 
 func local_request_AdvisorService_ListAdvisors_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq emptypb.Empty
+	var protoReq ListAdvisorsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {

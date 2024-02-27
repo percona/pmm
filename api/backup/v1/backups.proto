@@ -5,7 +5,6 @@ package backup.v1;
 import "backup/v1/common.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
-import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "inventory/v1/services.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -134,6 +133,8 @@ message ScheduleBackupResponse {
   string scheduled_backup_id = 1;
 }
 
+message ListScheduledBackupsRequest {}
+
 message ListScheduledBackupsResponse {
   repeated ScheduledBackup scheduled_backups = 1;
 }
@@ -157,9 +158,13 @@ message ChangeScheduledBackupRequest {
   optional uint32 retention = 9;
 }
 
+message ChangeScheduledBackupResponse {}
+
 message RemoveScheduledBackupRequest {
   string scheduled_backup_id = 1 [(validate.rules).string.min_len = 1];
 }
+
+message RemoveScheduledBackupResponse {}
 
 message GetLogsRequest {
   string artifact_id = 1;
@@ -212,21 +217,21 @@ service BackupsService {
     };
   }
   // ListScheduledBackups returns all scheduled backups.
-  rpc ListScheduledBackups(google.protobuf.Empty) returns (ListScheduledBackupsResponse) {
+  rpc ListScheduledBackups(ListScheduledBackupsRequest) returns (ListScheduledBackupsResponse) {
     option (google.api.http) = {
       post: "/v1/backup/Backups/ListScheduled"
       body: "*"
     };
   }
   // ChangeScheduledBackup changes existing scheduled backup.
-  rpc ChangeScheduledBackup(ChangeScheduledBackupRequest) returns (google.protobuf.Empty) {
+  rpc ChangeScheduledBackup(ChangeScheduledBackupRequest) returns (ChangeScheduledBackupResponse) {
     option (google.api.http) = {
       post: "/v1/backup/Backups/ChangeScheduled"
       body: "*"
     };
   }
   // RemoveScheduledBackup removes existing scheduled backup.
-  rpc RemoveScheduledBackup(RemoveScheduledBackupRequest) returns (google.protobuf.Empty) {
+  rpc RemoveScheduledBackup(RemoveScheduledBackupRequest) returns (RemoveScheduledBackupResponse) {
     option (google.api.http) = {
       post: "/v1/backup/Backups/RemoveScheduled"
       body: "*"

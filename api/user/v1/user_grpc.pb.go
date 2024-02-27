@@ -12,7 +12,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -30,9 +29,9 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
-	GetUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserResponse, error)
+	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
-	ListUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListUsersResponse, error)
+	ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error)
 }
 
 type userServiceClient struct {
@@ -43,7 +42,7 @@ func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
 	return &userServiceClient{cc}
 }
 
-func (c *userServiceClient) GetUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserResponse, error) {
+func (c *userServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error) {
 	out := new(GetUserResponse)
 	err := c.cc.Invoke(ctx, UserService_GetUser_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -61,7 +60,7 @@ func (c *userServiceClient) UpdateUser(ctx context.Context, in *UpdateUserReques
 	return out, nil
 }
 
-func (c *userServiceClient) ListUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListUsersResponse, error) {
+func (c *userServiceClient) ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error) {
 	out := new(ListUsersResponse)
 	err := c.cc.Invoke(ctx, UserService_ListUsers_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -74,16 +73,16 @@ func (c *userServiceClient) ListUsers(ctx context.Context, in *emptypb.Empty, op
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
 type UserServiceServer interface {
-	GetUser(context.Context, *emptypb.Empty) (*GetUserResponse, error)
+	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
-	ListUsers(context.Context, *emptypb.Empty) (*ListUsersResponse, error)
+	ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
 // UnimplementedUserServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedUserServiceServer struct{}
 
-func (UnimplementedUserServiceServer) GetUser(context.Context, *emptypb.Empty) (*GetUserResponse, error) {
+func (UnimplementedUserServiceServer) GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
 }
 
@@ -91,7 +90,7 @@ func (UnimplementedUserServiceServer) UpdateUser(context.Context, *UpdateUserReq
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
 }
 
-func (UnimplementedUserServiceServer) ListUsers(context.Context, *emptypb.Empty) (*ListUsersResponse, error) {
+func (UnimplementedUserServiceServer) ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListUsers not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
@@ -108,7 +107,7 @@ func RegisterUserServiceServer(s grpc.ServiceRegistrar, srv UserServiceServer) {
 }
 
 func _UserService_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(GetUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -120,7 +119,7 @@ func _UserService_GetUser_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: UserService_GetUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetUser(ctx, req.(*emptypb.Empty))
+		return srv.(UserServiceServer).GetUser(ctx, req.(*GetUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -144,7 +143,7 @@ func _UserService_UpdateUser_Handler(srv interface{}, ctx context.Context, dec f
 }
 
 func _UserService_ListUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(ListUsersRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -156,7 +155,7 @@ func _UserService_ListUsers_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: UserService_ListUsers_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).ListUsers(ctx, req.(*emptypb.Empty))
+		return srv.(UserServiceServer).ListUsers(ctx, req.(*ListUsersRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

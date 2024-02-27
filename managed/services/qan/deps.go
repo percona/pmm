@@ -18,7 +18,6 @@ package qan
 import (
 	"context"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc"
 
 	qanpb "github.com/percona/pmm/api/qan/v1"
@@ -27,5 +26,5 @@ import (
 // qanClient is a subset of methods of qanpb.CollectorClient used by this package.
 // We use it instead of real type for testing.
 type qanCollectorClient interface {
-	Collect(ctx context.Context, in *qanpb.CollectRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	Collect(ctx context.Context, in *qanpb.CollectRequest, opts ...grpc.CallOption) (*qanpb.CollectResponse, error)
 }

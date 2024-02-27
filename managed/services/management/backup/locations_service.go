@@ -18,7 +18,6 @@ package backup
 import (
 	"context"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/minio/minio-go/v7"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -59,7 +58,7 @@ func (s *LocationsService) Enabled() bool {
 }
 
 // ListLocations returns list of all available backup locations.
-func (s *LocationsService) ListLocations(ctx context.Context, req *empty.Empty) (*backuppb.ListLocationsResponse, error) {
+func (s *LocationsService) ListLocations(ctx context.Context, req *backuppb.ListLocationsRequest) (*backuppb.ListLocationsResponse, error) {
 	locations, err := models.FindBackupLocations(s.db.Querier)
 	if err != nil {
 		return nil, err
@@ -134,7 +133,7 @@ func (s *LocationsService) AddLocation(ctx context.Context, req *backuppb.AddLoc
 }
 
 // ChangeLocation changes existing backup location.
-func (s *LocationsService) ChangeLocation(ctx context.Context, req *backuppb.ChangeLocationRequest) (*empty.Empty, error) {
+func (s *LocationsService) ChangeLocation(ctx context.Context, req *backuppb.ChangeLocationRequest) (*backuppb.ChangeLocationResponse, error) {
 	params := models.ChangeBackupLocationParams{
 		Name:        req.Name,
 		Description: req.Description,
@@ -181,11 +180,14 @@ func (s *LocationsService) ChangeLocation(ctx context.Context, req *backuppb.Cha
 		return nil, err
 	}
 
-	return &empty.Empty{}, nil
+	return &backuppb.ChangeLocationResponse{}, nil
 }
 
 // TestLocationConfig tests backup location and credentials.
-func (s *LocationsService) TestLocationConfig(ctx context.Context, req *backuppb.TestLocationConfigRequest) (*empty.Empty, error) {
+func (s *LocationsService) TestLocationConfig(
+	ctx context.Context,
+	req *backuppb.TestLocationConfigRequest,
+) (*backuppb.TestLocationConfigResponse, error) {
 	var locationConfig models.BackupLocationConfig
 
 	if req.S3Config != nil {
@@ -216,11 +218,11 @@ func (s *LocationsService) TestLocationConfig(ctx context.Context, req *backuppb
 		}
 	}
 
-	return &empty.Empty{}, nil
+	return &backuppb.TestLocationConfigResponse{}, nil
 }
 
 // RemoveLocation removes backup location.
-func (s *LocationsService) RemoveLocation(ctx context.Context, req *backuppb.RemoveLocationRequest) (*empty.Empty, error) {
+func (s *LocationsService) RemoveLocation(ctx context.Context, req *backuppb.RemoveLocationRequest) (*backuppb.RemoveLocationResponse, error) {
 	mode := models.RemoveRestrict
 	if req.Force {
 		mode = models.RemoveCascade
@@ -233,7 +235,7 @@ func (s *LocationsService) RemoveLocation(ctx context.Context, req *backuppb.Rem
 		return nil, err
 	}
 
-	return &empty.Empty{}, nil
+	return &backuppb.RemoveLocationResponse{}, nil
 }
 
 func convertLocation(locationModel *models.BackupLocation) (*backuppb.Location, error) {

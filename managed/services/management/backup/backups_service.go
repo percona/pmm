@@ -24,7 +24,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -265,7 +264,7 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 }
 
 // ListScheduledBackups lists all tasks related to a backup.
-func (s *BackupsService) ListScheduledBackups(ctx context.Context, req *empty.Empty) (*backuppb.ListScheduledBackupsResponse, error) {
+func (s *BackupsService) ListScheduledBackups(ctx context.Context, req *backuppb.ListScheduledBackupsRequest) (*backuppb.ListScheduledBackupsResponse, error) {
 	tasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{
 		Types: []models.ScheduledTaskType{
 			models.ScheduledMySQLBackupTask,
@@ -320,7 +319,7 @@ func (s *BackupsService) ListScheduledBackups(ctx context.Context, req *empty.Em
 }
 
 // ChangeScheduledBackup changes existing scheduled backup task.
-func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backuppb.ChangeScheduledBackupRequest) (*empty.Empty, error) {
+func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backuppb.ChangeScheduledBackupRequest) (*backuppb.ChangeScheduledBackupResponse, error) {
 	var disablePITR bool
 	var serviceID string
 
@@ -389,11 +388,11 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupp
 		}
 	}
 
-	return &empty.Empty{}, nil
+	return &backuppb.ChangeScheduledBackupResponse{}, nil
 }
 
 // RemoveScheduledBackup stops and removes existing scheduled backup task.
-func (s *BackupsService) RemoveScheduledBackup(ctx context.Context, req *backuppb.RemoveScheduledBackupRequest) (*empty.Empty, error) {
+func (s *BackupsService) RemoveScheduledBackup(ctx context.Context, req *backuppb.RemoveScheduledBackupRequest) (*backuppb.RemoveScheduledBackupResponse, error) {
 	task, err := models.FindScheduledTaskByID(s.db.Querier, req.ScheduledBackupId)
 	if err != nil {
 		return nil, err
@@ -439,7 +438,7 @@ func (s *BackupsService) RemoveScheduledBackup(ctx context.Context, req *backupp
 		}
 	}
 
-	return &empty.Empty{}, nil
+	return &backuppb.RemoveScheduledBackupResponse{}, nil
 }
 
 // GetLogs returns logs from the underlying tools for a backup/restore job.
