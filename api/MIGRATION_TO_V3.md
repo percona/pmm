@@ -16,8 +16,8 @@ POST /v1/updates/Start                              POST /api/server/v1/updates:
 POST /v1/updates/Status                             GET /api/server/v1/updates/status              pass "auth_token" via headers, ?log_offset=200
 
 **UserService**                                     **UserService**
-GET /v1/user                                        GET /api/users/v1/user                         needs no {id} in path
-PUT /v1/user                                        PUT /api/users/v1/user                         needs no {id} in path
+GET /v1/user                                        GET /api/users/v1/me                           needs no {id} in path
+PUT /v1/user                                        PUT /api/users/v1/me                           needs no {id} in path
 POST /v1/user/list                                  GET /api/users/v1
 
 **AgentsService**                                   **AgentsService**
@@ -41,8 +41,8 @@ POST /v1/inventory/Servicse/Get                     GET /api/inventory/v1/servic
 POST /v1/inventory/Services/List                    GET /api/inventory/v1/services
 POST /v1/inventory/Services/Remove                  DELETE /api/inventory/v1/services/{id}            pass ?force=true to remove service with agents
 POST /v1/inventory/Services/ListTypes               GET /api/inventory/v1/services/types
-POST /v1/inventory/Services/CustomLabels/Add        POST /api/inventory/v1/services/{id}/custom_labels
-POST /v1/inventory/Services/CustomLabels/Remove     DELETE /api/inventory/v1/services/{id}/custom_labels?custom_label_keys=[key1,key2]
+POST /v1/inventory/Services/CustomLabels/Add        POST /api/inventory/v1/services/{id}/custom_labels !!! remove and refactore in favor of PUT /api/inventory/v1/services/{id}
+POST /v1/inventory/Services/CustomLabels/Remove     DELETE /api/inventory/v1/services/{id}/custom_labels !!! remove and refactore in favor of PUT /api/inventory/v1/services/{id}
 
 **ManagementService**                               **ManagementService**
 POST /v1/management/Annotations/Add                 POST /api/management/v1/annotations
@@ -55,34 +55,40 @@ POST /v1/management/PostgreSQL/Add                  POST /api/management/v1/serv
 POST /v1/management/ProxySQL/Add                    POST /api/management/v1/services                  pass a service type in body
 POST /v1/management/RDS/Add                         POST /api/management/v1/services                  pass a service type in body
 POST /v1/management/RDS/Discover                    POST /api/management/v1/services:discoverRDS
-POST /v1/management/Service/Remove                  DELETE /api/management/v1/services/{id}           {service_id} or {service_name} or {service_type}
+POST /v1/management/Service/Remove                  DELETE /api/management/v1/services/{id}           ({service_id} or {service_name}) and optional {service_type}
+<!-- POST /v1/management/Service/Remove                  DELETE /api/management/v1/services/{id}           {service_id_or_name} and optional {service_type} -->
 
 **ActionsService**                                  **ActionService**
-POST /v1/actions/Cancel                             POST /api/actions/v1/action:cancel
-POST /v1/actions/Get                                GET /api/actions/v1/action/{id}
-POST /v1/actions/StartMongoDBExplain                POST /api/actions/v1/action:startMongoDBExplain
-POST /v1/actions/StartMySQLExplain                  POST /api/actions/v1/action:startMySQLExplain
-POST /v1/actions/StartMySQLExplainJSON              POST /api/actions/v1/action:startMySQLExplainJSON
-POST /v1/actions/StartMySQLExplainTraditionalJSON   POST /api/actions/v1/action:startMySQLExplainTraditionalJSON
-POST /v1/actions/StartMySQLShowCreateTable          POST /api/actions/v1/action:startMySQLShowCreateTable
-POST /v1/actions/StartMySQLShowIndex                POST /api/actions/v1/action:startMySQLShowIndex
-POST /v1/actions/StartMySQLShowTableStatus          POST /api/actions/v1/action:startMySQLShowTableStatus
-POST /v1/actions/StartPTMongoDBSummary              POST /api/actions/v1/action:startPTMongoDBSummary
-POST /v1/actions/StartPTMySQLSummary                POST /api/actions/v1/action:startPTMySQLSummary
-POST /v1/actions/StartPTPgSummary                   POST /api/actions/v1/action:startPTPgSummary
-POST /v1/actions/StartPTSummary                     POST /api/actions/v1/action:startPTSummary
-POST /v1/actions/StartPostgreSQLShowCreateTable     POST /api/actions/v1/action:startPostgreSQLShowCreateTable
-POST /v1/actions/StartPostgreSQLShowIndex           POST /api/actions/v1/action:startPostgreSQLShowIndex
+POST /v1/actions/Cancel                             POST /api/actions/v1/actions:cancel
+POST /v1/actions/Get                                GET /api/actions/v1/actions/{id}
+
+POST /v1/actions/StartMongoDBExplain                POST /api/actions/v1/actions:startServiceAction 
+POST /v1/actions/StartPTSummary                     POST /api/actions/v1/actions:startNodeAction
+
+POST /v1/actions/StartMongoDBExplain                POST /api/actions/v1/actions:startMongoDBExplain
+POST /v1/actions/StartMySQLExplain                  POST /api/actions/v1/actions:startMySQLExplain
+POST /v1/actions/StartMySQLExplainJSON              POST /api/actions/v1/actions:startMySQLExplainJSON
+POST /v1/actions/StartMySQLExplainTraditionalJSON   POST /api/actions/v1/actions:startMySQLExplainTraditionalJSON
+POST /v1/actions/StartMySQLShowCreateTable          POST /api/actions/v1/actions:startMySQLShowCreateTable
+POST /v1/actions/StartMySQLShowIndex                POST /api/actions/v1/actions:startMySQLShowIndex
+POST /v1/actions/StartMySQLShowTableStatus          POST /api/actions/v1/actions:startMySQLShowTableStatus
+// NODE
+POST /v1/actions/StartPTMongoDBSummary              POST /api/actions/v1/actions:startPTMongoDBSummary
+POST /v1/actions/StartPTMySQLSummary                POST /api/actions/v1/actions:startPTMySQLSummary
+POST /v1/actions/StartPTPgSummary                   POST /api/actions/v1/actions:startPTPgSummary
+POST /v1/actions/StartPTSummary                     POST /api/actions/v1/actions:startPTSummary
+POST /v1/actions/StartPostgreSQLShowCreateTable     POST /api/actions/v1/actions:startPostgreSQLShowCreateTable
+POST /v1/actions/StartPostgreSQLShowIndex           POST /api/actions/v1/actions:startPostgreSQLShowIndex
 
 **AlertingService**                                 **AlertingService**
 POST /v1/alerting/Rules/Create                      POST /api/alerting/v1/rules
 POST /v1/alerting/Templates/Create                  POST /api/alerting/v1/templates
-POST /v1/alerting/Templates/Update                  POST /api/alerting/v1/templates:update            !!! exception: passes yaml in body
+POST /v1/alerting/Templates/Update                  PUT /api/alerting/v1/templates/{name}            !!! pass yaml in body
 POST /v1/alerting/Templates/List                    GET /api/alerting/v1/templates
 POST /v1/alerting/Templates/Delete                  DELETE /api/alerting/v1/templates/{name}
 
 **AdvisorService**                                 **AdvisorService**
-POST /v1/advisors/Change                            POST /api/advisors/v1/checks:change              !!! exception: accepts an array in params
+POST /v1/advisors/Change                            POST /api/advisors/v1/checks:change              !!! exception: updates multiple checks
 POST /v1/advisors/FailedChecks                      POST /api/advisors/v1/checks:failedChecks        !!! exception: accepts a bunch of params
 POST /v1/advisors/List                              GET /api/advisors/v1
 POST /v1/advisors/ListChecks                        GET /api/advisors/v1/checks

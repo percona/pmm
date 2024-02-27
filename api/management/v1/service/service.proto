@@ -3,7 +3,6 @@ syntax = "proto3";
 package service.v1beta1;
 
 import "google/api/annotations.proto";
-import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "inventory/v1/services.proto";
 import "management/v1/agent/agent.proto";
@@ -85,8 +84,8 @@ message ListServicesResponse {
 // NOTE: the GA version of /nodes will be integrated into management/v1/node.proto.
 // NOTE: the GA version of /services will be integrated into management/v1/service.proto.
 
-// ManagementServiceV1Beta service provides public methods for manipulating Services.
-service ManagementServiceV1Beta {
+// ManagementV1Beta1Service service provides public methods for manipulating Services.
+service ManagementV1Beta1Service {
   // ListAgents returns a list of Agents filtered by service_id.
   rpc ListAgents(agent.v1beta1.ListAgentsRequest) returns (agent.v1beta1.ListAgentsResponse) {
     option (google.api.http) = {
@@ -143,7 +142,7 @@ service ManagementServiceV1Beta {
     };
   }
   // AddAzureDatabase adds Azure Database instance.
-  rpc AddAzureDatabase(azure.v1beta1.AddAzureDatabaseRequest) returns (google.protobuf.Empty) {
+  rpc AddAzureDatabase(azure.v1beta1.AddAzureDatabaseRequest) returns (azure.v1beta1.AddAzureDatabaseResponse) {
     option (google.api.http) = {
       post: "/v1/management/AzureDatabase/Add"
       body: "*"

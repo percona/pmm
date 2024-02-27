@@ -16662,7 +16662,7 @@
       "post": {
         "description": "Returns a filtered list of Agents.",
         "tags": [
-          "ManagementServiceV1Beta"
+          "ManagementV1Beta1Service"
         ],
         "summary": "List Agents",
         "operationId": "ListAgentsMixin13",
@@ -17133,7 +17133,7 @@
       "post": {
         "description": "Adds an Azure Database instance.",
         "tags": [
-          "ManagementServiceV1Beta"
+          "ManagementV1Beta1Service"
         ],
         "summary": "Add Azure Database",
         "operationId": "AddAzureDatabase",
@@ -17330,7 +17330,7 @@
       "post": {
         "description": "Discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.",
         "tags": [
-          "ManagementServiceV1Beta"
+          "ManagementV1Beta1Service"
         ],
         "summary": "Discover Azure Database",
         "operationId": "DiscoverAzureDatabase",
@@ -19517,7 +19517,7 @@
       "post": {
         "description": "Returns a single Node by ID.",
         "tags": [
-          "ManagementServiceV1Beta"
+          "ManagementV1Beta1Service"
         ],
         "summary": "Get Node",
         "operationId": "GetNodeMixin13",
@@ -19734,7 +19734,7 @@
       "post": {
         "description": "Returns a filtered list of Nodes.",
         "tags": [
-          "ManagementServiceV1Beta"
+          "ManagementV1Beta1Service"
         ],
         "summary": "List Nodes",
         "operationId": "ListNodesMixin13",
@@ -22553,7 +22553,7 @@
       "post": {
         "description": "Returns a filtered list of Services.",
         "tags": [
-          "ManagementServiceV1Beta"
+          "ManagementV1Beta1Service"
         ],
         "summary": "List Services",
         "operationId": "ListServicesMixin13",
@@ -27807,7 +27807,7 @@
       "name": "RoleService"
     },
     {
-      "name": "ManagementServiceV1Beta"
+      "name": "ManagementV1Beta1Service"
     },
     {
       "name": "CollectorService"

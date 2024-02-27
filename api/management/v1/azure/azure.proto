@@ -111,3 +111,5 @@ message AddAzureDatabaseRequest {
   // Azure database resource type (mysql, maria, postgres)
   DiscoverAzureDatabaseType type = 25;
 }
+
+message AddAzureDatabaseResponse {}

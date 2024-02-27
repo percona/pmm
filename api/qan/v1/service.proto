@@ -3,11 +3,13 @@ syntax = "proto3";
 package qan.v1;
 
 import "google/api/annotations.proto";
-import "google/protobuf/empty.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "qan/v1/filters.proto";
 import "qan/v1/object_details.proto";
 import "qan/v1/profile.proto";
+
+// MetricsNamesRequest is empty.
+message GetMetricsNamesRequest {}
 
 // MetricsNamesReply is map of stored metrics:
 // key is root of metric name in db (Ex:. [m_]query_time[_sum]);
@@ -41,7 +43,7 @@ service QANService {
     };
   }
   // GetMetricsNames provides a map of metrics names.
-  rpc GetMetricsNames(google.protobuf.Empty) returns (GetMetricsNamesResponse) {
+  rpc GetMetricsNames(GetMetricsNamesRequest) returns (GetMetricsNamesResponse) {
     option (google.api.http) = {
       post: "/v1/qan/GetMetricsNames"
       body: "*"

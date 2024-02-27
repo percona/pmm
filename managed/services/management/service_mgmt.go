@@ -52,7 +52,7 @@ type MgmtServiceService struct {
 	vmdb     prometheusService
 	vmClient victoriaMetricsClient
 
-	servicev1beta1.UnimplementedManagementServiceV1BetaServer
+	servicev1beta1.UnimplementedManagementV1Beta1ServiceServer
 }
 
 type statusMetrics struct {

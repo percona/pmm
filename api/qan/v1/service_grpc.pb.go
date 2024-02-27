@@ -12,7 +12,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -43,7 +42,7 @@ type QANServiceClient interface {
 	// Get provides a map of metrics names.
 	GetFilteredMetricsNames(ctx context.Context, in *GetFilteredMetricsNamesRequest, opts ...grpc.CallOption) (*GetFilteredMetricsNamesResponse, error)
 	// GetMetricsNames provides a map of metrics names.
-	GetMetricsNames(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMetricsNamesResponse, error)
+	GetMetricsNames(ctx context.Context, in *GetMetricsNamesRequest, opts ...grpc.CallOption) (*GetMetricsNamesResponse, error)
 	// GetMetrics returns a map of metrics for specific filtering.
 	GetMetrics(ctx context.Context, in *GetMetricsRequest, opts ...grpc.CallOption) (*GetMetricsResponse, error)
 	// GetQueryExample returns a list of query examples.
@@ -88,7 +87,7 @@ func (c *qANServiceClient) GetFilteredMetricsNames(ctx context.Context, in *GetF
 	return out, nil
 }
 
-func (c *qANServiceClient) GetMetricsNames(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMetricsNamesResponse, error) {
+func (c *qANServiceClient) GetMetricsNames(ctx context.Context, in *GetMetricsNamesRequest, opts ...grpc.CallOption) (*GetMetricsNamesResponse, error) {
 	out := new(GetMetricsNamesResponse)
 	err := c.cc.Invoke(ctx, QANService_GetMetricsNames_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -178,7 +177,7 @@ type QANServiceServer interface {
 	// Get provides a map of metrics names.
 	GetFilteredMetricsNames(context.Context, *GetFilteredMetricsNamesRequest) (*GetFilteredMetricsNamesResponse, error)
 	// GetMetricsNames provides a map of metrics names.
-	GetMetricsNames(context.Context, *emptypb.Empty) (*GetMetricsNamesResponse, error)
+	GetMetricsNames(context.Context, *GetMetricsNamesRequest) (*GetMetricsNamesResponse, error)
 	// GetMetrics returns a map of metrics for specific filtering.
 	GetMetrics(context.Context, *GetMetricsRequest) (*GetMetricsResponse, error)
 	// GetQueryExample returns a list of query examples.
@@ -209,7 +208,7 @@ func (UnimplementedQANServiceServer) GetFilteredMetricsNames(context.Context, *G
 	return nil, status.Errorf(codes.Unimplemented, "method GetFilteredMetricsNames not implemented")
 }
 
-func (UnimplementedQANServiceServer) GetMetricsNames(context.Context, *emptypb.Empty) (*GetMetricsNamesResponse, error) {
+func (UnimplementedQANServiceServer) GetMetricsNames(context.Context, *GetMetricsNamesRequest) (*GetMetricsNamesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMetricsNames not implemented")
 }
 
@@ -294,7 +293,7 @@ func _QANService_GetFilteredMetricsNames_Handler(srv interface{}, ctx context.Co
 }
 
 func _QANService_GetMetricsNames_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(GetMetricsNamesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -306,7 +305,7 @@ func _QANService_GetMetricsNames_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: QANService_GetMetricsNames_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QANServiceServer).GetMetricsNames(ctx, req.(*emptypb.Empty))
+		return srv.(QANServiceServer).GetMetricsNames(ctx, req.(*GetMetricsNamesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -27,10 +27,12 @@ message RemoveServiceRequest {
   string service_name = 3;
 }
 
+message RemoveServiceResponse {}
+
 // ManagementService provides public methods for managing and querying Services.
 service ManagementService {
   // AddAnnotation adds an annotation.
-  rpc AddAnnotation(AddAnnotationRequest) returns (google.protobuf.Empty) {
+  rpc AddAnnotation(AddAnnotationRequest) returns (AddAnnotationResponse) {
     option (google.api.http) = {
       post: "/v1/management/Annotations/Add"
       body: "*"
