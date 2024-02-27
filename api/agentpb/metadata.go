@@ -26,19 +26,21 @@ import (
 )
 
 const (
-	mdAgentID          = "pmm-agent-id"
-	mdAgentVersion     = "pmm-agent-version"
-	mdAgentMetricsPort = "pmm-agent-metrics-port"
-	mdAgentNodeID      = "pmm-agent-node-id"
-	mdNodeName         = "pmm-node-name"
-	mdServerVersion    = "pmm-server-version"
+	mdAgentID            = "pmm-agent-id"
+	mdAgentVersion       = "pmm-agent-version"
+	mdAgentMetricsPort   = "pmm-agent-metrics-port"
+	mdAgentNodeID        = "pmm-agent-node-id"
+	mdAgentAuthorization = "pmm-agent-authorization"
+	mdNodeName           = "pmm-node-name"
+	mdServerVersion      = "pmm-server-version"
 )
 
 // AgentConnectMetadata represents metadata sent by pmm-agent with Connect RPC method call.
 type AgentConnectMetadata struct {
-	ID          string
-	Version     string
-	MetricsPort uint16
+	ID            string
+	Version       string
+	MetricsPort   uint16
+	Authorization string
 }
 
 // ServerConnectMetadata represents metadata sent by pmm-managed in response to Connect RPC method call.
@@ -61,7 +63,8 @@ func AddAgentConnectMetadata(ctx context.Context, md *AgentConnectMetadata) cont
 	return metadata.AppendToOutgoingContext(ctx,
 		mdAgentID, md.ID,
 		mdAgentVersion, md.Version,
-		mdAgentMetricsPort, strconv.FormatUint(uint64(md.MetricsPort), 10))
+		mdAgentMetricsPort, strconv.FormatUint(uint64(md.MetricsPort), 10),
+		mdAgentAuthorization, md.Authorization)
 }
 
 // ReceiveAgentConnectMetadata receives pmm-agent's metadata. Used by pmm-managed.
@@ -84,9 +87,10 @@ func ReceiveAgentConnectMetadata(stream grpc.ServerStream) (*AgentConnectMetadat
 	}
 
 	return &AgentConnectMetadata{
-		ID:          getValue(md, mdAgentID),
-		Version:     getValue(md, mdAgentVersion),
-		MetricsPort: uint16(mp),
+		ID:            getValue(md, mdAgentID),
+		Version:       getValue(md, mdAgentVersion),
+		MetricsPort:   uint16(mp),
+		Authorization: getValue(md, mdAgentAuthorization),
 	}, nil
 }
 

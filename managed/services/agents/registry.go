@@ -18,6 +18,8 @@ package agents
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 	"sync"
 	"time"
 
@@ -32,6 +34,7 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents/channel"
+	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
 )
@@ -73,7 +76,8 @@ type pmmAgentInfo struct {
 
 // Registry keeps track of all connected pmm-agents.
 type Registry struct {
-	db *reform.DB
+	db      *reform.DB
+	grafana *grafana.Client
 
 	rw     sync.RWMutex
 	agents map[string]*pmmAgentInfo // id -> info
@@ -90,10 +94,11 @@ type Registry struct {
 }
 
 // NewRegistry creates a new registry with given database connection.
-func NewRegistry(db *reform.DB, externalVMChecker victoriaMetricsParams) *Registry {
+func NewRegistry(db *reform.DB, externalVMChecker victoriaMetricsParams, grafana *grafana.Client) *Registry {
 	agents := make(map[string]*pmmAgentInfo)
 	r := &Registry{
-		db: db,
+		db:      db,
+		grafana: grafana,
 
 		agents: agents,
 
@@ -164,7 +169,7 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	}
 	var node *models.Node
 	err = r.db.InTransaction(func(tx *reform.TX) error {
-		node, err = r.authenticate(agentMD, tx.Querier)
+		node, err = r.authenticate(ctx, agentMD, tx.Querier)
 		if err != nil {
 			return err
 		}
@@ -208,7 +213,14 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	return agent, nil
 }
 
-func (r *Registry) authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (*models.Node, error) {
+func (r *Registry) authenticate(ctx context.Context, md *agentpb.AgentConnectMetadata, q *reform.Querier) (*models.Node, error) {
+	header := http.Header{}
+	header.Add("Authorization", md.Authorization)
+	_, err := r.grafana.GetAuthUser(ctx, header)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, fmt.Sprintf("Authorization failed: %s", err))
+	}
+
 	if md.ID == "" {
 		return nil, status.Error(codes.PermissionDenied, "Empty Agent ID.")
 	}

@@ -17,6 +17,7 @@ package client
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"net"
 	"path/filepath"
@@ -784,8 +785,9 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 	l.Info("Establishing two-way communication channel ...")
 	start := time.Now()
 	streamCtx = agentpb.AddAgentConnectMetadata(streamCtx, &agentpb.AgentConnectMetadata{
-		ID:      cfg.ID,
-		Version: version.Version,
+		ID:            cfg.ID,
+		Version:       version.Version,
+		Authorization: getAuthorizationFromUserAndPassword(cfg.Server.Username, cfg.Server.Password),
 	})
 	stream, err := agentpb.NewAgentClient(conn).Connect(streamCtx) //nolint:contextcheck
 	if err != nil {
@@ -840,6 +842,17 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 		channel:      channel,
 		md:           md,
 	}, nil
+}
+
+func getAuthorizationFromUserAndPassword(username, password string) string {
+	prefix := "Basic"
+	if username == "service_token" || username == "api_key" {
+		prefix = "Bearer"
+	} else {
+		password = base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", username, password)))
+	}
+
+	return fmt.Sprintf("%s %s", prefix, password)
 }
 
 func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.Duration, err error) { //nolint:nonamedreturns
