@@ -355,7 +355,7 @@ func TestMaxConnections(t *testing.T) {
 		assert.NotContains(t, res.Args, maxConnectionsFlag)
 	})
 
-	t.Run("Max exporter connections set to 0 - apply", func(t *testing.T) {
+	t.Run("Max exporter connections set to 5 - apply", func(t *testing.T) {
 		exporter.PostgreSQLOptions = &models.PostgreSQLOptions{
 			MaxExporterConnections: 5,
 		}
