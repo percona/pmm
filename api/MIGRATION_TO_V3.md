@@ -61,24 +61,19 @@ POST /v1/management/Service/Remove                  DELETE /api/management/v1/se
 **ActionsService**                                  **ActionService**
 POST /v1/actions/Cancel                             POST /api/actions/v1/actions:cancel
 POST /v1/actions/Get                                GET /api/actions/v1/actions/{id}
-
-POST /v1/actions/StartMongoDBExplain                POST /api/actions/v1/actions:startServiceAction 
+POST /v1/actions/StartMongoDBExplain                POST /api/actions/v1/actions:startServiceAction
+POST /v1/actions/StartMySQLExplain                  POST /api/actions/v1/actions:startServiceAction
+POST /v1/actions/StartMySQLExplainJSON              POST /api/actions/v1/actions:startServiceAction
+POST /v1/actions/StartMySQLExplainTraditionalJSON   POST /api/actions/v1/actions:startServiceAction
+POST /v1/actions/StartMySQLShowCreateTable          POST /api/actions/v1/actions:startServiceAction
+POST /v1/actions/StartMySQLShowIndex                POST /api/actions/v1/actions:startServiceAction
+POST /v1/actions/StartMySQLShowTableStatus          POST /api/actions/v1/actions:startServiceAction
+POST /v1/actions/StartPTMongoDBSummary              POST /api/actions/v1/actions:startServiceAction
+POST /v1/actions/StartPTMySQLSummary                POST /api/actions/v1/actions:startServiceAction
+POST /v1/actions/StartPTPgSummary                   POST /api/actions/v1/actions:startServiceAction
+POST /v1/actions/StartPostgreSQLShowCreateTable     POST /api/actions/v1/actions:startServiceAction
+POST /v1/actions/StartPostgreSQLShowIndex           POST /api/actions/v1/actions:startServiceAction
 POST /v1/actions/StartPTSummary                     POST /api/actions/v1/actions:startNodeAction
-
-POST /v1/actions/StartMongoDBExplain                POST /api/actions/v1/actions:startMongoDBExplain
-POST /v1/actions/StartMySQLExplain                  POST /api/actions/v1/actions:startMySQLExplain
-POST /v1/actions/StartMySQLExplainJSON              POST /api/actions/v1/actions:startMySQLExplainJSON
-POST /v1/actions/StartMySQLExplainTraditionalJSON   POST /api/actions/v1/actions:startMySQLExplainTraditionalJSON
-POST /v1/actions/StartMySQLShowCreateTable          POST /api/actions/v1/actions:startMySQLShowCreateTable
-POST /v1/actions/StartMySQLShowIndex                POST /api/actions/v1/actions:startMySQLShowIndex
-POST /v1/actions/StartMySQLShowTableStatus          POST /api/actions/v1/actions:startMySQLShowTableStatus
-// NODE
-POST /v1/actions/StartPTMongoDBSummary              POST /api/actions/v1/actions:startPTMongoDBSummary
-POST /v1/actions/StartPTMySQLSummary                POST /api/actions/v1/actions:startPTMySQLSummary
-POST /v1/actions/StartPTPgSummary                   POST /api/actions/v1/actions:startPTPgSummary
-POST /v1/actions/StartPTSummary                     POST /api/actions/v1/actions:startPTSummary
-POST /v1/actions/StartPostgreSQLShowCreateTable     POST /api/actions/v1/actions:startPostgreSQLShowCreateTable
-POST /v1/actions/StartPostgreSQLShowIndex           POST /api/actions/v1/actions:startPostgreSQLShowIndex
 
 **AlertingService**                                 **AlertingService**
 POST /v1/alerting/Rules/Create                      POST /api/alerting/v1/rules
@@ -88,8 +83,9 @@ POST /v1/alerting/Templates/List                    GET /api/alerting/v1/templat
 POST /v1/alerting/Templates/Delete                  DELETE /api/alerting/v1/templates/{name}
 
 **AdvisorService**                                 **AdvisorService**
-POST /v1/advisors/Change                            POST /api/advisors/v1/checks:change              !!! exception: updates multiple checks
-POST /v1/advisors/FailedChecks                      POST /api/advisors/v1/checks:failedChecks        !!! exception: accepts a bunch of params
+POST /v1/advisors/Change                            POST /api/advisors/v1/checks:batchChange         !!! exception: updates multiple checks
+<!-- POST /v1/advisors/FailedChecks                      POST /api/advisors/v1/checks:failedChecks        !!! try to implement as a GET request -->
+POST /v1/advisors/FailedChecks                      GET /api/advisors/v1/checks/failedChecks?service_id=/service_id/lkjkhjkh&page_params.page_zize        !!! try to implement as a GET request
 POST /v1/advisors/List                              GET /api/advisors/v1
 POST /v1/advisors/ListChecks                        GET /api/advisors/v1/checks
 POST /v1/advisors/StartChecks                       POST /api/advisors/v1/checks:start
@@ -106,23 +102,24 @@ POST /v1/backup/Backups/GetLogs                     GET /api/backups/v1/backups/
 POST /v1/backup/Backups/ListArtifactCompatibleServices GET /api/backups/v1/backups/{id}/services      Could also be /compatible_services
 POST /v1/backup/Backups/ListScheduled               GET /api/backups/v1/backups/scheduled
 POST /v1/backup/Backups/RemoveScheduled             GET /api/backups/v1/backups/scheduled/{id}
-POST /v1/backup/Backups/Restore                     POST /api/backups/v1/backups:restore
+<!-- POST /v1/backup/Backups/Restore                     POST /api/backups/v1/restore:start              Move to the RestoreService -->
 POST /v1/backup/Backups/Schedule                    POST /api/backups/v1/backups:schedule
 POST /v1/backup/Backups/Start                       POST /api/backups/v1/backups:start
 
-**LocationsService**                                **LocationsService**                              TODO: merge to BackupService
+**LocationsService**                                **LocationsService**
 POST /v1/backup/Locations/Add                       POST /api/backups/v1/locations
-POST /v1/backup/Locations/Change                    PUT /api/backups/v1/locations
+POST /v1/backup/Locations/Change                    PUT /api/backups/v1/locations/{id}                Extract the location_id from the body to {id}
 POST /v1/backup/Locations/List                      GET /api/backups/v1/locations
 POST /v1/backup/Locations/Remove                    DELETE /api/backups/v1/locations/{id}             ?force=true
 POST /v1/backup/Locations/TestConfig                POST /api/backups/v1/locations:testConfig
 
-**RestoreHistoryService**                           **RestoreHistoryService**                         TODO: merge to BackupService
-POST /v1/backup/RestoreHistory/List                 GET /api/backups/v1/history                       Note: could also be restore_history
+**RestoreHistoryService**                           **RestoreService**
+POST /v1/backup/RestoreHistory/List                 GET /api/backups/v1/restores                      Note: could also be restore_history
+POST /v1/backup/Backups/Restore                     POST /api/backups/v1/restores:start               Move to the RestoreService
 
 **DumpsService**                                    **DumpService**                                   TODO: rename to singular
 POST /v1/dump/List                                  GET /api/dumps/v1/dumps
-POST /v1/dump/Delete                                POST /api/dumps/v1/dumps:delete                   !!! exception: accepts an array in params, i.e. dump_ids=[id1,id2]
+POST /v1/dump/Delete                                POST /api/dumps/v1/dumps:batchDelete              accepts an array in body
 POST /v1/dump/GetLogs                               GET /api/dumps/v1/dumps/{id}/logs                 ?offset=10,limit=100
 POST /v1/dump/Start                                 POST /api/dumps/v1/dumps:start                          
 POST /v1/dump/Upload                                POST /api/dumps/v1/dumps:upload
@@ -134,9 +131,9 @@ POST /v1/role/Delete                                DELETE /api/accesscontrol/v1
 POST /v1/role/Get                                   GET /api/accesscontrol/v1/roles/{id}
 POST /v1/role/List                                  GET /api/accesscontrol/v1/roles
 POST /v1/role/SetDefault                            POST /api/accesscontrol/v1/roles:setDefault
-POST /v1/role/Update                                POST /api/accesscontrol/v1/roles:update
+POST /v1/role/Update                                PUT /api/accesscontrol/v1/roles/{id}              Extract the role_id from the body to {id}
 
-**MgmtService**                                     **MgmtService**                                   Q: what should be the name?
+**MgmtService**                                     **ManagementV1Beta1Service**                      TODO: promote to v1
 POST /v1/management/Agent/List                      GET /api/management/v1/agents
 POST /v1/management/Node/Get                        GET /api/management/v1/nodes/{id}
 POST /v1/management/Node/List                       GET /api/management/v1/nodes
@@ -145,10 +142,10 @@ POST /v1/management/AzureDatabase/Discover          POST /api/management/v1/serv
 POST /v1/management/Service/List                    GET /api/management/v1/services
 
 **QANService**                                      **QANService**
-POST /v1/qan/Filters/Get                            POST /api/qan/v1/filters:get                      !!! exception: accepts a bunch of params, incl. an array
-POST /v1/qan/GetMetricsNames                        POST /api/qan/v1/metrics:names                    Note: it accepts no params, but hard to make it a GET
-POST /v1/qan/GetReport                              POST /api/qan/v1/metrics:report
-POST /v1/qan/ObjectDetails/ExmplainFingerprintByQueryId POST /api/qan/v1/data:explainFingerprint
+POST /v1/qan/Filters/Get                            POST /api/qan/v1/metrics:getFilters               accepts a bunch of params, incl. an array
+POST /v1/qan/GetMetricsNames                        POST /api/qan/v1/metrics:getNames                 Note: it accepts no params, but hard to make it a GET
+POST /v1/qan/GetReport                              POST /api/qan/v1/metrics:getReport
+POST /v1/qan/ObjectDetails/ExplainFingerprintByQueryId POST /api/qan/v1/data:explainFingerprint
 POST /v1/qan/ObjectDetails/GetHistogram             POST /api/qan/v1/data:histogram
 POST /v1/qan/ObjectDetails/GetLables                POST /api/qan/v1/data:labels
 POST /v1/qan/ObjectDetails/GetMetrics               POST /api/qan/v1/data:metrics
@@ -165,3 +162,5 @@ POST /v1/platform/SearchOganizationEntitlemenets    POST /api/platform/v1/organi
 POST /v1/platform/SearchOganizationTickets          POST /api/platform/v1/organization:searchTickets        Note: it accepts no params, but hard to make it a GET
 POST /v1/platform/ServerInfo                        GET /api/platform/v1/server
 POST /v1/platform/UserInfo                          GET /api/platform/v1/user
+
+// JIRA: rename period_start_from to start_from and period_start_to to start_to
