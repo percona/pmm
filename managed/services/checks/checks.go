@@ -56,7 +56,7 @@ const (
 	defaultStartDelay = time.Minute
 
 	// Environment variables that affect checks service; only for testing.
-	envCheckFile         = "PMM_ADVISORS_CHECKS_FILE" //nolint:gosec
+	envCheckFile         = "PMM_ADVISORS_CHECKS_FILE"
 	envDisableStartDelay = "PMM_ADVISORS_CHECKS_DISABLE_START_DELAY"
 
 	checkExecutionTimeout  = 5 * time.Minute  // limits execution time for every single check

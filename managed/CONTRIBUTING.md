@@ -60,7 +60,7 @@ go test -timeout=30s -p 1 ./...
 | PMM_CLICKHOUSE_POOL_SIZE                | Sets Clickhouse connections pool size                                                                               | none                                     |
 | PMM_CLICKHOUSE_BLOCK_SIZE               | Sets Clickhouse block size                                                                                          | none                                     |
 | PMM_ADVISORS_STARLARK_ALLOW_RECURSION   | Allows recursive functions in checks scripts                                                                        | false                                    |
-| PMM_TEST_NICER_API                      | Enables nicer API with default/zero values in response.                                                             | false                                    |
+| PMM_NICER_API                      | Enables nicer API with default/zero values in response.                                                             | false                                    |
 | PMM_TEST_VERSION_SERVICE_URL        | Sets versions service URL                                                                                           | https://check.percona.com/versions/v1    |
 | PMM_ADVISORS_CHECKS_FILE                | Specifies path to local checks file and disables downlading checks files from Percona Platform                      | none                                     |
 | PMM_ADVISORS_CHECKS_DISABLE_START_DELAY | Disables checks service startup delay                                                                               | false                                    |

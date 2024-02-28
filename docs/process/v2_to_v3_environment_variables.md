@@ -32,6 +32,7 @@ Below is a list of affected variables and their new names.
 | `CONTAINER`                                  | `PMM_CONTAINER`                          |      |
 | `LESS_LOG_NOISE`                             | `PMM_LESS_LOG_NOISE`                     |      |
 | `PERCONA_TEST_CHECKS_FILE`                   | `PMM_ADVISORS_CHECKS_FILE`               |           |
+| `PERCONA_TEST_STARLARK_ALLOW_RECURSION`      | `PMM_ADVISORS_STARLARK_ALLOW_RECURSION`               |           |
 | `PERCONA_TEST_POSTGRES_ADDR`                 | `PMM_POSTGRES_ADDR`                      |      |
 | `PERCONA_TEST_POSTGRES_DBNAME`               | `PMM_POSTGRES_DBNAME`                    |      |
 | `PERCONA_TEST_POSTGRES_USERNAME`             | `PMM_POSTGRES_USERNAME`                  |      |
@@ -41,6 +42,7 @@ Below is a list of affected variables and their new names.
 | `PERCONA_TEST_POSTGRES_SSL_KEY_PATH`         | `PMM_POSTGRES_SSL_KEY_PATH`              |      |
 | `PERCONA_TEST_POSTGRES_SSL_CERT_PATH`        | `PMM_POSTGRES_SSL_CERT_PATH`             |       |
 | `PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES`  | `PMM_DISABLE_BUILTIN_POSTGRES`           |      |
+| `PERCONA_TEST_NICER_API`  | `PMM_NICER_API`           |      |
 | `PERCONA_TEST_AUTH_HOST`                     |  `PMM_TEST_AUTH_HOST`                    |      |
 | `PERCONA_TEST_CHECKS_HOST`                   | `PMM_TEST_CHECKS_HOST`                   |      |
 | `PERCONA_TEST_TELEMETRY_INTERVAL`            | `PMM_TEST_TELEMETRY_INTERVAL`            |      |
