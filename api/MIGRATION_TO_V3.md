@@ -102,7 +102,7 @@ POST /v1/backup/Backups/GetLogs                     GET /api/backups/v1/backups/
 POST /v1/backup/Backups/ListArtifactCompatibleServices GET /api/backups/v1/backups/{id}/services      Could also be /compatible_services
 POST /v1/backup/Backups/ListScheduled               GET /api/backups/v1/backups/scheduled
 POST /v1/backup/Backups/RemoveScheduled             GET /api/backups/v1/backups/scheduled/{id}
-<!-- POST /v1/backup/Backups/Restore                     POST /api/backups/v1/restore:start              Move to the RestoreService -->
+<!-- POST /v1/backup/Backups/Restore                                                                  Moved to RestoreService -->
 POST /v1/backup/Backups/Schedule                    POST /api/backups/v1/backups:schedule
 POST /v1/backup/Backups/Start                       POST /api/backups/v1/backups:start
 

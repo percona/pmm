@@ -5,6 +5,8 @@ package backup.v1;
 import "backup/v1/common.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
 
 // RestoreStatus shows the current status of execution of restore.
 enum RestoreStatus {
@@ -44,19 +46,48 @@ message RestoreHistoryItem {
   google.protobuf.Timestamp pitr_timestamp = 13;
 }
 
-message ListRestoreHistoryRequest {}
+message ListRestoreRequest {}
 
-message ListRestoreHistoryResponse {
+message ListRestoreResponse {
   repeated RestoreHistoryItem items = 1;
 }
 
-// RestoreHistory service provides public methods for managing backup restore history.
-service RestoreHistoryService {
-  // ListRestoreHistory returns a list of all backup restore history items.
-  rpc ListRestoreHistory(ListRestoreHistoryRequest) returns (ListRestoreHistoryResponse) {
+message RestoreBackupRequest {
+  // Service identifier where backup should be restored.
+  string service_id = 1 [(validate.rules).string.min_len = 1];
+  // Artifact id to restore.
+  string artifact_id = 2 [(validate.rules).string.min_len = 1];
+  // Timestamp of PITR to restore to
+  google.protobuf.Timestamp pitr_timestamp = 3;
+}
+
+message RestoreBackupResponse {
+  // Unique restore identifier.
+  string restore_id = 1;
+}
+
+// RestoreService provides public methods for managing backup restore history.
+service RestoreService {
+  // ListRestores returns a list of all backup restore history items.
+  rpc ListRestores(ListRestoreRequest) returns (ListRestoreResponse) {
     option (google.api.http) = {
       post: "/v1/backup/RestoreHistory/List"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Restore History"
+      description: "List all backup restore history items"
+    };
+  }
+  // RestoreBackup requests the backup restore.
+  rpc RestoreBackup(RestoreBackupRequest) returns (RestoreBackupResponse) {
+    option (google.api.http) = {
+      post: "/v1/backup/Backups/Restore"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Restore from a Backup"
+      description: "Could return the Error message in the details containing specific ErrorCode indicating failure reason:\nERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service\nERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud\nERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup\nERROR_CODE_INCOMPATIBLE_TARGET_MYSQL - target MySQL version is not compatible with the artifact for performing a restore of the backup"
     };
   }
 }

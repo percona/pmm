@@ -22,7 +22,6 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	BackupsService_StartBackup_FullMethodName                    = "/backup.v1.BackupsService/StartBackup"
 	BackupsService_ListArtifactCompatibleServices_FullMethodName = "/backup.v1.BackupsService/ListArtifactCompatibleServices"
-	BackupsService_RestoreBackup_FullMethodName                  = "/backup.v1.BackupsService/RestoreBackup"
 	BackupsService_ScheduleBackup_FullMethodName                 = "/backup.v1.BackupsService/ScheduleBackup"
 	BackupsService_ListScheduledBackups_FullMethodName           = "/backup.v1.BackupsService/ListScheduledBackups"
 	BackupsService_ChangeScheduledBackup_FullMethodName          = "/backup.v1.BackupsService/ChangeScheduledBackup"
@@ -38,8 +37,6 @@ type BackupsServiceClient interface {
 	StartBackup(ctx context.Context, in *StartBackupRequest, opts ...grpc.CallOption) (*StartBackupResponse, error)
 	// ListArtifactCompatibleServices lists compatible services for restoring a backup.
 	ListArtifactCompatibleServices(ctx context.Context, in *ListArtifactCompatibleServicesRequest, opts ...grpc.CallOption) (*ListArtifactCompatibleServicesResponse, error)
-	// RestoreBackup requests the backup restore.
-	RestoreBackup(ctx context.Context, in *RestoreBackupRequest, opts ...grpc.CallOption) (*RestoreBackupResponse, error)
 	// ScheduleBackup schedules repeated backup.
 	ScheduleBackup(ctx context.Context, in *ScheduleBackupRequest, opts ...grpc.CallOption) (*ScheduleBackupResponse, error)
 	// ListScheduledBackups returns all scheduled backups.
@@ -72,15 +69,6 @@ func (c *backupsServiceClient) StartBackup(ctx context.Context, in *StartBackupR
 func (c *backupsServiceClient) ListArtifactCompatibleServices(ctx context.Context, in *ListArtifactCompatibleServicesRequest, opts ...grpc.CallOption) (*ListArtifactCompatibleServicesResponse, error) {
 	out := new(ListArtifactCompatibleServicesResponse)
 	err := c.cc.Invoke(ctx, BackupsService_ListArtifactCompatibleServices_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *backupsServiceClient) RestoreBackup(ctx context.Context, in *RestoreBackupRequest, opts ...grpc.CallOption) (*RestoreBackupResponse, error) {
-	out := new(RestoreBackupResponse)
-	err := c.cc.Invoke(ctx, BackupsService_RestoreBackup_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -140,8 +128,6 @@ type BackupsServiceServer interface {
 	StartBackup(context.Context, *StartBackupRequest) (*StartBackupResponse, error)
 	// ListArtifactCompatibleServices lists compatible services for restoring a backup.
 	ListArtifactCompatibleServices(context.Context, *ListArtifactCompatibleServicesRequest) (*ListArtifactCompatibleServicesResponse, error)
-	// RestoreBackup requests the backup restore.
-	RestoreBackup(context.Context, *RestoreBackupRequest) (*RestoreBackupResponse, error)
 	// ScheduleBackup schedules repeated backup.
 	ScheduleBackup(context.Context, *ScheduleBackupRequest) (*ScheduleBackupResponse, error)
 	// ListScheduledBackups returns all scheduled backups.
@@ -164,10 +150,6 @@ func (UnimplementedBackupsServiceServer) StartBackup(context.Context, *StartBack
 
 func (UnimplementedBackupsServiceServer) ListArtifactCompatibleServices(context.Context, *ListArtifactCompatibleServicesRequest) (*ListArtifactCompatibleServicesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListArtifactCompatibleServices not implemented")
-}
-
-func (UnimplementedBackupsServiceServer) RestoreBackup(context.Context, *RestoreBackupRequest) (*RestoreBackupResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RestoreBackup not implemented")
 }
 
 func (UnimplementedBackupsServiceServer) ScheduleBackup(context.Context, *ScheduleBackupRequest) (*ScheduleBackupResponse, error) {
@@ -234,24 +216,6 @@ func _BackupsService_ListArtifactCompatibleServices_Handler(srv interface{}, ctx
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BackupsServiceServer).ListArtifactCompatibleServices(ctx, req.(*ListArtifactCompatibleServicesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _BackupsService_RestoreBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RestoreBackupRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BackupsServiceServer).RestoreBackup(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: BackupsService_RestoreBackup_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BackupsServiceServer).RestoreBackup(ctx, req.(*RestoreBackupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -360,10 +324,6 @@ var BackupsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListArtifactCompatibleServices",
 			Handler:    _BackupsService_ListArtifactCompatibleServices_Handler,
-		},
-		{
-			MethodName: "RestoreBackup",
-			Handler:    _BackupsService_RestoreBackup_Handler,
 		},
 		{
 			MethodName: "ScheduleBackup",

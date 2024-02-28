@@ -384,10 +384,11 @@
     },
     "/v1/backup/Backups/ChangeScheduled": {
       "post": {
+        "description": "Change a scheduled backup.",
         "tags": [
           "BackupsService"
         ],
-        "summary": "ChangeScheduledBackup changes existing scheduled backup.",
+        "summary": "Change a Scheduled Backup",
         "operationId": "ChangeScheduledBackup",
         "parameters": [
           {
@@ -496,10 +497,11 @@
     },
     "/v1/backup/Backups/GetLogs": {
       "post": {
+        "description": "Get logs from the underlying tools for a backup/restore job.",
         "tags": [
           "BackupsService"
         ],
-        "summary": "GetLogs returns logs from the underlying tools for a backup/restore job.",
+        "summary": "Get Logs",
         "operationId": "GetLogs",
         "parameters": [
           {
@@ -599,10 +601,11 @@
     },
     "/v1/backup/Backups/ListArtifactCompatibleServices": {
       "post": {
+        "description": "List services that are compatible with the backup artifact.",
         "tags": [
           "BackupsService"
         ],
-        "summary": "ListArtifactCompatibleServices lists compatible services for restoring a backup.",
+        "summary": "List Compatible Services",
         "operationId": "ListArtifactCompatibleServices",
         "parameters": [
           {
@@ -804,10 +807,11 @@
     },
     "/v1/backup/Backups/ListScheduled": {
       "post": {
+        "description": "List all scheduled backups.",
         "tags": [
           "BackupsService"
         ],
-        "summary": "ListScheduledBackups returns all scheduled backups.",
+        "summary": "List Scheduled Backups",
         "operationId": "ListScheduledBackups",
         "parameters": [
           {
@@ -987,10 +991,11 @@
     },
     "/v1/backup/Backups/RemoveScheduled": {
       "post": {
+        "description": "Remove a scheduled backup.",
         "tags": [
           "BackupsService"
         ],
-        "summary": "RemoveScheduledBackup removes existing scheduled backup.",
+        "summary": "Remove a Scheduled Backup",
         "operationId": "RemoveScheduledBackup",
         "parameters": [
           {
@@ -1053,9 +1058,9 @@
       "post": {
         "description": "Could return the Error message in the details containing specific ErrorCode indicating failure reason:\nERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service\nERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud\nERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup\nERROR_CODE_INCOMPATIBLE_TARGET_MYSQL - target MySQL version is not compatible with the artifact for performing a restore of the backup",
         "tags": [
-          "BackupsService"
+          "RestoreService"
         ],
-        "summary": "RestoreBackup requests the backup restore.",
+        "summary": "Restore from a Backup",
         "operationId": "RestoreBackup",
         "parameters": [
           {
@@ -1135,10 +1140,11 @@
     },
     "/v1/backup/Backups/Schedule": {
       "post": {
+        "description": "Schedule a backup to run at a specified time.",
         "tags": [
           "BackupsService"
         ],
-        "summary": "ScheduleBackup schedules repeated backup.",
+        "summary": "Schedule a Backup",
         "operationId": "ScheduleBackup",
         "parameters": [
           {
@@ -1285,7 +1291,7 @@
         "tags": [
           "BackupsService"
         ],
-        "summary": "StartBackup request backup specified service to location.",
+        "summary": "Start a Backup",
         "operationId": "StartBackup",
         "parameters": [
           {
@@ -1897,11 +1903,12 @@
     },
     "/v1/backup/RestoreHistory/List": {
       "post": {
+        "description": "List all backup restore history items",
         "tags": [
-          "RestoreHistoryService"
+          "RestoreService"
         ],
-        "summary": "ListRestoreHistory returns a list of all backup restore history items.",
-        "operationId": "ListRestoreHistory",
+        "summary": "List Restore History",
+        "operationId": "ListRestores",
         "parameters": [
           {
             "name": "body",
@@ -2058,7 +2065,7 @@
       "name": "LocationsService"
     },
     {
-      "name": "RestoreHistoryService"
+      "name": "RestoreService"
     }
   ]
 }

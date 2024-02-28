@@ -28,24 +28,24 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// RestoreHistoryService represents restore history API.
-type RestoreHistoryService struct {
+// RestoreService represents backup restore API.
+type RestoreService struct {
 	l  *logrus.Entry
 	db *reform.DB
 
-	backuppb.UnimplementedRestoreHistoryServiceServer
+	backuppb.UnimplementedRestoreServiceServer
 }
 
-// NewRestoreHistoryService creates new restore history API service.
-func NewRestoreHistoryService(db *reform.DB) *RestoreHistoryService {
-	return &RestoreHistoryService{
+// NewRestoreService creates new restore API service.
+func NewRestoreService(db *reform.DB) *RestoreService {
+	return &RestoreService{
 		l:  logrus.WithField("component", "management/backup/restore_history"),
 		db: db,
 	}
 }
 
 // Enabled returns if service is enabled and can be used.
-func (s *RestoreHistoryService) Enabled() bool {
+func (s *RestoreService) Enabled() bool {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		s.l.WithError(err).Error("can't get settings")
@@ -54,11 +54,11 @@ func (s *RestoreHistoryService) Enabled() bool {
 	return settings.IsBackupManagementEnabled()
 }
 
-// ListRestoreHistory returns a list of restore history.
-func (s *RestoreHistoryService) ListRestoreHistory(
+// ListRestores returns a list of restores.
+func (s *RestoreService) ListRestores(
 	context.Context,
-	*backuppb.ListRestoreHistoryRequest,
-) (*backuppb.ListRestoreHistoryResponse, error) {
+	*backuppb.ListRestoreRequest,
+) (*backuppb.ListRestoreResponse, error) {
 	var items []*models.RestoreHistoryItem
 	var services map[string]*models.Service
 	var artifacts map[string]*models.Artifact
@@ -113,7 +113,7 @@ func (s *RestoreHistoryService) ListRestoreHistory(
 
 		artifactsResponse = append(artifactsResponse, convertedArtifact)
 	}
-	return &backuppb.ListRestoreHistoryResponse{
+	return &backuppb.ListRestoreResponse{
 		Items: artifactsResponse,
 	}, nil
 }
@@ -210,5 +210,5 @@ func convertRestoreHistoryItem(
 
 // Check interfaces.
 var (
-	_ backuppb.RestoreHistoryServiceServer = (*RestoreHistoryService)(nil)
+	_ backuppb.RestoreServiceServer = (*RestoreService)(nil)
 )

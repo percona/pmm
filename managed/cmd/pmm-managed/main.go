@@ -255,8 +255,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	mgmtBackupsService := managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService)
 	mgmtArtifactsService := managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pbmPITRService)
-	mgmtRestoreHistoryService := managementbackup.NewRestoreHistoryService(deps.db)
-	mgmtServices := common.MgmtServices{BackupsService: mgmtBackupsService, ArtifactsService: mgmtArtifactsService, RestoreHistoryService: mgmtRestoreHistoryService}
+	mgmtRestoreService := managementbackup.NewRestoreService(deps.db)
+	mgmtServices := common.MgmtServices{BackupsService: mgmtBackupsService, ArtifactsService: mgmtArtifactsService, RestoreService: mgmtRestoreService}
 
 	inventoryv1.RegisterNodesServiceServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
 	inventoryv1.RegisterServicesServiceServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc, mgmtServices))
@@ -276,7 +276,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	backuppb.RegisterBackupsServiceServer(gRPCServer, mgmtBackupsService)
 	backuppb.RegisterLocationsServiceServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
 	backuppb.RegisterArtifactsServiceServer(gRPCServer, mgmtArtifactsService)
-	backuppb.RegisterRestoreHistoryServiceServer(gRPCServer, mgmtRestoreHistoryService)
+	backuppb.RegisterRestoreServiceServer(gRPCServer, mgmtRestoreService)
 
 	dumpv1beta1.RegisterDumpsServiceServer(gRPCServer, managementdump.New(deps.db, deps.grafanaClient, deps.dumpService))
 
@@ -368,7 +368,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		backuppb.RegisterBackupsServiceHandlerFromEndpoint,
 		backuppb.RegisterLocationsServiceHandlerFromEndpoint,
 		backuppb.RegisterArtifactsServiceHandlerFromEndpoint,
-		backuppb.RegisterRestoreHistoryServiceHandlerFromEndpoint,
+		backuppb.RegisterRestoreServiceHandlerFromEndpoint,
 
 		dumpv1beta1.RegisterDumpsServiceHandlerFromEndpoint,
 
