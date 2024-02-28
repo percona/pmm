@@ -141,7 +141,7 @@ type cacheItem struct {
 
 // clientInterface exist only to make fuzzing simpler.
 type clientInterface interface {
-	GetAuthUser(context.Context, http.Header) (AuthUser, error)
+	GetAuthUser(ctx context.Context, authHeaders http.Header) (AuthUser, error)
 }
 
 // AuthServer authenticates incoming requests via Grafana API.

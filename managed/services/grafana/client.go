@@ -159,6 +159,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 	return nil
 }
 
+// Client represents a user role and ID.
 type AuthUser struct {
 	role   role
 	userID int
