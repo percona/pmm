@@ -129,7 +129,7 @@ func TestClient(t *testing.T) {
 			connect := func(stream agentpb.Agent_ConnectServer) error {
 				md, err := agentpb.ReceiveAgentConnectMetadata(stream)
 				require.NoError(t, err)
-				assert.Equal(t, &agentpb.AgentConnectMetadata{ID: "agent_id"}, md)
+				assert.Equal(t, &agentpb.AgentConnectMetadata{ID: "agent_id", Authorization: getAuthorizationFromUserAndPassword("admin", "admin")}, md)
 				err = agentpb.SendServerConnectMetadata(stream, serverMD)
 				require.NoError(t, err)
 
@@ -154,6 +154,8 @@ func TestClient(t *testing.T) {
 				Server: config.Server{
 					Address:    fmt.Sprintf("127.0.0.1:%d", port),
 					WithoutTLS: true,
+					Username:   "admin",
+					Password:   "admin",
 				},
 			})
 
@@ -208,7 +210,7 @@ func TestUnexpectedActionType(t *testing.T) {
 		// establish the connection
 		md, err := agentpb.ReceiveAgentConnectMetadata(stream)
 		require.NoError(t, err)
-		assert.Equal(t, &agentpb.AgentConnectMetadata{ID: "agent_id"}, md)
+		assert.Equal(t, &agentpb.AgentConnectMetadata{ID: "agent_id", Authorization: getAuthorizationFromUserAndPassword("admin", "admin")}, md)
 		err = agentpb.SendServerConnectMetadata(stream, serverMD)
 		require.NoError(t, err)
 		msg, err := stream.Recv()
@@ -272,6 +274,8 @@ func TestUnexpectedActionType(t *testing.T) {
 		Server: config.Server{
 			Address:    fmt.Sprintf("127.0.0.1:%d", port),
 			WithoutTLS: true,
+			Username:   "admin",
+			Password:   "admin",
 		},
 	})
 
