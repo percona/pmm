@@ -197,7 +197,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 	})
 
 	for uri, minRole := range map[string]role{
-		"/agent.Agent/Connect": none,
+		"/agent.Agent/Connect": admin,
 
 		"/inventory.Nodes/ListNodes":                          admin,
 		"/management.Actions/StartMySQLShowTableStatusAction": viewer,
