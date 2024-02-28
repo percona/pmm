@@ -133,7 +133,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           interval: 45
           timeout: 1200
-          ignored: "license/snyk, security/snyk"
+          ignored: "license/snyk (Percona Github Org), security/snyk (Percona Github Org)"
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
   workflow_success:
