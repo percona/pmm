@@ -115,7 +115,7 @@ POST /v1/backup/Locations/TestConfig                POST /api/backups/v1/locatio
 
 **RestoreHistoryService**                           **RestoreService**
 POST /v1/backup/RestoreHistory/List                 GET /api/backups/v1/restores                      Note: could also be restore_history
-POST /v1/backup/Backups/Restore                     POST /api/backups/v1/restores:start               Move to the RestoreService
+POST /v1/backup/Backups/Restore                     POST /api/backups/v1/restores:start
 
 **DumpsService**                                    **DumpService**                                   TODO: rename to singular
 POST /v1/dump/List                                  GET /api/dumps/v1/dumps
@@ -163,4 +163,4 @@ POST /v1/platform/SearchOganizationTickets          POST /api/platform/v1/organi
 POST /v1/platform/ServerInfo                        GET /api/platform/v1/server
 POST /v1/platform/UserInfo                          GET /api/platform/v1/user
 
-// JIRA: rename period_start_from to start_from and period_start_to to start_to
+// TODO: rename `period_start_from` to `start_from` and `period_start_to` to `start_to`
