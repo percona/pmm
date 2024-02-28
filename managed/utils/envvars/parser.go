@@ -93,7 +93,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_TEST_VERSION_SERVICE_URL":
 			// skip pmm-managed environment variables that are already handled by kingpin
 			continue
-		case "PMM_CLICKHOUSE_DATABASE", "PMM_CLICKHOUSE_ADDR", "PMM_CLICKHOUSE_BLOCK_SIZE", "PMM_CLICKHOUSE_POOL_SIZE": //nolint:lll
+		case "PMM_CLICKHOUSE_DATABASE", "PMM_CLICKHOUSE_ADDR", "PMM_CLICKHOUSE_BLOCK_SIZE", "PMM_CLICKHOUSE_POOL_SIZE":
 			// skip env variables for external clickhouse
 			continue
 		case "PMM_DISABLE_UPDATES":
