@@ -422,11 +422,11 @@ func getValueFromENV(envName string, defaultValue string) string {
 
 // marshalConfig marshals supervisord program configuration.
 func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings, ssoDetails *models.PerconaSSODetails) ([]byte, error) {
-	clickhouseDatabase := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
-	clickhouseAddr := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
+	clickhouseDatabase := getValueFromENV("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
+	clickhouseAddr := getValueFromENV("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
 	clickhouseDataSourceAddr := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR", defaultClickhouseDataSourceAddr)
-	clickhousePoolSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE", "")
-	clickhouseBlockSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "")
+	clickhousePoolSize := getValueFromENV("PMM_CLICKHOUSE_POOL_SIZE", "")
+	clickhouseBlockSize := getValueFromENV("PMM_CLICKHOUSE_BLOCK_SIZE", "")
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2)
 	vmSearchDisableCache := getValueFromENV("VM_search_disableCache", strconv.FormatBool(!settings.VictoriaMetrics.CacheEnabled))
 	vmSearchMaxQueryLen := getValueFromENV("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
@@ -725,10 +725,10 @@ command =
 	/usr/sbin/percona-qan-api2
 		--data-retention={{ .DataRetentionDays }}
 environment =
-	PERCONA_TEST_PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
-	PERCONA_TEST_PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
-{{ if .ClickhousePoolSize }}	PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE={{ .ClickhousePoolSize }},{{- end}}
-{{ if .ClickhouseBlockSize }}	PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE={{ .ClickhouseBlockSize }}{{- end}}
+	PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
+	PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
+{{ if .ClickhousePoolSize }}	PMM_CLICKHOUSE_POOL_SIZE={{ .ClickhousePoolSize }},{{- end}}
+{{ if .ClickhouseBlockSize }}	PMM_CLICKHOUSE_BLOCK_SIZE={{ .ClickhouseBlockSize }}{{- end}}
 user = pmm
 autorestart = true
 autostart = true
@@ -765,14 +765,14 @@ command =
         cfg:default.auth.oauth_allow_insecure_email_lookup="true"
         {{- end}}
 environment =
-    PERCONA_TEST_POSTGRES_ADDR="{{ .PostgresAddr }}",
-    PERCONA_TEST_POSTGRES_DBNAME="{{ .PostgresDBName }}",
-    PERCONA_TEST_POSTGRES_USERNAME="{{ .PostgresDBUsername }}",
-    PERCONA_TEST_POSTGRES_DBPASSWORD="{{ .PostgresDBPassword }}",
-    PERCONA_TEST_POSTGRES_SSL_MODE="{{ .PostgresSSLMode }}",
-    PERCONA_TEST_POSTGRES_SSL_CA_PATH="{{ .PostgresSSLCAPath }}",
-    PERCONA_TEST_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
-    PERCONA_TEST_POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
+    PMM_POSTGRES_ADDR="{{ .PostgresAddr }}",
+    PMM_POSTGRES_DBNAME="{{ .PostgresDBName }}",
+    PMM_POSTGRES_USERNAME="{{ .PostgresDBUsername }}",
+    PMM_POSTGRES_DBPASSWORD="{{ .PostgresDBPassword }}",
+    PMM_POSTGRES_SSL_MODE="{{ .PostgresSSLMode }}",
+    PMM_POSTGRES_SSL_CA_PATH="{{ .PostgresSSLCAPath }}",
+    PMM_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
+    PMM_POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
     PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR="{{ .ClickhouseDataSourceAddr }}",
     PERCONA_TEST_PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
     PERCONA_TEST_PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",

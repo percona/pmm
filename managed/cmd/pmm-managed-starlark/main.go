@@ -42,7 +42,7 @@ const (
 	memoryLimitBytes = 1024 * 1024 * 1024
 
 	// Only used for testing.
-	starlarkRecursionFlag = "PERCONA_TEST_STARLARK_ALLOW_RECURSION"
+	starlarkRecursionFlag = "PMM_ADVISORS_STARLARK_ALLOW_RECURSION"
 
 	// Warning messages.
 	cpuUsageWarning    = "Failed to limit CPU usage"

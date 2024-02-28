@@ -90,12 +90,12 @@ func TestServer(t *testing.T) {
 		t.Run("Typical", func(t *testing.T) {
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv([]string{
-				"DISABLE_UPDATES=true",
-				"DISABLE_TELEMETRY=1",
-				"METRICS_RESOLUTION_HR=1s",
-				"METRICS_RESOLUTION_MR=2s",
-				"METRICS_RESOLUTION_LR=3s",
-				"DATA_RETENTION=240h",
+				"PMM_DISABLE_UPDATES=true",
+				"PMM_DISABLE_TELEMETRY=1",
+				"PMM_METRICS_RESOLUTION_HR=1s",
+				"PMM_METRICS_RESOLUTION_MR=2s",
+				"PMM_METRICS_RESOLUTION_LR=3s",
+				"PMM_DATA_RETENTION=240h",
 				"PMM_PUBLIC_ADDRESS=1.2.3.4:5678",
 			})
 			require.Empty(t, errs)
@@ -111,9 +111,9 @@ func TestServer(t *testing.T) {
 		t.Run("Untypical", func(t *testing.T) {
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv([]string{
-				"DISABLE_TELEMETRY=TrUe",
-				"METRICS_RESOLUTION=3S",
-				"DATA_RETENTION=360H",
+				"PMM_DISABLE_TELEMETRY=TrUe",
+				"PMM_METRICS_RESOLUTION=3S",
+				"PMM_DATA_RETENTION=360H",
 			})
 			require.Empty(t, errs)
 			assert.Equal(t, true, s.envSettings.DisableTelemetry)
@@ -124,27 +124,27 @@ func TestServer(t *testing.T) {
 		t.Run("NoValue", func(t *testing.T) {
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv([]string{
-				"DISABLE_TELEMETRY",
+				"PMM_DISABLE_TELEMETRY",
 			})
 			require.Len(t, errs, 1)
-			require.EqualError(t, errs[0], `failed to parse environment variable "DISABLE_TELEMETRY"`)
+			require.EqualError(t, errs[0], `failed to parse environment variable "PMM_DISABLE_TELEMETRY"`)
 			assert.False(t, s.envSettings.DisableTelemetry)
 		})
 
 		t.Run("InvalidValue", func(t *testing.T) {
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv([]string{
-				"DISABLE_TELEMETRY=",
+				"PMM_DISABLE_TELEMETRY=",
 			})
 			require.Len(t, errs, 1)
-			require.EqualError(t, errs[0], `invalid value "" for environment variable "DISABLE_TELEMETRY"`)
+			require.EqualError(t, errs[0], `invalid value "" for environment variable "PMM_DISABLE_TELEMETRY"`)
 			assert.False(t, s.envSettings.DisableTelemetry)
 		})
 
 		t.Run("MetricsLessThenMin", func(t *testing.T) {
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv([]string{
-				"METRICS_RESOLUTION=5ns",
+				"PMM_METRICS_RESOLUTION=5ns",
 			})
 			require.Len(t, errs, 1)
 			var errInvalidArgument *models.InvalidArgumentError
@@ -156,7 +156,7 @@ func TestServer(t *testing.T) {
 		t.Run("DataRetentionLessThenMin", func(t *testing.T) {
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv([]string{
-				"DATA_RETENTION=12h",
+				"PMM_DATA_RETENTION=12h",
 			})
 			require.Len(t, errs, 1)
 			var errInvalidArgument *models.InvalidArgumentError
@@ -168,7 +168,7 @@ func TestServer(t *testing.T) {
 		t.Run("Data retention is not a natural number of days", func(t *testing.T) {
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv([]string{
-				"DATA_RETENTION=30h",
+				"PMM_DATA_RETENTION=30h",
 			})
 			require.Len(t, errs, 1)
 			var errInvalidArgument *models.InvalidArgumentError
@@ -180,10 +180,10 @@ func TestServer(t *testing.T) {
 		t.Run("Data retention without suffix", func(t *testing.T) {
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv([]string{
-				"DATA_RETENTION=30",
+				"PMM_DATA_RETENTION=30",
 			})
 			require.Len(t, errs, 1)
-			require.EqualError(t, errs[0], `environment variable "DATA_RETENTION=30" has invalid duration 30`)
+			require.EqualError(t, errs[0], `environment variable "PMM_DATA_RETENTION=30" has invalid duration 30`)
 			assert.Zero(t, s.envSettings.DataRetention)
 		})
 	})
@@ -194,7 +194,7 @@ func TestServer(t *testing.T) {
 		ctx := context.TODO()
 
 		s.envSettings.DisableUpdates = true
-		expected := status.New(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
+		expected := status.New(codes.FailedPrecondition, "Updates are disabled via PMM_DISABLE_UPDATES environment variable.")
 		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
 			EnableUpdates: true,
 		}))
@@ -203,7 +203,7 @@ func TestServer(t *testing.T) {
 		}))
 
 		s.envSettings.DisableTelemetry = true
-		expected = status.New(codes.FailedPrecondition, "Telemetry is disabled via DISABLE_TELEMETRY environment variable.")
+		expected = status.New(codes.FailedPrecondition, "Telemetry is disabled via PMM_DISABLE_TELEMETRY environment variable.")
 		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
 			EnableTelemetry: true,
 		}))
@@ -224,7 +224,7 @@ func TestServer(t *testing.T) {
 
 		server.UpdateSettingsFromEnv([]string{
 			"ENABLE_ALERTING=1",
-			"ENABLE_AZUREDISCOVER=1",
+			"PMM_ENABLE_AZUREDISCOVER=1",
 		})
 
 		ctx := context.TODO()

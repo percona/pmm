@@ -30,11 +30,11 @@ import (
 )
 
 const (
-	envDisableSend           = "PERCONA_TEST_TELEMETRY_DISABLE_SEND"
-	envConfigFile            = "PERCONA_TEST_TELEMETRY_FILE"
-	envDisableStartDelay     = "PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY"
-	envReportingInterval     = "PERCONA_TEST_TELEMETRY_INTERVAL"
-	envReportingRetryBackoff = "PERCONA_TEST_TELEMETRY_RETRY_BACKOFF"
+	envDisableSend           = "PMM_TEST_TELEMETRY_DISABLE_SEND"
+	envConfigFile            = "PMM_TEST_TELEMETRY_FILE"
+	envDisableStartDelay     = "PMM_TEST_TELEMETRY_DISABLE_START_DELAY"
+	envReportingInterval     = "PMM_TEST_TELEMETRY_INTERVAL"
+	envReportingRetryBackoff = "PMM_TEST_TELEMETRY_RETRY_BACKOFF"
 )
 
 const (

@@ -19,17 +19,17 @@ datasources:
   orgId: 1
   type: postgres
   access: proxy
-  url: ${PERCONA_TEST_POSTGRES_ADDR}
-  user: ${PERCONA_TEST_POSTGRES_USERNAME}
-  database: ${PERCONA_TEST_POSTGRES_DBNAME}
+  url: ${PMM_POSTGRES_ADDR}
+  user: ${PMM_POSTGRES_USERNAME}
+  database: ${PMM_POSTGRES_DBNAME}
   jsonData:
-    sslRootCertFile: ${PERCONA_TEST_POSTGRES_SSL_CA_PATH}
-    sslKeyFile: ${PERCONA_TEST_POSTGRES_SSL_KEY_PATH}
-    sslCertFile: ${PERCONA_TEST_POSTGRES_SSL_CERT_PATH}
+    sslRootCertFile: ${PMM_POSTGRES_SSL_CA_PATH}
+    sslKeyFile: ${PMM_POSTGRES_SSL_KEY_PATH}
+    sslCertFile: ${PMM_POSTGRES_SSL_CERT_PATH}
     postgresVersion: "1100"
-    sslmode: ${PERCONA_TEST_POSTGRES_SSL_MODE}
+    sslmode: ${PMM_POSTGRES_SSL_MODE}
   secureJsonData:
-    password: ${PERCONA_TEST_POSTGRES_DBPASSWORD}
+    password: ${PMM_POSTGRES_DBPASSWORD}
 - name: PTSummary
   version: 2
   orgId: 1

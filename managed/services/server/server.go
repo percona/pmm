@@ -311,7 +311,7 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 	s.envRW.RUnlock()
 
 	if updatesDisabled {
-		return nil, status.Error(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
+		return nil, status.Error(codes.FailedPrecondition, "Updates are disabled via PMM_DISABLE_UPDATES environment variable.")
 	}
 
 	offset, err := s.supervisord.StartUpdate()
@@ -485,12 +485,12 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 	// check request parameters compatibility with environment variables
 
 	if req.EnableUpdates && s.envSettings.DisableUpdates {
-		return status.Error(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
+		return status.Error(codes.FailedPrecondition, "Updates are disabled via PMM_DISABLE_UPDATES environment variable.")
 	}
 
 	// ignore req.DisableTelemetry and req.DisableStt even if they are present since that will not change anything
 	if req.EnableTelemetry && s.envSettings.DisableTelemetry {
-		return status.Error(codes.FailedPrecondition, "Telemetry is disabled via DISABLE_TELEMETRY environment variable.")
+		return status.Error(codes.FailedPrecondition, "Telemetry is disabled via PMM_DISABLE_TELEMETRY environment variable.")
 	}
 
 	// ignore req.EnableAlerting even if they are present since that will not change anything
@@ -500,23 +500,23 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 
 	// ignore req.DisableAzurediscover even if they are present since that will not change anything
 	if req.DisableAzurediscover && s.envSettings.EnableAzurediscover {
-		return status.Error(codes.FailedPrecondition, "Azure Discover is enabled via ENABLE_AZUREDISCOVER environment variable.")
+		return status.Error(codes.FailedPrecondition, "Azure Discover is enabled via PMM_ENABLE_AZUREDISCOVER environment variable.")
 	}
 
 	if !canUpdateDurationSetting(metricsRes.GetHr().AsDuration(), s.envSettings.MetricsResolutions.HR) {
-		return status.Error(codes.FailedPrecondition, "High resolution for metrics is set via METRICS_RESOLUTION_HR (or METRICS_RESOLUTION) environment variable.")
+		return status.Error(codes.FailedPrecondition, "High resolution for metrics is set via PMM_METRICS_RESOLUTION_HR (or PMM_METRICS_RESOLUTION) environment variable.")
 	}
 
 	if !canUpdateDurationSetting(metricsRes.GetMr().AsDuration(), s.envSettings.MetricsResolutions.MR) {
-		return status.Error(codes.FailedPrecondition, "Medium resolution for metrics is set via METRICS_RESOLUTION_MR environment variable.")
+		return status.Error(codes.FailedPrecondition, "Medium resolution for metrics is set via PMM_METRICS_RESOLUTION_MR environment variable.")
 	}
 
 	if !canUpdateDurationSetting(metricsRes.GetLr().AsDuration(), s.envSettings.MetricsResolutions.LR) {
-		return status.Error(codes.FailedPrecondition, "Low resolution for metrics is set via METRICS_RESOLUTION_LR environment variable.")
+		return status.Error(codes.FailedPrecondition, "Low resolution for metrics is set via PMM_METRICS_RESOLUTION_LR environment variable.")
 	}
 
 	if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
-		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via DATA_RETENTION environment variable.")
+		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via PMM_DATA_RETENTION environment variable.")
 	}
 
 	return nil
