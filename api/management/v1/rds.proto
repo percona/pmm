@@ -116,14 +116,14 @@ message AddRDSRequest {
 }
 
 message AddRDSResponse {
-  inventory.v1.RemoteRDSNode node = 1;
-  inventory.v1.RDSExporter rds_exporter = 2;
-  inventory.v1.MySQLService mysql = 3;
-  inventory.v1.MySQLdExporter mysqld_exporter = 4;
-  inventory.v1.QANMySQLPerfSchemaAgent qan_mysql_perfschema = 5;
-  inventory.v1.PostgreSQLService postgresql = 6;
-  inventory.v1.PostgresExporter postgresql_exporter = 7;
-  inventory.v1.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements = 8;
   // Actual table count at the moment of adding.
-  int32 table_count = 9;
+  int32 table_count = 1;
+  inventory.v1.RemoteRDSNode node = 2;
+  inventory.v1.RDSExporter rds_exporter = 3;
+  inventory.v1.MySQLService mysql = 4;
+  inventory.v1.MySQLdExporter mysqld_exporter = 5;
+  inventory.v1.QANMySQLPerfSchemaAgent qan_mysql_perfschema = 6;
+  inventory.v1.PostgreSQLService postgresql = 7;
+  inventory.v1.PostgresExporter postgresql_exporter = 8;
+  inventory.v1.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements = 9;
 }

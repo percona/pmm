@@ -21618,6 +21618,12 @@
             "schema": {
               "type": "object",
               "properties": {
+                "table_count": {
+                  "description": "Actual table count at the moment of adding.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
                 "node": {
                   "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.",
                   "type": "object",
@@ -21661,7 +21667,7 @@
                       "x-order": 6
                     }
                   },
-                  "x-order": 0
+                  "x-order": 1
                 },
                 "rds_exporter": {
                   "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
@@ -21763,7 +21769,7 @@
                       "x-order": 13
                     }
                   },
-                  "x-order": 1
+                  "x-order": 2
                 },
                 "mysql": {
                   "description": "MySQLService represents a generic MySQL instance.",
@@ -21829,7 +21835,7 @@
                       "x-order": 10
                     }
                   },
-                  "x-order": 2
+                  "x-order": 3
                 },
                 "mysqld_exporter": {
                   "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
@@ -21970,7 +21976,7 @@
                       "x-order": 20
                     }
                   },
-                  "x-order": 3
+                  "x-order": 4
                 },
                 "qan_mysql_perfschema": {
                   "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -22086,7 +22092,7 @@
                       "x-order": 16
                     }
                   },
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "postgresql": {
                   "description": "PostgreSQLService represents a generic PostgreSQL instance.",
@@ -22163,7 +22169,7 @@
                       "x-order": 12
                     }
                   },
-                  "x-order": 5
+                  "x-order": 6
                 },
                 "postgresql_exporter": {
                   "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.",
@@ -22278,7 +22284,7 @@
                       "x-order": 15
                     }
                   },
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "qan_postgresql_pgstatements": {
                   "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
@@ -22374,12 +22380,6 @@
                       "x-order": 12
                     }
                   },
-                  "x-order": 7
-                },
-                "table_count": {
-                  "description": "Actual table count at the moment of adding.",
-                  "type": "integer",
-                  "format": "int32",
                   "x-order": 8
                 }
               }
