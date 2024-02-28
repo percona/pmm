@@ -29,7 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RestoreServiceClient interface {
 	// ListRestores returns a list of all backup restore history items.
-	ListRestores(ctx context.Context, in *ListRestoreRequest, opts ...grpc.CallOption) (*ListRestoreResponse, error)
+	ListRestores(ctx context.Context, in *ListRestoresRequest, opts ...grpc.CallOption) (*ListRestoresResponse, error)
 	// RestoreBackup requests the backup restore.
 	RestoreBackup(ctx context.Context, in *RestoreBackupRequest, opts ...grpc.CallOption) (*RestoreBackupResponse, error)
 }
@@ -42,8 +42,8 @@ func NewRestoreServiceClient(cc grpc.ClientConnInterface) RestoreServiceClient {
 	return &restoreServiceClient{cc}
 }
 
-func (c *restoreServiceClient) ListRestores(ctx context.Context, in *ListRestoreRequest, opts ...grpc.CallOption) (*ListRestoreResponse, error) {
-	out := new(ListRestoreResponse)
+func (c *restoreServiceClient) ListRestores(ctx context.Context, in *ListRestoresRequest, opts ...grpc.CallOption) (*ListRestoresResponse, error) {
+	out := new(ListRestoresResponse)
 	err := c.cc.Invoke(ctx, RestoreService_ListRestores_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -65,7 +65,7 @@ func (c *restoreServiceClient) RestoreBackup(ctx context.Context, in *RestoreBac
 // for forward compatibility
 type RestoreServiceServer interface {
 	// ListRestores returns a list of all backup restore history items.
-	ListRestores(context.Context, *ListRestoreRequest) (*ListRestoreResponse, error)
+	ListRestores(context.Context, *ListRestoresRequest) (*ListRestoresResponse, error)
 	// RestoreBackup requests the backup restore.
 	RestoreBackup(context.Context, *RestoreBackupRequest) (*RestoreBackupResponse, error)
 	mustEmbedUnimplementedRestoreServiceServer()
@@ -74,7 +74,7 @@ type RestoreServiceServer interface {
 // UnimplementedRestoreServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedRestoreServiceServer struct{}
 
-func (UnimplementedRestoreServiceServer) ListRestores(context.Context, *ListRestoreRequest) (*ListRestoreResponse, error) {
+func (UnimplementedRestoreServiceServer) ListRestores(context.Context, *ListRestoresRequest) (*ListRestoresResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRestores not implemented")
 }
 
@@ -95,7 +95,7 @@ func RegisterRestoreServiceServer(s grpc.ServiceRegistrar, srv RestoreServiceSer
 }
 
 func _RestoreService_ListRestores_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListRestoreRequest)
+	in := new(ListRestoresRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func _RestoreService_ListRestores_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: RestoreService_ListRestores_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RestoreServiceServer).ListRestores(ctx, req.(*ListRestoreRequest))
+		return srv.(RestoreServiceServer).ListRestores(ctx, req.(*ListRestoresRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

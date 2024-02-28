@@ -46,9 +46,9 @@ message RestoreHistoryItem {
   google.protobuf.Timestamp pitr_timestamp = 13;
 }
 
-message ListRestoreRequest {}
+message ListRestoresRequest {}
 
-message ListRestoreResponse {
+message ListRestoresResponse {
   repeated RestoreHistoryItem items = 1;
 }
 
@@ -69,7 +69,7 @@ message RestoreBackupResponse {
 // RestoreService provides public methods for managing backup restore history.
 service RestoreService {
   // ListRestores returns a list of all backup restore history items.
-  rpc ListRestores(ListRestoreRequest) returns (ListRestoreResponse) {
+  rpc ListRestores(ListRestoresRequest) returns (ListRestoresResponse) {
     option (google.api.http) = {
       post: "/v1/backup/RestoreHistory/List"
       body: "*"

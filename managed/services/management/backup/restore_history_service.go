@@ -57,8 +57,8 @@ func (s *RestoreService) Enabled() bool {
 // ListRestores returns a list of restores.
 func (s *RestoreService) ListRestores(
 	context.Context,
-	*backuppb.ListRestoreRequest,
-) (*backuppb.ListRestoreResponse, error) {
+	*backuppb.ListRestoresRequest,
+) (*backuppb.ListRestoresResponse, error) {
 	var items []*models.RestoreHistoryItem
 	var services map[string]*models.Service
 	var artifacts map[string]*models.Artifact
@@ -113,7 +113,7 @@ func (s *RestoreService) ListRestores(
 
 		artifactsResponse = append(artifactsResponse, convertedArtifact)
 	}
-	return &backuppb.ListRestoreResponse{
+	return &backuppb.ListRestoresResponse{
 		Items: artifactsResponse,
 	}, nil
 }

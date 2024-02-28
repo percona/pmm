@@ -111,7 +111,7 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 	}
 
 	// Check no restore tasks running.
-	restores, err := s.RestoreService.ListRestores(ctx, &backuppb.ListRestoreRequest{})
+	restores, err := s.RestoreService.ListRestores(ctx, &backuppb.ListRestoresRequest{})
 	if err != nil {
 		return err
 	}

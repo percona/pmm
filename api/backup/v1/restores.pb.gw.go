@@ -34,7 +34,7 @@ var (
 )
 
 func request_RestoreService_ListRestores_0(ctx context.Context, marshaler runtime.Marshaler, client RestoreServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListRestoreRequest
+	var protoReq ListRestoresRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -50,7 +50,7 @@ func request_RestoreService_ListRestores_0(ctx context.Context, marshaler runtim
 }
 
 func local_request_RestoreService_ListRestores_0(ctx context.Context, marshaler runtime.Marshaler, server RestoreServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListRestoreRequest
+	var protoReq ListRestoresRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
