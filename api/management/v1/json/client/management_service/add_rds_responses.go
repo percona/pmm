@@ -506,9 +506,6 @@ AddRDSOKBody add RDS OK body
 swagger:model AddRDSOKBody
 */
 type AddRDSOKBody struct {
-	// Actual table count at the moment of adding.
-	TableCount int32 `json:"table_count,omitempty"`
-
 	// mysql
 	Mysql *AddRDSOKBodyMysql `json:"mysql,omitempty"`
 

@@ -341,8 +341,6 @@ func (s *ManagementService) AddRDS(ctx context.Context, req *managementv1.AddRDS
 				if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, mysqldExporter); err != nil {
 					return err
 				}
-				// GetInfoFromService gets additional info in row, let's also update the response
-				res.TableCount = *mysqldExporter.TableCount
 			}
 
 			// add MySQL PerfSchema QAN Agent

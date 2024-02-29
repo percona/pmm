@@ -3872,7 +3872,7 @@
                       "x-order": 10
                     }
                   },
-                  "x-order": 3
+                  "x-order": 2
                 },
                 "mysqld_exporter": {
                   "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
@@ -4013,7 +4013,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 4
+                  "x-order": 3
                 },
                 "node": {
                   "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.",
@@ -4058,7 +4058,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "postgresql": {
                   "description": "PostgreSQLService represents a generic PostgreSQL instance.",
@@ -4135,7 +4135,7 @@
                       "x-order": 11
                     }
                   },
-                  "x-order": 6
+                  "x-order": 5
                 },
                 "postgresql_exporter": {
                   "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.",
@@ -4250,7 +4250,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 7
+                  "x-order": 6
                 },
                 "qan_mysql_perfschema": {
                   "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -4366,7 +4366,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 5
+                  "x-order": 4
                 },
                 "qan_postgresql_pgstatements": {
                   "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
@@ -4462,7 +4462,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 8
+                  "x-order": 7
                 },
                 "rds_exporter": {
                   "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
@@ -4564,13 +4564,7 @@
                       "x-order": 6
                     }
                   },
-                  "x-order": 2
-                },
-                "table_count": {
-                  "description": "Actual table count at the moment of adding.",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
+                  "x-order": 1
                 }
               }
             }
