@@ -30,7 +30,7 @@ import (
 )
 
 // ManagementService allows to interact with services.
-type ManagementService struct {
+type ManagementService struct { //nolint:revive
 	db            *reform.DB
 	r             agentsRegistry
 	state         agentsStateUpdater
