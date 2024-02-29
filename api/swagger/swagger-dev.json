@@ -23959,6 +23959,11 @@
                     }
                   },
                   "x-order": 3
+                },
+                "warning": {
+                  "description": "Warning message.",
+                  "type": "string",
+                  "x-order": 4
                 }
               }
             }
@@ -24620,6 +24625,11 @@
                   "type": "integer",
                   "format": "int32",
                   "x-order": 30
+                },
+                "disable_comments_parsing": {
+                  "description": "Disable parsing comments from queries and showing them in QAN.",
+                  "type": "boolean",
+                  "x-order": 31
                 }
               }
             }

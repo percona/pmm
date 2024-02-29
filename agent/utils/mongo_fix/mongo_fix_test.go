@@ -13,7 +13,7 @@
 // limitations under the License.
 
 //nolint:stylecheck
-package mongo_fix
+package mongo_fix //nolint:revive
 
 import (
 	"net/url"

@@ -114,6 +114,8 @@ message AddRDSRequest {
   string database = 30;
   // Limit of databases for auto-discovery.
   int32 auto_discovery_limit = 31;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 32;
 }
 
 message AddRDSResponse {

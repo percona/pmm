@@ -2069,6 +2069,8 @@ type ServiceInfoResponse struct {
 	Version string `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`
 	// A list of PostgreSQL databases.
 	DatabaseList []string `protobuf:"bytes,4,rep,name=database_list,json=databaseList,proto3" json:"database_list,omitempty"`
+	// A version of pg_stat_monitor, empty if unavailable.
+	PgsmVersion string `protobuf:"bytes,5,opt,name=pgsm_version,json=pgsmVersion,proto3" json:"pgsm_version,omitempty"`
 }
 
 func (x *ServiceInfoResponse) Reset() {
@@ -2129,6 +2131,13 @@ func (x *ServiceInfoResponse) GetDatabaseList() []string {
 		return x.DatabaseList
 	}
 	return nil
+}
+
+func (x *ServiceInfoResponse) GetPgsmVersion() string {
+	if x != nil {
+		return x.PgsmVersion
+	}
+	return ""
 }
 
 // JobStatusRequest is a ServerMessage asking pmm-agent for job status.

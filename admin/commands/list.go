@@ -123,6 +123,7 @@ type ListCommand struct {
 	NodeID string `help:"Node ID (default is autodetected)"`
 }
 
+// RunCmd executes the List command and returns the result.
 func (cmd *ListCommand) RunCmd() (Result, error) {
 	if cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)

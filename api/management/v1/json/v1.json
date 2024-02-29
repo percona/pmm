@@ -3126,6 +3126,11 @@
                     }
                   },
                   "x-order": 0
+                },
+                "warning": {
+                  "description": "Warning message.",
+                  "type": "string",
+                  "x-order": 4
                 }
               }
             }
@@ -3668,6 +3673,11 @@
                   "description": "Disable basic metrics.",
                   "type": "boolean",
                   "x-order": 24
+                },
+                "disable_comments_parsing": {
+                  "description": "Disable parsing comments from queries and showing them in QAN.",
+                  "type": "boolean",
+                  "x-order": 31
                 },
                 "disable_enhanced_metrics": {
                   "description": "Disable enhanced metrics.",

@@ -48,6 +48,7 @@ func NewExternalService(db *reform.DB, vmdb prometheusService, state agentsState
 	}
 }
 
+// AddExternal adds an external service based on the provided request.
 func (e *ExternalService) AddExternal(ctx context.Context, req *managementv1.AddExternalRequest) (*managementv1.AddExternalResponse, error) {
 	res := &managementv1.AddExternalResponse{}
 	var pmmAgentID *string

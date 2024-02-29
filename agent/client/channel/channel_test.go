@@ -49,10 +49,12 @@ func (s *testServer) Connect(stream agentv1.AgentService_ConnectServer) error {
 
 var _ agentv1.AgentServiceServer = (*testServer)(nil)
 
-//nolint:nakedret
-func setup(t *testing.T, connect func(server agentv1.AgentService_ConnectServer) error, expected ...error) (channel *Channel, cc *grpc.ClientConn, teardown func()) {
+func setup(t *testing.T, connect func(agentv1.AgentService_ConnectServer) error, expected ...error) (*Channel, *grpc.ClientConn, func()) {
 	t.Helper()
 
+	var channel *Channel
+	var cc *grpc.ClientConn
+	var teardown func()
 	// logrus.SetLevel(logrus.DebugLevel)
 
 	// start server with given connect handler
@@ -101,7 +103,7 @@ func setup(t *testing.T, connect func(server agentv1.AgentService_ConnectServer)
 		require.NoError(t, <-serveError)
 	}
 
-	return
+	return channel, cc, teardown
 }
 
 func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {

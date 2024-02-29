@@ -108,7 +108,7 @@ func (ss *ServicesService) ListActiveServiceTypes(ctx context.Context) ([]invent
 }
 
 // Get selects a single Service by ID.
-func (ss *ServicesService) Get(ctx context.Context, id string) (inventoryv1.Service, error) { //nolint:unparam,ireturn
+func (ss *ServicesService) Get(ctx context.Context, id string) (inventoryv1.Service, error) { //nolint:ireturn
 	service := &models.Service{}
 	e := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error

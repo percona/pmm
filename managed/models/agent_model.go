@@ -129,6 +129,7 @@ type PostgreSQLOptions struct {
 	SSLKey             string `json:"ssl_key"`
 	AutoDiscoveryLimit int32  `json:"auto_discovery_limit"`
 	DatabaseCount      int32  `json:"database_count"`
+	PGSMVersion        string `json:"pgsm_version"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -301,6 +302,7 @@ func (s *Agent) DBConfig(service *Service) *DBConfig {
 	}
 }
 
+// DSNParams represents the parameters for configuring a Data Source Name (DSN).
 type DSNParams struct {
 	DialTimeout time.Duration
 	Database    string
@@ -492,17 +494,15 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) s
 		}
 		q.Set("sslmode", sslmode)
 
-		if s.PostgreSQLOptions != nil {
-			if files := s.Files(); len(files) != 0 {
-				for key := range files {
-					switch key {
-					case caFilePlaceholder:
-						q.Add("sslrootcert", tdp.Left+".TextFiles."+caFilePlaceholder+tdp.Right)
-					case certificateFilePlaceholder:
-						q.Add("sslcert", tdp.Left+".TextFiles."+certificateFilePlaceholder+tdp.Right)
-					case certificateKeyFilePlaceholder:
-						q.Add("sslkey", tdp.Left+".TextFiles."+certificateKeyFilePlaceholder+tdp.Right)
-					}
+		if files := s.Files(); len(files) != 0 {
+			for key := range files {
+				switch key {
+				case caFilePlaceholder:
+					q.Add("sslrootcert", tdp.Left+".TextFiles."+caFilePlaceholder+tdp.Right)
+				case certificateFilePlaceholder:
+					q.Add("sslcert", tdp.Left+".TextFiles."+certificateFilePlaceholder+tdp.Right)
+				case certificateKeyFilePlaceholder:
+					q.Add("sslkey", tdp.Left+".TextFiles."+certificateKeyFilePlaceholder+tdp.Right)
 				}
 			}
 		}
@@ -609,30 +609,47 @@ func (s Agent) Files() map[string]string {
 	switch s.AgentType {
 	case MySQLdExporterType, QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
 		if s.MySQLOptions != nil {
-			return map[string]string{
-				"tlsCa":   s.MySQLOptions.TLSCa,
-				"tlsCert": s.MySQLOptions.TLSCert,
-				"tlsKey":  s.MySQLOptions.TLSKey,
+			files := make(map[string]string)
+			if s.MySQLOptions.TLSCa != "" {
+				files["tlsCa"] = s.MySQLOptions.TLSCa
 			}
+			if s.MySQLOptions.TLSCert != "" {
+				files["tlsCert"] = s.MySQLOptions.TLSCert
+			}
+			if s.MySQLOptions.TLSKey != "" {
+				files["tlsKey"] = s.MySQLOptions.TLSKey
+			}
+			return files
 		}
 		return nil
 	case ProxySQLExporterType:
 		return nil
 	case QANMongoDBProfilerAgentType, MongoDBExporterType:
 		if s.MongoDBOptions != nil {
-			return map[string]string{
-				caFilePlaceholder:             s.MongoDBOptions.TLSCa,
-				certificateKeyFilePlaceholder: s.MongoDBOptions.TLSCertificateKey,
+			files := make(map[string]string)
+			if s.MongoDBOptions.TLSCa != "" {
+				files[caFilePlaceholder] = s.MongoDBOptions.TLSCa
 			}
+			if s.MongoDBOptions.TLSCertificateKey != "" {
+				files[certificateKeyFilePlaceholder] = s.MongoDBOptions.TLSCertificateKey
+			}
+			return files
 		}
 		return nil
 	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType, QANPostgreSQLPgStatMonitorAgentType:
 		if s.PostgreSQLOptions != nil {
-			return map[string]string{
-				caFilePlaceholder:             s.PostgreSQLOptions.SSLCa,
-				certificateFilePlaceholder:    s.PostgreSQLOptions.SSLCert,
-				certificateKeyFilePlaceholder: s.PostgreSQLOptions.SSLKey,
+			files := make(map[string]string)
+
+			if s.PostgreSQLOptions.SSLCa != "" {
+				files[caFilePlaceholder] = s.PostgreSQLOptions.SSLCa
 			}
+			if s.PostgreSQLOptions.SSLCert != "" {
+				files[certificateFilePlaceholder] = s.PostgreSQLOptions.SSLCert
+			}
+			if s.PostgreSQLOptions.SSLKey != "" {
+				files[certificateKeyFilePlaceholder] = s.PostgreSQLOptions.SSLKey
+			}
+			return files
 		}
 		return nil
 	default:
