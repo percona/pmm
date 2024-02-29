@@ -92,7 +92,7 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 		DataRetention:    30 * 24 * time.Hour,
 		PMMPublicAddress: "192.168.0.42:8443",
 	}
-	settings.VictoriaMetrics.CacheEnabled = false
+	settings.VictoriaMetrics.CacheEnabled = pointer.ToBool(false)
 
 	// Test environment variables being passed to VictoriaMetrics.
 	t.Setenv("VM_search_maxQueryLen", "2MB")
