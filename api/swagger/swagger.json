@@ -20364,6 +20364,12 @@
                   "description": "Disable parsing comments from queries and showing them in QAN.",
                   "type": "boolean",
                   "x-order": 31
+                },
+                "max_postgresql_exporter_connections": {
+                  "description": "Maximum number of exporter connections to PostgreSQL instance.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 32
                 }
               }
             }
