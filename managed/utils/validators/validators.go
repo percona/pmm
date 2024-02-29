@@ -29,7 +29,7 @@ const (
 	// MetricsResolutionMultipleOf is value metrics resolution should be multiple of.
 	MetricsResolutionMultipleOf = time.Second
 	// AdvisorRunIntervalMin is the smallest value Advisors run intervals can accept.
-	AdvisorRunIntervalMin = time.Second
+	AdvisorRunIntervalMin = time.Second //nolint:revive
 	// AdvisorRunIntervalMultipleOf is value Advisors run intervals should be multiple of.
 	AdvisorRunIntervalMultipleOf = time.Second
 	// DataRetentionMin is the smallest value data retention can accept.

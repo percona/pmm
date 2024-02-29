@@ -182,6 +182,7 @@ func RemoveAgents(t TestingT, agentIDs ...string) {
 	}
 }
 
+// AddGenericNode adds a generic node.
 func AddGenericNode(t TestingT, nodeName string) *nodes.AddNodeOKBodyGeneric {
 	t.Helper()
 
@@ -202,6 +203,7 @@ func AddGenericNode(t TestingT, nodeName string) *nodes.AddNodeOKBodyGeneric {
 	return res.Payload.Generic
 }
 
+// AddRemoteNode adds a remote node.
 func AddRemoteNode(t TestingT, nodeName string) *nodes.AddNodeOKBody {
 	t.Helper()
 
@@ -236,6 +238,7 @@ func AddNode(t TestingT, nodeBody *nodes.AddNodeBody) *nodes.AddNodeOKBody {
 	return res.Payload
 }
 
+// AddPMMAgent adds a PMM agent.
 func AddPMMAgent(t TestingT, nodeID string) *agents.AddAgentOKBody {
 	t.Helper()
 
