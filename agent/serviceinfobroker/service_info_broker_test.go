@@ -254,9 +254,9 @@ func TestServiceInfoBroker(t *testing.T) {
 			Paths: config.Paths{TempDir: t.TempDir()},
 		})
 		c := New(cfgStorage)
-		resp := c.GetInfoFromService(context.Background(), &agentpb.ServiceInfoRequest{
+		resp := c.GetInfoFromService(context.Background(), &agentv1.ServiceInfoRequest{
 			Dsn:  tests.GetTestPostgreSQLDSN(t),
-			Type: inventorypb.ServiceType_POSTGRESQL_SERVICE,
+			Type: inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
 		}, 0)
 		require.NotNil(t, resp)
 		assert.Equal(t, []string{"postgres", "pmm-agent"}, resp.DatabaseList)

@@ -60,6 +60,7 @@ func (*Mysqld) isSoftware() {}
 
 // Name returns the software name for Mysqld.
 func (*Mysqld) Name() models.SoftwareName { return models.MysqldSoftwareName }
+
 func (*Mysqld) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
 	return &agentv1.GetVersionsRequest_Software{
 		Software: &agentv1.GetVersionsRequest_Software_Mysqld{},
@@ -73,6 +74,7 @@ func (*Xtrabackup) isSoftware() {}
 
 // Name returns the software name for Xtrabackup.
 func (*Xtrabackup) Name() models.SoftwareName { return models.XtrabackupSoftwareName }
+
 func (*Xtrabackup) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
 	return &agentv1.GetVersionsRequest_Software{
 		Software: &agentv1.GetVersionsRequest_Software_Xtrabackup{},
@@ -86,6 +88,7 @@ func (*Xbcloud) isSoftware() {}
 
 // Name returns the software name for Qpress.
 func (*Xbcloud) Name() models.SoftwareName { return models.XbcloudSoftwareName }
+
 func (*Xbcloud) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
 	return &agentv1.GetVersionsRequest_Software{
 		Software: &agentv1.GetVersionsRequest_Software_Xbcloud{},
@@ -99,6 +102,7 @@ func (*Qpress) isSoftware() {}
 
 // Name returns the software name for Qpress.
 func (*Qpress) Name() models.SoftwareName { return models.QpressSoftwareName }
+
 func (*Qpress) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
 	return &agentv1.GetVersionsRequest_Software{
 		Software: &agentv1.GetVersionsRequest_Software_Qpress{},
@@ -112,6 +116,7 @@ func (*MongoDB) isSoftware() {}
 
 // Name returns the software name for MongoDB.
 func (*MongoDB) Name() models.SoftwareName { return models.MongoDBSoftwareName }
+
 func (*MongoDB) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
 	return &agentv1.GetVersionsRequest_Software{
 		Software: &agentv1.GetVersionsRequest_Software_Mongod{},
@@ -125,6 +130,7 @@ func (*PBM) isSoftware() {}
 
 // Name returns the software name for PBM.
 func (*PBM) Name() models.SoftwareName { return models.PBMSoftwareName }
+
 func (*PBM) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
 	return &agentv1.GetVersionsRequest_Software{
 		Software: &agentv1.GetVersionsRequest_Software_Pbm{},
