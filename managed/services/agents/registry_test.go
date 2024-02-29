@@ -22,14 +22,15 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/grafana"
-	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/metadata"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
+
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/grafana"
+	"github.com/percona/pmm/managed/utils/testdb"
 )
 
 func TestRegistryAuthenticate(t *testing.T) {
@@ -89,15 +90,10 @@ func TestRegistryAuthenticate(t *testing.T) {
 	})
 
 	t.Run("Basic wrong authorization", func(t *testing.T) {
-		agent, err := models.FindAgentByID(txQuerier, "A1")
-		require.NoError(t, err)
-
 		md := &agentpb.AgentConnectMetadata{
-			ID:            agent.AgentID,
 			Authorization: "Basic wrong",
-			Version:       *agent.Version,
 		}
-		_, err = registry.authenticate(context.Background(), md, txQuerier)
+		_, err := registry.authenticate(context.Background(), md, txQuerier)
 		require.Error(t, err)
 	})
 
@@ -123,19 +119,10 @@ func TestRegistryAuthenticate(t *testing.T) {
 	})
 
 	t.Run("Bearer wrong authorization", func(t *testing.T) {
-		agent, err := models.FindAgentByID(txQuerier, "A1")
-		require.NoError(t, err)
 		agentMD := &agentpb.AgentConnectMetadata{
-			ID:            agent.AgentID,
 			Authorization: "Bearer wrong",
-			Version:       *agent.Version,
 		}
-
-		headersMD := metadata.New(map[string]string{
-			"Authorization": "Basic YWRtaW46YWRtaW4=",
-		})
-		ctx := metadata.NewIncomingContext(context.Background(), headersMD)
-		_, err = registry.authenticate(ctx, agentMD, txQuerier)
+		_, err := registry.authenticate(context.Background(), agentMD, txQuerier)
 		require.Error(t, err)
 	})
 }
