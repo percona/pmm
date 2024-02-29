@@ -19678,8 +19678,8 @@
                             "format": "int32",
                             "x-order": 1
                           },
-                          "max_connections": {
-                            "description": "Maximum number of connections to PostgreSQL instance.",
+                          "max_exporter_connections": {
+                            "description": "Maximum number of connections from exporter to PostgreSQL instance.",
                             "type": "integer",
                             "format": "int32",
                             "x-order": 2
@@ -31785,8 +31785,8 @@
                                   "format": "int32",
                                   "x-order": 1
                                 },
-                                "max_connections": {
-                                  "description": "Maximum number of connections to PostgreSQL instance.",
+                                "max_exporter_connections": {
+                                  "description": "Maximum number of connections from exporter to PostgreSQL instance.",
                                   "type": "integer",
                                   "format": "int32",
                                   "x-order": 2

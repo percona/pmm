@@ -55,8 +55,8 @@ message UniversalAgent {
     bool is_ssl_key_set = 3;
     // Limit of databases for auto-discovery.
     int32 auto_discovery_limit = 4;
-    // Maximum number of connections to PostgreSQL instance.
-    int32 max_connections = 5;
+    // Maximum number of connections from exporter to PostgreSQL instance.
+    int32 max_exporter_connections = 5;
   }
 
   // Unique agent identifier.

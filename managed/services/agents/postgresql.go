@@ -35,8 +35,10 @@ var (
 	postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
 	postgresExporterWebConfigVersion     = version.MustParse("2.30.99")
 	postgresSSLSniVersion                = version.MustParse("2.40.99")
-	postgresMaxExporterConnsVersion      = version.MustParse("2.41.99")
+	postgresMaxExporterConnsVersion      = version.MustParse("2.41.2-0")
 )
+
+const defaultAutoDiscoveryDatabaseLimit = 50
 
 func postgresExcludedDatabases() []string {
 	return []string{"template0", "template1", "postgres", "cloudsqladmin", "pmm-managed-dev", "azure_maintenance", "rdsadmin"}
@@ -75,7 +77,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		case exporter.PostgreSQLOptions == nil:
 			autoDiscovery = true
 		case exporter.PostgreSQLOptions.AutoDiscoveryLimit == 0: // server defined
-			autoDiscovery = true
+			autoDiscovery = exporter.PostgreSQLOptions.DatabaseCount <= defaultAutoDiscoveryDatabaseLimit
 		case exporter.PostgreSQLOptions.AutoDiscoveryLimit < 0: // always disabled
 		default:
 			autoDiscovery = exporter.PostgreSQLOptions.DatabaseCount <= exporter.PostgreSQLOptions.AutoDiscoveryLimit

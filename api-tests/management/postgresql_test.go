@@ -108,7 +108,7 @@ func TestAddPostgreSQL(t *testing.T) {
 					DisabledCollectors:     []string{"custom_query.ml", "custom_query.mr.directory"},
 					PushMetricsEnabled:     true,
 					Status:                 &AgentStatusUnknown,
-					AutoDiscoveryLimit:     10,
+					AutoDiscoveryLimit:     0,
 					MaxExporterConnections: 0,
 				},
 			},
@@ -671,7 +671,7 @@ func TestAddPostgreSQL(t *testing.T) {
 					Username:           "username",
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
-					AutoDiscoveryLimit: 10,
+					AutoDiscoveryLimit: 0,
 				},
 			},
 		}, *listAgents.Payload)
@@ -746,7 +746,7 @@ func TestAddPostgreSQL(t *testing.T) {
 					PMMAgentID:         pmmAgentID,
 					Username:           "username",
 					Status:             &AgentStatusUnknown,
-					AutoDiscoveryLimit: 10,
+					AutoDiscoveryLimit: 0,
 				},
 			},
 		}, *listAgents.Payload)
@@ -822,7 +822,7 @@ func TestAddPostgreSQL(t *testing.T) {
 					Username:           "username",
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
-					AutoDiscoveryLimit: 10,
+					AutoDiscoveryLimit: 0,
 				},
 			},
 		}, *listAgents.Payload)
