@@ -129,7 +129,7 @@ func TestClient(t *testing.T) {
 			connect := func(stream agentpb.Agent_ConnectServer) error {
 				md, err := agentpb.ReceiveAgentConnectMetadata(stream)
 				require.NoError(t, err)
-				assert.Equal(t, &agentpb.AgentConnectMetadata{ID: "agent_id", Authorization: getAuthorizationFromUserAndPassword("admin", "admin")}, md)
+				assert.Equal(t, &agentpb.AgentConnectMetadata{ID: "agent_id", Authorization: authorizationFromUserAndPassword("admin", "admin")}, md)
 				err = agentpb.SendServerConnectMetadata(stream, serverMD)
 				require.NoError(t, err)
 
@@ -210,7 +210,7 @@ func TestUnexpectedActionType(t *testing.T) {
 		// establish the connection
 		md, err := agentpb.ReceiveAgentConnectMetadata(stream)
 		require.NoError(t, err)
-		assert.Equal(t, &agentpb.AgentConnectMetadata{ID: "agent_id", Authorization: getAuthorizationFromUserAndPassword("admin", "admin")}, md)
+		assert.Equal(t, &agentpb.AgentConnectMetadata{ID: "agent_id", Authorization: authorizationFromUserAndPassword("admin", "admin")}, md)
 		err = agentpb.SendServerConnectMetadata(stream, serverMD)
 		require.NoError(t, err)
 		msg, err := stream.Recv()

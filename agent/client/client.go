@@ -787,7 +787,7 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 	streamCtx = agentpb.AddAgentConnectMetadata(streamCtx, &agentpb.AgentConnectMetadata{
 		ID:            cfg.ID,
 		Version:       version.Version,
-		Authorization: getAuthorizationFromUserAndPassword(cfg.Server.Username, cfg.Server.Password),
+		Authorization: authorizationFromUserAndPassword(cfg.Server.Username, cfg.Server.Password),
 	})
 	stream, err := agentpb.NewAgentClient(conn).Connect(streamCtx) //nolint:contextcheck
 	if err != nil {
@@ -844,7 +844,7 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 	}, nil
 }
 
-func getAuthorizationFromUserAndPassword(username, password string) string {
+func authorizationFromUserAndPassword(username, password string) string {
 	prefix := "Basic"
 	if username == "service_token" || username == "api_key" {
 		prefix = "Bearer"
