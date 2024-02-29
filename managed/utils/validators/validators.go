@@ -25,15 +25,15 @@ import (
 
 const (
 	// MetricsResolutionMin is the smallest value metric resolution can accept.
-	MetricsResolutionMin = time.Second
+	MetricsResolutionMin = time.Second //nolint:revive
 	// MetricsResolutionMultipleOf is value metrics resolution should be multiple of.
 	MetricsResolutionMultipleOf = time.Second
 	// AdvisorRunIntervalMin is the smallest value Advisors run intervals can accept.
-	AdvisorRunIntervalMin = time.Second
+	AdvisorRunIntervalMin = time.Second //nolint:revive
 	// AdvisorRunIntervalMultipleOf is value Advisors run intervals should be multiple of.
 	AdvisorRunIntervalMultipleOf = time.Second
 	// DataRetentionMin is the smallest value data retention can accept.
-	DataRetentionMin = 24 * time.Hour
+	DataRetentionMin = 24 * time.Hour //nolint:revive
 	// DataRetentionMultipleOf is a value of data retention should be multiple of.
 	DataRetentionMultipleOf = 24 * time.Hour
 )

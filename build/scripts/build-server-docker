@@ -18,10 +18,6 @@ ls ${docker_root}/ansible/roles/pmm-images/tasks
 cp ${root_dir}/tmp/source/pmm/build/docker/server/* ${docker_root}/
 cp ${root_dir}/results/tarball/pmm-client-*.tar.gz ${docker_root}/pmm-client.tar.gz
 
-# enable 'local' repo in ansible playbooks
-sed -i -e "s/enablerepo: \"pmm-server\"/enablerepo: local/" ${docker_root}/ansible/roles/pmm-images/tasks/main.yml
-sed -i -e "s/pmm_client_repo_name: \".*\"/pmm_client_repo_name: local/" ${docker_root}/ansible/roles/pmm-images/vars/main.yml
-
 git -C ${root_dir} rev-parse HEAD > ${docker_root}/gitCommit
 ls -la ${rpms_dir}
 docker run --rm -v ${rpms_dir}:/home/builder/rpm/RPMS ${rpmbuild_docker_image} sh -c "

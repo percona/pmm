@@ -92,4 +92,6 @@ message AddPostgreSQLResponse {
   inventory.v1.PostgresExporter postgres_exporter = 2;
   inventory.v1.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 3;
   inventory.v1.QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 4;
+  // Warning message.
+  string warning = 5;
 }

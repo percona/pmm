@@ -67,6 +67,7 @@ type RegisterCommand struct {
 	DisableCollectors []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 }
 
+// RunCmd runs the command for RegisterCommand.
 func (cmd *RegisterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 

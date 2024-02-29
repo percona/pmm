@@ -67,7 +67,7 @@ type Response struct {
 	Error   error
 }
 
-type Stream interface {
+type Stream interface { //nolint:revive
 	Send(*agentv1.ServerMessage) error
 	Recv() (*agentv1.AgentMessage, error)
 }

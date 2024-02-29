@@ -106,6 +106,7 @@ type pbmPITRService interface {
 	GetPITRFiles(ctx context.Context, locationClient Storage, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) ([]*oplogChunk, error)
 }
 
+// Storage represents the interface for interacting with storage.
 type Storage interface {
 	// FileStat returns file info. It returns error if file is empty or not exists.
 	FileStat(ctx context.Context, endpoint, accessKey, secretKey, bucketName, name string) (minio.FileInfo, error)

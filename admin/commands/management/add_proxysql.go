@@ -70,22 +70,27 @@ type AddProxySQLCommand struct {
 	AddLogLevelFatalFlags
 }
 
+// GetServiceName returns the service name for AddProxySQLCommand.
 func (cmd *AddProxySQLCommand) GetServiceName() string {
 	return cmd.ServiceName
 }
 
+// GetAddress returns the address for AddProxySQLCommand.
 func (cmd *AddProxySQLCommand) GetAddress() string {
 	return cmd.Address
 }
 
+// GetDefaultAddress returns the default address for AddProxySQLCommand.
 func (cmd *AddProxySQLCommand) GetDefaultAddress() string {
 	return "127.0.0.1:6032"
 }
 
+// GetSocket returns the socket for AddProxySQLCommand.
 func (cmd *AddProxySQLCommand) GetSocket() string {
 	return cmd.Socket
 }
 
+// GetCredentials returns the credentials for AddProxySQLCommand.
 func (cmd *AddProxySQLCommand) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
@@ -99,6 +104,7 @@ func (cmd *AddProxySQLCommand) GetCredentials() error {
 	return nil
 }
 
+// RunCmd runs the command for AddProxySQLCommand.
 func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 

@@ -56,8 +56,11 @@ type Software interface {
 // Mysqld represents mysqld software.
 type Mysqld struct{}
 
-func (*Mysqld) isSoftware()               {}
+func (*Mysqld) isSoftware() {}
+
+// Name returns the software name for Mysqld.
 func (*Mysqld) Name() models.SoftwareName { return models.MysqldSoftwareName }
+
 func (*Mysqld) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
 	return &agentv1.GetVersionsRequest_Software{
 		Software: &agentv1.GetVersionsRequest_Software_Mysqld{},
@@ -67,8 +70,11 @@ func (*Mysqld) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
 // Xtrabackup represents xtrabackup software.
 type Xtrabackup struct{}
 
-func (*Xtrabackup) isSoftware()               {}
+func (*Xtrabackup) isSoftware() {}
+
+// Name returns the software name for Xtrabackup.
 func (*Xtrabackup) Name() models.SoftwareName { return models.XtrabackupSoftwareName }
+
 func (*Xtrabackup) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
 	return &agentv1.GetVersionsRequest_Software{
 		Software: &agentv1.GetVersionsRequest_Software_Xtrabackup{},
@@ -78,8 +84,11 @@ func (*Xtrabackup) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
 // Xbcloud represents xbcloud software.
 type Xbcloud struct{}
 
-func (*Xbcloud) isSoftware()               {}
+func (*Xbcloud) isSoftware() {}
+
+// Name returns the software name for Qpress.
 func (*Xbcloud) Name() models.SoftwareName { return models.XbcloudSoftwareName }
+
 func (*Xbcloud) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
 	return &agentv1.GetVersionsRequest_Software{
 		Software: &agentv1.GetVersionsRequest_Software_Xbcloud{},
@@ -89,8 +98,11 @@ func (*Xbcloud) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
 // Qpress represents qpress software.
 type Qpress struct{}
 
-func (*Qpress) isSoftware()               {}
+func (*Qpress) isSoftware() {}
+
+// Name returns the software name for Qpress.
 func (*Qpress) Name() models.SoftwareName { return models.QpressSoftwareName }
+
 func (*Qpress) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
 	return &agentv1.GetVersionsRequest_Software{
 		Software: &agentv1.GetVersionsRequest_Software_Qpress{},
@@ -100,8 +112,11 @@ func (*Qpress) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
 // MongoDB represents mongod software.
 type MongoDB struct{}
 
-func (*MongoDB) isSoftware()               {}
+func (*MongoDB) isSoftware() {}
+
+// Name returns the software name for MongoDB.
 func (*MongoDB) Name() models.SoftwareName { return models.MongoDBSoftwareName }
+
 func (*MongoDB) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
 	return &agentv1.GetVersionsRequest_Software{
 		Software: &agentv1.GetVersionsRequest_Software_Mongod{},
@@ -111,8 +126,11 @@ func (*MongoDB) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
 // PBM represents pbm software.
 type PBM struct{}
 
-func (*PBM) isSoftware()               {}
+func (*PBM) isSoftware() {}
+
+// Name returns the software name for PBM.
 func (*PBM) Name() models.SoftwareName { return models.PBMSoftwareName }
+
 func (*PBM) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
 	return &agentv1.GetVersionsRequest_Software{
 		Software: &agentv1.GetVersionsRequest_Software_Pbm{},

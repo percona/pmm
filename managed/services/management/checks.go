@@ -220,6 +220,7 @@ func (s *ChecksAPIService) ListAdvisorChecks(_ context.Context, _ *advisorsv1.Li
 	return &advisorsv1.ListAdvisorChecksResponse{Checks: res}, nil
 }
 
+// ListAdvisors retrieves a list of advisors based on the provided request.
 func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *advisorsv1.ListAdvisorsRequest) (*advisorsv1.ListAdvisorsResponse, error) {
 	disChecks, err := s.checksService.GetDisabledChecks()
 	if err != nil {

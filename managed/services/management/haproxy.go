@@ -28,6 +28,7 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
+// AddHAProxy adds an HAProxy service based on the provided request.
 func (s *ManagementService) AddHAProxy(ctx context.Context, req *managementv1.AddHAProxyRequest) (*managementv1.AddHAProxyResponse, error) {
 	res := &managementv1.AddHAProxyResponse{}
 	var pmmAgentID *string

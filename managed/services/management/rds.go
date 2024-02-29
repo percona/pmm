@@ -348,13 +348,14 @@ func (s *ManagementService) AddRDS(ctx context.Context, req *managementv1.AddRDS
 			// add MySQL PerfSchema QAN Agent
 			if req.QanMysqlPerfschema {
 				qanAgent, err := models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, &models.CreateAgentParams{
-					PMMAgentID:            models.PMMServerAgentID,
-					ServiceID:             service.ServiceID,
-					Username:              req.Username,
-					Password:              req.Password,
-					TLS:                   req.Tls,
-					TLSSkipVerify:         req.TlsSkipVerify,
-					QueryExamplesDisabled: req.DisableQueryExamples,
+					PMMAgentID:              models.PMMServerAgentID,
+					ServiceID:               service.ServiceID,
+					Username:                req.Username,
+					Password:                req.Password,
+					TLS:                     req.Tls,
+					TLSSkipVerify:           req.TlsSkipVerify,
+					QueryExamplesDisabled:   req.DisableQueryExamples,
+					CommentsParsingDisabled: req.DisableCommentsParsing,
 				})
 				if err != nil {
 					return err
@@ -426,16 +427,17 @@ func (s *ManagementService) AddRDS(ctx context.Context, req *managementv1.AddRDS
 				}
 			}
 
-			// add MySQL PerfSchema QAN Agent
+			// add PostgreSQL Pgstatements QAN Agent
 			if req.QanPostgresqlPgstatements {
 				qanAgent, err := models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, &models.CreateAgentParams{
-					PMMAgentID:            models.PMMServerAgentID,
-					ServiceID:             service.ServiceID,
-					Username:              req.Username,
-					Password:              req.Password,
-					TLS:                   req.Tls,
-					TLSSkipVerify:         req.TlsSkipVerify,
-					QueryExamplesDisabled: req.DisableQueryExamples,
+					PMMAgentID:              models.PMMServerAgentID,
+					ServiceID:               service.ServiceID,
+					Username:                req.Username,
+					Password:                req.Password,
+					TLS:                     req.Tls,
+					TLSSkipVerify:           req.TlsSkipVerify,
+					QueryExamplesDisabled:   req.DisableQueryExamples,
+					CommentsParsingDisabled: req.DisableCommentsParsing,
 				})
 				if err != nil {
 					return err

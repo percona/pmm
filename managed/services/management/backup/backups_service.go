@@ -264,7 +264,7 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 }
 
 // ListScheduledBackups lists all tasks related to a backup.
-func (s *BackupsService) ListScheduledBackups(ctx context.Context, req *backuppb.ListScheduledBackupsRequest) (*backuppb.ListScheduledBackupsResponse, error) {
+func (s *BackupsService) ListScheduledBackups(ctx context.Context, req *backuppb.ListScheduledBackupsRequest) (*backuppb.ListScheduledBackupsResponse, error) { //nolint:revive,lll
 	tasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{
 		Types: []models.ScheduledTaskType{
 			models.ScheduledMySQLBackupTask,
@@ -442,7 +442,7 @@ func (s *BackupsService) RemoveScheduledBackup(ctx context.Context, req *backupp
 }
 
 // GetLogs returns logs from the underlying tools for a backup/restore job.
-func (s *BackupsService) GetLogs(ctx context.Context, req *backuppb.GetLogsRequest) (*backuppb.GetLogsResponse, error) {
+func (s *BackupsService) GetLogs(_ context.Context, req *backuppb.GetLogsRequest) (*backuppb.GetLogsResponse, error) {
 	jobsFilter := models.JobsFilter{
 		Types: []models.JobType{
 			models.MySQLBackupJob,

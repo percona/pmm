@@ -40,6 +40,7 @@ type MetricsResolutions struct {
 	LR time.Duration `json:"lr"`
 }
 
+// Advisors is a config for Advisors.
 type Advisors struct {
 	// Advisor checks disabled, false by default.
 	Enabled *bool `json:"enabled"`

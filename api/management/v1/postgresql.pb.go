@@ -369,6 +369,8 @@ type AddPostgreSQLResponse struct {
 	PostgresExporter                *v1.PostgresExporter                `protobuf:"bytes,2,opt,name=postgres_exporter,json=postgresExporter,proto3" json:"postgres_exporter,omitempty"`
 	QanPostgresqlPgstatementsAgent  *v1.QANPostgreSQLPgStatementsAgent  `protobuf:"bytes,3,opt,name=qan_postgresql_pgstatements_agent,json=qanPostgresqlPgstatementsAgent,proto3" json:"qan_postgresql_pgstatements_agent,omitempty"`
 	QanPostgresqlPgstatmonitorAgent *v1.QANPostgreSQLPgStatMonitorAgent `protobuf:"bytes,4,opt,name=qan_postgresql_pgstatmonitor_agent,json=qanPostgresqlPgstatmonitorAgent,proto3" json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
+	// Warning message.
+	Warning string `protobuf:"bytes,5,opt,name=warning,proto3" json:"warning,omitempty"`
 }
 
 func (x *AddPostgreSQLResponse) Reset() {
@@ -429,6 +431,13 @@ func (x *AddPostgreSQLResponse) GetQanPostgresqlPgstatmonitorAgent() *v1.QANPost
 		return x.QanPostgresqlPgstatmonitorAgent
 	}
 	return nil
+}
+
+func (x *AddPostgreSQLResponse) GetWarning() string {
+	if x != nil {
+		return x.Warning
+	}
+	return ""
 }
 
 var File_management_v1_postgresql_proto protoreflect.FileDescriptor

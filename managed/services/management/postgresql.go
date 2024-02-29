@@ -75,6 +75,7 @@ func (s *ManagementService) AddPostgreSQL(ctx context.Context, req *managementv1
 			return err
 		}
 
+		options := models.PostgreSQLOptionsFromRequest(req)
 		row, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, &models.CreateAgentParams{
 			PMMAgentID:        req.PmmAgentId,
 			ServiceID:         service.ServiceID,
@@ -86,7 +87,7 @@ func (s *ManagementService) AddPostgreSQL(ctx context.Context, req *managementv1
 			PushMetrics:       isPushMode(req.MetricsMode),
 			ExposeExporter:    req.ExposeExporter,
 			DisableCollectors: req.DisableCollectors,
-			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
+			PostgreSQLOptions: options,
 			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
 		})
 		if err != nil {
@@ -100,6 +101,13 @@ func (s *ManagementService) AddPostgreSQL(ctx context.Context, req *managementv1
 
 			if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
 				return err
+			}
+
+			// In case of not available PGSM extension it is switch to PGSS.
+			if req.QanPostgresqlPgstatmonitorAgent && row.PostgreSQLOptions.PGSMVersion == "" {
+				res.Warning = "Could not to detect the pg_stat_monitor extension on your system. Falling back to the pg_stat_statements."
+				req.QanPostgresqlPgstatementsAgent = true
+				req.QanPostgresqlPgstatmonitorAgent = false
 			}
 		}
 
@@ -120,7 +128,7 @@ func (s *ManagementService) AddPostgreSQL(ctx context.Context, req *managementv1
 				CommentsParsingDisabled: req.DisableCommentsParsing,
 				TLS:                     req.Tls,
 				TLSSkipVerify:           req.TlsSkipVerify,
-				PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(req),
+				PostgreSQLOptions:       options,
 				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 			})
 			if err != nil {
@@ -145,7 +153,7 @@ func (s *ManagementService) AddPostgreSQL(ctx context.Context, req *managementv1
 				CommentsParsingDisabled: req.DisableCommentsParsing,
 				TLS:                     req.Tls,
 				TLSSkipVerify:           req.TlsSkipVerify,
-				PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(req),
+				PostgreSQLOptions:       options,
 				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 			})
 			if err != nil {

@@ -28,6 +28,7 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
+// AddExternal adds an external service based on the provided request.
 func (s *ManagementService) AddExternal(ctx context.Context, req *managementv1.AddExternalRequest) (*managementv1.AddExternalResponse, error) {
 	res := &managementv1.AddExternalResponse{}
 	var pmmAgentID *string
