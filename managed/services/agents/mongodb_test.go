@@ -250,7 +250,7 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 	}
 	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentv1.SetStateRequest_AgentProcess{
-		Type:               inventoryv1.AgentType_MONGODB_EXPORTER,
+		Type:               inventoryv1.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
