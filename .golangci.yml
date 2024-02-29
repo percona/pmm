@@ -6,6 +6,10 @@ linters-settings:
   cyclop:
     max-complexity: 30
 
+  inamedparam:
+    # Skips check for interface methods with only a single parameter.
+    skip-single-param: true    
+
   depguard:
     rules:
       main:
