@@ -231,7 +231,7 @@ service ServerService {
   // CheckUpdates checks for available PMM Server updates.
   rpc CheckUpdates(CheckUpdatesRequest) returns (CheckUpdatesResponse) {
     option (google.api.http) = {
-      post: "/v1/Updates/Check"
+      post: "/v1/updates/Check"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -242,7 +242,7 @@ service ServerService {
   // StartUpdate starts PMM Server update.
   rpc StartUpdate(StartUpdateRequest) returns (StartUpdateResponse) {
     option (google.api.http) = {
-      post: "/v1/Updates/Start"
+      post: "/v1/updates/Start"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -253,7 +253,7 @@ service ServerService {
   // UpdateStatus returns PMM Server update status.
   rpc UpdateStatus(UpdateStatusRequest) returns (UpdateStatusResponse) {
     option (google.api.http) = {
-      post: "/v1/Updates/Status"
+      post: "/v1/updates/Status"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -264,7 +264,7 @@ service ServerService {
   // GetSettings returns current PMM Server settings.
   rpc GetSettings(GetSettingsRequest) returns (GetSettingsResponse) {
     option (google.api.http) = {
-      post: "/v1/Settings/Get"
+      post: "/v1/settings/Get"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -275,7 +275,7 @@ service ServerService {
   // ChangeSettings changes PMM Server settings.
   rpc ChangeSettings(ChangeSettingsRequest) returns (ChangeSettingsResponse) {
     option (google.api.http) = {
-      post: "/v1/Settings/Change"
+      post: "/v1/settings/Change"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {

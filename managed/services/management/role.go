@@ -106,8 +106,8 @@ func (r *RoleService) UpdateRole(_ context.Context, req *rolev1beta1.UpdateRoleR
 // DeleteRole deletes a Role.
 //
 //nolint:unparam
-func (r *RoleService) DeleteRole(_ context.Context, req *rolev1beta1.DeleteRoleRequest) (*rolev1beta1.DeleteRoleResponse, error) {
-	errTx := r.db.InTransaction(func(tx *reform.TX) error {
+func (r *RoleService) DeleteRole(ctx context.Context, req *rolev1beta1.DeleteRoleRequest) (*rolev1beta1.DeleteRoleResponse, error) {
+	errTx := r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		if err := models.DeleteRole(tx, int(req.RoleId), int(req.ReplacementRoleId)); err != nil {
 			if errors.Is(err, models.ErrRoleNotFound) {
 				return status.Errorf(codes.NotFound, "Role not found")
@@ -176,8 +176,8 @@ func (r *RoleService) ListRoles(_ context.Context, _ *rolev1beta1.ListRolesReque
 // AssignRoles assigns a Role to a user.
 //
 //nolint:unparam
-func (r *RoleService) AssignRoles(_ context.Context, req *rolev1beta1.AssignRolesRequest) (*rolev1beta1.AssignRolesResponse, error) {
-	err := r.db.InTransaction(func(tx *reform.TX) error {
+func (r *RoleService) AssignRoles(ctx context.Context, req *rolev1beta1.AssignRolesRequest) (*rolev1beta1.AssignRolesResponse, error) {
+	err := r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		roleIDs := make([]int, 0, len(req.RoleIds))
 		for _, id := range req.RoleIds {
 			roleIDs = append(roleIDs, int(id))
@@ -197,8 +197,8 @@ func (r *RoleService) AssignRoles(_ context.Context, req *rolev1beta1.AssignRole
 // SetDefaultRole configures default role to be assigned to users.
 //
 //nolint:unparam
-func (r *RoleService) SetDefaultRole(_ context.Context, req *rolev1beta1.SetDefaultRoleRequest) (*rolev1beta1.SetDefaultRoleResponse, error) {
-	err := r.db.InTransaction(func(tx *reform.TX) error {
+func (r *RoleService) SetDefaultRole(ctx context.Context, req *rolev1beta1.SetDefaultRoleRequest) (*rolev1beta1.SetDefaultRoleResponse, error) {
+	err := r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		return models.ChangeDefaultRole(tx, int(req.RoleId))
 	})
 	if err != nil {

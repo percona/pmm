@@ -24,7 +24,7 @@ import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/helpers"
 	"github.com/percona/pmm/api/management/v1/json/client"
-	ha_proxy "github.com/percona/pmm/api/management/v1/json/client/ha_proxy_service"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 var addHAProxyResultT = commands.ParseTemplate(`
@@ -34,7 +34,7 @@ Service name: {{ .Service.ServiceName }}
 `)
 
 type addHAProxyResult struct {
-	Service *ha_proxy.AddHAProxyOKBodyService `json:"service"`
+	Service *mservice.AddHAProxyOKBodyService `json:"service"`
 }
 
 func (res *addHAProxyResult) Result() {}
@@ -105,8 +105,8 @@ func (cmd *AddHAProxyCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &ha_proxy.AddHAProxyParams{
-		Body: ha_proxy.AddHAProxyBody{
+	params := &mservice.AddHAProxyParams{
+		Body: mservice.AddHAProxyBody{
 			ServiceName:         cmd.ServiceName,
 			Username:            cmd.Username,
 			Password:            cmd.Password,
@@ -123,7 +123,7 @@ func (cmd *AddHAProxyCommand) RunCmd() (commands.Result, error) {
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.HAProxyService.AddHAProxy(params)
+	resp, err := client.Default.ManagementService.AddHAProxy(params)
 	if err != nil {
 		return nil, err
 	}

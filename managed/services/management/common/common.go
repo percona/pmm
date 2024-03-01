@@ -32,9 +32,9 @@ var ErrClusterLocked = errors.New("cluster/service is locked")
 
 // MgmtServices represents a collection of management services.
 type MgmtServices struct {
-	BackupsService        *managementbackup.BackupsService
-	ArtifactsService      *managementbackup.ArtifactsService
-	RestoreHistoryService *managementbackup.RestoreHistoryService
+	BackupsService   *managementbackup.BackupsService
+	ArtifactsService *managementbackup.ArtifactsService
+	RestoreService   *managementbackup.RestoreService
 }
 
 // RemoveScheduledTasks removes scheduled backup tasks and check there are no running backup/restore tasks in case user changes service cluster label.
@@ -112,7 +112,7 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 	}
 
 	// Check no restore tasks running.
-	restores, err := s.RestoreHistoryService.ListRestoreHistory(ctx, &backuppb.ListRestoreHistoryRequest{})
+	restores, err := s.RestoreService.ListRestores(ctx, &backuppb.ListRestoresRequest{})
 	if err != nil {
 		return err
 	}

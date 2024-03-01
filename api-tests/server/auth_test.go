@@ -281,7 +281,7 @@ func TestPermissions(t *testing.T) {
 		method   string
 		userCase []userCase
 	}{
-		{name: "settings", url: "/v1/Settings/Get", method: "POST", userCase: []userCase{
+		{name: "settings", url: "/v1/settings/Get", method: "POST", userCase: []userCase{
 			{userType: "default", login: none, statusCode: 401},
 			{userType: "viewer", login: viewer, apiKey: viewerAPIKey, statusCode: 401},
 			{userType: "editor", login: editor, apiKey: editorAPIKey, statusCode: 401},

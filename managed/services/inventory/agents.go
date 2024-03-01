@@ -388,8 +388,6 @@ func (as *AgentsService) ChangeMongoDBExporter(ctx context.Context, p *inventory
 }
 
 // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
-//
-//nolint:lll
 func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inventoryv1.AddQANMySQLPerfSchemaAgentParams) (*inventoryv1.AddAgentResponse, error) {
 	var agent *inventoryv1.QANMySQLPerfSchemaAgent
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -618,8 +616,6 @@ func (as *AgentsService) ChangePostgresExporter(ctx context.Context, p *inventor
 }
 
 // AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.
-//
-//nolint:lll
 func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, p *inventoryv1.AddQANMongoDBProfilerAgentParams) (*inventoryv1.AddAgentResponse, error) {
 	var agent *inventoryv1.QANMongoDBProfilerAgent
 

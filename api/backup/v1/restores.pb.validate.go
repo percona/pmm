@@ -244,22 +244,22 @@ var _ interface {
 	ErrorName() string
 } = RestoreHistoryItemValidationError{}
 
-// Validate checks the field values on ListRestoreHistoryRequest with the rules
+// Validate checks the field values on ListRestoresRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ListRestoreHistoryRequest) Validate() error {
+func (m *ListRestoresRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ListRestoreHistoryRequest with the
-// rules defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on ListRestoresRequest with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// ListRestoreHistoryRequestMultiError, or nil if none found.
-func (m *ListRestoreHistoryRequest) ValidateAll() error {
+// ListRestoresRequestMultiError, or nil if none found.
+func (m *ListRestoresRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ListRestoreHistoryRequest) validate(all bool) error {
+func (m *ListRestoresRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -267,19 +267,19 @@ func (m *ListRestoreHistoryRequest) validate(all bool) error {
 	var errors []error
 
 	if len(errors) > 0 {
-		return ListRestoreHistoryRequestMultiError(errors)
+		return ListRestoresRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// ListRestoreHistoryRequestMultiError is an error wrapping multiple validation
-// errors returned by ListRestoreHistoryRequest.ValidateAll() if the
-// designated constraints aren't met.
-type ListRestoreHistoryRequestMultiError []error
+// ListRestoresRequestMultiError is an error wrapping multiple validation
+// errors returned by ListRestoresRequest.ValidateAll() if the designated
+// constraints aren't met.
+type ListRestoresRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ListRestoreHistoryRequestMultiError) Error() string {
+func (m ListRestoresRequestMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -288,11 +288,11 @@ func (m ListRestoreHistoryRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ListRestoreHistoryRequestMultiError) AllErrors() []error { return m }
+func (m ListRestoresRequestMultiError) AllErrors() []error { return m }
 
-// ListRestoreHistoryRequestValidationError is the validation error returned by
-// ListRestoreHistoryRequest.Validate if the designated constraints aren't met.
-type ListRestoreHistoryRequestValidationError struct {
+// ListRestoresRequestValidationError is the validation error returned by
+// ListRestoresRequest.Validate if the designated constraints aren't met.
+type ListRestoresRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -300,24 +300,24 @@ type ListRestoreHistoryRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListRestoreHistoryRequestValidationError) Field() string { return e.field }
+func (e ListRestoresRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListRestoreHistoryRequestValidationError) Reason() string { return e.reason }
+func (e ListRestoresRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListRestoreHistoryRequestValidationError) Cause() error { return e.cause }
+func (e ListRestoresRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListRestoreHistoryRequestValidationError) Key() bool { return e.key }
+func (e ListRestoresRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListRestoreHistoryRequestValidationError) ErrorName() string {
-	return "ListRestoreHistoryRequestValidationError"
+func (e ListRestoresRequestValidationError) ErrorName() string {
+	return "ListRestoresRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ListRestoreHistoryRequestValidationError) Error() string {
+func (e ListRestoresRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -329,14 +329,14 @@ func (e ListRestoreHistoryRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListRestoreHistoryRequest.%s: %s%s",
+		"invalid %sListRestoresRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ListRestoreHistoryRequestValidationError{}
+var _ error = ListRestoresRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -344,24 +344,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListRestoreHistoryRequestValidationError{}
+} = ListRestoresRequestValidationError{}
 
-// Validate checks the field values on ListRestoreHistoryResponse with the
-// rules defined in the proto definition for this message. If any rules are
+// Validate checks the field values on ListRestoresResponse with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ListRestoreHistoryResponse) Validate() error {
+func (m *ListRestoresResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ListRestoreHistoryResponse with the
-// rules defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on ListRestoresResponse with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// ListRestoreHistoryResponseMultiError, or nil if none found.
-func (m *ListRestoreHistoryResponse) ValidateAll() error {
+// ListRestoresResponseMultiError, or nil if none found.
+func (m *ListRestoresResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ListRestoreHistoryResponse) validate(all bool) error {
+func (m *ListRestoresResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -375,7 +375,7 @@ func (m *ListRestoreHistoryResponse) validate(all bool) error {
 			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, ListRestoreHistoryResponseValidationError{
+					errors = append(errors, ListRestoresResponseValidationError{
 						field:  fmt.Sprintf("Items[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -383,7 +383,7 @@ func (m *ListRestoreHistoryResponse) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, ListRestoreHistoryResponseValidationError{
+					errors = append(errors, ListRestoresResponseValidationError{
 						field:  fmt.Sprintf("Items[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -392,7 +392,7 @@ func (m *ListRestoreHistoryResponse) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return ListRestoreHistoryResponseValidationError{
+				return ListRestoresResponseValidationError{
 					field:  fmt.Sprintf("Items[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -403,19 +403,19 @@ func (m *ListRestoreHistoryResponse) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ListRestoreHistoryResponseMultiError(errors)
+		return ListRestoresResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// ListRestoreHistoryResponseMultiError is an error wrapping multiple
-// validation errors returned by ListRestoreHistoryResponse.ValidateAll() if
-// the designated constraints aren't met.
-type ListRestoreHistoryResponseMultiError []error
+// ListRestoresResponseMultiError is an error wrapping multiple validation
+// errors returned by ListRestoresResponse.ValidateAll() if the designated
+// constraints aren't met.
+type ListRestoresResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ListRestoreHistoryResponseMultiError) Error() string {
+func (m ListRestoresResponseMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -424,11 +424,11 @@ func (m ListRestoreHistoryResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ListRestoreHistoryResponseMultiError) AllErrors() []error { return m }
+func (m ListRestoresResponseMultiError) AllErrors() []error { return m }
 
-// ListRestoreHistoryResponseValidationError is the validation error returned
-// by ListRestoreHistoryResponse.Validate if the designated constraints aren't met.
-type ListRestoreHistoryResponseValidationError struct {
+// ListRestoresResponseValidationError is the validation error returned by
+// ListRestoresResponse.Validate if the designated constraints aren't met.
+type ListRestoresResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -436,24 +436,24 @@ type ListRestoreHistoryResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListRestoreHistoryResponseValidationError) Field() string { return e.field }
+func (e ListRestoresResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListRestoreHistoryResponseValidationError) Reason() string { return e.reason }
+func (e ListRestoresResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListRestoreHistoryResponseValidationError) Cause() error { return e.cause }
+func (e ListRestoresResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListRestoreHistoryResponseValidationError) Key() bool { return e.key }
+func (e ListRestoresResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListRestoreHistoryResponseValidationError) ErrorName() string {
-	return "ListRestoreHistoryResponseValidationError"
+func (e ListRestoresResponseValidationError) ErrorName() string {
+	return "ListRestoresResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ListRestoreHistoryResponseValidationError) Error() string {
+func (e ListRestoresResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -465,14 +465,14 @@ func (e ListRestoreHistoryResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListRestoreHistoryResponse.%s: %s%s",
+		"invalid %sListRestoresResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ListRestoreHistoryResponseValidationError{}
+var _ error = ListRestoresResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -480,4 +480,261 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListRestoreHistoryResponseValidationError{}
+} = ListRestoresResponseValidationError{}
+
+// Validate checks the field values on RestoreBackupRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RestoreBackupRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RestoreBackupRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RestoreBackupRequestMultiError, or nil if none found.
+func (m *RestoreBackupRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RestoreBackupRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
+		err := RestoreBackupRequestValidationError{
+			field:  "ServiceId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetArtifactId()) < 1 {
+		err := RestoreBackupRequestValidationError{
+			field:  "ArtifactId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if all {
+		switch v := interface{}(m.GetPitrTimestamp()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RestoreBackupRequestValidationError{
+					field:  "PitrTimestamp",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RestoreBackupRequestValidationError{
+					field:  "PitrTimestamp",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetPitrTimestamp()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RestoreBackupRequestValidationError{
+				field:  "PitrTimestamp",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return RestoreBackupRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// RestoreBackupRequestMultiError is an error wrapping multiple validation
+// errors returned by RestoreBackupRequest.ValidateAll() if the designated
+// constraints aren't met.
+type RestoreBackupRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RestoreBackupRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RestoreBackupRequestMultiError) AllErrors() []error { return m }
+
+// RestoreBackupRequestValidationError is the validation error returned by
+// RestoreBackupRequest.Validate if the designated constraints aren't met.
+type RestoreBackupRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RestoreBackupRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RestoreBackupRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RestoreBackupRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RestoreBackupRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RestoreBackupRequestValidationError) ErrorName() string {
+	return "RestoreBackupRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RestoreBackupRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRestoreBackupRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RestoreBackupRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RestoreBackupRequestValidationError{}
+
+// Validate checks the field values on RestoreBackupResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RestoreBackupResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RestoreBackupResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RestoreBackupResponseMultiError, or nil if none found.
+func (m *RestoreBackupResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RestoreBackupResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for RestoreId
+
+	if len(errors) > 0 {
+		return RestoreBackupResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// RestoreBackupResponseMultiError is an error wrapping multiple validation
+// errors returned by RestoreBackupResponse.ValidateAll() if the designated
+// constraints aren't met.
+type RestoreBackupResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RestoreBackupResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RestoreBackupResponseMultiError) AllErrors() []error { return m }
+
+// RestoreBackupResponseValidationError is the validation error returned by
+// RestoreBackupResponse.Validate if the designated constraints aren't met.
+type RestoreBackupResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RestoreBackupResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RestoreBackupResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RestoreBackupResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RestoreBackupResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RestoreBackupResponseValidationError) ErrorName() string {
+	return "RestoreBackupResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RestoreBackupResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRestoreBackupResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RestoreBackupResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RestoreBackupResponseValidationError{}

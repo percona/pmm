@@ -6,6 +6,8 @@ package server_service
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"io"
+
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 )
@@ -37,6 +39,8 @@ type ClientService interface {
 	GetSettings(params *GetSettingsParams, opts ...ClientOption) (*GetSettingsOK, error)
 
 	LeaderHealthCheck(params *LeaderHealthCheckParams, opts ...ClientOption) (*LeaderHealthCheckOK, error)
+
+	Logs(params *LogsParams, writer io.Writer, opts ...ClientOption) (*LogsOK, error)
 
 	Readiness(params *ReadinessParams, opts ...ClientOption) (*ReadinessOK, error)
 
@@ -101,7 +105,7 @@ func (a *Client) ChangeSettings(params *ChangeSettingsParams, opts ...ClientOpti
 	op := &runtime.ClientOperation{
 		ID:                 "ChangeSettings",
 		Method:             "POST",
-		PathPattern:        "/v1/Settings/Change",
+		PathPattern:        "/v1/settings/Change",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -140,7 +144,7 @@ func (a *Client) CheckUpdates(params *CheckUpdatesParams, opts ...ClientOption) 
 	op := &runtime.ClientOperation{
 		ID:                 "CheckUpdates",
 		Method:             "POST",
-		PathPattern:        "/v1/Updates/Check",
+		PathPattern:        "/v1/updates/Check",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -179,7 +183,7 @@ func (a *Client) GetSettings(params *GetSettingsParams, opts ...ClientOption) (*
 	op := &runtime.ClientOperation{
 		ID:                 "GetSettings",
 		Method:             "POST",
-		PathPattern:        "/v1/Settings/Get",
+		PathPattern:        "/v1/settings/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -245,6 +249,45 @@ func (a *Client) LeaderHealthCheck(params *LeaderHealthCheckParams, opts ...Clie
 }
 
 /*
+Logs logs
+
+Returns the PMM Server logs.
+*/
+func (a *Client) Logs(params *LogsParams, writer io.Writer, opts ...ClientOption) (*LogsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewLogsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "Logs",
+		Method:             "GET",
+		PathPattern:        "/logs.zip",
+		ProducesMediaTypes: []string{"application/zip"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &LogsReader{formats: a.formats, writer: writer},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*LogsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*LogsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 Readiness checks server readiness
 
 Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness.
@@ -296,7 +339,7 @@ func (a *Client) StartUpdate(params *StartUpdateParams, opts ...ClientOption) (*
 	op := &runtime.ClientOperation{
 		ID:                 "StartUpdate",
 		Method:             "POST",
-		PathPattern:        "/v1/Updates/Start",
+		PathPattern:        "/v1/updates/Start",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -335,7 +378,7 @@ func (a *Client) UpdateStatus(params *UpdateStatusParams, opts ...ClientOption) 
 	op := &runtime.ClientOperation{
 		ID:                 "UpdateStatus",
 		Method:             "POST",
-		PathPattern:        "/v1/Updates/Status",
+		PathPattern:        "/v1/updates/Status",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

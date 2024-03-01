@@ -25,7 +25,7 @@ import (
 	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
-	annotation "github.com/percona/pmm/api/management/v1/json/client/annotation_service"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 var annotationResultT = ParseTemplate(`
@@ -156,8 +156,8 @@ func (cmd *AnnotationCommand) RunCmd() (Result, error) {
 		return nil, err
 	}
 
-	_, err = managementClient.Default.AnnotationService.AddAnnotation(&annotation.AddAnnotationParams{
-		Body: annotation.AddAnnotationBody{
+	_, err = managementClient.Default.ManagementService.AddAnnotation(&mservice.AddAnnotationParams{
+		Body: mservice.AddAnnotationBody{
 			Text:         cmd.Text,
 			Tags:         cmd.Tags,
 			NodeName:     nodeName,

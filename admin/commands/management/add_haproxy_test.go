@@ -20,13 +20,13 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	ha_proxy "github.com/percona/pmm/api/management/v1/json/client/ha_proxy_service"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 func TestAddHAProxy(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		res := &addHAProxyResult{
-			Service: &ha_proxy.AddHAProxyOKBodyService{
+			Service: &mservice.AddHAProxyOKBodyService{
 				ServiceID:   "/service_id/1",
 				ServiceName: "myhost-redis",
 			},

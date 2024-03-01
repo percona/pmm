@@ -34,27 +34,8 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-// NodeService represents service for working with nodes.
-type NodeService struct {
-	db  *reform.DB
-	akp apiKeyProvider
-
-	l *logrus.Entry
-
-	managementv1.UnimplementedNodeServiceServer
-}
-
-// NewNodeService creates NodeService instance.
-func NewNodeService(db *reform.DB, akp apiKeyProvider) *NodeService {
-	return &NodeService{
-		db:  db,
-		akp: akp,
-		l:   logrus.WithField("component", "node"),
-	}
-}
-
 // RegisterNode performs the registration of a new node.
-func (s *NodeService) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) {
+func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) {
 	res := &managementv1.RegisterNodeResponse{}
 
 	e := s.db.InTransaction(func(tx *reform.TX) error {
@@ -138,11 +119,12 @@ func (s *NodeService) RegisterNode(ctx context.Context, req *managementv1.Regist
 		return nil, e
 	}
 
+	l := logrus.WithField("component", "node")
 	// get authorization from headers.
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		msg := "Couldn't create Admin API Key: cannot get headers from metadata"
-		s.l.Errorln(msg)
+		l.Errorln(msg)
 		res.Warning = msg
 		return res, nil
 	}
@@ -152,12 +134,12 @@ func (s *NodeService) RegisterNode(ctx context.Context, req *managementv1.Regist
 	}
 	headers := make(http.Header)
 	headers.Set("Authorization", authorizationHeaders[0])
-	if !s.akp.IsAPIKeyAuth(headers) {
+	if !s.grafanaClient.IsAPIKeyAuth(headers) {
 		apiKeyName := fmt.Sprintf("pmm-agent-%s-%d", req.NodeName, rand.Int63()) //nolint:gosec
-		_, res.Token, e = s.akp.CreateAdminAPIKey(ctx, apiKeyName)
+		_, res.Token, e = s.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
 		if e != nil {
 			msg := fmt.Sprintf("Couldn't create Admin API Key: %s", e)
-			s.l.Errorln(msg)
+			l.Errorln(msg)
 			res.Warning = msg
 		}
 	}

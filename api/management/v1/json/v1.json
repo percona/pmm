@@ -17,9 +17,9 @@
   "paths": {
     "/v1/management/Annotations/Add": {
       "post": {
-        "description": "Adds annotation.",
+        "description": "Adds an annotation.",
         "tags": [
-          "AnnotationService"
+          "ManagementService"
         ],
         "summary": "Add Annotation",
         "operationId": "AddAnnotation",
@@ -108,7 +108,7 @@
       "post": {
         "description": "Adds external service and adds external exporter. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds an \"external exporter\" agent to inventory, which is running on provided \"runs_on_node_id\".",
         "tags": [
-          "ExternalService"
+          "ManagementService"
         ],
         "summary": "Add External Service",
         "operationId": "AddExternal",
@@ -451,7 +451,7 @@
       "post": {
         "description": "Adds HAProxy service and external exporter. It automatically adds a service to inventory, which is running on the provided \"node_id\", then adds an \"external exporter\" agent to the inventory.",
         "tags": [
-          "HAProxyService"
+          "ManagementService"
         ],
         "summary": "Add HAProxy",
         "operationId": "AddHAProxy",
@@ -779,7 +779,7 @@
       "post": {
         "description": "Adds MongoDB Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided \"node_id\", then adds \"mongodb_exporter\", and \"qan_mongodb_profiler\" agents with the provided \"pmm_agent_id\" and other parameters.",
         "tags": [
-          "MongoDBService"
+          "ManagementService"
         ],
         "summary": "Add MongoDB",
         "operationId": "AddMongoDB",
@@ -1379,7 +1379,7 @@
       "post": {
         "description": "Adds MySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided \"node_id\", then adds \"mysqld_exporter\", and \"qan_mysql_perfschema\" agents with the provided \"pmm_agent_id\" and other parameters.",
         "tags": [
-          "MySQLService"
+          "ManagementService"
         ],
         "summary": "Add MySQL",
         "operationId": "AddMySQL",
@@ -2143,7 +2143,7 @@
       "post": {
         "description": "Registers a new Node and pmm-agent.",
         "tags": [
-          "NodeService"
+          "ManagementService"
         ],
         "summary": "Register Node",
         "operationId": "RegisterNode",
@@ -2467,7 +2467,7 @@
       "post": {
         "description": "Adds PostgreSQL Service and starts postgres exporter. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds \"postgres_exporter\" with provided \"pmm_agent_id\" and other parameters.",
         "tags": [
-          "PostgreSQLService"
+          "ManagementService"
         ],
         "summary": "Add PostgreSQL",
         "operationId": "AddPostgreSQL",
@@ -3173,7 +3173,7 @@
       "post": {
         "description": "Adds ProxySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds \"proxysql_exporter\" with provided \"pmm_agent_id\" and other parameters.",
         "tags": [
-          "ProxySQLService"
+          "ManagementService"
         ],
         "summary": "Add ProxySQL",
         "operationId": "AddProxySQL",
@@ -3608,7 +3608,7 @@
       "post": {
         "description": "Adds RDS instance.",
         "tags": [
-          "RDSService"
+          "ManagementService"
         ],
         "summary": "Add RDS",
         "operationId": "AddRDS",
@@ -4135,7 +4135,7 @@
                       "x-order": 11
                     }
                   },
-                  "x-order": 6
+                  "x-order": 5
                 },
                 "postgresql_exporter": {
                   "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.",
@@ -4250,7 +4250,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 7
+                  "x-order": 6
                 },
                 "qan_mysql_perfschema": {
                   "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -4462,7 +4462,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 8
+                  "x-order": 7
                 },
                 "rds_exporter": {
                   "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
@@ -4565,12 +4565,6 @@
                     }
                   },
                   "x-order": 1
-                },
-                "table_count": {
-                  "description": "Actual table count at the moment of adding.",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 5
                 }
               }
             }
@@ -4613,7 +4607,7 @@
       "post": {
         "description": "Discovers RDS instances.",
         "tags": [
-          "RDSService"
+          "ManagementService"
         ],
         "summary": "Discover RDS",
         "operationId": "DiscoverRDS",
@@ -4743,7 +4737,7 @@
       "post": {
         "description": "Removes a Service along with Agents.",
         "tags": [
-          "Service"
+          "ManagementService"
         ],
         "summary": "Remove Service",
         "operationId": "RemoveService",
@@ -4828,34 +4822,7 @@
   },
   "tags": [
     {
-      "name": "AnnotationService"
-    },
-    {
-      "name": "ExternalService"
-    },
-    {
-      "name": "HAProxyService"
-    },
-    {
-      "name": "MongoDBService"
-    },
-    {
-      "name": "MySQLService"
-    },
-    {
-      "name": "NodeService"
-    },
-    {
-      "name": "PostgreSQLService"
-    },
-    {
-      "name": "ProxySQLService"
-    },
-    {
-      "name": "RDSService"
-    },
-    {
-      "name": "Service"
+      "name": "ManagementService"
     }
   ]
 }

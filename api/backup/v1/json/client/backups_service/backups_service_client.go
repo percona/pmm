@@ -38,8 +38,6 @@ type ClientService interface {
 
 	RemoveScheduledBackup(params *RemoveScheduledBackupParams, opts ...ClientOption) (*RemoveScheduledBackupOK, error)
 
-	RestoreBackup(params *RestoreBackupParams, opts ...ClientOption) (*RestoreBackupOK, error)
-
 	ScheduleBackup(params *ScheduleBackupParams, opts ...ClientOption) (*ScheduleBackupOK, error)
 
 	StartBackup(params *StartBackupParams, opts ...ClientOption) (*StartBackupOK, error)
@@ -48,7 +46,9 @@ type ClientService interface {
 }
 
 /*
-ChangeScheduledBackup changes scheduled backup changes existing scheduled backup
+ChangeScheduledBackup changes a scheduled backup
+
+Change a scheduled backup.
 */
 func (a *Client) ChangeScheduledBackup(params *ChangeScheduledBackupParams, opts ...ClientOption) (*ChangeScheduledBackupOK, error) {
 	// TODO: Validate the params before sending
@@ -85,7 +85,9 @@ func (a *Client) ChangeScheduledBackup(params *ChangeScheduledBackupParams, opts
 }
 
 /*
-GetLogs gets logs returns logs from the underlying tools for a backup restore job
+GetLogs gets logs
+
+Get logs from the underlying tools for a backup/restore job.
 */
 func (a *Client) GetLogs(params *GetLogsParams, opts ...ClientOption) (*GetLogsOK, error) {
 	// TODO: Validate the params before sending
@@ -122,7 +124,9 @@ func (a *Client) GetLogs(params *GetLogsParams, opts ...ClientOption) (*GetLogsO
 }
 
 /*
-ListArtifactCompatibleServices lists artifact compatible services lists compatible services for restoring a backup
+ListArtifactCompatibleServices lists compatible services
+
+List services that are compatible with the backup artifact.
 */
 func (a *Client) ListArtifactCompatibleServices(params *ListArtifactCompatibleServicesParams, opts ...ClientOption) (*ListArtifactCompatibleServicesOK, error) {
 	// TODO: Validate the params before sending
@@ -159,7 +163,9 @@ func (a *Client) ListArtifactCompatibleServices(params *ListArtifactCompatibleSe
 }
 
 /*
-ListScheduledBackups lists scheduled backups returns all scheduled backups
+ListScheduledBackups lists scheduled backups
+
+List all scheduled backups.
 */
 func (a *Client) ListScheduledBackups(params *ListScheduledBackupsParams, opts ...ClientOption) (*ListScheduledBackupsOK, error) {
 	// TODO: Validate the params before sending
@@ -196,7 +202,9 @@ func (a *Client) ListScheduledBackups(params *ListScheduledBackupsParams, opts .
 }
 
 /*
-RemoveScheduledBackup removes scheduled backup removes existing scheduled backup
+RemoveScheduledBackup removes a scheduled backup
+
+Remove a scheduled backup.
 */
 func (a *Client) RemoveScheduledBackup(params *RemoveScheduledBackupParams, opts ...ClientOption) (*RemoveScheduledBackupOK, error) {
 	// TODO: Validate the params before sending
@@ -233,51 +241,9 @@ func (a *Client) RemoveScheduledBackup(params *RemoveScheduledBackupParams, opts
 }
 
 /*
-	RestoreBackup restores backup requests the backup restore
+ScheduleBackup schedules a backup
 
-	Could return the Error message in the details containing specific ErrorCode indicating failure reason:
-
-ERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service
-ERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud
-ERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup
-ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL - target MySQL version is not compatible with the artifact for performing a restore of the backup
-*/
-func (a *Client) RestoreBackup(params *RestoreBackupParams, opts ...ClientOption) (*RestoreBackupOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewRestoreBackupParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "RestoreBackup",
-		Method:             "POST",
-		PathPattern:        "/v1/backup/Backups/Restore",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &RestoreBackupReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*RestoreBackupOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*RestoreBackupDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-ScheduleBackup schedules backup schedules repeated backup
+Schedule a backup to run at a specified time.
 */
 func (a *Client) ScheduleBackup(params *ScheduleBackupParams, opts ...ClientOption) (*ScheduleBackupOK, error) {
 	// TODO: Validate the params before sending
@@ -314,7 +280,7 @@ func (a *Client) ScheduleBackup(params *ScheduleBackupParams, opts ...ClientOpti
 }
 
 /*
-	StartBackup starts backup request backup specified service to location
+	StartBackup starts a backup
 
 	Could return the Error message in the details containing specific ErrorCode indicating failure reason:
 

@@ -28,31 +28,11 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-// ExternalService External Management Service.
-type ExternalService struct {
-	db    *reform.DB
-	vmdb  prometheusService
-	state agentsStateUpdater
-	cc    connectionChecker
-
-	managementv1.UnimplementedExternalServiceServer
-}
-
-// NewExternalService creates new External Management Service.
-func NewExternalService(db *reform.DB, vmdb prometheusService, state agentsStateUpdater, cc connectionChecker) *ExternalService {
-	return &ExternalService{
-		db:    db,
-		vmdb:  vmdb,
-		state: state,
-		cc:    cc,
-	}
-}
-
 // AddExternal adds an external service based on the provided request.
-func (e *ExternalService) AddExternal(ctx context.Context, req *managementv1.AddExternalRequest) (*managementv1.AddExternalResponse, error) {
+func (s *ManagementService) AddExternal(ctx context.Context, req *managementv1.AddExternalRequest) (*managementv1.AddExternalResponse, error) {
 	res := &managementv1.AddExternalResponse{}
 	var pmmAgentID *string
-	if e := e.db.InTransaction(func(tx *reform.TX) error {
+	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		if (req.NodeId == "") != (req.RunsOnNodeId == "") {
 			return status.Error(codes.InvalidArgument, "runs_on_node_id and node_id should be specified together.")
 		}
@@ -118,7 +98,7 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementv1.Add
 		}
 
 		if !req.SkipConnectionCheck {
-			if err = e.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
 		}
@@ -137,9 +117,9 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementv1.Add
 	// we have to trigger after transaction
 	if pmmAgentID != nil {
 		// It's required to regenerate victoriametrics config file.
-		e.state.RequestStateUpdate(ctx, *pmmAgentID)
+		s.state.RequestStateUpdate(ctx, *pmmAgentID)
 	} else {
-		e.vmdb.RequestConfigurationUpdate()
+		s.vmdb.RequestConfigurationUpdate()
 	}
 	return res, nil
 }

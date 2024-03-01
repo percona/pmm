@@ -216,10 +216,10 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/v1/management/Service/Remove":         admin,
 		"/v1/management/Service/List":           admin,
 		"/v1/management/Agent/List":             admin,
-		"/v1/Updates/Check":                     viewer,
-		"/v1/Updates/Start":                     admin,
-		"/v1/Updates/Status":                    none,
-		"/v1/Settings/Get":                      admin,
+		"/v1/updates/Check":                     viewer,
+		"/v1/updates/Start":                     admin,
+		"/v1/updates/Status":                    none,
+		"/v1/settings/Get":                      admin,
 		"/v1/AWSInstanceCheck":                  none,
 		"/v1/platform/Connect":                  admin,
 
@@ -242,7 +242,6 @@ func TestAuthServerAuthenticate(t *testing.T) {
 			role := role
 
 			t.Run(fmt.Sprintf("uri=%s,minRole=%s,role=%s", uri, minRole, role), func(t *testing.T) {
-				// This test couldn't run in parallel on sqlite3 - they locked Grafana's sqlite3 database
 				t.Parallel()
 
 				login := fmt.Sprintf("%s-%s-%d", minRole, role, time.Now().Nanosecond())

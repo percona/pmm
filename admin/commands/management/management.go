@@ -16,24 +16,23 @@
 package management
 
 import (
-	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
-	"github.com/percona/pmm/api/management/v1/json/client/service"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 var (
 	allNodeTypes = map[string]string{
-		"generic":   node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE,
-		"container": node.RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE,
-		"remote":    node.RegisterNodeBodyNodeTypeNODETYPEREMOTENODE,
+		"generic":   mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE,
+		"container": mservice.RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE,
+		"remote":    mservice.RegisterNodeBodyNodeTypeNODETYPEREMOTENODE,
 	}
 
 	allServiceTypes = map[string]string{
-		"mysql":      service.RemoveServiceBodyServiceTypeSERVICETYPEMYSQLSERVICE,
-		"mongodb":    service.RemoveServiceBodyServiceTypeSERVICETYPEMONGODBSERVICE,
-		"postgresql": service.RemoveServiceBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE,
-		"proxysql":   service.RemoveServiceBodyServiceTypeSERVICETYPEPROXYSQLSERVICE,
-		"haproxy":    service.RemoveServiceBodyServiceTypeSERVICETYPEHAPROXYSERVICE,
-		"external":   service.RemoveServiceBodyServiceTypeSERVICETYPEEXTERNALSERVICE,
+		"mysql":      mservice.RemoveServiceBodyServiceTypeSERVICETYPEMYSQLSERVICE,
+		"mongodb":    mservice.RemoveServiceBodyServiceTypeSERVICETYPEMONGODBSERVICE,
+		"postgresql": mservice.RemoveServiceBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE,
+		"proxysql":   mservice.RemoveServiceBodyServiceTypeSERVICETYPEPROXYSQLSERVICE,
+		"haproxy":    mservice.RemoveServiceBodyServiceTypeSERVICETYPEHAPROXYSERVICE,
+		"external":   mservice.RemoveServiceBodyServiceTypeSERVICETYPEEXTERNALSERVICE,
 	}
 
 	// AllServiceTypesKeys lists all possible service types.

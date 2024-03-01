@@ -24,32 +24,15 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"gopkg.in/reform.v1"
 
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 )
 
-// AnnotationService Annotation Service.
-type AnnotationService struct {
-	db            *reform.DB
-	grafanaClient grafanaClient
-
-	managementv1.UnimplementedAnnotationServiceServer
-}
-
-// NewAnnotationService create new Annotation Service.
-func NewAnnotationService(db *reform.DB, grafanaClient grafanaClient) *AnnotationService {
-	return &AnnotationService{
-		db:            db,
-		grafanaClient: grafanaClient,
-	}
-}
-
 // AddAnnotation create annotation in grafana.
 //
 //nolint:unparam
-func (as *AnnotationService) AddAnnotation(ctx context.Context, req *managementv1.AddAnnotationRequest) (*managementv1.AddAnnotationResponse, error) {
+func (s *ManagementService) AddAnnotation(ctx context.Context, req *managementv1.AddAnnotationRequest) (*managementv1.AddAnnotationResponse, error) {
 	headers, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return nil, fmt.Errorf("cannot get headers from metadata")
@@ -67,7 +50,7 @@ func (as *AnnotationService) AddAnnotation(ctx context.Context, req *managementv
 	var postfix []string
 	if len(req.ServiceNames) != 0 {
 		for _, sn := range req.ServiceNames {
-			_, err := models.FindServiceByName(as.db.Querier, sn)
+			_, err := models.FindServiceByName(s.db.Querier, sn)
 			if err != nil {
 				return nil, err
 			}
@@ -78,7 +61,7 @@ func (as *AnnotationService) AddAnnotation(ctx context.Context, req *managementv
 	}
 
 	if req.NodeName != "" {
-		_, err := models.FindNodeByName(as.db.Querier, req.NodeName)
+		_, err := models.FindNodeByName(s.db.Querier, req.NodeName)
 		if err != nil {
 			return nil, err
 		}
@@ -91,7 +74,7 @@ func (as *AnnotationService) AddAnnotation(ctx context.Context, req *managementv
 		req.Text += " (" + strings.Join(postfix, ". ") + ")"
 	}
 
-	_, err := as.grafanaClient.CreateAnnotation(ctx, tags, time.Now(), req.Text, authorizationHeaders[0])
+	_, err := s.grafanaClient.CreateAnnotation(ctx, tags, time.Now(), req.Text, authorizationHeaders[0])
 	if err != nil {
 		return nil, err
 	}

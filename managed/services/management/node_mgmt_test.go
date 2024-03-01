@@ -44,7 +44,7 @@ func TestMgmtNodeService(t *testing.T) {
 	t.Run("ListNodes", func(t *testing.T) {
 		now = models.Now()
 
-		setup := func(t *testing.T) (context.Context, *MgmtNodeService, func(t *testing.T)) {
+		setup := func(t *testing.T) (context.Context, *MgmtServiceService, func(t *testing.T)) {
 			t.Helper()
 
 			origNowF := models.Now
@@ -61,10 +61,16 @@ func TestMgmtNodeService(t *testing.T) {
 			ar := &mockAgentsRegistry{}
 			ar.Test(t)
 
+			vmdb := &mockPrometheusService{}
+			vmdb.Test(t)
+
+			state := &mockAgentsStateUpdater{}
+			state.Test(t)
+
 			vmClient := &mockVictoriaMetricsClient{}
 			vmClient.Test(t)
 
-			s := NewMgmtNodeService(db, ar, vmClient)
+			s := NewMgmtServiceService(db, ar, state, vmdb, vmClient)
 
 			teardown := func(t *testing.T) {
 				t.Helper()
@@ -73,6 +79,9 @@ func TestMgmtNodeService(t *testing.T) {
 
 				require.NoError(t, sqlDB.Close())
 				ar.AssertExpectations(t)
+				state.AssertExpectations(t)
+				vmdb.AssertExpectations(t)
+				vmClient.AssertExpectations(t)
 			}
 
 			return ctx, s, teardown
@@ -85,7 +94,7 @@ func TestMgmtNodeService(t *testing.T) {
 
 		t.Run("should output an unfiltered list of all nodes", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
-			defer teardown(t)
+			t.Cleanup(func() { teardown(t) })
 
 			metric := model.Vector{
 				&model.Sample{
@@ -98,7 +107,7 @@ func TestMgmtNodeService(t *testing.T) {
 				},
 			}
 
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil).Times(2)
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodesRequest{})
@@ -152,9 +161,9 @@ func TestMgmtNodeService(t *testing.T) {
 
 		t.Run("should output an empty list of nodes when filter condition is not satisfied", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
-			defer teardown(t)
+			t.Cleanup(func() { teardown(t) })
 
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Times(2)
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 
@@ -168,7 +177,7 @@ func TestMgmtNodeService(t *testing.T) {
 
 		t.Run("should output a list of nodes when filter condition is satisfied", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
-			defer teardown(t)
+			t.Cleanup(func() { teardown(t) })
 
 			metric := model.Vector{
 				&model.Sample{
@@ -180,7 +189,7 @@ func TestMgmtNodeService(t *testing.T) {
 					Value:     1,
 				},
 			}
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil).Times(2)
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 
@@ -239,7 +248,7 @@ func TestMgmtNodeService(t *testing.T) {
 	t.Run("GetNode", func(t *testing.T) {
 		now := models.Now()
 
-		setup := func(t *testing.T) (context.Context, *MgmtNodeService, func(t *testing.T)) {
+		setup := func(t *testing.T) (context.Context, *MgmtServiceService, func(t *testing.T)) {
 			t.Helper()
 
 			origNowF := models.Now
@@ -255,10 +264,16 @@ func TestMgmtNodeService(t *testing.T) {
 			ar := &mockAgentsRegistry{}
 			ar.Test(t)
 
+			vmdb := &mockPrometheusService{}
+			vmdb.Test(t)
+
+			state := &mockAgentsStateUpdater{}
+			state.Test(t)
+
 			vmClient := &mockVictoriaMetricsClient{}
 			vmClient.Test(t)
 
-			s := NewMgmtNodeService(db, ar, vmClient)
+			s := NewMgmtServiceService(db, ar, state, vmdb, vmClient)
 
 			teardown := func(t *testing.T) {
 				t.Helper()
@@ -274,7 +289,7 @@ func TestMgmtNodeService(t *testing.T) {
 
 		t.Run("should query the node by its id", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
-			defer teardown(t)
+			t.Cleanup(func() { teardown(t) })
 
 			metric := model.Vector{
 				&model.Sample{
@@ -319,7 +334,7 @@ func TestMgmtNodeService(t *testing.T) {
 		t.Run("should return an error if such node_id doesn't exist", func(t *testing.T) {
 			const nodeID = "00000000-0000-4000-8000-000000000000"
 			ctx, s, teardown := setup(t)
-			defer teardown(t)
+			t.Cleanup(func() { teardown(t) })
 
 			node, err := s.GetNode(ctx, &nodev1beta1.GetNodeRequest{
 				NodeId: nodeID,
@@ -331,7 +346,7 @@ func TestMgmtNodeService(t *testing.T) {
 
 		t.Run("should return an error if the node_id parameter is empty", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
-			defer teardown(t)
+			t.Cleanup(func() { teardown(t) })
 
 			node, err := s.GetNode(ctx, &nodev1beta1.GetNodeRequest{
 				NodeId: "",

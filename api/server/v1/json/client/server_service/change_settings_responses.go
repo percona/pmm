@@ -58,7 +58,7 @@ type ChangeSettingsOK struct {
 }
 
 func (o *ChangeSettingsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/Settings/Change][%d] changeSettingsOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/settings/Change][%d] changeSettingsOk  %+v", 200, o.Payload)
 }
 
 func (o *ChangeSettingsOK) GetPayload() *ChangeSettingsOKBody {
@@ -100,7 +100,7 @@ func (o *ChangeSettingsDefault) Code() int {
 }
 
 func (o *ChangeSettingsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/Settings/Change][%d] ChangeSettings default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/settings/Change][%d] ChangeSettings default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ChangeSettingsDefault) GetPayload() *ChangeSettingsDefaultBody {

@@ -27,33 +27,11 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-// MongoDBService MongoDB Management Service.
-type MongoDBService struct {
-	db    *reform.DB
-	state agentsStateUpdater
-	cc    connectionChecker
-	sib   serviceInfoBroker
-	vc    versionCache
-
-	managementv1.UnimplementedMongoDBServiceServer
-}
-
-// NewMongoDBService creates new MongoDB Management Service.
-func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, sib serviceInfoBroker, vc versionCache) *MongoDBService {
-	return &MongoDBService{
-		db:    db,
-		state: state,
-		cc:    cc,
-		sib:   sib,
-		vc:    vc,
-	}
-}
-
 // AddMongoDB adds "MongoDB Service", "MongoDB Exporter Agent" and "QAN MongoDB Profiler".
-func (s *MongoDBService) AddMongoDB(ctx context.Context, req *managementv1.AddMongoDBRequest) (*managementv1.AddMongoDBResponse, error) {
+func (s *ManagementService) AddMongoDB(ctx context.Context, req *managementv1.AddMongoDBRequest) (*managementv1.AddMongoDBResponse, error) {
 	res := &managementv1.AddMongoDBResponse{}
 
-	if e := s.db.InTransaction(func(tx *reform.TX) error {
+	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {
 			return err

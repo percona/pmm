@@ -22,7 +22,7 @@ import (
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 	"github.com/percona/pmm/api/management/v1/json/client"
-	"github.com/percona/pmm/api/management/v1/json/client/service"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 var removeServiceGenericResultT = commands.ParseTemplate(`
@@ -86,15 +86,15 @@ func (cmd *RemoveCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &service.RemoveServiceParams{
-		Body: service.RemoveServiceBody{
+	params := &mservice.RemoveServiceParams{
+		Body: mservice.RemoveServiceBody{
 			ServiceID:   cmd.ServiceID,
 			ServiceName: cmd.ServiceName,
 			ServiceType: cmd.serviceType(),
 		},
 		Context: commands.Ctx,
 	}
-	_, err := client.Default.Service.RemoveService(params)
+	_, err := client.Default.ManagementService.RemoveService(params)
 	if err != nil {
 		return nil, err
 	}

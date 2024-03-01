@@ -208,7 +208,7 @@ func TestCheckCompatibility(t *testing.T) {
 	}
 }
 
-func TestFindCompatibleServiceIDs(t *testing.T) { //nolint:tparallel
+func TestFindCompatibleServiceIDs(t *testing.T) {
 	t.Parallel()
 	cSvc := NewCompatibilityService(nil, nil)
 

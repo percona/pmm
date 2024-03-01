@@ -39,7 +39,7 @@ import (
 
 func TestServiceService(t *testing.T) {
 	t.Run("Remove", func(t *testing.T) {
-		setup := func(t *testing.T) (context.Context, *ServiceService, func(t *testing.T), *mockPrometheusService) { //nolint:unparam
+		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T), *mockPrometheusService) { //nolint:unparam
 			t.Helper()
 
 			ctx := logger.Set(context.Background(), t.Name())
@@ -57,6 +57,18 @@ func TestServiceService(t *testing.T) {
 			ar := &mockAgentsRegistry{}
 			ar.Test(t)
 
+			cc := &mockConnectionChecker{}
+			cc.Test(t)
+
+			sib := &mockServiceInfoBroker{}
+			sib.Test(t)
+
+			vc := &mockVersionCache{}
+			vc.Test(t)
+
+			grafanaClient := &mockGrafanaClient{}
+			grafanaClient.Test(t)
+
 			teardown := func(t *testing.T) {
 				t.Helper()
 				uuid.SetRand(nil)
@@ -65,8 +77,13 @@ func TestServiceService(t *testing.T) {
 				vmdb.AssertExpectations(t)
 				state.AssertExpectations(t)
 				ar.AssertExpectations(t)
+				cc.AssertExpectations(t)
+				sib.AssertExpectations(t)
+				vc.AssertExpectations(t)
+				grafanaClient.AssertExpectations(t)
 			}
-			s := NewServiceService(db, ar, state, vmdb)
+
+			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient)
 
 			return ctx, s, teardown, vmdb
 		}

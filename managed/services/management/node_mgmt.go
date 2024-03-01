@@ -31,28 +31,10 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-// MgmtNodeService represents a management API service for working with nodes.
-type MgmtNodeService struct {
-	db       *reform.DB
-	r        agentsRegistry
-	vmClient victoriaMetricsClient
-
-	nodev1beta1.UnimplementedMgmtNodeServiceServer
-}
-
-// NewMgmtNodeService creates MgmtNodeService instance.
-func NewMgmtNodeService(db *reform.DB, r agentsRegistry, vmClient victoriaMetricsClient) *MgmtNodeService {
-	return &MgmtNodeService{
-		db:       db,
-		r:        r,
-		vmClient: vmClient,
-	}
-}
-
 const upQuery = `up{job=~".*_hr$"}`
 
 // ListNodes returns a filtered list of Nodes.
-func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNodesRequest) (*nodev1beta1.ListNodesResponse, error) {
+func (s *MgmtServiceService) ListNodes(ctx context.Context, req *nodev1beta1.ListNodesRequest) (*nodev1beta1.ListNodesResponse, error) {
 	filters := models.NodeFilters{
 		NodeType: services.ProtoToModelNodeType(req.NodeType),
 	}
@@ -188,7 +170,7 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 const nodeUpQuery = `up{job=~".*_hr$",node_id=%q}`
 
 // GetNode returns a single Node by ID.
-func (s *MgmtNodeService) GetNode(ctx context.Context, req *nodev1beta1.GetNodeRequest) (*nodev1beta1.GetNodeResponse, error) {
+func (s *MgmtServiceService) GetNode(ctx context.Context, req *nodev1beta1.GetNodeRequest) (*nodev1beta1.GetNodeResponse, error) {
 	node, err := models.FindNodeByID(s.db.Querier, req.NodeId)
 	if err != nil {
 		return nil, err

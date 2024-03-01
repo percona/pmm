@@ -28,26 +28,24 @@ import (
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 	"github.com/percona/pmm/api/management/v1/json/client"
-	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
-	proxysql "github.com/percona/pmm/api/management/v1/json/client/proxy_sql_service"
-	"github.com/percona/pmm/api/management/v1/json/client/service"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 func TestAddProxySQL(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-for-basic-name")
 
-		params := &proxysql.AddProxySQLParams{
+		params := &mservice.AddProxySQLParams{
 			Context: pmmapitests.Context,
-			Body: proxysql.AddProxySQLBody{
+			Body: mservice.AddProxySQLBody{
 				NodeID:      nodeID,
 				PMMAgentID:  pmmAgentID,
 				ServiceName: serviceName,
@@ -59,7 +57,7 @@ func TestAddProxySQL(t *testing.T) {
 				DisableCollectors:   []string{"mysql_status", "mysql_connection_pool"},
 			},
 		}
-		addProxySQLOK, err := client.Default.ProxySQLService.AddProxySQL(params)
+		addProxySQLOK, err := client.Default.ManagementService.AddProxySQL(params)
 		require.NoError(t, err)
 		require.NotNil(t, addProxySQLOK)
 		require.NotNil(t, addProxySQLOK.Payload.Service)
@@ -112,18 +110,18 @@ func TestAddProxySQL(t *testing.T) {
 
 	t.Run("With agents", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-all-fields-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-for-all-fields-name")
 
-		params := &proxysql.AddProxySQLParams{
+		params := &mservice.AddProxySQLParams{
 			Context: pmmapitests.Context,
-			Body: proxysql.AddProxySQLBody{
+			Body: mservice.AddProxySQLBody{
 				NodeID:      nodeID,
 				PMMAgentID:  pmmAgentID,
 				ServiceName: serviceName,
@@ -135,7 +133,7 @@ func TestAddProxySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addProxySQLOK, err := client.Default.ProxySQLService.AddProxySQL(params)
+		addProxySQLOK, err := client.Default.ManagementService.AddProxySQL(params)
 		require.NoError(t, err)
 		require.NotNil(t, addProxySQLOK)
 		require.NotNil(t, addProxySQLOK.Payload.Service)
@@ -190,18 +188,18 @@ func TestAddProxySQL(t *testing.T) {
 
 	t.Run("With labels", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-all-fields-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-for-all-fields-name")
 
-		params := &proxysql.AddProxySQLParams{
+		params := &mservice.AddProxySQLParams{
 			Context: pmmapitests.Context,
-			Body: proxysql.AddProxySQLBody{
+			Body: mservice.AddProxySQLBody{
 				NodeID:         nodeID,
 				PMMAgentID:     pmmAgentID,
 				ServiceName:    serviceName,
@@ -217,7 +215,7 @@ func TestAddProxySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addProxySQLOK, err := client.Default.ProxySQLService.AddProxySQL(params)
+		addProxySQLOK, err := client.Default.ManagementService.AddProxySQL(params)
 		require.NoError(t, err)
 		require.NotNil(t, addProxySQLOK)
 		require.NotNil(t, addProxySQLOK.Payload.Service)
@@ -251,18 +249,18 @@ func TestAddProxySQL(t *testing.T) {
 
 	t.Run("With the same name", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-the-same-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-for-the-same-name")
 
-		params := &proxysql.AddProxySQLParams{
+		params := &mservice.AddProxySQLParams{
 			Context: pmmapitests.Context,
-			Body: proxysql.AddProxySQLBody{
+			Body: mservice.AddProxySQLBody{
 				NodeID:      nodeID,
 				PMMAgentID:  pmmAgentID,
 				ServiceName: serviceName,
@@ -273,7 +271,7 @@ func TestAddProxySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addProxySQLOK, err := client.Default.ProxySQLService.AddProxySQL(params)
+		addProxySQLOK, err := client.Default.ManagementService.AddProxySQL(params)
 		require.NoError(t, err)
 		require.NotNil(t, addProxySQLOK)
 		require.NotNil(t, addProxySQLOK.Payload.Service)
@@ -281,9 +279,9 @@ func TestAddProxySQL(t *testing.T) {
 		defer pmmapitests.RemoveServices(t, serviceID)
 		defer removeServiceAgents(t, serviceID)
 
-		params = &proxysql.AddProxySQLParams{
+		params = &mservice.AddProxySQLParams{
 			Context: pmmapitests.Context,
-			Body: proxysql.AddProxySQLBody{
+			Body: mservice.AddProxySQLBody{
 				NodeID:      nodeID,
 				PMMAgentID:  pmmAgentID,
 				ServiceName: serviceName,
@@ -292,16 +290,16 @@ func TestAddProxySQL(t *testing.T) {
 				Username:    "username",
 			},
 		}
-		addProxySQLOK, err = client.Default.ProxySQLService.AddProxySQL(params)
+		addProxySQLOK, err = client.Default.ManagementService.AddProxySQL(params)
 		require.Nil(t, addProxySQLOK)
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, `Service with name %q already exists.`, serviceName)
 	})
 
 	t.Run("With add_node block", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
@@ -309,11 +307,11 @@ func TestAddProxySQL(t *testing.T) {
 		nodeNameAddNode := pmmapitests.TestString(t, "node-for-add-node-name")
 		serviceName := pmmapitests.TestString(t, "service-name-for-basic-name")
 
-		params := &proxysql.AddProxySQLParams{
+		params := &mservice.AddProxySQLParams{
 			Context: pmmapitests.Context,
-			Body: proxysql.AddProxySQLBody{
-				AddNode: &proxysql.AddProxySQLParamsBodyAddNode{
-					NodeType: pointer.ToString(proxysql.AddProxySQLParamsBodyAddNodeNodeTypeNODETYPEGENERICNODE),
+			Body: mservice.AddProxySQLBody{
+				AddNode: &mservice.AddProxySQLParamsBodyAddNode{
+					NodeType: pointer.ToString(mservice.AddProxySQLParamsBodyAddNodeNodeTypeNODETYPEGENERICNODE),
 					NodeName: nodeNameAddNode,
 				},
 				PMMAgentID:  pmmAgentID,
@@ -325,14 +323,14 @@ func TestAddProxySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		_, err := client.Default.ProxySQLService.AddProxySQL(params)
+		_, err := client.Default.ManagementService.AddProxySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "add_node structure can be used only for remote nodes")
 
-		params = &proxysql.AddProxySQLParams{
+		params = &mservice.AddProxySQLParams{
 			Context: pmmapitests.Context,
-			Body: proxysql.AddProxySQLBody{
-				AddNode: &proxysql.AddProxySQLParamsBodyAddNode{
-					NodeType: pointer.ToString(proxysql.AddProxySQLParamsBodyAddNodeNodeTypeNODETYPEREMOTERDSNODE),
+			Body: mservice.AddProxySQLBody{
+				AddNode: &mservice.AddProxySQLParamsBodyAddNode{
+					NodeType: pointer.ToString(mservice.AddProxySQLParamsBodyAddNodeNodeTypeNODETYPEREMOTERDSNODE),
 					NodeName: nodeNameAddNode,
 				},
 				PMMAgentID:  pmmAgentID,
@@ -344,14 +342,14 @@ func TestAddProxySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		_, err = client.Default.ProxySQLService.AddProxySQL(params)
+		_, err = client.Default.ManagementService.AddProxySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "add_node structure can be used only for remote nodes")
 
-		params = &proxysql.AddProxySQLParams{
+		params = &mservice.AddProxySQLParams{
 			Context: pmmapitests.Context,
-			Body: proxysql.AddProxySQLBody{
-				AddNode: &proxysql.AddProxySQLParamsBodyAddNode{
-					NodeType: pointer.ToString(proxysql.AddProxySQLParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE),
+			Body: mservice.AddProxySQLBody{
+				AddNode: &mservice.AddProxySQLParamsBodyAddNode{
+					NodeType: pointer.ToString(mservice.AddProxySQLParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE),
 					NodeName: nodeNameAddNode,
 				},
 				PMMAgentID:  pmmAgentID,
@@ -363,7 +361,7 @@ func TestAddProxySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addProxySQLOK, err := client.Default.ProxySQLService.AddProxySQL(params)
+		addProxySQLOK, err := client.Default.ManagementService.AddProxySQL(params)
 		require.NoError(t, err)
 		require.NotNil(t, addProxySQLOK)
 		require.NotNil(t, addProxySQLOK.Payload.Service)
@@ -421,9 +419,9 @@ func TestAddProxySQL(t *testing.T) {
 
 	t.Run("With Wrong Node Type", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "generic-node-for-wrong-node-type")
-		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
@@ -433,9 +431,9 @@ func TestAddProxySQL(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, remoteNodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &proxysql.AddProxySQLParams{
+		params := &mservice.AddProxySQLParams{
 			Context: pmmapitests.Context,
-			Body: proxysql.AddProxySQLBody{
+			Body: mservice.AddProxySQLBody{
 				NodeID:      remoteNodeID,
 				ServiceName: serviceName,
 				Address:     "10.10.10.10",
@@ -446,66 +444,66 @@ func TestAddProxySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addProxySQLOK, err := client.Default.ProxySQLService.AddProxySQL(params)
+		addProxySQLOK, err := client.Default.ManagementService.AddProxySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "node_id or node_name can be used only for generic nodes or container nodes")
 		assert.Nil(t, addProxySQLOK)
 	})
 
 	t.Run("Empty Service Name", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
-		params := &proxysql.AddProxySQLParams{
+		params := &mservice.AddProxySQLParams{
 			Context: pmmapitests.Context,
-			Body:    proxysql.AddProxySQLBody{NodeID: nodeID},
+			Body:    mservice.AddProxySQLBody{NodeID: nodeID},
 		}
-		addProxySQLOK, err := client.Default.ProxySQLService.AddProxySQL(params)
+		addProxySQLOK, err := client.Default.ManagementService.AddProxySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLRequest.ServiceName: value length must be at least 1 runes")
 		assert.Nil(t, addProxySQLOK)
 	})
 
 	t.Run("Empty Address And Socket", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &proxysql.AddProxySQLParams{
+		params := &mservice.AddProxySQLParams{
 			Context: pmmapitests.Context,
-			Body: proxysql.AddProxySQLBody{
+			Body: mservice.AddProxySQLBody{
 				NodeID:      nodeID,
 				ServiceName: serviceName,
 				PMMAgentID:  pmmAgentID,
 				Username:    "username",
 			},
 		}
-		addProxySQLOK, err := client.Default.ProxySQLService.AddProxySQL(params)
+		addProxySQLOK, err := client.Default.ManagementService.AddProxySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Neither socket nor address passed.")
 		assert.Nil(t, addProxySQLOK)
 	})
 
 	t.Run("Empty Port", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &proxysql.AddProxySQLParams{
+		params := &mservice.AddProxySQLParams{
 			Context: pmmapitests.Context,
-			Body: proxysql.AddProxySQLBody{
+			Body: mservice.AddProxySQLBody{
 				NodeID:      nodeID,
 				ServiceName: serviceName,
 				PMMAgentID:  pmmAgentID,
@@ -513,24 +511,24 @@ func TestAddProxySQL(t *testing.T) {
 				Address:     "10.10.10.10",
 			},
 		}
-		addProxySQLOK, err := client.Default.ProxySQLService.AddProxySQL(params)
+		addProxySQLOK, err := client.Default.ManagementService.AddProxySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port are expected to be passed with address.")
 		assert.Nil(t, addProxySQLOK)
 	})
 
 	t.Run("Address And Socket Conflict.", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &proxysql.AddProxySQLParams{
+		params := &mservice.AddProxySQLParams{
 			Context: pmmapitests.Context,
-			Body: proxysql.AddProxySQLBody{
+			Body: mservice.AddProxySQLBody{
 				PMMAgentID:  pmmAgentID,
 				Username:    "username",
 				Password:    "password",
@@ -541,48 +539,48 @@ func TestAddProxySQL(t *testing.T) {
 				Socket:      "/tmp/proxysql_admin.sock",
 			},
 		}
-		addProxySQLOK, err := client.Default.ProxySQLService.AddProxySQL(params)
+		addProxySQLOK, err := client.Default.ManagementService.AddProxySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and address cannot be specified together.")
 		assert.Nil(t, addProxySQLOK)
 	})
 
 	t.Run("Empty Pmm Agent ID", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &proxysql.AddProxySQLParams{
+		params := &mservice.AddProxySQLParams{
 			Context: pmmapitests.Context,
-			Body: proxysql.AddProxySQLBody{
+			Body: mservice.AddProxySQLBody{
 				NodeID:      nodeID,
 				ServiceName: serviceName,
 				Address:     "10.10.10.10",
 				Port:        3306,
 			},
 		}
-		addProxySQLOK, err := client.Default.ProxySQLService.AddProxySQL(params)
+		addProxySQLOK, err := client.Default.ManagementService.AddProxySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLRequest.PmmAgentId: value length must be at least 1 runes")
 		assert.Nil(t, addProxySQLOK)
 	})
 
 	t.Run("Empty username", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &proxysql.AddProxySQLParams{
+		params := &mservice.AddProxySQLParams{
 			Context: pmmapitests.Context,
-			Body: proxysql.AddProxySQLBody{
+			Body: mservice.AddProxySQLBody{
 				NodeID:      nodeID,
 				ServiceName: serviceName,
 				Address:     "10.10.10.10",
@@ -590,7 +588,7 @@ func TestAddProxySQL(t *testing.T) {
 				PMMAgentID:  pmmAgentID,
 			},
 		}
-		addProxySQLOK, err := client.Default.ProxySQLService.AddProxySQL(params)
+		addProxySQLOK, err := client.Default.ManagementService.AddProxySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLRequest.Username: value length must be at least 1 runes")
 		assert.Nil(t, addProxySQLOK)
 	})
@@ -599,14 +597,14 @@ func TestAddProxySQL(t *testing.T) {
 func TestRemoveProxySQL(t *testing.T) {
 	addProxySQL := func(t *testing.T, serviceName, nodeName string) (nodeID string, pmmAgentID string, serviceID string) {
 		t.Helper()
-		nodeID, pmmAgentID = RegisterGenericNode(t, node.RegisterNodeBody{
+		nodeID, pmmAgentID = RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 
-		params := &proxysql.AddProxySQLParams{
+		params := &mservice.AddProxySQLParams{
 			Context: pmmapitests.Context,
-			Body: proxysql.AddProxySQLBody{
+			Body: mservice.AddProxySQLBody{
 				NodeID:      nodeID,
 				PMMAgentID:  pmmAgentID,
 				ServiceName: serviceName,
@@ -618,7 +616,7 @@ func TestRemoveProxySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addProxySQLOK, err := client.Default.ProxySQLService.AddProxySQL(params)
+		addProxySQLOK, err := client.Default.ManagementService.AddProxySQL(params)
 		require.NoError(t, err)
 		require.NotNil(t, addProxySQLOK)
 		require.NotNil(t, addProxySQLOK.Payload.Service)
@@ -633,10 +631,10 @@ func TestRemoveProxySQL(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
-		removeServiceOK, err := client.Default.Service.RemoveService(&service.RemoveServiceParams{
-			Body: service.RemoveServiceBody{
+		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
+			Body: mservice.RemoveServiceBody{
 				ServiceName: serviceName,
-				ServiceType: pointer.ToString(service.RemoveServiceBodyServiceTypeSERVICETYPEPROXYSQLSERVICE),
+				ServiceType: pointer.ToString(mservice.RemoveServiceBodyServiceTypeSERVICETYPEPROXYSQLSERVICE),
 			},
 			Context: pmmapitests.Context,
 		})
@@ -664,10 +662,10 @@ func TestRemoveProxySQL(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
-		removeServiceOK, err := client.Default.Service.RemoveService(&service.RemoveServiceParams{
-			Body: service.RemoveServiceBody{
+		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
+			Body: mservice.RemoveServiceBody{
 				ServiceID:   serviceID,
-				ServiceType: pointer.ToString(service.RemoveServiceBodyServiceTypeSERVICETYPEPROXYSQLSERVICE),
+				ServiceType: pointer.ToString(mservice.RemoveServiceBodyServiceTypeSERVICETYPEPROXYSQLSERVICE),
 			},
 			Context: pmmapitests.Context,
 		})
@@ -696,11 +694,11 @@ func TestRemoveProxySQL(t *testing.T) {
 		defer pmmapitests.RemoveServices(t, serviceID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
-		removeServiceOK, err := client.Default.Service.RemoveService(&service.RemoveServiceParams{
-			Body: service.RemoveServiceBody{
+		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
+			Body: mservice.RemoveServiceBody{
 				ServiceID:   serviceID,
 				ServiceName: serviceName,
-				ServiceType: pointer.ToString(service.RemoveServiceBodyServiceTypeSERVICETYPEPROXYSQLSERVICE),
+				ServiceType: pointer.ToString(mservice.RemoveServiceBodyServiceTypeSERVICETYPEPROXYSQLSERVICE),
 			},
 			Context: pmmapitests.Context,
 		})
@@ -716,10 +714,10 @@ func TestRemoveProxySQL(t *testing.T) {
 		defer pmmapitests.RemoveServices(t, serviceID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
-		removeServiceOK, err := client.Default.Service.RemoveService(&service.RemoveServiceParams{
-			Body: service.RemoveServiceBody{
+		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
+			Body: mservice.RemoveServiceBody{
 				ServiceID:   serviceID,
-				ServiceType: pointer.ToString(service.RemoveServiceBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE),
+				ServiceType: pointer.ToString(mservice.RemoveServiceBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE),
 			},
 			Context: pmmapitests.Context,
 		})
@@ -728,8 +726,8 @@ func TestRemoveProxySQL(t *testing.T) {
 	})
 
 	t.Run("No params", func(t *testing.T) {
-		removeServiceOK, err := client.Default.Service.RemoveService(&service.RemoveServiceParams{
-			Body:    service.RemoveServiceBody{},
+		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
+			Body:    mservice.RemoveServiceBody{},
 			Context: pmmapitests.Context,
 		})
 		assert.Nil(t, removeServiceOK)

@@ -113,21 +113,3 @@ message AddAzureDatabaseRequest {
 }
 
 message AddAzureDatabaseResponse {}
-
-// AzureDatabase service provides Service Discovery APIs.
-service AzureDatabaseService {
-  // DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
-  rpc DiscoverAzureDatabase(DiscoverAzureDatabaseRequest) returns (DiscoverAzureDatabaseResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/AzureDatabase/Discover"
-      body: "*"
-    };
-  }
-  // AddAzureDatabase adds Azure Database instance.
-  rpc AddAzureDatabase(AddAzureDatabaseRequest) returns (AddAzureDatabaseResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/AzureDatabase/Add"
-      body: "*"
-    };
-  }
-}

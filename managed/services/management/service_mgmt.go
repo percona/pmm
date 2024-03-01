@@ -22,13 +22,10 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
-	managementv1 "github.com/percona/pmm/api/management/v1"
 	agentv1beta1 "github.com/percona/pmm/api/management/v1/agent"
 	servicev1beta1 "github.com/percona/pmm/api/management/v1/service"
 	"github.com/percona/pmm/managed/models"
@@ -55,7 +52,7 @@ type MgmtServiceService struct {
 	vmdb     prometheusService
 	vmClient victoriaMetricsClient
 
-	servicev1beta1.UnimplementedMgmtServiceServer
+	servicev1beta1.UnimplementedManagementV1Beta1ServiceServer
 }
 
 type statusMetrics struct {
@@ -72,16 +69,6 @@ func NewMgmtServiceService(db *reform.DB, r agentsRegistry, state agentsStateUpd
 		vmdb:     vmdb,
 		vmClient: vmClient,
 	}
-}
-
-func (s *ServiceService) validateRequest(request *managementv1.RemoveServiceRequest) error {
-	if request.ServiceName == "" && request.ServiceId == "" {
-		return status.Error(codes.InvalidArgument, "service_id or service_name expected")
-	}
-	if request.ServiceName != "" && request.ServiceId != "" {
-		return status.Error(codes.InvalidArgument, "service_id or service_name expected; not both")
-	}
-	return nil
 }
 
 // ListServices returns a filtered list of Services with some attributes from Agents and Nodes.

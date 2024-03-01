@@ -19,7 +19,6 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -32,33 +31,11 @@ const (
 	defaultAutoDiscoveryDatabaseLimit = 10
 )
 
-// PostgreSQLService PostgreSQL Management Service.
-type PostgreSQLService struct {
-	db    *reform.DB
-	state agentsStateUpdater
-	cc    connectionChecker
-	sib   serviceInfoBroker
-	l     *logrus.Entry
-
-	managementv1.UnimplementedPostgreSQLServiceServer
-}
-
-// NewPostgreSQLService creates new PostgreSQL Management Service.
-func NewPostgreSQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, sib serviceInfoBroker) *PostgreSQLService {
-	return &PostgreSQLService{
-		db:    db,
-		state: state,
-		cc:    cc,
-		sib:   sib,
-		l:     logrus.WithField("component", "postgresql"),
-	}
-}
-
 // AddPostgreSQL adds "PostgreSQL Service", "PostgreSQL Exporter Agent" and "QAN PostgreSQL PerfSchema Agent".
-func (s *PostgreSQLService) AddPostgreSQL(ctx context.Context, req *managementv1.AddPostgreSQLRequest) (*managementv1.AddPostgreSQLResponse, error) {
+func (s *ManagementService) AddPostgreSQL(ctx context.Context, req *managementv1.AddPostgreSQLRequest) (*managementv1.AddPostgreSQLResponse, error) {
 	res := &managementv1.AddPostgreSQLResponse{}
 
-	if e := s.db.InTransaction(func(tx *reform.TX) error {
+	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		switch {
 		case req.AutoDiscoveryLimit == 0:
 			req.AutoDiscoveryLimit = defaultAutoDiscoveryDatabaseLimit

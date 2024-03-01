@@ -56,6 +56,7 @@ func TestMgmtServiceService(t *testing.T) {
 			ar.Test(t)
 
 			vmClient := &mockVictoriaMetricsClient{}
+			vmClient.Test(t)
 
 			teardown := func(t *testing.T) {
 				t.Helper()
@@ -65,6 +66,7 @@ func TestMgmtServiceService(t *testing.T) {
 				vmdb.AssertExpectations(t)
 				state.AssertExpectations(t)
 				ar.AssertExpectations(t)
+				vmClient.AssertExpectations(t)
 			}
 			s := NewMgmtServiceService(db, ar, state, vmdb, vmClient)
 
@@ -79,9 +81,9 @@ func TestMgmtServiceService(t *testing.T) {
 
 		t.Run("Basic", func(t *testing.T) {
 			ctx, s, teardown, _ := setup(t)
-			defer teardown(t)
+			t.Cleanup(func() { teardown(t) })
 
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Times(3)
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once() // PMM Server Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()           // PMM Server PostgreSQL exporter
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgStatStatementID).Return(false).Once()      // PMM Server PG Stat Statements agent
@@ -94,7 +96,7 @@ func TestMgmtServiceService(t *testing.T) {
 
 		t.Run("RDS", func(t *testing.T) {
 			ctx, s, teardown, _ := setup(t)
-			defer teardown(t)
+			t.Cleanup(func() { teardown(t) })
 
 			node, err := models.CreateNode(s.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
 				NodeName: "test",
@@ -128,7 +130,7 @@ func TestMgmtServiceService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Times(7)
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once() // PMM Server Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pmmAgent.AgentID).Return(true).Once()        // PMM Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()           // PMM Server PostgreSQL exporter
@@ -147,7 +149,7 @@ func TestMgmtServiceService(t *testing.T) {
 
 		t.Run("Azure", func(t *testing.T) {
 			ctx, s, teardown, _ := setup(t)
-			defer teardown(t)
+			t.Cleanup(func() { teardown(t) })
 
 			node, err := models.CreateNode(s.db.Querier, models.RemoteAzureDatabaseNodeType, &models.CreateNodeParams{
 				NodeName: "test",
@@ -181,7 +183,7 @@ func TestMgmtServiceService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Times(7)
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once() // PMM Server Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pmmAgent.AgentID).Return(true).Once()        // PMM Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()           // PMM Server PostgreSQL exporter

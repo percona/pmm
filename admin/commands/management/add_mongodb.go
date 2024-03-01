@@ -23,7 +23,7 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/management/v1/json/client"
-	mongodb "github.com/percona/pmm/api/management/v1/json/client/mongo_db_service"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 const (
@@ -40,7 +40,7 @@ Service name: {{ .Service.ServiceName }}
 `)
 
 type addMongoDBResult struct {
-	Service *mongodb.AddMongoDBOKBodyService `json:"service"`
+	Service *mservice.AddMongoDBOKBodyService `json:"service"`
 }
 
 func (res *addMongoDBResult) Result() {}
@@ -159,8 +159,8 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &mongodb.AddMongoDBParams{
-		Body: mongodb.AddMongoDBBody{
+	params := &mservice.AddMongoDBParams{
+		Body: mservice.AddMongoDBBody{
 			NodeID:         cmd.NodeID,
 			ServiceName:    serviceName,
 			Address:        host,
@@ -198,7 +198,7 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.MongoDBService.AddMongoDB(params)
+	resp, err := client.Default.ManagementService.AddMongoDB(params)
 	if err != nil {
 		return nil, err
 	}

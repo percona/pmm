@@ -6,6 +6,8 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "inventory/v1/services.proto";
 import "management/v1/agent/agent.proto";
+import "management/v1/azure/azure.proto";
+import "management/v1/node/node.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 message UniversalService {
@@ -78,11 +80,45 @@ message ListServicesResponse {
   repeated UniversalService services = 1;
 }
 
-// NOTE: the GA version of this API will be integrated into managementv1/service.proto.
-// `/v1/management/Service/List` is singular, which follows the convention of that API.
+// NOTE: the GA version of /agents will be integrated into management/v1/agent.proto.
+// NOTE: the GA version of /nodes will be integrated into management/v1/node.proto.
+// NOTE: the GA version of /services will be integrated into management/v1/service.proto.
 
-// MgmtService service provides public methods for managing and querying Services.
-service MgmtService {
+// ManagementV1Beta1Service service provides public methods for manipulating Services.
+service ManagementV1Beta1Service {
+  // ListAgents returns a list of Agents filtered by service_id.
+  rpc ListAgents(agent.v1beta1.ListAgentsRequest) returns (agent.v1beta1.ListAgentsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Agent/List"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Agents"
+      description: "Returns a filtered list of Agents."
+    };
+  }
+  // ListNode returns a list of nodes.
+  rpc ListNodes(node.v1beta1.ListNodesRequest) returns (node.v1beta1.ListNodesResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Node/List"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Nodes"
+      description: "Returns a filtered list of Nodes."
+    };
+  }
+  // GetNode returns a single Node by ID.
+  rpc GetNode(node.v1beta1.GetNodeRequest) returns (node.v1beta1.GetNodeResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Node/Get"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Node"
+      description: "Returns a single Node by ID."
+    };
+  }
   // ListServices returns a list of Services with a rich set of properties.
   rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {
     option (google.api.http) = {
@@ -92,6 +128,28 @@ service MgmtService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Services"
       description: "Returns a filtered list of Services."
+    };
+  }
+  // DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
+  rpc DiscoverAzureDatabase(azure.v1beta1.DiscoverAzureDatabaseRequest) returns (azure.v1beta1.DiscoverAzureDatabaseResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/AzureDatabase/Discover"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Discover Azure Database"
+      description: "Discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances."
+    };
+  }
+  // AddAzureDatabase adds Azure Database instance.
+  rpc AddAzureDatabase(azure.v1beta1.AddAzureDatabaseRequest) returns (azure.v1beta1.AddAzureDatabaseResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/AzureDatabase/Add"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add Azure Database"
+      description: "Adds an Azure Database instance."
     };
   }
 }

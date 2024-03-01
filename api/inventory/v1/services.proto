@@ -457,7 +457,6 @@ service ServicesService {
       description: "Returns a single Service by ID."
     };
   }
-
   // AddService adds any type of Service.
   rpc AddService(AddServiceRequest) returns (AddServiceResponse) {
     option (google.api.http) = {
@@ -469,7 +468,6 @@ service ServicesService {
       description: "Adds a Service."
     };
   }
-
   // RemoveService removes a Service.
   rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
     option (google.api.http) = {

@@ -1,0 +1,144 @@
+syntax = "proto3";
+
+package qan.v1;
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "qan/v1/filters.proto";
+import "qan/v1/object_details.proto";
+import "qan/v1/profile.proto";
+
+// MetricsNamesRequest is empty.
+message GetMetricsNamesRequest {}
+
+// MetricsNamesReply is map of stored metrics:
+// key is root of metric name in db (Ex:. [m_]query_time[_sum]);
+// value - Human readable name of metrics.
+message GetMetricsNamesResponse {
+  map<string, string> data = 1;
+}
+
+// QANService provides an API to interact with PMM Query Analytics.
+service QANService {
+  // GetReport returns a list of metrics grouped by queryid or other dimensions.
+  rpc GetReport(GetReportRequest) returns (GetReportResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/GetReport"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Report"
+      description: "Returns a list of metrics grouped by queryid or other dimensions."
+    };
+  }
+  // Get provides a map of metrics names.
+  rpc GetFilteredMetricsNames(GetFilteredMetricsNamesRequest) returns (GetFilteredMetricsNamesResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/Filters/Get"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Filters"
+      description: "Provides a filtered map of metrics names."
+    };
+  }
+  // GetMetricsNames provides a map of metrics names.
+  rpc GetMetricsNames(GetMetricsNamesRequest) returns (GetMetricsNamesResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/GetMetricsNames"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Metrics Names"
+      description: "Provides a map of all metrics names."
+    };
+  }
+  // GetMetrics returns a map of metrics for specific filtering.
+  rpc GetMetrics(GetMetricsRequest) returns (GetMetricsResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/ObjectDetails/GetMetrics"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Metrics"
+      description: "Provides a map of metrics for specific filtering."
+    };
+  }
+  // GetQueryExample returns a list of query examples.
+  rpc GetQueryExample(GetQueryExampleRequest) returns (GetQueryExampleResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/ObjectDetails/GetQueryExample"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Query Example"
+      description: "Provides a list of query examples."
+    };
+  }
+  // GetLabels return a list of labels for object details.
+  rpc GetLabels(GetLabelsRequest) returns (GetLabelsResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/ObjectDetails/GetLabels"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Labels"
+      description: "Provides a list of labels for object details."
+    };
+  }
+  // GetQueryPlan returns a query plan and plan id for specific filtering.
+  rpc GetQueryPlan(GetQueryPlanRequest) returns (GetQueryPlanResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/ObjectDetails/GetQueryPlan"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Query Plan"
+      description: "Provides a query plan and plan id for specific filtering."
+    };
+  }
+  // GetHistogram returns histogram items for specific filtering.
+  rpc GetHistogram(GetHistogramRequest) returns (GetHistogramResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/ObjectDetails/GetHistogram"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Histogram"
+      description: "Provides histogram items for specific filtering."
+    };
+  }
+  // QueryExists checks if query exists in clickhouse.
+  rpc QueryExists(QueryExistsRequest) returns (QueryExistsResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/ObjectDetails/QueryExists"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Check Query Existence"
+      description: "Checks if query exists in clickhouse."
+    };
+  }
+  // ExplainFingerprintByQueryID returns an explain fingerprint for given query ID.
+  rpc ExplainFingerprintByQueryID(ExplainFingerprintByQueryIDRequest) returns (ExplainFingerprintByQueryIDResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/ObjectDetails/ExplainFingerprintByQueryID"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Explain Fingerprint"
+      description: "Provides an explain fingerprint for given query ID."
+    };
+  }
+  // SchemaByQueryID returns the schema for a given queryID and serviceID.
+  rpc SchemaByQueryID(SchemaByQueryIDRequest) returns (SchemaByQueryIDResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/ObjectDetails/SchemaByQueryID"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Schema"
+      description: "Provides the schema for a given queryID and serviceID."
+    };
+  }
+}
