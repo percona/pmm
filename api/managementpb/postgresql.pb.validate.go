@@ -395,6 +395,8 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for Warning
+
 	if len(errors) > 0 {
 		return AddPostgreSQLResponseMultiError(errors)
 	}

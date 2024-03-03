@@ -129,6 +129,7 @@ type PostgreSQLOptions struct {
 	SSLKey             string `json:"ssl_key"`
 	AutoDiscoveryLimit int32  `json:"auto_discovery_limit"`
 	DatabaseCount      int32  `json:"database_count"`
+	PGSMVersion        string `json:"pgsm_version"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
