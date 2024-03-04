@@ -35,6 +35,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	pmmapitests "github.com/percona/pmm/api-tests"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -304,13 +305,14 @@ func TestServerClientConnection(t *testing.T) {
 	})
 
 	t.Run("Token auth - success", func(t *testing.T) {
+		nodeName := pmmapitests.TestString(t, "node-name")
 		headersMD := metadata.New(map[string]string{
 			"Authorization": "Basic YWRtaW46YWRtaW4=",
 		})
 		ctx := metadata.NewIncomingContext(context.Background(), headersMD)
-		_, serviceToken, err := c.CreateServiceAccount(ctx, "N1", true)
+		_, serviceToken, err := c.CreateServiceAccount(ctx, nodeName, true)
 		require.NoError(t, err)
-		defer c.DeleteServiceAccount(ctx, "N1", true)
+		defer c.DeleteServiceAccount(ctx, nodeName, true)
 
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/agent.Agent/Connect", nil)
 		require.NoError(t, err)
