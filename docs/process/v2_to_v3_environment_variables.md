@@ -7,9 +7,9 @@ Below is a list of affected variables and their new names.
 | `PERCONA_PLATFORM_API_TIMEOUT`               | `PMM_PERCONA_PLATFORM_API_TIMEOUT`       |      |
 | `ENABLE_RBAC`                                | `PMM_ENABLE_RBAC`                        |      |
 | `PERCONA_TEST_INTERFACE_TO_BIND`             | `PMM_INTERFACE_TO_BIND`                  |      |
-| `PERCONA_TEST_PLATFORM_PUBLIC_KEY`           | `PMM_PERCONA_PLATFORM_PUBLIC_KEY`        |      |
-| `PERCONA_TEST_PLATFORM_ADDRESS`              | `PMM_PERCONA_PLATFORM_ADDRESS`           |      |
-| `PERCONA_TEST_PLATFORM_INSECURE`             | `PMM_PERCONA_PLATFORM_INSECURE`          |      |
+| `PERCONA_TEST_PLATFORM_PUBLIC_KEY`           | `PMM_PERCONA_TEST_PLATFORM_PUBLIC_KEY`        |      |
+| `PERCONA_TEST_PLATFORM_ADDRESS`              | `PMM_PERCONA_TEST_PLATFORM_ADDRESS`           |      |
+| `PERCONA_TEST_PLATFORM_INSECURE`             | `PMM_PERCONA_TEST_PLATFORM_INSECURE`          |      |
 | `DISABLE_UPDATES`                            | `PMM_DISABLE_UPDATES`                    |      |
 | `DISABLE_TELEMETRY`                          | `PMM_DISABLE_TELEMETRY`                  |      |
 | `DISABLE_ALERTING`                           | `PMM_DISABLE_ALERTING`                   |      |

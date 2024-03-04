@@ -32,9 +32,9 @@ import (
 
 const (
 	defaultPlatformAddress    = "https://check.percona.com"
-	envPlatformAddress        = "PMM_PERCONA_PLATFORM_ADDRESS"
-	envPlatformInsecure       = "PMM_PERCONA_PLATFORM_INSECURE"
-	envPlatformPublicKey      = "PMM_PERCONA_PLATFORM_PUBLIC_KEY"
+	envPlatformAddress        = "PMM_PERCONA_TEST_PLATFORM_ADDRESS"
+	envPlatformInsecure       = "PMM_PERCONA_TEST_PLATFORM_INSECURE"
+	envPlatformPublicKey      = "PMM_PERCONA_TEST_PLATFORM_PUBLIC_KEY"
 	evnInterfaceToBind        = "PMM_INTERFACE_TO_BIND"
 	envEnableAccessControl    = "PMM_ENABLE_RBAC"
 	envPlatformAPITimeout     = "PMM_PERCONA_PLATFORM_API_TIMEOUT"
@@ -217,7 +217,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 
-			if !strings.HasPrefix(k, "PMM_TEST_") {
+			if !strings.HasPrefix(k, "PMM_PERCONA_TEST_") {
 				warns = append(warns, fmt.Sprintf("unknown environment variable %q", env))
 				continue
 			}

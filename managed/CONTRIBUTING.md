@@ -69,9 +69,9 @@ go test -timeout=30s -p 1 ./...
 | PMM_TEST_TELEMETRY_FILE             | Sets path for telemetry config file                                                                                 |                                          |
 | PMM_TEST_TELEMETRY_DISABLE_START_DELAY  | Disable the default telemetry execution start delay, so that telemetry gathering is run immediately upon system     | false                                    |
 | PMM_TEST_TELEMETRY_RETRY_BACKOFF        | Sets telemetry reporting retry backoff time                                                                         | 1h                                       |
-| PMM_PERCONA_PLATFORM_ADDRESS            | Sets Percona Platform address                                                                                       | https://check.percona.com                |
-| PMM_PERCONA_PLATFORM_INSECURE           | Allows insecure TLS connections to Percona Platform                                                                 | false                                    |
-| PMM_PERCONA_PLATFORM_PUBLIC_KEY         | Sets Percona Platform public key (Minisign)                                                                         | set of keys embedded into managed binary |
+| PMM_PERCONA_TEST_PLATFORM_ADDRESS            | Sets Percona Platform address                                                                                       | https://check.percona.com                |
+| PMM_PERCONA_TEST_PLATFORM_INSECURE           | Allows insecure TLS connections to Percona Platform                                                                 | false                                    |
+| PMM_PERCONA_TEST_PLATFORM_PUBLIC_KEY         | Sets Percona Platform public key (Minisign)                                                                         | set of keys embedded into managed binary |
 
 ## Add instances for monitoring
 
