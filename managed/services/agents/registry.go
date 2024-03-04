@@ -32,7 +32,6 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents/channel"
-	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
 )
@@ -74,8 +73,7 @@ type pmmAgentInfo struct {
 
 // Registry keeps track of all connected pmm-agents.
 type Registry struct {
-	db      *reform.DB
-	grafana *grafana.Client
+	db *reform.DB
 
 	rw     sync.RWMutex
 	agents map[string]*pmmAgentInfo // id -> info
@@ -92,11 +90,10 @@ type Registry struct {
 }
 
 // NewRegistry creates a new registry with given database connection.
-func NewRegistry(db *reform.DB, externalVMChecker victoriaMetricsParams, grafana *grafana.Client) *Registry {
+func NewRegistry(db *reform.DB, externalVMChecker victoriaMetricsParams) *Registry {
 	agents := make(map[string]*pmmAgentInfo)
 	r := &Registry{
-		db:      db,
-		grafana: grafana,
+		db: db,
 
 		agents: agents,
 

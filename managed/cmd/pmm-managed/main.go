@@ -854,9 +854,7 @@ func main() { //nolint:cyclop,maintidx
 
 	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
-	grafanaClient := grafana.NewClient(*grafanaAddrF)
-	prom.MustRegister(grafanaClient)
-	agentsRegistry := agents.NewRegistry(db, vmParams, grafanaClient)
+	agentsRegistry := agents.NewRegistry(db, vmParams)
 
 	// TODO remove once PMM cluster will be Active-Active
 	haService.AddLeaderService(ha.NewStandardService("agentsRegistry", func(ctx context.Context) error { return nil }, func() {
@@ -930,6 +928,8 @@ func main() { //nolint:cyclop,maintidx
 	}
 
 	awsInstanceChecker := server.NewAWSInstanceChecker(db, telemetry)
+	grafanaClient := grafana.NewClient(*grafanaAddrF)
+	prom.MustRegister(grafanaClient)
 
 	jobsService := agents.NewJobsService(db, agentsRegistry, backupRetentionService)
 	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb, vmParams)
