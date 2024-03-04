@@ -31,6 +31,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -161,7 +162,6 @@ func TestAuthServerMustSetup(t *testing.T) {
 
 func TestAuthServerAuthenticate(t *testing.T) {
 	t.Parallel()
-	// logrus.SetLevel(logrus.TraceLevel)
 
 	checker := &mockAwsInstanceChecker{}
 	checker.Test(t)
@@ -170,11 +170,6 @@ func TestAuthServerAuthenticate(t *testing.T) {
 	ctx := context.Background()
 	c := NewClient("127.0.0.1:3000")
 	s := NewAuthServer(c, checker, nil)
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
-	require.NoError(t, err)
-	req.SetBasicAuth("admin", "admin")
-	authHeaders := req.Header
 
 	t.Run("GrafanaAdminFallback", func(t *testing.T) {
 		t.Parallel()
@@ -244,6 +239,11 @@ func TestAuthServerAuthenticate(t *testing.T) {
 				// This test couldn't run in parallel on sqlite3 - they locked Grafana's sqlite3 database
 				t.Parallel()
 
+				req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
+				require.NoError(t, err)
+				req.SetBasicAuth("admin", "admin")
+				authHeaders := req.Header
+
 				login := fmt.Sprintf("%s-%s-%d", minRole, role, time.Now().Nanosecond())
 				userID, err := c.testCreateUser(ctx, login, role, authHeaders)
 				require.NoError(t, err)
@@ -255,7 +255,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 					}()
 				}
 
-				req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
+				req, err = http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
 				require.NoError(t, err)
 				req.SetBasicAuth(login, login)
 
@@ -268,6 +268,68 @@ func TestAuthServerAuthenticate(t *testing.T) {
 			})
 		}
 	}
+}
+
+func TestServerClientConnection(t *testing.T) {
+	t.Parallel()
+
+	checker := &mockAwsInstanceChecker{}
+	checker.Test(t)
+	t.Cleanup(func() { checker.AssertExpectations(t) })
+
+	ctx := context.Background()
+	c := NewClient("127.0.0.1:3000")
+	s := NewAuthServer(c, checker, nil)
+
+	t.Run("Basic auth - success", func(t *testing.T) {
+		t.Parallel()
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/agent.Agent/Connect", nil)
+		require.NoError(t, err)
+		req.SetBasicAuth("admin", "admin")
+
+		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		assert.Nil(t, authError)
+	})
+
+	t.Run("Basic auth - fail", func(t *testing.T) {
+		t.Parallel()
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/agent.Agent/Connect", nil)
+		require.NoError(t, err)
+		req.SetBasicAuth("admin", "wrong")
+
+		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		assert.Equal(t, codes.Unauthenticated, authError.code)
+	})
+
+	t.Run("Token auth - success", func(t *testing.T) {
+		headersMD := metadata.New(map[string]string{
+			"Authorization": "Basic YWRtaW46YWRtaW4=",
+		})
+		ctx := metadata.NewIncomingContext(context.Background(), headersMD)
+		_, serviceToken, err := c.CreateServiceAccount(ctx, "N1", true)
+		require.NoError(t, err)
+		defer c.DeleteServiceAccount(ctx, "N1", true)
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/agent.Agent/Connect", nil)
+		require.NoError(t, err)
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", serviceToken))
+
+		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		assert.Nil(t, authError)
+	})
+
+	t.Run("Token auth - fail", func(t *testing.T) {
+		t.Parallel()
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/agent.Agent/Connect", nil)
+		require.NoError(t, err)
+		req.Header.Set("Authorization", "Bearer wrong")
+
+		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		assert.Equal(t, codes.Unauthenticated, authError.code)
+	})
 }
 
 func TestAuthServerAddVMGatewayToken(t *testing.T) {
