@@ -36,7 +36,7 @@ require (
 	github.com/go-co-op/gocron v1.37.0
 	github.com/go-openapi/errors v0.21.0
 	github.com/go-openapi/runtime v0.26.0
-	github.com/go-openapi/strfmt v0.21.8
+	github.com/go-openapi/strfmt v0.22.1
 	github.com/go-openapi/swag v0.22.5
 	github.com/go-openapi/validate v0.22.3
 	github.com/go-sql-driver/mysql v1.7.1
