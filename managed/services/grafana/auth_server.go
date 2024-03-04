@@ -497,22 +497,41 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 		return nil, nil
 	}
 
-	// Get authenticated user from Grafana
-	authUser, authErr := s.getAuthUser(ctx, req, l)
-	if authErr != nil {
-		return nil, authErr
+	// TO DO - better check (skipping auth for pmm-server agent)
+	var user *authUser
+	u, err := url.ParseRequestURI(req.RemoteAddr)
+	if err != nil {
+		return nil, &authError{
+			code:    codes.Internal,
+			message: "Internal server error.",
+		}
 	}
+	ip := u.Host
+	pmmAgent := req.Header.Get("Pmm-Agent-Id")
+	path := req.Header.Get("X-Original-Uri")
+	if ip == "127.0.0.1" && pmmAgent == "pmm-server" && path == "/agent.Agent/Connect" {
+		user = &authUser{
+			role:   admin,
+			userID: 0,
+		}
+	} else {
+		var authErr *authError
+		// Get authenticated user from Grafana
+		user, authErr = s.getAuthUser(ctx, req, l)
+		if authErr != nil {
+			return nil, authErr
+		}
+	}
+	l = l.WithField("role", user.role.String())
 
-	l = l.WithField("role", authUser.role.String())
-
-	if authUser.role == grafanaAdmin {
+	if user.role == grafanaAdmin {
 		l.Debugf("Grafana admin, allowing access.")
-		return authUser, nil
+		return user, nil
 	}
 
-	if minRole <= authUser.role {
+	if minRole <= user.role {
 		l.Debugf("Minimal required role is %q, granting access.", minRole)
-		return authUser, nil
+		return user, nil
 	}
 
 	l.Warnf("Minimal required role is %q.", minRole)
@@ -541,7 +560,7 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 	j, err := json.Marshal(authHeaders)
 	if err != nil {
 		l.Warnf("%s", err)
-		return nil, &authError{code: codes.Internal, message: "Internal server error."}
+		return nil, &authError{code: codes.Internal, message: fmt.Sprintf("Internal server error: %s", err)}
 	}
 	hash := base64.StdEncoding.EncodeToString(j)
 	s.rw.RLock()
