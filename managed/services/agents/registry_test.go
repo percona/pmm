@@ -85,7 +85,7 @@ func TestRegistryAuthenticate(t *testing.T) {
 			Authorization: "Basic YWRtaW46YWRtaW4=",
 			Version:       *agent.Version,
 		}
-		_, err = registry.authenticate(context.Background(), md, txQuerier)
+		_, err = registry.authenticate(md, txQuerier)
 		require.NoError(t, err)
 	})
 
@@ -93,7 +93,7 @@ func TestRegistryAuthenticate(t *testing.T) {
 		md := &agentpb.AgentConnectMetadata{
 			Authorization: "Basic wrong",
 		}
-		_, err := registry.authenticate(context.Background(), md, txQuerier)
+		_, err := registry.authenticate(md, txQuerier)
 		require.Error(t, err)
 	})
 
@@ -114,7 +114,7 @@ func TestRegistryAuthenticate(t *testing.T) {
 			Version:       *agent.Version,
 		}
 
-		_, err = registry.authenticate(ctx, agentMD, txQuerier)
+		_, err = registry.authenticate(agentMD, txQuerier)
 		require.NoError(t, err)
 	})
 
@@ -122,7 +122,7 @@ func TestRegistryAuthenticate(t *testing.T) {
 		agentMD := &agentpb.AgentConnectMetadata{
 			Authorization: "Bearer wrong",
 		}
-		_, err := registry.authenticate(context.Background(), agentMD, txQuerier)
+		_, err := registry.authenticate(agentMD, txQuerier)
 		require.Error(t, err)
 	})
 }

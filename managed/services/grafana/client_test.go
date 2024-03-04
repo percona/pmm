@@ -43,7 +43,7 @@ func TestClient(t *testing.T) {
 		t.Run("GrafanaAdmin", func(t *testing.T) {
 			t.Parallel()
 
-			u, err := c.GetAuthUser(ctx, authHeaders)
+			u, err := c.getAuthUser(ctx, authHeaders)
 			role := u.role
 			assert.NoError(t, err)
 			assert.Equal(t, grafanaAdmin, role)
@@ -56,7 +56,7 @@ func TestClient(t *testing.T) {
 			// See [auth.anonymous] in grafana.ini.
 			// Even if anonymous access is enabled, returned role is None, not org_role.
 
-			u, err := c.GetAuthUser(ctx, nil)
+			u, err := c.getAuthUser(ctx, nil)
 			role := u.role
 			clientError, _ := errors.Cause(err).(*clientError) //nolint:errorlint
 			require.NotNil(t, clientError, "got role %s", role)
@@ -90,7 +90,7 @@ func TestClient(t *testing.T) {
 			req.SetBasicAuth(login, login)
 			userAuthHeaders := req.Header
 
-			u, err := c.GetAuthUser(ctx, userAuthHeaders)
+			u, err := c.getAuthUser(ctx, userAuthHeaders)
 			actualRole := u.role
 			assert.NoError(t, err)
 			assert.Equal(t, viewer, actualRole)
@@ -119,7 +119,7 @@ func TestClient(t *testing.T) {
 				req.SetBasicAuth(login, login)
 				userAuthHeaders := req.Header
 
-				u, err := c.GetAuthUser(ctx, userAuthHeaders)
+				u, err := c.getAuthUser(ctx, userAuthHeaders)
 				actualRole := u.role
 				assert.NoError(t, err)
 				assert.Equal(t, role, actualRole)
@@ -144,7 +144,7 @@ func TestClient(t *testing.T) {
 				apiKeyAuthHeaders := http.Header{}
 				apiKeyAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 
-				u, err := c.GetAuthUser(ctx, apiKeyAuthHeaders)
+				u, err := c.getAuthUser(ctx, apiKeyAuthHeaders)
 				actualRole := u.role
 				assert.NoError(t, err)
 				assert.Equal(t, role, actualRole)
@@ -173,7 +173,7 @@ func TestClient(t *testing.T) {
 
 				serviceTokenAuthHeaders := http.Header{}
 				serviceTokenAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", serviceToken))
-				u, err := c.GetAuthUser(ctx, serviceTokenAuthHeaders)
+				u, err := c.getAuthUser(ctx, serviceTokenAuthHeaders)
 				assert.NoError(t, err)
 				actualRole := u.role
 				assert.Equal(t, role, actualRole)

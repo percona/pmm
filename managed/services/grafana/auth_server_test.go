@@ -161,6 +161,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 
 func TestAuthServerAuthenticate(t *testing.T) {
 	t.Parallel()
+	// logrus.SetLevel(logrus.TraceLevel)
 
 	checker := &mockAwsInstanceChecker{}
 	checker.Test(t)

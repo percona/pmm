@@ -134,13 +134,13 @@ var ErrInvalidUserID = errors.New("InvalidUserID")
 var ErrCannotGetUserID = errors.New("CannotGetUserID")
 
 type cacheItem struct {
-	u       AuthUser
+	u       authUser
 	created time.Time
 }
 
 // clientInterface exist only to make fuzzing simpler.
 type clientInterface interface {
-	GetAuthUser(ctx context.Context, authHeaders http.Header) (AuthUser, error)
+	getAuthUser(context.Context, http.Header) (authUser, error)
 }
 
 // AuthServer authenticates incoming requests via Grafana API.
@@ -462,7 +462,7 @@ func nextPrefix(path string) string {
 // It returns user information retrieved during authentication.
 // Paths which require no Grafana role return zero value for
 // some user fields such as authUser.userID.
-func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *logrus.Entry) (*AuthUser, *authError) {
+func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
 	// Unescape the URL-encoded parts of the path.
 	p := req.URL.Path
 	cleanedPath, err := cleanPath(p)
@@ -535,7 +535,7 @@ func cleanPath(p string) (string, error) {
 	return u.String(), nil
 }
 
-func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (*AuthUser, *authError) {
+func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
 	// check Grafana with some headers from request
 	authHeaders := s.authHeaders(req)
 	j, err := json.Marshal(authHeaders)
@@ -567,8 +567,8 @@ func (s *AuthServer) authHeaders(req *http.Request) http.Header {
 	return authHeaders
 }
 
-func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*AuthUser, *authError) {
-	authUser, err := s.c.GetAuthUser(ctx, authHeaders)
+func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*authUser, *authError) {
+	authUser, err := s.c.getAuthUser(ctx, authHeaders)
 	if err != nil {
 		l.Warnf("%s", err)
 		if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint

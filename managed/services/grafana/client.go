@@ -159,8 +159,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 	return nil
 }
 
-// AuthUser represents a user role and ID.
-type AuthUser struct {
+type authUser struct {
 	role   role
 	userID int
 }
@@ -216,15 +215,15 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 	return int(userID), nil
 }
 
-var emptyUser = AuthUser{
+var emptyUser = authUser{
 	role:   none,
 	userID: 0,
 }
 
-// GetAuthUser returns grafanaAdmin if currently authenticated user is a Grafana (super) admin.
+// getAuthUser returns grafanaAdmin if currently authenticated user is a Grafana (super) admin.
 // Otherwise, it returns a role in the default organization (with ID 1).
 // Ctx is used only for cancelation.
-func (c *Client) GetAuthUser(ctx context.Context, authHeaders http.Header) (AuthUser, error) {
+func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error) {
 	// Check if API Key or Service Token is authorized.
 	token := auth.GetTokenFromHeaders(authHeaders)
 	if token != "" {
@@ -232,7 +231,7 @@ func (c *Client) GetAuthUser(ctx context.Context, authHeaders http.Header) (Auth
 		if err != nil {
 			if strings.Contains(err.Error(), "Auth method is not service account token") {
 				role, err := c.getRoleForAPIKey(ctx, authHeaders)
-				return AuthUser{
+				return authUser{
 					role:   role,
 					userID: 0,
 				}, err
@@ -240,7 +239,7 @@ func (c *Client) GetAuthUser(ctx context.Context, authHeaders http.Header) (Auth
 
 			return emptyUser, err
 		}
-		return AuthUser{
+		return authUser{
 			role:   role,
 			userID: 0,
 		}, nil
@@ -256,7 +255,7 @@ func (c *Client) GetAuthUser(ctx context.Context, authHeaders http.Header) (Auth
 	id, _ := m["id"].(float64)
 	userID := int(id)
 	if a, _ := m["isGrafanaAdmin"].(bool); a {
-		return AuthUser{
+		return authUser{
 			role:   grafanaAdmin,
 			userID: userID,
 		}, nil
@@ -265,7 +264,7 @@ func (c *Client) GetAuthUser(ctx context.Context, authHeaders http.Header) (Auth
 	// works only with Basic auth
 	var s []interface{}
 	if err := c.do(ctx, http.MethodGet, "/api/user/orgs", "", authHeaders, nil, &s); err != nil {
-		return AuthUser{
+		return authUser{
 			role:   none,
 			userID: userID,
 		}, err
@@ -280,14 +279,14 @@ func (c *Client) GetAuthUser(ctx context.Context, authHeaders http.Header) (Auth
 		// check only default organization (with ID 1)
 		if id, _ := m["orgId"].(float64); id == 1 {
 			role, _ := m["role"].(string)
-			return AuthUser{
+			return authUser{
 				role:   c.convertRole(role),
 				userID: userID,
 			}, nil
 		}
 	}
 
-	return AuthUser{
+	return authUser{
 		role:   none,
 		userID: userID,
 	}, nil

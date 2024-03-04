@@ -30,7 +30,7 @@ const (
 	mdAgentVersion       = "pmm-agent-version"
 	mdAgentMetricsPort   = "pmm-agent-metrics-port"
 	mdAgentNodeID        = "pmm-agent-node-id"
-	mdAgentAuthorization = "pmm-agent-authorization"
+	mdAgentAuthorization = "Authorization"
 	mdNodeName           = "pmm-node-name"
 	mdServerVersion      = "pmm-server-version"
 )

@@ -18,8 +18,6 @@ package agents
 
 import (
 	"context"
-	"fmt"
-	"net/http"
 	"sync"
 	"time"
 
@@ -169,7 +167,7 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	}
 	var node *models.Node
 	err = r.db.InTransaction(func(tx *reform.TX) error {
-		node, err = r.authenticate(ctx, agentMD, tx.Querier)
+		node, err = r.authenticate(agentMD, tx.Querier)
 		if err != nil {
 			return err
 		}
@@ -213,14 +211,7 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	return agent, nil
 }
 
-func (r *Registry) authenticate(ctx context.Context, md *agentpb.AgentConnectMetadata, q *reform.Querier) (*models.Node, error) {
-	header := http.Header{}
-	header.Add("Authorization", md.Authorization)
-	_, err := r.grafana.GetAuthUser(ctx, header)
-	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, fmt.Sprintf("Authorization failed: %s", err))
-	}
-
+func (r *Registry) authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (*models.Node, error) {
 	if md.ID == "" {
 		return nil, status.Error(codes.PermissionDenied, "Empty Agent ID.")
 	}
