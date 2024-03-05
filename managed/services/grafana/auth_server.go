@@ -513,8 +513,7 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 	}
 
 	var user *authUser
-	skipAuth := isLocalAgentConnection(req)
-	if skipAuth {
+	if isLocalAgentConnection(req) {
 		user = &authUser{
 			role:   rules[connectionEndpoint],
 			userID: 0,
