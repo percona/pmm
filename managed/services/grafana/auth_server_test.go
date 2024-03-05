@@ -35,7 +35,6 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	pmmapitests "github.com/percona/pmm/api-tests"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -172,6 +171,11 @@ func TestAuthServerAuthenticate(t *testing.T) {
 	c := NewClient("127.0.0.1:3000")
 	s := NewAuthServer(c, checker, nil)
 
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
+	require.NoError(t, err)
+	req.SetBasicAuth("admin", "admin")
+	authHeaders := req.Header
+
 	t.Run("GrafanaAdminFallback", func(t *testing.T) {
 		t.Parallel()
 
@@ -240,11 +244,6 @@ func TestAuthServerAuthenticate(t *testing.T) {
 				// This test couldn't run in parallel on sqlite3 - they locked Grafana's sqlite3 database
 				t.Parallel()
 
-				req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
-				require.NoError(t, err)
-				req.SetBasicAuth("admin", "admin")
-				authHeaders := req.Header
-
 				login := fmt.Sprintf("%s-%s-%d", minRole, role, time.Now().Nanosecond())
 				userID, err := c.testCreateUser(ctx, login, role, authHeaders)
 				require.NoError(t, err)
@@ -256,7 +255,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 					}()
 				}
 
-				req, err = http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
+				req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
 				require.NoError(t, err)
 				req.SetBasicAuth(login, login)
 
@@ -285,7 +284,7 @@ func TestServerClientConnection(t *testing.T) {
 	t.Run("Basic auth - success", func(t *testing.T) {
 		t.Parallel()
 
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/agent.Agent/Connect", nil)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, connectionEndpoint, nil)
 		require.NoError(t, err)
 		req.SetBasicAuth("admin", "admin")
 
@@ -296,7 +295,7 @@ func TestServerClientConnection(t *testing.T) {
 	t.Run("Basic auth - fail", func(t *testing.T) {
 		t.Parallel()
 
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/agent.Agent/Connect", nil)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, connectionEndpoint, nil)
 		require.NoError(t, err)
 		req.SetBasicAuth("admin", "wrong")
 
@@ -305,7 +304,7 @@ func TestServerClientConnection(t *testing.T) {
 	})
 
 	t.Run("Token auth - success", func(t *testing.T) {
-		nodeName := pmmapitests.TestString(t, "node-name")
+		nodeName := fmt.Sprintf("N1-%s", time.Now())
 		headersMD := metadata.New(map[string]string{
 			"Authorization": "Basic YWRtaW46YWRtaW4=",
 		})
@@ -318,7 +317,7 @@ func TestServerClientConnection(t *testing.T) {
 			require.Empty(t, warning)
 		}()
 
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/agent.Agent/Connect", nil)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, connectionEndpoint, nil)
 		require.NoError(t, err)
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", serviceToken))
 
@@ -329,7 +328,7 @@ func TestServerClientConnection(t *testing.T) {
 	t.Run("Token auth - fail", func(t *testing.T) {
 		t.Parallel()
 
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/agent.Agent/Connect", nil)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, connectionEndpoint, nil)
 		require.NoError(t, err)
 		req.Header.Set("Authorization", "Bearer wrong")
 
