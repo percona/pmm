@@ -845,14 +845,12 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 }
 
 func authorizationFromUserAndPassword(username, password string) string {
-	prefix := "Basic"
 	if username == "service_token" || username == "api_key" {
-		prefix = "Bearer"
-	} else {
-		password = base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", username, password)))
+		return fmt.Sprintf("Bearer %s", password)
 	}
 
-	return fmt.Sprintf("%s %s", prefix, password)
+	encodedCredentials := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", username, password)))
+	return fmt.Sprintf("Basic %s", encodedCredentials)
 }
 
 func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.Duration, err error) { //nolint:nonamedreturns
