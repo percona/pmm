@@ -71,4 +71,4 @@ You can choose from the following Service types:
 - haproxy
 - external
 
-To get the authentication token, please visit [this page](ref:authentication).
+To get the authentication token, please visit [the Authentication page](ref:authentication).
