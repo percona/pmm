@@ -304,7 +304,7 @@ func TestServerClientConnection(t *testing.T) {
 	})
 
 	t.Run("Token auth - success", func(t *testing.T) {
-		nodeName := fmt.Sprintf("N1-%s", time.Now())
+		nodeName := fmt.Sprintf("N1-%d", time.Now().UnixNano())
 		headersMD := metadata.New(map[string]string{
 			"Authorization": "Basic YWRtaW46YWRtaW4=",
 		})
