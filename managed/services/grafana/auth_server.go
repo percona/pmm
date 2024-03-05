@@ -21,7 +21,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -463,18 +462,15 @@ func nextPrefix(path string) string {
 	return path[:i+1]
 }
 
-func isLocalAgentConnection(req *http.Request) (bool, error) {
-	host, _, err := net.SplitHostPort(req.RemoteAddr)
-	if err != nil {
-		return false, err
-	}
+func isLocalAgentConnection(req *http.Request) bool {
+	ip := strings.Split(req.RemoteAddr, ":")[0]
 	pmmAgent := req.Header.Get("Pmm-Agent-Id")
 	path := req.Header.Get("X-Original-Uri")
-	if host == "127.0.0.1" && pmmAgent == "pmm-server" && path == connectionEndpoint {
-		return true, nil
+	if ip == "127.0.0.1" && pmmAgent == "pmm-server" && path == connectionEndpoint {
+		return true
 	}
 
-	return false, nil
+	return false
 }
 
 // authenticate checks if user has access to a specific path.
@@ -517,14 +513,7 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 	}
 
 	var user *authUser
-	skipAuth, err := isLocalAgentConnection(req)
-	if err != nil {
-		l.Warnf("Error while parsing remote address: %s", err)
-		return nil, &authError{
-			code:    codes.Internal,
-			message: "Internal server error.",
-		}
-	}
+	skipAuth := isLocalAgentConnection(req)
 	if skipAuth {
 		user = &authUser{
 			role:   rules[connectionEndpoint],
@@ -576,7 +565,7 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 	j, err := json.Marshal(authHeaders)
 	if err != nil {
 		l.Warnf("%s", err)
-		return nil, &authError{code: codes.Internal, message: fmt.Sprintf("Internal server error: %s", err)}
+		return nil, &authError{code: codes.Internal, message: "Internal server error."}
 	}
 	hash := base64.StdEncoding.EncodeToString(j)
 	s.rw.RLock()
