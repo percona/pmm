@@ -34,7 +34,7 @@ You can use these environment variables (-e VAR) when running the Docker image.
 | PMM_METRICS_RESOLUTION_LR    | Low metrics resolution in seconds                                                                                           |
 | PMM_DATA_RETENTION           | How long to keep time-series data in ClickHouse. This variable accepts golang style duration format, example: 24h, 30m, 10s |
 | PMM_ENABLE_VM_CACHE          | Enable cache in VM                                                                                                          |
-| PMM_ENABLE_AZUREDISCOVER     | Enable support for discovery of Azure databases                                                                             |
+| PMM_ENABLE_AZURE_DISCOVER     | Enable support for discovery of Azure databases                                                                             |
 | PMM_PUBLIC_ADDRESS           | External IP address or the DNS name on which PMM server is running.                                                         |
 | PMM_DEBUG                    | Enables a more verbose log level                                                                                            |
 | PMM_TRACE                    | Enables a more verbose log level including traceback information                                                            |

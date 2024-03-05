@@ -224,7 +224,7 @@ func TestServer(t *testing.T) {
 
 		server.UpdateSettingsFromEnv([]string{
 			"ENABLE_ALERTING=1",
-			"PMM_ENABLE_AZUREDISCOVER=1",
+			"PMM_ENABLE_AZURE_DISCOVER=1",
 		})
 
 		ctx := context.TODO()

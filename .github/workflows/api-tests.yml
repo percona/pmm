@@ -95,8 +95,8 @@ jobs:
               environment:
                 - PMM_DEBUG=1
                 - PERCONA_TEST_CHECKS_INTERVAL=10s
-                - PMM_PERCONA_TEST_PLATFORM_ADDRESS=https://check-dev.percona.com
-                - PMM_PERCONA_TEST_PLATFORM_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX
+                - PMM_TEST_PERCONA_PLATFORM_ADDRESS=https://check-dev.percona.com
+                - PMM_TEST_PERCONA_PLATFORM_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX
               ports:
                 - 80:8080
                 - 443:8443

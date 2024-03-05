@@ -500,7 +500,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 
 	// ignore req.DisableAzurediscover even if they are present since that will not change anything
 	if req.DisableAzurediscover && s.envSettings.EnableAzurediscover {
-		return status.Error(codes.FailedPrecondition, "Azure Discover is enabled via PMM_ENABLE_AZUREDISCOVER environment variable.")
+		return status.Error(codes.FailedPrecondition, "Azure Discover is enabled via PMM_ENABLE_AZURE_DISCOVER environment variable.")
 	}
 
 	if !canUpdateDurationSetting(metricsRes.GetHr().AsDuration(), s.envSettings.MetricsResolutions.HR) {

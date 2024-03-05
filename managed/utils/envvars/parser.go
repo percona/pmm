@@ -32,9 +32,9 @@ import (
 
 const (
 	defaultPlatformAddress    = "https://check.percona.com"
-	envPlatformAddress        = "PMM_PERCONA_TEST_PLATFORM_ADDRESS"
-	envPlatformInsecure       = "PMM_PERCONA_TEST_PLATFORM_INSECURE"
-	envPlatformPublicKey      = "PMM_PERCONA_TEST_PLATFORM_PUBLIC_KEY"
+	envPlatformAddress        = "PMM_TEST_PERCONA_PLATFORM_ADDRESS"
+	envPlatformInsecure       = "PMM_TEST_PERCONA_PLATFORM_INSECURE"
+	envPlatformPublicKey      = "PMM_TEST_PERCONA_PLATFORM_PUBLIC_KEY"
 	evnInterfaceToBind        = "PMM_INTERFACE_TO_BIND"
 	envEnableAccessControl    = "PMM_ENABLE_RBAC"
 	envPlatformAPITimeout     = "PMM_PERCONA_PLATFORM_API_TIMEOUT"
@@ -61,7 +61,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - PMM_DISABLE_ALERTING disables Percona Alerting;
 //   - PMM_METRICS_RESOLUTION, PMM_METRICS_RESOLUTION_MR, PMM_METRICS_RESOLUTION_HR, PMM_METRICS_RESOLUTION_LR are durations of metrics resolution;
 //   - PMM_DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
-//   - PMM_ENABLE_AZUREDISCOVER enables Azure Discover;
+//   - PMM_ENABLE_AZURE_DISCOVER enables Azure Discover;
 //   - PMM_ENABLE_RBAC enables Access control;
 //   - the environment variables prefixed with GF_ passed as related to Grafana.
 //   - the environment variables relating to proxies
@@ -136,7 +136,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			if err != nil {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 			}
-		case "PMM_ENABLE_AZUREDISCOVER":
+		case "PMM_ENABLE_AZURE_DISCOVER":
 			envSettings.EnableAzurediscover, err = strconv.ParseBool(v)
 			if err != nil {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)

@@ -146,15 +146,15 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotWarns)
 	})
 
-	t.Run("PMM_PERCONA_TEST_PLATFORM_ADDRESS env vars with warnings", func(t *testing.T) {
+	t.Run("PMM_TEST_PERCONA_PLATFORM_ADDRESS env vars with warnings", func(t *testing.T) {
 		t.Parallel()
 
 		envs := []string{
-			"PMM_PERCONA_TEST_PLATFORM_ADDRESS=https://host:333",
+			"PMM_TEST_PERCONA_PLATFORM_ADDRESS=https://host:333",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 		expectedWarns := []string{
-			`environment variable "PMM_PERCONA_TEST_PLATFORM_ADDRESS" IS NOT SUPPORTED and WILL BE REMOVED IN THE FUTURE`,
+			`environment variable "PMM_TEST_PERCONA_PLATFORM_ADDRESS" IS NOT SUPPORTED and WILL BE REMOVED IN THE FUTURE`,
 		}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
@@ -171,7 +171,7 @@ func TestEnvVarValidator(t *testing.T) {
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 		expectedWarns := []string{
-			`environment variable "PMM_TEST_CHECKS_PUBLIC_KEY" is removed and replaced by "PMM_PERCONA_TEST_PLATFORM_PUBLIC_KEY"`,
+			`environment variable "PMM_TEST_CHECKS_PUBLIC_KEY" is removed and replaced by "PMM_TEST_PERCONA_PLATFORM_PUBLIC_KEY"`,
 		}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
@@ -189,7 +189,7 @@ func TestEnvVarValidator(t *testing.T) {
 			"PMM_TEST_TELEMETRY_HOST",
 			"PMM_TEST_SAAS_HOST",
 		} {
-			expected := fmt.Sprintf(`environment variable %q is removed and replaced by "PMM_PERCONA_TEST_PLATFORM_ADDRESS"`, k)
+			expected := fmt.Sprintf(`environment variable %q is removed and replaced by "PMM_TEST_PERCONA_PLATFORM_ADDRESS"`, k)
 			envs := []string{k + "=host:333"}
 			_, gotErrs, gotWarns := ParseEnvVars(envs)
 			assert.Equal(t, []string{expected}, gotWarns)
