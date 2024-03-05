@@ -312,7 +312,11 @@ func TestServerClientConnection(t *testing.T) {
 		ctx := metadata.NewIncomingContext(context.Background(), headersMD)
 		_, serviceToken, err := c.CreateServiceAccount(ctx, nodeName, true)
 		require.NoError(t, err)
-		defer c.DeleteServiceAccount(ctx, nodeName, true)
+		defer func() {
+			warning, err := c.DeleteServiceAccount(ctx, nodeName, true)
+			require.NoError(t, err)
+			require.Empty(t, warning)
+		}()
 
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/agent.Agent/Connect", nil)
 		require.NoError(t, err)

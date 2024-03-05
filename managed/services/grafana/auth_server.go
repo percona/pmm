@@ -21,6 +21,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -462,19 +463,18 @@ func nextPrefix(path string) string {
 	return path[:i+1]
 }
 
-func isLocalAgentConnection(req *http.Request) bool {
-	u, err := url.ParseRequestURI(req.RemoteAddr)
+func isLocalAgentConnection(req *http.Request) (bool, error) {
+	host, _, err := net.SplitHostPort(req.RemoteAddr)
 	if err != nil {
-		return false
+		return false, err
 	}
-	ip := u.Host
 	pmmAgent := req.Header.Get("Pmm-Agent-Id")
 	path := req.Header.Get("X-Original-Uri")
-	if ip == "127.0.0.1" && pmmAgent == "pmm-server" && path == connectionEndpoint {
-		return true
+	if host == "127.0.0.1" && pmmAgent == "pmm-server" && path == connectionEndpoint {
+		return true, nil
 	}
 
-	return false
+	return false, nil
 }
 
 // authenticate checks if user has access to a specific path.
@@ -517,7 +517,15 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 	}
 
 	var user *authUser
-	if isLocalAgentConnection(req) {
+	skipAuth, err := isLocalAgentConnection(req)
+	if err != nil {
+		l.Warnf("Error while parsing remote address: %s", err)
+		return nil, &authError{
+			code:    codes.Internal,
+			message: "Internal server error.",
+		}
+	}
+	if skipAuth {
 		user = &authUser{
 			role:   rules[connectionEndpoint],
 			userID: 0,
