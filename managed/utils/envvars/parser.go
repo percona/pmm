@@ -211,7 +211,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 
-			if !strings.HasPrefix(k, "PMM_PERCONA_TEST_") {
+			if !strings.HasPrefix(k, "PMM_TEST_PERCONA") {
 				warns = append(warns, fmt.Sprintf("unknown environment variable %q", env))
 				continue
 			}
