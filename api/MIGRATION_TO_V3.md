@@ -18,7 +18,7 @@ POST /v1/updates/Status                             GET /api/server/v1/updates/s
 **UserService**                                     **UserService**
 GET /v1/user                                        GET /api/users/v1/me                           needs no {id} in path
 PUT /v1/user                                        PUT /api/users/v1/me                           needs no {id} in path
-POST /v1/user/list                                  GET /api/users/v1
+POST /v1/user/list                                  GET /api/users/v1/users
 
 **AgentsService**                                   **AgentsService**
 POST /v1/inventory/Agents/Add                       POST /api/inventory/v1/agents
@@ -56,7 +56,7 @@ POST /v1/management/ProxySQL/Add                    POST /api/management/v1/serv
 POST /v1/management/RDS/Add                         POST /api/management/v1/services                  pass a service type in body
 POST /v1/management/RDS/Discover                    POST /api/management/v1/services:discoverRDS
 POST /v1/management/Service/Remove                  DELETE /api/management/v1/services/{id}           ({service_id} or {service_name}) and optional {service_type}
-<!-- POST /v1/management/Service/Remove                  DELETE /api/management/v1/services/{id}           {service_id_or_name} and optional {service_type} -->
+<!-- POST /v1/management/Service/Remove             DELETE /api/management/v1/services/{id}           {service_id_or_name} and optional {service_type} -->
 
 **ActionsService**                                  **ActionService**
 POST /v1/actions/Cancel                             POST /api/actions/v1/actions:cancel
@@ -84,9 +84,9 @@ POST /v1/alerting/Templates/Delete                  DELETE /api/alerting/v1/temp
 
 **AdvisorService**                                 **AdvisorService**
 POST /v1/advisors/Change                            POST /api/advisors/v1/checks:batchChange         !!! exception: updates multiple checks
-<!-- POST /v1/advisors/FailedChecks                      POST /api/advisors/v1/checks:failedChecks        !!! try to implement as a GET request -->
-POST /v1/advisors/FailedChecks                      GET /api/advisors/v1/checks/failedChecks?service_id=/service_id/lkjkhjkh&page_params.page_zize        !!! try to implement as a GET request
-POST /v1/advisors/List                              GET /api/advisors/v1
+<!-- POST /v1/advisors/FailedChecks                 POST /api/advisors/v1/checks:failedChecks        !!! try to implement as a GET request, see below -->
+POST /v1/advisors/FailedChecks                      GET /api/advisors/v1/checks/failedChecks         ex: ?service_id=/service_id/1234-5678-abcd-efgh&page_params.page_size=100&page_params.index=1
+POST /v1/advisors/List                              GET /api/advisors/v1/advisors
 POST /v1/advisors/ListChecks                        GET /api/advisors/v1/checks
 POST /v1/advisors/StartChecks                       POST /api/advisors/v1/checks:start
 POST /v1/advisors/ListFailedServices                GET /api/advisors/v1/failedServices
