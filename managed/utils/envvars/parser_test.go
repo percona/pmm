@@ -163,40 +163,6 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Equal(t, expectedWarns, gotWarns)
 	})
 
-	t.Run("PMM_TEST_CHECKS_PUBLIC_KEY env vars with warnings", func(t *testing.T) {
-		t.Parallel()
-
-		envs := []string{
-			"PMM_TEST_CHECKS_PUBLIC_KEY=some key",
-		}
-		expectedEnvVars := &models.ChangeSettingsParams{}
-		expectedWarns := []string{
-			`environment variable "PMM_TEST_CHECKS_PUBLIC_KEY" is removed and replaced by "PMM_TEST_PERCONA_PLATFORM_PUBLIC_KEY"`,
-		}
-
-		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
-		assert.Nil(t, gotErrs)
-		assert.Equal(t, expectedEnvVars, gotEnvVars)
-		assert.Equal(t, expectedWarns, gotWarns)
-	})
-
-	t.Run("SAAS env vars with errors", func(t *testing.T) {
-		t.Parallel()
-
-		for _, k := range []string{
-			"PMM_TEST_AUTH_HOST",
-			"PMM_TEST_CHECKS_HOST",
-			"PMM_TEST_TELEMETRY_HOST",
-			"PMM_TEST_SAAS_HOST",
-		} {
-			expected := fmt.Sprintf(`environment variable %q is removed and replaced by "PMM_TEST_PERCONA_PLATFORM_ADDRESS"`, k)
-			envs := []string{k + "=host:333"}
-			_, gotErrs, gotWarns := ParseEnvVars(envs)
-			assert.Equal(t, []string{expected}, gotWarns)
-			assert.Nil(t, gotErrs)
-		}
-	})
-
 	t.Run("Parse Platform API Timeout", func(t *testing.T) {
 		t.Parallel()
 
