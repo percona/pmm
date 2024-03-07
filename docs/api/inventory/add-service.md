@@ -9,7 +9,8 @@ category: 626de009b977e3003179f7dd
 This section describes how to add a Service of any type to PMM Inventory.
 
 In PMM versions prior to 3.0.0, we featured a separate API call for each Service type. Starting with PMM 3.0.0, we have streamlined the process by offering single API endpoint for all Service types. 
-Previously, the Service type was defined by the endpoint, such as `Services/AddMySQL`. In the new approach, the Service type must be specified as the top-level property of the request payload. As part of the single API endpoint update, we have deprecated individual API endpoints for each Service type.
+
+Previously, the Service type was defined by the endpoint, i.e. `Services/AddMySQL`. In the new approach, the Service type must be specified as the top-level property of the request payload. As part of the single API endpoint update, we have deprecated individual API endpoints for each Service type.
 
 Here's how to add a Node of type `mysql` using the old and the new API calls:
 

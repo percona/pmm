@@ -10,7 +10,7 @@ This section describes how to add an Agent of any type to PMM Inventory.
 
 In PMM versions prior to 3.0.0, we featured a separate API call for each Agent type. Starting with PMM 3.0.0, we have streamlined the process by offering a single API endpoint for all Agent types. 
 
-Previously, the Agent type was defined by the endpoint, such as `Agents/MySQLdExporter`. In the new approach, the Agent type must be specified as the top-level property of the request payload. As part of this single API endpoint update, we have also deprecated individual API endpoints for each Agent type.
+Previously, the Agent type was defined by the endpoint, i.e. `Agents/MySQLdExporter`. In the new approach, the Agent type must be specified as the top-level property of the request payload. As part of this single API endpoint update, we have also deprecated individual API endpoints for each Agent type.
 
 Here's how to add an Agent of type `mysql` using the old and new API calls.
 
