@@ -306,6 +306,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 		}
 		if agent.PostgreSQLOptions != nil {
 			exporter.AutoDiscoveryLimit = agent.PostgreSQLOptions.AutoDiscoveryLimit
+			exporter.MaxExporterConnections = agent.PostgreSQLOptions.MaxExporterConnections
 		}
 		return exporter, nil
 	case models.QANMySQLPerfSchemaAgentType:

@@ -28,10 +28,6 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-const (
-	defaultAutoDiscoveryDatabaseLimit = 10
-)
-
 // PostgreSQLService PostgreSQL Management Service.
 type PostgreSQLService struct {
 	db    *reform.DB
@@ -57,13 +53,6 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 	res := &managementpb.AddPostgreSQLResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
-		switch {
-		case req.AutoDiscoveryLimit == 0:
-			req.AutoDiscoveryLimit = defaultAutoDiscoveryDatabaseLimit
-		case req.AutoDiscoveryLimit < -1:
-			req.AutoDiscoveryLimit = -1
-		}
-
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {
 			return err
