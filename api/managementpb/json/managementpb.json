@@ -4128,6 +4128,12 @@
                   ],
                   "x-order": 29
                 },
+                "max_exporter_connections": {
+                  "description": "Maximum number of connections that exporter can open to the database instance.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 32
+                },
                 "max_query_length": {
                   "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                   "type": "integer",
@@ -4301,6 +4307,12 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "max_exporter_connections": {
+                      "description": "Maximum number of connections that exporter can open to the database instance.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 16
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5208,6 +5220,12 @@
                   "type": "string",
                   "x-order": 2
                 },
+                "max_postgresql_exporter_connections": {
+                  "description": "Maximum number of exporter connections to PostgreSQL instance.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 32
+                },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
                   "type": "string",
@@ -5688,6 +5706,12 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "max_exporter_connections": {
+                      "description": "Maximum number of connections that exporter can open to the database instance.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 16
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
