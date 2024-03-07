@@ -520,6 +520,12 @@
                       ],
                       "x-order": 14
                     },
+                    "max_exporter_connections": {
+                      "description": "Maximum number of connections that exporter can open to the database instance.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 17
+                    },
                     "password": {
                       "description": "PostgreSQL password for scraping metrics.",
                       "type": "string",
@@ -1831,6 +1837,12 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 13
+                    },
+                    "max_exporter_connections": {
+                      "description": "Maximum number of connections that exporter can open to the database instance.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 16
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3834,6 +3846,12 @@
                       ],
                       "x-order": 13
                     },
+                    "max_exporter_connections": {
+                      "description": "Maximum number of connections that exporter can open to the database instance.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 16
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -5303,6 +5321,12 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 13
+                    },
+                    "max_exporter_connections": {
+                      "description": "Maximum number of connections that exporter can open to the database instance.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 16
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -6956,6 +6980,12 @@
                           "LOG_LEVEL_DEBUG"
                         ],
                         "x-order": 13
+                      },
+                      "max_exporter_connections": {
+                        "description": "Maximum number of connections that exporter can open to the database instance.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 16
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",

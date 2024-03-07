@@ -227,6 +227,9 @@ type AddRDSBody struct {
 
 	// Disable parsing comments from queries and showing them in QAN.
 	DisableCommentsParsing bool `json:"disable_comments_parsing,omitempty"`
+
+	// Maximum number of exporter connections to PostgreSQL instance.
+	MaxPostgresqlExporterConnections int32 `json:"max_postgresql_exporter_connections,omitempty"`
 }
 
 // Validate validates this add RDS body
@@ -1403,6 +1406,9 @@ type AddRDSOKBodyPostgresqlExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Maximum number of connections that exporter can open to the database instance.
+	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
 }
 
 // Validate validates this add RDS OK body postgresql exporter

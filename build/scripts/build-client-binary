@@ -119,7 +119,8 @@ main() {
     copy_component "mysqld_exporter" "queries-mysqld-group-replication.yml"
     copy_component "postgres_exporter" "example-queries-postgres.yml"
     copy_component "postgres_exporter" "queries-postgres-uptime.yml"
-    copy_component "postgres_exporter" "queries.yaml"
+    copy_component "postgres_exporter" "queries-mr.yaml"
+    copy_component "postgres_exporter" "queries-lr.yaml"
 
     copy_component "percona-toolkit" "bin/pt-summary"
     copy_component "percona-toolkit" "bin/pt-mysql-summary"
