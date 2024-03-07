@@ -1332,7 +1332,7 @@ func TestMetricsResolutionsChange(t *testing.T) {
 		},
 	}, changePostgresExporterOK)
 
-	// Reset part of metrics resolutions
+	// Change part of metrics resolutions
 	changePostgresExporterOK, err = client.Default.Agents.ChangePostgresExporter(&agents.ChangePostgresExporterParams{
 		Body: agents.ChangePostgresExporterBody{
 			AgentID: agentID,
