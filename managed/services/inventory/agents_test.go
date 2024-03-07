@@ -18,6 +18,7 @@ package inventory
 import (
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
@@ -89,6 +90,9 @@ func TestAgents(t *testing.T) {
 			AgentId: "/agent_id/00000000-0000-4000-8000-000000000006",
 			Common: &inventorypb.ChangeCommonAgentParams{
 				Disable: true,
+				MetricsResolutions: &common.MetricsResolutions{
+					Hr: durationpb.New(10 * time.Second),
+				},
 			},
 		})
 		require.NoError(t, err)
@@ -98,7 +102,7 @@ func TestAgents(t *testing.T) {
 			Disabled:   true,
 			Status:     inventorypb.AgentStatus_UNKNOWN,
 			MetricsResolutions: &common.MetricsResolutions{
-				Hr: durationpb.New(0),
+				Hr: durationpb.New(10 * time.Second),
 				Mr: durationpb.New(0),
 				Lr: durationpb.New(0),
 			},
