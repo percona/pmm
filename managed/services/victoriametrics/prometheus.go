@@ -28,7 +28,14 @@ import (
 
 // AddScrapeConfigs - adds agents scrape configuration to given scrape config,
 // pmm_agent_id and push_metrics used for filtering.
-func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, globalResolutions *models.MetricsResolutions, pmmAgentID *string, pushMetrics bool) error { //nolint:cyclop
+func AddScrapeConfigs(l *logrus.Entry,
+	cfg *config.Config,
+	q *reform.Querier,
+	globalResolutions *models.MetricsResolutions,
+	pmmAgentID *string,
+	pushMetrics bool,
+) error { //nolint:cyclop
+
 	agents, err := models.FindAgentsForScrapeConfig(q, pmmAgentID, pushMetrics)
 	if err != nil {
 		return errors.WithStack(err)

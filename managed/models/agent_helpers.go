@@ -914,6 +914,7 @@ type ChangeCommonAgentParams struct {
 	MetricsResolutions ChangeMetricsResolutionsParams
 }
 
+// ChangeMetricsResolutionsParams contains metrics resolutions for change.
 type ChangeMetricsResolutionsParams struct {
 	HR *time.Duration
 	MR *time.Duration
