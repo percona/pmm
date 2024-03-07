@@ -8,11 +8,13 @@ category: 626de009b977e3003179f7dd
 
 This section describes how to add an Agent of any type to PMM Inventory.
 
-In PMM versions prior to 3.0.0, we featured a separate API call for each Agent type. Starting with PMM 3.0.0, we offer a single API endpoint for all Agent types. While previously the Agent type was defined by the endpoint, i.e. `Agents/MySQLdExporter`, now the Agent type must be specified as the top-level property of the request payload. Along with this single API endpoint, we are deprecating individual API endpoints for each Agent type.
+In PMM versions prior to 3.0.0, we featured a separate API call for each Agent type. Starting with PMM 3.0.0, we have streamlined the process by offering a single API endpoint for all Agent types. 
 
-Let's see how to add an Agent of type `mysql` using the old and new API calls.
+Previously, the Agent type was defined by the endpoint, such as `Agents/MySQLdExporter`. In the new approach, the Agent type must be specified as the top-level property of the request payload. As part of this single API endpoint update, we have also deprecated individual API endpoints for each Agent type.
 
-Old API call:
+Here's how to add an Agent of type `mysql` using the old and new API calls.
+
+**Old API call**
 
 ```shell
 curl --insecure -X POST \
@@ -37,7 +39,7 @@ curl --insecure -X POST \
 '
 ```
 
-New API call:
+**New API call**
 
 ```shell
 curl --insecure -X POST \
@@ -81,5 +83,4 @@ You can choose from the following Agent types:
 - qan_postgresql_pgstatements_agent
 - qan_postgresql_pgstatmonitor_agent
 
-
-To get the authentication token, please visit [this page](ref:authentication).
+To get the authentication token, check [the Authentication page](ref:authentication).
