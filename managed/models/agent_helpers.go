@@ -18,6 +18,7 @@ package models
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
@@ -741,6 +742,7 @@ type CreateAgentParams struct {
 	ExposeExporter                 bool
 	DisableCollectors              []string
 	LogLevel                       string
+	MetricsResolutions             *MetricsResolutions
 }
 
 func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
@@ -909,6 +911,13 @@ type ChangeCommonAgentParams struct {
 	CustomLabels       map[string]string
 	RemoveCustomLabels bool
 	DisablePushMetrics *bool
+	MetricsResolutions ChangeMetricsResolutionsParams
+}
+
+type ChangeMetricsResolutionsParams struct {
+	HR *time.Duration
+	MR *time.Duration
+	LR *time.Duration
 }
 
 // ChangeAgent changes common parameters for given Agent.
@@ -943,6 +952,16 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 		if err = row.SetCustomLabels(params.CustomLabels); err != nil {
 			return nil, err
 		}
+	}
+
+	if params.MetricsResolutions.LR != nil {
+		row.MetricsResolutions.LR = *params.MetricsResolutions.LR
+	}
+	if params.MetricsResolutions.MR != nil {
+		row.MetricsResolutions.MR = *params.MetricsResolutions.MR
+	}
+	if params.MetricsResolutions.HR != nil {
+		row.MetricsResolutions.HR = *params.MetricsResolutions.HR
 	}
 
 	if err = q.Update(row); err != nil {

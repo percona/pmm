@@ -1111,13 +1111,13 @@ ChangeSettingsOKBodySettingsMetricsResolutions MetricsResolutions represents Pro
 swagger:model ChangeSettingsOKBodySettingsMetricsResolutions
 */
 type ChangeSettingsOKBodySettingsMetricsResolutions struct {
-	// High resolution. Should have a suffix in JSON: 1s, 1m, 1h.
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
-	// Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Mr string `json:"mr,omitempty"`
 
-	// Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Lr string `json:"lr,omitempty"`
 }
 
@@ -1292,13 +1292,13 @@ ChangeSettingsParamsBodyMetricsResolutions MetricsResolutions represents Prometh
 swagger:model ChangeSettingsParamsBodyMetricsResolutions
 */
 type ChangeSettingsParamsBodyMetricsResolutions struct {
-	// High resolution. Should have a suffix in JSON: 1s, 1m, 1h.
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
-	// Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Mr string `json:"mr,omitempty"`
 
-	// Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Lr string `json:"lr,omitempty"`
 }
 

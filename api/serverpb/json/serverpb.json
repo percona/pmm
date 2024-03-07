@@ -297,17 +297,17 @@
                   "type": "object",
                   "properties": {
                     "hr": {
-                      "description": "High resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
+                      "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
                       "type": "string",
                       "x-order": 0
                     },
                     "lr": {
-                      "description": "Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
+                      "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
                       "type": "string",
                       "x-order": 2
                     },
                     "mr": {
-                      "description": "Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
+                      "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
                       "type": "string",
                       "x-order": 1
                     }
@@ -504,17 +504,17 @@
                       "type": "object",
                       "properties": {
                         "hr": {
-                          "description": "High resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
+                          "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
                           "type": "string",
                           "x-order": 0
                         },
                         "lr": {
-                          "description": "Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
+                          "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
                           "type": "string",
                           "x-order": 2
                         },
                         "mr": {
-                          "description": "Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
+                          "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
                           "type": "string",
                           "x-order": 1
                         }
@@ -771,17 +771,17 @@
                       "type": "object",
                       "properties": {
                         "hr": {
-                          "description": "High resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
+                          "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
                           "type": "string",
                           "x-order": 0
                         },
                         "lr": {
-                          "description": "Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
+                          "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
                           "type": "string",
                           "x-order": 2
                         },
                         "mr": {
-                          "description": "Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
+                          "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
                           "type": "string",
                           "x-order": 1
                         }

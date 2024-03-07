@@ -191,10 +191,11 @@ type Agent struct {
 	MetricsPath             *string `reform:"metrics_path"`
 	MetricsScheme           *string `reform:"metrics_scheme"`
 
-	RDSBasicMetricsDisabled    bool           `reform:"rds_basic_metrics_disabled"`
-	RDSEnhancedMetricsDisabled bool           `reform:"rds_enhanced_metrics_disabled"`
-	PushMetrics                bool           `reform:"push_metrics"`
-	DisabledCollectors         pq.StringArray `reform:"disabled_collectors"`
+	RDSBasicMetricsDisabled    bool               `reform:"rds_basic_metrics_disabled"`
+	RDSEnhancedMetricsDisabled bool               `reform:"rds_enhanced_metrics_disabled"`
+	PushMetrics                bool               `reform:"push_metrics"`
+	DisabledCollectors         pq.StringArray     `reform:"disabled_collectors"`
+	MetricsResolutions         MetricsResolutions `reform:"metrics_resolutions"`
 
 	MySQLOptions      *MySQLOptions      `reform:"mysql_options"`
 	MongoDBOptions    *MongoDBOptions    `reform:"mongo_db_tls_options"`
