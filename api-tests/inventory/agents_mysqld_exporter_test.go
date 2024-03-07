@@ -87,6 +87,11 @@ func TestMySQLdExporter(t *testing.T) {
 				},
 				TablestatsGroupTableLimit: 2000,
 				Status:                    &AgentStatusUnknown,
+				MetricsResolutions: &agents.GetAgentOKBodyMysqldExporterMetricsResolutions{
+					Hr: "0s",
+					Lr: "0s",
+					Mr: "0s",
+				},
 			},
 		}, getAgentRes.Payload)
 
@@ -111,6 +116,11 @@ func TestMySQLdExporter(t *testing.T) {
 				Disabled:                  true,
 				TablestatsGroupTableLimit: 2000,
 				Status:                    &AgentStatusUnknown,
+				MetricsResolutions: &agents.ChangeMySQLdExporterOKBodyMysqldExporterMetricsResolutions{
+					Hr: "0s",
+					Lr: "0s",
+					Mr: "0s",
+				},
 			},
 		}, changeMySQLdExporterOK.Payload)
 
@@ -139,6 +149,11 @@ func TestMySQLdExporter(t *testing.T) {
 				},
 				TablestatsGroupTableLimit: 2000,
 				Status:                    &AgentStatusUnknown,
+				MetricsResolutions: &agents.ChangeMySQLdExporterOKBodyMysqldExporterMetricsResolutions{
+					Hr: "0s",
+					Lr: "0s",
+					Mr: "0s",
+				},
 			},
 		}, changeMySQLdExporterOK.Payload)
 	})
@@ -368,6 +383,11 @@ func TestMySQLdExporter(t *testing.T) {
 				TablestatsGroupTableLimit: 2000,
 				PushMetricsEnabled:        true,
 				Status:                    &AgentStatusUnknown,
+				MetricsResolutions: &agents.GetAgentOKBodyMysqldExporterMetricsResolutions{
+					Hr: "0s",
+					Lr: "0s",
+					Mr: "0s",
+				},
 			},
 		}, getAgentRes.Payload)
 
@@ -393,6 +413,11 @@ func TestMySQLdExporter(t *testing.T) {
 				},
 				TablestatsGroupTableLimit: 2000,
 				Status:                    &AgentStatusUnknown,
+				MetricsResolutions: &agents.ChangeMySQLdExporterOKBodyMysqldExporterMetricsResolutions{
+					Hr: "0s",
+					Lr: "0s",
+					Mr: "0s",
+				},
 			},
 		}, changeMySQLdExporterOK.Payload)
 
@@ -418,6 +443,11 @@ func TestMySQLdExporter(t *testing.T) {
 				TablestatsGroupTableLimit: 2000,
 				PushMetricsEnabled:        true,
 				Status:                    &AgentStatusUnknown,
+				MetricsResolutions: &agents.ChangeMySQLdExporterOKBodyMysqldExporterMetricsResolutions{
+					Hr: "0s",
+					Lr: "0s",
+					Mr: "0s",
+				},
 			},
 		}, changeMySQLdExporterOK.Payload)
 		_, err = client.Default.Agents.ChangeMySQLdExporter(&agents.ChangeMySQLdExporterParams{

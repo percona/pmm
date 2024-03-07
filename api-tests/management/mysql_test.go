@@ -104,6 +104,11 @@ func TestAddMySQL(t *testing.T) {
 					DisabledCollectors:        []string{"global_status", "perf_schema.tablelocks"},
 					PushMetricsEnabled:        true,
 					Status:                    &AgentStatusUnknown,
+					MetricsResolutions: &agents.ListAgentsOKBodyMysqldExporterItems0MetricsResolutions{
+						Hr: "0s",
+						Lr: "0s",
+						Mr: "0s",
+					},
 				},
 			},
 		}, *listAgents.Payload)
@@ -188,6 +193,11 @@ func TestAddMySQL(t *testing.T) {
 					TablestatsGroupDisabled:   true,
 					PushMetricsEnabled:        true,
 					Status:                    &AgentStatusUnknown,
+					MetricsResolutions: &agents.ListAgentsOKBodyMysqldExporterItems0MetricsResolutions{
+						Hr: "0s",
+						Lr: "0s",
+						Mr: "0s",
+					},
 				},
 			},
 			QANMysqlSlowlogAgent: []*agents.ListAgentsOKBodyQANMysqlSlowlogAgentItems0{
@@ -436,6 +446,11 @@ func TestAddMySQL(t *testing.T) {
 					TablestatsGroupTableLimit: 1000,
 					PushMetricsEnabled:        true,
 					Status:                    &AgentStatusUnknown,
+					MetricsResolutions: &agents.ListAgentsOKBodyMysqldExporterItems0MetricsResolutions{
+						Hr: "0s",
+						Lr: "0s",
+						Mr: "0s",
+					},
 				},
 			},
 		}, *listAgents.Payload)
@@ -689,6 +704,11 @@ func TestAddMySQL(t *testing.T) {
 					TablestatsGroupTableLimit: 1000,
 					PushMetricsEnabled:        true,
 					Status:                    &AgentStatusUnknown,
+					MetricsResolutions: &agents.ListAgentsOKBodyMysqldExporterItems0MetricsResolutions{
+						Hr: "0s",
+						Lr: "0s",
+						Mr: "0s",
+					},
 				},
 			},
 		}, *listAgents.Payload)
@@ -763,6 +783,11 @@ func TestAddMySQL(t *testing.T) {
 					Username:                  "username",
 					TablestatsGroupTableLimit: 1000,
 					Status:                    &AgentStatusUnknown,
+					MetricsResolutions: &agents.ListAgentsOKBodyMysqldExporterItems0MetricsResolutions{
+						Hr: "0s",
+						Lr: "0s",
+						Mr: "0s",
+					},
 				},
 			},
 		}, *listAgents.Payload)
@@ -838,6 +863,11 @@ func TestAddMySQL(t *testing.T) {
 					TablestatsGroupTableLimit: 1000,
 					PushMetricsEnabled:        true,
 					Status:                    &AgentStatusUnknown,
+					MetricsResolutions: &agents.ListAgentsOKBodyMysqldExporterItems0MetricsResolutions{
+						Hr: "0s",
+						Lr: "0s",
+						Mr: "0s",
+					},
 				},
 			},
 		}, *listAgents.Payload)

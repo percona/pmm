@@ -72,6 +72,11 @@ func TestExternalExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"custom_label_for_external_exporter": "external_exporter",
 				},
+				MetricsResolutions: &agents.GetAgentOKBodyExternalExporterMetricsResolutions{
+					Hr: "0s",
+					Mr: "0s",
+					Lr: "0s",
+				},
 			},
 		}, getAgentRes.Payload)
 	})
@@ -127,6 +132,11 @@ func TestExternalExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"custom_label_external_exporter": "external_exporter",
 				},
+				MetricsResolutions: &agents.GetAgentOKBodyExternalExporterMetricsResolutions{
+					Hr: "0s",
+					Mr: "0s",
+					Lr: "0s",
+				},
 			},
 		}, getAgentRes.Payload)
 
@@ -152,6 +162,11 @@ func TestExternalExporter(t *testing.T) {
 				MetricsPath:  "/metrics-hr",
 				ListenPort:   12345,
 				Disabled:     true,
+				MetricsResolutions: &agents.ChangeExternalExporterOKBodyExternalExporterMetricsResolutions{
+					Hr: "0s",
+					Mr: "0s",
+					Lr: "0s",
+				},
 			},
 		}, changeExternalExporterOK.Payload)
 
@@ -180,6 +195,11 @@ func TestExternalExporter(t *testing.T) {
 				Disabled:     false,
 				CustomLabels: map[string]string{
 					"new_label": "external_exporter",
+				},
+				MetricsResolutions: &agents.ChangeExternalExporterOKBodyExternalExporterMetricsResolutions{
+					Hr: "0s",
+					Mr: "0s",
+					Lr: "0s",
 				},
 			},
 		}, changeExternalExporterOK.Payload)
@@ -359,6 +379,11 @@ func TestExternalExporter(t *testing.T) {
 					"custom_label_for_external_exporter": "external_exporter",
 				},
 				PushMetricsEnabled: true,
+				MetricsResolutions: &agents.GetAgentOKBodyExternalExporterMetricsResolutions{
+					Hr: "0s",
+					Mr: "0s",
+					Lr: "0s",
+				},
 			},
 		}, getAgentRes.Payload)
 
@@ -385,6 +410,11 @@ func TestExternalExporter(t *testing.T) {
 					"custom_label_for_external_exporter": "external_exporter",
 				},
 				PushMetricsEnabled: false,
+				MetricsResolutions: &agents.ChangeExternalExporterOKBodyExternalExporterMetricsResolutions{
+					Hr: "0s",
+					Mr: "0s",
+					Lr: "0s",
+				},
 			},
 		}, changeExternalExporterOK.Payload)
 
@@ -410,6 +440,11 @@ func TestExternalExporter(t *testing.T) {
 					"custom_label_for_external_exporter": "external_exporter",
 				},
 				PushMetricsEnabled: true,
+				MetricsResolutions: &agents.ChangeExternalExporterOKBodyExternalExporterMetricsResolutions{
+					Hr: "0s",
+					Mr: "0s",
+					Lr: "0s",
+				},
 			},
 		}, changeExternalExporterOK.Payload)
 

@@ -84,6 +84,11 @@ func TestProxySQLExporter(t *testing.T) {
 						"custom_label_proxysql_exporter": "proxysql_exporter",
 					},
 					Status: &AgentStatusUnknown,
+					MetricsResolutions: &agents.GetAgentOKBodyProxysqlExporterMetricsResolutions{
+						Hr: "0s",
+						Lr: "0s",
+						Mr: "0s",
+					},
 				},
 			},
 		}, getAgentRes)
@@ -109,6 +114,11 @@ func TestProxySQLExporter(t *testing.T) {
 					PMMAgentID: pmmAgentID,
 					Disabled:   true,
 					Status:     &AgentStatusUnknown,
+					MetricsResolutions: &agents.ChangeProxySQLExporterOKBodyProxysqlExporterMetricsResolutions{
+						Hr: "0s",
+						Lr: "0s",
+						Mr: "0s",
+					},
 				},
 			},
 		}, changeProxySQLExporterOK)
@@ -138,6 +148,11 @@ func TestProxySQLExporter(t *testing.T) {
 						"new_label": "proxysql_exporter",
 					},
 					Status: &AgentStatusUnknown,
+					MetricsResolutions: &agents.ChangeProxySQLExporterOKBodyProxysqlExporterMetricsResolutions{
+						Hr: "0s",
+						Lr: "0s",
+						Mr: "0s",
+					},
 				},
 			},
 		}, changeProxySQLExporterOK)
@@ -306,6 +321,11 @@ func TestProxySQLExporter(t *testing.T) {
 						"custom_label_proxysql_exporter": "proxysql_exporter",
 					},
 					Status: &AgentStatusUnknown,
+					MetricsResolutions: &agents.GetAgentOKBodyProxysqlExporterMetricsResolutions{
+						Hr: "0s",
+						Lr: "0s",
+						Mr: "0s",
+					},
 				},
 			},
 		}, getAgentRes)
@@ -333,6 +353,11 @@ func TestProxySQLExporter(t *testing.T) {
 					},
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
+					MetricsResolutions: &agents.ChangeProxySQLExporterOKBodyProxysqlExporterMetricsResolutions{
+						Hr: "0s",
+						Lr: "0s",
+						Mr: "0s",
+					},
 				},
 			},
 		}, changeProxySQLExporterOK)
@@ -358,6 +383,11 @@ func TestProxySQLExporter(t *testing.T) {
 						"custom_label_proxysql_exporter": "proxysql_exporter",
 					},
 					Status: &AgentStatusUnknown,
+					MetricsResolutions: &agents.ChangeProxySQLExporterOKBodyProxysqlExporterMetricsResolutions{
+						Hr: "0s",
+						Lr: "0s",
+						Mr: "0s",
+					},
 				},
 			},
 		}, changeProxySQLExporterOK)

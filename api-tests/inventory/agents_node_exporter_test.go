@@ -60,6 +60,11 @@ func TestNodeExporter(t *testing.T) {
 					Disabled:     false,
 					CustomLabels: customLabels,
 					Status:       &AgentStatusUnknown,
+					MetricsResolutions: &agents.GetAgentOKBodyNodeExporterMetricsResolutions{
+						Hr: "0s",
+						Lr: "0s",
+						Mr: "0s",
+					},
 				},
 			},
 		}, getAgentRes)
@@ -83,6 +88,11 @@ func TestNodeExporter(t *testing.T) {
 					PMMAgentID: pmmAgentID,
 					Disabled:   true,
 					Status:     &AgentStatusUnknown,
+					MetricsResolutions: &agents.ChangeNodeExporterOKBodyNodeExporterMetricsResolutions{
+						Hr: "0s",
+						Lr: "0s",
+						Mr: "0s",
+					},
 				},
 			},
 		}, changeNodeExporterOK)
@@ -110,6 +120,11 @@ func TestNodeExporter(t *testing.T) {
 						"new_label": "node_exporter",
 					},
 					Status: &AgentStatusUnknown,
+					MetricsResolutions: &agents.ChangeNodeExporterOKBodyNodeExporterMetricsResolutions{
+						Hr: "0s",
+						Lr: "0s",
+						Mr: "0s",
+					},
 				},
 			},
 		}, changeNodeExporterOK)
@@ -184,6 +199,11 @@ func TestNodeExporter(t *testing.T) {
 					CustomLabels:       customLabels,
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
+					MetricsResolutions: &agents.GetAgentOKBodyNodeExporterMetricsResolutions{
+						Hr: "0s",
+						Lr: "0s",
+						Mr: "0s",
+					},
 				},
 			},
 		}, getAgentRes)
@@ -207,6 +227,11 @@ func TestNodeExporter(t *testing.T) {
 					Disabled:     false,
 					CustomLabels: customLabels,
 					Status:       &AgentStatusUnknown,
+					MetricsResolutions: &agents.ChangeNodeExporterOKBodyNodeExporterMetricsResolutions{
+						Hr: "0s",
+						Lr: "0s",
+						Mr: "0s",
+					},
 				},
 			},
 		}, changeNodeExporterOK)
@@ -230,6 +255,11 @@ func TestNodeExporter(t *testing.T) {
 					CustomLabels:       customLabels,
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
+					MetricsResolutions: &agents.ChangeNodeExporterOKBodyNodeExporterMetricsResolutions{
+						Hr: "0s",
+						Lr: "0s",
+						Mr: "0s",
+					},
 				},
 			},
 		}, changeNodeExporterOK)
