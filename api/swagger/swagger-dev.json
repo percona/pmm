@@ -5249,6 +5249,12 @@
                   "type": "boolean",
                   "title": "Optionally expose the exporter process on all public interfaces",
                   "x-order": 16
+                },
+                "max_exporter_connections": {
+                  "description": "Maximum number of connections that exporter can open to the database instance.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 17
                 }
               }
             }
@@ -5370,6 +5376,12 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 15
+                    },
+                    "max_exporter_connections": {
+                      "description": "Maximum number of connections that exporter can open to the database instance.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -8385,6 +8397,12 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 15
+                    },
+                    "max_exporter_connections": {
+                      "description": "Maximum number of connections that exporter can open to the database instance.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -10473,6 +10491,12 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 15
+                    },
+                    "max_exporter_connections": {
+                      "description": "Maximum number of connections that exporter can open to the database instance.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 16
                     }
                   },
                   "x-order": 5
@@ -12105,6 +12129,12 @@
                         "type": "boolean",
                         "title": "Optionally expose the exporter process on all public interfaces",
                         "x-order": 15
+                      },
+                      "max_exporter_connections": {
+                        "description": "Maximum number of connections that exporter can open to the database instance.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 16
                       }
                     }
                   },
@@ -19291,6 +19321,12 @@
                             "type": "integer",
                             "format": "int32",
                             "x-order": 1
+                          },
+                          "max_exporter_connections": {
+                            "description": "Maximum number of connections from exporter to PostgreSQL instance.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 2
                           }
                         },
                         "x-order": 21
@@ -22573,6 +22609,12 @@
                   "type": "boolean",
                   "title": "Optionally expose the exporter process on all public interfaces",
                   "x-order": 31
+                },
+                "max_exporter_connections": {
+                  "description": "Maximum number of connections that exporter can open to the database instance.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 32
                 }
               }
             }
@@ -22771,6 +22813,12 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 15
+                    },
+                    "max_exporter_connections": {
+                      "description": "Maximum number of connections that exporter can open to the database instance.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 16
                     }
                   },
                   "x-order": 1
@@ -22969,6 +23017,11 @@
                     }
                   },
                   "x-order": 3
+                },
+                "warning": {
+                  "description": "Warning message.",
+                  "type": "string",
+                  "x-order": 4
                 }
               }
             }
@@ -23628,6 +23681,17 @@
                   "type": "integer",
                   "format": "int32",
                   "x-order": 30
+                },
+                "disable_comments_parsing": {
+                  "description": "Disable parsing comments from queries and showing them in QAN.",
+                  "type": "boolean",
+                  "x-order": 31
+                },
+                "max_postgresql_exporter_connections": {
+                  "description": "Maximum number of exporter connections to PostgreSQL instance.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 32
                 }
               }
             }
@@ -24293,6 +24357,12 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 15
+                    },
+                    "max_exporter_connections": {
+                      "description": "Maximum number of connections that exporter can open to the database instance.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 16
                     }
                   },
                   "x-order": 7
@@ -26214,6 +26284,12 @@
                                   "type": "integer",
                                   "format": "int32",
                                   "x-order": 1
+                                },
+                                "max_exporter_connections": {
+                                  "description": "Maximum number of connections from exporter to PostgreSQL instance.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 2
                                 }
                               },
                               "x-order": 21

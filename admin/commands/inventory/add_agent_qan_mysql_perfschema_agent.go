@@ -71,6 +71,7 @@ type AddAgentQANMySQLPerfSchemaAgentCommand struct {
 	LogLevel             string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
 }
 
+// RunCmd runs the command for AddAgentQANMySQLPerfSchemaAgentCommand.
 func (cmd *AddAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 

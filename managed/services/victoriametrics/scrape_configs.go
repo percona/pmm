@@ -368,11 +368,16 @@ func scrapeConfigsForMongoDBExporter(s *models.MetricsResolutions, params *scrap
 		r = append(r, hr)
 	}
 	if params.agent.MongoDBOptions != nil && params.agent.MongoDBOptions.EnableAllCollectors {
-		lr, err := scrapeConfigForStandardExporter("lr", s.LR, params, []string{
+		defaultCollectors := []string{
 			"dbstats",
 			"indexstats",
 			"collstats",
-		})
+		}
+		if params.pmmAgentVersion != nil && !params.pmmAgentVersion.Less(version.MustParse("2.41.1-0")) {
+			defaultCollectors = append(defaultCollectors, "shards")
+		}
+
+		lr, err := scrapeConfigForStandardExporter("lr", s.LR, params, defaultCollectors)
 		if err != nil {
 			return nil, err
 		}

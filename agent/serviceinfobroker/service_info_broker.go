@@ -26,14 +26,15 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 	"github.com/percona/pmm/agent/utils/templates"
+	"github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 )
@@ -174,28 +175,14 @@ func (sib *ServiceInfoBroker) getMongoDBInfo(ctx context.Context, dsn string, fi
 		return &res
 	}
 
-	resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: "getDiagnosticData", Value: 1}})
-	if err = resp.Err(); err != nil {
-		sib.l.Debugf("getMongoDBInfo: failed to runCommand getDiagnosticData: %s", err)
+	mongoVersion, err := version.GetMongoDBVersion(ctx, client)
+	if err != nil {
+		sib.l.Debugf("getMongoDBInfo: failed to get MongoDB version: %s", err)
 		res.Error = err.Error()
 		return &res
 	}
 
-	resp = client.Database("admin").RunCommand(ctx, bson.D{{Key: "buildInfo", Value: 1}})
-	if err = resp.Err(); err != nil {
-		res.Error = err.Error()
-		return &res
-	}
-
-	buildInfo := struct {
-		Version string `bson:"version"`
-	}{}
-
-	if err = resp.Decode(&buildInfo); err != nil {
-		sib.l.Debugf("getMongoDBInfo: failed to decode buildInfo: %s", err)
-	}
-
-	res.Version = buildInfo.Version
+	res.Version = mongoVersion.String()
 	return &res
 }
 
@@ -244,6 +231,13 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 		res.Error = err.Error()
 	}
 	res.Version = version
+
+	var pgsmVersion string
+	err = db.QueryRowContext(ctx, "SELECT /* agent='serviceinfobroker' */ extversion FROM pg_extension WHERE extname = 'pg_stat_monitor';").Scan(&pgsmVersion)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		res.Error = err.Error()
+	}
+	res.PgsmVersion = pgsmVersion
 
 	return &res
 }

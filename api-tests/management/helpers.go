@@ -34,6 +34,7 @@ import (
 // AgentStatusUnknown means agent is not connected and we don't know anything about its status.
 var AgentStatusUnknown = inventorypb.AgentStatus_name[int32(inventorypb.AgentStatus_UNKNOWN)]
 
+// RegisterGenericNode registers a generic node using the provided parameters.
 func RegisterGenericNode(t pmmapitests.TestingT, body node.RegisterNodeBody) (string, string) {
 	t.Helper()
 	params := node.RegisterNodeParams{
@@ -119,6 +120,7 @@ func assertNodeCreated(t pmmapitests.TestingT, nodeID string, expectedResult nod
 	assert.Equal(t, expectedResult, *nodeOK.Payload)
 }
 
+// RemovePMMAgentWithSubAgents removes a PMM Agent along with its sub-agents.
 func RemovePMMAgentWithSubAgents(t pmmapitests.TestingT, pmmAgentID string) {
 	t.Helper()
 

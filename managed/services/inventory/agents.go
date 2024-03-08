@@ -113,7 +113,7 @@ func (as *AgentsService) changeAgent(agentID string, common *inventorypb.ChangeC
 // List selects all Agents in a stable order for a given service.
 //
 //nolint:unparam
-func (as *AgentsService) List(ctx context.Context, filters models.AgentFilters) ([]inventorypb.Agent, error) {
+func (as *AgentsService) List(_ context.Context, filters models.AgentFilters) ([]inventorypb.Agent, error) {
 	var res []inventorypb.Agent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		got := 0
@@ -149,7 +149,7 @@ func (as *AgentsService) List(ctx context.Context, filters models.AgentFilters) 
 }
 
 // Get selects a single Agent by ID.
-func (as *AgentsService) Get(ctx context.Context, id string) (inventorypb.Agent, error) { //nolint:ireturn,unparam
+func (as *AgentsService) Get(_ context.Context, id string) (inventorypb.Agent, error) { //nolint:ireturn
 	var res inventorypb.Agent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		row, err := models.FindAgentByID(tx.Querier, id)
@@ -181,7 +181,7 @@ func (as *AgentsService) Logs(ctx context.Context, id string, limit uint32) ([]s
 // AddPMMAgent inserts pmm-agent Agent with given parameters.
 //
 //nolint:unparam
-func (as *AgentsService) AddPMMAgent(ctx context.Context, req *inventorypb.AddPMMAgentRequest) (*inventorypb.PMMAgent, error) {
+func (as *AgentsService) AddPMMAgent(_ context.Context, req *inventorypb.AddPMMAgentRequest) (*inventorypb.PMMAgent, error) {
 	var res *inventorypb.PMMAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		row, err := models.CreatePMMAgent(tx.Querier, req.RunsOnNodeId, req.CustomLabels)

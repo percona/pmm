@@ -38,6 +38,7 @@ type RemoveServiceCommand struct {
 	Force     bool   `help:"Remove service with all dependencies"`
 }
 
+// RunCmd executes the RemoveServiceCommand and returns the result.
 func (cmd *RemoveServiceCommand) RunCmd() (commands.Result, error) {
 	params := &services.RemoveServiceParams{
 		Body: services.RemoveServiceBody{

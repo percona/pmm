@@ -600,14 +600,15 @@ func (mb *MetricsBucket) Run(ctx context.Context) {
 	_ = mb.insertBatch(0)
 }
 
-func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
+func (mb *MetricsBucket) insertBatch(timeout time.Duration) error {
 	// wait for first request before doing anything, ignore timeout
 	req, ok := <-mb.requestsCh
 	if !ok {
 		mb.l.Warn("Requests channel closed, nothing to store.")
-		return //nolint:nakedret
+		return nil
 	}
 
+	var err error
 	var buckets int
 	start := time.Now()
 	defer func() {
@@ -629,8 +630,7 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
 	// begin "transaction" and commit or rollback it on exit
 	var tx *sqlx.Tx
 	if tx, err = mb.db.Beginx(); err != nil {
-		err = errors.Wrap(err, "failed to begin transaction")
-		return //nolint:nakedret
+		return errors.Wrap(err, "failed to begin transaction")
 	}
 	defer func() {
 		if err == nil {
@@ -645,8 +645,7 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
 	// prepare INSERT statement and close it on exit
 	var stmt *sqlx.NamedStmt
 	if stmt, err = tx.PrepareNamed(insertSQL); err != nil {
-		err = errors.Wrap(err, "failed to prepare statement")
-		return //nolint:nakedret
+		return errors.Wrap(err, "failed to prepare statement")
 	}
 	defer func() {
 		if e := stmt.Close(); e != nil && err == nil {
@@ -694,8 +693,7 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
 			}
 
 			if _, err = stmt.Exec(q); err != nil {
-				err = errors.Wrap(err, "failed to exec")
-				return //nolint:nakedret
+				return errors.Wrap(err, "failed to exec")
 			}
 		}
 
@@ -704,10 +702,10 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
 		case req, ok = <-mb.requestsCh:
 			if !ok {
 				mb.l.Warn("Requests channel closed, exiting.")
-				return //nolint:nakedret
+				return nil
 			}
 		case <-timeoutCh:
-			return //nolint:nakedret
+			return nil
 		}
 	}
 }

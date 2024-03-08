@@ -74,7 +74,7 @@ func (u *upgradeResult) String() string {
 }
 
 // RunCmdWithContext runs upgrade command.
-func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) { //nolint:unparam
+func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) { //nolint:unparam,revive
 	logrus.Info("Starting PMM Server upgrade via Docker")
 
 	d, err := prepareDocker(ctx, c.dockerFn, prepareOpts{install: false})

@@ -39,7 +39,7 @@ jobs:
 
       - name: Enable Go build cache
         if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/go-build
           key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
@@ -49,7 +49,7 @@ jobs:
 
       - name: Enable Go modules cache
         if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
