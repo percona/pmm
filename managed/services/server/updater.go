@@ -99,7 +99,7 @@ func (s *Updater) currentVersion() string {
 // StartUpdate triggers the update process.
 func (s *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 	if newImageName == "" {
-		latest, err := s.latest()
+		latest, err := s.latest(ctx)
 		if err != nil {
 			s.l.WithError(err).Error("Failed to get latest version")
 			newImageName = "perconalab/pmm-server:3-dev-latest"
@@ -123,6 +123,7 @@ func (s *Updater) onlyInstalledVersionResponse() *serverpb.CheckUpdatesResponse 
 	}
 }
 
+// ForceCheckUpdates forces an update check.
 func (s *Updater) ForceCheckUpdates(_ context.Context) error {
 	// TODO: PMM-11261 Implement this method
 	return nil
@@ -135,6 +136,7 @@ type TagsResponse struct {
 	} `json:"results"`
 }
 
+// LastCheckUpdatesResult returns the result of the last update check.
 func (s *Updater) LastCheckUpdatesResult(ctx context.Context) (*version.UpdateCheckResult, time.Time) {
 	buildTime, err := version.Time()
 	if err != nil {
