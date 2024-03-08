@@ -970,13 +970,13 @@ func main() { //nolint:cyclop,maintidx
 	dumpService := dump.New(db)
 
 	// Get the hostname from the environment variable
-	watchtowerHostname := os.Getenv("PMM_WATCHTOWER_HOSTNAME")
-	if watchtowerHostname == "" {
-		watchtowerHostname = "http://watchtower:8080"
+	watchtowerHost := os.Getenv("PMM_WATCHTOWER_HOST")
+	if watchtowerHost == "" {
+		watchtowerHost = "http://watchtower:8080"
 	}
 
 	// Create a URL with the images and new image name as query parameters
-	u, err := url.Parse(watchtowerHostname)
+	u, err := url.Parse(watchtowerHost)
 	if err != nil {
 		l.Fatalf("Failed to parse watchtower hostname: %s", err)
 	}

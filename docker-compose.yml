@@ -23,7 +23,7 @@ services:
       - ENABLE_RBAC=${ENABLE_RBAC:-0}
       - LESS_LOG_NOISE=1
       - PERCONA_TEST_VERSION_SERVICE_URL=${PERCONA_TEST_VERSION_SERVICE_URL}
-      - PMM_WATCHTOWER_HOST=${PMM_WATCHTOWER_HOST:-http://host.docker.internal:8080}
+      - PMM_WATCHTOWER_HOST=${PMM_WATCHTOWER_HOST:-http://watchtower:8080}
       - PMM_WATCHTOWER_TOKEN=${PMM_WATCHTOWER_TOKEN:-123}
       # - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
       # - PERCONA_TEST_PLATFORM_INSECURE=1
@@ -95,6 +95,22 @@ services:
     #     chmod 600 /tmp/certs/*
     #     /opt/entrypoint.sh
     #   "
+
+# docker run -v /var/run/docker.sock:/var/run/docker.sock -e WATCHTOWER_HTTP_API_UPDATE=1 -e WATCHTOWER_HTTP_API_TOKEN=123 --hostname=watchtower --network=pmm_default docker.io/bupychuk/watchtower
+  watchtower:
+    profiles:
+      - pmm
+    image: ${WATCHTOWER_IMAGE:-bupychuk/watchtower}
+    container_name: watchtower
+    environment:
+        - WATCHTOWER_HTTP_LISTEN_PORT=8080
+        - WATCHTOWER_HTTP_API_UPDATE=1
+        - WATCHTOWER_HTTP_API_TOKEN=${PMM_WATCHTOWER_TOKEN:-123}
+    hostname: watchtower
+    networks:
+      - ${NETWORK:-default}
+    volumes:
+        - /var/run/docker.sock:${DOCKER_PATH:-/var/run/docker.sock}
 
   # PMM with external DBs
   ch:
