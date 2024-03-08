@@ -25,15 +25,6 @@ type PackageInfo struct {
 	Repo        string     `json:"repo"`
 }
 
-/*
-{
-	"version": "3.0.0",
-	"full_version": "3-dev-container",
-	"build_time": "2024-02-16T12:00:00Z",
-	"repo": "percona/pmm-server"
-}
-*/
-
 // UpdateInstalledResult represents `pmm-update -installed` result.
 type UpdateInstalledResult struct {
 	Installed PackageInfo `json:"installed"`

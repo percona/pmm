@@ -317,7 +317,10 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 		return nil, status.Error(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
 	}
 
-	s.updater.StartUpdate(ctx, req.NewImage)
+	err := s.updater.StartUpdate(ctx, req.NewImage)
+	if err != nil {
+		return nil, err
+	}
 
 	authToken := uuid.New().String()
 	if err := s.writeUpdateAuthToken(authToken); err != nil {

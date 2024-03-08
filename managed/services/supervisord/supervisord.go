@@ -652,7 +652,7 @@ command =
 		--search.maxQueryDuration={{ .VMSearchMaxQueryDuration }}
 		--promscrape.streamParse={{ .VMPromscrapeStreamParse }}
 		--http.pathPrefix=/prometheus
-		--envflag.enable=true
+		--envflag.enable
 		--envflag.prefix=VM_
 user = pmm
 autorestart = true

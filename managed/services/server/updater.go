@@ -32,12 +32,14 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+// Updater is a service to check for updates and trigger the update process.
 type Updater struct {
 	l                  *logrus.Entry
 	supervisord        supervisordService
 	watchtowerHostname *url.URL
 }
 
+// NewUpdater creates a new Updater service.
 func NewUpdater(supervisord supervisordService, watchtowerHostname *url.URL) *Updater {
 	return &Updater{
 		l:                  logrus.WithField("service", "updater"),
@@ -62,7 +64,7 @@ func (s *Updater) sendRequestToWatchtower(ctx context.Context, newImageName stri
 	u.RawQuery = q.Encode()
 
 	// Create a new request
-	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 	if err != nil {
 		return errors.Wrap(err, "failed to create request")
 	}
@@ -79,7 +81,7 @@ func (s *Updater) sendRequestToWatchtower(ctx context.Context, newImageName stri
 	if err != nil {
 		return errors.Wrap(err, "failed to send request")
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:errcheck
 
 	// Check the response
 	if resp.StatusCode != http.StatusOK {
@@ -94,6 +96,7 @@ func (s *Updater) currentVersion() string {
 	return version.Version
 }
 
+// StartUpdate triggers the update process.
 func (s *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 	if newImageName == "" {
 		latest, err := s.latest()
@@ -120,10 +123,12 @@ func (s *Updater) onlyInstalledVersionResponse() *serverpb.CheckUpdatesResponse 
 	}
 }
 
-func (s *Updater) ForceCheckUpdates(ctx context.Context) error {
+func (s *Updater) ForceCheckUpdates(_ context.Context) error {
+	// TODO: PMM-11261 Implement this method
 	return nil
 }
 
+// TagsResponse is a response from DockerHub.
 type TagsResponse struct {
 	Results []struct {
 		Name string `json:"name"`
@@ -136,7 +141,7 @@ func (s *Updater) LastCheckUpdatesResult(ctx context.Context) (*version.UpdateCh
 		s.l.WithError(err).Error("Failed to get build time")
 		return nil, time.Now()
 	}
-	latest, err := s.latest()
+	latest, err := s.latest(ctx)
 	if err != nil {
 		s.l.WithError(err).Error("Failed to get latest version")
 		return nil, time.Now()
@@ -154,7 +159,7 @@ func (s *Updater) LastCheckUpdatesResult(ctx context.Context) (*version.UpdateCh
 	}, time.Now()
 }
 
-func (s *Updater) latest() (*version.PackageInfo, error) {
+func (s *Updater) latest(ctx context.Context) (*version.PackageInfo, error) {
 	fileName := "/etc/pmm-server-update-version.json"
 	content, err := os.ReadFile(fileName)
 	switch {
@@ -173,12 +178,18 @@ func (s *Updater) latest() (*version.PackageInfo, error) {
 		return s.parseDockerTag(os.Getenv("PMM_SERVER_UPDATE_VERSION")), nil
 	default: // os.IsNotExist(err)
 		// File does not exist, get the latest tag from DockerHub
-		resp, err := http.Get("https://registry.hub.docker.com/v2/repositories/percona/pmm-server/tags/")
+		u := "https://registry.hub.docker.com/v2/repositories/percona/pmm-server/tags/"
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+		if err != nil {
+			s.l.WithError(err).Error("Failed to create request")
+			return nil, errors.Wrap(err, "failed to create request")
+		}
+		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			s.l.WithError(err).Error("Failed to get tags from DockerHub")
 			return nil, errors.Wrap(err, "failed to get tags from DockerHub")
 		}
-		defer resp.Body.Close()
+		defer resp.Body.Close() //nolint:errcheck
 
 		var tagsResponse TagsResponse
 		if err := json.NewDecoder(resp.Body).Decode(&tagsResponse); err != nil {
