@@ -60,6 +60,7 @@ extra_css:
   - css/extra.css
   - css/nocopy.css
   - css/design.css
+  - css/osano.css
 
 #Copyright
 copyright: >
@@ -68,6 +69,7 @@ copyright: >
 extra_javascript:
   #  - js/lightgallery.min.js
   - js/promptremover.js
+  - js/consent.js
 
 markdown_extensions:
   attr_list: {}
@@ -98,8 +100,8 @@ markdown_extensions:
   pymdownx.highlight:
     use_pygments: true
   pymdownx.emoji:
-    emoji_index: !!python/name:materialx.emoji.twemoji
-    emoji_generator: !!python/name:materialx.emoji.to_svg
+    emoji_index: !!python/name:material.extensions.emoji.twemoji
+    emoji_generator: !!python/name:material.extensions.emoji.to_svg
     options:
       custom_icons:
         - overrides/.icons
@@ -144,13 +146,6 @@ plugins:
 
 extra:
   homepage: https://docs.percona.com
-  consent:
-    title: Cookie consent
-    description: >-
-      We use cookies to recognize your repeated visits and preferences, as well
-      as to measure the effectiveness of our documentation and whether users
-      find what they're searching for. With your consent, you're helping us to
-      make our documentation better. Read more about <a class="reference external" href="https://www.percona.com/20180524-cookie-policy" target="_blank">Percona Cookie Policy</a>.
   edit_page_text: '<i class="uil uil-pen"></i> <b>Edit this page</b>'
   updated_text: '<i class="uil uil-refresh"></i> Page updated'
 

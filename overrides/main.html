@@ -1,6 +1,11 @@
 {# Import the theme's layout. #}
 {% extends "base.html" %}
 
+{% block scripts %}
+<script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>
+{{ super() }}
+{% endblock %}
+
 {% block extrahead %}
 {{ super() }}
                  {% set title = config.site_name %}
