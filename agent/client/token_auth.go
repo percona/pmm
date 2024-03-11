@@ -16,32 +16,28 @@ package client
 
 import (
 	"context"
-	"encoding/base64"
 	"fmt"
 
 	"google.golang.org/grpc/credentials"
 )
 
-type basicAuth struct {
-	username string
-	password string
+type tokenAuth struct {
+	token string
 }
 
 // GetRequestMetadata implements credentials.PerRPCCredentials interface.
-func (b *basicAuth) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) { //nolint:revive
-	auth := b.username + ":" + b.password
-	enc := base64.StdEncoding.EncodeToString([]byte(auth))
+func (t *tokenAuth) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) { //nolint:revive
 	return map[string]string{
-		"Authorization": fmt.Sprintf("Basic %s", enc),
+		"Authorization": fmt.Sprintf("Bearer %s", t.token),
 	}, nil
 }
 
 // RequireTransportSecurity implements credentials.PerRPCCredentials interface.
-func (*basicAuth) RequireTransportSecurity() bool {
+func (*tokenAuth) RequireTransportSecurity() bool {
 	return false
 }
 
 // check interfaces.
 var (
-	_ credentials.PerRPCCredentials = (*basicAuth)(nil)
+	_ credentials.PerRPCCredentials = (*tokenAuth)(nil)
 )
