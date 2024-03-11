@@ -66,8 +66,8 @@ func TestPostgresExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"custom_label_postgres_exporter": "postgres_exporter",
 				},
-
-				SkipConnectionCheck: true,
+				SkipConnectionCheck:    true,
+				MaxExporterConnections: 10,
 			},
 		})
 		agentID := PostgresExporter.PostgresExporter.AgentID
@@ -88,9 +88,10 @@ func TestPostgresExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"custom_label_postgres_exporter": "postgres_exporter",
 					},
-					Status:             &AgentStatusUnknown,
-					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					DisabledCollectors:     make([]string, 0),
+					LogLevel:               pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					Status:                 &AgentStatusUnknown,
+					MaxExporterConnections: 10,
 				},
 			},
 		}, getAgentRes)
@@ -113,15 +114,16 @@ func TestPostgresExporter(t *testing.T) {
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				PostgresExporter: &agents.ChangeAgentOKBodyPostgresExporter{
-					AgentID:            agentID,
-					ServiceID:          serviceID,
-					Username:           "username",
-					PMMAgentID:         pmmAgentID,
-					Disabled:           true,
-					Status:             &AgentStatusUnknown,
-					CustomLabels:       map[string]string{},
-					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					AgentID:                agentID,
+					ServiceID:              serviceID,
+					Username:               "username",
+					PMMAgentID:             pmmAgentID,
+					Disabled:               true,
+					Status:                 &AgentStatusUnknown,
+					CustomLabels:           map[string]string{},
+					DisabledCollectors:     make([]string, 0),
+					LogLevel:               pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					MaxExporterConnections: 10,
 				},
 			},
 		}, changePostgresExporterOK)
@@ -155,9 +157,10 @@ func TestPostgresExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "postgres_exporter",
 					},
-					Status:             &AgentStatusUnknown,
-					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					Status:                 &AgentStatusUnknown,
+					DisabledCollectors:     make([]string, 0),
+					LogLevel:               pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					MaxExporterConnections: 10,
 				},
 			},
 		}, changePostgresExporterOK)
@@ -322,7 +325,6 @@ func TestPostgresExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"custom_label_postgres_exporter": "postgres_exporter",
 				},
-
 				SkipConnectionCheck: true,
 				PushMetrics:         true,
 			},

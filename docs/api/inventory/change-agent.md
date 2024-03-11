@@ -8,13 +8,17 @@ category: 626de009b977e3003179f7dd
 
 This section describes how to change Agent attributes.
 
-Please note that not all attrbutes can be chaged. For example, you cannot change the Agent type nor its ID.
+!!! note alert alert-primary "Note"
+    Not all attrbutes can be chaged. For example, you cannot change the Agent type nor its ID.
 
-In PMM versions prior to 3.0.0, we featured a separate API call for each Agent type. Starting with PMM 3.0.0, we offer a single API endpoint for all Agent types. While previously the Agent type was defined by the endpoint, i.e. `/v1/inventory/Agents/ChangeMySQLdExporter`, now the Agent type must be specified as the top-level property of the request payload. Along with this single API endpoint, we are deprecating individual API endpoints for each Agent type.
+In PMM versions prior to 3.0.0, we featured a separate API call for each Agent type. Starting with PMM 3.0.0, we have streamlined the process by offering a single API endpoint for all Agent types. 
 
-Let's see how to change Agent attributes using the old and new API calls. The goal of this sample API call is to enable the agent, make it work in push mode, and remove a few custom labels from it. 
+Previously, the Agent type was defined by the endpoint, i.e. `/v1/inventory/Agents/ChangeMySQLdExporter`. In the new approach, the Agent type must be specified as the top-level property of the request payload. 
+As part of the single API endpoint updated, we have deprecating individual API endpoints for each Agent type.
 
-Old API call:
+Here's how to change Agent attributes using the old and new API calls. The goal of this sample API call is to enable the Agent, make it work in Push mode, and remove a few custom labels from it. 
+
+**Old API call**
 
 ```shell
 curl --insecure -X POST \
@@ -38,7 +42,7 @@ curl --insecure -X POST \
 '
 ```
 
-New API call:
+**New API call**
 
 ```shell
 curl --insecure -X POST \
@@ -64,4 +68,4 @@ curl --insecure -X POST \
 '
 ```
 
-To get the authentication token, please visit [this page](ref:authentication).
+To get the authentication token, check [the Authentication page](ref:authentication).

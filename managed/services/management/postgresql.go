@@ -27,22 +27,11 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-const (
-	defaultAutoDiscoveryDatabaseLimit = 10
-)
-
 // AddPostgreSQL adds "PostgreSQL Service", "PostgreSQL Exporter Agent" and "QAN PostgreSQL PerfSchema Agent".
 func (s *ManagementService) AddPostgreSQL(ctx context.Context, req *managementv1.AddPostgreSQLRequest) (*managementv1.AddPostgreSQLResponse, error) {
 	res := &managementv1.AddPostgreSQLResponse{}
 
 	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		switch {
-		case req.AutoDiscoveryLimit == 0:
-			req.AutoDiscoveryLimit = defaultAutoDiscoveryDatabaseLimit
-		case req.AutoDiscoveryLimit < -1:
-			req.AutoDiscoveryLimit = -1
-		}
-
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {
 			return err

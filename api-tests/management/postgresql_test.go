@@ -55,9 +55,10 @@ func TestAddPostgreSQL(t *testing.T) {
 				Port:        5432,
 				Username:    "username",
 
-				SkipConnectionCheck: true,
-				DisableCollectors:   []string{"custom_query.ml", "custom_query.mr.directory"},
-				AutoDiscoveryLimit:  0,
+				SkipConnectionCheck:    true,
+				DisableCollectors:      []string{"custom_query.ml", "custom_query.mr.directory"},
+				AutoDiscoveryLimit:     0,
+				MaxExporterConnections: 0,
 			},
 		}
 		addPostgreSQLOK, err := client.Default.ManagementService.AddPostgreSQL(params)
@@ -98,16 +99,17 @@ func TestAddPostgreSQL(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyPostgresExporterItems0{
 			{
-				AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
-				ServiceID:          serviceID,
-				PMMAgentID:         pmmAgentID,
-				Username:           "username",
-				DisabledCollectors: []string{"custom_query.ml", "custom_query.mr.directory"},
-				PushMetricsEnabled: true,
-				Status:             &AgentStatusUnknown,
-				AutoDiscoveryLimit: 10,
-				CustomLabels:       make(map[string]string),
-				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				AgentID:                listAgents.Payload.PostgresExporter[0].AgentID,
+				ServiceID:              serviceID,
+				PMMAgentID:             pmmAgentID,
+				Username:               "username",
+				DisabledCollectors:     []string{"custom_query.ml", "custom_query.mr.directory"},
+				PushMetricsEnabled:     true,
+				Status:                 &AgentStatusUnknown,
+				AutoDiscoveryLimit:     0,
+				CustomLabels:           make(map[string]string),
+				LogLevel:               pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				MaxExporterConnections: 0,
 			},
 		}, listAgents.Payload.PostgresExporter)
 		defer removeAllAgentsInList(t, listAgents)
@@ -138,8 +140,9 @@ func TestAddPostgreSQL(t *testing.T) {
 				QANPostgresqlPgstatmonitorAgent: true,
 				DisableQueryExamples:            true,
 
-				SkipConnectionCheck: true,
-				AutoDiscoveryLimit:  15,
+				SkipConnectionCheck:    true,
+				AutoDiscoveryLimit:     15,
+				MaxExporterConnections: 10,
 			},
 		}
 		addPostgreSQLOK, err := client.Default.ManagementService.AddPostgreSQL(params)
@@ -185,16 +188,17 @@ func TestAddPostgreSQL(t *testing.T) {
 		require.Len(t, listAgents.Payload.QANPostgresqlPgstatmonitorAgent, 1)
 		assert.Equal(t, []*agents.ListAgentsOKBodyPostgresExporterItems0{
 			{
-				AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
-				ServiceID:          serviceID,
-				PMMAgentID:         pmmAgentID,
-				Username:           "username",
-				PushMetricsEnabled: true,
-				Status:             &AgentStatusUnknown,
-				AutoDiscoveryLimit: 15,
-				CustomLabels:       make(map[string]string),
-				DisabledCollectors: make([]string, 0),
-				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				AgentID:                listAgents.Payload.PostgresExporter[0].AgentID,
+				ServiceID:              serviceID,
+				PMMAgentID:             pmmAgentID,
+				Username:               "username",
+				PushMetricsEnabled:     true,
+				Status:                 &AgentStatusUnknown,
+				AutoDiscoveryLimit:     15,
+				CustomLabels:           make(map[string]string),
+				DisabledCollectors:     make([]string, 0),
+				LogLevel:               pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				MaxExporterConnections: 10,
 			},
 		}, listAgents.Payload.PostgresExporter)
 
@@ -676,7 +680,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				Username:           "username",
 				PushMetricsEnabled: true,
 				Status:             &AgentStatusUnknown,
-				AutoDiscoveryLimit: 10,
+				AutoDiscoveryLimit: 0,
 				CustomLabels:       make(map[string]string),
 				DisabledCollectors: make([]string, 0),
 				LogLevel:           pointer.ToString(agents.ListAgentsOKBodyPostgresExporterItems0LogLevelLOGLEVELUNSPECIFIED),
@@ -753,7 +757,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				PMMAgentID:         pmmAgentID,
 				Username:           "username",
 				Status:             &AgentStatusUnknown,
-				AutoDiscoveryLimit: 10,
+				AutoDiscoveryLimit: 0,
 				CustomLabels:       make(map[string]string),
 				DisabledCollectors: make([]string, 0),
 				LogLevel:           pointer.ToString(agents.ListAgentsOKBodyPostgresExporterItems0LogLevelLOGLEVELUNSPECIFIED),
@@ -825,16 +829,17 @@ func TestAddPostgreSQL(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyPostgresExporterItems0{
 			{
-				AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
-				ServiceID:          serviceID,
-				PMMAgentID:         pmmAgentID,
-				Username:           "username",
-				PushMetricsEnabled: true,
-				Status:             &AgentStatusUnknown,
-				AutoDiscoveryLimit: 10,
-				CustomLabels:       make(map[string]string),
-				DisabledCollectors: make([]string, 0),
-				LogLevel:           pointer.ToString(agents.ListAgentsOKBodyPostgresExporterItems0LogLevelLOGLEVELUNSPECIFIED),
+				AgentID:                listAgents.Payload.PostgresExporter[0].AgentID,
+				ServiceID:              serviceID,
+				PMMAgentID:             pmmAgentID,
+				Username:               "username",
+				PushMetricsEnabled:     true,
+				Status:                 &AgentStatusUnknown,
+				AutoDiscoveryLimit:     0,
+				CustomLabels:           make(map[string]string),
+				DisabledCollectors:     make([]string, 0),
+				LogLevel:               pointer.ToString(agents.ListAgentsOKBodyPostgresExporterItems0LogLevelLOGLEVELUNSPECIFIED),
+				MaxExporterConnections: 0,
 			},
 		}, listAgents.Payload.PostgresExporter)
 		defer removeAllAgentsInList(t, listAgents)
@@ -861,8 +866,7 @@ func TestRemovePostgreSQL(t *testing.T) {
 				Password:                        "password",
 				QANPostgresqlPgstatementsAgent:  withAgents,
 				QANPostgresqlPgstatmonitorAgent: withAgents,
-
-				SkipConnectionCheck: true,
+				SkipConnectionCheck:             true,
 			},
 		}
 		addPostgreSQLOK, err := client.Default.ManagementService.AddPostgreSQL(params)
