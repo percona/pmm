@@ -12,7 +12,7 @@ services:
       - PMM_DEBUG=1
       - PERCONA_TEST_CHECKS_INTERVAL=10s
       # for local development
-      # - PMM_ADVISORS_CHECKS_FILE=/srv/checks/custom-checks.yml
+      # - PMM_TEST_ADVISOR_CHECKS_FILE=/srv/checks/custom-checks.yml
       # for check-dev
       - PMM_TEST_PERCONA_PLATFORM_ADDRESS=check-dev.percona.com
       - PMM_TEST_PERCONA_PLATFORM_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX
