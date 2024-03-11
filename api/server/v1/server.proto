@@ -202,7 +202,7 @@ message AWSInstanceCheckResponse {}
 service ServerService {
   // Version returns PMM Server versions.
   rpc Version(VersionRequest) returns (VersionResponse) {
-    option (google.api.http) = {get: "/v1/version"};
+    option (google.api.http) = {get: "/api/server/v1/version"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Version"
       description: "Returns PMM Server versions."

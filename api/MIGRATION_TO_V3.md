@@ -4,11 +4,11 @@
 | ----------------------------------------------- | -------------------------------------------- | ------------------------------- |
 
 **ServerService**                                   **ServerService**
-GET /logz.zip                                       GET /api/server/v1/logs.zip                    redirect to /logs.zip in swagger                                             
-GET /v1/version                                     GET /api/server/v1/version                     redirect to /v1/version in swagger
-POST /v1/readyz                                     GET /api/server/v1/readyz                                                           
-POST /v1/AWSInstanceCheck                           GET /api/server/v1/AWSInstance                                                      
-POST /v1/leaderHealthCheck                          GET /api/server/v1/leaderHealthCheck                                                
+GET /logz.zip                                       GET /api/server/v1/logs.zip                    redirect to /logs.zip in swagger
+GET /v1/version                                     GET /api/server/v1/version                     redirect to /v1/version in swagger ✅
+POST /v1/readyz                                     GET /api/server/v1/readyz   
+POST /v1/AWSInstanceCheck                           GET /api/server/v1/AWSInstance
+POST /v1/leaderHealthCheck                          GET /api/server/v1/leaderHealthCheck
 POST /v1/settings/Change                            PUT /api/server/v1/settings
 POST /v1/settings/Get                               GET /api/server/v1/settings
 POST /v1/updates/Check                              GET /api/server/v1/updates

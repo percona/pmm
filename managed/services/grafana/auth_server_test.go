@@ -229,7 +229,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/v1/readyz": none,
 		"/ping":      none,
 
-		"/v1/version": viewer,
+		"/api/server/v1/version": viewer,
 
 		"/v1/qan/ObjectDetails/GetQueryExample": viewer,
 

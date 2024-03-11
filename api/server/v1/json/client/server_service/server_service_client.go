@@ -417,7 +417,7 @@ func (a *Client) Version(params *VersionParams, opts ...ClientOption) (*VersionO
 	op := &runtime.ClientOperation{
 		ID:                 "Version",
 		Method:             "GET",
-		PathPattern:        "/v1/version",
+		PathPattern:        "/api/server/v1/version",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

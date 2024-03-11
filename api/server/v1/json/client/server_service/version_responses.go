@@ -60,7 +60,7 @@ type VersionOK struct {
 }
 
 func (o *VersionOK) Error() string {
-	return fmt.Sprintf("[GET /v1/version][%d] versionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /api/server/v1/version][%d] versionOk  %+v", 200, o.Payload)
 }
 
 func (o *VersionOK) GetPayload() *VersionOKBody {
@@ -102,7 +102,7 @@ func (o *VersionDefault) Code() int {
 }
 
 func (o *VersionDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/version][%d] Version default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /api/server/v1/version][%d] Version default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *VersionDefault) GetPayload() *VersionDefaultBody {
