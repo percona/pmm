@@ -239,6 +239,8 @@ message PostgresExporter {
   int32 auto_discovery_limit = 24;
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 25;
+  // Maximum number of connections that exporter can open to the database instance.
+  int32 max_exporter_connections = 26;
 }
 
 // ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
@@ -911,6 +913,8 @@ message AddPostgresExporterParams {
   int32 auto_discovery_limit = 16;
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 17;
+  // Maximum number of connections that exporter can open to the database instance.
+  int32 max_exporter_connections = 18;
 }
 
 message ChangePostgresExporterParams {

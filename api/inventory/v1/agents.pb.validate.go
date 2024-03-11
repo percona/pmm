@@ -695,6 +695,8 @@ func (m *PostgresExporter) validate(all bool) error {
 
 	// no validation rules for ExposeExporter
 
+	// no validation rules for MaxExporterConnections
+
 	if len(errors) > 0 {
 		return PostgresExporterMultiError(errors)
 	}
@@ -7547,6 +7549,8 @@ func (m *AddPostgresExporterParams) validate(all bool) error {
 	// no validation rules for AutoDiscoveryLimit
 
 	// no validation rules for ExposeExporter
+
+	// no validation rules for MaxExporterConnections
 
 	if len(errors) > 0 {
 		return AddPostgresExporterParamsMultiError(errors)
