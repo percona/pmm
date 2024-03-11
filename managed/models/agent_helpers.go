@@ -955,6 +955,9 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 		}
 	}
 
+	if row.MetricsResolutions == nil {
+		row.MetricsResolutions = &MetricsResolutions{}
+	}
 	if params.MetricsResolutions.LR != nil {
 		row.MetricsResolutions.LR = *params.MetricsResolutions.LR
 	}
@@ -963,6 +966,11 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 	}
 	if params.MetricsResolutions.HR != nil {
 		row.MetricsResolutions.HR = *params.MetricsResolutions.HR
+	}
+
+	// If all resolutions are empty, then drop whole MetricsResolution field.
+	if row.MetricsResolutions.HR == 0 && row.MetricsResolutions.MR == 0 && row.MetricsResolutions.LR == 0 {
+		row.MetricsResolutions = nil
 	}
 
 	if err = q.Update(row); err != nil {

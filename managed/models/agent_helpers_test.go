@@ -130,7 +130,7 @@ func TestAgentHelpers(t *testing.T) {
 					SSLCert: "ssl_cert",
 					SSLKey:  "ssl_key",
 				},
-				MetricsResolutions: models.MetricsResolutions{
+				MetricsResolutions: &models.MetricsResolutions{
 					HR: 1 * time.Minute,
 					MR: 5 * time.Minute,
 					LR: 15 * time.Minute,
@@ -248,7 +248,7 @@ func TestAgentHelpers(t *testing.T) {
 					SSLCert: "ssl_cert",
 					SSLKey:  "ssl_key",
 				},
-				MetricsResolutions: models.MetricsResolutions{
+				MetricsResolutions: &models.MetricsResolutions{
 					HR: 1 * time.Minute,
 					MR: 5 * time.Minute,
 					LR: 15 * time.Minute,

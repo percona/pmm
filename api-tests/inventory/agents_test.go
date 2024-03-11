@@ -1253,11 +1253,6 @@ func TestMetricsResolutionsChange(t *testing.T) {
 					"custom_label_postgres_exporter": "postgres_exporter",
 				},
 				Status: &AgentStatusUnknown,
-				MetricsResolutions: &agents.GetAgentOKBodyPostgresExporterMetricsResolutions{
-					Hr: "0s",
-					Mr: "0s",
-					Lr: "0s",
-				},
 			},
 		},
 	}, getAgentRes)
@@ -1326,7 +1321,6 @@ func TestMetricsResolutionsChange(t *testing.T) {
 				MetricsResolutions: &agents.ChangePostgresExporterOKBodyPostgresExporterMetricsResolutions{
 					Hr: "600s",
 					Mr: "300s",
-					Lr: "0s",
 				},
 			},
 		},
@@ -1359,7 +1353,6 @@ func TestMetricsResolutionsChange(t *testing.T) {
 				MetricsResolutions: &agents.ChangePostgresExporterOKBodyPostgresExporterMetricsResolutions{
 					Hr: "500s",
 					Mr: "300s",
-					Lr: "0s",
 				},
 			},
 		},

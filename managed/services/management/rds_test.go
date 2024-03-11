@@ -32,11 +32,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm/api/common"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
@@ -289,11 +287,6 @@ func TestRDSService(t *testing.T) {
 				NodeId:       "/node_id/00000000-0000-4000-8000-000000000005",
 				AwsAccessKey: "EXAMPLE_ACCESS_KEY",
 				Status:       inventorypb.AgentStatus_UNKNOWN,
-				MetricsResolutions: &common.MetricsResolutions{
-					Hr: durationpb.New(0),
-					Mr: durationpb.New(0),
-					Lr: durationpb.New(0),
-				},
 			},
 			Mysql: &inventorypb.MySQLService{
 				ServiceId:      "/service_id/00000000-0000-4000-8000-000000000007",
@@ -315,11 +308,6 @@ func TestRDSService(t *testing.T) {
 				Username:                  "username",
 				TablestatsGroupTableLimit: 1000,
 				Status:                    inventorypb.AgentStatus_UNKNOWN,
-				MetricsResolutions: &common.MetricsResolutions{
-					Hr: durationpb.New(0),
-					Mr: durationpb.New(0),
-					Lr: durationpb.New(0),
-				},
 			},
 			QanMysqlPerfschema: &inventorypb.QANMySQLPerfSchemaAgent{
 				AgentId:               "/agent_id/00000000-0000-4000-8000-000000000009",
@@ -388,11 +376,6 @@ func TestRDSService(t *testing.T) {
 				NodeId:       "/node_id/00000000-0000-4000-8000-00000000000a",
 				AwsAccessKey: "EXAMPLE_ACCESS_KEY",
 				Status:       inventorypb.AgentStatus_UNKNOWN,
-				MetricsResolutions: &common.MetricsResolutions{
-					Hr: durationpb.New(0),
-					Mr: durationpb.New(0),
-					Lr: durationpb.New(0),
-				},
 			},
 			Postgresql: &inventorypb.PostgreSQLService{
 				ServiceId:      "/service_id/00000000-0000-4000-8000-00000000000c",
@@ -416,11 +399,6 @@ func TestRDSService(t *testing.T) {
 				Status:                 inventorypb.AgentStatus_UNKNOWN,
 				AutoDiscoveryLimit:     10,
 				MaxExporterConnections: 15,
-				MetricsResolutions: &common.MetricsResolutions{
-					Hr: durationpb.New(0),
-					Mr: durationpb.New(0),
-					Lr: durationpb.New(0),
-				},
 			},
 			QanPostgresqlPgstatements: &inventorypb.QANPostgreSQLPgStatementsAgent{
 				AgentId:    "/agent_id/00000000-0000-4000-8000-00000000000e",

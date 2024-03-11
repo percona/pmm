@@ -78,11 +78,6 @@ func TestAgents(t *testing.T) {
 			AgentId:    "/agent_id/00000000-0000-4000-8000-000000000006",
 			PmmAgentId: "/agent_id/00000000-0000-4000-8000-000000000005",
 			Status:     inventorypb.AgentStatus_UNKNOWN,
-			MetricsResolutions: &common.MetricsResolutions{
-				Hr: durationpb.New(0),
-				Mr: durationpb.New(0),
-				Lr: durationpb.New(0),
-			},
 		}
 		assert.Equal(t, expectedNodeExporter, actualNodeExporter)
 
@@ -103,8 +98,6 @@ func TestAgents(t *testing.T) {
 			Status:     inventorypb.AgentStatus_UNKNOWN,
 			MetricsResolutions: &common.MetricsResolutions{
 				Hr: durationpb.New(10 * time.Second),
-				Mr: durationpb.New(0),
-				Lr: durationpb.New(0),
 			},
 		}
 		assert.Equal(t, expectedNodeExporter, actualNodeExporter)
@@ -134,11 +127,6 @@ func TestAgents(t *testing.T) {
 			ServiceId:  s.ServiceId,
 			Username:   "username",
 			Status:     inventorypb.AgentStatus_UNKNOWN,
-			MetricsResolutions: &common.MetricsResolutions{
-				Hr: durationpb.New(0),
-				Mr: durationpb.New(0),
-				Lr: durationpb.New(0),
-			},
 		}
 		assert.Equal(t, expectedMySQLdExporter, actualAgent)
 
@@ -168,11 +156,6 @@ func TestAgents(t *testing.T) {
 			ServiceId:  ms.ServiceId,
 			Username:   "username",
 			Status:     inventorypb.AgentStatus_UNKNOWN,
-			MetricsResolutions: &common.MetricsResolutions{
-				Hr: durationpb.New(0),
-				Mr: durationpb.New(0),
-				Lr: durationpb.New(0),
-			},
 		}
 		assert.Equal(t, expectedMongoDBExporter, actualAgent)
 
@@ -219,11 +202,6 @@ func TestAgents(t *testing.T) {
 			ServiceId:  ps.ServiceId,
 			Username:   "username",
 			Status:     inventorypb.AgentStatus_UNKNOWN,
-			MetricsResolutions: &common.MetricsResolutions{
-				Hr: durationpb.New(0),
-				Mr: durationpb.New(0),
-				Lr: durationpb.New(0),
-			},
 		}
 		assert.Equal(t, expectedPostgresExporter, actualAgent)
 
@@ -246,11 +224,6 @@ func TestAgents(t *testing.T) {
 			Scheme:       "http",
 			MetricsPath:  "/metrics",
 			ListenPort:   9222,
-			MetricsResolutions: &common.MetricsResolutions{
-				Hr: durationpb.New(0),
-				Mr: durationpb.New(0),
-				Lr: durationpb.New(0),
-			},
 		}
 		assert.Equal(t, expectedExternalExporter, actualAgent)
 
@@ -413,11 +386,6 @@ func TestAgents(t *testing.T) {
 			AwsAccessKey: "EXAMPLE_ACCESS_KEY",
 			CustomLabels: map[string]string{"baz": "qux"},
 			Status:       inventorypb.AgentStatus_UNKNOWN,
-			MetricsResolutions: &common.MetricsResolutions{
-				Hr: durationpb.New(0),
-				Mr: durationpb.New(0),
-				Lr: durationpb.New(0),
-			},
 		}
 		assert.Equal(t, expectedAgent, agent)
 	})
@@ -451,11 +419,6 @@ func TestAgents(t *testing.T) {
 			Scheme:       "http",
 			MetricsPath:  "/metrics",
 			ListenPort:   12345,
-			MetricsResolutions: &common.MetricsResolutions{
-				Hr: durationpb.New(0),
-				Mr: durationpb.New(0),
-				Lr: durationpb.New(0),
-			},
 		}
 		assert.Equal(t, expectedExternalExporter, agent)
 
@@ -539,11 +502,6 @@ func TestAgents(t *testing.T) {
 			Username:           "username",
 			PushMetricsEnabled: true,
 			Status:             inventorypb.AgentStatus_UNKNOWN,
-			MetricsResolutions: &common.MetricsResolutions{
-				Hr: durationpb.New(0),
-				Mr: durationpb.New(0),
-				Lr: durationpb.New(0),
-			},
 		}
 		assert.Equal(t, expectedMongoDBExporter, actualAgent)
 	})
@@ -580,11 +538,6 @@ func TestAgents(t *testing.T) {
 			PmmAgentId:         "/agent_id/00000000-0000-4000-8000-000000000005",
 			PushMetricsEnabled: true,
 			Status:             inventorypb.AgentStatus_UNKNOWN,
-			MetricsResolutions: &common.MetricsResolutions{
-				Hr: durationpb.New(0),
-				Mr: durationpb.New(0),
-				Lr: durationpb.New(0),
-			},
 		}
 		assert.Equal(t, expectedNodeExporter, actualNodeExporter)
 	})
@@ -640,11 +593,6 @@ func TestAgents(t *testing.T) {
 			Username:           "username",
 			PushMetricsEnabled: true,
 			Status:             inventorypb.AgentStatus_UNKNOWN,
-			MetricsResolutions: &common.MetricsResolutions{
-				Hr: durationpb.New(0),
-				Mr: durationpb.New(0),
-				Lr: durationpb.New(0),
-			},
 		}
 		assert.Equal(t, expectedPostgresExporter, actualAgent)
 	})
@@ -702,11 +650,6 @@ func TestAgents(t *testing.T) {
 			Username:           "username",
 			PushMetricsEnabled: true,
 			Status:             inventorypb.AgentStatus_UNKNOWN,
-			MetricsResolutions: &common.MetricsResolutions{
-				Hr: durationpb.New(0),
-				Mr: durationpb.New(0),
-				Lr: durationpb.New(0),
-			},
 		}
 		assert.Equal(t, expectedMySQLdExporter, actualAgent)
 	})
@@ -753,11 +696,6 @@ func TestAgents(t *testing.T) {
 			CustomLabels:       map[string]string{"baz": "qux"},
 			PushMetricsEnabled: true,
 			Status:             inventorypb.AgentStatus_UNKNOWN,
-			MetricsResolutions: &common.MetricsResolutions{
-				Hr: durationpb.New(0),
-				Mr: durationpb.New(0),
-				Lr: durationpb.New(0),
-			},
 		}
 		assert.Equal(t, expectedAgent, agent)
 	})
@@ -791,11 +729,6 @@ func TestAgents(t *testing.T) {
 			MetricsPath:        "/metrics",
 			ListenPort:         12345,
 			PushMetricsEnabled: true,
-			MetricsResolutions: &common.MetricsResolutions{
-				Hr: durationpb.New(0),
-				Mr: durationpb.New(0),
-				Lr: durationpb.New(0),
-			},
 		}
 		assert.Equal(t, expectedExternalExporter, agent)
 

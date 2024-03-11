@@ -494,12 +494,21 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 }
 
 // ConvertMetricsResolutions converts MetricsResolutions from model to API.
-func ConvertMetricsResolutions(resolutions models.MetricsResolutions) *common.MetricsResolutions {
-	return &common.MetricsResolutions{
-		Hr: durationpb.New(resolutions.HR),
-		Mr: durationpb.New(resolutions.MR),
-		Lr: durationpb.New(resolutions.LR),
+func ConvertMetricsResolutions(resolutions *models.MetricsResolutions) *common.MetricsResolutions {
+	if resolutions == nil {
+		return nil
 	}
+	var res common.MetricsResolutions
+	if resolutions.HR != 0 {
+		res.Hr = durationpb.New(resolutions.HR)
+	}
+	if resolutions.MR != 0 {
+		res.Mr = durationpb.New(resolutions.MR)
+	}
+	if resolutions.LR != 0 {
+		res.Lr = durationpb.New(resolutions.LR)
+	}
+	return &res
 }
 
 // SpecifyLogLevel - convert proto enum to string
