@@ -177,6 +177,8 @@ func (m *AddPostgreSQLRequest) validate(all bool) error {
 
 	// no validation rules for ExposeExporter
 
+	// no validation rules for MaxExporterConnections
+
 	if len(errors) > 0 {
 		return AddPostgreSQLRequestMultiError(errors)
 	}
