@@ -19,13 +19,13 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 func TestAddServiceMongoDB(t *testing.T) {
 	t.Run("Address and port", func(t *testing.T) {
 		res := &addServiceMongoDBResult{
-			Service: &services.AddMongoDBServiceOKBodyMongodb{
+			Service: &services.AddServiceOKBodyMongodb{
 				ServiceID:      "/service_id/1",
 				ServiceName:    "MongoDB Service",
 				NodeID:         "/node_id/1",
@@ -53,7 +53,7 @@ Custom labels  : map[foo:bar key:value]
 
 	t.Run("Socket", func(t *testing.T) {
 		res := &addServiceMongoDBResult{
-			Service: &services.AddMongoDBServiceOKBodyMongodb{
+			Service: &services.AddServiceOKBodyMongodb{
 				ServiceID:      "/service_id/1",
 				ServiceName:    "MongoDB Socket Service",
 				NodeID:         "/node_id/1",

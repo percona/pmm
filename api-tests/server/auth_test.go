@@ -34,8 +34,8 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
 func TestAuth(t *testing.T) {
@@ -82,7 +82,7 @@ func TestAuth(t *testing.T) {
 			t.Run(fmt.Sprintf("%s/%d", grpcCode, httpCode), func(t *testing.T) {
 				t.Parallel()
 
-				res, err := serverClient.Default.Server.Version(&server.VersionParams{
+				res, err := serverClient.Default.ServerService.Version(&server.VersionParams{
 					Dummy:   pointer.ToString(fmt.Sprintf("grpccode-%d", grpcCode)),
 					Context: pmmapitests.Context,
 				})
@@ -281,13 +281,13 @@ func TestPermissions(t *testing.T) {
 		method   string
 		userCase []userCase
 	}{
-		{name: "settings", url: "/v1/Settings/Get", method: "POST", userCase: []userCase{
+		{name: "settings", url: "/v1/settings/Get", method: "POST", userCase: []userCase{
 			{userType: "default", login: none, statusCode: 401},
 			{userType: "viewer", login: viewer, apiKey: viewerAPIKey, statusCode: 401},
 			{userType: "editor", login: editor, apiKey: editorAPIKey, statusCode: 401},
 			{userType: "admin", login: admin, apiKey: adminAPIKey, statusCode: 200},
 		}},
-		{name: "platform-connect", url: "/v1/Platform/Connect", method: "POST", userCase: []userCase{
+		{name: "platform-connect", url: "/v1/platform/Connect", method: "POST", userCase: []userCase{
 			{userType: "default", login: none, statusCode: 401},
 			{userType: "viewer", login: viewer, apiKey: viewerAPIKey, statusCode: 401},
 			{userType: "editor", login: editor, apiKey: editorAPIKey, statusCode: 401},
@@ -319,7 +319,7 @@ func TestPermissions(t *testing.T) {
 
 				t.Run(fmt.Sprintf("API Key auth %s", user.userType), func(t *testing.T) {
 					if user.apiKey == "" {
-						t.Skip("API Key is not exist")
+						t.Skip("API Key does not exist")
 					}
 					// make a BaseURL without authentication
 					u, err := url.Parse(pmmapitests.BaseURL.String())
@@ -341,7 +341,7 @@ func TestPermissions(t *testing.T) {
 
 				t.Run(fmt.Sprintf("API Key Basic auth %s", user.userType), func(t *testing.T) {
 					if user.apiKey == "" {
-						t.Skip("API Key is not exist")
+						t.Skip("API Key does not exist")
 					}
 					// make a BaseURL without authentication
 					u, err := url.Parse(pmmapitests.BaseURL.String())

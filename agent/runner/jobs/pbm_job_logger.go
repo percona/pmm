@@ -23,7 +23,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 type pbmJob string
@@ -50,11 +50,11 @@ func newPbmJobLogger(jobID string, jobType pbmJob, mongoURL *string) *pbmJobLogg
 }
 
 func (l *pbmJobLogger) sendLog(send Send, data string, done bool) {
-	send(&agentpb.JobProgress{
+	send(&agentv1.JobProgress{
 		JobId:     l.jobID,
 		Timestamp: timestamppb.Now(),
-		Result: &agentpb.JobProgress_Logs_{
-			Logs: &agentpb.JobProgress_Logs{
+		Result: &agentv1.JobProgress_Logs_{
+			Logs: &agentv1.JobProgress_Logs{
 				ChunkId: atomic.AddUint32(&l.logChunkID, 1) - 1,
 				Data:    data,
 				Done:    done,

@@ -29,9 +29,9 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
-	qanpb "github.com/percona/pmm/api/qanpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/utils/logger"
@@ -134,24 +134,23 @@ func TestClient(t *testing.T) {
 			l:  logrus.WithField("test", t.Name()),
 		}
 		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
-		metricsBuckets := []*agentpb.MetricsBucket{
+		metricsBuckets := []*agentv1.MetricsBucket{
 			{
-				Common: &agentpb.MetricsBucket_Common{
+				Common: &agentv1.MetricsBucket_Common{
 					Queryid:             "some-query-id",
 					Fingerprint:         "SELECT * FROM `city`",
 					Schema:              "world",
 					AgentId:             "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 					PeriodStartUnixSecs: 1554116340,
 					PeriodLengthSecs:    60,
-					AgentType:           inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
+					AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 					Example:             "SELECT /* AllCities */ * FROM city",
-					ExampleFormat:       agentpb.ExampleFormat_EXAMPLE, //nolint:staticcheck
-					ExampleType:         agentpb.ExampleType_RANDOM,
+					ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
 					NumQueries:          1,
 					MQueryTimeCnt:       1,
 					MQueryTimeSum:       1234,
 				},
-				Mysql: &agentpb.MetricsBucket_MySQL{
+				Mysql: &agentv1.MetricsBucket_MySQL{
 					MLockTimeCnt:     1,
 					MLockTimeSum:     3456,
 					MRowsSentCnt:     1,
@@ -176,10 +175,9 @@ func TestClient(t *testing.T) {
 				AgentId:             "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
-				AgentType:           inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
+				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 				Example:             "SELECT /* AllCities */ * FROM city",
-				ExampleFormat:       qanpb.ExampleFormat_EXAMPLE, //nolint:staticcheck
-				ExampleType:         qanpb.ExampleType_RANDOM,
+				ExampleType:         qanpb.ExampleType_EXAMPLE_TYPE_RANDOM,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
 				MQueryTimeSum:       1234,
@@ -222,18 +220,18 @@ func TestClient(t *testing.T) {
 			l:  logrus.WithField("test", t.Name()),
 		}
 		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
-		metricsBuckets := []*agentpb.MetricsBucket{
+		metricsBuckets := []*agentv1.MetricsBucket{
 			{
-				Common: &agentpb.MetricsBucket_Common{
+				Common: &agentv1.MetricsBucket_Common{
 					Queryid:     "some-mongo-query-id",
 					Fingerprint: "INSERT peoples",
 					Database:    "test",
 					Schema:      "peoples",
 					AgentId:     "/agent_id/b153f0d8-34e4-4635-9184-499161b4d12c",
-					AgentType:   inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT,
+					AgentType:   inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 					NumQueries:  1,
 				},
-				Mongodb: &agentpb.MetricsBucket_MongoDB{
+				Mongodb: &agentv1.MetricsBucket_MongoDB{
 					MResponseLengthSum: 60,
 					MResponseLengthMin: 60,
 					MResponseLengthMax: 60,
@@ -250,7 +248,7 @@ func TestClient(t *testing.T) {
 				Database:    "test",
 				Schema:      "peoples",
 				AgentId:     "/agent_id/b153f0d8-34e4-4635-9184-499161b4d12c",
-				AgentType:   inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT,
+				AgentType:   inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 				NumQueries:  1,
 				ServiceId:   "/service_id/1fce2502-ecc7-46d4-968b-18d7907f2543",
 				ServiceName: "test-mongodb",
@@ -284,9 +282,9 @@ func TestClient(t *testing.T) {
 			l:  logrus.WithField("test", t.Name()),
 		}
 		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
-		metricsBuckets := []*agentpb.MetricsBucket{
+		metricsBuckets := []*agentv1.MetricsBucket{
 			{
-				Common: &agentpb.MetricsBucket_Common{
+				Common: &agentv1.MetricsBucket_Common{
 					Queryid:             "some-query-id",
 					Fingerprint:         "SELECT /* AllCities */ * FROM city",
 					Schema:              "pmm-agent",
@@ -295,12 +293,12 @@ func TestClient(t *testing.T) {
 					AgentId:             "/agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac",
 					PeriodStartUnixSecs: 1554116340,
 					PeriodLengthSecs:    60,
-					AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+					AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 					NumQueries:          1,
 					MQueryTimeCnt:       1,
 					MQueryTimeSum:       55,
 				},
-				Postgresql: &agentpb.MetricsBucket_PostgreSQL{
+				Postgresql: &agentv1.MetricsBucket_PostgreSQL{
 					MRowsCnt:              1,
 					MRowsSum:              4079,
 					MSharedBlksHitCnt:     1,
@@ -347,7 +345,7 @@ func TestClient(t *testing.T) {
 				AgentId:             "/agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac",
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
-				AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
 				MQueryTimeSum:       55,
@@ -411,9 +409,9 @@ func TestClient(t *testing.T) {
 			l:  logrus.WithField("test", t.Name()),
 		}
 		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
-		metricsBuckets := []*agentpb.MetricsBucket{
+		metricsBuckets := []*agentv1.MetricsBucket{
 			{
-				Common: &agentpb.MetricsBucket_Common{
+				Common: &agentv1.MetricsBucket_Common{
 					AgentId: "no-such-agent",
 				},
 			},
@@ -475,10 +473,10 @@ func TestClientPerformance(t *testing.T) {
 	}
 
 	const bucketsN = 1000
-	metricsBuckets := make([]*agentpb.MetricsBucket, bucketsN)
+	metricsBuckets := make([]*agentv1.MetricsBucket, bucketsN)
 	for i := range metricsBuckets {
-		metricsBuckets[i] = &agentpb.MetricsBucket{
-			Common: &agentpb.MetricsBucket_Common{
+		metricsBuckets[i] = &agentv1.MetricsBucket{
+			Common: &agentv1.MetricsBucket_Common{
 				Queryid: fmt.Sprintf("bucket %d", i),
 				AgentId: "/agent_id/6b74c6bf-642d-43f0-bee1-0faddd1a2e28",
 			},

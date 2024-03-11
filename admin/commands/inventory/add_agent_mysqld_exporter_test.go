@@ -21,13 +21,13 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 func TestAddAgentMysqldExporter(t *testing.T) {
 	t.Run("TablestatEnabled", func(t *testing.T) {
 		res := &addAgentMysqldExporterResult{
-			Agent: &agents.AddMySQLdExporterOKBodyMysqldExporter{
+			Agent: &agents.AddAgentOKBodyMysqldExporter{
 				AgentID:    "/agent_id/1",
 				PMMAgentID: "/agent_id/2",
 				Username:   "username",
@@ -61,7 +61,7 @@ Tablestat collectors  : enabled (the limit is 1000, the actual table count is 50
 
 	t.Run("TablestatEnabledNoLimit", func(t *testing.T) {
 		res := &addAgentMysqldExporterResult{
-			Agent: &agents.AddMySQLdExporterOKBodyMysqldExporter{
+			Agent: &agents.AddAgentOKBodyMysqldExporter{
 				AgentID:    "/agent_id/1",
 				PMMAgentID: "/agent_id/2",
 				Username:   "username",
@@ -95,7 +95,7 @@ Tablestat collectors  : enabled (the table count limit is not set).
 
 	t.Run("TablestatEnabledUnknown", func(t *testing.T) {
 		res := &addAgentMysqldExporterResult{
-			Agent: &agents.AddMySQLdExporterOKBodyMysqldExporter{
+			Agent: &agents.AddAgentOKBodyMysqldExporter{
 				AgentID:    "/agent_id/1",
 				PMMAgentID: "/agent_id/2",
 				Username:   "username",
@@ -129,7 +129,7 @@ Tablestat collectors  : enabled (the limit is 1000, the actual table count is un
 
 	t.Run("TablestatDisabled", func(t *testing.T) {
 		res := &addAgentMysqldExporterResult{
-			Agent: &agents.AddMySQLdExporterOKBodyMysqldExporter{
+			Agent: &agents.AddAgentOKBodyMysqldExporter{
 				AgentID:    "/agent_id/1",
 				PMMAgentID: "/agent_id/2",
 				Username:   "username",
@@ -163,7 +163,7 @@ Tablestat collectors  : disabled (the limit is 1000, the actual table count is 2
 
 	t.Run("TablestatDisabledAlways", func(t *testing.T) {
 		res := &addAgentMysqldExporterResult{
-			Agent: &agents.AddMySQLdExporterOKBodyMysqldExporter{
+			Agent: &agents.AddAgentOKBodyMysqldExporter{
 				AgentID:    "/agent_id/1",
 				PMMAgentID: "/agent_id/2",
 				Username:   "username",

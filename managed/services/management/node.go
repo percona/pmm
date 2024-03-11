@@ -28,32 +28,15 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
 
-// NodeService represents service for working with nodes.
-type NodeService struct {
-	db  *reform.DB
-	akp apiKeyProvider
-
-	l *logrus.Entry
-}
-
-// NewNodeService creates NodeService instance.
-func NewNodeService(db *reform.DB, akp apiKeyProvider) *NodeService {
-	return &NodeService{
-		db:  db,
-		akp: akp,
-		l:   logrus.WithField("component", "node"),
-	}
-}
-
-// Register do registration of the new node.
-func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNodeRequest) (*managementpb.RegisterNodeResponse, error) {
-	res := &managementpb.RegisterNodeResponse{}
+// RegisterNode performs the registration of a new node.
+func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) {
+	res := &managementv1.RegisterNodeResponse{}
 
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		node, err := models.FindNodeByName(tx.Querier, req.NodeName)
@@ -109,9 +92,9 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 			return err
 		}
 		switch n := n.(type) {
-		case *inventorypb.GenericNode:
+		case *inventoryv1.GenericNode:
 			res.GenericNode = n
-		case *inventorypb.ContainerNode:
+		case *inventoryv1.ContainerNode:
 			res.ContainerNode = n
 		default:
 			return status.Errorf(codes.InvalidArgument, "Unsupported Node type %q.", req.NodeType)
@@ -126,7 +109,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		if err != nil {
 			return err
 		}
-		res.PmmAgent = a.(*inventorypb.PMMAgent) //nolint:forcetypeassert
+		res.PmmAgent = a.(*inventoryv1.PMMAgent) //nolint:forcetypeassert
 		_, err = models.
 			CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil, isPushMode(req.MetricsMode), req.ExposeExporter,
 				req.DisableCollectors, pointer.ToStringOrNil(req.AgentPassword), "")
@@ -136,11 +119,12 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		return nil, e
 	}
 
+	l := logrus.WithField("component", "node")
 	// get authorization from headers.
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		msg := "Couldn't create Admin API Key: cannot get headers from metadata"
-		s.l.Errorln(msg)
+		l.Errorln(msg)
 		res.Warning = msg
 		return res, nil
 	}
@@ -150,12 +134,12 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 	}
 	headers := make(http.Header)
 	headers.Set("Authorization", authorizationHeaders[0])
-	if !s.akp.IsAPIKeyAuth(headers) {
+	if !s.grafanaClient.IsAPIKeyAuth(headers) {
 		apiKeyName := fmt.Sprintf("pmm-agent-%s-%d", req.NodeName, rand.Int63()) //nolint:gosec
-		_, res.Token, e = s.akp.CreateAdminAPIKey(ctx, apiKeyName)
+		_, res.Token, e = s.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
 		if e != nil {
 			msg := fmt.Sprintf("Couldn't create Admin API Key: %s", e)
-			s.l.Errorln(msg)
+			l.Errorln(msg)
 			res.Warning = msg
 		}
 	}

@@ -26,8 +26,8 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/percona/pmm/agent/config"
-	"github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
-	"github.com/percona/pmm/api/managementpb/json/client/node"
+	agent_local "github.com/percona/pmm/api/agentlocal/v1/json/client/agent_local_service"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 // Setup implements `pmm-agent setup` command.
@@ -142,7 +142,7 @@ func register(cfg *config.Config, l *logrus.Entry) {
 	l.Debugf("Register error: %#v", err)
 	if err != nil {
 		msg := err.Error()
-		if e, _ := err.(*node.RegisterNodeDefault); e != nil { //nolint:errorlint
+		if e, _ := err.(*mservice.RegisterNodeDefault); e != nil { //nolint:errorlint
 			msg = e.Payload.Message + ""
 			switch e.Code() {
 			case http.StatusConflict:

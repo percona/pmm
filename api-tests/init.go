@@ -36,12 +36,12 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
-	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
-	alertingClient "github.com/percona/pmm/api/managementpb/alerting/json/client"
-	backupsClient "github.com/percona/pmm/api/managementpb/backup/json/client"
-	managementClient "github.com/percona/pmm/api/managementpb/json/client"
-	platformClient "github.com/percona/pmm/api/platformpb/json/client"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
+	alertingClient "github.com/percona/pmm/api/alerting/v1/json/client"
+	backupsClient "github.com/percona/pmm/api/backup/v1/json/client"
+	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	platformClient "github.com/percona/pmm/api/platform/v1/json/client"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 
@@ -62,8 +62,8 @@ var (
 	// RunUpdateTest is true if PMM Server update should be tested.
 	RunUpdateTest bool
 
-	// RunSTTTests is true if STT tests should be run.
-	RunSTTTests bool
+	// RunAdvisorTests is true if Advisor tests should be run.
+	RunAdvisorTests bool
 )
 
 // NginxError is an error type for nginx HTML response.
@@ -127,7 +127,7 @@ func init() {
 	runUpdateTestF := flag.Bool("pmm.run-update-test", false, "Run PMM Server update test [PMM_RUN_UPDATE_TEST].")
 
 	// FIXME we should rethink it once https://jira.percona.com/browse/PMM-5106 is implemented
-	runSTTTestsF := flag.Bool("pmm.run-stt-tests", false, "Run STT tests that require connected clients [PMM_RUN_STT_TESTS].")
+	runAdvisorsTestF := flag.Bool("pmm.run-advisor-tests", false, "Run Advisor tests that require connected clients [PMM_RUN_ADVISOR_TESTS].")
 
 	testing.Init()
 	flag.Parse()
@@ -138,7 +138,7 @@ func init() {
 		"PMM_SERVER_URL":          flag.Lookup("pmm.server-url"),
 		"PMM_SERVER_INSECURE_TLS": flag.Lookup("pmm.server-insecure-tls"),
 		"PMM_RUN_UPDATE_TEST":     flag.Lookup("pmm.run-update-test"),
-		"PMM_RUN_STT_TESTS":       flag.Lookup("pmm.run-stt-tests"),
+		"PMM_RUN_ADVISOR_TESTS":   flag.Lookup("pmm.run-advisor-tests"),
 	} {
 		env, ok := os.LookupEnv(envVar)
 		if ok {
@@ -158,7 +158,7 @@ func init() {
 	}
 	Debug = *debugF || *traceF
 	RunUpdateTest = *runUpdateTestF
-	RunSTTTests = *runSTTTestsF
+	RunAdvisorTests = *runAdvisorsTestF
 
 	var cancel context.CancelFunc
 	Context, cancel = context.WithCancel(context.Background())
@@ -201,7 +201,7 @@ func init() {
 	alertingClient.Default = alertingClient.New(transport, nil)
 
 	// do not run tests if server is not available
-	_, err = serverClient.Default.Server.Readiness(nil)
+	_, err = serverClient.Default.ServerService.Readiness(nil)
 	if err != nil {
 		panic(err)
 	}

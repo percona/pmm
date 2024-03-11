@@ -54,7 +54,6 @@ type prometheusService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type checksService interface {
 	StartChecks(checkNames []string) error
-	GetSecurityCheckResults() ([]services.CheckResult, error)
 	GetChecks() (map[string]check.Check, error)
 	GetAdvisors() ([]check.Advisor, error)
 	GetChecksResults(ctx context.Context, serviceID string) ([]services.CheckResult, error)
@@ -68,6 +67,8 @@ type checksService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type grafanaClient interface {
 	CreateAnnotation(context.Context, []string, time.Time, string, string) (string, error)
+	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
+	IsAPIKeyAuth(headers http.Header) bool
 }
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
@@ -97,9 +98,4 @@ type versionCache interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type victoriaMetricsClient interface {
 	Query(ctx context.Context, query string, ts time.Time, opts ...v1.Option) (model.Value, v1.Warnings, error)
-}
-
-type apiKeyProvider interface {
-	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
-	IsAPIKeyAuth(headers http.Header) bool
 }

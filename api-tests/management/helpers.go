@@ -19,29 +19,30 @@ package management
 import (
 	"context"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/inventorypb"
-	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/node"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 // AgentStatusUnknown means agent is not connected and we don't know anything about its status.
-var AgentStatusUnknown = inventorypb.AgentStatus_name[int32(inventorypb.AgentStatus_UNKNOWN)]
+var AgentStatusUnknown = inventoryv1.AgentStatus_name[int32(inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN)]
 
 // RegisterGenericNode registers a generic node using the provided parameters.
-func RegisterGenericNode(t pmmapitests.TestingT, body node.RegisterNodeBody) (string, string) {
+func RegisterGenericNode(t pmmapitests.TestingT, body mservice.RegisterNodeBody) (string, string) {
 	t.Helper()
-	params := node.RegisterNodeParams{
+	params := mservice.RegisterNodeParams{
 		Context: pmmapitests.Context,
 		Body:    body,
 	}
-	registerOK, err := client.Default.Node.RegisterNode(&params)
+	registerOK, err := client.Default.ManagementService.RegisterNode(&params)
 	require.NoError(t, err)
 	require.NotNil(t, registerOK)
 	require.NotNil(t, registerOK.Payload.PMMAgent)
@@ -51,14 +52,14 @@ func RegisterGenericNode(t pmmapitests.TestingT, body node.RegisterNodeBody) (st
 	return registerOK.Payload.GenericNode.NodeID, registerOK.Payload.PMMAgent.AgentID
 }
 
-func registerContainerNode(t pmmapitests.TestingT, body node.RegisterNodeBody) (string, string) {
+func registerContainerNode(t pmmapitests.TestingT, body mservice.RegisterNodeBody) (string, string) {
 	t.Helper()
 
-	params := node.RegisterNodeParams{
+	params := mservice.RegisterNodeParams{
 		Context: pmmapitests.Context,
 		Body:    body,
 	}
-	registerOK, err := client.Default.Node.RegisterNode(&params)
+	registerOK, err := client.Default.ManagementService.RegisterNode(&params)
 	require.NoError(t, err)
 	require.NotNil(t, registerOK)
 	require.NotNil(t, registerOK.Payload.PMMAgent)
@@ -71,7 +72,7 @@ func registerContainerNode(t pmmapitests.TestingT, body node.RegisterNodeBody) (
 func assertNodeExporterCreated(t pmmapitests.TestingT, pmmAgentID string) (string, bool) {
 	t.Helper()
 
-	listAgentsOK, err := inventoryClient.Default.Agents.ListAgents(&agents.ListAgentsParams{
+	listAgentsOK, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 		Body: agents.ListAgentsBody{
 			PMMAgentID: pmmAgentID,
 		},
@@ -85,6 +86,9 @@ func assertNodeExporterCreated(t pmmapitests.TestingT, pmmAgentID string) (strin
 		AgentID:            nodeExporterAgentID,
 		PushMetricsEnabled: true,
 		Status:             &AgentStatusUnknown,
+		CustomLabels:       make(map[string]string),
+		DisabledCollectors: make([]string, 0),
+		LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 	}, *listAgentsOK.Payload.NodeExporter[0])
 	return nodeExporterAgentID, asserted
 }
@@ -92,7 +96,7 @@ func assertNodeExporterCreated(t pmmapitests.TestingT, pmmAgentID string) (strin
 func assertPMMAgentCreated(t pmmapitests.TestingT, nodeID string, pmmAgentID string) {
 	t.Helper()
 
-	agentOK, err := inventoryClient.Default.Agents.GetAgent(&agents.GetAgentParams{
+	agentOK, err := inventoryClient.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 		Body: agents.GetAgentBody{
 			AgentID: pmmAgentID,
 		},
@@ -103,6 +107,7 @@ func assertPMMAgentCreated(t pmmapitests.TestingT, nodeID string, pmmAgentID str
 		PMMAgent: &agents.GetAgentOKBodyPMMAgent{
 			AgentID:      pmmAgentID,
 			RunsOnNodeID: nodeID,
+			CustomLabels: map[string]string{},
 		},
 	}, *agentOK.Payload)
 }
@@ -110,7 +115,7 @@ func assertPMMAgentCreated(t pmmapitests.TestingT, nodeID string, pmmAgentID str
 func assertNodeCreated(t pmmapitests.TestingT, nodeID string, expectedResult nodes.GetNodeOKBody) {
 	t.Helper()
 
-	nodeOK, err := inventoryClient.Default.Nodes.GetNode(&nodes.GetNodeParams{
+	nodeOK, err := inventoryClient.Default.NodesService.GetNode(&nodes.GetNodeParams{
 		Body: nodes.GetNodeBody{
 			NodeID: nodeID,
 		},
@@ -124,7 +129,7 @@ func assertNodeCreated(t pmmapitests.TestingT, nodeID string, expectedResult nod
 func RemovePMMAgentWithSubAgents(t pmmapitests.TestingT, pmmAgentID string) {
 	t.Helper()
 
-	listAgentsOK, err := inventoryClient.Default.Agents.ListAgents(&agents.ListAgentsParams{
+	listAgentsOK, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 		Body: agents.ListAgentsBody{
 			PMMAgentID: pmmAgentID,
 		},
@@ -138,7 +143,7 @@ func RemovePMMAgentWithSubAgents(t pmmapitests.TestingT, pmmAgentID string) {
 func removeServiceAgents(t pmmapitests.TestingT, serviceID string) {
 	t.Helper()
 
-	listAgentsOK, err := inventoryClient.Default.Agents.ListAgents(&agents.ListAgentsParams{
+	listAgentsOK, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 		Body: agents.ListAgentsBody{
 			ServiceID: serviceID,
 		},

@@ -28,7 +28,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	azurev1beta1 "github.com/percona/pmm/api/managementpb/azure"
+	azurev1beta1 "github.com/percona/pmm/api/management/v1/azure"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
 )
@@ -52,38 +52,14 @@ const (
 	`)
 )
 
-// AzureDatabaseService represents instance discovery service.
-type AzureDatabaseService struct {
-	l        *logrus.Entry
-	db       *reform.DB
-	registry agentsRegistry
-	state    agentsStateUpdater
-	cc       connectionChecker
-	sib      serviceInfoBroker
-
-	azurev1beta1.UnimplementedAzureDatabaseServer
-}
-
-// NewAzureDatabaseService creates new instance discovery service.
-func NewAzureDatabaseService(db *reform.DB, registry agentsRegistry, state agentsStateUpdater, cc connectionChecker, sib serviceInfoBroker) *AzureDatabaseService { //nolint:lll
-	return &AzureDatabaseService{
-		l:        logrus.WithField("component", "management/azure_database"),
-		db:       db,
-		registry: registry,
-		state:    state,
-		cc:       cc,
-		sib:      sib,
-	}
-}
-
 // Enabled returns if service is enabled and can be used.
-func (s *AzureDatabaseService) Enabled() bool {
+func (s *ManagementService) Enabled() bool {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
-		s.l.WithError(err).Error("can't get settings")
+		logrus.WithField("component", "management/azure_database").WithError(err).Error("can't get settings")
 		return false
 	}
-	return settings.Azurediscover.Enabled
+	return settings.IsAzureDiscoverEnabled()
 }
 
 // AzureDatabaseInstanceData reflects Azure Database Instance Data of Discovery Response.
@@ -99,7 +75,7 @@ type AzureDatabaseInstanceData struct {
 	Zones         string                 `json:"zones"`
 }
 
-func (s *AzureDatabaseService) getAzureClient(req *azurev1beta1.DiscoverAzureDatabaseRequest) (*armresourcegraph.Client, error) {
+func (s *ManagementService) getAzureClient(req *azurev1beta1.DiscoverAzureDatabaseRequest) (*armresourcegraph.Client, error) {
 	credential, err := azidentity.NewClientSecretCredential(req.AzureTenantId, req.AzureClientId, req.AzureClientSecret, nil)
 	if err != nil {
 		return nil, err
@@ -114,7 +90,7 @@ func (s *AzureDatabaseService) getAzureClient(req *azurev1beta1.DiscoverAzureDat
 	return client, nil
 }
 
-func (s *AzureDatabaseService) fetchAzureDatabaseInstancesData(
+func (s *ManagementService) fetchAzureDatabaseInstancesData(
 	ctx context.Context,
 	req *azurev1beta1.DiscoverAzureDatabaseRequest,
 	client *armresourcegraph.Client,
@@ -153,7 +129,7 @@ func (s *AzureDatabaseService) fetchAzureDatabaseInstancesData(
 }
 
 // DiscoverAzureDatabase discovers database instances on Azure.
-func (s *AzureDatabaseService) DiscoverAzureDatabase(
+func (s *ManagementService) DiscoverAzureDatabase(
 	ctx context.Context,
 	req *azurev1beta1.DiscoverAzureDatabaseRequest,
 ) (*azurev1beta1.DiscoverAzureDatabaseResponse, error) {
@@ -188,7 +164,7 @@ func (s *AzureDatabaseService) DiscoverAzureDatabase(
 			"microsoft.dbforpostgresql/serversv2":
 			inst.Type = azurev1beta1.DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL
 		default:
-			inst.Type = azurev1beta1.DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_INVALID
+			inst.Type = azurev1beta1.DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED
 		}
 
 		if val, ok := instance.Properties["administratorLogin"].(string); ok {
@@ -208,7 +184,7 @@ func (s *AzureDatabaseService) DiscoverAzureDatabase(
 }
 
 // AddAzureDatabase add azure database to monitoring.
-func (s *AzureDatabaseService) AddAzureDatabase(ctx context.Context, req *azurev1beta1.AddAzureDatabaseRequest) (*azurev1beta1.AddAzureDatabaseResponse, error) {
+func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *azurev1beta1.AddAzureDatabaseRequest) (*azurev1beta1.AddAzureDatabaseResponse, error) {
 	l := logger.Get(ctx).WithField("component", "discover/azureDatabase")
 	// tweak according to API docs
 	if req.NodeName == "" {

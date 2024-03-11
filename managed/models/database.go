@@ -966,6 +966,29 @@ var databaseSchema = [][]string{
 	102: {
 		`UPDATE settings SET settings = settings - 'alert_manager_url'`,
 	},
+	103: {
+		`UPDATE settings SET settings = jsonb_insert(settings, '{alerting,enabled}', to_jsonb(NOT ((settings#>'{alerting,disabled}')::boolean))) WHERE (settings#>'{alerting,disabled}') IS NOT NULL`,
+		`UPDATE settings SET settings = settings #- '{alerting, disabled}';`,
+
+		`UPDATE settings SET settings = settings || jsonb_set(settings, '{updates,enabled}', to_jsonb( NOT ((settings#>'{updates,disabled}')::boolean))) WHERE (settings#>'{updates,disabled}') IS NOT NULL`,
+		`UPDATE settings SET settings = settings #- '{updates, disabled}';`,
+
+		`UPDATE settings SET settings = settings || jsonb_set(settings, '{telemetry,enabled}', to_jsonb( NOT ((settings#>'{telemetry,disabled}')::boolean))) WHERE (settings#>'{telemetry,disabled}') IS NOT NULL`,
+		`UPDATE settings SET settings = settings #- '{telemetry, disabled}';`,
+
+		`UPDATE settings SET settings = settings || jsonb_set(settings, '{backup_management,enabled}', to_jsonb( NOT ((settings#>'{backup_management,disabled}')::boolean))) WHERE (settings#>'{backup_management,disabled}') IS NOT NULL`,
+		`UPDATE settings SET settings = settings #- '{backup_management, disabled}';`,
+
+		`UPDATE settings SET settings = settings || jsonb_set(settings, '{sass,enabled}', to_jsonb( NOT ((settings#>'{sass,stt_disabled}')::boolean))) WHERE (settings#>'{sass,stt_disabled}') IS NOT NULL`,
+		`UPDATE settings SET settings = settings #- '{sass, stt_disabled}';`,
+	},
+	104: {
+		`UPDATE settings SET settings = settings || jsonb_set(settings, '{sass,disabled_advisors}', settings#>'{sass,disabled_stt_checks}') WHERE (settings#>'{sass,disabled_stt_checks}') IS NOT NULL`,
+		`UPDATE settings SET settings = settings #- '{sass,disabled_stt_checks}';`,
+
+		`UPDATE settings SET settings = settings || jsonb_set(settings, '{sass,advisor_run_intervals}', settings#>'{sass,stt_check_intervals}') WHERE (settings#>'{sass,disabled_stt_checks}') IS NOT NULL`,
+		`UPDATE settings SET settings = settings #- '{sass,stt_check_intervals}';`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

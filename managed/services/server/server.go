@@ -30,6 +30,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -40,7 +41,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/serverpb"
+	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/version"
@@ -71,7 +72,7 @@ type Server struct {
 
 	sshKeyM sync.Mutex
 
-	serverpb.UnimplementedServerServer
+	serverv1.UnimplementedServerServiceServer
 }
 
 type pmmUpdateAuth struct {
@@ -146,7 +147,7 @@ func (s *Server) UpdateSettingsFromEnv(env []string) []error {
 }
 
 // Version returns PMM Server version.
-func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*serverpb.VersionResponse, error) {
+func (s *Server) Version(ctx context.Context, req *serverv1.VersionRequest) (*serverv1.VersionResponse, error) {
 	// for API testing of authentication, panic handling, etc.
 	if req.Dummy != "" {
 		switch {
@@ -170,12 +171,12 @@ func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 		}
 	}
 
-	res := &serverpb.VersionResponse{
+	res := &serverv1.VersionResponse{
 		// always return something in this field:
 		// it is used by PMM 1.x's pmm-client for compatibility checking
 		Version: version.Version,
 
-		Managed: &serverpb.VersionInfo{
+		Managed: &serverv1.VersionInfo{
 			Version:     version.Version,
 			FullVersion: version.FullCommit,
 		},
@@ -188,7 +189,7 @@ func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 
 	if v := s.supervisord.InstalledPMMVersion(ctx); v != nil {
 		res.Version = v.Version
-		res.Server = &serverpb.VersionInfo{
+		res.Server = &serverv1.VersionInfo{
 			Version:     v.Version,
 			FullVersion: v.FullVersion,
 		}
@@ -202,7 +203,7 @@ func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 
 // Readiness returns an error when some PMM Server component is not ready yet or is being restarted.
 // It can be used as for Docker health check or Kubernetes readiness probe.
-func (s *Server) Readiness(ctx context.Context, req *serverpb.ReadinessRequest) (*serverpb.ReadinessResponse, error) { //nolint:revive
+func (s *Server) Readiness(ctx context.Context, req *serverv1.ReadinessRequest) (*serverv1.ReadinessResponse, error) { //nolint:revive
 	var notReady bool
 	for n, svc := range map[string]healthChecker{
 		"grafana":         s.grafanaClient,
@@ -219,23 +220,23 @@ func (s *Server) Readiness(ctx context.Context, req *serverpb.ReadinessRequest) 
 		return nil, status.Error(codes.Internal, "PMM Server is not ready yet.")
 	}
 
-	return &serverpb.ReadinessResponse{}, nil
+	return &serverv1.ReadinessResponse{}, nil
 }
 
 // LeaderHealthCheck checks if the instance is the leader in a cluster.
 // Returns an error if the instance isn't the leader.
 // It's used for HA purpose.
-func (s *Server) LeaderHealthCheck(ctx context.Context, req *serverpb.LeaderHealthCheckRequest) (*serverpb.LeaderHealthCheckResponse, error) { //nolint:revive
+func (s *Server) LeaderHealthCheck(ctx context.Context, req *serverv1.LeaderHealthCheckRequest) (*serverv1.LeaderHealthCheckResponse, error) { //nolint:revive
 	if s.haService.IsLeader() {
-		return &serverpb.LeaderHealthCheckResponse{}, nil
+		return &serverv1.LeaderHealthCheckResponse{}, nil
 	}
 	return nil, status.Error(codes.FailedPrecondition, "this PMM Server isn't the leader")
 }
 
-func (s *Server) onlyInstalledVersionResponse(ctx context.Context) *serverpb.CheckUpdatesResponse {
+func (s *Server) onlyInstalledVersionResponse(ctx context.Context) *serverv1.CheckUpdatesResponse {
 	v := s.supervisord.InstalledPMMVersion(ctx)
-	r := &serverpb.CheckUpdatesResponse{
-		Installed: &serverpb.VersionInfo{
+	r := &serverv1.CheckUpdatesResponse{
+		Installed: &serverv1.VersionInfo{
 			Version:     v.Version,
 			FullVersion: v.FullVersion,
 		},
@@ -252,9 +253,9 @@ func (s *Server) onlyInstalledVersionResponse(ctx context.Context) *serverpb.Che
 }
 
 // CheckUpdates checks PMM Server updates availability.
-func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesRequest) (*serverpb.CheckUpdatesResponse, error) {
+func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesRequest) (*serverv1.CheckUpdatesResponse, error) {
 	s.envRW.RLock()
-	updatesDisabled := s.envSettings.DisableUpdates
+	updatesEnabled := s.envSettings.EnableUpdates
 	s.envRW.RUnlock()
 
 	if req.OnlyInstalledVersion {
@@ -272,12 +273,12 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 		return nil, status.Error(codes.Unavailable, "failed to check for updates")
 	}
 
-	res := &serverpb.CheckUpdatesResponse{
-		Installed: &serverpb.VersionInfo{
+	res := &serverv1.CheckUpdatesResponse{
+		Installed: &serverv1.VersionInfo{
 			Version:     v.Installed.Version,
 			FullVersion: v.Installed.FullVersion,
 		},
-		Latest: &serverpb.VersionInfo{
+		Latest: &serverv1.VersionInfo{
 			Version:     v.Latest.Version,
 			FullVersion: v.Latest.FullVersion,
 		},
@@ -285,7 +286,7 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 		LatestNewsUrl:   v.LatestNewsURL,
 	}
 
-	if updatesDisabled {
+	if updatesEnabled != nil && !*updatesEnabled {
 		res.UpdateAvailable = false
 	}
 
@@ -305,13 +306,13 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 }
 
 // StartUpdate starts PMM Server update.
-func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateRequest) (*serverpb.StartUpdateResponse, error) { //nolint:revive
+func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateRequest) (*serverv1.StartUpdateResponse, error) { //nolint:revive
 	s.envRW.RLock()
-	updatesDisabled := s.envSettings.DisableUpdates
+	updatesEnabled := s.envSettings.EnableUpdates
 	s.envRW.RUnlock()
 
-	if updatesDisabled {
-		return nil, status.Error(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
+	if updatesEnabled != nil && !*updatesEnabled {
+		return nil, status.Error(codes.FailedPrecondition, "Updates are disabled via ENABLE_UPDATES environment variable.")
 	}
 
 	offset, err := s.supervisord.StartUpdate()
@@ -324,14 +325,14 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 		return nil, err
 	}
 
-	return &serverpb.StartUpdateResponse{
+	return &serverv1.StartUpdateResponse{
 		AuthToken: authToken,
 		LogOffset: offset,
 	}, nil
 }
 
 // UpdateStatus returns PMM Server update status.
-func (s *Server) UpdateStatus(ctx context.Context, req *serverpb.UpdateStatusRequest) (*serverpb.UpdateStatusResponse, error) {
+func (s *Server) UpdateStatus(ctx context.Context, req *serverv1.UpdateStatusRequest) (*serverv1.UpdateStatusResponse, error) {
 	token, err := s.readUpdateAuthToken()
 	if err != nil {
 		return nil, err
@@ -365,7 +366,7 @@ func (s *Server) UpdateStatus(ctx context.Context, req *serverpb.UpdateStatusReq
 		time.Sleep(200 * time.Millisecond)
 	}
 
-	return &serverpb.UpdateStatusResponse{
+	return &serverv1.UpdateStatusResponse{
 		LogLines:  lines,
 		LogOffset: newOffset,
 		Done:      done,
@@ -418,34 +419,34 @@ func (s *Server) readUpdateAuthToken() (string, error) {
 
 // convertSettings merges database settings and settings from environment variables into API response.
 // Checking if PMM is connected to Platform is separated from settings for security and concurrency reasons.
-func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform bool) *serverpb.Settings {
-	res := &serverpb.Settings{
-		UpdatesDisabled:  settings.Updates.Disabled,
-		TelemetryEnabled: !settings.Telemetry.Disabled,
-		MetricsResolutions: &serverpb.MetricsResolutions{
+func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform bool) *serverv1.Settings {
+	res := &serverv1.Settings{
+		UpdatesEnabled:   settings.IsUpdatesEnabled(),
+		TelemetryEnabled: settings.IsTelemetryEnabled(),
+		MetricsResolutions: &serverv1.MetricsResolutions{
 			Hr: durationpb.New(settings.MetricsResolutions.HR),
 			Mr: durationpb.New(settings.MetricsResolutions.MR),
 			Lr: durationpb.New(settings.MetricsResolutions.LR),
 		},
-		SttCheckIntervals: &serverpb.STTCheckIntervals{
-			RareInterval:     durationpb.New(settings.SaaS.STTCheckIntervals.RareInterval),
-			StandardInterval: durationpb.New(settings.SaaS.STTCheckIntervals.StandardInterval),
-			FrequentInterval: durationpb.New(settings.SaaS.STTCheckIntervals.FrequentInterval),
+		AdvisorRunIntervals: &serverv1.AdvisorRunIntervals{
+			RareInterval:     durationpb.New(settings.SaaS.AdvisorRunIntervals.RareInterval),
+			StandardInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.StandardInterval),
+			FrequentInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.FrequentInterval),
 		},
 		DataRetention:        durationpb.New(settings.DataRetention),
 		SshKey:               settings.SSHKey,
 		AwsPartitions:        settings.AWSPartitions,
-		SttEnabled:           !settings.SaaS.STTDisabled,
-		AzurediscoverEnabled: settings.Azurediscover.Enabled,
+		AdvisorEnabled:       settings.IsAdvisorsEnabled(),
+		AzurediscoverEnabled: settings.IsAzureDiscoverEnabled(),
 		PmmPublicAddress:     settings.PMMPublicAddress,
 
-		AlertingEnabled:         !settings.Alerting.Disabled,
-		BackupManagementEnabled: !settings.BackupManagement.Disabled,
+		AlertingEnabled:         settings.IsAlertingEnabled(),
+		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
 		ConnectedToPlatform:     connectedToPlatform,
 
 		TelemetrySummaries: s.telemetryService.GetSummaries(),
 
-		EnableAccessControl: settings.AccessControl.Enabled,
+		EnableAccessControl: settings.IsAccessControlEnabled(),
 		DefaultRoleId:       uint32(settings.DefaultRoleID),
 	}
 
@@ -453,7 +454,7 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 }
 
 // GetSettings returns current PMM Server settings.
-func (s *Server) GetSettings(ctx context.Context, req *serverpb.GetSettingsRequest) (*serverpb.GetSettingsResponse, error) { //nolint:revive
+func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsRequest) (*serverv1.GetSettingsResponse, error) { //nolint:revive
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
 
@@ -464,43 +465,36 @@ func (s *Server) GetSettings(ctx context.Context, req *serverpb.GetSettingsReque
 
 	_, err = models.GetPerconaSSODetails(ctx, s.db.Querier)
 
-	return &serverpb.GetSettingsResponse{
+	return &serverv1.GetSettingsResponse{
 		Settings: s.convertSettings(settings, err == nil),
 	}, nil
 }
 
-func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverpb.ChangeSettingsRequest) error {
+func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv1.ChangeSettingsRequest) error {
 	metricsRes := req.MetricsResolutions
 
-	if req.PmmPublicAddress != "" && req.RemovePmmPublicAddress {
-		return status.Error(codes.InvalidArgument, "Both pmm_public_address and remove_pmm_public_address are present.")
-	}
-
-	if req.SshKey != "" {
-		if err := s.validateSSHKey(ctx, req.SshKey); err != nil {
+	if req.SshKey != nil {
+		if err := s.validateSSHKey(ctx, *req.SshKey); err != nil {
 			return err
 		}
 	}
 
 	// check request parameters compatibility with environment variables
 
-	if req.EnableUpdates && s.envSettings.DisableUpdates {
-		return status.Error(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
+	if req.EnableUpdates != nil && s.envSettings.EnableUpdates != nil && *req.EnableUpdates != *s.envSettings.EnableUpdates {
+		return status.Error(codes.FailedPrecondition, "Updates are configured via ENABLE_UPDATES environment variable.")
 	}
 
-	// ignore req.DisableTelemetry and req.DisableStt even if they are present since that will not change anything
-	if req.EnableTelemetry && s.envSettings.DisableTelemetry {
-		return status.Error(codes.FailedPrecondition, "Telemetry is disabled via DISABLE_TELEMETRY environment variable.")
+	if req.EnableTelemetry != nil && s.envSettings.EnableTelemetry != nil && *req.EnableTelemetry != *s.envSettings.EnableTelemetry {
+		return status.Error(codes.FailedPrecondition, "Telemetry is configured via ENABLE_TELEMETRY environment variable.")
 	}
 
-	// ignore req.EnableAlerting even if they are present since that will not change anything
-	if req.DisableAlerting && s.envSettings.EnableAlerting {
-		return status.Error(codes.FailedPrecondition, "Alerting is enabled via ENABLE_ALERTING environment variable.")
+	if req.EnableAlerting != nil && s.envSettings.EnableAlerting != nil && *req.EnableAlerting != *s.envSettings.EnableAlerting {
+		return status.Error(codes.FailedPrecondition, "Alerting is configured via ENABLE_ALERTING environment variable.")
 	}
 
-	// ignore req.DisableAzurediscover even if they are present since that will not change anything
-	if req.DisableAzurediscover && s.envSettings.EnableAzurediscover {
-		return status.Error(codes.FailedPrecondition, "Azure Discover is enabled via ENABLE_AZUREDISCOVER environment variable.")
+	if req.EnableAzurediscover != nil && s.envSettings.EnableAzurediscover != nil && *req.EnableAzurediscover != *s.envSettings.EnableAzurediscover {
+		return status.Error(codes.FailedPrecondition, "Azure Discover is configured via ENABLE_AZUREDISCOVER environment variable.")
 	}
 
 	if !canUpdateDurationSetting(metricsRes.GetHr().AsDuration(), s.envSettings.MetricsResolutions.HR) {
@@ -523,10 +517,9 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 }
 
 // ChangeSettings changes PMM Server settings.
-func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSettingsRequest) (*serverpb.ChangeSettingsResponse, error) { //nolint:cyclop,maintidx
+func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSettingsRequest) (*serverv1.ChangeSettingsResponse, error) {
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
-
 	if err := s.validateChangeSettingsRequest(ctx, req); err != nil {
 		return nil, err
 	}
@@ -539,39 +532,33 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 		}
 
 		metricsRes := req.MetricsResolutions
-		sttCheckIntervals := req.SttCheckIntervals
+		advisorsRunInterval := req.AdvisorRunIntervals
 		settingsParams := &models.ChangeSettingsParams{
-			DisableUpdates:   req.DisableUpdates,
-			EnableUpdates:    req.EnableUpdates,
-			DisableTelemetry: req.DisableTelemetry,
-			EnableTelemetry:  req.EnableTelemetry,
-			STTCheckIntervals: models.STTCheckIntervals{
-				RareInterval:     sttCheckIntervals.GetRareInterval().AsDuration(),
-				StandardInterval: sttCheckIntervals.GetStandardInterval().AsDuration(),
-				FrequentInterval: sttCheckIntervals.GetFrequentInterval().AsDuration(),
+			EnableUpdates:          req.EnableUpdates,
+			EnableTelemetry:        req.EnableTelemetry,
+			EnableAdvisors:         req.EnableAdvisor,
+			EnableAzurediscover:    req.EnableAzurediscover,
+			PMMPublicAddress:       req.PmmPublicAddress,
+			EnableAlerting:         req.EnableAlerting,
+			EnableBackupManagement: req.EnableBackupManagement,
+			EnableAccessControl:    req.EnableAccessControl,
+			AdvisorsRunInterval: models.AdvisorsRunIntervals{
+				RareInterval:     advisorsRunInterval.GetRareInterval().AsDuration(),
+				StandardInterval: advisorsRunInterval.GetStandardInterval().AsDuration(),
+				FrequentInterval: advisorsRunInterval.GetFrequentInterval().AsDuration(),
 			},
 			MetricsResolutions: models.MetricsResolutions{
 				HR: metricsRes.GetHr().AsDuration(),
 				MR: metricsRes.GetMr().AsDuration(),
 				LR: metricsRes.GetLr().AsDuration(),
 			},
-			DataRetention:          req.DataRetention.AsDuration(),
-			AWSPartitions:          req.AwsPartitions,
-			SSHKey:                 req.SshKey,
-			EnableSTT:              req.EnableStt,
-			DisableSTT:             req.DisableStt,
-			EnableAzurediscover:    req.EnableAzurediscover,
-			DisableAzurediscover:   req.DisableAzurediscover,
-			PMMPublicAddress:       req.PmmPublicAddress,
-			RemovePMMPublicAddress: req.RemovePmmPublicAddress,
+			DataRetention: req.DataRetention.AsDuration(),
+			SSHKey:        req.SshKey,
+		}
 
-			EnableAlerting:          req.EnableAlerting,
-			DisableAlerting:         req.DisableAlerting,
-			EnableBackupManagement:  req.EnableBackupManagement,
-			DisableBackupManagement: req.DisableBackupManagement,
-
-			EnableAccessControl:  req.EnableAccessControl,
-			DisableAccessControl: req.DisableAccessControl,
+		if req.AwsPartitions != nil {
+			// Nil treated as "do not change", empty slice treated as "reset to default"
+			settingsParams.AWSPartitions = req.AwsPartitions.Values
 		}
 
 		var errInvalidArgument *models.InvalidArgumentError
@@ -585,8 +572,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 		}
 
 		// absent value means "do not change"
-		if req.SshKey != "" {
-			if err = s.writeSSHKey(req.SshKey); err != nil {
+		if req.SshKey != nil {
+			if err = s.writeSSHKey(pointer.GetString(req.SshKey)); err != nil {
 				return errors.WithStack(err)
 			}
 		}
@@ -601,33 +588,33 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 		return nil, err
 	}
 
-	// If STT intervals are changed reset timers.
-	if oldSettings.SaaS.STTCheckIntervals != newSettings.SaaS.STTCheckIntervals {
+	// If Advisors run intervals are changed reset timers.
+	if oldSettings.SaaS.AdvisorRunIntervals != newSettings.SaaS.AdvisorRunIntervals {
 		s.checksService.UpdateIntervals(
-			newSettings.SaaS.STTCheckIntervals.RareInterval,
-			newSettings.SaaS.STTCheckIntervals.StandardInterval,
-			newSettings.SaaS.STTCheckIntervals.FrequentInterval)
+			newSettings.SaaS.AdvisorRunIntervals.RareInterval,
+			newSettings.SaaS.AdvisorRunIntervals.StandardInterval,
+			newSettings.SaaS.AdvisorRunIntervals.FrequentInterval)
 	}
 
-	// When STT moved from disabled state to enabled force checks download and execution.
-	var sttStarted bool
-	if oldSettings.SaaS.STTDisabled && !newSettings.SaaS.STTDisabled {
-		sttStarted = true
+	// When Advisor is moved from disabled to enabled state, force checks download and execution.
+	var advisorsStarted bool
+	if !oldSettings.IsAdvisorsEnabled() && newSettings.IsAdvisorsEnabled() {
+		advisorsStarted = true
 		if err := s.checksService.StartChecks(nil); err != nil {
 			s.l.Error(err)
 		}
 	}
 
-	// When STT moved from enabled state to disabled drop all existing STT alerts.
-	if !oldSettings.SaaS.STTDisabled && newSettings.SaaS.STTDisabled {
+	// When Advisor is moved from enabled to disabled state, drop all existing alerts.
+	if oldSettings.IsAdvisorsEnabled() && !newSettings.IsAdvisorsEnabled() {
 		s.checksService.CleanupAlerts()
 	}
 
-	// When telemetry state is switched force alert templates and STT checks files collection.
+	// When telemetry state is switched force alert templates and Advisor check files collection.
 	// If telemetry switched off that will drop previously downloaded files.
-	if oldSettings.Telemetry.Disabled != newSettings.Telemetry.Disabled {
+	if oldSettings.IsTelemetryEnabled() != newSettings.IsTelemetryEnabled() {
 		s.templatesService.CollectTemplates(ctx)
-		if !sttStarted {
+		if !advisorsStarted {
 			s.checksService.CollectAdvisors(ctx)
 		}
 	}
@@ -640,7 +627,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 
 	_, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
 
-	return &serverpb.ChangeSettingsResponse{
+	return &serverv1.ChangeSettingsResponse{
 		Settings: s.convertSettings(newSettings, err == nil),
 	}, nil
 }
@@ -710,16 +697,16 @@ func (s *Server) writeSSHKey(sshKey string) error {
 }
 
 // AWSInstanceCheck checks AWS EC2 instance ID.
-func (s *Server) AWSInstanceCheck(ctx context.Context, req *serverpb.AWSInstanceCheckRequest) (*serverpb.AWSInstanceCheckResponse, error) { //nolint:revive
+func (s *Server) AWSInstanceCheck(ctx context.Context, req *serverv1.AWSInstanceCheckRequest) (*serverv1.AWSInstanceCheckResponse, error) { //nolint:revive
 	if err := s.awsInstanceChecker.check(req.InstanceId); err != nil {
 		return nil, err
 	}
-	return &serverpb.AWSInstanceCheckResponse{}, nil
+	return &serverv1.AWSInstanceCheckResponse{}, nil
 }
 
 // isAgentsStateUpdateNeeded - checks metrics resolution changes,
 // if it was changed, agents state must be updated.
-func isAgentsStateUpdateNeeded(mr *serverpb.MetricsResolutions) bool {
+func isAgentsStateUpdateNeeded(mr *serverv1.MetricsResolutions) bool {
 	if mr == nil {
 		return false
 	}
@@ -739,5 +726,5 @@ func canUpdateDurationSetting(newValue, envValue time.Duration) bool {
 
 // check interfaces.
 var (
-	_ serverpb.ServerServer = (*Server)(nil)
+	_ serverv1.ServerServiceServer = (*Server)(nil)
 )

@@ -19,13 +19,13 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 func TestAddServiceMySQL(t *testing.T) {
 	t.Run("Address and port", func(t *testing.T) {
 		res := &addServiceMySQLResult{
-			Service: &services.AddMySQLServiceOKBodyMysql{
+			Service: &services.AddServiceOKBodyMysql{
 				ServiceID:      "/service_id/1",
 				ServiceName:    "MySQL Service",
 				NodeID:         "/node_id/1",
@@ -53,7 +53,7 @@ Custom labels  : map[foo:bar key:value]
 
 	t.Run("Socket", func(t *testing.T) {
 		res := &addServiceMySQLResult{
-			Service: &services.AddMySQLServiceOKBodyMysql{
+			Service: &services.AddServiceOKBodyMysql{
 				ServiceID:      "/service_id/1",
 				ServiceName:    "MySQL Socket Service",
 				NodeID:         "/node_id/1",

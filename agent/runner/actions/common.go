@@ -26,7 +26,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/tlshelpers"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 const queryTag = "pmm-agent-tests:MySQLVersion"
@@ -58,7 +58,7 @@ func jsonRows(columns []string, dataRows [][]interface{}) ([]byte, error) {
 }
 
 // mysqlOpen returns *sql.DB for given MySQL DSN.
-func mysqlOpen(dsn string, tlsFiles *agentpb.TextFiles) (*sql.DB, error) {
+func mysqlOpen(dsn string, tlsFiles *agentv1.TextFiles) (*sql.DB, error) {
 	if tlsFiles != nil {
 		err := tlshelpers.RegisterMySQLCerts(tlsFiles.Files)
 		if err != nil {

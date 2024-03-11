@@ -21,18 +21,18 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/tlshelpers"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/utils/sqlrows"
 )
 
 type mysqlQueryShowAction struct {
 	id      string
 	timeout time.Duration
-	params  *agentpb.StartActionRequest_MySQLQueryShowParams
+	params  *agentv1.StartActionRequest_MySQLQueryShowParams
 }
 
 // NewMySQLQueryShowAction creates MySQL SHOW query Action.
-func NewMySQLQueryShowAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_MySQLQueryShowParams) Action {
+func NewMySQLQueryShowAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_MySQLQueryShowParams) Action {
 	return &mysqlQueryShowAction{
 		id:      id,
 		timeout: timeout,
@@ -80,7 +80,7 @@ func (a *mysqlQueryShowAction) Run(ctx context.Context) ([]byte, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	return agentpb.MarshalActionQuerySQLResult(columns, dataRows)
+	return agentv1.MarshalActionQuerySQLResult(columns, dataRows)
 }
 
 func (a *mysqlQueryShowAction) sealed() {}

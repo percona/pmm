@@ -19,8 +19,8 @@ import (
 	"strings"
 
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 var addAgentExternalExporterResultT = commands.ParseTemplate(`
@@ -38,7 +38,7 @@ Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentExternalExporterResult struct {
-	Agent *agents.AddExternalExporterOKBodyExternalExporter `json:"external_exporter"`
+	Agent *agents.AddAgentOKBodyExternalExporter `json:"external_exporter"`
 }
 
 func (res *addAgentExternalExporterResult) Result() {}
@@ -68,22 +68,24 @@ func (cmd *AddAgentExternalExporterCommand) RunCmd() (commands.Result, error) {
 		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)
 	}
 
-	params := &agents.AddExternalExporterParams{
-		Body: agents.AddExternalExporterBody{
-			RunsOnNodeID: cmd.RunsOnNodeID,
-			ServiceID:    cmd.ServiceID,
-			Username:     cmd.Username,
-			Password:     cmd.Password,
-			Scheme:       cmd.Scheme,
-			MetricsPath:  cmd.MetricsPath,
-			ListenPort:   cmd.ListenPort,
-			CustomLabels: customLabels,
-			PushMetrics:  cmd.PushMetrics,
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			ExternalExporter: &agents.AddAgentParamsBodyExternalExporter{
+				RunsOnNodeID: cmd.RunsOnNodeID,
+				ServiceID:    cmd.ServiceID,
+				Username:     cmd.Username,
+				Password:     cmd.Password,
+				Scheme:       cmd.Scheme,
+				MetricsPath:  cmd.MetricsPath,
+				ListenPort:   cmd.ListenPort,
+				CustomLabels: customLabels,
+				PushMetrics:  cmd.PushMetrics,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddExternalExporter(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

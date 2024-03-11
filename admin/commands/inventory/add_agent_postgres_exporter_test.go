@@ -21,13 +21,13 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 func TestAddAgentPostgresExporter(t *testing.T) {
 	t.Run("TablestatEnabled", func(t *testing.T) {
 		res := &addAgentPostgresExporterResult{
-			Agent: &agents.AddPostgresExporterOKBodyPostgresExporter{
+			Agent: &agents.AddAgentOKBodyPostgresExporter{
 				AgentID:    "/agent_id/1",
 				PMMAgentID: "/agent_id/2",
 				Username:   "username",

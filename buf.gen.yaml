@@ -40,3 +40,4 @@ plugins:
     opt:
       - simple_operation_ids=true
       - json_names_for_fields=false
+      - proto3_optional_nullable=true

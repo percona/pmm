@@ -30,11 +30,10 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	backuppb "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/backup/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/services/backup"
@@ -49,7 +48,7 @@ type BackupsService struct {
 	scheduleService      scheduleService
 	l                    *logrus.Entry
 
-	backuppb.UnimplementedBackupsServer
+	backuppb.UnimplementedBackupsServiceServer
 }
 
 const (
@@ -145,7 +144,7 @@ func (s *BackupsService) RestoreBackup(
 	for _, t := range tasks {
 		if _, err := s.ChangeScheduledBackup(ctx, &backuppb.ChangeScheduledBackupRequest{
 			ScheduledBackupId: t.ID,
-			Enabled:           &wrapperspb.BoolValue{Value: false},
+			Enabled:           pointer.ToBool(false),
 		}); err != nil {
 			return nil, err
 		}
@@ -341,19 +340,19 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupp
 		}
 
 		if req.Name != nil {
-			data.Name = req.Name.Value
+			data.Name = *req.Name
 		}
 		if req.Description != nil {
-			data.Description = req.Description.Value
+			data.Description = *req.Description
 		}
 		if req.Retention != nil {
-			data.Retention = req.Retention.Value
+			data.Retention = *req.Retention
 		}
 		if req.Retries != nil {
-			if req.Retries.Value > maxRetriesAttempts {
+			if *req.Retries > maxRetriesAttempts {
 				return status.Errorf(codes.InvalidArgument, "exceeded max retries %d", maxRetriesAttempts)
 			}
-			data.Retries = req.Retries.Value
+			data.Retries = *req.Retries
 		}
 		if req.RetryInterval != nil {
 			if req.RetryInterval.AsDuration() > maxRetryInterval {
@@ -364,18 +363,15 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupp
 
 		serviceID = data.ServiceID
 		params := models.ChangeScheduledTaskParams{
-			Data: scheduledTask.Data,
+			Data:           scheduledTask.Data,
+			CronExpression: req.CronExpression,
 		}
 
 		if req.Enabled != nil {
-			params.Disable = pointer.ToBool(!req.Enabled.Value)
-			if scheduledTask.Type == models.ScheduledMongoDBBackupTask && !req.Enabled.Value {
+			params.Disable = pointer.ToBool(!*req.Enabled)
+			if scheduledTask.Type == models.ScheduledMongoDBBackupTask && !*req.Enabled {
 				disablePITR = data.Mode == models.PITR
 			}
-		}
-
-		if req.CronExpression != nil {
-			params.CronExpression = pointer.ToString(req.CronExpression.Value)
 		}
 
 		err = s.scheduleService.Update(req.ScheduledBackupId, params)
@@ -530,14 +526,14 @@ func (s *BackupsService) ListArtifactCompatibleServices(
 		}
 
 		switch s := apiService.(type) {
-		case *inventorypb.MySQLService:
+		case *inventoryv1.MySQLService:
 			res.Mysql = append(res.Mysql, s)
-		case *inventorypb.MongoDBService:
+		case *inventoryv1.MongoDBService:
 			res.Mongodb = append(res.Mongodb, s)
-		case *inventorypb.PostgreSQLService,
-			*inventorypb.ProxySQLService,
-			*inventorypb.HAProxyService,
-			*inventorypb.ExternalService:
+		case *inventoryv1.PostgreSQLService,
+			*inventoryv1.ProxySQLService,
+			*inventoryv1.HAProxyService,
+			*inventoryv1.ExternalService:
 			return nil, status.Errorf(codes.Unimplemented, "unimplemented service type %T", service)
 		default:
 			return nil, status.Errorf(codes.Internal, "unhandled inventory service type %T", service)
@@ -609,13 +605,13 @@ func convertTaskToScheduledBackup(task *models.ScheduledTask,
 
 func convertBackupModeToModel(mode backuppb.BackupMode) (models.BackupMode, error) {
 	switch mode {
-	case backuppb.BackupMode_SNAPSHOT:
+	case backuppb.BackupMode_BACKUP_MODE_SNAPSHOT:
 		return models.Snapshot, nil
-	case backuppb.BackupMode_INCREMENTAL:
+	case backuppb.BackupMode_BACKUP_MODE_INCREMENTAL:
 		return models.Incremental, nil
-	case backuppb.BackupMode_PITR:
+	case backuppb.BackupMode_BACKUP_MODE_PITR:
 		return models.PITR, nil
-	case backuppb.BackupMode_BACKUP_MODE_INVALID:
+	case backuppb.BackupMode_BACKUP_MODE_UNSPECIFIED:
 		return "", status.Errorf(codes.InvalidArgument, "invalid backup mode: %s", mode.String())
 	default:
 		return "", status.Errorf(codes.InvalidArgument, "Unknown backup mode: %s", mode.String())
@@ -625,11 +621,11 @@ func convertBackupModeToModel(mode backuppb.BackupMode) (models.BackupMode, erro
 func convertModelToBackupMode(mode models.BackupMode) (backuppb.BackupMode, error) {
 	switch mode {
 	case models.Snapshot:
-		return backuppb.BackupMode_SNAPSHOT, nil
+		return backuppb.BackupMode_BACKUP_MODE_SNAPSHOT, nil
 	case models.Incremental:
-		return backuppb.BackupMode_INCREMENTAL, nil
+		return backuppb.BackupMode_BACKUP_MODE_INCREMENTAL, nil
 	case models.PITR:
-		return backuppb.BackupMode_PITR, nil
+		return backuppb.BackupMode_BACKUP_MODE_PITR, nil
 	default:
 		return 0, errors.Errorf("unknown backup mode: %s", mode)
 	}
@@ -637,9 +633,9 @@ func convertModelToBackupMode(mode models.BackupMode) (backuppb.BackupMode, erro
 
 func convertModelToBackupModel(dataModel backuppb.DataModel) (models.DataModel, error) {
 	switch dataModel {
-	case backuppb.DataModel_LOGICAL:
+	case backuppb.DataModel_DATA_MODEL_LOGICAL:
 		return models.LogicalDataModel, nil
-	case backuppb.DataModel_PHYSICAL:
+	case backuppb.DataModel_DATA_MODEL_PHYSICAL:
 		return models.PhysicalDataModel, nil
 	default:
 		return "", errors.Errorf("unknown backup mode: %s", dataModel)
@@ -733,5 +729,5 @@ func isNameSafe(name string) error {
 
 // Check interfaces.
 var (
-	_ backuppb.BackupsServer = (*BackupsService)(nil)
+	_ backuppb.BackupsServiceServer = (*BackupsService)(nil)
 )

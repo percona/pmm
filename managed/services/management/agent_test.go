@@ -30,7 +30,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
+	agentv1beta1 "github.com/percona/pmm/api/management/v1/agent"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -39,7 +39,7 @@ import (
 
 var now time.Time
 
-func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T)) {
+func setup(t *testing.T) (context.Context, *MgmtServiceService, func(t *testing.T)) {
 	t.Helper()
 
 	now = models.Now()
@@ -60,6 +60,12 @@ func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T)) {
 	ar := &mockAgentsRegistry{}
 	ar.Test(t)
 
+	vmdb := &mockPrometheusService{}
+	vmdb.Test(t)
+
+	vmClient := &mockVictoriaMetricsClient{}
+	vmClient.Test(t)
+
 	teardown := func(t *testing.T) {
 		t.Helper()
 		models.Now = origNowF
@@ -68,8 +74,11 @@ func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T)) {
 		require.NoError(t, sqlDB.Close())
 		state.AssertExpectations(t)
 		ar.AssertExpectations(t)
+		vmdb.AssertExpectations(t)
+		vmClient.AssertExpectations(t)
 	}
-	s := NewAgentService(db, ar)
+
+	s := NewMgmtServiceService(db, ar, state, vmdb, vmClient)
 
 	return ctx, s, teardown
 }
@@ -79,7 +88,7 @@ func TestAgentService(t *testing.T) {
 		ctx, s, teardown := setup(t)
 		defer teardown(t)
 
-		response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{})
+		response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentsRequest{})
 		assert.Nil(t, response)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Either service_id or node_id is expected."), err)
 	})
@@ -88,7 +97,7 @@ func TestAgentService(t *testing.T) {
 		ctx, s, teardown := setup(t)
 		defer teardown(t)
 
-		response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{ServiceId: "foo-id", NodeId: "bar-id"})
+		response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentsRequest{ServiceId: "foo-id", NodeId: "bar-id"})
 		assert.Nil(t, response)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Either service_id or node_id is expected, not both."), err)
 	})
@@ -114,7 +123,7 @@ func TestAgentService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once() // PMM Server Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()           // PMM Server PostgreSQL exporter
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgStatStatementID).Return(false).Once()      // PMM Server PG Stat Statements agent
-			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{
+			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentsRequest{
 				ServiceId: service.ServiceID,
 			})
 			require.NoError(t, err)
@@ -132,7 +141,7 @@ func TestAgentService(t *testing.T) {
 						IsSslKeySet: false,
 					},
 					ServiceId:               "/service_id/00000000-0000-4000-8000-000000000002",
-					Status:                  "UNKNOWN",
+					Status:                  "AGENT_STATUS_UNKNOWN",
 					Tls:                     true,
 					CommentsParsingDisabled: true,
 				},
@@ -148,7 +157,7 @@ func TestAgentService(t *testing.T) {
 						IsSslKeySet: false,
 					},
 					ServiceId:               "/service_id/00000000-0000-4000-8000-000000000002",
-					Status:                  "UNKNOWN",
+					Status:                  "AGENT_STATUS_UNKNOWN",
 					Tls:                     true,
 					CommentsParsingDisabled: true,
 				},
@@ -195,7 +204,7 @@ func TestAgentService(t *testing.T) {
 
 			s.r.(*mockAgentsRegistry).On("IsConnected", rdsExporter.AgentID).Return(false).Once()
 
-			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{
+			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentsRequest{
 				ServiceId: service.ServiceID,
 			})
 			require.NoError(t, err)
@@ -209,7 +218,7 @@ func TestAgentService(t *testing.T) {
 					CreatedAt:   timestamppb.New(now),
 					UpdatedAt:   timestamppb.New(now),
 					ServiceId:   "/service_id/00000000-0000-4000-8000-000000000006",
-					Status:      "UNKNOWN",
+					Status:      "AGENT_STATUS_UNKNOWN",
 				},
 			}
 			assert.Equal(t, expected, response.Agents)
@@ -245,7 +254,7 @@ func TestAgentService(t *testing.T) {
 
 			s.r.(*mockAgentsRegistry).On("IsConnected", azureExporter.AgentID).Return(false).Once()
 
-			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{
+			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentsRequest{
 				ServiceId: service.ServiceID,
 			})
 			require.NoError(t, err)
@@ -259,7 +268,7 @@ func TestAgentService(t *testing.T) {
 					CreatedAt:   timestamppb.New(now),
 					UpdatedAt:   timestamppb.New(now),
 					ServiceId:   "/service_id/00000000-0000-4000-8000-000000000006",
-					Status:      "UNKNOWN",
+					Status:      "AGENT_STATUS_UNKNOWN",
 				},
 			}
 			assert.Equal(t, expected, response.Agents)

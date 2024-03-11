@@ -24,13 +24,12 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/external"
-	"github.com/percona/pmm/api/managementpb/json/client/service"
+	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 func TestAddExternal(t *testing.T) {
@@ -42,9 +41,9 @@ func TestAddExternal(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-for-basic-name")
 
-		params := &external.AddExternalParams{
+		params := &mservice.AddExternalParams{
 			Context: pmmapitests.Context,
-			Body: external.AddExternalBody{
+			Body: mservice.AddExternalBody{
 				RunsOnNodeID:        nodeID,
 				ServiceName:         serviceName,
 				ListenPort:          9104,
@@ -53,7 +52,7 @@ func TestAddExternal(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addExternalOK, err := client.Default.External.AddExternal(params)
+		addExternalOK, err := client.Default.ManagementService.AddExternal(params)
 		require.NoError(t, err)
 		require.NotNil(t, addExternalOK)
 		require.NotNil(t, addExternalOK.Payload.Service)
@@ -61,7 +60,7 @@ func TestAddExternal(t *testing.T) {
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		// Check that service is created and its fields.
-		serviceOK, err := inventoryClient.Default.Services.GetService(&services.GetServiceParams{
+		serviceOK, err := inventoryClient.Default.ServicesService.GetService(&services.GetServiceParams{
 			Body: services.GetServiceBody{
 				ServiceID: serviceID,
 			},
@@ -71,33 +70,33 @@ func TestAddExternal(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			External: &services.GetServiceOKBodyExternal{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Group:       "external",
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				Group:        "external",
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
 		// Check that external exporter is added by default.
-		listAgents, err := inventoryClient.Default.Agents.ListAgents(&agents.ListAgentsParams{
+		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context: pmmapitests.Context,
 			Body: agents.ListAgentsBody{
 				ServiceID: serviceID,
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			ExternalExporter: []*agents.ListAgentsOKBodyExternalExporterItems0{
-				{
-					AgentID:      listAgents.Payload.ExternalExporter[0].AgentID,
-					ServiceID:    serviceID,
-					ListenPort:   9104,
-					RunsOnNodeID: nodeID,
-					Scheme:       "http",
-					MetricsPath:  "/metrics",
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyExternalExporterItems0{
+			{
+				AgentID:      listAgents.Payload.ExternalExporter[0].AgentID,
+				ServiceID:    serviceID,
+				ListenPort:   9104,
+				RunsOnNodeID: nodeID,
+				Scheme:       "http",
+				MetricsPath:  "/metrics",
+				CustomLabels: map[string]string{},
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.ExternalExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 
@@ -109,9 +108,9 @@ func TestAddExternal(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-for-all-fields-name")
 
-		params := &external.AddExternalParams{
+		params := &mservice.AddExternalParams{
 			Context: pmmapitests.Context,
-			Body: external.AddExternalBody{
+			Body: mservice.AddExternalBody{
 				RunsOnNodeID:        nodeID,
 				ServiceName:         serviceName,
 				Username:            "username",
@@ -128,7 +127,7 @@ func TestAddExternal(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addExternalOK, err := client.Default.External.AddExternal(params)
+		addExternalOK, err := client.Default.ManagementService.AddExternal(params)
 		require.NoError(t, err)
 		require.NotNil(t, addExternalOK)
 		require.NotNil(t, addExternalOK.Payload.Service)
@@ -137,7 +136,7 @@ func TestAddExternal(t *testing.T) {
 		defer removeServiceAgents(t, serviceID)
 
 		// Check that service is created and its fields.
-		serviceOK, err := inventoryClient.Default.Services.GetService(&services.GetServiceParams{
+		serviceOK, err := inventoryClient.Default.ServicesService.GetService(&services.GetServiceParams{
 			Body: services.GetServiceBody{
 				ServiceID: serviceID,
 			},
@@ -165,11 +164,11 @@ func TestAddExternal(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-for-basic-name")
 
-		params := &external.AddExternalParams{
+		params := &mservice.AddExternalParams{
 			Context: pmmapitests.Context,
-			Body: external.AddExternalBody{
-				AddNode: &external.AddExternalParamsBodyAddNode{
-					NodeType:     pointer.ToString(external.AddExternalParamsBodyAddNodeNodeTypeREMOTENODE),
+			Body: mservice.AddExternalBody{
+				AddNode: &mservice.AddExternalParamsBodyAddNode{
+					NodeType:     pointer.ToString(mservice.AddExternalParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE),
 					NodeName:     nodeName,
 					MachineID:    "/machine-id/",
 					Distro:       "linux",
@@ -183,7 +182,7 @@ func TestAddExternal(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addExternalOK, err := client.Default.External.AddExternal(params)
+		addExternalOK, err := client.Default.ManagementService.AddExternal(params)
 		require.NoError(t, err)
 		require.NotNil(t, addExternalOK)
 		require.NotNil(t, addExternalOK.Payload.Service)
@@ -193,7 +192,7 @@ func TestAddExternal(t *testing.T) {
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		// Check that node is created and its fields.
-		node, err := inventoryClient.Default.Nodes.GetNode(&nodes.GetNodeParams{
+		node, err := inventoryClient.Default.NodesService.GetNode(&nodes.GetNodeParams{
 			Body: nodes.GetNodeBody{
 				NodeID: nodeID,
 			},
@@ -212,7 +211,7 @@ func TestAddExternal(t *testing.T) {
 		}, *node.Payload)
 
 		// Check that service is created and its fields.
-		serviceOK, err := inventoryClient.Default.Services.GetService(&services.GetServiceParams{
+		serviceOK, err := inventoryClient.Default.ServicesService.GetService(&services.GetServiceParams{
 			Body: services.GetServiceBody{
 				ServiceID: serviceID,
 			},
@@ -222,33 +221,33 @@ func TestAddExternal(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			External: &services.GetServiceOKBodyExternal{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Group:       "external",
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				Group:        "external",
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
 		// Check that external exporter is added.
-		listAgents, err := inventoryClient.Default.Agents.ListAgents(&agents.ListAgentsParams{
+		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context: pmmapitests.Context,
 			Body: agents.ListAgentsBody{
 				ServiceID: serviceID,
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			ExternalExporter: []*agents.ListAgentsOKBodyExternalExporterItems0{
-				{
-					AgentID:      listAgents.Payload.ExternalExporter[0].AgentID,
-					ServiceID:    serviceID,
-					ListenPort:   9104,
-					RunsOnNodeID: nodeID,
-					Scheme:       "http",
-					MetricsPath:  "/metrics",
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyExternalExporterItems0{
+			{
+				AgentID:      listAgents.Payload.ExternalExporter[0].AgentID,
+				ServiceID:    serviceID,
+				ListenPort:   9104,
+				RunsOnNodeID: nodeID,
+				Scheme:       "http",
+				MetricsPath:  "/metrics",
+				CustomLabels: map[string]string{},
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.ExternalExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 
@@ -260,9 +259,9 @@ func TestAddExternal(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-for-the-same-name")
 
-		params := &external.AddExternalParams{
+		params := &mservice.AddExternalParams{
 			Context: pmmapitests.Context,
-			Body: external.AddExternalBody{
+			Body: mservice.AddExternalBody{
 				NodeID:              nodeID,
 				RunsOnNodeID:        nodeID,
 				ServiceName:         serviceName,
@@ -271,7 +270,7 @@ func TestAddExternal(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addExternalOK, err := client.Default.External.AddExternal(params)
+		addExternalOK, err := client.Default.ManagementService.AddExternal(params)
 		require.NoError(t, err)
 		require.NotNil(t, addExternalOK)
 		require.NotNil(t, addExternalOK.Payload.Service)
@@ -279,9 +278,9 @@ func TestAddExternal(t *testing.T) {
 		defer pmmapitests.RemoveServices(t, serviceID)
 		defer removeServiceAgents(t, serviceID)
 
-		params = &external.AddExternalParams{
+		params = &mservice.AddExternalParams{
 			Context: pmmapitests.Context,
-			Body: external.AddExternalBody{
+			Body: mservice.AddExternalBody{
 				NodeID:              nodeID,
 				RunsOnNodeID:        nodeID,
 				ServiceName:         serviceName,
@@ -290,7 +289,7 @@ func TestAddExternal(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addExternalOK, err = client.Default.External.AddExternal(params)
+		addExternalOK, err = client.Default.ManagementService.AddExternal(params)
 		require.Nil(t, addExternalOK)
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, `Service with name %q already exists.`, serviceName)
 	})
@@ -301,16 +300,16 @@ func TestAddExternal(t *testing.T) {
 		nodeID := genericNode.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		params := &external.AddExternalParams{
+		params := &mservice.AddExternalParams{
 			Context: pmmapitests.Context,
-			Body: external.AddExternalBody{
+			Body: mservice.AddExternalBody{
 				NodeID:              nodeID,
 				RunsOnNodeID:        nodeID,
 				Group:               "external",
 				SkipConnectionCheck: true,
 			},
 		}
-		addExternalOK, err := client.Default.External.AddExternal(params)
+		addExternalOK, err := client.Default.ManagementService.AddExternal(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalRequest.ServiceName: value length must be at least 1 runes")
 		assert.Nil(t, addExternalOK)
 	})
@@ -322,9 +321,9 @@ func TestAddExternal(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &external.AddExternalParams{
+		params := &mservice.AddExternalParams{
 			Context: pmmapitests.Context,
-			Body: external.AddExternalBody{
+			Body: mservice.AddExternalBody{
 				NodeID:              nodeID,
 				ServiceName:         serviceName,
 				RunsOnNodeID:        nodeID,
@@ -332,7 +331,7 @@ func TestAddExternal(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addExternalOK, err := client.Default.External.AddExternal(params)
+		addExternalOK, err := client.Default.ManagementService.AddExternal(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalRequest.ListenPort: value must be inside range (0, 65536)")
 		assert.Nil(t, addExternalOK)
 	})
@@ -344,9 +343,9 @@ func TestAddExternal(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &external.AddExternalParams{
+		params := &mservice.AddExternalParams{
 			Context: pmmapitests.Context,
-			Body: external.AddExternalBody{
+			Body: mservice.AddExternalBody{
 				RunsOnNodeID:        nodeID,
 				ServiceName:         serviceName,
 				ListenPort:          12345,
@@ -354,7 +353,7 @@ func TestAddExternal(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addExternalOK, err := client.Default.External.AddExternal(params)
+		addExternalOK, err := client.Default.ManagementService.AddExternal(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "runs_on_node_id and node_id should be specified together.")
 		assert.Nil(t, addExternalOK)
 	})
@@ -366,9 +365,9 @@ func TestAddExternal(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &external.AddExternalParams{
+		params := &mservice.AddExternalParams{
 			Context: pmmapitests.Context,
-			Body: external.AddExternalBody{
+			Body: mservice.AddExternalBody{
 				NodeID:              nodeID,
 				ServiceName:         serviceName,
 				ListenPort:          12345,
@@ -376,7 +375,7 @@ func TestAddExternal(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addExternalOK, err := client.Default.External.AddExternal(params)
+		addExternalOK, err := client.Default.ManagementService.AddExternal(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "runs_on_node_id and node_id should be specified together.")
 		assert.Nil(t, addExternalOK)
 	})
@@ -388,11 +387,11 @@ func TestAddExternal(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &external.AddExternalParams{
+		params := &mservice.AddExternalParams{
 			Context: pmmapitests.Context,
-			Body: external.AddExternalBody{
-				AddNode: &external.AddExternalParamsBodyAddNode{
-					NodeType: pointer.ToString(external.AddExternalParamsBodyAddNodeNodeTypeREMOTENODE),
+			Body: mservice.AddExternalBody{
+				AddNode: &mservice.AddExternalParamsBodyAddNode{
+					NodeType: pointer.ToString(mservice.AddExternalParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE),
 					NodeName: "external-serverless",
 				},
 				ServiceName:         serviceName,
@@ -401,7 +400,7 @@ func TestAddExternal(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addExternalOK, err := client.Default.External.AddExternal(params)
+		addExternalOK, err := client.Default.ManagementService.AddExternal(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "address can't be empty for add node request.")
 		assert.Nil(t, addExternalOK)
 	})
@@ -413,9 +412,9 @@ func TestRemoveExternal(t *testing.T) {
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
 		nodeID = genericNode.NodeID
 
-		params := &external.AddExternalParams{
+		params := &mservice.AddExternalParams{
 			Context: pmmapitests.Context,
-			Body: external.AddExternalBody{
+			Body: mservice.AddExternalBody{
 				NodeID:              nodeID,
 				RunsOnNodeID:        nodeID,
 				ServiceName:         serviceName,
@@ -426,7 +425,7 @@ func TestRemoveExternal(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addExternalOK, err := client.Default.External.AddExternal(params)
+		addExternalOK, err := client.Default.ManagementService.AddExternal(params)
 		require.NoError(t, err)
 		require.NotNil(t, addExternalOK)
 		require.NotNil(t, addExternalOK.Payload.Service)
@@ -440,10 +439,10 @@ func TestRemoveExternal(t *testing.T) {
 		nodeID, serviceID := addExternal(t, serviceName, nodeName)
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		removeServiceOK, err := client.Default.Service.RemoveService(&service.RemoveServiceParams{
-			Body: service.RemoveServiceBody{
+		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
+			Body: mservice.RemoveServiceBody{
 				ServiceName: serviceName,
-				ServiceType: pointer.ToString(service.RemoveServiceBodyServiceTypeEXTERNALSERVICE),
+				ServiceType: pointer.ToString(mservice.RemoveServiceBodyServiceTypeSERVICETYPEEXTERNALSERVICE),
 			},
 			Context: pmmapitests.Context,
 		})
@@ -454,7 +453,7 @@ func TestRemoveExternal(t *testing.T) {
 		}
 
 		// Check that the service removed with agents.
-		listAgents, err := inventoryClient.Default.Agents.ListAgents(&agents.ListAgentsParams{
+		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context: pmmapitests.Context,
 			Body: agents.ListAgentsBody{
 				ServiceID: serviceID,
@@ -470,10 +469,10 @@ func TestRemoveExternal(t *testing.T) {
 		nodeID, serviceID := addExternal(t, serviceName, nodeName)
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		removeServiceOK, err := client.Default.Service.RemoveService(&service.RemoveServiceParams{
-			Body: service.RemoveServiceBody{
+		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
+			Body: mservice.RemoveServiceBody{
 				ServiceID:   serviceID,
-				ServiceType: pointer.ToString(service.RemoveServiceBodyServiceTypeEXTERNALSERVICE),
+				ServiceType: pointer.ToString(mservice.RemoveServiceBodyServiceTypeSERVICETYPEEXTERNALSERVICE),
 			},
 			Context: pmmapitests.Context,
 		})
@@ -484,7 +483,7 @@ func TestRemoveExternal(t *testing.T) {
 		}
 
 		// Check that the service removed with agents.
-		listAgents, err := inventoryClient.Default.Agents.ListAgents(&agents.ListAgentsParams{
+		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context: pmmapitests.Context,
 			Body: agents.ListAgentsBody{
 				ServiceID: serviceID,
@@ -501,11 +500,11 @@ func TestRemoveExternal(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		removeServiceOK, err := client.Default.Service.RemoveService(&service.RemoveServiceParams{
-			Body: service.RemoveServiceBody{
+		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
+			Body: mservice.RemoveServiceBody{
 				ServiceID:   serviceID,
 				ServiceName: serviceName,
-				ServiceType: pointer.ToString(service.RemoveServiceBodyServiceTypeEXTERNALSERVICE),
+				ServiceType: pointer.ToString(mservice.RemoveServiceBodyServiceTypeSERVICETYPEEXTERNALSERVICE),
 			},
 			Context: pmmapitests.Context,
 		})
@@ -520,10 +519,10 @@ func TestRemoveExternal(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		removeServiceOK, err := client.Default.Service.RemoveService(&service.RemoveServiceParams{
-			Body: service.RemoveServiceBody{
+		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
+			Body: mservice.RemoveServiceBody{
 				ServiceID:   serviceID,
-				ServiceType: pointer.ToString(service.RemoveServiceBodyServiceTypePOSTGRESQLSERVICE),
+				ServiceType: pointer.ToString(mservice.RemoveServiceBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE),
 			},
 			Context: pmmapitests.Context,
 		})
@@ -532,8 +531,8 @@ func TestRemoveExternal(t *testing.T) {
 	})
 
 	t.Run("No params", func(t *testing.T) {
-		removeServiceOK, err := client.Default.Service.RemoveService(&service.RemoveServiceParams{
-			Body:    service.RemoveServiceBody{},
+		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
+			Body:    mservice.RemoveServiceBody{},
 			Context: pmmapitests.Context,
 		})
 		assert.Nil(t, removeServiceOK)

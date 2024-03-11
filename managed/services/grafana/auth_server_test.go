@@ -26,6 +26,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -200,27 +201,27 @@ func TestAuthServerAuthenticate(t *testing.T) {
 	for uri, minRole := range map[string]role{
 		"/agent.Agent/Connect": none,
 
-		"/inventory.Nodes/ListNodes":                          admin,
-		"/management.Actions/StartMySQLShowTableStatusAction": viewer,
-		"/management.Service/RemoveService":                   admin,
-		"/management.Service/ListServices":                    admin,
-		"/management.Annotation/AddAnnotation":                admin,
-		"/server.Server/CheckUpdates":                         viewer,
-		"/server.Server/StartUpdate":                          admin,
-		"/server.Server/UpdateStatus":                         none,
-		"/server.Server/AWSInstanceCheck":                     none,
+		"/inventory.Nodes/ListNodes":               admin,
+		"/actions/StartMySQLShowTableStatusAction": viewer,
+		"/management.Service/RemoveService":        admin,
+		"/management.Service/ListServices":         admin,
+		"/management.Annotation/AddAnnotation":     admin,
+		"/server.Server/CheckUpdates":              viewer,
+		"/server.Server/StartUpdate":               admin,
+		"/server.Server/UpdateStatus":              none,
+		"/server.Server/AWSInstanceCheck":          none,
 
-		"/v1/inventory/Nodes/List":                         admin,
-		"/v1/management/Actions/StartMySQLShowTableStatus": viewer,
-		"/v1/management/Service/Remove":                    admin,
-		"/v1/management/Service/List":                      admin,
-		"/v1/management/Agent/List":                        admin,
-		"/v1/Updates/Check":                                viewer,
-		"/v1/Updates/Start":                                admin,
-		"/v1/Updates/Status":                               none,
-		"/v1/Settings/Get":                                 admin,
-		"/v1/AWSInstanceCheck":                             none,
-		"/v1/Platform/Connect":                             admin,
+		"/v1/inventory/Nodes/List":              admin,
+		"/v1/actions/StartMySQLShowTableStatus": viewer,
+		"/v1/management/Service/Remove":         admin,
+		"/v1/management/Service/List":           admin,
+		"/v1/management/Agent/List":             admin,
+		"/v1/updates/Check":                     viewer,
+		"/v1/updates/Start":                     admin,
+		"/v1/updates/Status":                    none,
+		"/v1/settings/Get":                      admin,
+		"/v1/AWSInstanceCheck":                  none,
+		"/v1/platform/Connect":                  admin,
 
 		"/v1/AWSInstanceCheck/..%2finventory/Services/List": admin,
 		"/v1/AWSInstanceCheck/..%2f..%2flogs.zip":           admin,
@@ -230,7 +231,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 
 		"/v1/version": viewer,
 
-		"/v0/qan/ObjectDetails/GetQueryExample": viewer,
+		"/v1/qan/ObjectDetails/GetQueryExample": viewer,
 
 		"/prometheus/": admin,
 		"/logs.zip":    admin,
@@ -241,7 +242,6 @@ func TestAuthServerAuthenticate(t *testing.T) {
 			role := role
 
 			t.Run(fmt.Sprintf("uri=%s,minRole=%s,role=%s", uri, minRole, role), func(t *testing.T) {
-				// This test couldn't run in parallel on sqlite3 - they locked Grafana's sqlite3 database
 				t.Parallel()
 
 				login := fmt.Sprintf("%s-%s-%d", minRole, role, time.Now().Nanosecond())
@@ -315,7 +315,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 
 	// Enable access control
 	_, err = models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{
-		EnableAccessControl: true,
+		EnableAccessControl: pointer.ToBool(true),
 	})
 	require.NoError(t, err)
 

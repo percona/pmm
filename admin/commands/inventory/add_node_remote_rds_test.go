@@ -20,12 +20,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 )
 
 func TestAddNodeRemoteRDS(t *testing.T) {
 	res := &addNodeRemoteRDSResult{
-		Node: &nodes.AddRemoteRDSNodeOKBodyRemoteRDS{
+		Node: &nodes.AddNodeOKBodyRemoteRDS{
 			NodeID:       "/node_id/1",
 			NodeName:     "rds1",
 			Address:      "rds-mysql57",

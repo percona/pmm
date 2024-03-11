@@ -35,7 +35,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	"github.com/percona/pmm/api/inventorypb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/api/qanpb"
 )
 
@@ -156,11 +156,10 @@ func main() {
 					Errors:               errListsToMap(v.ErrorsCode, v.ErrorsCount),
 					NumQueriesWithErrors: v.NumQueriesWithErrors,
 					AgentId:              agentID,
-					AgentType:            inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
+					AgentType:            inventoryv1.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
 					PeriodStartUnixSecs:  uint32(periodStart.Truncate(1 * time.Minute).Unix()),
 					PeriodLengthSecs:     uint32(60),
 					Example:              v.Example.Query,
-					ExampleFormat:        1,
 					ExampleType:          1,
 					NumQueries:           float32(v.TotalQueries),
 				}

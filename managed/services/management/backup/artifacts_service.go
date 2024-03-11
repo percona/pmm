@@ -27,7 +27,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	backuppb "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/backup/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/backup"
 )
@@ -39,7 +39,7 @@ type ArtifactsService struct {
 	removalSVC     removalService
 	pbmPITRService pbmPITRService
 
-	backuppb.UnimplementedArtifactsServer
+	backuppb.UnimplementedArtifactsServiceServer
 }
 
 // NewArtifactsService creates new artifacts API service.
@@ -59,7 +59,7 @@ func (s *ArtifactsService) Enabled() bool {
 		s.l.WithError(err).Error("can't get settings")
 		return false
 	}
-	return !settings.BackupManagement.Disabled
+	return settings.IsBackupManagementEnabled()
 }
 
 // ListArtifacts returns a list of all artifacts.
@@ -178,9 +178,9 @@ func (s *ArtifactsService) ListPitrTimeranges(
 func convertDataModel(model models.DataModel) (backuppb.DataModel, error) {
 	switch model {
 	case models.PhysicalDataModel:
-		return backuppb.DataModel_PHYSICAL, nil
+		return backuppb.DataModel_DATA_MODEL_PHYSICAL, nil
 	case models.LogicalDataModel:
-		return backuppb.DataModel_LOGICAL, nil
+		return backuppb.DataModel_DATA_MODEL_LOGICAL, nil
 	default:
 		return 0, errors.Errorf("unknown data model: %s", model)
 	}
@@ -294,5 +294,5 @@ func artifactMetadataListToProto(artifact *models.Artifact) []*backuppb.Metadata
 
 // Check interfaces.
 var (
-	_ backuppb.ArtifactsServer = (*ArtifactsService)(nil)
+	_ backuppb.ArtifactsServiceServer = (*ArtifactsService)(nil)
 )

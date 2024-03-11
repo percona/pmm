@@ -133,7 +133,7 @@ jobs:
         run: |
           docker run -e PMM_SERVER_URL=${{env.PMM_URL}} \
             -e PMM_RUN_UPDATE_TEST=0 \
-            -e PMM_RUN_STT_TESTS=0 \
+            -e PMM_RUN_ADVISOR_TESTS=0 \
             --name pmm-api-tests \
             --network host \
             percona/pmm-api-tests

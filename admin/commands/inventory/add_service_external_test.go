@@ -19,13 +19,13 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 func TestAddServiceExternal(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		res := &addServiceExternalResult{
-			Service: &services.AddExternalServiceOKBodyExternal{
+			Service: &services.AddServiceOKBodyExternal{
 				ServiceID:      "/service_id/1",
 				ServiceName:    "ClickHouse Service",
 				NodeID:         "/node_id/1",

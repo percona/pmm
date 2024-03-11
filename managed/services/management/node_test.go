@@ -29,8 +29,8 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -39,16 +39,16 @@ import (
 
 func TestNodeService(t *testing.T) {
 	t.Run("Register", func(t *testing.T) {
-		setup := func(t *testing.T) (ctx context.Context, s *NodeService, teardown func(t *testing.T)) {
+		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T)) {
 			t.Helper()
 
-			ctx = logger.Set(context.Background(), t.Name())
+			ctx := logger.Set(context.Background(), t.Name())
 			uuid.SetRand(&tests.IDReader{})
 
 			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 			db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-			teardown = func(t *testing.T) {
+			teardown := func(t *testing.T) {
 				t.Helper()
 				uuid.SetRand(nil)
 
@@ -58,34 +58,55 @@ func TestNodeService(t *testing.T) {
 				"Authorization": "Basic username:password",
 			})
 			ctx = metadata.NewIncomingContext(ctx, md)
-			var apiKeyProvider mockApiKeyProvider
-			apiKeyProvider.Test(t)
-			apiKeyProvider.On("IsAPIKeyAuth", mock.Anything).Return(false)
-			apiKeyProvider.On("CreateAdminAPIKey", ctx, mock.AnythingOfType("string")).Return(int64(0), "test-token", nil)
-			s = NewNodeService(db, &apiKeyProvider)
+			vmdb := &mockPrometheusService{}
+			vmdb.Test(t)
 
-			return
+			state := &mockAgentsStateUpdater{}
+			state.Test(t)
+
+			ar := &mockAgentsRegistry{}
+			ar.Test(t)
+
+			cc := &mockConnectionChecker{}
+			cc.Test(t)
+
+			sib := &mockServiceInfoBroker{}
+			sib.Test(t)
+
+			vc := &mockVersionCache{}
+			vc.Test(t)
+
+			grafanaClient := &mockGrafanaClient{}
+			grafanaClient.Test(t)
+
+			grafanaClient.Test(t)
+			grafanaClient.On("IsAPIKeyAuth", mock.Anything).Return(false)
+			grafanaClient.On("CreateAdminAPIKey", ctx, mock.AnythingOfType("string")).Return(int64(0), "test-token", nil)
+
+			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient)
+
+			return ctx, s, teardown
 		}
 
 		t.Run("New", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
-			defer teardown(t)
+			t.Cleanup(func() { teardown(t) })
 
-			res, err := s.Register(ctx, &managementpb.RegisterNodeRequest{
-				NodeType: inventorypb.NodeType_GENERIC_NODE,
+			res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 				NodeName: "node",
 				Address:  "some.address.org",
 				Region:   "region",
 			})
-			expected := &managementpb.RegisterNodeResponse{
-				GenericNode: &inventorypb.GenericNode{
+			expected := &managementv1.RegisterNodeResponse{
+				GenericNode: &inventoryv1.GenericNode{
 					NodeId:   "/node_id/00000000-0000-4000-8000-000000000005",
 					NodeName: "node",
 					Address:  "some.address.org",
 					Region:   "region",
 				},
-				ContainerNode: (*inventorypb.ContainerNode)(nil),
-				PmmAgent: &inventorypb.PMMAgent{
+				ContainerNode: (*inventoryv1.ContainerNode)(nil),
+				PmmAgent: &inventoryv1.PMMAgent{
 					AgentId:      "/agent_id/00000000-0000-4000-8000-000000000006",
 					RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000005",
 				},
@@ -95,8 +116,8 @@ func TestNodeService(t *testing.T) {
 			assert.NoError(t, err)
 
 			t.Run("Exist", func(t *testing.T) {
-				res, err = s.Register(ctx, &managementpb.RegisterNodeRequest{
-					NodeType: inventorypb.NodeType_GENERIC_NODE,
+				res, err = s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+					NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 					NodeName: "node",
 				})
 				assert.Nil(t, res)
@@ -104,22 +125,22 @@ func TestNodeService(t *testing.T) {
 			})
 
 			t.Run("Reregister", func(t *testing.T) {
-				res, err = s.Register(ctx, &managementpb.RegisterNodeRequest{
-					NodeType:   inventorypb.NodeType_GENERIC_NODE,
+				res, err = s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+					NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 					NodeName:   "node",
 					Address:    "some.address.org",
 					Region:     "region",
 					Reregister: true,
 				})
-				expected := &managementpb.RegisterNodeResponse{
-					GenericNode: &inventorypb.GenericNode{
+				expected := &managementv1.RegisterNodeResponse{
+					GenericNode: &inventoryv1.GenericNode{
 						NodeId:   "/node_id/00000000-0000-4000-8000-000000000008",
 						NodeName: "node",
 						Address:  "some.address.org",
 						Region:   "region",
 					},
-					ContainerNode: (*inventorypb.ContainerNode)(nil),
-					PmmAgent: &inventorypb.PMMAgent{
+					ContainerNode: (*inventoryv1.ContainerNode)(nil),
+					PmmAgent: &inventoryv1.PMMAgent{
 						AgentId:      "/agent_id/00000000-0000-4000-8000-000000000009",
 						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000008",
 					},
@@ -129,22 +150,22 @@ func TestNodeService(t *testing.T) {
 				assert.NoError(t, err)
 			})
 			t.Run("Reregister-force", func(t *testing.T) {
-				res, err = s.Register(ctx, &managementpb.RegisterNodeRequest{
-					NodeType:   inventorypb.NodeType_GENERIC_NODE,
+				res, err = s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+					NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 					NodeName:   "node-name-new",
 					Address:    "some.address.org",
 					Region:     "region",
 					Reregister: true,
 				})
-				expected := &managementpb.RegisterNodeResponse{
-					GenericNode: &inventorypb.GenericNode{
+				expected := &managementv1.RegisterNodeResponse{
+					GenericNode: &inventoryv1.GenericNode{
 						NodeId:   "/node_id/00000000-0000-4000-8000-00000000000b",
 						NodeName: "node-name-new",
 						Address:  "some.address.org",
 						Region:   "region",
 					},
-					ContainerNode: (*inventorypb.ContainerNode)(nil),
-					PmmAgent: &inventorypb.PMMAgent{
+					ContainerNode: (*inventoryv1.ContainerNode)(nil),
+					PmmAgent: &inventoryv1.PMMAgent{
 						AgentId:      "/agent_id/00000000-0000-4000-8000-00000000000c",
 						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-00000000000b",
 					},
