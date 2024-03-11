@@ -41,7 +41,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/common"
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/envvars"
@@ -444,7 +443,7 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 	res := &serverpb.Settings{
 		UpdatesDisabled:  settings.Updates.Disabled,
 		TelemetryEnabled: !settings.Telemetry.Disabled,
-		MetricsResolutions: &common.MetricsResolutions{
+		MetricsResolutions: &serverpb.MetricsResolutions{
 			Hr: durationpb.New(settings.MetricsResolutions.HR),
 			Mr: durationpb.New(settings.MetricsResolutions.MR),
 			Lr: durationpb.New(settings.MetricsResolutions.LR),
@@ -887,7 +886,7 @@ func (s *Server) AWSInstanceCheck(ctx context.Context, req *serverpb.AWSInstance
 
 // isAgentsStateUpdateNeeded - checks metrics resolution changes,
 // if it was changed, agents state must be updated.
-func isAgentsStateUpdateNeeded(mr *common.MetricsResolutions) bool {
+func isAgentsStateUpdateNeeded(mr *serverpb.MetricsResolutions) bool {
 	if mr == nil {
 		return false
 	}

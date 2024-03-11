@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package server;
 
-import "common/metrics_resolutions.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
@@ -105,6 +104,16 @@ message UpdateStatusResponse {
   bool done = 3;
 }
 
+// MetricsResolutions represents Prometheus exporters metrics resolutions.
+message MetricsResolutions {
+  // High resolution. Should have a suffix in JSON: 1s, 1m, 1h.
+  google.protobuf.Duration hr = 1;
+  // Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.
+  google.protobuf.Duration mr = 2;
+  // Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.
+  google.protobuf.Duration lr = 3;
+}
+
 // EmailAlertingSettings represents email (SMTP) configuration for Alerting.
 message EmailAlertingSettings {
   // SMTP From header field.
@@ -147,7 +156,7 @@ message Settings {
   bool updates_disabled = 1;
   // True if telemetry is enabled.
   bool telemetry_enabled = 2;
-  common.MetricsResolutions metrics_resolutions = 3;
+  MetricsResolutions metrics_resolutions = 3;
   google.protobuf.Duration data_retention = 4;
   string ssh_key = 5;
   repeated string aws_partitions = 6;
@@ -199,7 +208,7 @@ message ChangeSettingsRequest {
   bool disable_updates = 29;
   bool enable_telemetry = 1;
   bool disable_telemetry = 2;
-  common.MetricsResolutions metrics_resolutions = 3;
+  MetricsResolutions metrics_resolutions = 3;
   // A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
   google.protobuf.Duration data_retention = 4;
   string ssh_key = 5;
