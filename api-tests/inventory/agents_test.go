@@ -360,11 +360,6 @@ func TestPMMAgent(t *testing.T) {
 					PMMAgentID: pmmAgentID,
 					AgentID:    nodeExporterID,
 					Status:     &AgentStatusUnknown,
-					MetricsResolutions: &agents.ListAgentsOKBodyNodeExporterItems0MetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 			MysqldExporter: []*agents.ListAgentsOKBodyMysqldExporterItems0{
@@ -377,11 +372,6 @@ func TestPMMAgent(t *testing.T) {
 						"custom_label_mysql_exporter": "mysql_exporter",
 					},
 					Status: &AgentStatusUnknown,
-					MetricsResolutions: &agents.ListAgentsOKBodyMysqldExporterItems0MetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, listAgentsOK.Payload)

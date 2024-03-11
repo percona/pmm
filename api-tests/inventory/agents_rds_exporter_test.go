@@ -73,11 +73,6 @@ func TestRDSExporter(t *testing.T) {
 					BasicMetricsDisabled:    true,
 					EnhancedMetricsDisabled: true,
 					Status:                  &AgentStatusUnknown,
-					MetricsResolutions: &agents.GetAgentOKBodyRDSExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, getAgentRes)
@@ -104,11 +99,6 @@ func TestRDSExporter(t *testing.T) {
 					BasicMetricsDisabled:    true,
 					EnhancedMetricsDisabled: true,
 					Status:                  &AgentStatusUnknown,
-					MetricsResolutions: &agents.ChangeRDSExporterOKBodyRDSExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, changeRDSExporterOK)
@@ -139,11 +129,6 @@ func TestRDSExporter(t *testing.T) {
 					BasicMetricsDisabled:    true,
 					EnhancedMetricsDisabled: true,
 					Status:                  &AgentStatusUnknown,
-					MetricsResolutions: &agents.ChangeRDSExporterOKBodyRDSExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, changeRDSExporterOK)
@@ -260,11 +245,6 @@ func TestRDSExporter(t *testing.T) {
 					BasicMetricsDisabled:    true,
 					EnhancedMetricsDisabled: true,
 					Status:                  &AgentStatusUnknown,
-					MetricsResolutions: &agents.GetAgentOKBodyRDSExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, getAgentRes)
@@ -293,11 +273,6 @@ func TestRDSExporter(t *testing.T) {
 					EnhancedMetricsDisabled: true,
 					PushMetricsEnabled:      true,
 					Status:                  &AgentStatusUnknown,
-					MetricsResolutions: &agents.ChangeRDSExporterOKBodyRDSExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, changeRDSExporterOK)
@@ -324,11 +299,6 @@ func TestRDSExporter(t *testing.T) {
 					BasicMetricsDisabled:    true,
 					EnhancedMetricsDisabled: true,
 					Status:                  &AgentStatusUnknown,
-					MetricsResolutions: &agents.ChangeRDSExporterOKBodyRDSExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, changeRDSExporterOK)

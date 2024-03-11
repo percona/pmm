@@ -110,11 +110,6 @@ func TestAddPostgreSQL(t *testing.T) {
 					Status:                 &AgentStatusUnknown,
 					AutoDiscoveryLimit:     0,
 					MaxExporterConnections: 0,
-					MetricsResolutions: &agents.ListAgentsOKBodyPostgresExporterItems0MetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, *listAgents.Payload)
@@ -202,11 +197,6 @@ func TestAddPostgreSQL(t *testing.T) {
 					Status:                 &AgentStatusUnknown,
 					AutoDiscoveryLimit:     15,
 					MaxExporterConnections: 10,
-					MetricsResolutions: &agents.ListAgentsOKBodyPostgresExporterItems0MetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 			QANPostgresqlPgstatementsAgent: []*agents.ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0{
@@ -455,11 +445,6 @@ func TestAddPostgreSQL(t *testing.T) {
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
 					AutoDiscoveryLimit: 5,
-					MetricsResolutions: &agents.ListAgentsOKBodyPostgresExporterItems0MetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, *listAgents.Payload)
@@ -687,11 +672,6 @@ func TestAddPostgreSQL(t *testing.T) {
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
 					AutoDiscoveryLimit: 0,
-					MetricsResolutions: &agents.ListAgentsOKBodyPostgresExporterItems0MetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, *listAgents.Payload)
@@ -767,11 +747,6 @@ func TestAddPostgreSQL(t *testing.T) {
 					Username:           "username",
 					Status:             &AgentStatusUnknown,
 					AutoDiscoveryLimit: 0,
-					MetricsResolutions: &agents.ListAgentsOKBodyPostgresExporterItems0MetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, *listAgents.Payload)
@@ -848,11 +823,6 @@ func TestAddPostgreSQL(t *testing.T) {
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
 					AutoDiscoveryLimit: 0,
-					MetricsResolutions: &agents.ListAgentsOKBodyPostgresExporterItems0MetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, *listAgents.Payload)

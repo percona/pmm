@@ -73,11 +73,6 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 						"custom_label_azure_database_exporter": "azure_database_exporter",
 					},
 					Status: &AgentStatusUnknown,
-					MetricsResolutions: &agents.GetAgentOKBodyAzureDatabaseExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, getAgentRes)
@@ -89,11 +84,6 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 				Common: &agents.ChangeAzureDatabaseExporterParamsBodyCommon{
 					Disable:            true,
 					RemoveCustomLabels: true,
-					MetricsResolutions: &agents.ChangeAzureDatabaseExporterParamsBodyCommonMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 			Context: pmmapitests.Context,
@@ -108,11 +98,6 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 					AzureDatabaseSubscriptionID: "azure_subscription_id",
 					Disabled:                    true,
 					Status:                      &AgentStatusUnknown,
-					MetricsResolutions: &agents.ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, changeAzureDatabaseExporterOK)
@@ -142,11 +127,6 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 						"new_label": "azure_database_exporter",
 					},
 					Status: &AgentStatusUnknown,
-					MetricsResolutions: &agents.ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, changeAzureDatabaseExporterOK)
@@ -264,11 +244,6 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 						"custom_label_azure_database_exporter": "azure_database_exporter",
 					},
 					Status: &AgentStatusUnknown,
-					MetricsResolutions: &agents.GetAgentOKBodyAzureDatabaseExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, getAgentRes)
@@ -295,11 +270,6 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 						"custom_label_azure_database_exporter": "azure_database_exporter",
 					},
 					Status: &AgentStatusUnknown,
-					MetricsResolutions: &agents.ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, changeAzureDatabaseExporterOK)
@@ -325,11 +295,6 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 						"custom_label_azure_database_exporter": "azure_database_exporter",
 					},
 					Status: &AgentStatusUnknown,
-					MetricsResolutions: &agents.ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, changeAzureDatabaseExporterOK)

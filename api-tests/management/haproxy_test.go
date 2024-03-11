@@ -97,11 +97,6 @@ func TestAddHAProxy(t *testing.T) {
 					Scheme:             "http",
 					MetricsPath:        "/metrics",
 					PushMetricsEnabled: true,
-					MetricsResolutions: &agents.ListAgentsOKBodyExternalExporterItems0MetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, *listAgents.Payload)
@@ -250,11 +245,6 @@ func TestAddHAProxy(t *testing.T) {
 					RunsOnNodeID: nodeID,
 					Scheme:       "http",
 					MetricsPath:  "/metrics",
-					MetricsResolutions: &agents.ListAgentsOKBodyExternalExporterItems0MetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, *listAgents.Payload)

@@ -101,11 +101,6 @@ func TestAddMongoDB(t *testing.T) {
 					DisabledCollectors: []string{"database"},
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
-					MetricsResolutions: &agents.ListAgentsOKBodyMongodbExporterItems0MetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, *listAgents.Payload)
@@ -186,11 +181,6 @@ func TestAddMongoDB(t *testing.T) {
 					Username:           "username",
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
-					MetricsResolutions: &agents.ListAgentsOKBodyMongodbExporterItems0MetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 			QANMongodbProfilerAgent: []*agents.ListAgentsOKBodyQANMongodbProfilerAgentItems0{
@@ -420,11 +410,6 @@ func TestAddMongoDB(t *testing.T) {
 					PMMAgentID:         pmmAgentID,
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
-					MetricsResolutions: &agents.ListAgentsOKBodyMongodbExporterItems0MetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, *listAgents.Payload)
@@ -642,11 +627,6 @@ func TestAddMongoDB(t *testing.T) {
 					PMMAgentID:         pmmAgentID,
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
-					MetricsResolutions: &agents.ListAgentsOKBodyMongodbExporterItems0MetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, *listAgents.Payload)
@@ -719,11 +699,6 @@ func TestAddMongoDB(t *testing.T) {
 					PMMAgentID:         pmmAgentID,
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
-					MetricsResolutions: &agents.ListAgentsOKBodyMongodbExporterItems0MetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, *listAgents.Payload)
@@ -795,11 +770,6 @@ func TestAddMongoDB(t *testing.T) {
 					ServiceID:  serviceID,
 					PMMAgentID: pmmAgentID,
 					Status:     &AgentStatusUnknown,
-					MetricsResolutions: &agents.ListAgentsOKBodyMongodbExporterItems0MetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, *listAgents.Payload)
@@ -872,11 +842,6 @@ func TestAddMongoDB(t *testing.T) {
 					PMMAgentID:         pmmAgentID,
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
-					MetricsResolutions: &agents.ListAgentsOKBodyMongodbExporterItems0MetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, *listAgents.Payload)

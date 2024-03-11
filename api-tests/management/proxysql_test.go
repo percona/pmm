@@ -103,11 +103,6 @@ func TestAddProxySQL(t *testing.T) {
 					DisabledCollectors: []string{"mysql_status", "mysql_connection_pool"},
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
-					MetricsResolutions: &agents.ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, *listAgents.Payload)
@@ -185,11 +180,6 @@ func TestAddProxySQL(t *testing.T) {
 					Username:           "username",
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
-					MetricsResolutions: &agents.ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, *listAgents.Payload)
@@ -418,11 +408,6 @@ func TestAddProxySQL(t *testing.T) {
 					Username:           "username",
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
-					MetricsResolutions: &agents.ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, *listAgents.Payload)

@@ -226,11 +226,6 @@ func TestNodeRegister(t *testing.T) {
 				DisabledCollectors: []string{"diskstats", "filesystem", "standard.process"},
 				PushMetricsEnabled: true,
 				Status:             &AgentStatusUnknown,
-				MetricsResolutions: &agents.ListAgentsOKBodyNodeExporterItems0MetricsResolutions{
-					Hr: "0s",
-					Lr: "0s",
-					Mr: "0s",
-				},
 			}, *listAgentsOK.Payload.NodeExporter[0])
 
 			if ok {

@@ -85,11 +85,6 @@ func assertNodeExporterCreated(t pmmapitests.TestingT, pmmAgentID string) (strin
 		AgentID:            nodeExporterAgentID,
 		PushMetricsEnabled: true,
 		Status:             &AgentStatusUnknown,
-		MetricsResolutions: &agents.ListAgentsOKBodyNodeExporterItems0MetricsResolutions{
-			Hr: "0s",
-			Lr: "0s",
-			Mr: "0s",
-		},
 	}, *listAgentsOK.Payload.NodeExporter[0])
 	return nodeExporterAgentID, asserted
 }

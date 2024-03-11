@@ -84,11 +84,6 @@ func TestMongoDBExporter(t *testing.T) {
 						"new_label": "mongodb_exporter",
 					},
 					Status: &AgentStatusUnknown,
-					MetricsResolutions: &agents.GetAgentOKBodyMongodbExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, getAgentRes)
@@ -114,11 +109,6 @@ func TestMongoDBExporter(t *testing.T) {
 					PMMAgentID: pmmAgentID,
 					Disabled:   true,
 					Status:     &AgentStatusUnknown,
-					MetricsResolutions: &agents.ChangeMongoDBExporterOKBodyMongodbExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, changeMongoDBExporterOK)
@@ -148,11 +138,6 @@ func TestMongoDBExporter(t *testing.T) {
 						"new_label": "mongodb_exporter",
 					},
 					Status: &AgentStatusUnknown,
-					MetricsResolutions: &agents.ChangeMongoDBExporterOKBodyMongodbExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, changeMongoDBExporterOK)
@@ -326,11 +311,6 @@ func TestMongoDBExporter(t *testing.T) {
 					},
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
-					MetricsResolutions: &agents.GetAgentOKBodyMongodbExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, getAgentRes)
@@ -357,11 +337,6 @@ func TestMongoDBExporter(t *testing.T) {
 						"new_label": "mongodb_exporter",
 					},
 					Status: &AgentStatusUnknown,
-					MetricsResolutions: &agents.ChangeMongoDBExporterOKBodyMongodbExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, changeMongoDBExporterOK)
@@ -388,11 +363,6 @@ func TestMongoDBExporter(t *testing.T) {
 					},
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
-					MetricsResolutions: &agents.ChangeMongoDBExporterOKBodyMongodbExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, changeMongoDBExporterOK)

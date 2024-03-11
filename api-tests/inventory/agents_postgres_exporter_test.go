@@ -86,11 +86,6 @@ func TestPostgresExporter(t *testing.T) {
 					},
 					Status:                 &AgentStatusUnknown,
 					MaxExporterConnections: 10,
-					MetricsResolutions: &agents.GetAgentOKBodyPostgresExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, getAgentRes)
@@ -117,11 +112,6 @@ func TestPostgresExporter(t *testing.T) {
 					Disabled:               true,
 					Status:                 &AgentStatusUnknown,
 					MaxExporterConnections: 10,
-					MetricsResolutions: &agents.ChangePostgresExporterOKBodyPostgresExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, changePostgresExporterOK)
@@ -152,11 +142,6 @@ func TestPostgresExporter(t *testing.T) {
 					},
 					Status:                 &AgentStatusUnknown,
 					MaxExporterConnections: 10,
-					MetricsResolutions: &agents.ChangePostgresExporterOKBodyPostgresExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, changePostgresExporterOK)
@@ -330,11 +315,6 @@ func TestPostgresExporter(t *testing.T) {
 					},
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
-					MetricsResolutions: &agents.GetAgentOKBodyPostgresExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, getAgentRes)
@@ -361,11 +341,6 @@ func TestPostgresExporter(t *testing.T) {
 						"custom_label_postgres_exporter": "postgres_exporter",
 					},
 					Status: &AgentStatusUnknown,
-					MetricsResolutions: &agents.ChangePostgresExporterOKBodyPostgresExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, changePostgresExporterOK)
@@ -392,11 +367,6 @@ func TestPostgresExporter(t *testing.T) {
 					},
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
-					MetricsResolutions: &agents.ChangePostgresExporterOKBodyPostgresExporterMetricsResolutions{
-						Hr: "0s",
-						Lr: "0s",
-						Mr: "0s",
-					},
 				},
 			},
 		}, changePostgresExporterOK)
