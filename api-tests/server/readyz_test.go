@@ -31,7 +31,7 @@ func TestReadyz(t *testing.T) {
 	t.Parallel()
 	paths := []string{
 		"ping",
-		"api/server/v1/readyz",
+		"v1/server/readyz",
 	}
 	for _, path := range paths {
 		path := path

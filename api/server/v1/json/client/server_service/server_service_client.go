@@ -300,7 +300,7 @@ func (a *Client) Readiness(params *ReadinessParams, opts ...ClientOption) (*Read
 	op := &runtime.ClientOperation{
 		ID:                 "Readiness",
 		Method:             "GET",
-		PathPattern:        "/api/server/v1/readyz",
+		PathPattern:        "/v1/server/readyz",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -417,7 +417,7 @@ func (a *Client) Version(params *VersionParams, opts ...ClientOption) (*VersionO
 	op := &runtime.ClientOperation{
 		ID:                 "Version",
 		Method:             "GET",
-		PathPattern:        "/api/server/v1/version",
+		PathPattern:        "/v1/server/version",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

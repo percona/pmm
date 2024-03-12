@@ -135,9 +135,9 @@ func TestSetup(t *testing.T) {
 			"swagger":     200,
 			"swagger/":    301,
 
-			"api/server/v1/readyz":  200,
-			"v1/AWSInstanceCheck":   501, // only POST is expected, other request methods are seen as unimplemented
-			"api/server/v1/version": 401, // Grafana authentication required
+			"v1/server/readyz":    200,
+			"v1/AWSInstanceCheck": 501, // only POST is expected, other request methods are seen as unimplemented
+			"v1/server/version":   401, // Grafana authentication required
 		}
 		for path, code := range paths {
 			path, code := path, code

@@ -226,10 +226,10 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/v1/AWSInstanceCheck/..%2finventory/Services/List": admin,
 		"/v1/AWSInstanceCheck/..%2f..%2flogs.zip":           admin,
 
-		"/api/server/v1/readyz": none,
-		"/ping":                 none,
+		"/v1/server/readyz": none,
+		"/ping":             none,
 
-		"/api/server/v1/version": viewer,
+		"/v1/server/version": viewer,
 
 		"/v1/qan/ObjectDetails/GetQueryExample": viewer,
 
