@@ -32,9 +32,9 @@ import (
 const (
 	envDisableSend           = "PMM_TEST_TELEMETRY_DISABLE_SEND"
 	envConfigFile            = "PMM_TEST_TELEMETRY_FILE"
-	envDisableStartDelay     = "PMM_TEST_TELEMETRY_DISABLE_START_DELAY"
-	envReportingInterval     = "PMM_TEST_TELEMETRY_INTERVAL"
-	envReportingRetryBackoff = "PMM_TEST_TELEMETRY_RETRY_BACKOFF"
+	envDisableStartDelay     = "PMM_DEV_TELEMETRY_DISABLE_START_DELAY"
+	envReportingInterval     = "PMM_DEV_TELEMETRY_INTERVAL"
+	envReportingRetryBackoff = "PMM_DEV_TELEMETRY_RETRY_BACKOFF"
 )
 
 const (

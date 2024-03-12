@@ -32,9 +32,9 @@ import (
 
 const (
 	defaultPlatformAddress    = "https://check.percona.com"
-	envPlatformAddress        = "PMM_TEST_PERCONA_PLATFORM_ADDRESS"
-	envPlatformInsecure       = "PMM_TEST_PERCONA_PLATFORM_INSECURE"
-	envPlatformPublicKey      = "PMM_TEST_PERCONA_PLATFORM_PUBLIC_KEY"
+	envPlatformAddress        = "PMM_DEV_PERCONA_PLATFORM_ADDRESS"
+	envPlatformInsecure       = "PMM_DEV_PERCONA_PLATFORM_INSECURE"
+	envPlatformPublicKey      = "PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY"
 	evnInterfaceToBind        = "PMM_INTERFACE_TO_BIND"
 	envEnableAccessControl    = "PMM_ENABLE_RBAC"
 	envPlatformAPITimeout     = "PMM_PERCONA_PLATFORM_API_TIMEOUT"
@@ -90,7 +90,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_DEBUG", "PMM_TRACE":
 			// skip cross-component environment variables that are already handled by kingpin
 			continue
-		case "PMM_TEST_VERSION_SERVICE_URL":
+		case "PMM_DEV_VERSION_SERVICE_URL":
 			// skip pmm-managed environment variables that are already handled by kingpin
 			continue
 		case "PMM_CLICKHOUSE_DATABASE", "PMM_CLICKHOUSE_ADDR", "PMM_CLICKHOUSE_BLOCK_SIZE", "PMM_CLICKHOUSE_POOL_SIZE":
