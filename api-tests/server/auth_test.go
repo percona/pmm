@@ -55,7 +55,7 @@ func TestAuth(t *testing.T) {
 				baseURL.User = user
 
 				uri := baseURL.ResolveReference(&url.URL{
-					Path: "v1/version",
+					Path: "v1/server/version",
 				})
 				t.Logf("URI: %s", uri)
 
@@ -281,7 +281,7 @@ func TestPermissions(t *testing.T) {
 		method   string
 		userCase []userCase
 	}{
-		{name: "settings", url: "/v1/settings/Get", method: "POST", userCase: []userCase{
+		{name: "settings", url: "/v1/server/settings", method: "GET", userCase: []userCase{
 			{userType: "default", login: none, statusCode: 401},
 			{userType: "viewer", login: viewer, apiKey: viewerAPIKey, statusCode: 401},
 			{userType: "editor", login: editor, apiKey: editorAPIKey, statusCode: 401},

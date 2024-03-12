@@ -306,7 +306,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 		c.l.Debugf("%+v", qanReq)
 		res, err := c.c.Collect(ctx, qanReq)
 		if err != nil {
-			return errors.Wrap(err, "failed to sent CollectRequest to QAN")
+			return errors.Wrap(err, "failed to send CollectRequest to QAN")
 		}
 		c.l.Debugf("%+v", res)
 

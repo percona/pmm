@@ -58,7 +58,7 @@ type GetSettingsOK struct {
 }
 
 func (o *GetSettingsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/settings/Get][%d] getSettingsOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/server/settings][%d] getSettingsOk  %+v", 200, o.Payload)
 }
 
 func (o *GetSettingsOK) GetPayload() *GetSettingsOKBody {
@@ -100,7 +100,7 @@ func (o *GetSettingsDefault) Code() int {
 }
 
 func (o *GetSettingsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/settings/Get][%d] GetSettings default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/server/settings][%d] GetSettings default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetSettingsDefault) GetPayload() *GetSettingsDefaultBody {

@@ -182,8 +182,8 @@ func (a *Client) GetSettings(params *GetSettingsParams, opts ...ClientOption) (*
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "GetSettings",
-		Method:             "POST",
-		PathPattern:        "/v1/settings/Get",
+		Method:             "GET",
+		PathPattern:        "/v1/server/settings",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

@@ -263,10 +263,7 @@ service ServerService {
   }
   // GetSettings returns current PMM Server settings.
   rpc GetSettings(GetSettingsRequest) returns (GetSettingsResponse) {
-    option (google.api.http) = {
-      post: "/v1/settings/Get"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/server/settings"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get settings"
       description: "Returns current PMM Server settings."

@@ -6,11 +6,11 @@
 **ServerService**                                   **ServerService**
 GET /logz.zip                                       GET /v1/server/logs.zip                          redirect to /logs.zip in swagger
 GET /v1/version                                     GET /v1/server/version                           ✅ redirect to /v1/version in swagger
-POST /v1/readyz                                     GET /v1/server/readyz                            ✅ redirect to /v1/readyz in swagger
+GET /v1/readyz                                      GET /v1/server/readyz                            ✅ redirect to /v1/readyz in swagger
 POST /v1/AWSInstanceCheck                           GET /v1/server/AWSInstance
 POST /v1/leaderHealthCheck                          GET /v1/server/leaderHealthCheck
 POST /v1/settings/Change                            PUT /v1/server/settings
-POST /v1/settings/Get                               GET /v1/server/settings
+POST /v1/settings/Get                               GET /v1/server/settings                          ✅
 POST /v1/updates/Check                              GET /v1/server/updates
 POST /v1/updates/Start                              POST /v1/server/updates:start                  
 POST /v1/updates/Status                             GET /v1/server/updates/status                    pass "auth_token" via headers, ?log_offset=200

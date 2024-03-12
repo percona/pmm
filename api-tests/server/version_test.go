@@ -34,7 +34,7 @@ import (
 func TestVersion(t *testing.T) {
 	t.Parallel()
 	paths := []string{
-		"v1/version",
+		"v1/server/version",
 	}
 	for _, path := range paths {
 		path := path

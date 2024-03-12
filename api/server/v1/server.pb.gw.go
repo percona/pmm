@@ -181,10 +181,6 @@ func request_ServerService_GetSettings_0(ctx context.Context, marshaler runtime.
 	var protoReq GetSettingsRequest
 	var metadata runtime.ServerMetadata
 
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
 	msg, err := client.GetSettings(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
@@ -192,10 +188,6 @@ func request_ServerService_GetSettings_0(ctx context.Context, marshaler runtime.
 func local_request_ServerService_GetSettings_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetSettingsRequest
 	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 
 	msg, err := server.GetSettings(ctx, &protoReq)
 	return msg, metadata, err
@@ -398,7 +390,7 @@ func RegisterServerServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		forward_ServerService_UpdateStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_ServerService_GetSettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_ServerService_GetSettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -406,7 +398,7 @@ func RegisterServerServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/server.v1.ServerService/GetSettings", runtime.WithHTTPPathPattern("/v1/settings/Get"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/server.v1.ServerService/GetSettings", runtime.WithHTTPPathPattern("/v1/server/settings"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -636,13 +628,13 @@ func RegisterServerServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		forward_ServerService_UpdateStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_ServerService_GetSettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_ServerService_GetSettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/server.v1.ServerService/GetSettings", runtime.WithHTTPPathPattern("/v1/settings/Get"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/server.v1.ServerService/GetSettings", runtime.WithHTTPPathPattern("/v1/server/settings"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -715,7 +707,7 @@ var (
 
 	pattern_ServerService_UpdateStatus_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "updates", "Status"}, ""))
 
-	pattern_ServerService_GetSettings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "settings", "Get"}, ""))
+	pattern_ServerService_GetSettings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "server", "settings"}, ""))
 
 	pattern_ServerService_ChangeSettings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "settings", "Change"}, ""))
 

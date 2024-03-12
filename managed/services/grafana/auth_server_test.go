@@ -219,7 +219,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/v1/updates/Check":                     viewer,
 		"/v1/updates/Start":                     admin,
 		"/v1/updates/Status":                    none,
-		"/v1/settings/Get":                      admin,
+		"/v1/server/settings":                   admin,
 		"/v1/AWSInstanceCheck":                  none,
 		"/v1/platform/Connect":                  admin,
 
