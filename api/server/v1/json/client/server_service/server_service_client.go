@@ -300,7 +300,7 @@ func (a *Client) Readiness(params *ReadinessParams, opts ...ClientOption) (*Read
 	op := &runtime.ClientOperation{
 		ID:                 "Readiness",
 		Method:             "GET",
-		PathPattern:        "/v1/readyz",
+		PathPattern:        "/api/server/v1/readyz",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

@@ -5,8 +5,8 @@
 
 **ServerService**                                   **ServerService**
 GET /logz.zip                                       GET /api/server/v1/logs.zip                    redirect to /logs.zip in swagger
-GET /v1/version                                     GET /api/server/v1/version                     redirect to /v1/version in swagger ✅
-POST /v1/readyz                                     GET /api/server/v1/readyz   
+GET /v1/version                                     GET /api/server/v1/version                     ✅ redirect to /v1/version in swagger
+POST /v1/readyz                                     GET /api/server/v1/readyz                      ✅ redirect to /v1/readyz in swagger
 POST /v1/AWSInstanceCheck                           GET /api/server/v1/AWSInstance
 POST /v1/leaderHealthCheck                          GET /api/server/v1/leaderHealthCheck
 POST /v1/settings/Change                            PUT /api/server/v1/settings
@@ -149,18 +149,40 @@ POST /v1/qan/ObjectDetails/ExplainFingerprintByQueryId POST /api/qan/v1/data:exp
 POST /v1/qan/ObjectDetails/GetHistogram             POST /api/qan/v1/data:histogram
 POST /v1/qan/ObjectDetails/GetLables                POST /api/qan/v1/data:labels
 POST /v1/qan/ObjectDetails/GetMetrics               POST /api/qan/v1/data:metrics
-POST /v1/qan/ObjectDetails/GetQueryExample          POST /api/qan/v1/data:queryExample
-POST /v1/qan/ObjectDetails/GetQueryPlan             POST /api/qan/v1/data:queryPlan
-POST /v1/qan/ObjectDetails/QueryExists              POST /api/qan/v1/data:queryExists
-POST /v1/qan/ObjectDetails/SchemaByQueryId          POST /api/qan/v1/data:schema
+POST /v1/qan/ObjectDetails/GetQueryExample          POST /api/qan/v1/query:getExample                !!! Need to revisit the endpoint design
+POST /v1/qan/ObjectDetails/GetQueryPlan             GET /api/qan/v1/query/{query_id}/plan
+POST /v1/qan/ObjectDetails/QueryExists              GET /api/qan/v1/query/{query_id}                 !!! Return query_id, fingerptint
+POST /v1/qan/ObjectDetails/SchemaByQueryId          POST /api/qan/v1/query:getSchema
 
 **PlatformService**                                 **PlatformService**
 POST /v1/platform/Connect                           POST /api/platform/v1/platform:connect
 POST /v1/platform/Disconnect                        POST /api/platform/v1/platform:disconnect
 POST /v1/platform/GetContactInformation             GET /api/platform/v1/contact
-POST /v1/platform/SearchOganizationEntitlemenets    POST /api/platform/v1/organization:searchEntitlements   Note: it accepts no params, but hard to make it a GET
-POST /v1/platform/SearchOganizationTickets          POST /api/platform/v1/organization:searchTickets        Note: it accepts no params, but hard to make it a GET
+POST /v1/platform/SearchOganizationEntitlemenets    GET /api/platform/v1/organization/entitlements
+POST /v1/platform/SearchOganizationTickets          GET /api/platform/v1/organization/tickets
 POST /v1/platform/ServerInfo                        GET /api/platform/v1/server
 POST /v1/platform/UserInfo                          GET /api/platform/v1/user
 
 // TODO: rename `period_start_from` to `start_from` and `period_start_to` to `start_to`
+
+
+## The use of custom methods in RESTful API
+
+We have a few custom methods in our RESTful API.
+
+Custom methods refer to API methods besides the 5 standard methods. They should only be used for functionality that cannot be easily expressed via standard methods. In general, API designers should choose standard methods over custom methods whenever feasible. Standard Methods have simpler and well-defined semantics that most developers are familiar with, so they are easier to use and less error prone. Another advantage of standard methods is the API platform has better understanding and support for standard methods, such as billing, error handling, logging, monitoring.
+
+A custom method can be associated with a resource, a collection, or a service. It may take an arbitrary request and return an arbitrary response, and also supports streaming request and response.
+
+A custom method is always a POST request. The URL path must end with a suffix consisting of a colon followed by the custom verb, like in the following example:
+
+```
+https://service.name/v1/some/resource/name:customVerb
+```
+
+The custom method should be used in the following cases:
+
+1. When the action cannot be performed by the standard RESTful methods. 
+2. When the action performed is not idempotent.
+3. When the action performed manipulates data, but does not fit into the standard CRUD operations.
+4. When the action performed might contain sensitive data, that cannot be passed via URL query params.
