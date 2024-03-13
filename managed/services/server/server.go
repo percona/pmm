@@ -317,7 +317,7 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 		return nil, status.Error(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
 	}
 
-	err := s.updater.StartUpdate(ctx, req.NewImage)
+	err := s.updater.StartUpdate(ctx, req.GetNewImage())
 	if err != nil {
 		return nil, err
 	}
