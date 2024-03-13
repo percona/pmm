@@ -33,11 +33,11 @@ require (
 	github.com/docker/go-connections v0.5.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.4
 	github.com/go-co-op/gocron v1.37.0
-	github.com/go-openapi/errors v0.21.0
-	github.com/go-openapi/runtime v0.27.1
-	github.com/go-openapi/strfmt v0.22.1
-	github.com/go-openapi/swag v0.22.9
-	github.com/go-openapi/validate v0.23.0
+	github.com/go-openapi/errors v0.22.0
+	github.com/go-openapi/runtime v0.28.0
+	github.com/go-openapi/strfmt v0.23.0
+	github.com/go-openapi/swag v0.23.0
+	github.com/go-openapi/validate v0.24.0
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/golang-migrate/migrate/v4 v4.17.0
 	github.com/golang/protobuf v1.5.3
@@ -134,11 +134,11 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
-	github.com/go-openapi/analysis v0.22.2 // indirect
-	github.com/go-openapi/jsonpointer v0.20.2 // indirect
-	github.com/go-openapi/jsonreference v0.20.4 // indirect
-	github.com/go-openapi/loads v0.21.5 // indirect
-	github.com/go-openapi/spec v0.20.14 // indirect
+	github.com/go-openapi/analysis v0.23.0 // indirect
+	github.com/go-openapi/jsonpointer v0.21.0 // indirect
+	github.com/go-openapi/jsonreference v0.21.0 // indirect
+	github.com/go-openapi/loads v0.22.0 // indirect
+	github.com/go-openapi/spec v0.21.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
