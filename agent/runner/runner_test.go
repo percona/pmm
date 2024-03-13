@@ -237,6 +237,7 @@ func TestConcurrentRunnerCancel(t *testing.T) {
 type testJob struct {
 	id      string
 	timeout time.Duration
+	dsn     string
 }
 
 func (t testJob) ID() string {
@@ -249,6 +250,10 @@ func (t testJob) Type() jobs.JobType {
 
 func (t testJob) Timeout() time.Duration {
 	return t.timeout
+}
+
+func (t testJob) DSN() string {
+	return t.dsn
 }
 
 func (t testJob) Run(ctx context.Context, send jobs.Send) error { //nolint:revive
