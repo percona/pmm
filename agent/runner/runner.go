@@ -88,14 +88,14 @@ func New(capacity uint16) *Runner {
 	}
 }
 
-func (r *Runner) acquire(ctx context.Context, dsn string) error {
-	if dsn != "" {
+func (r *Runner) acquire(ctx context.Context, id string) error {
+	if id != "" {
 		r.m.Lock()
 
-		e, ok := r.q[dsn]
+		e, ok := r.q[id]
 		if !ok {
 			e = &entry{sem: semaphore.NewWeighted(1)}
-			r.q[dsn] = e
+			r.q[id] = e
 		}
 
 		r.m.Unlock()
@@ -198,6 +198,9 @@ func (r *Runner) IsRunning(id string) bool {
 // instanceID returns unique instance ID calculated as a hash from host:port part of the DSN. instanceID allows to
 // identify target database instance and limit number of concurrent operations on it.
 func instanceID(dsn string) (string, error) {
+	if dsn == "" {
+		return "", nil
+	}
 	u, err := url.Parse(dsn)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to parse DSN")
