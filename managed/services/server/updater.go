@@ -199,7 +199,7 @@ func (s *Updater) latest(ctx context.Context) (*version.PackageInfo, error) {
 			return nil, errors.Wrap(err, "failed to decode response")
 		}
 
-		if len(tagsResponse.Results) > 0 {
+		if len(tagsResponse.Results) != 0 {
 			// Assuming the first tag is the latest
 			return s.parseDockerTag(tagsResponse.Results[0].Name), nil
 		}
