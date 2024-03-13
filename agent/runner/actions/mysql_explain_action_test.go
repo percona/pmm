@@ -52,7 +52,9 @@ func TestMySQLExplain(t *testing.T) {
 			Query:        query,
 			OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 		}
-		a := NewMySQLExplainAction("", time.Second, params)
+		a, err := NewMySQLExplainAction("", time.Second, params)
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
 		defer cancel()
 
@@ -79,7 +81,9 @@ func TestMySQLExplain(t *testing.T) {
 			Query:        query,
 			OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON,
 		}
-		a := NewMySQLExplainAction("", time.Second, params)
+		a, err := NewMySQLExplainAction("", time.Second, params)
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
 		defer cancel()
 
@@ -125,7 +129,9 @@ func TestMySQLExplain(t *testing.T) {
 			Query:        query,
 			OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON,
 		}
-		a := NewMySQLExplainAction("", time.Second, params)
+		a, err := NewMySQLExplainAction("", time.Second, params)
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
 		defer cancel()
 
@@ -167,11 +173,13 @@ func TestMySQLExplain(t *testing.T) {
 			Dsn:          "pmm-agent:pmm-agent-wrong-password@tcp(127.0.0.1:3306)/world",
 			OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 		}
-		a := NewMySQLExplainAction("", time.Second, params)
+		a, err := NewMySQLExplainAction("", time.Second, params)
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
 		defer cancel()
 
-		_, err := a.Run(ctx)
+		_, err = a.Run(ctx)
 		require.Error(t, err)
 		assert.Regexp(t, `Query to EXPLAIN is empty`, err.Error())
 	})
@@ -184,7 +192,9 @@ func TestMySQLExplain(t *testing.T) {
 			Query:        `INSERT INTO city (Name) VALUES ('Rosario')`,
 			OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 		}
-		a := NewMySQLExplainAction("", time.Second, params)
+		a, err := NewMySQLExplainAction("", time.Second, params)
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
 		defer cancel()
 
@@ -205,11 +215,13 @@ func TestMySQLExplain(t *testing.T) {
 			Query:        `INSERT INTO city (Name)...`,
 			OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 		}
-		a := NewMySQLExplainAction("", time.Second, params)
+		a, err := NewMySQLExplainAction("", time.Second, params)
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
 		defer cancel()
 
-		_, err := a.Run(ctx)
+		_, err = a.Run(ctx)
 		require.Error(t, err, "EXPLAIN failed because the query was too long and trimmed. Set max-query-length to a larger value.")
 	})
 
@@ -233,11 +245,13 @@ func TestMySQLExplain(t *testing.T) {
 				Query:        `SELECT 1; DROP TABLE city; --`,
 				OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 			}
-			a := NewMySQLExplainAction("", time.Second, params)
+			a, err := NewMySQLExplainAction("", time.Second, params)
+			require.NoError(t, err)
+
 			ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
 			defer cancel()
 
-			_, err := a.Run(ctx)
+			_, err = a.Run(ctx)
 			expected := "Error 1064 \\(42000\\): You have an error in your SQL syntax; check the manual that corresponds " +
 				"to your (MySQL|MariaDB) server version for the right syntax to use near 'DROP TABLE city; --' at line 1"
 			require.Error(t, err)
@@ -253,11 +267,13 @@ func TestMySQLExplain(t *testing.T) {
 				Query:        `DELETE FROM city`,
 				OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 			}
-			a := NewMySQLExplainAction("", time.Second, params)
+			a, err := NewMySQLExplainAction("", time.Second, params)
+			require.NoError(t, err)
+
 			ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
 			defer cancel()
 
-			_, err := a.Run(ctx)
+			_, err = a.Run(ctx)
 			require.NoError(t, err)
 			checkCity(t)
 		})
@@ -305,11 +321,13 @@ func TestMySQLExplain(t *testing.T) {
 				Query:        `select * from (select cleanup()) as testclean;`,
 				OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 			}
-			a := NewMySQLExplainAction("", time.Second, params)
+			a, err := NewMySQLExplainAction("", time.Second, params)
+			require.NoError(t, err)
+
 			ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
 			defer cancel()
 
-			_, err := a.Run(ctx)
+			_, err = a.Run(ctx)
 			require.NoError(t, err)
 			check(t)
 		})

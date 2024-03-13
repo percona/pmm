@@ -41,7 +41,9 @@ func TestPostgreSQLQuerySelect(t *testing.T) {
 			Dsn:   dsn,
 			Query: "* FROM pg_extension",
 		}
-		a := NewPostgreSQLQuerySelectAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLQuerySelectAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -74,7 +76,9 @@ func TestPostgreSQLQuerySelect(t *testing.T) {
 			Dsn:   dsn,
 			Query: `'\x0001feff'::bytea AS bytes`,
 		}
-		a := NewPostgreSQLQuerySelectAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLQuerySelectAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -98,7 +102,9 @@ func TestPostgreSQLQuerySelect(t *testing.T) {
 			Dsn:   dsn,
 			Query: "* FROM city; DROP TABLE city CASCADE; --",
 		}
-		a := NewPostgreSQLQuerySelectAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLQuerySelectAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 

@@ -31,23 +31,32 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 )
 
+const mongoDBExplainActionType = "mongodb-explain"
+
 type mongodbExplainAction struct {
 	id      string
 	timeout time.Duration
 	params  *agentpb.StartActionRequest_MongoDBExplainParams
 	tempDir string
+	dsn     string
 }
 
 var errCannotExplain = fmt.Errorf("cannot explain this type of query")
 
 // NewMongoDBExplainAction creates a MongoDB EXPLAIN query Action.
-func NewMongoDBExplainAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_MongoDBExplainParams, tempDir string) Action {
+func NewMongoDBExplainAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_MongoDBExplainParams, tempDir string) (Action, error) {
+	dsn, err := templates.RenderDSN(params.Dsn, params.TextFiles, filepath.Join(tempDir, strings.ToLower(mongoDBExplainActionType), id))
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
 	return &mongodbExplainAction{
 		id:      id,
 		timeout: timeout,
 		params:  params,
 		tempDir: tempDir,
-	}
+		dsn:     dsn,
+	}, nil
 }
 
 // ID returns an Action ID.
@@ -62,17 +71,17 @@ func (a *mongodbExplainAction) Timeout() time.Duration {
 
 // Type returns an Action type.
 func (a *mongodbExplainAction) Type() string {
-	return "mongodb-explain"
+	return mongoDBExplainActionType
+}
+
+// DSN returns a DSN for the Action.
+func (a *mongodbExplainAction) DSN() string {
+	return a.dsn
 }
 
 // Run runs an action and returns output and error.
 func (a *mongodbExplainAction) Run(ctx context.Context) ([]byte, error) {
-	dsn, err := templates.RenderDSN(a.params.Dsn, a.params.TextFiles, filepath.Join(a.tempDir, strings.ToLower(a.Type()), a.id))
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	opts, err := mongo_fix.ClientOptionsForDSN(a.dsn)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

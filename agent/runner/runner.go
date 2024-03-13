@@ -17,8 +17,12 @@ package runner
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/base64"
+	"net/url"
 	"runtime/pprof"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/pkg/errors"
@@ -53,6 +57,14 @@ type Runner struct {
 
 	rw      sync.RWMutex
 	rCancel map[string]context.CancelFunc
+
+	m sync.Mutex
+	q map[string]*entry
+}
+
+type entry struct {
+	count atomic.Int32
+	sem   *semaphore.Weighted
 }
 
 // New creates new runner. If capacity is 0 then default value is used.
@@ -72,6 +84,47 @@ func New(capacity uint16) *Runner {
 		rCancel:         make(map[string]context.CancelFunc),
 		jobsMessages:    make(chan agentpb.AgentResponsePayload),
 		actionsMessages: make(chan agentpb.AgentRequestPayload),
+		q:               make(map[string]*entry),
+	}
+}
+
+func (r *Runner) acquire(ctx context.Context, dsn string) error {
+	if dsn != "" {
+		r.m.Lock()
+
+		e, ok := r.q[dsn]
+		if !ok {
+			e = &entry{sem: semaphore.NewWeighted(1)}
+			r.q[dsn] = e
+		}
+
+		r.m.Unlock()
+
+		e.count.Add(1)
+		if err := e.sem.Acquire(ctx, 1); err != nil {
+			return err
+		}
+	}
+
+	if err := r.sem.Acquire(ctx, 1); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Runner) release(dsn string) {
+	r.sem.Release(1)
+
+	if dsn != "" {
+		r.m.Lock()
+
+		if e, ok := r.q[dsn]; ok {
+			e.sem.Release(1)
+			if v := e.count.Add(-1); v == 0 {
+				delete(r.q, dsn)
+			}
+		}
 	}
 }
 
@@ -142,11 +195,27 @@ func (r *Runner) IsRunning(id string) bool {
 	return ok
 }
 
+// instanceID returns unique instance ID calculated as a hash from host:port part of the DSN. instanceID allows to
+// identify target database instance and limit number of concurrent operations on it.
+func instanceID(dsn string) (string, error) {
+	u, err := url.Parse(dsn)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to parse DSN")
+	}
+
+	return base64.StdEncoding.EncodeToString(sha256.New().Sum([]byte(u.Host))), nil
+}
+
 func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 	jobID, jobType := job.ID(), job.Type()
 	l := r.l.WithFields(logrus.Fields{"id": jobID, "type": jobType})
 
-	if err := r.sem.Acquire(ctx, 1); err != nil {
+	instanceID, err := instanceID(job.DSN())
+	if err != nil {
+		r.l.Warnf("Failed to get instance ID for job: %v", err)
+	}
+
+	if err := r.acquire(ctx, instanceID); err != nil {
 		l.Errorf("Failed to acquire token for a job: %v", err)
 		r.sendJobsMessage(&agentpb.JobResult{
 			JobId:     job.ID(),
@@ -177,7 +246,7 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 			l.WithField("duration", time.Since(start).String()).Info("Job finished.")
 		}(time.Now())
 
-		defer r.sem.Release(1)
+		defer r.release(instanceID)
 		defer r.wg.Done()
 		defer cancel()
 		defer r.removeCancel(jobID)
@@ -204,7 +273,12 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 	actionID, actionType := action.ID(), action.Type()
 	l := r.l.WithFields(logrus.Fields{"id": actionID, "type": actionType})
 
-	if err := r.sem.Acquire(ctx, 1); err != nil {
+	instanceID, err := instanceID(action.DSN())
+	if err != nil {
+		r.l.Warnf("Failed to get instance ID for action: %v", err)
+	}
+
+	if err := r.acquire(ctx, instanceID); err != nil {
 		l.Errorf("Failed to acquire token for an action: %v", err)
 		r.sendActionsMessage(&agentpb.ActionResultRequest{
 			ActionId: actionID,
@@ -230,7 +304,7 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 			l.WithField("duration", time.Since(start).String()).Info("Action finished.")
 		}(time.Now())
 
-		defer r.sem.Release(1)
+		defer r.release(instanceID)
 		defer r.wg.Done()
 		defer cancel()
 		defer r.removeCancel(actionID)
