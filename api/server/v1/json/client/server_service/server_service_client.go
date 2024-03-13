@@ -65,8 +65,8 @@ func (a *Client) AWSInstanceCheck(params *AWSInstanceCheckParams, opts ...Client
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "AWSInstanceCheck",
-		Method:             "POST",
-		PathPattern:        "/v1/AWSInstanceCheck",
+		Method:             "GET",
+		PathPattern:        "/v1/server/AWSInstance",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

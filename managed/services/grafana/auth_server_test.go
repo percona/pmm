@@ -50,7 +50,7 @@ func TestNextPrefix(t *testing.T) {
 		{"./", "/", "/"},
 		{"hax0r", "/", "/"},
 		{"", "/"},
-		{"/v1/AWSInstanceCheck/..%2finventory/Services/List'"},
+		{"/v1/server/AWSInstanceCheck/..%2f..%2finventory/Services/List'"},
 	} {
 		t.Run(paths[0], func(t *testing.T) {
 			for i, path := range paths[:len(paths)-1] {
@@ -220,11 +220,11 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/v1/updates/Start":                     admin,
 		"/v1/updates/Status":                    none,
 		"/v1/server/settings":                   admin,
-		"/v1/AWSInstanceCheck":                  none,
+		"/v1/server/AWSInstance":                none,
 		"/v1/platform/Connect":                  admin,
 
-		"/v1/AWSInstanceCheck/..%2finventory/Services/List": admin,
-		"/v1/AWSInstanceCheck/..%2f..%2flogs.zip":           admin,
+		"/v1/server/AWSInstance/..%2f..%2finventory/Services/List": admin,
+		"/v1/server/AWSInstance/..%2f..%2f..%2flogs.zip":           admin,
 
 		"/v1/server/version": viewer,
 		"/v1/server/readyz":  none,
@@ -411,13 +411,13 @@ func Test_cleanPath(t *testing.T) {
 		expected string
 	}{
 		{
-			"/v1/AWSInstanceCheck/..%2finventory/Services/List",
+			"/v1/server/AWSInstanceCheck/..%2f..%2finventory/Services/List",
 			"/v1/inventory/Services/List",
 		}, {
-			"/v1/AWSInstanceCheck/..%2f..%2fmanaged/logs.zip",
+			"/v1/server/AWSInstanceCheck/..%2f..%2f..%2fmanaged/logs.zip",
 			"/managed/logs.zip",
 		}, {
-			"/v1/AWSInstanceCheck/..%2f..%2f/logs.zip",
+			"/v1/server/AWSInstanceCheck/..%2f..%2f..%2f/logs.zip",
 			"/logs.zip",
 		},
 	}

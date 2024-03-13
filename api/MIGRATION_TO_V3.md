@@ -7,7 +7,7 @@
 GET /logz.zip                                       GET /v1/server/logs.zip                          /logs.zip is now a redirect to /v1/server/logs.zip
 GET /v1/version                                     GET /v1/server/version                           ✅ /v1/version is now a redirect to /v1/server/version
 GET /v1/readyz                                      GET /v1/server/readyz                            ✅ /v1/readyz is now a redirect to /v1/server/readyz
-POST /v1/AWSInstanceCheck                           GET /v1/server/AWSInstance
+POST /v1/AWSInstanceCheck                           GET /v1/server/AWSInstance                       ✅
 POST /v1/leaderHealthCheck                          GET /v1/server/leaderHealthCheck
 POST /v1/settings/Change                            PUT /v1/server/settings                          ✅
 POST /v1/settings/Get                               GET /v1/server/settings                          ✅

@@ -119,7 +119,6 @@ func TestSetup(t *testing.T) {
 		req.Header.Set("X-Test-Must-Setup", "1")
 
 		resp, b := doRequest(t, client, req)
-		defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 		assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
 		assert.True(t, strings.HasPrefix(string(b), `<!doctype html>`), string(b))
@@ -135,9 +134,9 @@ func TestSetup(t *testing.T) {
 			"swagger":     200,
 			"swagger/":    301,
 
-			"v1/server/readyz":    200,
-			"v1/AWSInstanceCheck": 501, // only POST is expected, other request methods are seen as unimplemented
-			"v1/server/version":   401, // Grafana authentication required
+			"v1/server/readyz":      200,
+			"v1/server/AWSInstance": 501, // It must accept a parameter
+			"v1/server/version":     401, // Grafana authentication required
 		}
 		for path, code := range paths {
 			path, code := path, code
@@ -153,7 +152,6 @@ func TestSetup(t *testing.T) {
 				req.Header.Set("X-Test-Must-Setup", "1")
 
 				resp, b := doRequest(t, client, req)
-				defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 				assert.Equal(t, code, resp.StatusCode, "response:\n%s", b)
 				if code == 303 {
@@ -166,20 +164,19 @@ func TestSetup(t *testing.T) {
 	t.Run("API", func(t *testing.T) {
 		t.Parallel()
 
+		q := make(url.Values)
+		q.Set("instance_id", "123")
 		uri := baseURL.ResolveReference(&url.URL{
-			Path: "v1/AWSInstanceCheck",
+			Path:     "v1/server/AWSInstance",
+			RawQuery: q.Encode(),
 		})
 		t.Logf("URI: %s", uri)
-		b, err := json.Marshal(server.AWSInstanceCheckBody{
-			InstanceID: "123",
-		})
 		require.NoError(t, err)
-		req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, uri.String(), bytes.NewReader(b))
+		req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 		require.NoError(t, err)
 		req.Header.Set("X-Test-Must-Setup", "1")
 
 		resp, b := doRequest(t, client, req)
-		defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 		assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
 		assert.Equal(t, "{}", string(b), "response:\n%s", b)
@@ -214,7 +211,6 @@ func TestSwagger(t *testing.T) {
 				require.NoError(t, err)
 
 				resp, _ := doRequest(t, http.DefaultClient, req)
-				defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 				require.NoError(t, err)
 				assert.Equal(t, 200, resp.StatusCode)
@@ -231,7 +227,6 @@ func TestSwagger(t *testing.T) {
 				require.NoError(t, err)
 
 				resp, _ := doRequest(t, http.DefaultClient, req)
-				defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 				require.NoError(t, err)
 				assert.Equal(t, 200, resp.StatusCode)
@@ -394,7 +389,6 @@ func deleteUser(t *testing.T, userID int) {
 	require.NoError(t, err)
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete user, status code: %d, response: %s", resp.StatusCode, b)
 }
@@ -418,9 +412,8 @@ func createUser(t *testing.T, login string) int {
 	require.NoError(t, err)
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create user, status code: %d, response: %s", resp.StatusCode, b)
 
 	var m map[string]interface{}
@@ -447,7 +440,6 @@ func setRole(t *testing.T, userID int, role string) {
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to set role for user, response: %s", b)
 }
@@ -463,7 +455,6 @@ func deleteAPIKey(t *testing.T, apiKeyID int) {
 	require.NoError(t, err)
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete API Key, status code: %d, response: %s", resp.StatusCode, b)
 }
@@ -487,7 +478,6 @@ func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create API key, status code: %d, response: %s", resp.StatusCode, b)
 
@@ -503,7 +493,6 @@ func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 
 	resp1, b := doRequest(t, http.DefaultClient, req)
-	defer resp1.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	require.Equalf(t, http.StatusOK, resp1.StatusCode, "failed to get API key, status code: %d, response: %s", resp1.StatusCode, b)
 

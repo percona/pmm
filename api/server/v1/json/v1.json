@@ -63,28 +63,21 @@
         }
       }
     },
-    "/v1/AWSInstanceCheck": {
+    "/v1/leaderHealthCheck": {
       "post": {
-        "description": "Checks AWS EC2 instance ID.",
+        "description": "Checks if the instance is the leader in a cluster. Returns an error if the instance isn't the leader.",
         "tags": [
           "ServerService"
         ],
-        "summary": "AWS instance check",
-        "operationId": "AWSInstanceCheck",
+        "summary": "Check Leadership",
+        "operationId": "LeaderHealthCheck",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "instance_id": {
-                  "description": "AWS EC2 instance ID (i-1234567890abcdef0).",
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
+              "type": "object"
             }
           }
         ],
@@ -92,6 +85,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
+              "description": "This probe is available without authentication, so it should not contain any data.",
               "type": "object"
             }
           },
@@ -131,29 +125,26 @@
         }
       }
     },
-    "/v1/leaderHealthCheck": {
-      "post": {
-        "description": "Checks if the instance is the leader in a cluster. Returns an error if the instance isn't the leader.",
+    "/v1/server/AWSInstance": {
+      "get": {
+        "description": "Checks AWS EC2 instance ID.",
         "tags": [
           "ServerService"
         ],
-        "summary": "Check Leadership",
-        "operationId": "LeaderHealthCheck",
+        "summary": "AWS instance check",
+        "operationId": "AWSInstanceCheck",
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
+            "type": "string",
+            "description": "AWS EC2 instance ID (i-1234567890abcdef0).",
+            "name": "instance_id",
+            "in": "query"
           }
         ],
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "This probe is available without authentication, so it should not contain any data.",
               "type": "object"
             }
           },

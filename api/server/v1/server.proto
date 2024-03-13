@@ -282,10 +282,7 @@ service ServerService {
   }
   // AWSInstanceCheck checks AWS EC2 instance ID.
   rpc AWSInstanceCheck(AWSInstanceCheckRequest) returns (AWSInstanceCheckResponse) {
-    option (google.api.http) = {
-      post: "/v1/AWSInstanceCheck"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/server/AWSInstance"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "AWS instance check"
       description: "Checks AWS EC2 instance ID."
