@@ -272,7 +272,7 @@ service ServerService {
   // ChangeSettings changes PMM Server settings.
   rpc ChangeSettings(ChangeSettingsRequest) returns (ChangeSettingsResponse) {
     option (google.api.http) = {
-      post: "/v1/settings/Change"
+      put: "/v1/server/settings"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {

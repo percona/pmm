@@ -104,8 +104,8 @@ func (a *Client) ChangeSettings(params *ChangeSettingsParams, opts ...ClientOpti
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ChangeSettings",
-		Method:             "POST",
-		PathPattern:        "/v1/settings/Change",
+		Method:             "PUT",
+		PathPattern:        "/v1/server/settings",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
