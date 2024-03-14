@@ -52,16 +52,26 @@ type Runner struct {
 	actionsMessages chan agentpb.AgentRequestPayload
 	jobsMessages    chan agentpb.AgentResponsePayload
 
-	sem *semaphore.Weighted
-	wg  sync.WaitGroup
+	wg sync.WaitGroup
 
-	rw      sync.RWMutex
-	rCancel map[string]context.CancelFunc
+	// cancels holds cancel functions for running actions and jobs.
+	cancelsM sync.RWMutex
+	cancels  map[string]context.CancelFunc
 
-	m sync.Mutex
-	q map[string]*entry
+	// running holds IDs of running actions and jobs.
+	runningM sync.RWMutex
+	running  map[string]struct{}
+
+	// gSem is a global semaphore to limit total number of concurrent operations performed by the runner.
+	gSem *semaphore.Weighted
+
+	// lSems is a map of local semaphores to limit number of concurrent operations on a single database instance.
+	// Key is a hash of DSN(only host:port pair), value is a semaphore.
+	lSemsM sync.Mutex
+	lSems  map[string]*entry
 }
 
+// entry stores local semaphore and its counter.
 type entry struct {
 	count atomic.Int32
 	sem   *semaphore.Weighted
@@ -80,51 +90,54 @@ func New(capacity uint16) *Runner {
 		l:               l,
 		actions:         make(chan actions.Action, bufferSize),
 		jobs:            make(chan jobs.Job, bufferSize),
-		sem:             semaphore.NewWeighted(int64(capacity)),
-		rCancel:         make(map[string]context.CancelFunc),
+		cancels:         make(map[string]context.CancelFunc),
+		running:         make(map[string]struct{}),
 		jobsMessages:    make(chan agentpb.AgentResponsePayload),
 		actionsMessages: make(chan agentpb.AgentRequestPayload),
-		q:               make(map[string]*entry),
+		gSem:            semaphore.NewWeighted(int64(capacity)),
+		lSems:           make(map[string]*entry),
 	}
 }
 
+// acquire acquires global and local semaphores.
 func (r *Runner) acquire(ctx context.Context, id string) error {
 	if id != "" {
-		r.m.Lock()
+		r.lSemsM.Lock()
 
-		e, ok := r.q[id]
+		e, ok := r.lSems[id]
 		if !ok {
 			e = &entry{sem: semaphore.NewWeighted(1)}
-			r.q[id] = e
+			r.lSems[id] = e
 		}
+		r.lSemsM.Unlock()
 
-		r.m.Unlock()
-
-		e.count.Add(1)
 		if err := e.sem.Acquire(ctx, 1); err != nil {
 			return err
 		}
+		e.count.Add(1)
 	}
 
-	if err := r.sem.Acquire(ctx, 1); err != nil {
+	if err := r.gSem.Acquire(ctx, 1); err != nil {
 		return err
 	}
 
 	return nil
 }
 
+// release releases global and local semaphores.
 func (r *Runner) release(dsn string) {
-	r.sem.Release(1)
+	r.gSem.Release(1)
 
 	if dsn != "" {
-		r.m.Lock()
+		r.lSemsM.Lock()
 
-		if e, ok := r.q[dsn]; ok {
+		if e, ok := r.lSems[dsn]; ok {
 			e.sem.Release(1)
 			if v := e.count.Add(-1); v == 0 {
-				delete(r.q, dsn)
+				delete(r.lSems, dsn)
 			}
 		}
+		r.lSemsM.Unlock()
 	}
 }
 
@@ -177,20 +190,20 @@ func (r *Runner) ActionsResults() <-chan agentpb.AgentRequestPayload {
 
 // Stop stops running Action or Job.
 func (r *Runner) Stop(id string) {
-	r.rw.RLock()
-	defer r.rw.RUnlock()
+	r.cancelsM.RLock()
+	defer r.cancelsM.RUnlock()
 
-	// Job removes itself from rCancel map. So here we only invoke cancel.
-	if cancel, ok := r.rCancel[id]; ok {
+	// Job removes itself from cancels map. So here we only invoke cancel.
+	if cancel, ok := r.cancels[id]; ok {
 		cancel()
 	}
 }
 
 // IsRunning returns true if Action or Job with given ID still running.
 func (r *Runner) IsRunning(id string) bool {
-	r.rw.RLock()
-	defer r.rw.RUnlock()
-	_, ok := r.rCancel[id]
+	r.runningM.RLock()
+	defer r.runningM.RUnlock()
+	_, ok := r.running[id]
 
 	return ok
 }
@@ -206,7 +219,16 @@ func instanceID(dsn string) (string, error) {
 		return "", errors.Wrap(err, "failed to parse DSN")
 	}
 
-	return base64.StdEncoding.EncodeToString(sha256.New().Sum([]byte(u.Host))), nil
+	host := u.Host
+	// If host is empty, use the whole DSN for hash calculation.
+	// It can give worse granularity, but it's better than nothing.
+	if host == "" {
+		host = dsn
+	}
+
+	h := sha256.New()
+	h.Write([]byte(host))
+	return base64.StdEncoding.EncodeToString(h.Sum(nil)), nil
 }
 
 func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
@@ -216,20 +238,6 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 	instanceID, err := instanceID(job.DSN())
 	if err != nil {
 		r.l.Warnf("Failed to get instance ID for job: %v", err)
-	}
-
-	if err := r.acquire(ctx, instanceID); err != nil {
-		l.Errorf("Failed to acquire token for a job: %v", err)
-		r.sendJobsMessage(&agentpb.JobResult{
-			JobId:     job.ID(),
-			Timestamp: timestamppb.Now(),
-			Result: &agentpb.JobResult_Error_{
-				Error: &agentpb.JobResult_Error{
-					Message: err.Error(),
-				},
-			},
-		})
-		return
 	}
 
 	var nCtx context.Context
@@ -243,16 +251,34 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 
 	r.wg.Add(1)
 	run := func(ctx context.Context) {
-		l.Infof("Job started.")
-
 		defer func(start time.Time) {
 			l.WithField("duration", time.Since(start).String()).Info("Job finished.")
 		}(time.Now())
 
-		defer r.release(instanceID)
 		defer r.wg.Done()
 		defer cancel()
 		defer r.removeCancel(jobID)
+
+		l.Debug("Acquiring tokens for a job.")
+		if err := r.acquire(ctx, instanceID); err != nil {
+			l.Errorf("Failed to acquire token for a job: %v", err)
+			r.sendJobsMessage(&agentpb.JobResult{
+				JobId:     job.ID(),
+				Timestamp: timestamppb.Now(),
+				Result: &agentpb.JobResult_Error_{
+					Error: &agentpb.JobResult_Error{
+						Message: err.Error(),
+					},
+				},
+			})
+			return
+		}
+		defer r.release(instanceID)
+
+		// Mark job as running.
+		r.addStarted(jobID)
+		defer r.removeStarted(jobID)
+		l.Info("Job started.")
 
 		err := job.Run(ctx, r.sendJobsMessage)
 		if err != nil {
@@ -281,16 +307,6 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 		r.l.Warnf("Failed to get instance ID for action: %v", err)
 	}
 
-	if err := r.acquire(ctx, instanceID); err != nil {
-		l.Errorf("Failed to acquire token for an action: %v", err)
-		r.sendActionsMessage(&agentpb.ActionResultRequest{
-			ActionId: actionID,
-			Done:     true,
-			Error:    err.Error(),
-		})
-		return
-	}
-
 	var timeout time.Duration
 	if timeout = action.Timeout(); timeout == 0 {
 		timeout = defaultActionTimeout
@@ -301,16 +317,30 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 
 	r.wg.Add(1)
 	run := func(_ context.Context) {
-		l.Infof("Action started.")
-
 		defer func(start time.Time) {
 			l.WithField("duration", time.Since(start).String()).Info("Action finished.")
 		}(time.Now())
 
-		defer r.release(instanceID)
 		defer r.wg.Done()
 		defer cancel()
 		defer r.removeCancel(actionID)
+
+		l.Debug("Acquiring tokens for an action.")
+		if err := r.acquire(ctx, instanceID); err != nil {
+			l.Errorf("Failed to acquire token for an action: %v", err)
+			r.sendActionsMessage(&agentpb.ActionResultRequest{
+				ActionId: actionID,
+				Done:     true,
+				Error:    err.Error(),
+			})
+			return
+		}
+		defer r.release(instanceID)
+
+		// Mark action as running.
+		r.addStarted(actionID)
+		defer r.removeStarted(actionID)
+		l.Infof("Action started.")
 
 		output, err := action.Run(nCtx)
 		var errMsg string
@@ -338,13 +368,25 @@ func (r *Runner) sendActionsMessage(payload agentpb.AgentRequestPayload) {
 }
 
 func (r *Runner) addCancel(jobID string, cancel context.CancelFunc) {
-	r.rw.Lock()
-	defer r.rw.Unlock()
-	r.rCancel[jobID] = cancel
+	r.cancelsM.Lock()
+	defer r.cancelsM.Unlock()
+	r.cancels[jobID] = cancel
 }
 
 func (r *Runner) removeCancel(jobID string) {
-	r.rw.Lock()
-	defer r.rw.Unlock()
-	delete(r.rCancel, jobID)
+	r.cancelsM.Lock()
+	defer r.cancelsM.Unlock()
+	delete(r.cancels, jobID)
+}
+
+func (r *Runner) addStarted(actionID string) {
+	r.runningM.Lock()
+	defer r.runningM.Unlock()
+	r.running[actionID] = struct{}{}
+}
+
+func (r *Runner) removeStarted(actionID string) {
+	r.runningM.Lock()
+	defer r.runningM.Unlock()
+	delete(r.running, actionID)
 }

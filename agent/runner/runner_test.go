@@ -62,7 +62,7 @@ func TestConcurrentRunnerRun(t *testing.T) {
 	}
 	assertActionResults(t, cr, expected...)
 	cr.wg.Wait()
-	assert.Empty(t, cr.rCancel)
+	assert.Empty(t, cr.cancels)
 }
 
 func TestCapacityLimit(t *testing.T) {
@@ -74,30 +74,26 @@ func TestCapacityLimit(t *testing.T) {
 	go cr.Run(ctx)
 
 	j1 := testJob{id: "test-1", timeout: time.Second}
-	j2 := testJob{id: "test-2", timeout: 2 * time.Second}
+	j2 := testJob{id: "test-2", timeout: time.Second}
 	j3 := testJob{id: "test-3", timeout: 2 * time.Second}
-	j4 := testJob{id: "test-4", timeout: time.Second}
+	j4 := testJob{id: "test-4", timeout: 2 * time.Second}
 
 	require.NoError(t, cr.StartJob(j1))
 	require.NoError(t, cr.StartJob(j2))
+
+	// Let first and second jobs start
+	time.Sleep(200 * time.Millisecond)
+
 	require.NoError(t, cr.StartJob(j3))
 	require.NoError(t, cr.StartJob(j4))
 
-	// Let first jobs start
-	time.Sleep(500 * time.Millisecond)
+	// Let third and forth jobs to reach semaphores
+	time.Sleep(300 * time.Millisecond)
 
 	// First two jobs are started
 	assert.True(t, cr.IsRunning(j1.ID()))
 	assert.True(t, cr.IsRunning(j2.ID()))
 	assert.False(t, cr.IsRunning(j3.ID()))
-	assert.False(t, cr.IsRunning(j4.ID()))
-
-	time.Sleep(time.Second)
-
-	// After second first job terminated and third job started
-	assert.False(t, cr.IsRunning(j1.ID()))
-	assert.True(t, cr.IsRunning(j2.ID()))
-	assert.True(t, cr.IsRunning(j3.ID()))
 	assert.False(t, cr.IsRunning(j4.ID()))
 
 	time.Sleep(time.Second)
@@ -131,13 +127,56 @@ func TestDefaultCapacityLimit(t *testing.T) {
 		require.NoError(t, cr.StartJob(testJob{id: fmt.Sprintf("test-%d", i), timeout: time.Second}))
 	}
 
-	// Let first jobs start
+	// Let jobs to start
 	time.Sleep(500 * time.Millisecond)
 
+	var running int
 	for i := 0; i < totalJobs; i++ {
 		// Check that running jobs amount is not exceeded default capacity.
-		assert.Equal(t, i < defaultCapacity, cr.IsRunning(fmt.Sprintf("test-%d", i)))
+		if cr.IsRunning(fmt.Sprintf("test-%d", i)) {
+			running++
+		}
 	}
+
+	assert.Equal(t, defaultCapacity, running)
+}
+
+func TestPerDBInstanceLimit(t *testing.T) {
+	t.Parallel()
+
+	cr := New(10)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go cr.Run(ctx)
+
+	j1db1 := testJob{id: "test-1", timeout: time.Second, dsn: "postgresql://db1"}
+	j2db1 := testJob{id: "test-2", timeout: 2 * time.Second, dsn: "postgresql://db1"}
+	j3db1 := testJob{id: "test-3", timeout: 3 * time.Second, dsn: "postgresql://db1"}
+	j1db2 := testJob{id: "test-4", timeout: time.Second, dsn: "postgresql://db2"}
+	j2db2 := testJob{id: "test-5", timeout: 2 * time.Second, dsn: "postgresql://db2"}
+	j3db2 := testJob{id: "test-6", timeout: 3 * time.Second, dsn: "postgresql://db2"}
+
+	require.NoError(t, cr.StartJob(j1db1))
+	require.NoError(t, cr.StartJob(j1db2))
+
+	// Let jobs to start
+	time.Sleep(200 * time.Millisecond)
+
+	require.NoError(t, cr.StartJob(j2db1))
+	require.NoError(t, cr.StartJob(j2db2))
+	require.NoError(t, cr.StartJob(j3db1))
+	require.NoError(t, cr.StartJob(j3db2))
+
+	// Let rest jobs to reach semaphores
+	time.Sleep(300 * time.Millisecond)
+
+	assert.True(t, cr.IsRunning(j1db1.ID()))
+	assert.True(t, cr.IsRunning(j1db2.ID()))
+	assert.False(t, cr.IsRunning(j2db1.ID()))
+	assert.False(t, cr.IsRunning(j2db2.ID()))
+	assert.False(t, cr.IsRunning(j3db1.ID()))
+	assert.False(t, cr.IsRunning(j3db2.ID()))
+
 }
 
 func TestConcurrentRunnerTimeout(t *testing.T) {
@@ -163,7 +202,7 @@ func TestConcurrentRunnerTimeout(t *testing.T) {
 	}
 	assertActionResults(t, cr, expected...)
 	cr.wg.Wait()
-	assert.Empty(t, cr.rCancel)
+	assert.Empty(t, cr.cancels)
 }
 
 func TestConcurrentRunnerStop(t *testing.T) {
@@ -194,7 +233,7 @@ func TestConcurrentRunnerStop(t *testing.T) {
 	}
 	assertActionResults(t, cr, expected...)
 	cr.wg.Wait()
-	assert.Empty(t, cr.rCancel)
+	assert.Empty(t, cr.cancels)
 }
 
 func TestConcurrentRunnerCancel(t *testing.T) {
@@ -231,7 +270,7 @@ func TestConcurrentRunnerCancel(t *testing.T) {
 	assert.Contains(t, []string{"signal: killed", context.Canceled.Error()}, expected[0].(*agentpb.ActionResultRequest).Error)
 	assert.True(t, expected[1].(*agentpb.ActionResultRequest).Done)
 	cr.wg.Wait()
-	assert.Empty(t, cr.rCancel)
+	assert.Empty(t, cr.cancels)
 }
 
 type testJob struct {
