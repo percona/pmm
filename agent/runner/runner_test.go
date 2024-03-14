@@ -42,7 +42,7 @@ func assertActionResults(t *testing.T, cr *Runner, expected ...*agentpb.ActionRe
 
 func TestConcurrentRunnerRun(t *testing.T) {
 	t.Parallel()
-	cr := New(0)
+	cr := New(0, 0)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -68,7 +68,7 @@ func TestConcurrentRunnerRun(t *testing.T) {
 func TestCapacityLimit(t *testing.T) {
 	t.Parallel()
 
-	cr := New(2)
+	cr := New(2, 0)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	go cr.Run(ctx)
@@ -117,12 +117,12 @@ func TestDefaultCapacityLimit(t *testing.T) {
 	t.Parallel()
 
 	// Use default capacity
-	cr := New(0)
+	cr := New(0, 0)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	go cr.Run(ctx)
 
-	totalJobs := 2 * defaultCapacity
+	totalJobs := 2 * defaultTotalCapacity
 	for i := 0; i < totalJobs; i++ {
 		require.NoError(t, cr.StartJob(testJob{id: fmt.Sprintf("test-%d", i), timeout: time.Second}))
 	}
@@ -138,13 +138,13 @@ func TestDefaultCapacityLimit(t *testing.T) {
 		}
 	}
 
-	assert.Equal(t, defaultCapacity, running)
+	assert.Equal(t, defaultTotalCapacity, running)
 }
 
 func TestPerDBInstanceLimit(t *testing.T) {
 	t.Parallel()
 
-	cr := New(10)
+	cr := New(10, 1)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	go cr.Run(ctx)
@@ -176,12 +176,48 @@ func TestPerDBInstanceLimit(t *testing.T) {
 	assert.False(t, cr.IsRunning(j2db2.ID()))
 	assert.False(t, cr.IsRunning(j3db1.ID()))
 	assert.False(t, cr.IsRunning(j3db2.ID()))
+}
 
+func TestDefaultPerDBInstanceLimit(t *testing.T) {
+	t.Parallel()
+
+	cr := New(10, 0)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go cr.Run(ctx)
+
+	j1db1 := testJob{id: "test-1", timeout: time.Second, dsn: "postgresql://db1"}
+	j2db1 := testJob{id: "test-2", timeout: 2 * time.Second, dsn: "postgresql://db1"}
+	j3db1 := testJob{id: "test-3", timeout: 3 * time.Second, dsn: "postgresql://db1"}
+	j1db2 := testJob{id: "test-4", timeout: time.Second, dsn: "postgresql://db2"}
+	j2db2 := testJob{id: "test-5", timeout: 2 * time.Second, dsn: "postgresql://db2"}
+	j3db2 := testJob{id: "test-6", timeout: 3 * time.Second, dsn: "postgresql://db2"}
+
+	require.NoError(t, cr.StartJob(j1db1))
+	require.NoError(t, cr.StartJob(j1db2))
+	require.NoError(t, cr.StartJob(j2db1))
+	require.NoError(t, cr.StartJob(j2db2))
+
+	// Let jobs to start
+	time.Sleep(200 * time.Millisecond)
+
+	require.NoError(t, cr.StartJob(j3db1))
+	require.NoError(t, cr.StartJob(j3db2))
+
+	// Let rest jobs to reach semaphores
+	time.Sleep(300 * time.Millisecond)
+
+	assert.True(t, cr.IsRunning(j1db1.ID()))
+	assert.True(t, cr.IsRunning(j1db2.ID()))
+	assert.True(t, cr.IsRunning(j2db1.ID()))
+	assert.True(t, cr.IsRunning(j2db2.ID()))
+	assert.False(t, cr.IsRunning(j3db1.ID()))
+	assert.False(t, cr.IsRunning(j3db2.ID()))
 }
 
 func TestConcurrentRunnerTimeout(t *testing.T) {
 	t.Parallel()
-	cr := New(0)
+	cr := New(0, 0)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -207,7 +243,7 @@ func TestConcurrentRunnerTimeout(t *testing.T) {
 
 func TestConcurrentRunnerStop(t *testing.T) {
 	t.Parallel()
-	cr := New(0)
+	cr := New(0, 0)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -238,7 +274,7 @@ func TestConcurrentRunnerStop(t *testing.T) {
 
 func TestConcurrentRunnerCancel(t *testing.T) {
 	t.Parallel()
-	cr := New(0)
+	cr := New(0, 0)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	go cr.Run(ctx)

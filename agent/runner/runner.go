@@ -39,7 +39,8 @@ import (
 const (
 	bufferSize           = 256
 	defaultActionTimeout = 10 * time.Second // default timeout for compatibility with an older server
-	defaultCapacity      = 32
+	defaultTotalCapacity = 32               // how many concurrent operations are allowed in total
+	defaultDBCapacity    = 2                // how many concurrent operations on a single database instance are allowed
 )
 
 // Runner executes jobs and actions.
@@ -65,6 +66,9 @@ type Runner struct {
 	// gSem is a global semaphore to limit total number of concurrent operations performed by the runner.
 	gSem *semaphore.Weighted
 
+	// dbInstanceCapacity is a limit of concurrent operations on a single database instance.
+	dbInstanceCapacity uint16
+
 	// lSems is a map of local semaphores to limit number of concurrent operations on a single database instance.
 	// Key is a hash of DSN(only host:port pair), value is a semaphore.
 	lSemsM sync.Mutex
@@ -78,24 +82,29 @@ type entry struct {
 }
 
 // New creates new runner. If capacity is 0 then default value is used.
-func New(capacity uint16) *Runner {
+func New(totalCapacity, dbInstanceCapacity uint16) *Runner {
 	l := logrus.WithField("component", "runner")
-	if capacity == 0 {
-		capacity = defaultCapacity
+	if totalCapacity == 0 {
+		totalCapacity = defaultTotalCapacity
 	}
 
-	l.Infof("Runner capacity set to %d.", capacity)
+	if dbInstanceCapacity == 0 {
+		dbInstanceCapacity = defaultDBCapacity
+	}
+
+	l.Infof("Runner capacity set to %d, db instance capacity set to %d", totalCapacity, dbInstanceCapacity)
 
 	return &Runner{
-		l:               l,
-		actions:         make(chan actions.Action, bufferSize),
-		jobs:            make(chan jobs.Job, bufferSize),
-		cancels:         make(map[string]context.CancelFunc),
-		running:         make(map[string]struct{}),
-		jobsMessages:    make(chan agentpb.AgentResponsePayload),
-		actionsMessages: make(chan agentpb.AgentRequestPayload),
-		gSem:            semaphore.NewWeighted(int64(capacity)),
-		lSems:           make(map[string]*entry),
+		l:                  l,
+		actions:            make(chan actions.Action, bufferSize),
+		jobs:               make(chan jobs.Job, bufferSize),
+		cancels:            make(map[string]context.CancelFunc),
+		running:            make(map[string]struct{}),
+		jobsMessages:       make(chan agentpb.AgentResponsePayload),
+		actionsMessages:    make(chan agentpb.AgentRequestPayload),
+		dbInstanceCapacity: dbInstanceCapacity,
+		gSem:               semaphore.NewWeighted(int64(totalCapacity)),
+		lSems:              make(map[string]*entry),
 	}
 }
 
@@ -106,7 +115,7 @@ func (r *Runner) acquire(ctx context.Context, id string) error {
 
 		e, ok := r.lSems[id]
 		if !ok {
-			e = &entry{sem: semaphore.NewWeighted(1)}
+			e = &entry{sem: semaphore.NewWeighted(int64(r.dbInstanceCapacity))}
 			r.lSems[id] = e
 		}
 		r.lSemsM.Unlock()
