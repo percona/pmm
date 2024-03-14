@@ -42,7 +42,15 @@ type mongodbQueryAdmincommandAction struct {
 }
 
 // NewMongoDBQueryAdmincommandAction creates a MongoDB adminCommand query action.
-func NewMongoDBQueryAdmincommandAction(id string, timeout time.Duration, dsn string, files *agentpb.TextFiles, command string, arg interface{}, tempDir string) (Action, error) {
+func NewMongoDBQueryAdmincommandAction(
+	id string,
+	timeout time.Duration,
+	dsn string,
+	files *agentpb.TextFiles,
+	command string,
+	arg interface{},
+	tempDir string,
+) (Action, error) {
 	dsn, err := templates.RenderDSN(dsn, files, filepath.Join(tempDir, strings.ToLower(mongoDBQueryAdminCommandActionType), id))
 	if err != nil {
 		return nil, errors.WithStack(err)

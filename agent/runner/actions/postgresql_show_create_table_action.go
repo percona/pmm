@@ -74,7 +74,12 @@ type postgresqlShowCreateTableAction struct {
 
 // NewPostgreSQLShowCreateTableAction creates PostgreSQL SHOW CREATE TABLE Action.
 // This is an Action that can run `\d+ table` command analog on PostgreSQL service with given DSN.
-func NewPostgreSQLShowCreateTableAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_PostgreSQLShowCreateTableParams, tempDir string) (Action, error) {
+func NewPostgreSQLShowCreateTableAction(
+	id string,
+	timeout time.Duration,
+	params *agentpb.StartActionRequest_PostgreSQLShowCreateTableParams,
+	tempDir string,
+) (Action, error) {
 	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, filepath.Join(tempDir, strings.ToLower(postgreSQLShowCreateTableActionType), id))
 	if err != nil {
 		return nil, errors.WithStack(err)
