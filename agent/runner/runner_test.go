@@ -150,11 +150,11 @@ func TestPerDBInstanceLimit(t *testing.T) {
 	go cr.Run(ctx)
 
 	j1db1 := testJob{id: "test-1", timeout: time.Second, dsn: "postgresql://db1"}
-	j2db1 := testJob{id: "test-2", timeout: 2 * time.Second, dsn: "postgresql://db1"}
-	j3db1 := testJob{id: "test-3", timeout: 3 * time.Second, dsn: "postgresql://db1"}
+	j2db1 := testJob{id: "test-2", timeout: time.Second, dsn: "postgresql://db1"}
+	j3db1 := testJob{id: "test-3", timeout: time.Second, dsn: "postgresql://db1"}
 	j1db2 := testJob{id: "test-4", timeout: time.Second, dsn: "postgresql://db2"}
-	j2db2 := testJob{id: "test-5", timeout: 2 * time.Second, dsn: "postgresql://db2"}
-	j3db2 := testJob{id: "test-6", timeout: 3 * time.Second, dsn: "postgresql://db2"}
+	j2db2 := testJob{id: "test-5", timeout: time.Second, dsn: "postgresql://db2"}
+	j3db2 := testJob{id: "test-6", timeout: time.Second, dsn: "postgresql://db2"}
 
 	require.NoError(t, cr.StartJob(j1db1))
 	require.NoError(t, cr.StartJob(j1db2))
@@ -176,6 +176,16 @@ func TestPerDBInstanceLimit(t *testing.T) {
 	assert.False(t, cr.IsRunning(j2db2.ID()))
 	assert.False(t, cr.IsRunning(j3db1.ID()))
 	assert.False(t, cr.IsRunning(j3db2.ID()))
+
+	// Over time all jobs are terminated
+	time.Sleep(time.Second)
+
+	assert.False(t, cr.IsRunning(j1db1.ID()))
+	assert.False(t, cr.IsRunning(j1db2.ID()))
+	assert.False(t, cr.IsRunning(j2db1.ID()))
+	assert.False(t, cr.IsRunning(j2db2.ID()))
+	assert.False(t, cr.IsRunning(j3db1.ID()))
+	assert.False(t, cr.IsRunning(j3db2.ID()))
 }
 
 func TestDefaultPerDBInstanceLimit(t *testing.T) {
@@ -187,11 +197,11 @@ func TestDefaultPerDBInstanceLimit(t *testing.T) {
 	go cr.Run(ctx)
 
 	j1db1 := testJob{id: "test-1", timeout: time.Second, dsn: "postgresql://db1"}
-	j2db1 := testJob{id: "test-2", timeout: 2 * time.Second, dsn: "postgresql://db1"}
-	j3db1 := testJob{id: "test-3", timeout: 3 * time.Second, dsn: "postgresql://db1"}
+	j2db1 := testJob{id: "test-2", timeout: time.Second, dsn: "postgresql://db1"}
+	j3db1 := testJob{id: "test-3", timeout: time.Second, dsn: "postgresql://db1"}
 	j1db2 := testJob{id: "test-4", timeout: time.Second, dsn: "postgresql://db2"}
-	j2db2 := testJob{id: "test-5", timeout: 2 * time.Second, dsn: "postgresql://db2"}
-	j3db2 := testJob{id: "test-6", timeout: 3 * time.Second, dsn: "postgresql://db2"}
+	j2db2 := testJob{id: "test-5", timeout: time.Second, dsn: "postgresql://db2"}
+	j3db2 := testJob{id: "test-6", timeout: time.Second, dsn: "postgresql://db2"}
 
 	require.NoError(t, cr.StartJob(j1db1))
 	require.NoError(t, cr.StartJob(j1db2))
@@ -211,6 +221,16 @@ func TestDefaultPerDBInstanceLimit(t *testing.T) {
 	assert.True(t, cr.IsRunning(j1db2.ID()))
 	assert.True(t, cr.IsRunning(j2db1.ID()))
 	assert.True(t, cr.IsRunning(j2db2.ID()))
+	assert.False(t, cr.IsRunning(j3db1.ID()))
+	assert.False(t, cr.IsRunning(j3db2.ID()))
+
+	// Over time all jobs are terminated
+	time.Sleep(time.Second)
+
+	assert.False(t, cr.IsRunning(j1db1.ID()))
+	assert.False(t, cr.IsRunning(j1db2.ID()))
+	assert.False(t, cr.IsRunning(j2db1.ID()))
+	assert.False(t, cr.IsRunning(j2db2.ID()))
 	assert.False(t, cr.IsRunning(j3db1.ID()))
 	assert.False(t, cr.IsRunning(j3db2.ID()))
 }
