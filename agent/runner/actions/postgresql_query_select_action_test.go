@@ -103,18 +103,7 @@ func TestPostgreSQLQuerySelect(t *testing.T) {
 			Query: "* FROM city; DROP TABLE city CASCADE; --",
 		}
 		a, err := NewPostgreSQLQuerySelectAction("", 0, params, os.TempDir())
-		require.NoError(t, err)
-
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		defer cancel()
-
-		b, err := a.Run(ctx)
 		assert.EqualError(t, err, "query contains ';'")
-		assert.Nil(t, b)
-
-		var count int
-		err = db.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
-		require.NoError(t, err)
-		assert.Equal(t, 4079, count)
+		assert.Nil(t, a)
 	})
 }

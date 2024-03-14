@@ -174,14 +174,8 @@ func TestMySQLExplain(t *testing.T) {
 			OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 		}
 		a, err := NewMySQLExplainAction("", time.Second, params)
-		require.NoError(t, err)
-
-		ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
-		defer cancel()
-
-		_, err = a.Run(ctx)
-		require.Error(t, err)
 		assert.Regexp(t, `Query to EXPLAIN is empty`, err.Error())
+		assert.Nil(t, a)
 	})
 
 	t.Run("DML Query Insert", func(t *testing.T) {
@@ -216,13 +210,8 @@ func TestMySQLExplain(t *testing.T) {
 			OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 		}
 		a, err := NewMySQLExplainAction("", time.Second, params)
-		require.NoError(t, err)
-
-		ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
-		defer cancel()
-
-		_, err = a.Run(ctx)
-		require.Error(t, err, "EXPLAIN failed because the query was too long and trimmed. Set max-query-length to a larger value.")
+		assert.Error(t, err, "EXPLAIN failed because the query was too long and trimmed. Set max-query-length to a larger value.")
+		assert.Nil(t, a)
 	})
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
