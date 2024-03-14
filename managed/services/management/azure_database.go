@@ -30,6 +30,7 @@ import (
 
 	azurev1beta1 "github.com/percona/pmm/api/management/v1/azure"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -53,7 +54,7 @@ const (
 )
 
 // Enabled returns if service is enabled and can be used.
-func (s *ManagementService) Enabled() bool {
+func (s *ManagementService) isAzureEnabled() bool {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		logrus.WithField("component", "management/azure_database").WithError(err).Error("can't get settings")
@@ -133,6 +134,10 @@ func (s *ManagementService) DiscoverAzureDatabase(
 	ctx context.Context,
 	req *azurev1beta1.DiscoverAzureDatabaseRequest,
 ) (*azurev1beta1.DiscoverAzureDatabaseResponse, error) {
+	if !s.isAzureEnabled() {
+		return nil, services.ErrAzureDisabled
+	}
+
 	client, err := s.getAzureClient(req)
 	if err != nil {
 		return nil, err
@@ -185,6 +190,10 @@ func (s *ManagementService) DiscoverAzureDatabase(
 
 // AddAzureDatabase add azure database to monitoring.
 func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *azurev1beta1.AddAzureDatabaseRequest) (*azurev1beta1.AddAzureDatabaseResponse, error) {
+	if !s.isAzureEnabled() {
+		return nil, services.ErrAzureDisabled
+	}
+
 	l := logger.Get(ctx).WithField("component", "discover/azureDatabase")
 	// tweak according to API docs
 	if req.NodeName == "" {
