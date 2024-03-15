@@ -19,6 +19,7 @@ on:
       - "managed/**"
       - "qan-api2/**"
       - "update/**"
+      - "ui/**"
 
 jobs:
   test:
