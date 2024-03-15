@@ -217,8 +217,7 @@ func (r *Runner) IsRunning(id string) bool {
 	return ok
 }
 
-// createTokenFromDSN returns unique instance ID calculated as a hash from host:port part of the DSN. createTokenFromDSN allows to
-// identify target database instance and limit number of concurrent operations on it.
+// createTokenFromDSN returns unique database instance id (token) calculated as a hash from host:port part of the DSN.
 func createTokenFromDSN(dsn string) (string, error) {
 	if dsn == "" {
 		return "", nil
