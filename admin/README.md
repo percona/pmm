@@ -9,7 +9,7 @@ git, make, curl, go, gcc, pmm-server, pmm-agent
 
 ## Local setup
 ### To run pmm-admin commands
-- Run [pmm-server docker container](https://hub.docker.com/r/percona/pmm-server) or [pmm-managed](https://github.com/percona/pmm-managed).  
+- Run [pmm-server docker container](https://hub.docker.com/r/percona/pmm-server) or [pmm-managed](https://github.com/percona/pmm/tree/main/managed).  
 - Run pmm-agent `cd ../agent`.
 - Run pmm-admin commands.
     ```shell script
@@ -18,8 +18,9 @@ git, make, curl, go, gcc, pmm-server, pmm-agent
 
 You should see something like this
  ```shell script
-Agent ID: /agent_id/fcbe3cb4-a95a-43f4-aef5-c3494caa5132
-Node ID : /node_id/77be6b4d-a1d9-4687-8fae-7acbaee7db47
+Agent ID : /agent_id/fcbe3cb4-a95a-43f4-aef5-c3494caa5132
+Node ID  : /node_id/77be6b4d-a1d9-4687-8fae-7acbaee7db47
+Node name: mysql-server-test-1
 
 PMM Server:
         URL    : https://127.0.0.1:443/
@@ -31,10 +32,10 @@ PMM-agent:
         Latency   : 211.026µs
 
 Agents:
-        /agent_id/3329a405-8a5d-4414-9890-b6ae4209e0cc NODE_EXPORTER RUNNING
+        /agent_id/3329a405-8a5d-4414-9890-b6ae4209e0cc NODE_EXPORTER RUNNING 9920
 ```
 It means that everything works.
 
 ## Testing
-pmm-admin doesn't require setting-up environment.  
+pmm-admin doesn't require setting-up an environment.  
 Run `make test` to run tests. 
