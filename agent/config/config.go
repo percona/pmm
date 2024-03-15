@@ -147,11 +147,11 @@ type Setup struct {
 type Config struct { //nolint:musttag
 	// no config file there
 
-	ID                        string `yaml:"id"`
-	ListenAddress             string `yaml:"listen-address"`
-	ListenPort                uint16 `yaml:"listen-port"`
-	RunnerCapacity            uint16 `yaml:"runner-capacity,omitempty"`
-	RunnerPerInstanceCapacity uint16 `yaml:"runner-per-instance-capacity,omitempty"`
+	ID                             string `yaml:"id"`
+	ListenAddress                  string `yaml:"listen-address"`
+	ListenPort                     uint16 `yaml:"listen-port"`
+	RunnerCapacity                 uint16 `yaml:"runner-capacity,omitempty"`
+	RunnerMaxConnectionsPerService uint16 `yaml:"runner-max-connections-per-service,omitempty"`
 
 	Server Server `yaml:"server"`
 	Paths  Paths  `yaml:"paths"`
@@ -354,8 +354,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_LISTEN_PORT").Uint16Var(&cfg.ListenPort)
 	app.Flag("runner-capacity", "Agent internal actions/jobs runner capacity [PMM_AGENT_RUNNER_CAPACITY]").
 		Envar("PMM_AGENT_RUNNER_CAPACITY").Uint16Var(&cfg.RunnerCapacity)
-	app.Flag("runner-per-instance-capacity", "Agent internal actions/jobs runner per DB execution limit [PMM_AGENT_RUNNER_CAPACITY]").
-		Envar("PMM_AGENT_RUNNER_PER_INSTANCE_CAPACITY").Uint16Var(&cfg.RunnerPerInstanceCapacity)
+	app.Flag("runner-max-connections-per-service", "Agent internal actions/jobs runner connections limit per DB instance").
+		Envar("PMM_AGENT_RUNNER_MAX_CONNECTIONS_PER_SERVICE").Uint16Var(&cfg.RunnerMaxConnectionsPerService)
 
 	app.Flag("server-address", "PMM Server address [PMM_AGENT_SERVER_ADDRESS]").
 		Envar("PMM_AGENT_SERVER_ADDRESS").PlaceHolder("<host:port>").StringVar(&cfg.Server.Address)

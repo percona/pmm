@@ -34,7 +34,6 @@ const postgreSQLQueryShowActionType = "postgresql-query-show"
 type postgresqlQueryShowAction struct {
 	id      string
 	timeout time.Duration
-	tempDir string
 	dsn     string
 }
 
@@ -48,7 +47,6 @@ func NewPostgreSQLQueryShowAction(id string, timeout time.Duration, params *agen
 	return &postgresqlQueryShowAction{
 		id:      id,
 		timeout: timeout,
-		tempDir: tempDir,
 		dsn:     dsn,
 	}, nil
 }

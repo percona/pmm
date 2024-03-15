@@ -35,7 +35,6 @@ type postgresqlQuerySelectAction struct {
 	id      string
 	timeout time.Duration
 	params  *agentpb.StartActionRequest_PostgreSQLQuerySelectParams
-	tempDir string
 	dsn     string
 }
 
@@ -60,7 +59,6 @@ func NewPostgreSQLQuerySelectAction(id string, timeout time.Duration, params *ag
 		id:      id,
 		timeout: timeout,
 		params:  params,
-		tempDir: tempDir,
 		dsn:     dsn,
 	}, nil
 }

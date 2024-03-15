@@ -36,7 +36,6 @@ type postgresqlShowIndexAction struct {
 	id      string
 	timeout time.Duration
 	params  *agentpb.StartActionRequest_PostgreSQLShowIndexParams
-	tempDir string
 	dsn     string
 }
 
@@ -52,7 +51,6 @@ func NewPostgreSQLShowIndexAction(id string, timeout time.Duration, params *agen
 		id:      id,
 		timeout: timeout,
 		params:  params,
-		tempDir: tempDir,
 		dsn:     dsn,
 	}, nil
 }

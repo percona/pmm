@@ -35,10 +35,8 @@ type mongodbQueryAdmincommandAction struct {
 	id      string
 	timeout time.Duration
 	dsn     string
-	files   *agentpb.TextFiles
 	command string
 	arg     interface{}
-	tempDir string
 }
 
 // NewMongoDBQueryAdmincommandAction creates a MongoDB adminCommand query action.
@@ -60,10 +58,8 @@ func NewMongoDBQueryAdmincommandAction(
 		id:      id,
 		timeout: timeout,
 		dsn:     dsn,
-		files:   files,
 		command: command,
 		arg:     arg,
-		tempDir: tempDir,
 	}, nil
 }
 

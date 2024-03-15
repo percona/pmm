@@ -68,7 +68,6 @@ type postgresqlShowCreateTableAction struct {
 	id      string
 	timeout time.Duration
 	params  *agentpb.StartActionRequest_PostgreSQLShowCreateTableParams
-	tempDir string
 	dsn     string
 }
 
@@ -89,7 +88,6 @@ func NewPostgreSQLShowCreateTableAction(
 		id:      id,
 		timeout: timeout,
 		params:  params,
-		tempDir: tempDir,
 		dsn:     dsn,
 	}, nil
 }

@@ -40,7 +40,7 @@ const (
 	bufferSize           = 256
 	defaultActionTimeout = 10 * time.Second // default timeout for compatibility with an older server
 	defaultTotalCapacity = 32               // how many concurrent operations are allowed in total
-	defaultDBCapacity    = 2                // how many concurrent operations on a single database instance are allowed
+	defaultTokenCapacity = 2                // how many concurrent operations on a single resource (usually DB instance) are allowed
 )
 
 // Runner executes jobs and actions.
@@ -66,11 +66,11 @@ type Runner struct {
 	// gSem is a global semaphore to limit total number of concurrent operations performed by the runner.
 	gSem *semaphore.Weighted
 
-	// dbInstanceCapacity is a limit of concurrent operations on a single database instance.
-	dbInstanceCapacity uint16
+	// tokenCapacity is a limit of concurrent operations on a single resource, usually database instance.
+	tokenCapacity uint16
 
 	// lSems is a map of local semaphores to limit number of concurrent operations on a single database instance.
-	// Key is a hash of DSN(only host:port pair), value is a semaphore.
+	// Key is a token which is typically is a hash of DSN(only host:port pair), value is a semaphore.
 	lSemsM sync.Mutex
 	lSems  map[string]*entry
 }
@@ -82,41 +82,41 @@ type entry struct {
 }
 
 // New creates new runner. If capacity is 0 then default value is used.
-func New(totalCapacity, dbInstanceCapacity uint16) *Runner {
+func New(totalCapacity, tokenCapacity uint16) *Runner {
 	l := logrus.WithField("component", "runner")
 	if totalCapacity == 0 {
 		totalCapacity = defaultTotalCapacity
 	}
 
-	if dbInstanceCapacity == 0 {
-		dbInstanceCapacity = defaultDBCapacity
+	if tokenCapacity == 0 {
+		tokenCapacity = defaultTokenCapacity
 	}
 
-	l.Infof("Runner capacity set to %d, db instance capacity set to %d", totalCapacity, dbInstanceCapacity)
+	l.Infof("Runner capacity set to %d, token capacity set to %d", totalCapacity, tokenCapacity)
 
 	return &Runner{
-		l:                  l,
-		actions:            make(chan actions.Action, bufferSize),
-		jobs:               make(chan jobs.Job, bufferSize),
-		cancels:            make(map[string]context.CancelFunc),
-		running:            make(map[string]struct{}),
-		jobsMessages:       make(chan agentpb.AgentResponsePayload),
-		actionsMessages:    make(chan agentpb.AgentRequestPayload),
-		dbInstanceCapacity: dbInstanceCapacity,
-		gSem:               semaphore.NewWeighted(int64(totalCapacity)),
-		lSems:              make(map[string]*entry),
+		l:               l,
+		actions:         make(chan actions.Action, bufferSize),
+		jobs:            make(chan jobs.Job, bufferSize),
+		cancels:         make(map[string]context.CancelFunc),
+		running:         make(map[string]struct{}),
+		jobsMessages:    make(chan agentpb.AgentResponsePayload),
+		actionsMessages: make(chan agentpb.AgentRequestPayload),
+		tokenCapacity:   tokenCapacity,
+		gSem:            semaphore.NewWeighted(int64(totalCapacity)),
+		lSems:           make(map[string]*entry),
 	}
 }
 
 // acquire acquires global and local semaphores.
-func (r *Runner) acquire(ctx context.Context, id string) error {
-	if id != "" {
+func (r *Runner) acquire(ctx context.Context, token string) error {
+	if token != "" {
 		r.lSemsM.Lock()
 
-		e, ok := r.lSems[id]
+		e, ok := r.lSems[token]
 		if !ok {
-			e = &entry{sem: semaphore.NewWeighted(int64(r.dbInstanceCapacity))}
-			r.lSems[id] = e
+			e = &entry{sem: semaphore.NewWeighted(int64(r.tokenCapacity))}
+			r.lSems[token] = e
 		}
 		r.lSemsM.Unlock()
 
@@ -134,16 +134,16 @@ func (r *Runner) acquire(ctx context.Context, id string) error {
 }
 
 // release releases global and local semaphores.
-func (r *Runner) release(dsn string) {
+func (r *Runner) release(token string) {
 	r.gSem.Release(1)
 
-	if dsn != "" {
+	if token != "" {
 		r.lSemsM.Lock()
 
-		if e, ok := r.lSems[dsn]; ok {
+		if e, ok := r.lSems[token]; ok {
 			e.sem.Release(1)
 			if v := e.count.Add(-1); v == 0 {
-				delete(r.lSems, dsn)
+				delete(r.lSems, token)
 			}
 		}
 		r.lSemsM.Unlock()
@@ -217,9 +217,9 @@ func (r *Runner) IsRunning(id string) bool {
 	return ok
 }
 
-// instanceID returns unique instance ID calculated as a hash from host:port part of the DSN. instanceID allows to
+// createTokenFromDSN returns unique instance ID calculated as a hash from host:port part of the DSN. createTokenFromDSN allows to
 // identify target database instance and limit number of concurrent operations on it.
-func instanceID(dsn string) (string, error) {
+func createTokenFromDSN(dsn string) (string, error) {
 	if dsn == "" {
 		return "", nil
 	}
@@ -244,9 +244,9 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 	jobID, jobType := job.ID(), job.Type()
 	l := r.l.WithFields(logrus.Fields{"id": jobID, "type": jobType})
 
-	instanceID, err := instanceID(job.DSN())
+	token, err := createTokenFromDSN(job.DSN())
 	if err != nil {
-		r.l.Warnf("Failed to get instance ID for job: %v", err)
+		r.l.Warnf("Failed to get token for job: %v", err)
 	}
 
 	var nCtx context.Context
@@ -269,7 +269,7 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 		defer r.removeCancel(jobID)
 
 		l.Debug("Acquiring tokens for a job.")
-		if err := r.acquire(ctx, instanceID); err != nil {
+		if err := r.acquire(ctx, token); err != nil {
 			l.Errorf("Failed to acquire token for a job: %v", err)
 			r.sendJobsMessage(&agentpb.JobResult{
 				JobId:     job.ID(),
@@ -282,7 +282,7 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 			})
 			return
 		}
-		defer r.release(instanceID)
+		defer r.release(token)
 
 		// Mark job as running.
 		r.addStarted(jobID)
@@ -311,7 +311,7 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 	actionID, actionType := action.ID(), action.Type()
 	l := r.l.WithFields(logrus.Fields{"id": actionID, "type": actionType})
 
-	instanceID, err := instanceID(action.DSN())
+	instanceID, err := createTokenFromDSN(action.DSN())
 	if err != nil {
 		r.l.Warnf("Failed to get instance ID for action: %v", err)
 	}

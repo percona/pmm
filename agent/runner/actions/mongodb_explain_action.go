@@ -37,7 +37,6 @@ type mongodbExplainAction struct {
 	id      string
 	timeout time.Duration
 	params  *agentpb.StartActionRequest_MongoDBExplainParams
-	tempDir string
 	dsn     string
 }
 
@@ -54,7 +53,6 @@ func NewMongoDBExplainAction(id string, timeout time.Duration, params *agentpb.S
 		id:      id,
 		timeout: timeout,
 		params:  params,
-		tempDir: tempDir,
 		dsn:     dsn,
 	}, nil
 }
