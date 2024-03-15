@@ -75,12 +75,13 @@ var rules = map[string]role{
 	"/v1/user":                                    viewer,
 
 	// must be available without authentication for health checking
-	"/v1/readyz":            none, // TODO: remove once we have we merge it to v3
+	"/v1/readyz":            none, // TODO: remove once we merge it to v3
 	"/v1/server/readyz":     none,
 	"/v1/leaderHealthCheck": none,
 	"/ping":                 none, // PMM 1.x variant
 
 	// must not be available without authentication as it can leak data
+	"/v1/version":        viewer, // TODO: remove once we merge it to v3
 	"/v1/server/version": viewer,
 
 	"/v1/qan/": viewer,
