@@ -68,7 +68,7 @@ func getCallerOriginStr(ctx context.Context) string {
 }
 
 func callerOriginFromRequest(ctx context.Context, method string) callerOrigin {
-	if method == "/server.Server/Readiness" || method == "/agent.Agent/Connect" {
+	if method == "/server.v1.ServerService/Readiness" || method == "/agent.v1.AgentService/Connect" {
 		return internalCallerOrigin
 	}
 

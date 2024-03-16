@@ -44,13 +44,13 @@ var rules = map[string]role{
 	"/agent.Agent/Connect":           none, // NOTE: remove before v3 GA
 	"/agent.v1.AgentService/Connect": none,
 
-	"/inventory.":                     admin,
-	"/management.":                    admin,
-	"/actions/":                       viewer,
-	"/server.Server/CheckUpdates":     viewer,
-	"/server.Server/UpdateStatus":     none, // special token-based auth
-	"/server.Server/AWSInstanceCheck": none, // special case - used before Grafana can be accessed
-	"/server.":                        admin,
+	"/inventory.":                               admin,
+	"/management.":                              admin,
+	"/actions/":                                 viewer,
+	"/server.v1.ServerService/CheckUpdates":     viewer,
+	"/server.v1.ServerService/UpdateStatus":     none, // special token-based auth
+	"/server.v1.ServerService/AWSInstanceCheck": none, // special case - used before Grafana can be accessed
+	"/server.v1.":                               admin,
 
 	"/v1/alerting":                                viewer,
 	"/v1/backup":                                  admin,
@@ -110,7 +110,7 @@ const vmProxyHeaderName = "X-Proxy-Filter"
 
 // Only UI is blocked by setup wizard; APIs can be used.
 // Critically, AWSInstanceCheck must be available for the setup wizard itself to work;
-// and /agent.Agent/Connect and Management APIs should be available for pmm-agent on PMM Server registration.
+// and /agent.v1.AgentService/Connect and Management APIs should be available for pmm-agent on PMM Server registration.
 var mustSetupRules = []string{
 	"/prometheus",
 	"/victoriametrics",
