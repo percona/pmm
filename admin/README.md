@@ -32,7 +32,7 @@ PMM-agent:
         Latency   : 211.026µs
 
 Agents:
-        /agent_id/3329a405-8a5d-4414-9890-b6ae4209e0cc NODE_EXPORTER RUNNING 9920
+        /agent_id/3329a405-8a5d-4414-9890-b6ae4209e0cc NODE_EXPORTER RUNNING 40001
 ```
 It means that everything works.
 
