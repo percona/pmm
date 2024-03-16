@@ -41,7 +41,8 @@ import (
 // rules maps original URL prefix to minimal required role.
 var rules = map[string]role{
 	// TODO https://jira.percona.com/browse/PMM-4420
-	"/agent.Agent/Connect": none,
+	"/agent.Agent/Connect":           none, // NOTE: remove before v3 GA
+	"/agent.v1.AgentService/Connect": none,
 
 	"/inventory.":                     admin,
 	"/management.":                    admin,
@@ -75,13 +76,13 @@ var rules = map[string]role{
 	"/v1/user":                                    viewer,
 
 	// must be available without authentication for health checking
-	"/v1/readyz":            none, // TODO: remove once we merge it to v3
+	"/v1/readyz":            none, // TODO: remove before v3 GA
 	"/v1/server/readyz":     none,
 	"/v1/leaderHealthCheck": none,
 	"/ping":                 none, // PMM 1.x variant
 
 	// must not be available without authentication as it can leak data
-	"/v1/version":        viewer, // TODO: remove once we merge it to v3
+	"/v1/version":        viewer, // TODO: remove before v3 GA
 	"/v1/server/version": viewer,
 
 	"/v1/qan/": viewer,
