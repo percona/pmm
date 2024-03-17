@@ -50,7 +50,8 @@ var rules = map[string]role{
 	"/server.v1.ServerService/CheckUpdates":     viewer,
 	"/server.v1.ServerService/UpdateStatus":     none, // special token-based auth
 	"/server.v1.ServerService/AWSInstanceCheck": none, // special case - used before Grafana can be accessed
-	"/server.v1.":                               admin,
+	"/server.":                                  admin,
+	// "/server.v1.":                               admin, // TODO: apply before v3 GA, remove the one above
 
 	"/v1/alerting":                                viewer,
 	"/v1/backup":                                  admin,
