@@ -37,8 +37,9 @@ jobs:
       - name: Setup nodejs
         uses: actions/setup-node@v4
         with:
-          node-version-file: /ui/.nvmrc
+          node-version-file: ui/.nvmrc
           cache: yarn
+          cache-dependency-path: ui
 
       - name: Run lint
         run: |
