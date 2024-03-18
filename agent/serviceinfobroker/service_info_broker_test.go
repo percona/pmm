@@ -260,7 +260,7 @@ func TestServiceInfoBroker(t *testing.T) {
 		}, 0)
 		require.NotNil(t, resp)
 		assert.Equal(t, []string{"postgres", "pmm-agent"}, resp.DatabaseList)
-		assert.Equal(t, "", resp.PgsmVersion)
+		assert.Equal(t, "", *resp.PgsmVersion)
 	})
 
 	t.Run("MongoDBWithSSL", func(t *testing.T) {
