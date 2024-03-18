@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -38,6 +39,7 @@ const (
 	backoffMinDelay = 1 * time.Second
 	backoffMaxDelay = 30 * time.Second
 
+	maxRetry     = 5
 	keepLogLines = 100
 )
 
@@ -53,13 +55,18 @@ const (
 // implements its own logic, and then switches to then next state via "go toXXX()". "go" statement is used
 // only to avoid stack overflow; there are no extra goroutines for states.
 type Process struct {
-	params  *Params
-	l       *logrus.Entry
-	pl      *processLogger
-	changes chan inventorypb.AgentStatus
-	backoff *backoff.Backoff
-	ctxDone chan struct{}
+	params          *Params
+	l               *logrus.Entry
+	pl              *processLogger
+	changes         chan inventorypb.AgentStatus
+	backoff         *backoff.Backoff
+	ctxDone         chan struct{}
+	retryTime       int8
+	requireNewParams chan bool      // send true if need new params
+	newParams       <-chan *Params // for getting updated params
 
+	rw             sync.RWMutex
+	
 	// recreated on each restart
 	cmd     *exec.Cmd
 	cmdDone chan struct{}
@@ -74,6 +81,7 @@ type Params struct {
 	Type             inventorypb.AgentType
 	TemplateRenderer *templates.TemplateRenderer
 	TemplateParams   map[string]interface{}
+	Port             uint16
 }
 
 func (p *Params) String() string {
@@ -86,14 +94,17 @@ func (p *Params) String() string {
 }
 
 // New creates new process.
-func New(params *Params, redactWords []string, l *logrus.Entry) *Process {
+func New(params *Params, redactWords []string, l *logrus.Entry, newParams <-chan *Params) *Process {
 	return &Process{
-		params:  params,
-		l:       l,
-		pl:      newProcessLogger(l, keepLogLines, redactWords),
-		changes: make(chan inventorypb.AgentStatus, 10),
-		backoff: backoff.New(backoffMinDelay, backoffMaxDelay),
-		ctxDone: make(chan struct{}),
+		params:    params,
+		l:         l,
+		pl:        newProcessLogger(l, keepLogLines, redactWords),
+		changes:   make(chan inventorypb.AgentStatus, 10),
+		backoff:   backoff.New(backoffMinDelay, backoffMaxDelay),
+		ctxDone:   make(chan struct{}),
+		retryTime: 0,
+		requireNewParams: make(chan bool),
+		newParams : newParams,
 	}
 }
 
@@ -174,10 +185,24 @@ func (p *Process) toWaiting() {
 	p.l.Infof("Process: waiting %s.", delay)
 	p.changes <- inventorypb.AgentStatus_WAITING
 
+	p.checkMaxRetry()
+
 	t := time.NewTimer(delay)
 	defer t.Stop()
 	select {
 	case <-t.C:
+		if p.newParams!=nil {
+			select {
+			case params, ok := <-p.newParams:
+				if ok {
+					p.rw.Lock()
+					defer p.rw.Unlock()
+					p.params = params
+				}
+			default:
+			}
+		}
+
 		// recreate config file in temp dir.
 		if p.params.TemplateRenderer != nil {
 			_, err := p.params.TemplateRenderer.RenderFiles(p.params.TemplateParams)
@@ -221,7 +246,8 @@ func (p *Process) toStopping() {
 func (p *Process) toDone() {
 	p.l.Trace("Process: done.")
 	p.changes <- inventorypb.AgentStatus_DONE
-
+	
+	close(p.requireNewParams)
 	close(p.changes)
 }
 
@@ -230,9 +256,27 @@ func (p *Process) Changes() <-chan inventorypb.AgentStatus {
 	return p.changes
 }
 
+func (p *Process) RequireNewParams() chan bool {
+	return p.requireNewParams
+}
+
+func (p *Process) checkMaxRetry() {
+	p.retryTime++
+	if p.retryTime >= maxRetry {
+		p.requireNewParams <- true
+		p.retryTime = 0
+	}
+}
+
 // Logs returns latest process logs.
 func (p *Process) Logs() []string {
 	return p.pl.Latest()
+}
+
+func (p *Process) GetPort() uint16 {
+	p.rw.RLock()
+	defer p.rw.RUnlock()
+	return p.params.Port
 }
 
 // check interfaces.

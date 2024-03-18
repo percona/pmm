@@ -16,13 +16,16 @@ package supervisor
 
 import (
 	"context"
+	"net"
 	"os"
 	"path/filepath"
 	"sort"
+	"syscall"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/sys/unix"
 
 	"github.com/percona/pmm/agent/agents/process"
 	"github.com/percona/pmm/agent/config"
@@ -257,6 +260,73 @@ func TestSupervisor(t *testing.T) {
 		expectedList = []*agentlocalpb.AgentInfo{}
 		require.Equal(t, expectedList, s.AgentsList())
 	})
+}
+
+// Simulate the situation where port assigned to a process is occupied.
+// The supervisor is supposed to give the process a new port.
+func TestSupervisorRetryPorts(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	tempDir := t.TempDir()
+	cfgStorage := config.NewStorage(&config.Config{
+		Paths:         config.Paths{TempDir: tempDir},
+		Ports:         config.Ports{Min: 65011, Max: 65099},
+		Server:        config.Server{Address: "localhost:443"},
+		LogLinesCount: 1,
+	})
+	s := NewSupervisor(ctx, nil, cfgStorage)
+	s.portsRegistry = &portsRegistry{
+		min:         65011,
+		max:         65099,
+		last:        65011 - 1,
+		reserved:    make(map[uint16]struct{}, 0),
+		ignoreCheck: true,
+	}
+
+	go s.Run(ctx)
+
+	t.Run("StartWithConflictPort", func(t *testing.T) {
+		expectedList := []*agentlocalpb.AgentInfo{}
+		var lc = net.ListenConfig{
+			Control: func(network, address string, c syscall.RawConn) error {
+				var opErr error
+				if err := c.Control(func(fd uintptr) {
+					opErr = unix.SetsockoptInt(int(fd), unix.SOL_SOCKET, unix.SO_REUSEPORT, 0)
+				}); err != nil {
+					return err
+				}
+				return opErr
+			},
+		}
+		l, err := lc.Listen(context.Background(),"tcp", "127.0.0.1:65011")
+		require.NoError(t, err)
+		defer l.Close()
+
+		s.SetState(&agentpb.SetStateRequest{
+			AgentProcesses: map[string]*agentpb.SetStateRequest_AgentProcess{
+				"nc1": {Type: type_TEST_NC, Args: []string{"-lk4", "localhost"}},
+			},
+		})
+
+		for i := 0; i < 5; i++ {
+			assertChanges(t, s,
+				&agentpb.StateChangedRequest{AgentId: "nc1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65011, ProcessExecPath: "nc"},
+				&agentpb.StateChangedRequest{AgentId: "nc1", Status: inventorypb.AgentStatus_WAITING, ListenPort: 65011, ProcessExecPath: "nc"})
+		}
+
+		assertChanges(t, s,
+			&agentpb.StateChangedRequest{AgentId: "nc1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65012, ProcessExecPath: "nc"},
+			&agentpb.StateChangedRequest{AgentId: "nc1", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65012, ProcessExecPath: "nc"})
+
+		cancel()
+
+		assertChanges(t, s,
+			&agentpb.StateChangedRequest{AgentId: "nc1", Status: inventorypb.AgentStatus_STOPPING, ListenPort: 65012, ProcessExecPath: "nc"},
+			&agentpb.StateChangedRequest{AgentId: "nc1", Status: inventorypb.AgentStatus_DONE, ListenPort: 65012, ProcessExecPath: "nc"})
+		expectedList = []*agentlocalpb.AgentInfo{}
+		require.Equal(t, expectedList, s.AgentsList())
+	})
+
 }
 
 func TestFilter(t *testing.T) {

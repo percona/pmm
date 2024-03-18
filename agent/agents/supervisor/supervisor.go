@@ -23,6 +23,7 @@ import (
 	"path/filepath"
 	"runtime/pprof"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -73,12 +74,14 @@ type Supervisor struct {
 
 // agentProcessInfo describes Agent process.
 type agentProcessInfo struct {
-	cancel          func()          // to cancel Process.Run(ctx)
-	done            <-chan struct{} // closes when Process.Changes() channel closes
-	requestedState  *agentpb.SetStateRequest_AgentProcess
-	listenPort      uint16
-	processExecPath string
-	logStore        *tailog.Store // store logs
+	cancel           func()          // to cancel Process.Run(ctx)
+	done             <-chan struct{} // closes when Process.Changes() channel closes
+	requestedState   *agentpb.SetStateRequest_AgentProcess
+	listenPort       uint16
+	processExecPath  string
+	logStore         *tailog.Store // store logs
+	requireNewParams <-chan bool
+	newParams        chan<- *process.Params
 }
 
 // builtinAgentInfo describes built-in Agent.
@@ -291,7 +294,7 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentpb.SetSta
 		agent.cancel()
 		<-agent.done
 
-		if err := s.portsRegistry.Release(agent.listenPort); err != nil {
+		if err := s.portsRegistry.Release(agent.listenPort, false); err != nil {
 			s.l.Errorf("Failed to release port: %s.", err)
 		}
 
@@ -314,6 +317,8 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentpb.SetSta
 			s.l.Errorf("Failed to start Agent: %s.", err)
 			// TODO report that error to server
 		}
+
+		s.startNewParamsLister(agentID, agentProcesses[agentID])
 	}
 
 	// start new agents
@@ -329,6 +334,8 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentpb.SetSta
 			s.l.Errorf("Failed to start Agent: %s.", err)
 			// TODO report that error to server
 		}
+
+		s.startNewParamsLister(agentID, agentProcesses[agentID])
 	}
 }
 
@@ -427,6 +434,7 @@ func filter(existing, ap map[string]agentpb.AgentParams) ([]string, []string, []
 
 //nolint:golint,stylecheck,revive
 const (
+	type_TEST_NC    inventorypb.AgentType = 997
 	type_TEST_SLEEP inventorypb.AgentType = 998 // process
 	type_TEST_NOOP  inventorypb.AgentType = 999 // built-in
 )
@@ -449,7 +457,8 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 	})
 	l.Debugf("Starting: %s.", processParams)
 
-	process := process.New(processParams, agentProcess.RedactWords, l)
+	newParamsChan := make(chan *process.Params)
+	process := process.New(processParams, agentProcess.RedactWords, l, newParamsChan)
 	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), process.Run)
 
 	version, err := s.version(agentProcess.Type, processParams.Path)
@@ -461,11 +470,11 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 	go func() {
 		for status := range process.Changes() {
 			s.storeLastStatus(agentID, status)
-			l.Infof("Sending status: %s (port %d).", status, port)
+			l.Infof("Sending status: %s (port %d).", status, process.GetPort())
 			s.changes <- &agentpb.StateChangedRequest{
 				AgentId:         agentID,
 				Status:          status,
-				ListenPort:      uint32(port),
+				ListenPort:      uint32(process.GetPort()),
 				ProcessExecPath: processParams.Path,
 				Version:         version,
 			}
@@ -475,14 +484,53 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 
 	//nolint:forcetypeassert
 	s.agentProcesses[agentID] = &agentProcessInfo{
-		cancel:          cancel,
-		done:            done,
-		requestedState:  proto.Clone(agentProcess).(*agentpb.SetStateRequest_AgentProcess),
-		listenPort:      port,
-		processExecPath: processParams.Path,
-		logStore:        logStore,
+		cancel:           cancel,
+		done:             done,
+		requestedState:   proto.Clone(agentProcess).(*agentpb.SetStateRequest_AgentProcess),
+		listenPort:       port,
+		processExecPath:  processParams.Path,
+		logStore:         logStore,
+		requireNewParams: process.RequireNewParams(),
+		newParams:        newParamsChan,
 	}
 	return nil
+}
+
+// A lister for updating the params of the process.
+// The listener will release the previous port, reserve a new one and send new params to the process
+func (s *Supervisor) startNewParamsLister(agentID string, agentProcess *agentpb.SetStateRequest_AgentProcess) {
+	go func() {
+		s.rw.RLock()
+		process := s.agentProcesses[agentID]
+		s.rw.RUnlock()
+		for value := range process.requireNewParams {
+			if !value {
+				continue
+			}
+
+			// need rw lock for to lock the agentProcess map
+			s.rw.Lock()
+			defer s.rw.Unlock()
+
+			s.portsRegistry.Release(process.listenPort, true)
+			port, err := s.portsRegistry.Reserve()
+			if err != nil {
+				s.l.Errorf("Failed to reserve port during retry: %s.", err)
+				// TODO report that error to server
+				continue
+			}
+			params, err := s.processParams(agentID, agentProcess, port)
+			if err != nil {
+				s.l.Errorf("Failed to process params during retry: %s.", err)
+				// TODO report that error to server
+				continue
+			}
+			if process.newParams != nil {
+				process.listenPort = port
+				process.newParams <- params
+			}
+		}
+	}()
 }
 
 // startBuiltin starts built-in Agent.
@@ -659,6 +707,13 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 		processParams.Path = cfg.Paths.AzureExporter
 	case type_TEST_SLEEP:
 		processParams.Path = "sleep"
+	case type_TEST_NC:
+		processParams.Path = "nc"
+		if agentProcess.Args[len(agentProcess.Args)-1] == "localhost" {
+			agentProcess.Args = append(agentProcess.Args, strconv.Itoa(int(port)))
+		}
+		agentProcess.Args[len(agentProcess.Args)-1] = strconv.Itoa(int(port))
+
 	case inventorypb.AgentType_VM_AGENT:
 		// add template params for vmagent.
 		templateParams["server_insecure"] = cfg.Server.InsecureTLS
@@ -710,6 +765,8 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 		}
 		processParams.Env[i] = string(b)
 	}
+
+	processParams.Port = port
 
 	return &processParams, nil
 }
