@@ -126,6 +126,13 @@
         path: /etc/supervisord.d/supervisord.ini
       when: not is_docker
 
+    - name: Stop systemd pmm-agent service, if running
+      systemd:
+        name: pmm-agent
+        state: stopped
+        enabled: no
+      when: not is_docker
+
     - name: Create grafana config
       include_role:
         name: grafana
@@ -303,15 +310,6 @@
     - name: Install clickhouse
       include_role:
         name: clickhouse
-
-    # Fix things that should be fixed before restarts.
-
-    - name: Stop systemd pmm-agent service, if running
-      systemd:
-        name: pmm-agent
-        state: stopped
-        enabled: no
-      when: not is_docker
 
     # https://jira.percona.com/browse/PMM-9298
     - name: Copy rezise-xfs file for lvm
