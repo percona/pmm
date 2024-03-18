@@ -68,20 +68,20 @@
     name: root
     password: "$6$J7pGg2a7vuRTbTV5$vORqkiAKdkyomU3iYwr/SPn.yLIkGsl5ludEx5DUvGVASSTquTjOldHt/nUWrFRnJeZyzt6CIOjAcugbcfGtN1"
 
-- name: root password              | Set root password
-  when: ansible_virtualization_type == "virtualbox"
-  command: chage -d 0 root
-  changed_when: False
+# - name: root password              | Set root password
+#   when: ansible_virtualization_type == "virtualbox"
+#   command: chage -d 0 root
+#   changed_when: False
 
-- name: root password              | Disable root password
-  when: ansible_virtualization_type != "virtualbox"
-  command: passwd --delete root
-  changed_when: False
+# - name: root password              | Disable root password
+#   when: ansible_virtualization_type != "virtualbox"
+#   command: passwd --delete root
+#   changed_when: False
 
-- name: root password              | Disable root password
-  when: ansible_virtualization_type != "virtualbox"
-  command: passwd --lock root
-  changed_when: False
+# - name: root password              | Disable root password
+#   when: ansible_virtualization_type != "virtualbox"
+#   command: passwd --lock root
+#   changed_when: False
 
 - name: chronyd                    | Fix start-up sequence
   replace:
