@@ -475,7 +475,7 @@ message ServiceInfoResponse {
   // A list of PostgreSQL databases.
   repeated string database_list = 4;
   // A version of pg_stat_monitor, empty if unavailable.
-  string pgsm_version = 5;
+  optional string pgsm_version = 5;
 }
 
 // JobStatusRequest is a ServerMessage asking pmm-agent for job status.
