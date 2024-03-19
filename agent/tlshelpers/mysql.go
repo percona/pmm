@@ -36,10 +36,10 @@ func RegisterMySQLCerts(files map[string]string, tlsSkipVerify bool) error {
 	}
 
 	if ok := ca.AppendCertsFromPEM([]byte(files["tlsCa"])); ok {
-		err = mysql.RegisterTLSConfig("custom", &tls.Config{ //nolint:gosec
+		err = mysql.RegisterTLSConfig("custom", &tls.Config{
 			RootCAs:            ca,
 			Certificates:       []tls.Certificate{cert},
-			InsecureSkipVerify: tlsSkipVerify,
+			InsecureSkipVerify: tlsSkipVerify, // #nosec G402
 		})
 		if err != nil {
 			return errors.Wrap(err, "register MySQL CA cert failed")
