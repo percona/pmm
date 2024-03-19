@@ -50,7 +50,7 @@ func NewPostgreSQLQuerySelectAction(id string, timeout time.Duration, params *ag
 		return nil, errors.New("query contains ';'")
 	}
 
-	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, filepath.Join(tempDir, strings.ToLower(postgreSQLQuerySelectActionType), id))
+	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, filepath.Join(tempDir, postgreSQLQuerySelectActionType, id))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

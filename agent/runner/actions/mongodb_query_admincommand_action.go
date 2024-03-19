@@ -17,7 +17,6 @@ package actions
 import (
 	"context"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -49,7 +48,7 @@ func NewMongoDBQueryAdmincommandAction(
 	arg interface{},
 	tempDir string,
 ) (Action, error) {
-	dsn, err := templates.RenderDSN(dsn, files, filepath.Join(tempDir, strings.ToLower(mongoDBQueryAdminCommandActionType), id))
+	dsn, err := templates.RenderDSN(dsn, files, filepath.Join(tempDir, mongoDBQueryAdminCommandActionType, id))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

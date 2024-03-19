@@ -18,7 +18,6 @@ import (
 	"context"
 	"database/sql"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/lib/pq"
@@ -39,7 +38,7 @@ type postgresqlQueryShowAction struct {
 
 // NewPostgreSQLQueryShowAction creates PostgreSQL SHOW query Action.
 func NewPostgreSQLQueryShowAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_PostgreSQLQueryShowParams, tempDir string) (Action, error) {
-	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, filepath.Join(tempDir, strings.ToLower(postgreSQLQueryShowActionType), id))
+	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, filepath.Join(tempDir, postgreSQLQueryShowActionType, id))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

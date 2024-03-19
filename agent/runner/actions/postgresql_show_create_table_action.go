@@ -79,7 +79,7 @@ func NewPostgreSQLShowCreateTableAction(
 	params *agentpb.StartActionRequest_PostgreSQLShowCreateTableParams,
 	tempDir string,
 ) (Action, error) {
-	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, filepath.Join(tempDir, strings.ToLower(postgreSQLShowCreateTableActionType), id))
+	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, filepath.Join(tempDir, postgreSQLShowCreateTableActionType, id))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

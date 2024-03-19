@@ -18,7 +18,6 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
@@ -44,7 +43,7 @@ var errCannotExplain = fmt.Errorf("cannot explain this type of query")
 
 // NewMongoDBExplainAction creates a MongoDB EXPLAIN query Action.
 func NewMongoDBExplainAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_MongoDBExplainParams, tempDir string) (Action, error) {
-	dsn, err := templates.RenderDSN(params.Dsn, params.TextFiles, filepath.Join(tempDir, strings.ToLower(mongoDBExplainActionType), id))
+	dsn, err := templates.RenderDSN(params.Dsn, params.TextFiles, filepath.Join(tempDir, mongoDBExplainActionType, id))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

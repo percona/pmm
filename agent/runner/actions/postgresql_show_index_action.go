@@ -42,7 +42,7 @@ type postgresqlShowIndexAction struct {
 // NewPostgreSQLShowIndexAction creates PostgreSQL SHOW INDEX Action.
 // This is an Action that can run `SHOW INDEX` command on PostgreSQL service with given DSN.
 func NewPostgreSQLShowIndexAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_PostgreSQLShowIndexParams, tempDir string) (Action, error) {
-	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, filepath.Join(tempDir, strings.ToLower(postgreSQLShowIndexActionType), id))
+	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, filepath.Join(tempDir, postgreSQLShowIndexActionType, id))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
