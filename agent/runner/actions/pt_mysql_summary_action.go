@@ -66,6 +66,10 @@ func (a *ptMySQLSummaryAction) Type() string {
 
 // DSN returns a DSN for the Action.
 func (a *ptMySQLSummaryAction) DSN() string {
+	if a.params.Socket != "" {
+		return a.params.Socket
+	}
+
 	return net.JoinHostPort(a.params.Host, strconv.FormatUint(uint64(a.params.Port), 10))
 }
 
