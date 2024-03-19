@@ -971,10 +971,7 @@ func main() { //nolint:cyclop,maintidx
 
 	dumpService := dump.New(db)
 
-	updater, err := server.NewUpdater(supervisord, *watchtowerHostF)
-	if err != nil {
-		l.Panicf("Could not create updater: %s", err)
-	}
+	updater := server.NewUpdater(supervisord, *watchtowerHostF)
 
 	serverParams := &server.Params{
 		DB:                   db,
