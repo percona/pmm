@@ -62,10 +62,11 @@ var rules = map[string]role{
 	"/v1/management/":                             admin,
 	"/v1/actions/":                                viewer,
 	"/v1/management/Jobs":                         viewer,
-	"/v1/updates/Status":                          none,  // special token-based auth
-	"/v1/server/AWSInstance":                      none,  // special case - used before Grafana can be accessed
+	"/v1/updates/Status":                          none, // special token-based auth
+	"/v1/server/AWSInstance":                      none, // special case - used before Grafana can be accessed
+	"/v1/server/updates":                          viewer,
+	"/v1/server/updates:start":                    admin,
 	"/v1/updates/":                                admin, // TODO: remove before v3 GA
-	"/v1/server/updates":                          admin,
 	"/v1/server/settings":                         admin,
 	"/v1/platform/Connect":                        admin,
 	"/v1/platform/Disconnect":                     admin,

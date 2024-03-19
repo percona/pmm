@@ -236,7 +236,7 @@ service ServerService {
   // StartUpdate starts PMM Server update.
   rpc StartUpdate(StartUpdateRequest) returns (StartUpdateResponse) {
     option (google.api.http) = {
-      post: "/v1/updates/Start"
+      post: "/v1/server/updates:start"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {

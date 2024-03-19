@@ -339,7 +339,7 @@ func (a *Client) StartUpdate(params *StartUpdateParams, opts ...ClientOption) (*
 	op := &runtime.ClientOperation{
 		ID:                 "StartUpdate",
 		Method:             "POST",
-		PathPattern:        "/v1/updates/Start",
+		PathPattern:        "/v1/server/updates:start",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

@@ -11,8 +11,8 @@ POST /v1/AWSInstanceCheck                           GET /v1/server/AWSInstance  
 POST /v1/leaderHealthCheck                          GET /v1/server/leaderHealthCheck                 ✅
 POST /v1/settings/Change                            PUT /v1/server/settings                          ✅
 POST /v1/settings/Get                               GET /v1/server/settings                          ✅
-POST /v1/updates/Check                              GET /v1/server/updates
-POST /v1/updates/Start                              POST /v1/server/updates:start                  
+POST /v1/updates/Check                              GET /v1/server/updates                           ✅
+POST /v1/updates/Start                              POST /v1/server/updates:start                    ✅
 POST /v1/updates/Status                             GET /v1/server/updates/status                    pass "auth_token" via headers
 
 **UserService**                                     **UserService**
