@@ -66,7 +66,7 @@
   when: ansible_virtualization_type == "virtualbox"
   user:
     name: root
-    password: "$6$J7pGg2a7vuRTbTV5$vORqkiAKdkyomU3iYwr/SPn.yLIkGsl5ludEx5DUvGVASSTquTjOldHt/nUWrFRnJeZyzt6CIOjAcugbcfGtN1"
+    password: "$6$rounds=656000$nbZloSLden49N3cd$kJdihzNmMFIzkb4OFv9d5FCkMecabMTfsxRaHPbMLaPS2JJw46zbBTDItqsP.OarU.dcraJTinhWZeS6/Gp4e."
 
 # - name: root password              | Set root password
 #   when: ansible_virtualization_type == "virtualbox"
