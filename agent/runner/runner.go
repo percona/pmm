@@ -127,6 +127,7 @@ func (r *Runner) acquire(ctx context.Context, token string) error {
 	}
 
 	if err := r.gSem.Acquire(ctx, 1); err != nil {
+		r.releaseL(token)
 		return err
 	}
 
@@ -137,6 +138,11 @@ func (r *Runner) acquire(ctx context.Context, token string) error {
 func (r *Runner) release(token string) {
 	r.gSem.Release(1)
 
+	r.releaseL(token)
+}
+
+// releaseL releases local semaphore for given token.
+func (r *Runner) releaseL(token string) {
 	if token != "" {
 		r.lSemsM.Lock()
 

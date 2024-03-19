@@ -329,6 +329,39 @@ func TestConcurrentRunnerCancel(t *testing.T) {
 	assert.Empty(t, cr.cancels)
 }
 
+func TestSemaphoresReleasing(t *testing.T) {
+	t.Parallel()
+	cr := New(1, 1)
+	err := cr.gSem.Acquire(context.TODO(), 1) // Acquire global semaphore to block all jobs
+	require.NoError(t, err)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go cr.Run(ctx)
+
+	j := testJob{id: "test-1", timeout: time.Second, dsn: "test"}
+
+	require.NoError(t, cr.StartJob(j))
+
+	// Let job to start
+	time.Sleep(200 * time.Millisecond)
+
+	// Check that job is started and local semaphore was acquired
+	assert.Len(t, cr.lSems, 1)
+
+	// Check that job is not running, because it's waiting for global semaphore to be acquired
+	assert.False(t, cr.IsRunning(j.ID()))
+
+	// Cancel context to stop job
+	cancel()
+
+	// Let job to start and release resources
+	time.Sleep(200 * time.Millisecond)
+
+	// Check that local samaphore was released
+	assert.Empty(t, cr.lSems)
+}
+
 type testJob struct {
 	id      string
 	timeout time.Duration
