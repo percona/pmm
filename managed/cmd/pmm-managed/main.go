@@ -969,7 +969,7 @@ func main() { //nolint:cyclop,maintidx
 
 	dumpService := dump.New(db)
 
-	// Get the hostname from the environment variable
+	// Get the host from the environment variable
 	watchtowerHost := os.Getenv("PMM_WATCHTOWER_HOST")
 	if watchtowerHost == "" {
 		watchtowerHost = "http://watchtower:8080"
