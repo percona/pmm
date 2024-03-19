@@ -93,7 +93,7 @@ func TestMySQLQuerySelect(t *testing.T) {
 		defer cancel()
 
 		b, err := a.Run(ctx)
-		expected := "Error 1064 \\(42000\\): You have an error in your SQL syntax; check the manual that corresponds " +
+		expected := "Error 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds " +
 			"to your (MySQL|MariaDB) server version for the right syntax to use near 'DROP TABLE city; --' at line 1"
 		require.Error(t, err)
 		assert.ErrorContains(t, err, expected)
