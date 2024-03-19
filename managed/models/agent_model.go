@@ -339,10 +339,10 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) s
 		cfg.Params = make(map[string]string)
 		if s.TLS {
 			switch {
-			case s.TLSSkipVerify:
-				cfg.Params["tls"] = skipVerify
 			case len(s.Files()) != 0:
 				cfg.Params["tls"] = "custom"
+			case s.TLSSkipVerify:
+				cfg.Params["tls"] = skipVerify
 			default:
 				cfg.Params["tls"] = trueStr
 			}
@@ -368,10 +368,10 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) s
 		cfg.Params = make(map[string]string)
 		if s.TLS {
 			switch {
-			case s.TLSSkipVerify:
-				cfg.Params["tls"] = "skip-verify"
 			case len(s.Files()) != 0:
 				cfg.Params["tls"] = "custom"
+			case s.TLSSkipVerify:
+				cfg.Params["tls"] = skipVerify
 			default:
 				cfg.Params["tls"] = trueStr
 			}
