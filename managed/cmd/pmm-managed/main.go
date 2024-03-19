@@ -978,7 +978,7 @@ func main() { //nolint:cyclop,maintidx
 	// Create a URL with the images and new image name as query parameters
 	u, err := url.Parse(watchtowerHost)
 	if err != nil {
-		l.Fatalf("Failed to parse watchtower hostname: %s", err)
+		l.Fatalf("Failed to parse watchtower host: %s", err)
 	}
 
 	updater := server.NewUpdater(supervisord, u)
