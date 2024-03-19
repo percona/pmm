@@ -59,7 +59,7 @@ type CheckUpdatesOK struct {
 }
 
 func (o *CheckUpdatesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/updates/Check][%d] checkUpdatesOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/server/updates][%d] checkUpdatesOk  %+v", 200, o.Payload)
 }
 
 func (o *CheckUpdatesOK) GetPayload() *CheckUpdatesOKBody {
@@ -101,7 +101,7 @@ func (o *CheckUpdatesDefault) Code() int {
 }
 
 func (o *CheckUpdatesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/updates/Check][%d] CheckUpdates default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/server/updates][%d] CheckUpdates default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *CheckUpdatesDefault) GetPayload() *CheckUpdatesDefaultBody {
@@ -116,46 +116,6 @@ func (o *CheckUpdatesDefault) readResponse(response runtime.ClientResponse, cons
 		return err
 	}
 
-	return nil
-}
-
-/*
-CheckUpdatesBody check updates body
-swagger:model CheckUpdatesBody
-*/
-type CheckUpdatesBody struct {
-	// If false, cached information may be returned.
-	Force bool `json:"force,omitempty"`
-
-	// If true, only installed version will be in response.
-	OnlyInstalledVersion bool `json:"only_installed_version,omitempty"`
-}
-
-// Validate validates this check updates body
-func (o *CheckUpdatesBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this check updates body based on context it is used
-func (o *CheckUpdatesBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *CheckUpdatesBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *CheckUpdatesBody) UnmarshalBinary(b []byte) error {
-	var res CheckUpdatesBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

@@ -216,7 +216,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/v1/management/Service/Remove":         admin,
 		"/v1/management/Service/List":           admin,
 		"/v1/management/Agent/List":             admin,
-		"/v1/updates/Check":                     viewer,
+		"/v1/server/updates":                    viewer,
 		"/v1/updates/Start":                     admin,
 		"/v1/updates/Status":                    none,
 		"/v1/server/settings":                   admin,

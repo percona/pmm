@@ -48,10 +48,10 @@ var rules = map[string]role{
 	"/management.":                              admin,
 	"/actions/":                                 viewer,
 	"/server.v1.ServerService/CheckUpdates":     viewer,
-	"/server.v1.ServerService/UpdateStatus":     none, // special token-based auth
-	"/server.v1.ServerService/AWSInstanceCheck": none, // special case - used before Grafana can be accessed
-	"/server.":                                  admin,
-	// "/server.v1.":                               admin, // TODO: apply before v3 GA, remove the one above
+	"/server.v1.ServerService/UpdateStatus":     none,  // special token-based auth
+	"/server.v1.ServerService/AWSInstanceCheck": none,  // special case - used before Grafana can be accessed
+	"/server.":                                  admin, // TODO: do we need it for older agents?
+	"/server.v1.":                               admin,
 
 	"/v1/alerting":                                viewer,
 	"/v1/backup":                                  admin,
@@ -62,10 +62,10 @@ var rules = map[string]role{
 	"/v1/management/":                             admin,
 	"/v1/actions/":                                viewer,
 	"/v1/management/Jobs":                         viewer,
-	"/v1/updates/Check":                           viewer,
-	"/v1/updates/Status":                          none, // special token-based auth
-	"/v1/server/AWSInstance":                      none, // special case - used before Grafana can be accessed
-	"/v1/updates/":                                admin,
+	"/v1/updates/Status":                          none,  // special token-based auth
+	"/v1/server/AWSInstance":                      none,  // special case - used before Grafana can be accessed
+	"/v1/updates/":                                admin, // TODO: remove before v3 GA
+	"/v1/server/updates":                          admin,
 	"/v1/server/settings":                         admin,
 	"/v1/platform/Connect":                        admin,
 	"/v1/platform/Disconnect":                     admin,

@@ -143,8 +143,8 @@ func (a *Client) CheckUpdates(params *CheckUpdatesParams, opts ...ClientOption) 
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "CheckUpdates",
-		Method:             "POST",
-		PathPattern:        "/v1/updates/Check",
+		Method:             "GET",
+		PathPattern:        "/v1/server/updates",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

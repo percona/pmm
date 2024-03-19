@@ -13,7 +13,7 @@ POST /v1/settings/Change                            PUT /v1/server/settings     
 POST /v1/settings/Get                               GET /v1/server/settings                          ✅
 POST /v1/updates/Check                              GET /v1/server/updates
 POST /v1/updates/Start                              POST /v1/server/updates:start                  
-POST /v1/updates/Status                             GET /v1/server/updates/status                    pass "auth_token" via headers, ?log_offset=200
+POST /v1/updates/Status                             GET /v1/server/updates/status                    pass "auth_token" via headers
 
 **UserService**                                     **UserService**
 GET /v1/user                                        GET /v1/users/me                                 needs no {id} in path

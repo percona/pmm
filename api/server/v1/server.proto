@@ -227,10 +227,7 @@ service ServerService {
   }
   // CheckUpdates checks for available PMM Server updates.
   rpc CheckUpdates(CheckUpdatesRequest) returns (CheckUpdatesResponse) {
-    option (google.api.http) = {
-      post: "/v1/updates/Check"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/server/updates"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Check updates"
       description: "Checks for available PMM Server updates."
