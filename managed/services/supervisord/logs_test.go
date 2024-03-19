@@ -60,6 +60,7 @@ var commonExpectedFiles = []string{
 	"victoriametrics_targets.json",
 	"vmalert.ini",
 	"vmalert.log",
+	"vmproxy.ini",
 	"vmproxy.log",
 }
 
@@ -162,12 +163,8 @@ func TestFiles(t *testing.T) {
 			continue
 		}
 
-		if f.Name == "systemctl_status.log" {
-			assert.EqualError(t, f.Err, "exit status 1")
-			continue
-		}
-
 		if f.Name == "supervisorctl_status.log" {
+			assert.EqualError(t, f.Err, "exit status 3")
 			// FIXME: this fails following the transition to EL9
 			continue
 		}
@@ -203,7 +200,6 @@ func TestZip(t *testing.T) {
 		"client/pmm-agent-version.txt",
 		"client/status.json",
 		"client/pmm-agent/pmm-agent.log",
-		"systemctl_status.log",
 		"prometheus.base.yml",
 	}
 	// zip file includes client files

@@ -161,6 +161,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 		"/etc/supervisord.d/qan-api2.ini",
 		"/etc/supervisord.d/victoriametrics.ini",
 		"/etc/supervisord.d/vmalert.ini",
+		"/etc/supervisord.d/vmproxy.ini",
 
 		"/usr/local/percona/pmm/config/pmm-agent.yaml",
 	} {
@@ -183,14 +184,6 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 	b, err := readCmdOutput(ctx, "supervisorctl", "status")
 	files = append(files, fileContent{
 		Name: "supervisorctl_status.log",
-		Data: b,
-		Err:  err,
-	})
-
-	// add systemd status for OVF/AMI
-	b, err = readCmdOutput(ctx, "systemctl", "-l", "status")
-	files = append(files, fileContent{
-		Name: "systemctl_status.log",
 		Data: b,
 		Err:  err,
 	})

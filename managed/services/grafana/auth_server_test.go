@@ -232,8 +232,8 @@ func TestAuthServerAuthenticate(t *testing.T) {
 
 		"/v1/qan/ObjectDetails/GetQueryExample": viewer,
 
-		"/prometheus/": admin,
-		"/logs.zip":    admin,
+		"/prometheus/":        admin,
+		"/v1/server/logs.zip": admin,
 	} {
 		for _, role := range []role{viewer, editor, admin} {
 			uri := uri

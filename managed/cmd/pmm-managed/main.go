@@ -139,7 +139,7 @@ var pprofSemaphore = semaphore.NewWeighted(1)
 func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 	l := logrus.WithField("component", "logs.zip")
 
-	mux.HandleFunc("/logs.zip", func(rw http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("/v1/server/logs.zip", func(rw http.ResponseWriter, req *http.Request) {
 		contextTimeout := defaultContextTimeout
 		// increase context timeout if pprof query parameter exist in request
 		pprofQueryParameter, err := strconv.ParseBool(req.FormValue("pprof"))
