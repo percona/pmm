@@ -174,7 +174,7 @@ func TestMySQLExplain(t *testing.T) {
 			OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 		}
 		a, err := NewMySQLExplainAction("", time.Second, params)
-		assert.Regexp(t, `Query to EXPLAIN is empty`, err.Error())
+		assert.ErrorContains(t, err, `Query to EXPLAIN is empty`)
 		assert.Nil(t, a)
 	})
 
@@ -244,7 +244,7 @@ func TestMySQLExplain(t *testing.T) {
 			expected := "Error 1064 \\(42000\\): You have an error in your SQL syntax; check the manual that corresponds " +
 				"to your (MySQL|MariaDB) server version for the right syntax to use near 'DROP TABLE city; --' at line 1"
 			require.Error(t, err)
-			assert.Regexp(t, expected, err.Error())
+			assert.ErrorContains(t, err, expected)
 			checkCity(t)
 		})
 
