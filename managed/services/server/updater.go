@@ -32,19 +32,22 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+// defaultLatestPMMImage is the default image name to use when the latest version cannot be determined.
+const defaultLatestPMMImage = "perconalab/pmm-server:3-dev-latest"
+
 // Updater is a service to check for updates and trigger the update process.
 type Updater struct {
-	l                  *logrus.Entry
-	supervisord        supervisordService
-	watchtowerHostname *url.URL
+	l              *logrus.Entry
+	supervisord    supervisordService
+	watchtowerHost *url.URL
 }
 
 // NewUpdater creates a new Updater service.
-func NewUpdater(supervisord supervisordService, watchtowerHostname *url.URL) *Updater {
+func NewUpdater(supervisord supervisordService, watchtowerHost *url.URL) *Updater {
 	return &Updater{
-		l:                  logrus.WithField("service", "updater"),
-		supervisord:        supervisord,
-		watchtowerHostname: watchtowerHostname,
+		l:              logrus.WithField("service", "updater"),
+		supervisord:    supervisord,
+		watchtowerHost: watchtowerHost,
 	}
 }
 
@@ -54,7 +57,7 @@ func (s *Updater) sendRequestToWatchtower(ctx context.Context, newImageName stri
 		return errors.Wrap(err, "failed to get hostname")
 	}
 
-	u, err := s.watchtowerHostname.Parse("/v1/update")
+	u, err := s.watchtowerHost.Parse("/v1/update")
 	if err != nil {
 		return errors.Wrap(err, "failed to parse URL")
 	}
@@ -102,7 +105,7 @@ func (s *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 		latest, err := s.latest(ctx)
 		if err != nil {
 			s.l.WithError(err).Error("Failed to get latest version")
-			newImageName = "perconalab/pmm-server:3-dev-latest"
+			newImageName = defaultLatestPMMImage
 		} else {
 			newImageName = fmt.Sprintf("%s:%s", latest.Repo, latest.Version)
 		}

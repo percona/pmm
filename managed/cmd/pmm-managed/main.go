@@ -723,6 +723,8 @@ func main() { //nolint:cyclop,maintidx
 	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE").String()
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PERCONA_TEST_PMM_CLICKHOUSE_ADDR").String()
 
+	watchtowerHostF := kingpin.Flag("watchtower-host", "Watchtower host").Default("http://watchtower:8080").Envar("PMM_WATCHTOWER_HOST").URL()
+
 	kingpin.Parse()
 
 	logger.SetupGlobalLogger()
@@ -969,19 +971,10 @@ func main() { //nolint:cyclop,maintidx
 
 	dumpService := dump.New(db)
 
-	// Get the host from the environment variable
-	watchtowerHost := os.Getenv("PMM_WATCHTOWER_HOST")
-	if watchtowerHost == "" {
-		watchtowerHost = "http://watchtower:8080"
-	}
-
-	// Create a URL with the images and new image name as query parameters
-	u, err := url.Parse(watchtowerHost)
+	updater, err := server.NewUpdater(supervisord, *watchtowerHostF)
 	if err != nil {
-		l.Fatalf("Failed to parse watchtower host: %s", err)
+		l.Panicf("Could not create updater: %s", err)
 	}
-
-	updater := server.NewUpdater(supervisord, u)
 
 	serverParams := &server.Params{
 		DB:                   db,
