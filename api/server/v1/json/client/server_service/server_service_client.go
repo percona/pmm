@@ -221,8 +221,8 @@ func (a *Client) LeaderHealthCheck(params *LeaderHealthCheckParams, opts ...Clie
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "LeaderHealthCheck",
-		Method:             "POST",
-		PathPattern:        "/v1/leaderHealthCheck",
+		Method:             "GET",
+		PathPattern:        "/v1/server/leaderHealthCheck",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

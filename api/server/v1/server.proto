@@ -219,10 +219,7 @@ service ServerService {
   }
   // LeaderHealthCheck checks if the instance is the leader in a cluster.
   rpc LeaderHealthCheck(LeaderHealthCheckRequest) returns (LeaderHealthCheckResponse) {
-    option (google.api.http) = {
-      post: "/v1/leaderHealthCheck"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/server/leaderHealthCheck"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Check Leadership"
       description: "Checks if the instance is the leader in a cluster. Returns an error if the instance isn't the leader."
