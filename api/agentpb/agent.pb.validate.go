@@ -4472,7 +4472,9 @@ func (m *ServiceInfoResponse) validate(all bool) error {
 
 	// no validation rules for Version
 
-	// no validation rules for PgsmVersion
+	if m.PgsmVersion != nil {
+		// no validation rules for PgsmVersion
+	}
 
 	if len(errors) > 0 {
 		return ServiceInfoResponseMultiError(errors)
