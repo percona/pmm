@@ -156,6 +156,13 @@ func (r *Runner) releaseL(token string) {
 	}
 }
 
+// lSemsLen returns number of local semaphores in use.
+func (r *Runner) lSemsLen() int {
+	r.lSemsM.Lock()
+	defer r.lSemsM.Unlock()
+	return len(r.lSems)
+}
+
 // Run starts jobs execution loop. It reads jobs from the channel and starts them in separate goroutines.
 func (r *Runner) Run(ctx context.Context) {
 	for {

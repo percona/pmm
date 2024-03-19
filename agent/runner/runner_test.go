@@ -347,7 +347,7 @@ func TestSemaphoresReleasing(t *testing.T) {
 	time.Sleep(200 * time.Millisecond)
 
 	// Check that job is started and local semaphore was acquired
-	assert.Len(t, cr.lSems, 1)
+	assert.Equal(t, cr.lSemsLen(), 1)
 
 	// Check that job is not running, because it's waiting for global semaphore to be acquired
 	assert.False(t, cr.IsRunning(j.ID()))
@@ -359,7 +359,7 @@ func TestSemaphoresReleasing(t *testing.T) {
 	time.Sleep(200 * time.Millisecond)
 
 	// Check that local samaphore was released
-	assert.Empty(t, cr.lSems)
+	assert.Equal(t, cr.lSemsLen(), 0)
 }
 
 type testJob struct {
