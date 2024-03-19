@@ -18,7 +18,6 @@ package config
 import (
 	"fmt"
 	"io/fs"
-	"log"
 	"net"
 	"net/url"
 	"os"
@@ -417,10 +416,11 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	}).Bool()
 
 	app.Flag("version", "Show application version").Short('v').Action(func(*kingpin.ParseContext) error {
+		// We use fmt instead of log package to provide proper output for --json flag.
 		if *jsonF {
-			log.Println(version.FullInfoJSON())
+			fmt.Println(version.FullInfoJSON()) //nolint:forbidigo
 		} else {
-			log.Println(version.FullInfo())
+			fmt.Println(version.FullInfo()) //nolint:forbidigo
 		}
 		os.Exit(0)
 
