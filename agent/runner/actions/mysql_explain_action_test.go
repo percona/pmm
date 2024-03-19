@@ -244,7 +244,7 @@ func TestMySQLExplain(t *testing.T) {
 			expected := "Error 1064 \\(42000\\): You have an error in your SQL syntax; check the manual that corresponds " +
 				"to your (MySQL|MariaDB) server version for the right syntax to use near 'DROP TABLE city; --' at line 1"
 			require.Error(t, err)
-			assert.ErrorContains(t, err, expected)
+			assert.Regexp(t, expected, err.Error())
 			checkCity(t)
 		})
 
