@@ -224,7 +224,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/v1/platform/Connect":                  admin,
 
 		"/v1/server/AWSInstance/..%2f..%2finventory/Services/List": admin,
-		"/v1/server/AWSInstance/..%2f..%2f..%2flogs.zip":           admin,
+		"/v1/server/AWSInstance/..%2flogs.zip":                     admin,
 
 		"/v1/server/version": viewer,
 		"/v1/server/readyz":  none,
