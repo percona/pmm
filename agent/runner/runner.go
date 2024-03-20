@@ -261,13 +261,7 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 		r.l.Warnf("Failed to get token for job: %v", err)
 	}
 
-	var nCtx context.Context
-	var cancel context.CancelFunc
-	if timeout := job.Timeout(); timeout != 0 {
-		nCtx, cancel = context.WithTimeout(ctx, timeout)
-	} else {
-		nCtx, cancel = context.WithCancel(ctx)
-	}
+	ctx, cancel := context.WithCancel(ctx)
 	r.addCancel(jobID, cancel)
 
 	r.wg.Add(1)
@@ -296,12 +290,22 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 		}
 		defer r.release(token)
 
+		var nCtx context.Context
+		var nCancel context.CancelFunc
+		if timeout := job.Timeout(); timeout != 0 {
+			nCtx, nCancel = context.WithTimeout(ctx, timeout)
+			defer nCancel()
+		} else {
+			// If timeout is not provided then use parent context
+			nCtx = ctx
+		}
+
 		// Mark job as running.
 		r.addStarted(jobID)
 		defer r.removeStarted(jobID)
 		l.Info("Job started.")
 
-		err := job.Run(ctx, r.sendJobsMessage)
+		err := job.Run(nCtx, r.sendJobsMessage)
 		if err != nil {
 			r.sendJobsMessage(&agentpb.JobResult{
 				JobId:     job.ID(),
@@ -316,7 +320,7 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 		}
 	}
 
-	go pprof.Do(nCtx, pprof.Labels("jobID", jobID, "type", string(jobType)), run)
+	go pprof.Do(ctx, pprof.Labels("jobID", jobID, "type", string(jobType)), run)
 }
 
 func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
@@ -328,16 +332,11 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 		r.l.Warnf("Failed to get instance ID for action: %v", err)
 	}
 
-	var timeout time.Duration
-	if timeout = action.Timeout(); timeout == 0 {
-		timeout = defaultActionTimeout
-	}
-
-	nCtx, cancel := context.WithTimeout(ctx, timeout)
+	ctx, cancel := context.WithCancel(ctx)
 	r.addCancel(actionID, cancel)
 
 	r.wg.Add(1)
-	run := func(_ context.Context) {
+	run := func(ctx context.Context) {
 		defer func(start time.Time) {
 			l.WithField("duration", time.Since(start).String()).Info("Action finished.")
 		}(time.Now())
@@ -358,6 +357,14 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 		}
 		defer r.release(instanceID)
 
+		var timeout time.Duration
+		if timeout = action.Timeout(); timeout == 0 {
+			timeout = defaultActionTimeout
+		}
+
+		nCtx, nCancel := context.WithTimeout(ctx, timeout)
+		defer nCancel()
+
 		// Mark action as running.
 		r.addStarted(actionID)
 		defer r.removeStarted(actionID)
@@ -377,7 +384,7 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 			Error:    errMsg,
 		})
 	}
-	go pprof.Do(nCtx, pprof.Labels("actionID", actionID, "type", actionType), run)
+	go pprof.Do(ctx, pprof.Labels("actionID", actionID, "type", actionType), run)
 }
 
 func (r *Runner) sendJobsMessage(payload agentpb.AgentResponsePayload) {

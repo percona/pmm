@@ -104,9 +104,9 @@ func TestCapacityLimit(t *testing.T) {
 	assert.True(t, cr.IsRunning(j3.ID()))
 	assert.True(t, cr.IsRunning(j4.ID()))
 
-	time.Sleep(time.Second)
+	time.Sleep(2 * time.Second)
 
-	// After another second all jobs are terminated
+	// After two seconds all jobs are terminated
 	assert.False(t, cr.IsRunning(j1.ID()))
 	assert.False(t, cr.IsRunning(j2.ID()))
 	assert.False(t, cr.IsRunning(j3.ID()))
@@ -178,7 +178,7 @@ func TestPerDBInstanceLimit(t *testing.T) {
 	assert.False(t, cr.IsRunning(db2j3.ID()))
 
 	// Over time all jobs are terminated
-	time.Sleep(time.Second)
+	time.Sleep(2 * time.Second)
 
 	assert.False(t, cr.IsRunning(db1j1.ID()))
 	assert.False(t, cr.IsRunning(db2j1.ID()))
@@ -225,7 +225,7 @@ func TestDefaultPerDBInstanceLimit(t *testing.T) {
 	assert.False(t, cr.IsRunning(db2j3.ID()))
 
 	// Over time all jobs are terminated
-	time.Sleep(time.Second)
+	time.Sleep(2 * time.Second)
 
 	assert.False(t, cr.IsRunning(db1j1.ID()))
 	assert.False(t, cr.IsRunning(db2j1.ID()))
