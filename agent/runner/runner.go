@@ -110,6 +110,27 @@ func New(totalCapacity, tokenCapacity uint16) *Runner {
 
 // acquire acquires global and local semaphores.
 func (r *Runner) acquire(ctx context.Context, token string) error {
+	if err := r.acquireL(ctx, token); err != nil {
+		return err
+	}
+
+	if err := r.gSem.Acquire(ctx, 1); err != nil {
+		r.releaseL(token)
+		return err
+	}
+
+	return nil
+}
+
+// release releases global and local semaphores.
+func (r *Runner) release(token string) {
+	r.gSem.Release(1)
+
+	r.releaseL(token)
+}
+
+// acquireL acquires local semaphore for given token.
+func (r *Runner) acquireL(ctx context.Context, token string) error {
 	if token != "" {
 		r.lSemsM.Lock()
 
@@ -126,19 +147,7 @@ func (r *Runner) acquire(ctx context.Context, token string) error {
 		e.count.Add(1)
 	}
 
-	if err := r.gSem.Acquire(ctx, 1); err != nil {
-		r.releaseL(token)
-		return err
-	}
-
 	return nil
-}
-
-// release releases global and local semaphores.
-func (r *Runner) release(token string) {
-	r.gSem.Release(1)
-
-	r.releaseL(token)
 }
 
 // releaseL releases local semaphore for given token.
