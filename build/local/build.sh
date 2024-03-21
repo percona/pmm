@@ -43,7 +43,7 @@ test -d "${root_dir}/go-path" || mkdir -p "go-path"
 test -d "${root_dir}/go-build" || mkdir -p "go-build"
 
 PATH_TO_SCRIPTS="sources/pmm/src/github.com/percona/pmm/build/scripts"
-export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:ol9 
+export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:3
 
 # Local reference test environment
 # CPU: 4 cores
@@ -83,7 +83,6 @@ export RPMBUILD_DIST="el9"
 "$PATH_TO_SCRIPTS/build-server-rpm" percona-qan-api2 pmm
 "$PATH_TO_SCRIPTS/build-server-rpm" pmm-update pmm
 "$PATH_TO_SCRIPTS/build-server-rpm" pmm-dump
-"$PATH_TO_SCRIPTS/build-server-rpm" grafana-db-migrator
 "$PATH_TO_SCRIPTS/build-server-rpm" vmproxy pmm
 
 # 3rd-party
@@ -91,7 +90,6 @@ export RPMBUILD_DIST="el9"
 "$PATH_TO_SCRIPTS/build-server-rpm" grafana
 
 export DOCKER_TAG=local/pmm-server:${GIT_COMMIT}
-export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:ol9
 export RPMBUILD_DIST=el9
 export DOCKERFILE=Dockerfile.el9.local
 ${PATH_TO_SCRIPTS}/build-server-docker
