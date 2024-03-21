@@ -104,7 +104,7 @@ build() {
     local CH_TAG=${rpm_version#*-}
     local cache_dir=RELEASE
     local volume_mounts="-v ${rpmbuild_dir}/SOURCES:/home/builder/rpm/SOURCES -v ${rpms_dir}:/home/builder/rpm/RPMS"
-    local build_deps=("dbaas-tools.spec" "grafana.spec" "percona-dashboards.spec")
+    # local build_deps=("grafana.spec" "percona-dashboards.spec")
 
     if ! is_build_needed "${spec_name}" "${rpm_version}"; then
         return
@@ -128,7 +128,7 @@ build() {
         sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
 
         # Add 'Epoch' to spec file to prevent update of rpms which are built in PR build
-        if [ \"$RPM_EPOCH\" = 1 ]; then
+        if [ ${RPM_EPOCH} = 1 ]; then
             sed -i '/^Version:.*/i Epoch: 1' /home/builder/rpm/SOURCES/${spec_name}.spec
         fi
 
@@ -138,12 +138,12 @@ build() {
             | sudo tee /etc/yum.repos.d/local.repo
 
         until /usr/bin/createrepo_c --update /home/builder/rpm/RPMS; do
-          echo waiting
-          sleep 1
+            echo waiting
+            sleep 1
         done
 
-        if grep ${spec_name}.spec <<< ${build_deps[*]} &>/dev/null; then
-          sudo yum-builddep --randomwait=1 -y SOURCES/${spec_name}.spec
+        if [[ ${spec_name} =~ ^grafana$|^percona-dashboards$ ]]; then
+            sudo yum-builddep --randomwait=1 -y SOURCES/${spec_name}.spec
         fi
 
         spectool -C SOURCES -g SOURCES/${spec_name}.spec

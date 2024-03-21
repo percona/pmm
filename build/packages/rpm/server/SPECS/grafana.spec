@@ -77,7 +77,7 @@ getent passwd pmm >/dev/null || echo "User pmm does not exist. Please create it 
 exit 0
 
 %changelog
-* Tue Mar 20 2024 Alex Demidoff <alexander.demidoff@percona.com> - 10.4.0-2
+* Wed Mar 20 2024 Alex Demidoff <alexander.demidoff@percona.com> - 10.4.0-2
 - PMM-12899 Use module and build cache
 
 * Tue Mar 12 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 10.4.0-1

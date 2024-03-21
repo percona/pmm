@@ -82,15 +82,12 @@ export RPMBUILD_DIST="el9"
 "$PATH_TO_SCRIPTS/build-server-rpm" pmm-managed pmm
 "$PATH_TO_SCRIPTS/build-server-rpm" percona-qan-api2 pmm
 "$PATH_TO_SCRIPTS/build-server-rpm" pmm-update pmm
-"$PATH_TO_SCRIPTS/build-server-rpm" dbaas-controller
-"$PATH_TO_SCRIPTS/build-server-rpm" dbaas-tools
 "$PATH_TO_SCRIPTS/build-server-rpm" pmm-dump
 "$PATH_TO_SCRIPTS/build-server-rpm" grafana-db-migrator
 "$PATH_TO_SCRIPTS/build-server-rpm" vmproxy pmm
 
 # 3rd-party
 "$PATH_TO_SCRIPTS/build-server-rpm" victoriametrics
-"$PATH_TO_SCRIPTS/build-server-rpm" alertmanager
 "$PATH_TO_SCRIPTS/build-server-rpm" grafana
 
 export DOCKER_TAG=local/pmm-server:${GIT_COMMIT}
