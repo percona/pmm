@@ -54,7 +54,7 @@ type testValuesUnmarshal struct {
 func TestService_GetFilters(t *testing.T) {
 	dsn, ok := os.LookupEnv("QANAPI_DSN_TEST")
 	if !ok {
-		dsn = "clickhouse://127.0.0.1:19000?database=pmm_test"
+		dsn = "clickhouse://127.0.0.1:19000/pmm_test"
 	}
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
