@@ -71,7 +71,7 @@ func (a *mongodbExplainAction) Type() string {
 	return mongoDBExplainActionType
 }
 
-// DSN returns a DSN for the Action.
+// DSN returns the DSN for the Action.
 func (a *mongodbExplainAction) DSN() string {
 	return a.dsn
 }
