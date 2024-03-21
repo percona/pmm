@@ -91,13 +91,18 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer, pprofConfig *PprofConfig) e
 		}
 
 		if file.Err != nil {
-			log.WithField("d", time.Since(start).Seconds()).Errorf("%s: %s", file.Name, file.Err)
-
 			// do not let a single error break the whole archive
 			if len(file.Data) != 0 {
 				file.Data = append(file.Data, "\n\n"...)
 			}
-			file.Data = append(file.Data, file.Err.Error()...)
+
+			// Do not log the error for `supervisorctl status` command, as it is expected to fail.
+			// Read more at https://github.com/Supervisor/supervisor/issues/1223#issuecomment-480845901.
+			if file.Name != "supervisorctl_status.log" && file.Err.Error() != "exit status 3" {
+				log.WithField("d", time.Since(start).Seconds()).Errorf("%s: %s", file.Name, file.Err)
+
+				file.Data = append(file.Data, file.Err.Error()...)
+			}
 		}
 
 		if file.Modified.IsZero() {

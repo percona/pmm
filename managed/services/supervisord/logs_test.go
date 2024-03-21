@@ -54,6 +54,7 @@ var commonExpectedFiles = []string{
 	"qan-api2.log",
 	"supervisord.conf",
 	"supervisord.log",
+	"supervisorctl_status.log",
 	"victoriametrics-promscrape.yml",
 	"victoriametrics.ini",
 	"victoriametrics.log",
@@ -165,7 +166,8 @@ func TestFiles(t *testing.T) {
 
 		if f.Name == "supervisorctl_status.log" {
 			assert.EqualError(t, f.Err, "exit status 3")
-			// FIXME: this fails following the transition to EL9
+			// NOTE: this fails in supervisorctl v4+ if there are stopped services; it is not critical because the call succeeds
+			actual = append(actual, f.Name)
 			continue
 		}
 

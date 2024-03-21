@@ -74,7 +74,7 @@ var rules = map[string]role{
 	"/v1/platform/GetContactInformation":          viewer,
 	"/v1/platform/ServerInfo":                     viewer,
 	"/v1/platform/UserStatus":                     viewer,
-	"/v1/user":                                    viewer,
+	"/v1/users":                                   viewer,
 
 	// must be available without authentication for health checking
 	"/v1/readyz":                   none, // TODO: remove before v3 GA

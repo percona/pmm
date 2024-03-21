@@ -564,7 +564,7 @@ func (c *Client) authHeadersFromContext(ctx context.Context) (http.Header, error
 	}
 	// get authorization from headers.
 	authorizationHeaders := headers.Get("Authorization")
-	cookieHeaders := headers.Get("grpcgateway-cookie")
+	cookieHeaders := headers.Get(grpcGatewayCookie)
 	if len(authorizationHeaders) == 0 && len(cookieHeaders) == 0 {
 		return nil, status.Error(codes.Unauthenticated, "Authorization error.")
 	}

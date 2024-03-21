@@ -50,7 +50,7 @@ func (a *Client) GetUser(params *GetUserParams, opts ...ClientOption) (*GetUserO
 	op := &runtime.ClientOperation{
 		ID:                 "GetUser",
 		Method:             "GET",
-		PathPattern:        "/v1/user",
+		PathPattern:        "/v1/users/me",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -77,7 +77,7 @@ func (a *Client) GetUser(params *GetUserParams, opts ...ClientOption) (*GetUserO
 }
 
 /*
-ListUsers lists all users with details
+ListUsers lists all users
 
 Retrieve user details for all users from PMM server
 */
@@ -88,8 +88,8 @@ func (a *Client) ListUsers(params *ListUsersParams, opts ...ClientOption) (*List
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ListUsers",
-		Method:             "POST",
-		PathPattern:        "/v1/user/list",
+		Method:             "GET",
+		PathPattern:        "/v1/users",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -116,9 +116,9 @@ func (a *Client) ListUsers(params *ListUsersParams, opts ...ClientOption) (*List
 }
 
 /*
-UpdateUser updates user
+UpdateUser updates a user
 
-Update details of given user in PMM server
+Update user details in PMM server
 */
 func (a *Client) UpdateUser(params *UpdateUserParams, opts ...ClientOption) (*UpdateUserOK, error) {
 	// TODO: Validate the params before sending
@@ -128,7 +128,7 @@ func (a *Client) UpdateUser(params *UpdateUserParams, opts ...ClientOption) (*Up
 	op := &runtime.ClientOperation{
 		ID:                 "UpdateUser",
 		Method:             "PUT",
-		PathPattern:        "/v1/user",
+		PathPattern:        "/v1/users/me",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
