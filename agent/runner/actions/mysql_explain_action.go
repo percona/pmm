@@ -61,13 +61,13 @@ func NewMySQLExplainAction(id string, timeout time.Duration, params *agentpb.Sta
 
 	// You cant run Explain on trimmed queries.
 	if strings.HasSuffix(params.Query, "...") {
-		return nil, errors.New("EXPLAIN failed because the query was too long and trimmed. Set max-query-length to a larger value.") //nolint:revive
+		return nil, errors.New("EXPLAIN failed because the query exceeded max length and got trimmed. Set max-query-length to a larger value.") //nolint:revive
 	}
 
 	// Explain is supported only for DML queries.
 	// https://dev.mysql.com/doc/refman/8.0/en/using-explain.html
 	if !isDMLQuery(params.Query) {
-		return nil, errors.New("Functionality EXPLAIN is supported only for DML queries (SELECT, INSERT, UPDATE, DELETE, REPLACE)")
+		return nil, errors.New("EXPLAIN functionality is supported only for DML queries - SELECT, INSERT, UPDATE, DELETE and REPLACE.")
 	}
 
 	return &mysqlExplainAction{

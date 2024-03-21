@@ -210,7 +210,7 @@ func TestMySQLExplain(t *testing.T) {
 			OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 		}
 		a, err := NewMySQLExplainAction("", time.Second, params)
-		assert.ErrorContains(t, err, "EXPLAIN failed because the query was too long and trimmed. Set max-query-length to a larger value.")
+		assert.ErrorContains(t, err, "EXPLAIN failed because the query exceeded max length and got trimmed. Set max-query-length to a larger value.")
 		assert.Nil(t, a)
 	})
 
