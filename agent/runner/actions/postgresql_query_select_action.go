@@ -78,7 +78,7 @@ func (a *postgresqlQuerySelectAction) Type() string {
 	return postgreSQLQuerySelectActionType
 }
 
-// DSN returns a DSN for the Action.
+// DSN returns the DSN for the Action.
 func (a *postgresqlQuerySelectAction) DSN() string {
 	return a.dsn
 }
