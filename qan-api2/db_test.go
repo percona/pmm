@@ -39,9 +39,9 @@ func setup() *sqlx.DB {
 	}
 
 	dsn, ok := os.LookupEnv("QANAPI_DSN_TEST")
-	dsn = strings.Replace(dsn, "?database=pmm_test", "?database=pmm_test_parts", 1)
+	dsn = strings.Replace(dsn, "/pmm_test", "/pmm_test_parts", 1)
 	if !ok {
-		dsn = "clickhouse://127.0.0.1:19000?database=pmm_test_parts"
+		dsn = "clickhouse://127.0.0.1:19000/pmm_test_parts"
 	}
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
@@ -113,9 +113,9 @@ func TestCreateDbIfNotExists(t *testing.T) {
 	t.Run("connect to db that doesnt exist", func(t *testing.T) {
 		dsn, ok := os.LookupEnv("QANAPI_DSN_TEST")
 
-		dsn = strings.Replace(dsn, "?database=pmm_test", "?database=pmm_created_db", 1)
+		dsn = strings.Replace(dsn, "/pmm_test", "/pmm_created_db", 1)
 		if !ok {
-			dsn = "clickhouse://127.0.0.1:19000?database=pmm_created_db"
+			dsn = "clickhouse://127.0.0.1:19000/pmm_created_db"
 		}
 
 		db := createDB(dsn)

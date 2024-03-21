@@ -61,7 +61,7 @@ import (
 
 const (
 	shutdownTimeout = 3 * time.Second
-	defaultDsnF     = "clickhouse://%s?database=%s&block_size=%s&pool_size=%s"
+	defaultDsnF     = "clickhouse://%s/%s?block_size=%s&pool_size=%s"
 	maxIdleConns    = 5
 	maxOpenConns    = 10
 )
