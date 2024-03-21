@@ -78,11 +78,8 @@ func createDB(dsn string) error {
 	if err != nil {
 		return err
 	}
-	q := clickhouseURL.Query()
-	databaseName := q.Get("database")
-	q.Set("database", "default")
-
-	clickhouseURL.RawQuery = q.Encode()
+	databaseName := strings.Replace(clickhouseURL.Path, "/", "", 1)
+	clickhouseURL.Path = "/default"
 
 	defaultDB, err := sqlx.Connect("clickhouse", clickhouseURL.String())
 	if err != nil {
