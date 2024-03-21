@@ -13,7 +13,7 @@ POST /v1/settings/Change                            PUT /v1/server/settings     
 POST /v1/settings/Get                               GET /v1/server/settings                          ✅
 POST /v1/updates/Check                              GET /v1/server/updates                           ✅
 POST /v1/updates/Start                              POST /v1/server/updates:start                    ✅
-POST /v1/updates/Status                             GET /v1/server/updates/status                    pass "auth_token" via headers
+POST /v1/updates/Status                             POST /v1/server/updates:getStatus                ✅ auth_token is passed in the body
 
 **UserService**                                     **UserService**
 GET /v1/user                                        GET /v1/users/me                                 needs no {id} in path

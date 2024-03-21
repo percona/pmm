@@ -378,7 +378,7 @@ func (a *Client) UpdateStatus(params *UpdateStatusParams, opts ...ClientOption) 
 	op := &runtime.ClientOperation{
 		ID:                 "UpdateStatus",
 		Method:             "POST",
-		PathPattern:        "/v1/updates/Status",
+		PathPattern:        "/v1/server/updates:getStatus",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

@@ -247,7 +247,7 @@ service ServerService {
   // UpdateStatus returns PMM Server update status.
   rpc UpdateStatus(UpdateStatusRequest) returns (UpdateStatusResponse) {
     option (google.api.http) = {
-      post: "/v1/updates/Status"
+      post: "/v1/server/updates:getStatus"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
