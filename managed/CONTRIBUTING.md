@@ -57,8 +57,6 @@ go test -timeout=30s -p 1 ./...
 | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
 | PERCONA_TEST_PMM_CLICKHOUSE_ADDR           | Sets Clickhouse address                                                                                             | 127.0.0.1:9000                           |
 | PERCONA_TEST_PMM_CLICKHOUSE_DATABASE       | Sets Clickhouse database                                                                                            | pmm                                      |
-| PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE      | Sets Clickhouse connections pool size                                                                               | none                                     |
-| PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE     | Sets Clickhouse block size                                                                                          | none                                     |
 | PERCONA_TEST_STARLARK_ALLOW_RECURSION      | Allows recursive functions in checks scripts                                                                        | false                                    |
 | PERCONA_TEST_NICER_API                     | Enables nicer API with default/zero values in response.                                                             | false                                    |
 | PERCONA_TEST_VERSION_SERVICE_URL           | Sets versions service URL                                                                                           | https://check.percona.com/versions/v1    |
