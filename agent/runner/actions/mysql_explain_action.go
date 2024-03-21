@@ -67,7 +67,7 @@ func NewMySQLExplainAction(id string, timeout time.Duration, params *agentpb.Sta
 	// Explain is supported only for DML queries.
 	// https://dev.mysql.com/doc/refman/8.0/en/using-explain.html
 	if !isDMLQuery(params.Query) {
-		return nil, errors.New("EXPLAIN functionality is supported only for DML queries - SELECT, INSERT, UPDATE, DELETE and REPLACE.")
+		return nil, errors.New("EXPLAIN functionality is supported only for DML queries - SELECT, INSERT, UPDATE, DELETE and REPLACE.") //nolint:revive
 	}
 
 	return &mysqlExplainAction{
