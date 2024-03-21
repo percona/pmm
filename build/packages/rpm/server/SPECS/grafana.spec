@@ -22,9 +22,6 @@ Source0:        https://github.com/percona/grafana/archive/%{commit}.tar.gz
 ExclusiveArch:  %{ix86} x86_64 %{arm}
 
 BuildRequires: fontconfig
-%if 0%{?rhel} < 9
-BuildRequires: nodejs-grunt-cli
-%endif
 
 %description
 Grafana is an open source, feature rich metrics dashboard and graph editor for
@@ -34,9 +31,7 @@ Graphite, InfluxDB & OpenTSDB.
 %setup -q -n grafana-%{commit}
 rm -rf Godeps
 sed -i "s/unknown-dev/%{grafana_version}/" pkg/build/git.go
-%if 0%{?rhel} >= 9
-    sudo npm install -g grunt-cli
-%endif
+sudo npm install -g grunt-cli
 
 %build
 mkdir -p _build/src
@@ -82,6 +77,9 @@ getent passwd pmm >/dev/null || echo "User pmm does not exist. Please create it 
 exit 0
 
 %changelog
+* Tue Mar 20 2024 Alex Demidoff <alexander.demidoff@percona.com> - 10.4.0-2
+- PMM-12899 Use module and build cache
+
 * Tue Mar 12 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 10.4.0-1
 - PMM-12991 Grafana 10.4.0
 
