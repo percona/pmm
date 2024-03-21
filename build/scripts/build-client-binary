@@ -51,7 +51,7 @@ gobuild_component() {
     elif [ ${component} = 'percona-toolkit' ]; then
         build_command="cd /tmp/go/src/${extract_path}/${component_path} && go build -o ${bin_dir}/${result_file} ."
     else
-        build_command="cd /tmp/go/src/${extract_path}/${component_path} go build -o ${bin_dir}/${result_file} ."
+        build_command="cd /tmp/go/src/${extract_path}/${component_path} && go build -o ${bin_dir}/${result_file} ."
     fi
 
     docker run --rm \
