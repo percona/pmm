@@ -87,6 +87,11 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "_", "HOME", "HOSTNAME", "LANG", "PATH", "PWD", "SHLVL", "TERM", "LC_ALL", "SHELL", "LOGNAME", "USER", "PS1":
 			// skip default environment variables
 			continue
+		case "NO_PROXY", "HTTP_PROXY", "HTTPS_PROXY":
+			continue
+
+		case "CONTAINER":
+			continue
 		case "PMM_DEBUG", "PMM_TRACE":
 			// skip cross-component environment variables that are already handled by kingpin
 			continue
@@ -156,12 +161,6 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 			}
 
-		case "PMM_NO_PROXY", "PMM_HTTP_PROXY", "PMM_HTTPS_PROXY":
-			continue
-
-		case "PMM_CONTAINER":
-			continue
-
 		case "PMM_INSTALL_METHOD":
 			continue
 
@@ -209,6 +208,15 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			// skip kubernetes monitoring environment variables
 			if strings.HasPrefix(k, "MONITORING_") {
 				continue
+			}
+
+			// skip PMM development environment variables
+			if strings.HasPrefix(k, "PMM_DEV_") {
+				continue
+			}
+
+			if strings.HasPrefix(k, "PERCONA_") {
+				warns = append(warns, fmt.Sprintf("PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation"))
 			}
 
 			if !strings.HasPrefix(k, "PMM_TEST_PERCONA") {

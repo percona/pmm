@@ -54,7 +54,7 @@ func main() {
 
 	pmmConfigParams := make(map[string]any)
 	pmmConfigParams["DisableInternalDB"], _ = strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_POSTGRES"))
-	pmmConfigParams["DisableInternalClickhouse"], _ = strconv.ParseBool(os.Getenv("PMM_TEST_PMM_DISABLE_BUILTIN_CLICKHOUSE"))
+	pmmConfigParams["DisableInternalClickhouse"], _ = strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_CLICKHOUSE"))
 	if err := supervisord.SavePMMConfig(pmmConfigParams); err != nil {
 		logrus.Errorf("PMM Server configuration error: %s.", err)
 		os.Exit(1)

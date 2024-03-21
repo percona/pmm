@@ -40,6 +40,6 @@ datasources:
   version: 2
   type: grafana-clickhouse-datasource
   jsonData:
-    port: ${PERCONA_TEST_PMM_CLICKHOUSE_PORT}
-    server: ${PERCONA_TEST_PMM_CLICKHOUSE_HOST}
+    port: ${PMM_CLICKHOUSE_PORT}
+    server: ${PERCONA_DEV_PMM_CLICKHOUSE_HOST}
     tlsSkipVerify: false
