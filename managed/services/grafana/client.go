@@ -45,8 +45,6 @@ import (
 // ErrFailedToGetToken means it failed to get user's token. Most likely due to the fact user is not logged in using Percona Account.
 var ErrFailedToGetToken = errors.New("failed to get token")
 
-const defaultEvaluationInterval = time.Minute
-
 // Client represents a client for Grafana API.
 type Client struct {
 	addr string
@@ -408,7 +406,7 @@ func (c *Client) DeleteAPIKeyByID(ctx context.Context, id int64) error {
 }
 
 // CreateAlertRule creates Grafana alert rule.
-func (c *Client) CreateAlertRule(ctx context.Context, folderName, groupName string, rule *services.Rule) error {
+func (c *Client) CreateAlertRule(ctx context.Context, folderUid, groupName, interval string, rule *services.Rule) error {
 	authHeaders, err := c.authHeadersFromContext(ctx)
 	if err != nil {
 		return err
@@ -421,7 +419,7 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderName, groupName stri
 	}
 
 	var group AlertRuleGroup
-	if err := c.do(ctx, http.MethodGet, fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s/%s", folderName, groupName), "", authHeaders, nil, &group); err != nil {
+	if err := c.do(ctx, http.MethodGet, fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s/%s", folderUid, groupName), "", authHeaders, nil, &group); err != nil {
 		return err
 	}
 
@@ -433,8 +431,7 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderName, groupName stri
 	group.Rules = append(group.Rules, b)
 
 	if group.Interval == "" {
-		// TODO: align it with grafanas default value: https://grafana.com/docs/grafana/v9.0/setup-grafana/configure-grafana/#min_interval
-		group.Interval = defaultEvaluationInterval.String()
+		group.Interval = interval
 	}
 
 	if err = validateDurations(group.Interval, rule.For); err != nil {
@@ -446,7 +443,7 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderName, groupName stri
 		return err
 	}
 
-	if err := c.do(ctx, "POST", fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s", folderName), "", authHeaders, body, nil); err != nil {
+	if err := c.do(ctx, "POST", fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s", folderUid), "", authHeaders, body, nil); err != nil {
 		if err != nil {
 			if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
 				return status.Error(codes.InvalidArgument, cErr.ErrorMessage)
