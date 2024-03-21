@@ -16,9 +16,9 @@ type mockGrafanaClient struct {
 	mock.Mock
 }
 
-// CreateAlertRule provides a mock function with given fields: ctx, folderdUid, groupName, interval, rule
-func (_m *mockGrafanaClient) CreateAlertRule(ctx context.Context, folderdUid string, groupName string, interval string, rule *services.Rule) error {
-	ret := _m.Called(ctx, folderdUid, groupName, interval, rule)
+// CreateAlertRule provides a mock function with given fields: ctx, folderUID, groupName, interval, rule
+func (_m *mockGrafanaClient) CreateAlertRule(ctx context.Context, folderUID string, groupName string, interval string, rule *services.Rule) error {
+	ret := _m.Called(ctx, folderUID, groupName, interval, rule)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateAlertRule")
@@ -26,7 +26,7 @@ func (_m *mockGrafanaClient) CreateAlertRule(ctx context.Context, folderdUid str
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, *services.Rule) error); ok {
-		r0 = rf(ctx, folderdUid, groupName, interval, rule)
+		r0 = rf(ctx, folderUID, groupName, interval, rule)
 	} else {
 		r0 = ret.Error(0)
 	}

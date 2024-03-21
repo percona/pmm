@@ -406,7 +406,7 @@ func (c *Client) DeleteAPIKeyByID(ctx context.Context, id int64) error {
 }
 
 // CreateAlertRule creates Grafana alert rule.
-func (c *Client) CreateAlertRule(ctx context.Context, folderUid, groupName, interval string, rule *services.Rule) error {
+func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, interval string, rule *services.Rule) error {
 	authHeaders, err := c.authHeadersFromContext(ctx)
 	if err != nil {
 		return err
@@ -419,7 +419,7 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUid, groupName, inte
 	}
 
 	var group AlertRuleGroup
-	if err := c.do(ctx, http.MethodGet, fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s/%s", folderUid, groupName), "", authHeaders, nil, &group); err != nil {
+	if err := c.do(ctx, http.MethodGet, fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s/%s", folderUID, groupName), "", authHeaders, nil, &group); err != nil {
 		return err
 	}
 
@@ -443,7 +443,7 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUid, groupName, inte
 		return err
 	}
 
-	if err := c.do(ctx, "POST", fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s", folderUid), "", authHeaders, body, nil); err != nil {
+	if err := c.do(ctx, "POST", fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s", folderUID), "", authHeaders, body, nil); err != nil {
 		if err != nil {
 			if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
 				return status.Error(codes.InvalidArgument, cErr.ErrorMessage)
