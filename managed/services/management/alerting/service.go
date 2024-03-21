@@ -52,8 +52,8 @@ import (
 )
 
 const (
-	templatesDir         = "/srv/alerting/templates"
-	portalRequestTimeout = 2 * time.Minute // time limit to get templates list from the portal
+	templatesDir              = "/srv/alerting/templates"
+	portalRequestTimeout      = 2 * time.Minute // time limit to get templates list from the portal
 	defaultEvaluationInterval = time.Minute
 
 	dirPerm = os.FileMode(0o775)
