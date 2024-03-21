@@ -5,9 +5,6 @@
 set -o errexit
 set -o xtrace
 
-bin_dir=$(cd $(dirname $0); pwd -P)
-tmp_dir=${root_dir}/tmp
-
 main() {
     local IMAGE=${1:-${rpmbuild_docker_image}}
     docker run --rm -v ${bin_dir}:/home/builder/bin -v ${root_dir}/results:/home/builder/results ${IMAGE} sh -c "
@@ -18,14 +15,11 @@ main() {
         export pmm_release=$pmm_release
         export sudo_path=\$(ls /usr/bin/sudo)
         mkdir -p /tmp/pmm
-        pushd /home/builder/results
-            \$sudo_path /home/builder/bin/build-client-packages \
-                --builddir=/tmp/pmm \
-                --install_deps=1
-            /home/builder/bin/build-client-packages \
-                --builddir=/tmp/pmm \
-                --build_rpm=1
-        popd
+        cd /home/builder/results
+        /home/builder/bin/build-client-packages \
+            --builddir=/tmp/pmm \
+            --build_rpm=1
+
         \$sudo_path chown -R $(id -u):$(id -g) /home/builder/results/rpm
     "
 }

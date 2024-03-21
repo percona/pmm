@@ -17,7 +17,7 @@ Usage: $0 [OPTIONS]
         --build_source_deb  If it is 1 source deb package will be built
         --build_rpm         If it is 1 rpm will be built
         --build_deb         If it is 1 deb will be built
-        --install_deps      Install build dependencies(root previlages are required)
+        --install_deps      Install build dependencies(root privileges are required)
         --branch            Branch from which submodules should be taken(default v3)
         --help) usage ;;
 Example $0 --builddir=/tmp/PMM_CLIENT --get_sources=1 --build_src_rpm=1 --build_rpm=1
@@ -90,13 +90,12 @@ check_workdir(){
     if [ "x$WORKDIR" = "x$CURDIR" ]; then
         echo >&2 "Current directory cannot be used for building!"
         exit 1
-    else
-        if ! test -d "$WORKDIR"; then
-            echo >&2 "$WORKDIR is not a directory."
-            exit 1
-        fi
     fi
-    return
+    
+    if ! test -d "$WORKDIR"; then
+        echo >&2 "$WORKDIR is not a directory."
+        exit 1
+    fi
 }
 
 get_sources(){
@@ -108,11 +107,11 @@ get_sources(){
     git clone $REPO
     retval=$?
     if [ $retval != 0 ]; then
-        echo "There were some issues during repo cloning from github. Please retry one more time"
+        echo "There were some issues during repo cloning from github. Please retry."
         exit 1
     fi
     cd pmm-client
-    if [ ! -z $BRANCH ]; then
+    if [ -n $BRANCH ]; then
         git reset --hard
         git clean -xdf
         git checkout $BRANCH
@@ -122,7 +121,6 @@ get_sources(){
     #
     VERSION=$(pmm_version)
     mv Makefile build/
-    #cat VERSION > $VERSION_FILE
     echo "VERSION=${VERSION}" > $VERSION_FILE
     echo "REVISION=${REVISION}" >> $VERSION_FILE
     echo "RPM_RELEASE=${RPM_RELEASE}" >> $VERSION_FILE
@@ -133,7 +131,6 @@ get_sources(){
     echo "MongoExp_BRANCH_NAME=${MongoExp_BRANCH_NAME}" >> $VERSION_FILE
     echo "MysqlExp_BRANCH_NAME=${MysqlExp_BRANCH_NAME}" >> $VERSION_FILE
     echo "ProxysqlExp_BRANCH_NAME=${ProxysqlExp_BRANCH_NAME}" >> $VERSION_FILE
-    echo "QAN_BRANCH_NAME=${QAN_BRANCH_NAME}" >> $VERSION_FILE
     echo "TOOLKIT_REPO=${TOOLKIT_REPO}" >> $VERSION_FILE
     echo "TOOLKIT_BRANCH_NAME=${TOOLKIT_BRANCH_NAME}" >> $VERSION_FILE
     PRODUCT=pmm-client
@@ -146,10 +143,8 @@ get_sources(){
     echo "BUILD_ID=${BUILD_ID}" >> $VERSION_FILE
     echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT_NAME}/${VERSION}/${BRANCH_NAME}/${REVISION}/${BUILD_ID}" >> $VERSION_FILE
     echo "MongoExp_REPO=${MongoExp_REPO}" >> $VERSION_FILE
-    echo "TOOLKIT_REPO=${TOOLKIT_REPO}" >> $VERSION_FILE
     echo "MysqlExp_REPO=${MysqlExp_REPO}" >> $VERSION_FILE
     echo "ProxysqlExp_REPO=${ProxysqlExp_REPO}" >> $VERSION_FILE
-    echo "QAN_REPO=${QAN_REPO}" >> $VERSION_FILE
     echo "NodeExp_REPO=${NodeExp_REPO}" >> $VERSION_FILE
     cd ../
     mv ${PRODUCT} ${PRODUCT}-${VERSION}
@@ -179,6 +174,7 @@ get_system(){
 }
 
 install_deps() {
+    local RUN_CMD
     if [ $INSTALL = 0 ]; then
         echo "Dependencies will not be installed"
         return;
@@ -188,7 +184,17 @@ install_deps() {
         exit 1
     fi
     if [ "$OS" = "rpm" ]; then
-        yum -y install git wget rpmdevtools bison yum-utils rpm-build
+        # yum -y install git curl wget rpmdevtools bison yum-utils rpm-build
+        command -v git || RUN_CMD+=" git"
+        command -v curl || RUN_CMD+=" curl"
+        command -v wget || RUN_CMD+=" wget"
+        command -v spectool || RUN_CMD+=" rpmdevtools"
+        command -v bison || RUN_CMD+=" bison"
+        command -v repoquery || RUN_CMD+=" yum-utils"
+        command -v rpmbuild || RUN_CMD+=" rpm-build"
+        if [ -n "$RUN_CMD" ]; then
+            yum -y install "$RUN_CMD"
+        fi
     else
         apt-get update
         apt-get -y install devscripts equivs debhelper
@@ -198,9 +204,9 @@ install_deps() {
 
 get_tar(){
     TARBALL=$1
-    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'pmm-client*.tar.gz' | sort | tail -n1) || :)
+    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name "${PACKAGE_NAME}*.tar.gz" | sort | tail -n1) || :)
     if [ -z $TARFILE ]; then
-        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'pmm-client*.tar.gz' | sort | tail -n1) || :)
+        TARFILE=$(basename $(find $CURDIR/$TARBALL -name "${PACKAGE_NAME}*.tar.gz" | sort | tail -n1) || :)
         if [ -z $TARFILE ]; then
             echo "There is no $TARBALL for build"
             exit 1
@@ -216,9 +222,9 @@ get_tar(){
 get_deb_sources(){
     param=$1
     echo $param
-    FILE=$(basename $(find $WORKDIR/source_deb -name "pmm-client*.$param" | sort | tail -n1) || :)
+    FILE=$(basename $(find $WORKDIR/source_deb -name "${PACKAGE_NAME}*.$param" | sort | tail -n1) || :)
     if [ -z $FILE ]; then
-        FILE=$(basename $(find $CURDIR/source_deb -name "pmm-client*.$param" | sort | tail -n1) || :)
+        FILE=$(basename $(find $CURDIR/source_deb -name "${PACKAGE_NAME}*.$param" | sort | tail -n1) || :)
         if [ -z $FILE ]; then
             echo "There is no sources for build"
             exit 1
@@ -232,7 +238,7 @@ get_deb_sources(){
 }
 
 build_srpm(){
-    if [ $SRPM = 0 ]; then
+    if [ "$SRPM" = 0 ]; then
         echo "SRC RPM will not be created"
         return;
     fi
@@ -242,28 +248,24 @@ build_srpm(){
     fi
     cd $WORKDIR
     get_tar "tarball"
-    
-    #
+
     rm -fr rpmbuild
     ls | grep -v tar.gz | xargs rm -rf
-    
-    #
-    TARFILE=$(basename $(find . -name 'pmm-client-*.tar.gz' | sort | tail -n1))
+
+    TARFILE=$(basename $(find . -name "${PACKAGE_NAME}-*.tar.gz" | sort | tail -n1))
     NAME=$(echo ${TARFILE}| awk -F '-' '{print $1"-"$2}')
     VERSION_TMP=$(echo ${TARFILE}| awk -F '-' '{print $3}')
     VERSION=${VERSION_TMP%.tar.gz}
-    
-    #
+
     mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
-    
-    #
+
     tar -C ${WORKDIR} -zxpf ${TARFILE} ${NAME}-${VERSION}/rpm
-    #
+
     cd ${WORKDIR}/rpmbuild/SPECS
     cp ${WORKDIR}/${NAME}-${VERSION}/rpm/*.spec .
     cp ${WORKDIR}/${TARFILE} ../SOURCES/
     cd ${WORKDIR}
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "version $VERSION" --define "release $RPM_RELEASE" --define "dist %{nil}" rpmbuild/SPECS/pmm-client.spec
+    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "version $VERSION" --define "release $RPM_RELEASE" --define "dist %{nil}" "rpmbuild/SPECS/${PACKAGE_NAME}.spec"
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -271,7 +273,7 @@ build_srpm(){
 }
 
 build_rpm(){
-    if [ $RPM = 0 ]; then
+    if [ "$RPM" = 0 ]; then
         echo "RPM will not be created"
         return;
     fi
@@ -280,9 +282,9 @@ build_rpm(){
         exit 1
     fi
 
-    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'pmm-client*.src.rpm' | sort | tail -n1) || :)
+    SRC_RPM=$(basename $(find $WORKDIR/srpm -name "${PACKAGE_NAME}*.src.rpm" | sort | tail -n1) || :)
     if [ -z $SRC_RPM ]; then
-        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'pmm-client*.src.rpm' | sort | tail -n1) || :)
+        SRC_RPM=$(basename $(find $CURDIR/srpm -name "${PACKAGE_NAME}*.src.rpm" | sort | tail -n1) || :)
         if [ -z $SRC_RPM ]; then
             echo "There is no src rpm for build"
             echo "You can create it using key --build_src_rpm=1"
@@ -298,6 +300,10 @@ build_rpm(){
     rm -fr rpmbuild
     mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
     cp $SRC_RPM rpmbuild/SRPMS/
+    if find "${CURDIR}/rpm" -name "${PACKAGE_NAME}-${pmm_version}-*.rpm"; then
+        # Remove older client rpm packages before building a new one
+        rm -f "${CURDIR}/rpm/${PACKAGE_NAME}-${pmm_version}-*.rpm"
+    fi
     rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" \
              --define "version $pmm_version" \
              --define "release $RPM_RELEASE" \
@@ -305,17 +311,17 @@ build_rpm(){
              --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
-    if [ $return_code != 0 ]; then
+    if [ "$return_code" -ne 0 ]; then
+        echo "Error: rpmbuild exited with a non-zero return code '$return_code'\n"
         exit $return_code
     fi
-    mkdir -p ${WORKDIR}/rpm
+
     mkdir -p ${CURDIR}/rpm
-    cp rpmbuild/RPMS/*/*.rpm ${WORKDIR}/rpm
     cp rpmbuild/RPMS/*/*.rpm ${CURDIR}/rpm
 }
 
 build_source_deb(){
-    if [ $SDEB = 0 ]; then
+    if [ "$SDEB" = 0 ]; then
         echo "source deb package will not be created"
         return;
     fi
@@ -326,17 +332,16 @@ build_source_deb(){
     rm -rf pmm-client*
     get_tar "tarball"
     rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
-    #
-    TARFILE=$(basename $(find . -name 'pmm-client-*.tar.gz' | sort | tail -n1))
+
+    TARFILE=$(basename $(find . -name "${PACKAGE_NAME}-*.tar.gz" | sort | tail -n1))
     NAME=$(echo ${TARFILE}| awk -F '-' '{print $1"-"$2}')
     VERSION_TMP=$(echo ${TARFILE}| awk -F '-' '{print $3}')
     VERSION=${VERSION_TMP%.tar.gz}
 
     rm -fr ${NAME}-${VERSION}
-    #
+
     NEWTAR=${NAME}_${VERSION}.orig.tar.gz
     mv ${TARFILE} ${NEWTAR}
-    #
 
     git clone $REPO ${NAME}-${VERSION}_all
     pushd ${NAME}-${VERSION}_all
@@ -363,7 +368,7 @@ build_source_deb(){
     mv queries-mr.yaml ../${NAME}-${VERSION}_all/distro/
     mv queries-lr.yaml ../${NAME}-${VERSION}_all/distro/
     mv debian ../${NAME}-${VERSION}_all/
-    mv config/pmm-agent.service ../${NAME}-${VERSION}_all/debian/pmm-client.pmm-agent.service
+    mv config/pmm-agent.service ../${NAME}-${VERSION}_all/debian/${PACKAGE_NAME}.pmm-agent.service
     cd ../
 
     rm -rf ${NAME}-${VERSION}
@@ -396,12 +401,12 @@ build_source_deb(){
 }
 
 build_deb(){
-    if [ $DEB = 0 ]; then
-        echo "source deb package will not be created"
+    if [ "$DEB" = 0 ]; then
+        echo "deb package will not be created"
         return;
     fi
     if [ "$OS" = "rpm" ]; then
-        echo "It is not possible to build source deb here"
+        echo "It is not possible to build deb here"
         exit 1
     fi
     for file in 'dsc' 'orig.tar.gz' 'changes' 'diff.gz'; do
@@ -432,6 +437,7 @@ build_deb(){
 #main
 
 CURDIR=$(pwd)
+PACKAGE_NAME=pmm3-client
 VERSION_FILE=$CURDIR/pmm-client.properties
 args=
 WORKDIR=
@@ -446,15 +452,15 @@ ARCH=
 OS=
 SUBMODULE_BRANCH="v3"
 INSTALL=0
-RPM_RELEASE=6
-DEB_RELEASE=6
+RPM_RELEASE=1
+DEB_RELEASE=1
+REVISION=0
 
 if [ -n "$pmm_release" ]; then
     RPM_RELEASE="$RPM_RELEASE.$pmm_release"
     DEB_RELEASE="$DEB_RELEASE.$pmm_release"
 fi
 
-REVISION=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 get_system
 install_deps
@@ -482,8 +488,6 @@ if [ "$TARBALL" = '1' -o "$SOURCE" = '1' ]; then
 fi
 
 check_workdir
-get_system
-install_deps
 get_sources
 build_srpm
 build_source_deb

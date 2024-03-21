@@ -24,6 +24,7 @@ is_build_needed() {
     local spec_name=$1
     local rpm_version=$2
     local packages=
+    local cache_dir=RELEASE
 
     # Structure of S3 build cache
     # s3://pmm-build-cache/PR-BUILDS/7 - el7
@@ -31,18 +32,17 @@ is_build_needed() {
     # s3://pmm-build-cache/RELEASE/7 - el7
     # s3://pmm-build-cache/RELEASE/9 - el9
 
-    # RPM_EPOCH is set for Feature Builds
-    if [ -n "$RPM_EPOCH" ]; then
+    [ "${FORCE_REBUILD}" = 1 ] && return 0
+
+    # RPM_EPOCH is set to 1 for Feature Builds
+    if [ "$RPM_EPOCH" = 1 ]; then
+        cache_dir=PR-BUILDS
+    fi
+    if command -v aws &> /dev/null; then
         aws s3 sync \
             --region us-east-2 \
             --no-sign-request \
-            s3://pmm-build-cache/PR-BUILDS/${rpmbuild_dist}/${spec_name}-${rpm_version} \
-            ${rpms_dir}/${spec_name}-${rpm_version}
-    else
-        aws s3 sync \
-            --region us-east-2 \
-            --no-sign-request \
-            s3://pmm-build-cache/RELEASE/${rpmbuild_dist}/${spec_name}-${rpm_version} \
+            s3://pmm-build-cache/${cache_dir}/${rpmbuild_dist}/${spec_name}-${rpm_version} \
             ${rpms_dir}/${spec_name}-${rpm_version}
     fi
 
@@ -58,103 +58,120 @@ prepare_specs() {
 
     sudo chown -R $(id -u):$(id -g) ${rpmbuild_dir}/SPECS ${rpmbuild_dir}/SOURCES
     cp ${rpmbuild_dir}/SPECS/${spec_name}.spec ${rpmbuild_dir}/SOURCES/${spec_name}.spec
-    if [ -d "${root_dir}/sources/${repo_name}" ]; then
-        local git_dir=$(dirname $(find "${root_dir}/sources/${repo_name}" -name .git | head -1))
-        local full_commit=$(git -C "${git_dir}" rev-parse HEAD)
-        local short_commit=${full_commit:0:7}
-
-        sed -i -e "s/global commit.*/global commit ${full_commit}/" ${rpmbuild_dir}/SOURCES/${spec_name}.spec
-        if [[ ${spec_name} != "grafana" ]]; then
-            sed -i -e "s/Version:.*/Version: ${pmm_version}/"       ${rpmbuild_dir}/SOURCES/${spec_name}.spec
-        fi
-
-        if [ -z "${full_pmm_version}" ]; then
-            echo 'A full_pmm_version is not specified.'
-            exit 1
-        fi
-        sed -i -e "s/%define full_pmm_version.*/%define full_pmm_version ${full_pmm_version}/" ${rpmbuild_dir}/SOURCES/${spec_name}.spec
-
-        if [ -n "$pmm_release" ]; then
-            sed -i -e "s/\(%define release.*\)/\1.$pmm_release/" ${rpmbuild_dir}/SOURCES/${spec_name}.spec
-            grep -r 'define release' ${rpmbuild_dir}/SOURCES/${spec_name}.spec
-        fi
-
-        if [ -f "${rpmbuild_dir}/SOURCES/${repo_name}-${short_commit}.tar.gz" ]; then
-            echo SOURCES/${repo_name}-${short_commit}.tar.gz already exists, skip archiving...
-        else
-            git -C "${git_dir}" archive \
-                --format=tar.gz \
-                --prefix=${repo_name}-${full_commit}/ \
-                -o ${rpmbuild_dir}/SOURCES/${repo_name}-${short_commit}.tar.gz \
-                "${full_commit}"
-        fi
+    if [ ! -d "${root_dir}/sources/${repo_name}" ]; then
+        return
     fi
+    
+    local git_dir=$(dirname $(find "${root_dir}/sources/${repo_name}" -name .git | head -1))
+    local full_commit=$(git -C "${git_dir}" rev-parse HEAD)
+    local short_commit=${full_commit:0:7}
+
+    sed -i -e "s/global commit.*/global commit ${full_commit}/" ${rpmbuild_dir}/SOURCES/${spec_name}.spec
+    if [ "${spec_name}" != "grafana" ]; then
+        sed -i -e "s/Version:.*/Version: ${pmm_version}/"       ${rpmbuild_dir}/SOURCES/${spec_name}.spec
+    fi
+
+    if [ -z "${full_pmm_version}" ]; then
+        echo 'The full_pmm_version is not specified.'
+        exit 1
+    fi
+    sed -i -e "s/%define full_pmm_version.*/%define full_pmm_version ${full_pmm_version}/" ${rpmbuild_dir}/SOURCES/${spec_name}.spec
+
+    if [ -n "$pmm_release" ]; then
+        sed -i -e "s/\(%define release.*\)/\1.$pmm_release/" ${rpmbuild_dir}/SOURCES/${spec_name}.spec
+        grep -r 'define release' ${rpmbuild_dir}/SOURCES/${spec_name}.spec
+    fi
+
+    if [ -f "${rpmbuild_dir}/SOURCES/${repo_name}-${short_commit}.tar.gz" ]; then
+        echo SOURCES/${repo_name}-${short_commit}.tar.gz already exists, skip archiving...
+        return
+    fi
+
+    git -C "${git_dir}" archive \
+        --format=tar.gz \
+        --prefix=${repo_name}-${full_commit}/ \
+        -o ${rpmbuild_dir}/SOURCES/${repo_name}-${short_commit}.tar.gz \
+        "${full_commit}"
 }
 
 build() {
     local spec_name=$1
     local repo_name=${2:-$1}
     prepare_specs "${spec_name}" "${repo_name}"
+
     local rpm_version=$(get_rpm_version "${spec_name}")
     local CH_VERSION=${rpm_version%-*}
     local CH_TAG=${rpm_version#*-}
+    local cache_dir=RELEASE
+    local volume_mounts="-v ${rpmbuild_dir}/SOURCES:/home/builder/rpm/SOURCES -v ${rpms_dir}:/home/builder/rpm/RPMS"
+    local build_deps=("dbaas-tools.spec" "grafana.spec" "percona-dashboards.spec")
 
-    if  [[ -n "${FORCE_REBUILD}" ]] || is_build_needed "${spec_name}" "${rpm_version}"; then
-        echo "RPM Build Dir: ${rpmbuild_dir}, Docker image: ${rpmbuild_docker_image}"
+    if ! is_build_needed "${spec_name}" "${rpm_version}"; then
+        return
+    fi
 
-        docker run --rm -v ${rpmbuild_dir}/SOURCES:/home/builder/rpm/SOURCES -v ${rpms_dir}:/home/builder/rpm/RPMS ${rpmbuild_docker_image} sh -c "
-            set -o errexit
-            set -o xtrace
-            echo \"spec_name: ${spec_name}\"
-            echo \"repo_name: ${repo_name}\"
-            echo \"rpm_verison: ${rpm_version}\"
+    if [ -d "${root_dir}/go-build" ]; then
+        volume_mounts+=" -v ${root_dir}/go-build:/home/builder/.cache/go-build"
+    fi
+    if [ -d "${root_dir}/go-path" ]; then
+        volume_mounts+=" -v ${root_dir}/go-path:/home/builder/go/pkg/mod"
+    fi
 
-            sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
+    echo "spec_name: ${spec_name}"
+    echo "repo_name: ${repo_name}"
+    echo "rpm_verison: ${rpm_version}"
 
-            # Add 'Epoch' to spec file to prevent update of rpms which are built in PR build
-            if [ -n \"$RPM_EPOCH\" ]; then
-                sed -i '/^Version:.*/i Epoch: 1' /home/builder/rpm/SOURCES/${spec_name}.spec
-            fi
+    docker run --rm ${volume_mounts} ${rpmbuild_docker_image} sh -c "
+        set -o errexit
+        set -o xtrace
 
-            rm -rf /home/builder/rpm/RPMS/${spec_name}-*
+        sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
 
-            printf '[local]\nname=local\nbaseurl=file:///home/builder/rpm/RPMS\ngpgcheck=0\nenabled=1\n' \
-                | sudo tee /etc/yum.repos.d/local.repo
-
-            until /usr/bin/createrepo_c --update /home/builder/rpm/RPMS; do
-              echo waiting
-              sleep 1
-            done
-
-            sudo yum-builddep --randomwait=1 -y SOURCES/${spec_name}.spec
-
-            spectool -C SOURCES -g SOURCES/${spec_name}.spec
-            rpmbuild  --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' \
-                      --define 'dist .${rpmbuild_dist}' \
-                      --define 'debug_package %{nil}' \
-                      -ba SOURCES/${spec_name}.spec
-
-            rm -f SOURCES/${spec_name}.spec*
-            sudo chown -R $(id -u):$(id -g) /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
-        "
-
-        if [ -n "$RPM_EPOCH" ]; then
-            aws s3 sync \
-                --region us-east-2 \
-                ${rpms_dir}/${spec_name}-${rpm_version} \
-                s3://pmm-build-cache/PR-BUILDS/${rpmbuild_dist}/${spec_name}-${rpm_version} \
-                || :
-        else
-            aws s3 sync \
-                --region us-east-2 \
-                ${rpms_dir}/${spec_name}-${rpm_version} \
-                s3://pmm-build-cache/RELEASE/${rpmbuild_dist}/${spec_name}-${rpm_version} \
-                || :
+        # Add 'Epoch' to spec file to prevent update of rpms which are built in PR build
+        if [ \"$RPM_EPOCH\" = 1 ]; then
+            sed -i '/^Version:.*/i Epoch: 1' /home/builder/rpm/SOURCES/${spec_name}.spec
         fi
 
-        cp ${rpms_dir}/${spec_name}-${rpm_version}/*/*.rpm ${rpms_dir}
+        rm -rf /home/builder/rpm/RPMS/${spec_name}-*
 
+        printf '[local]\nname=local\nbaseurl=file:///home/builder/rpm/RPMS\ngpgcheck=0\nenabled=1\n' \
+            | sudo tee /etc/yum.repos.d/local.repo
+
+        until /usr/bin/createrepo_c --update /home/builder/rpm/RPMS; do
+          echo waiting
+          sleep 1
+        done
+
+        if grep ${spec_name}.spec <<< ${build_deps[*]} &>/dev/null; then
+          sudo yum-builddep --randomwait=1 -y SOURCES/${spec_name}.spec
+        fi
+
+        spectool -C SOURCES -g SOURCES/${spec_name}.spec
+        rpmbuild  --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' \
+                  --define 'dist .${rpmbuild_dist}' \
+                  --define 'debug_package %{nil}' \
+                  -ba SOURCES/${spec_name}.spec
+
+        rm -f SOURCES/${spec_name}.spec*
+        sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
+    "
+
+    # TODO: see if this is even needed
+    # cp ${rpms_dir}/${spec_name}-${rpm_version}/*/*.rpm ${rpms_dir}
+
+    if ! command -v aws &> /dev/null; then
+        echo "AWS CLI is not installed. Skipping upload to S3."
+        return
     fi
+
+    if [ "$RPM_EPOCH" = 1 ]; then
+      cache_dir=PR-BUILDS
+    fi
+    aws s3 sync \
+        --region us-east-2 \
+        ${rpms_dir}/${spec_name}-${rpm_version} \
+        s3://pmm-build-cache/${cache_dir}/${rpmbuild_dist}/${spec_name}-${rpm_version} \
+        || :
 }
 
 build "$1" "$2"
