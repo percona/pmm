@@ -353,7 +353,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_LISTEN_PORT").Uint16Var(&cfg.ListenPort)
 	app.Flag("runner-capacity", "Agent internal actions/jobs runner capacity [PMM_AGENT_RUNNER_CAPACITY]").
 		Envar("PMM_AGENT_RUNNER_CAPACITY").Uint16Var(&cfg.RunnerCapacity)
-	app.Flag("runner-max-connections-per-service", "Agent internal actions/jobs runner connections limit per DB instance").
+	app.Flag("runner-max-connections-per-service", "Agent internal action/job runner connection limit per DB instance").
 		Envar("PMM_AGENT_RUNNER_MAX_CONNECTIONS_PER_SERVICE").Uint16Var(&cfg.RunnerMaxConnectionsPerService)
 
 	app.Flag("server-address", "PMM Server address [PMM_AGENT_SERVER_ADDRESS]").
