@@ -620,14 +620,7 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1
 //
 //nolint:lll
 func (as *AgentsService) ChangePostgresExporter(ctx context.Context, agentID string, p *inventoryv1.ChangePostgresExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
-	params := &models.ChangeCommonAgentParams{
-		Enabled:           p.Enable,
-		EnablePushMetrics: p.EnablePushMetrics,
-	}
-	if p.CustomLabels != nil {
-		params.CustomLabels = &p.CustomLabels.Values
-	}
-	ag, err := as.changeAgent(ctx, "/agent_id/"+agentID, params)
+	ag, err := as.changeAgent(ctx, agentID, commonParams(p))
 	if err != nil {
 		return nil, err
 	}

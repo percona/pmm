@@ -19,6 +19,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
@@ -211,33 +212,39 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 
 // ChangeAgent allows to change some Agent attributes.
 func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeAgentRequest) (*inventoryv1.ChangeAgentResponse, error) {
+	agentID := req.GetAgentId()
+	// NOTE: we need to add a prefix since gRPC does not allow to pass a URL segment that begins with a slash.
+	// TODO: remove this once we drop prefixes in agent IDs.
+	if strings.HasPrefix(agentID, "/agent_id/") {
+		agentID = "/agent_id/" + agentID
+	}
 	switch req.Agent.(type) {
 	case *inventoryv1.ChangeAgentRequest_NodeExporter:
-		return s.s.ChangeNodeExporter(ctx, req.GetAgentId(), req.GetNodeExporter())
+		return s.s.ChangeNodeExporter(ctx, agentID, req.GetNodeExporter())
 	case *inventoryv1.ChangeAgentRequest_MysqldExporter:
-		return s.s.ChangeMySQLdExporter(ctx, req.GetAgentId(), req.GetMysqldExporter())
+		return s.s.ChangeMySQLdExporter(ctx, agentID, req.GetMysqldExporter())
 	case *inventoryv1.ChangeAgentRequest_MongodbExporter:
-		return s.s.ChangeMongoDBExporter(ctx, req.GetAgentId(), req.GetMongodbExporter())
+		return s.s.ChangeMongoDBExporter(ctx, agentID, req.GetMongodbExporter())
 	case *inventoryv1.ChangeAgentRequest_PostgresExporter:
-		return s.s.ChangePostgresExporter(ctx, req.GetAgentId(), req.GetPostgresExporter())
+		return s.s.ChangePostgresExporter(ctx, agentID, req.GetPostgresExporter())
 	case *inventoryv1.ChangeAgentRequest_ProxysqlExporter:
-		return s.s.ChangeProxySQLExporter(ctx, req.GetAgentId(), req.GetProxysqlExporter())
+		return s.s.ChangeProxySQLExporter(ctx, agentID, req.GetProxysqlExporter())
 	case *inventoryv1.ChangeAgentRequest_RdsExporter:
-		return s.s.ChangeRDSExporter(ctx, req.GetAgentId(), req.GetRdsExporter())
+		return s.s.ChangeRDSExporter(ctx, agentID, req.GetRdsExporter())
 	case *inventoryv1.ChangeAgentRequest_ExternalExporter:
-		return s.s.ChangeExternalExporter(ctx, req.GetAgentId(), req.GetExternalExporter())
+		return s.s.ChangeExternalExporter(ctx, agentID, req.GetExternalExporter())
 	case *inventoryv1.ChangeAgentRequest_AzureDatabaseExporter:
-		return s.s.ChangeAzureDatabaseExporter(ctx, req.GetAgentId(), req.GetAzureDatabaseExporter())
+		return s.s.ChangeAzureDatabaseExporter(ctx, agentID, req.GetAzureDatabaseExporter())
 	case *inventoryv1.ChangeAgentRequest_QanMysqlPerfschemaAgent:
-		return s.s.ChangeQANMySQLPerfSchemaAgent(ctx, req.GetAgentId(), req.GetQanMysqlPerfschemaAgent())
+		return s.s.ChangeQANMySQLPerfSchemaAgent(ctx, agentID, req.GetQanMysqlPerfschemaAgent())
 	case *inventoryv1.ChangeAgentRequest_QanMysqlSlowlogAgent:
-		return s.s.ChangeQANMySQLSlowlogAgent(ctx, req.GetAgentId(), req.GetQanMysqlSlowlogAgent())
+		return s.s.ChangeQANMySQLSlowlogAgent(ctx, agentID, req.GetQanMysqlSlowlogAgent())
 	case *inventoryv1.ChangeAgentRequest_QanMongodbProfilerAgent:
-		return s.s.ChangeQANMongoDBProfilerAgent(ctx, req.GetAgentId(), req.GetQanMongodbProfilerAgent())
+		return s.s.ChangeQANMongoDBProfilerAgent(ctx, agentID, req.GetQanMongodbProfilerAgent())
 	case *inventoryv1.ChangeAgentRequest_QanPostgresqlPgstatementsAgent:
-		return s.s.ChangeQANPostgreSQLPgStatementsAgent(ctx, req.GetAgentId(), req.GetQanPostgresqlPgstatementsAgent())
+		return s.s.ChangeQANPostgreSQLPgStatementsAgent(ctx, agentID, req.GetQanPostgresqlPgstatementsAgent())
 	case *inventoryv1.ChangeAgentRequest_QanPostgresqlPgstatmonitorAgent:
-		return s.s.ChangeQANPostgreSQLPgStatMonitorAgent(ctx, req.GetAgentId(), req.GetQanPostgresqlPgstatmonitorAgent())
+		return s.s.ChangeQANPostgreSQLPgStatMonitorAgent(ctx, agentID, req.GetQanPostgresqlPgstatmonitorAgent())
 	default:
 		return nil, fmt.Errorf("invalid request %v", req.Agent)
 	}
