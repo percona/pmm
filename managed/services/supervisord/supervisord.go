@@ -22,6 +22,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/url"
 	"os"
 	"os/exec"
@@ -47,9 +48,17 @@ import (
 )
 
 const (
-	defaultClickhouseDatabase       = "pmm"
-	defaultClickhouseAddr           = "127.0.0.1:9000"
-	defaultClickhouseDataSourceAddr = "127.0.0.1:8123"
+	defaultClickhouseDatabase           = "pmm"
+	defaultClickhouseAddr               = "127.0.0.1:9000"
+	defaultClickhouseDataSourceAddr     = "127.0.0.1:8123"
+	defaultVMSearchMaxQueryLen          = "1MB"
+	defaultVMSearchLatencyOffset        = "5s"
+	defaultVMSearchMaxUniqueTimeseries  = "100000000"
+	defaultVMSearchMaxSamplesPerQuery   = "1500000000"
+	defaultVMSearchMaxQueueDuration     = "30s"
+	defaultVMSearchMaxQueryDuration     = "90s"
+	defaultVMSearchLogSlowQueryDuration = "30s"
+	defaultVMPromscrapeStreamParse      = "true"
 )
 
 // Service is responsible for interactions with Supervisord via supervisorctl.
@@ -255,7 +264,7 @@ func (s *Service) StartUpdate() (uint32, error) {
 
 	// remove existing log file
 	err := os.Remove(pmmUpdatePerformLog)
-	if err != nil && os.IsNotExist(err) {
+	if err != nil && errors.Is(err, fs.ErrNotExist) {
 		err = nil
 	}
 	if err != nil {
@@ -290,7 +299,7 @@ func (s *Service) StartUpdate() (uint32, error) {
 			s.l.Warnf("Unexpected log file size: %+v", fi)
 		}
 		offset = uint32(fi.Size())
-	case os.IsNotExist(err):
+	case errors.Is(err, fs.ErrNotExist):
 		// that's expected as we remove this file above
 	default:
 		s.l.Warn(err)
@@ -419,22 +428,39 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	clickhousePoolSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE", "")
 	clickhouseBlockSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "")
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2)
+	vmSearchDisableCache := getValueFromENV("VM_search_disableCache", strconv.FormatBool(!settings.VictoriaMetrics.CacheEnabled))
+	vmSearchMaxQueryLen := getValueFromENV("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
+	vmSearchLatencyOffset := getValueFromENV("VM_search_latencyOffset", defaultVMSearchLatencyOffset)
+	vmSearchMaxUniqueTimeseries := getValueFromENV("VM_search_maxUniqueTimeseries", defaultVMSearchMaxUniqueTimeseries)
+	vmSearchMaxSamplesPerQuery := getValueFromENV("VM_search_maxSamplesPerQuery", defaultVMSearchMaxSamplesPerQuery)
+	vmSearchMaxQueueDuration := getValueFromENV("VM_search_maxQueueDuration", defaultVMSearchMaxQueueDuration)
+	vmSearchMaxQueryDuration := getValueFromENV("VM_search_maxQueryDuration", defaultVMSearchMaxQueryDuration)
+	vmSearchLogSlowQueryDuration := getValueFromENV("VM_search_logSlowQueryDuration", defaultVMSearchLogSlowQueryDuration)
+	vmPromscrapeStreamParse := getValueFromENV("VM_promscrape_streamParse", defaultVMPromscrapeStreamParse)
 
 	templateParams := map[string]interface{}{
-		"DataRetentionHours":       int(settings.DataRetention.Hours()),
-		"DataRetentionDays":        int(settings.DataRetention.Hours() / 24),
-		"VMAlertFlags":             s.vmParams.VMAlertFlags,
-		"VMDBCacheDisable":         !settings.VictoriaMetrics.CacheEnabled,
-		"VMURL":                    s.vmParams.URL(),
-		"ExternalVM":               s.vmParams.ExternalVM(),
-		"InterfaceToBind":          envvars.GetInterfaceToBind(),
-		"ClickhouseAddr":           clickhouseAddr,
-		"ClickhouseDataSourceAddr": clickhouseDataSourceAddr,
-		"ClickhouseDatabase":       clickhouseDatabase,
-		"ClickhousePoolSize":       clickhousePoolSize,
-		"ClickhouseBlockSize":      clickhouseBlockSize,
-		"ClickhouseHost":           clickhouseAddrPair[0],
-		"ClickhousePort":           clickhouseAddrPair[1],
+		"DataRetentionHours":           int(settings.DataRetention.Hours()),
+		"DataRetentionDays":            int(settings.DataRetention.Hours() / 24),
+		"VMAlertFlags":                 s.vmParams.VMAlertFlags,
+		"VMSearchDisableCache":         vmSearchDisableCache,
+		"VMSearchMaxQueryLen":          vmSearchMaxQueryLen,
+		"VMSearchLatencyOffset":        vmSearchLatencyOffset,
+		"VMSearchMaxUniqueTimeseries":  vmSearchMaxUniqueTimeseries,
+		"VMSearchMaxSamplesPerQuery":   vmSearchMaxSamplesPerQuery,
+		"VMSearchMaxQueueDuration":     vmSearchMaxQueueDuration,
+		"VMSearchMaxQueryDuration":     vmSearchMaxQueryDuration,
+		"VMSearchLogSlowQueryDuration": vmSearchLogSlowQueryDuration,
+		"VMPromscrapeStreamParse":      vmPromscrapeStreamParse,
+		"VMURL":                        s.vmParams.URL(),
+		"ExternalVM":                   s.vmParams.ExternalVM(),
+		"InterfaceToBind":              envvars.GetInterfaceToBind(),
+		"ClickhouseAddr":               clickhouseAddr,
+		"ClickhouseDataSourceAddr":     clickhouseDataSourceAddr,
+		"ClickhouseDatabase":           clickhouseDatabase,
+		"ClickhousePoolSize":           clickhousePoolSize,
+		"ClickhouseBlockSize":          clickhouseBlockSize,
+		"ClickhouseHost":               clickhouseAddrPair[0],
+		"ClickhousePort":               clickhouseAddrPair[1],
 	}
 
 	s.addPostgresParams(templateParams)
@@ -442,14 +468,13 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 
 	templateParams["PMMServerHost"] = ""
 	if settings.PMMPublicAddress != "" {
-		publicURL, err := url.Parse(settings.PMMPublicAddress)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to parse PMM public address.")
+		pmmPublicAddress := settings.PMMPublicAddress
+		if !strings.HasPrefix(pmmPublicAddress, "https://") && !strings.HasPrefix(pmmPublicAddress, "http://") {
+			pmmPublicAddress = fmt.Sprintf("https://%s", pmmPublicAddress)
 		}
-		if publicURL.Host == "" {
-			if publicURL, err = url.Parse(fmt.Sprintf("https://%s", settings.PMMPublicAddress)); err != nil {
-				return nil, errors.Wrap(err, "failed to parse PMM public address.")
-			}
+		publicURL, err := url.Parse(pmmPublicAddress)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to parse PMM public address.") //nolint:revive
 		}
 		templateParams["PMMServerHost"] = publicURL.Host
 	}
@@ -511,7 +536,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	// read existing content
 	path := filepath.Join(s.configDir, name+".ini")
 	oldCfg, err := os.ReadFile(path) //nolint:gosec
-	if os.IsNotExist(err) {
+	if errors.Is(err, fs.ErrNotExist) {
 		err = nil
 	}
 	if err != nil {
@@ -617,15 +642,15 @@ command =
 		--retentionPeriod={{ .DataRetentionDays }}d
 		--storageDataPath=/srv/victoriametrics/data
 		--httpListenAddr={{ .InterfaceToBind }}:9090
-		--search.disableCache={{ .VMDBCacheDisable }}
-		--search.maxQueryLen=1MB
-		--search.latencyOffset=5s
-		--search.maxUniqueTimeseries=100000000
-		--search.maxSamplesPerQuery=1500000000
-		--search.maxQueueDuration=30s
-		--search.logSlowQueryDuration=30s
-		--search.maxQueryDuration=90s
-		--promscrape.streamParse=true
+		--search.disableCache={{ .VMSearchDisableCache }}
+		--search.maxQueryLen={{ .VMSearchMaxQueryLen }}
+		--search.latencyOffset={{ .VMSearchLatencyOffset }}
+		--search.maxUniqueTimeseries={{ .VMSearchMaxUniqueTimeseries }}
+		--search.maxSamplesPerQuery={{ .VMSearchMaxSamplesPerQuery }}
+		--search.maxQueueDuration={{ .VMSearchMaxQueueDuration }}
+		--search.logSlowQueryDuration={{ .VMSearchLogSlowQueryDuration }}
+		--search.maxQueryDuration={{ .VMSearchMaxQueryDuration }}
+		--promscrape.streamParse={{ .VMPromscrapeStreamParse }}
 		--http.pathPrefix=/prometheus
 		--envflag.enable
 		--envflag.prefix=VM_

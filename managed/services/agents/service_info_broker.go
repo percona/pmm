@@ -183,7 +183,7 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 	msg := sInfo.Error
 	if msg == context.Canceled.Error() || msg == context.DeadlineExceeded.Error() {
 		msg = fmt.Sprintf("timeout (%s)", msg)
-		return status.Error(codes.FailedPrecondition, fmt.Sprintf("Connection check failed: %s.", msg))
+		return status.Error(codes.FailedPrecondition, fmt.Sprintf("failed to get connection service info: %s.", msg))
 	}
 
 	stype := service.ServiceType
@@ -211,6 +211,7 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 				}
 			}
 		}
+		agent.PostgreSQLOptions.PGSMVersion = sInfo.PgsmVersion
 		agent.PostgreSQLOptions.DatabaseCount = int32(databaseCount - excludedDatabaseCount)
 
 		l.Debugf("Updating PostgreSQL options, database count: %d.", agent.PostgreSQLOptions.DatabaseCount)

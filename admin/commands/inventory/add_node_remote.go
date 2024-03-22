@@ -51,6 +51,7 @@ type AddNodeRemoteCommand struct {
 	Az           string            `help:"Node availability zone"`
 }
 
+// RunCmd executes the AddNodeRemoteCommand and returns the result.
 func (cmd *AddNodeRemoteCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &nodes.AddRemoteNodeParams{

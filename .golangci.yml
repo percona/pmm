@@ -111,8 +111,8 @@ linters:
 
     # TODO: carefully review all the rules below and either fix the code
     # or leave disabled and provide a reason why
-    - tagliatelle
-    - revive
+    #- tagliatelle
+    #- revive
     - paralleltest
     - gocognit
     - tagalign

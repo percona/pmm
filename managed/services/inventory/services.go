@@ -56,7 +56,7 @@ func NewServicesService(
 // List selects all Services in a stable order.
 //
 //nolint:unparam
-func (ss *ServicesService) List(ctx context.Context, filters models.ServiceFilters) ([]inventorypb.Service, error) {
+func (ss *ServicesService) List(_ context.Context, filters models.ServiceFilters) ([]inventorypb.Service, error) {
 	var servicesM []*models.Service
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
@@ -80,7 +80,7 @@ func (ss *ServicesService) List(ctx context.Context, filters models.ServiceFilte
 // ListActiveServiceTypes lists all active Service Types
 //
 //nolint:unparam
-func (ss *ServicesService) ListActiveServiceTypes(ctx context.Context) ([]inventorypb.ServiceType, error) {
+func (ss *ServicesService) ListActiveServiceTypes(_ context.Context) ([]inventorypb.ServiceType, error) {
 	var types []models.ServiceType
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
@@ -112,7 +112,7 @@ func (ss *ServicesService) ListActiveServiceTypes(ctx context.Context) ([]invent
 }
 
 // Get selects a single Service by ID.
-func (ss *ServicesService) Get(ctx context.Context, id string) (inventorypb.Service, error) { //nolint:unparam,ireturn
+func (ss *ServicesService) Get(_ context.Context, id string) (inventorypb.Service, error) { //nolint:ireturn
 	service := &models.Service{}
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
@@ -133,7 +133,7 @@ func (ss *ServicesService) Get(ctx context.Context, id string) (inventorypb.Serv
 // AddMySQL inserts MySQL Service with given parameters.
 //
 //nolint:dupl,unparam
-func (ss *ServicesService) AddMySQL(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.MySQLService, error) {
+func (ss *ServicesService) AddMySQL(_ context.Context, params *models.AddDBMSServiceParams) (*inventorypb.MySQLService, error) {
 	service := &models.Service{}
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
@@ -160,7 +160,7 @@ func (ss *ServicesService) AddMySQL(ctx context.Context, params *models.AddDBMSS
 // AddMongoDB inserts MongoDB Service with given parameters.
 //
 //nolint:dupl,unparam
-func (ss *ServicesService) AddMongoDB(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.MongoDBService, error) {
+func (ss *ServicesService) AddMongoDB(_ context.Context, params *models.AddDBMSServiceParams) (*inventorypb.MongoDBService, error) {
 	service := &models.Service{}
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
@@ -184,7 +184,7 @@ func (ss *ServicesService) AddMongoDB(ctx context.Context, params *models.AddDBM
 // AddPostgreSQL inserts PostgreSQL Service with given parameters.
 //
 //nolint:dupl,unparam
-func (ss *ServicesService) AddPostgreSQL(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.PostgreSQLService, error) {
+func (ss *ServicesService) AddPostgreSQL(_ context.Context, params *models.AddDBMSServiceParams) (*inventorypb.PostgreSQLService, error) {
 	service := &models.Service{}
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
@@ -208,7 +208,7 @@ func (ss *ServicesService) AddPostgreSQL(ctx context.Context, params *models.Add
 // AddProxySQL inserts ProxySQL Service with given parameters.
 //
 //nolint:dupl,unparam
-func (ss *ServicesService) AddProxySQL(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.ProxySQLService, error) {
+func (ss *ServicesService) AddProxySQL(_ context.Context, params *models.AddDBMSServiceParams) (*inventorypb.ProxySQLService, error) {
 	service := &models.Service{}
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
@@ -251,7 +251,7 @@ func (ss *ServicesService) AddHAProxyService(_ context.Context, params *models.A
 // AddExternalService inserts External Service with given parameters.
 //
 //nolint:dupl,unparam
-func (ss *ServicesService) AddExternalService(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.ExternalService, error) {
+func (ss *ServicesService) AddExternalService(_ context.Context, params *models.AddDBMSServiceParams) (*inventorypb.ExternalService, error) {
 	service := &models.Service{}
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error

@@ -18,7 +18,6 @@ package config
 import (
 	"fmt"
 	"io/fs"
-	"log"
 	"net"
 	"net/url"
 	"os"
@@ -169,7 +168,7 @@ type Config struct { //nolint:musttag
 
 // ConfigFileDoesNotExistError error is returned from Get method if configuration file is expected,
 // but does not exist.
-type ConfigFileDoesNotExistError string
+type ConfigFileDoesNotExistError string //nolint:revive
 
 func (e ConfigFileDoesNotExistError) Error() string {
 	return fmt.Sprintf("configuration file %s does not exist", string(e))
@@ -186,7 +185,9 @@ func getFromCmdLine(cfg *Config, l *logrus.Entry) (string, error) {
 }
 
 // get is Get for unit tests: it parses args instead of command-line.
-func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err error) { //nolint:nonamedreturns,cyclop
+func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint:cyclop
+	var configFileF string
+	var err error
 	// tweak configuration on exit to cover all return points
 	defer func() {
 		if cfg == nil {
@@ -302,25 +303,25 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 	// parse command-line flags and environment variables
 	app, cfgFileF := Application(cfg)
 	if _, err = app.Parse(args); err != nil {
-		return //nolint:nakedret
+		return configFileF, err
 	}
 	if *cfgFileF == "" {
-		return //nolint:nakedret
+		return configFileF, err
 	}
 
 	if configFileF, err = filepath.Abs(*cfgFileF); err != nil {
-		return //nolint:nakedret
+		return configFileF, err
 	}
 	l.Infof("Loading configuration file %s.", configFileF)
 	fileCfg, err := loadFromFile(configFileF)
 	if err != nil {
-		return //nolint:nakedret
+		return configFileF, err
 	}
 
 	// re-parse flags into configuration from file
 	app, _ = Application(fileCfg)
 	if _, err = app.Parse(args); err != nil {
-		return //nolint:nakedret
+		return configFileF, err
 	}
 
 	*cfg = *fileCfg
@@ -412,10 +413,11 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	}).Bool()
 
 	app.Flag("version", "Show application version").Short('v').Action(func(*kingpin.ParseContext) error {
+		// We use fmt instead of log package to provide proper output for --json flag.
 		if *jsonF {
-			log.Println(version.FullInfoJSON())
+			fmt.Println(version.FullInfoJSON()) //nolint:forbidigo
 		} else {
-			log.Println(version.FullInfo())
+			fmt.Println(version.FullInfo()) //nolint:forbidigo
 		}
 		os.Exit(0)
 
