@@ -24,6 +24,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/api/common"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
@@ -52,6 +53,12 @@ func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater,
 		cc:    cc,
 		sib:   sib,
 	}
+}
+
+type commonAgentParams interface {
+	GetEnable() bool
+	GetEnablePushMetrics() bool
+	GetCustomLabels() *common.StringMap
 }
 
 func toInventoryAgent(q *reform.Querier, row *models.Agent, registry agentsRegistry) (inventoryv1.Agent, error) { //nolint:ireturn
@@ -203,15 +210,23 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.Add
 	return res, nil
 }
 
-// ChangeNodeExporter updates node_exporter Agent with given parameters.
-func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeNodeExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
+func commonParams(p commonAgentParams) *models.ChangeCommonAgentParams {
 	params := &models.ChangeCommonAgentParams{
-		Enabled:           p.Enable,
-		EnablePushMetrics: p.EnablePushMetrics,
-		CustomLabels:      &p.CustomLabels.Values,
+		Enabled:           pointer.ToBool(p.GetEnable()),
+		EnablePushMetrics: pointer.ToBool(p.GetEnablePushMetrics()),
 	}
 
-	ag, err := as.changeAgent(ctx, agentID, params)
+	if p.GetCustomLabels() != nil {
+		val := p.GetCustomLabels().Values
+		params.CustomLabels = &val
+	}
+
+	return params
+}
+
+// ChangeNodeExporter updates node_exporter Agent with given parameters.
+func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeNodeExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
+	ag, err := as.changeAgent(ctx, agentID, commonParams(p))
 	if err != nil {
 		return nil, err
 	}
@@ -291,16 +306,8 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 }
 
 // ChangeMySQLdExporter updates mysqld_exporter Agent with given parameters.
-//
-//nolint:lll
 func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeMySQLdExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
-	params := &models.ChangeCommonAgentParams{
-		Enabled:           p.Enable,
-		EnablePushMetrics: p.EnablePushMetrics,
-		CustomLabels:      &p.CustomLabels.Values,
-	}
-
-	ag, err := as.changeAgent(ctx, agentID, params)
+	ag, err := as.changeAgent(ctx, agentID, commonParams(p))
 	if err != nil {
 		return nil, err
 	}
@@ -380,13 +387,7 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 //
 //nolint:lll
 func (as *AgentsService) ChangeMongoDBExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeMongoDBExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
-	params := &models.ChangeCommonAgentParams{
-		Enabled:           p.Enable,
-		EnablePushMetrics: p.EnablePushMetrics,
-		CustomLabels:      &p.CustomLabels.Values,
-	}
-
-	ag, err := as.changeAgent(ctx, agentID, params)
+	ag, err := as.changeAgent(ctx, agentID, commonParams(p))
 	if err != nil {
 		return nil, err
 	}
@@ -458,16 +459,8 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inve
 }
 
 // ChangeQANMySQLPerfSchemaAgent updates MySQL PerfSchema QAN Agent with given parameters.
-//
-//nolint:lll
 func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANMySQLPerfSchemaAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
-	params := &models.ChangeCommonAgentParams{
-		Enabled:           p.Enable,
-		EnablePushMetrics: p.EnablePushMetrics,
-		CustomLabels:      &p.CustomLabels.Values,
-	}
-
-	ag, err := as.changeAgent(ctx, agentID, params)
+	ag, err := as.changeAgent(ctx, agentID, commonParams(p))
 	if err != nil {
 		return nil, err
 	}
@@ -548,13 +541,7 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *invento
 //
 //nolint:lll
 func (as *AgentsService) ChangeQANMySQLSlowlogAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANMySQLSlowlogAgentParams) (*inventoryv1.ChangeAgentResponse, error) {
-	params := &models.ChangeCommonAgentParams{
-		Enabled:           p.Enable,
-		EnablePushMetrics: p.EnablePushMetrics,
-		CustomLabels:      &p.CustomLabels.Values,
-	}
-
-	ag, err := as.changeAgent(ctx, agentID, params)
+	ag, err := as.changeAgent(ctx, agentID, commonParams(p))
 	if err != nil {
 		return nil, err
 	}
@@ -714,13 +701,7 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, p *inve
 //
 //nolint:lll,dupl
 func (as *AgentsService) ChangeQANMongoDBProfilerAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANMongoDBProfilerAgentParams) (*inventoryv1.ChangeAgentResponse, error) {
-	params := &models.ChangeCommonAgentParams{
-		Enabled:           p.Enable,
-		EnablePushMetrics: p.EnablePushMetrics,
-		CustomLabels:      &p.CustomLabels.Values,
-	}
-
-	ag, err := as.changeAgent(ctx, agentID, params)
+	ag, err := as.changeAgent(ctx, agentID, commonParams(p))
 	if err != nil {
 		return nil, err
 	}
@@ -798,13 +779,7 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1
 //
 //nolint:lll
 func (as *AgentsService) ChangeProxySQLExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeProxySQLExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
-	params := &models.ChangeCommonAgentParams{
-		Enabled:           p.Enable,
-		EnablePushMetrics: p.EnablePushMetrics,
-		CustomLabels:      &p.CustomLabels.Values,
-	}
-
-	ag, err := as.changeAgent(ctx, agentID, params)
+	ag, err := as.changeAgent(ctx, agentID, commonParams(p))
 	if err != nil {
 		return nil, err
 	}
@@ -879,13 +854,7 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, 
 //
 //nolint:lll
 func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
-	params := &models.ChangeCommonAgentParams{
-		Enabled:           p.Enable,
-		EnablePushMetrics: p.EnablePushMetrics,
-		CustomLabels:      &p.CustomLabels.Values,
-	}
-
-	ag, err := as.changeAgent(ctx, agentID, params)
+	ag, err := as.changeAgent(ctx, agentID, commonParams(p))
 	if err != nil {
 		return nil, err
 	}
@@ -961,13 +930,7 @@ func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context,
 //
 //nolint:lll
 func (as *AgentsService) ChangeQANPostgreSQLPgStatMonitorAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANPostgreSQLPgStatMonitorAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
-	params := &models.ChangeCommonAgentParams{
-		Enabled:           p.Enable,
-		EnablePushMetrics: p.EnablePushMetrics,
-		CustomLabels:      &p.CustomLabels.Values,
-	}
-
-	ag, err := as.changeAgent(ctx, agentID, params)
+	ag, err := as.changeAgent(ctx, agentID, commonParams(p))
 	if err != nil {
 		return nil, err
 	}
@@ -1033,13 +996,7 @@ func (as *AgentsService) AddRDSExporter(ctx context.Context, p *inventoryv1.AddR
 //
 //nolint:lll
 func (as *AgentsService) ChangeRDSExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeRDSExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
-	params := &models.ChangeCommonAgentParams{
-		Enabled:           p.Enable,
-		EnablePushMetrics: p.EnablePushMetrics,
-		CustomLabels:      &p.CustomLabels.Values,
-	}
-
-	ag, err := as.changeAgent(ctx, agentID, params)
+	ag, err := as.changeAgent(ctx, agentID, commonParams(p))
 	if err != nil {
 		return nil, err
 	}
@@ -1110,13 +1067,7 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 //
 //nolint:lll
 func (as *AgentsService) ChangeExternalExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeExternalExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
-	params := &models.ChangeCommonAgentParams{
-		Enabled:           p.Enable,
-		EnablePushMetrics: p.EnablePushMetrics,
-		CustomLabels:      &p.CustomLabels.Values,
-	}
-
-	ag, err := as.changeAgent(ctx, agentID, params)
+	ag, err := as.changeAgent(ctx, agentID, commonParams(p))
 	if err != nil {
 		return nil, err
 	}
@@ -1180,13 +1131,7 @@ func (as *AgentsService) ChangeAzureDatabaseExporter(
 	agentID string,
 	p *inventoryv1.ChangeAzureDatabaseExporterParams,
 ) (*inventoryv1.ChangeAgentResponse, error) {
-	params := &models.ChangeCommonAgentParams{
-		Enabled:           p.Enable,
-		EnablePushMetrics: p.EnablePushMetrics,
-		CustomLabels:      &p.CustomLabels.Values,
-	}
-
-	ag, err := as.changeAgent(ctx, agentID, params)
+	ag, err := as.changeAgent(ctx, agentID, commonParams(p))
 	if err != nil {
 		return nil, err
 	}

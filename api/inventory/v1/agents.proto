@@ -697,7 +697,7 @@ message AddAgentResponse {
 }
 
 message ChangeAgentRequest {
-  string agent_id = 1 [(validate.rules).string.min_len = 1];
+  string agent_id = 1 [(validate.rules).string.min_len = 36];
 
   oneof agent {
     // ChangePMMAgentParams pmm_agent = 1;
