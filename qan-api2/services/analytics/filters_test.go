@@ -23,7 +23,7 @@ import (
 	"testing"
 	"time"
 
-	_ "github.com/ClickHouse/clickhouse-go/151" // register database/sql driver
+	_ "github.com/ClickHouse/clickhouse-go/v2" // register database/sql driver
 	// TODO replace with 'google.golang.org/protobuf/encoding/protojson' since this one is deprecated.
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/jmoiron/sqlx"
@@ -54,7 +54,7 @@ type testValuesUnmarshal struct {
 func TestService_GetFilters(t *testing.T) {
 	dsn, ok := os.LookupEnv("QANAPI_DSN_TEST")
 	if !ok {
-		dsn = "clickhouse://127.0.0.1:19000?database=pmm_test"
+		dsn = "clickhouse://127.0.0.1:19000/pmm_test"
 	}
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {

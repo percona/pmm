@@ -22,7 +22,7 @@ import (
 	"net/url"
 	"strings"
 
-	clickhouse "github.com/ClickHouse/clickhouse-go/151" // register database/sql driver
+	clickhouse "github.com/ClickHouse/clickhouse-go/v2" // register database/sql driver
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/clickhouse" // register golang-migrate driver
 	"github.com/golang-migrate/migrate/v4/source/iofs"
@@ -78,11 +78,8 @@ func createDB(dsn string) error {
 	if err != nil {
 		return err
 	}
-	q := clickhouseURL.Query()
-	databaseName := q.Get("database")
-	q.Set("database", "default")
-
-	clickhouseURL.RawQuery = q.Encode()
+	databaseName := strings.Replace(clickhouseURL.Path, "/", "", 1)
+	clickhouseURL.Path = "/default"
 
 	defaultDB, err := sqlx.Connect("clickhouse", clickhouseURL.String())
 	if err != nil {
