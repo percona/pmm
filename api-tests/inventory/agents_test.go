@@ -284,9 +284,7 @@ func TestPMMAgent(t *testing.T) {
 		}, getAgentRes)
 
 		params := &agents.RemoveAgentParams{
-			Body: agents.RemoveAgentBody{
-				AgentID: agentID,
-			},
+			AgentID: agentID,
 			Context: context.Background(),
 		}
 		removeAgentOK, err := client.Default.AgentsService.RemoveAgent(params)
@@ -353,14 +351,12 @@ func TestPMMAgent(t *testing.T) {
 		mySqldExporterID := mySqldExporter.MysqldExporter.AgentID
 
 		params := &agents.RemoveAgentParams{
-			Body: agents.RemoveAgentBody{
-				AgentID: pmmAgentID,
-			},
+			AgentID: pmmAgentID,
 			Context: context.Background(),
 		}
 		res, err := client.Default.AgentsService.RemoveAgent(params)
 		assert.Nil(t, res)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `pmm-agent with ID %q has agents.`, pmmAgentID)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `pmm-agent with ID %s has agents.`, pmmAgentID)
 
 		// Check that agents aren't removed.
 		getAgentRes, err := client.Default.AgentsService.GetAgent(
@@ -413,10 +409,8 @@ func TestPMMAgent(t *testing.T) {
 
 		// Remove with force flag.
 		params = &agents.RemoveAgentParams{
-			Body: agents.RemoveAgentBody{
-				AgentID: pmmAgentID,
-				Force:   true,
-			},
+			AgentID: pmmAgentID,
+			Force:   pointer.ToBool(true),
 			Context: context.Background(),
 		}
 		res, err = client.Default.AgentsService.RemoveAgent(params)
@@ -445,9 +439,7 @@ func TestPMMAgent(t *testing.T) {
 
 		agentID := "not-exist-pmm-agent"
 		params := &agents.RemoveAgentParams{
-			Body: agents.RemoveAgentBody{
-				AgentID: agentID,
-			},
+			AgentID: agentID,
 			Context: context.Background(),
 		}
 		res, err := client.Default.AgentsService.RemoveAgent(params)
@@ -459,7 +451,6 @@ func TestPMMAgent(t *testing.T) {
 		t.Parallel()
 
 		removeResp, err := client.Default.AgentsService.RemoveAgent(&agents.RemoveAgentParams{
-			Body:    agents.RemoveAgentBody{},
 			Context: context.Background(),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid RemoveAgentRequest.AgentId: value length must be at least 1 runes")
@@ -471,10 +462,8 @@ func TestPMMAgent(t *testing.T) {
 
 		removeResp, err := client.Default.AgentsService.RemoveAgent(
 			&agents.RemoveAgentParams{
-				Body: agents.RemoveAgentBody{
-					AgentID: "pmm-server",
-					Force:   true,
-				},
+				AgentID: "pmm-server",
+				Force:   pointer.ToBool(true),
 				Context: context.Background(),
 			})
 		pmmapitests.AssertAPIErrorf(t, err, 403, codes.PermissionDenied, "pmm-agent on PMM Server can't be removed.")

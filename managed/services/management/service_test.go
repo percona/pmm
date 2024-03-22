@@ -162,7 +162,7 @@ func TestServiceService(t *testing.T) {
 
 			agent, err := models.FindAgentByID(s.db.Querier, mysqldExporter.AgentID)
 			assert.Nil(t, agent)
-			tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000007" not found.`), err)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID /agent_id/00000000-0000-4000-8000-000000000007 not found.`), err)
 
 			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
 			assert.Nil(t, service)
@@ -214,10 +214,10 @@ func TestServiceService(t *testing.T) {
 			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Service with ID "%s" not found.`, service.ServiceID)), err)
 
 			_, err = models.FindAgentByID(s.db.Querier, mysqldExporter.AgentID)
-			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, mysqldExporter.AgentID)), err)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID %s not found.`, mysqldExporter.AgentID)), err)
 
 			_, err = models.FindAgentByID(s.db.Querier, rdsExporter.AgentID)
-			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, rdsExporter.AgentID)), err)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID %s not found.`, rdsExporter.AgentID)), err)
 
 			_, err = models.FindNodeByID(s.db.Querier, node.NodeID)
 			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, node.NodeID)), err)
@@ -268,10 +268,10 @@ func TestServiceService(t *testing.T) {
 			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Service with ID "%s" not found.`, service.ServiceID)), err)
 
 			_, err = models.FindAgentByID(s.db.Querier, mysqldExporter.AgentID)
-			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, mysqldExporter.AgentID)), err)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID %s not found.`, mysqldExporter.AgentID)), err)
 
 			_, err = models.FindAgentByID(s.db.Querier, azureExporter.AgentID)
-			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, azureExporter.AgentID)), err)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID %s not found.`, azureExporter.AgentID)), err)
 
 			_, err = models.FindNodeByID(s.db.Querier, node.NodeID)
 			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, node.NodeID)), err)

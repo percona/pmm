@@ -250,8 +250,8 @@ func (a *Client) RemoveAgent(params *RemoveAgentParams, opts ...ClientOption) (*
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "RemoveAgent",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Agents/Remove",
+		Method:             "DELETE",
+		PathPattern:        "/v1/inventory/agents/{agent_id}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

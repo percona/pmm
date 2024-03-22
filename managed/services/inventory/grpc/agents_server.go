@@ -247,9 +247,10 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 	}
 }
 
-// RemoveAgent removes Agent.
+// RemoveAgent removes the Agent.
 func (s *agentsServer) RemoveAgent(ctx context.Context, req *inventoryv1.RemoveAgentRequest) (*inventoryv1.RemoveAgentResponse, error) {
-	if err := s.s.Remove(ctx, req.AgentId, req.Force); err != nil {
+	agentID := models.NormalizeAgentID(req.GetAgentId())
+	if err := s.s.Remove(ctx, agentID, req.Force); err != nil {
 		return nil, err
 	}
 

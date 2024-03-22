@@ -1365,10 +1365,7 @@ service AgentsService {
 
   // RemoveAgent removes an Agent.
   rpc RemoveAgent(RemoveAgentRequest) returns (RemoveAgentResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/Remove"
-      body: "*"
-    };
+    option (google.api.http) = {delete: "/v1/inventory/agents/{agent_id}"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Remove an Agent from Inventory"
       description: "Removes an Agent from Inventory."

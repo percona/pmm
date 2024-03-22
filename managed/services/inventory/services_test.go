@@ -183,10 +183,10 @@ func TestServices(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Service with ID "%s" not found.`, mySQLService.ServiceId)), err)
 
 		_, err = as.Get(ctx, rdsAgent.GetRdsExporter().AgentId)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, rdsAgent.GetRdsExporter().AgentId)), err)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID %s not found.`, rdsAgent.GetRdsExporter().AgentId)), err)
 
 		_, err = as.Get(ctx, mySQLAgent.GetMysqldExporter().AgentId)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, mySQLAgent.GetMysqldExporter().AgentId)), err)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID %s not found.`, mySQLAgent.GetMysqldExporter().AgentId)), err)
 
 		_, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: node.NodeId})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, node.NodeId)), err)
@@ -244,10 +244,10 @@ func TestServices(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Service with ID "%s" not found.`, mySQLService.ServiceId)), err)
 
 		_, err = as.Get(ctx, azureAgent.GetAzureDatabaseExporter().AgentId)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, azureAgent.GetAzureDatabaseExporter().AgentId)), err)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID %s not found.`, azureAgent.GetAzureDatabaseExporter().AgentId)), err)
 
 		_, err = as.Get(ctx, mySQLAgent.GetMysqldExporter().AgentId)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, mySQLAgent.GetMysqldExporter().AgentId)), err)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID %s not found.`, mySQLAgent.GetMysqldExporter().AgentId)), err)
 
 		_, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: node.NodeId})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, node.NodeId)), err)

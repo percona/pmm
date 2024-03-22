@@ -171,9 +171,7 @@ func RemoveAgents(t TestingT, agentIDs ...string) {
 
 	for _, agentID := range agentIDs {
 		params := &agents.RemoveAgentParams{
-			Body: agents.RemoveAgentBody{
-				AgentID: agentID,
-			},
+			AgentID: agentID,
 			Context: context.Background(),
 		}
 		res, err := client.Default.AgentsService.RemoveAgent(params)

@@ -1144,7 +1144,7 @@ func (as *AgentsService) Remove(ctx context.Context, id string, force bool) erro
 	}
 
 	if removedAgent.AgentType == models.PMMAgentType {
-		logger.Get(ctx).Infof("pmm-agent with ID %q will be kicked because it was removed.", id)
+		logger.Get(ctx).Infof("pmm-agent with ID %s will be kicked because it was removed.", id)
 		as.r.Kick(ctx, id)
 	}
 

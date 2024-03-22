@@ -5363,76 +5363,6 @@
         }
       }
     },
-    "/v1/inventory/Agents/Remove": {
-      "post": {
-        "description": "Removes an Agent from Inventory.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Remove an Agent from Inventory",
-        "operationId": "RemoveAgent",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "force": {
-                  "description": "Remove agent with all dependencies.",
-                  "type": "boolean",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/inventory/Nodes/Add": {
       "post": {
         "description": "Adds a Node.",
@@ -16326,6 +16256,67 @@
                   "x-order": 12
                 }
               }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Removes an Agent from Inventory.",
+        "tags": [
+          "AgentsService"
+        ],
+        "summary": "Remove an Agent from Inventory",
+        "operationId": "RemoveAgent",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "agent_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "Remove agent with all dependencies.",
+            "name": "force",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
             }
           },
           "default": {
