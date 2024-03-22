@@ -369,6 +369,8 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) s
 		cfg.DBName = dsnParams.Database
 		cfg.Params = make(map[string]string)
 		if s.TLS {
+			// It is mandatory to have "custom" as the first case.
+			// Skip verify for "custom" is handled on pmm-agent side.
 			switch {
 			case len(s.Files()) != 0:
 				cfg.Params["tls"] = "custom"
