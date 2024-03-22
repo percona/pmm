@@ -42,6 +42,8 @@ export PMM_RELEASE_BRANCH=""
 cd src/github.com/percona/pmm/managed
 make release
 
+cd src/github.com/percona/pmm/ui
+make release
 
 %install
 install -d -p %{buildroot}%{_bindir}
@@ -54,6 +56,7 @@ install -p -m 0755 bin/pmm-managed-starlark %{buildroot}%{_sbindir}/pmm-managed-
 cd src/github.com/percona/pmm
 cp -pa ./api/swagger %{buildroot}%{_datadir}/%{name}
 
+cp -pa ./ui/dist %{_datadir}/pmm-ui
 
 %files
 %license src/%{provider}/LICENSE
@@ -65,6 +68,9 @@ cp -pa ./api/swagger %{buildroot}%{_datadir}/%{name}
 
 
 %changelog
+* Fri Mar 22 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 3.0.0-1
+- PMM-10036 migrate to monorepo
+
 * Thu Jul 28 2022 Alex Tymchuk <alexander.tymchuk@percona.com> - 2.30.0-1
 - PMM-10036 migrate to monorepo
 
