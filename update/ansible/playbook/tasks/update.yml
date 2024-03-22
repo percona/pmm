@@ -22,6 +22,38 @@
       - vmproxy
       - grafana-db-migrator
   pre_tasks:
+      - name: Check if ansible-core RPM was updated
+      shell: "grep -A 1 'Install ansible-core RPM          | EL9' /srv/logs/pmm-update-perform.log | grep -qE 'changed' && echo 'Updated' || echo 'Not Updated'"
+      register: ansible_core_log
+      changed_when: False
+      ignore_errors: True
+
+    - name: Log message if ansible-core RPM was updated
+      debug:
+        msg: "The ansible-core package was updated. The playbook is currently being re-run to apply the changes."
+      when: ansible_core_log.stdout == "Updated"
+
+    - name: Remove ansible RPM if installed   | EL9
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+      yum:
+        name: ansible
+        state: absent
+      ignore_errors: yes
+
+    - name: Install ansible-core RPM          | EL9
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+      yum:
+        name:
+          - ansible-core
+          - ansible-collection-community-general
+          - ansible-collection-community-postgresql
+          - ansible-collection-ansible-posix
+        state: latest
+
     - name: detect /srv/pmm-distribution
       stat:
         path: /srv/pmm-distribution
@@ -270,27 +302,6 @@
         - libssh2
         - sshpass
         - vi
-
-    - name: Remove ansible RPM if installed   | EL9
-      when:
-        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-        - ansible_distribution_major_version == '9'
-      yum:
-        name: ansible
-        state: absent
-      ignore_errors: yes
-
-    - name: Install ansible-core RPM          | EL9
-      when:
-        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-        - ansible_distribution_major_version == '9'
-      yum:
-        name:
-          - ansible-core
-          - ansible-collection-community-general
-          - ansible-collection-community-postgresql
-          - ansible-collection-ansible-posix
-        state: present
 
     - name: Update system packages EL9
       when:
