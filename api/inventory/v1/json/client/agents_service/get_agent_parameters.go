@@ -60,8 +60,11 @@ GetAgentParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type GetAgentParams struct {
-	// Body.
-	Body GetAgentBody
+	/* AgentID.
+
+	   Unique randomly generated instance identifier.
+	*/
+	AgentID string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -116,15 +119,15 @@ func (o *GetAgentParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the get agent params
-func (o *GetAgentParams) WithBody(body GetAgentBody) *GetAgentParams {
-	o.SetBody(body)
+// WithAgentID adds the agentID to the get agent params
+func (o *GetAgentParams) WithAgentID(agentID string) *GetAgentParams {
+	o.SetAgentID(agentID)
 	return o
 }
 
-// SetBody adds the body to the get agent params
-func (o *GetAgentParams) SetBody(body GetAgentBody) {
-	o.Body = body
+// SetAgentID adds the agentId to the get agent params
+func (o *GetAgentParams) SetAgentID(agentID string) {
+	o.AgentID = agentID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,7 +136,9 @@ func (o *GetAgentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regi
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
+
+	// path param agent_id
+	if err := r.SetPathParam("agent_id", o.AgentID); err != nil {
 		return err
 	}
 

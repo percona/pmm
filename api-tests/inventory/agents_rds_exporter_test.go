@@ -59,7 +59,7 @@ func TestRDSExporter(t *testing.T) {
 		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-			Body:    agents.GetAgentBody{AgentID: agentID},
+			AgentID: agentID,
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -248,7 +248,7 @@ func TestRDSExporter(t *testing.T) {
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
-				Body:    agents.GetAgentBody{AgentID: agentID},
+				AgentID: agentID,
 				Context: pmmapitests.Context,
 			})
 		require.NoError(t, err)

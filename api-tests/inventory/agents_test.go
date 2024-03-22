@@ -30,6 +30,7 @@ import (
 	"github.com/percona/pmm/api/inventory/v1/json/client"
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	"github.com/percona/pmm/api/inventory/v1/types"
 )
 
 // AgentStatusUnknown means agent is not connected and we don't know anything about its status.
@@ -143,8 +144,8 @@ func TestAgents(t *testing.T) {
 		// Filter by pmm agent ID.
 		res, err := client.Default.AgentsService.ListAgents(
 			&agents.ListAgentsParams{
-				Body:    agents.ListAgentsBody{PMMAgentID: pmmAgentID},
-				Context: pmmapitests.Context,
+				PMMAgentID: pointer.ToString(pmmAgentID),
+				Context:    pmmapitests.Context,
 			})
 		require.NoError(t, err)
 		require.NotNil(t, res)
@@ -156,7 +157,7 @@ func TestAgents(t *testing.T) {
 		// Filter by node ID.
 		res, err = client.Default.AgentsService.ListAgents(
 			&agents.ListAgentsParams{
-				Body:    agents.ListAgentsBody{NodeID: nodeID},
+				NodeID:  pointer.ToString(nodeID),
 				Context: pmmapitests.Context,
 			})
 		require.NoError(t, err)
@@ -169,8 +170,8 @@ func TestAgents(t *testing.T) {
 		// Filter by service ID.
 		res, err = client.Default.AgentsService.ListAgents(
 			&agents.ListAgentsParams{
-				Body:    agents.ListAgentsBody{ServiceID: serviceID},
-				Context: pmmapitests.Context,
+				ServiceID: pointer.ToString(serviceID),
+				Context:   pmmapitests.Context,
 			})
 		require.NoError(t, err)
 		require.NotNil(t, res)
@@ -182,8 +183,8 @@ func TestAgents(t *testing.T) {
 		// Filter by service ID.
 		res, err = client.Default.AgentsService.ListAgents(
 			&agents.ListAgentsParams{
-				Body:    agents.ListAgentsBody{AgentType: pointer.ToString(agents.ListAgentsBodyAgentTypeAGENTTYPEMYSQLDEXPORTER)},
-				Context: pmmapitests.Context,
+				AgentType: pointer.ToString(types.AgentTypeMySQLdExporter),
+				Context:   pmmapitests.Context,
 			})
 		require.NoError(t, err)
 		require.NotNil(t, res)
@@ -206,12 +207,10 @@ func TestAgents(t *testing.T) {
 
 		res, err := client.Default.AgentsService.ListAgents(
 			&agents.ListAgentsParams{
-				Body: agents.ListAgentsBody{
-					PMMAgentID: pmmAgentID,
-					NodeID:     genericNodeID,
-					ServiceID:  "some-service-id",
-				},
-				Context: pmmapitests.Context,
+				PMMAgentID: pointer.ToString(pmmAgentID),
+				NodeID:     pointer.ToString(genericNodeID),
+				ServiceID:  pointer.ToString("some-service-id"),
+				Context:    pmmapitests.Context,
 			})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "expected at most one param: pmm_agent_id, node_id or service_id")
 		assert.Nil(t, res)
@@ -270,7 +269,7 @@ func TestPMMAgent(t *testing.T) {
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
-				Body:    agents.GetAgentBody{AgentID: agentID},
+				AgentID: agentID,
 				Context: pmmapitests.Context,
 			})
 		assert.NoError(t, err)
@@ -366,7 +365,7 @@ func TestPMMAgent(t *testing.T) {
 		// Check that agents aren't removed.
 		getAgentRes, err := client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
-				Body:    agents.GetAgentBody{AgentID: pmmAgentID},
+				AgentID: pmmAgentID,
 				Context: pmmapitests.Context,
 			})
 		assert.NoError(t, err)
@@ -382,10 +381,8 @@ func TestPMMAgent(t *testing.T) {
 
 		listAgentsOK, err := client.Default.AgentsService.ListAgents(
 			&agents.ListAgentsParams{
-				Body: agents.ListAgentsBody{
-					PMMAgentID: pmmAgentID,
-				},
-				Context: pmmapitests.Context,
+				PMMAgentID: pointer.ToString(pmmAgentID),
+				Context:    pmmapitests.Context,
 			})
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyNodeExporterItems0{
@@ -429,17 +426,15 @@ func TestPMMAgent(t *testing.T) {
 		// Check that agents are removed.
 		getAgentRes, err = client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
-				Body:    agents.GetAgentBody{AgentID: pmmAgentID},
+				AgentID: pmmAgentID,
 				Context: pmmapitests.Context,
 			})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID %q not found.", pmmAgentID)
 		assert.Nil(t, getAgentRes)
 
 		listAgentsOK, err = client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Body: agents.ListAgentsBody{
-				PMMAgentID: pmmAgentID,
-			},
-			Context: pmmapitests.Context,
+			PMMAgentID: pointer.ToString(pmmAgentID),
+			Context:    pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID %q not found.", pmmAgentID)
 		assert.Nil(t, listAgentsOK)
@@ -532,7 +527,7 @@ func TestQanAgentExporter(t *testing.T) {
 		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-			Body:    agents.GetAgentBody{AgentID: agentID},
+			AgentID: agentID,
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -791,7 +786,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
-				Body:    agents.GetAgentBody{AgentID: agentID},
+				AgentID: agentID,
 				Context: pmmapitests.Context,
 			})
 		require.NoError(t, err)
@@ -1049,7 +1044,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-			Body:    agents.GetAgentBody{AgentID: agentID},
+			AgentID: agentID,
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -1177,7 +1172,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
-				Body:    agents.GetAgentBody{AgentID: agentID},
+				AgentID: agentID,
 				Context: pmmapitests.Context,
 			})
 		require.NoError(t, err)

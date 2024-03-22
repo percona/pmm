@@ -306,10 +306,8 @@ func TestRemoveService(t *testing.T) {
 		assert.Nil(t, getServiceResp)
 
 		listAgentsOK, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
-			Context: pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
+			Context:   pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID %q not found.", serviceID)
 		assert.Nil(t, listAgentsOK)

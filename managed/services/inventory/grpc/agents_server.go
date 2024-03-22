@@ -19,7 +19,6 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
@@ -66,9 +65,9 @@ func agentType(req *inventoryv1.ListAgentsRequest) *models.AgentType {
 // ListAgents returns a list of Agents for a given filters.
 func (s *agentsServer) ListAgents(ctx context.Context, req *inventoryv1.ListAgentsRequest) (*inventoryv1.ListAgentsResponse, error) {
 	filters := models.AgentFilters{
-		PMMAgentID: req.GetPmmAgentId(),
-		NodeID:     req.GetNodeId(),
-		ServiceID:  req.GetServiceId(),
+		PMMAgentID: models.NormalizeAgentID(req.GetPmmAgentId()),
+		NodeID:     models.NormalizeNodeID(req.GetNodeId()),
+		ServiceID:  models.NormalizeServiceID(req.GetServiceId()),
 		AgentType:  agentType(req),
 	}
 	agents, err := s.s.List(ctx, filters)
@@ -118,7 +117,9 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventoryv1.ListAgen
 
 // GetAgent returns a single Agent by ID.
 func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRequest) (*inventoryv1.GetAgentResponse, error) {
-	agent, err := s.s.Get(ctx, req.AgentId)
+	agentID := models.NormalizeAgentID(req.GetAgentId())
+
+	agent, err := s.s.Get(ctx, agentID)
 	if err != nil {
 		return nil, err
 	}
@@ -212,12 +213,8 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 
 // ChangeAgent allows to change some Agent attributes.
 func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeAgentRequest) (*inventoryv1.ChangeAgentResponse, error) {
-	agentID := req.GetAgentId()
-	// NOTE: we need to add a prefix since gRPC does not allow to pass a URL segment that begins with a slash.
-	// TODO: remove this once we drop prefixes in agent IDs.
-	if strings.HasPrefix(agentID, "/agent_id/") {
-		agentID = "/agent_id/" + agentID
-	}
+	agentID := models.NormalizeAgentID(req.GetAgentId())
+
 	switch req.Agent.(type) {
 	case *inventoryv1.ChangeAgentRequest_NodeExporter:
 		return s.s.ChangeNodeExporter(ctx, agentID, req.GetNodeExporter())

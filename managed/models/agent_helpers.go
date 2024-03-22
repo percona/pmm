@@ -30,6 +30,12 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+const (
+	agentIDPrefix   = "/agent_id/"
+	serviceIDPrefix = "/service_id/"
+	nodeIDPrefix    = "/node_id/"
+)
+
 // MySQLOptionsParams contains methods to create MySQLOptions object.
 type MySQLOptionsParams interface {
 	GetTlsCa() string
@@ -156,6 +162,36 @@ func AzureOptionsFromRequest(params AzureOptionsParams) *AzureOptions {
 		}
 	}
 	return nil
+}
+
+// Add a prefix since gRPC does not allow to pass an URL path segment that begins with a slash.
+// TODO: remove these Normalize... functions once we drop prefixes in agent/service/node IDs.
+
+// NormalizeAgentID adds a prefix to the agent ID if it does not already contain it.
+func NormalizeAgentID(agentID string) string {
+	if agentID == "" || strings.HasPrefix(agentID, agentIDPrefix) {
+		return agentID
+	}
+
+	return agentIDPrefix + agentID
+}
+
+// NormalizeServiceID adds a prefix to the service ID if it does not already contain it.
+func NormalizeServiceID(serviceID string) string {
+	if serviceID == "" || strings.HasPrefix(serviceID, serviceIDPrefix) {
+		return serviceID
+	}
+
+	return serviceIDPrefix + serviceID
+}
+
+// NormalizeNodeID adds a prefix to the node ID if it does not already contain it.
+func NormalizeNodeID(nodeID string) string {
+	if nodeID == "" || strings.HasPrefix(nodeID, nodeIDPrefix) {
+		return nodeID
+	}
+
+	return nodeIDPrefix + nodeID
 }
 
 func checkUniqueAgentID(q *reform.Querier, id string) error {

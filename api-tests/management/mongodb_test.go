@@ -85,10 +85,8 @@ func TestAddMongoDB(t *testing.T) {
 
 		// Check that mongodb exporter is added by default.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
@@ -162,10 +160,8 @@ func TestAddMongoDB(t *testing.T) {
 
 		// Check that exporters are added.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		assert.NoError(t, err)
 		require.NotNil(t, listAgents)
@@ -402,10 +398,8 @@ func TestAddMongoDB(t *testing.T) {
 
 		// Check that mongodb exporter is added by default.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
@@ -622,10 +616,8 @@ func TestAddMongoDB(t *testing.T) {
 
 		// Check that mongodb exporter is added by default.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
@@ -697,10 +689,8 @@ func TestAddMongoDB(t *testing.T) {
 
 		// Check that mongodb exporter is added by default.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
@@ -772,10 +762,8 @@ func TestAddMongoDB(t *testing.T) {
 
 		// Check that mongodb exporter is added by default.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
@@ -846,10 +834,8 @@ func TestAddMongoDB(t *testing.T) {
 
 		// Check that mongodb exporter is added by default.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
@@ -922,10 +908,8 @@ func TestRemoveMongoDB(t *testing.T) {
 
 		// Check that the service removed with agents.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID %q not found.", serviceID)
 		assert.Nil(t, listAgents)
@@ -953,10 +937,8 @@ func TestRemoveMongoDB(t *testing.T) {
 
 		// Check that the service removed with agents.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID %q not found.", serviceID)
 		assert.Nil(t, listAgents)

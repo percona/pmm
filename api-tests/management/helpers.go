@@ -73,10 +73,8 @@ func assertNodeExporterCreated(t pmmapitests.TestingT, pmmAgentID string) (strin
 	t.Helper()
 
 	listAgentsOK, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-		Body: agents.ListAgentsBody{
-			PMMAgentID: pmmAgentID,
-		},
-		Context: pmmapitests.Context,
+		PMMAgentID: pointer.ToString(pmmAgentID),
+		Context:    pmmapitests.Context,
 	})
 	assert.NoError(t, err)
 	require.Len(t, listAgentsOK.Payload.NodeExporter, 1)
@@ -97,9 +95,7 @@ func assertPMMAgentCreated(t pmmapitests.TestingT, nodeID string, pmmAgentID str
 	t.Helper()
 
 	agentOK, err := inventoryClient.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-		Body: agents.GetAgentBody{
-			AgentID: pmmAgentID,
-		},
+		AgentID: pmmAgentID,
 		Context: pmmapitests.Context,
 	})
 	assert.NoError(t, err)
@@ -130,10 +126,8 @@ func RemovePMMAgentWithSubAgents(t pmmapitests.TestingT, pmmAgentID string) {
 	t.Helper()
 
 	listAgentsOK, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-		Body: agents.ListAgentsBody{
-			PMMAgentID: pmmAgentID,
-		},
-		Context: context.Background(),
+		PMMAgentID: pointer.ToString(pmmAgentID),
+		Context:    context.Background(),
 	})
 	assert.NoError(t, err)
 	removeAllAgentsInList(t, listAgentsOK)
@@ -144,10 +138,8 @@ func removeServiceAgents(t pmmapitests.TestingT, serviceID string) {
 	t.Helper()
 
 	listAgentsOK, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-		Body: agents.ListAgentsBody{
-			ServiceID: serviceID,
-		},
-		Context: context.Background(),
+		ServiceID: pointer.ToString(serviceID),
+		Context:   context.Background(),
 	})
 	assert.NoError(t, err)
 	removeAllAgentsInList(t, listAgentsOK)

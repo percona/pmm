@@ -22,9 +22,9 @@ POST /v1/user/list                                  GET /v1/users               
 
 **AgentsService**                                   **AgentsService**
 POST /v1/inventory/Agents/Add                       POST /v1/inventory/agents                        ✅
-POST /v1/inventory/Agents/Change                    PUT /v1/inventory/agents/{id}                    ✅
-POST /v1/inventory/Agents/Get                       GET /v1/inventory/agents/{id}
-POST /v1/inventory/Agents/List                      GET /v1/inventory/agents
+POST /v1/inventory/Agents/Change                    PUT /v1/inventory/agents/{agent_id}              ✅
+POST /v1/inventory/Agents/Get                       GET /v1/inventory/agents/{agent_id}              ✅
+POST /v1/inventory/Agents/List                      GET /v1/inventory/agents                         ✅ Query param filters: service_id, node_id, pmm_agent_id and agent_type
 POST /v1/inventory/Agents/Remove                    DELETE /v1/inventory/agents/{id}
 POST /v1/inventory/Agents/GetLogs                   GET /v1/inventory/agents/{id}/logs            
 

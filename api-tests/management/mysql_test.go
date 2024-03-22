@@ -86,10 +86,8 @@ func TestAddMySQL(t *testing.T) {
 
 		// Check that mysqld exporter is added by default.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMysqldExporterItems0{
@@ -166,10 +164,8 @@ func TestAddMySQL(t *testing.T) {
 
 		// Check that exporters are added.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		assert.NoError(t, err)
 		require.NotNil(t, listAgents)
@@ -429,10 +425,8 @@ func TestAddMySQL(t *testing.T) {
 
 		// Check that mysql exporter is added by default.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMysqldExporterItems0{
@@ -684,10 +678,8 @@ func TestAddMySQL(t *testing.T) {
 
 		// Check that mysqld exporter is added by default.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMysqldExporterItems0{
@@ -761,10 +753,8 @@ func TestAddMySQL(t *testing.T) {
 
 		// Check that mysqld exporter is added by default.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMysqldExporterItems0{
@@ -837,10 +827,8 @@ func TestAddMySQL(t *testing.T) {
 
 		// Check that mysqld exporter is added by default.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMysqldExporterItems0{
@@ -915,10 +903,8 @@ func TestRemoveMySQL(t *testing.T) {
 
 		// Check that the service removed with agents.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID %q not found.", serviceID)
 		assert.Nil(t, listAgents)
@@ -946,10 +932,8 @@ func TestRemoveMySQL(t *testing.T) {
 
 		// Check that the service removed with agents.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID %q not found.", serviceID)
 		assert.Nil(t, listAgents)

@@ -2682,10 +2682,10 @@ func (m *GetAgentRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
+	if utf8.RuneCountInString(m.GetAgentId()) < 36 {
 		err := GetAgentRequestValidationError{
 			field:  "AgentId",
-			reason: "value length must be at least 1 runes",
+			reason: "value length must be at least 36 runes",
 		}
 		if !all {
 			return err
@@ -3513,10 +3513,10 @@ func (m *GetAgentLogsRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
+	if utf8.RuneCountInString(m.GetAgentId()) < 36 {
 		err := GetAgentLogsRequestValidationError{
 			field:  "AgentId",
-			reason: "value length must be at least 1 runes",
+			reason: "value length must be at least 36 runes",
 		}
 		if !all {
 			return err
@@ -5090,10 +5090,10 @@ func (m *ChangeAgentRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetAgentId()) < 36 {
+	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
 		err := ChangeAgentRequestValidationError{
 			field:  "AgentId",
-			reason: "value length must be at least 36 runes",
+			reason: "value length must be at least 1 runes",
 		}
 		if !all {
 			return err

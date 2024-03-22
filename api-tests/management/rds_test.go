@@ -103,9 +103,7 @@ func TestAddRds(t *testing.T) {
 		pmmapitests.RemoveServices(t, body.Mysql.ServiceID)
 
 		_, err = inventoryClient.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-			Body: agents.GetAgentBody{
-				AgentID: body.RDSExporter.AgentID,
-			},
+			AgentID: body.RDSExporter.AgentID,
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, body.RDSExporter.AgentID))
@@ -163,9 +161,7 @@ func TestAddRds(t *testing.T) {
 		pmmapitests.RemoveServices(t, body.Postgresql.ServiceID)
 
 		_, err = inventoryClient.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-			Body: agents.GetAgentBody{
-				AgentID: body.RDSExporter.AgentID,
-			},
+			AgentID: body.RDSExporter.AgentID,
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, body.RDSExporter.AgentID))

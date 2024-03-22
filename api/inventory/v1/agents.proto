@@ -617,7 +617,7 @@ message ListAgentsResponse {
 
 message GetAgentRequest {
   // Unique randomly generated instance identifier.
-  string agent_id = 1 [(validate.rules).string.min_len = 1];
+  string agent_id = 1 [(validate.rules).string.min_len = 36];
 }
 
 message GetAgentResponse {
@@ -644,7 +644,7 @@ message GetAgentResponse {
 
 message GetAgentLogsRequest {
   // Unique randomly generated instance identifier.
-  string agent_id = 1 [(validate.rules).string.min_len = 1];
+  string agent_id = 1 [(validate.rules).string.min_len = 36];
   // is less than this value. 0: no limit
   uint32 limit = 2;
 }
@@ -697,7 +697,7 @@ message AddAgentResponse {
 }
 
 message ChangeAgentRequest {
-  string agent_id = 1 [(validate.rules).string.min_len = 36];
+  string agent_id = 1 [(validate.rules).string.min_len = 1];
 
   oneof agent {
     // ChangePMMAgentParams pmm_agent = 1;
@@ -1314,10 +1314,7 @@ message RemoveAgentResponse {}
 service AgentsService {
   // ListAgents returns a list of all Agents.
   rpc ListAgents(ListAgentsRequest) returns (ListAgentsResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/List"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/inventory/agents"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Agents"
       description: "Returns a list of all Agents."
@@ -1325,10 +1322,7 @@ service AgentsService {
   }
   // GetAgent returns a single Agent by ID.
   rpc GetAgent(GetAgentRequest) returns (GetAgentResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/Get"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/inventory/agents/{agent_id}"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Agent"
       description: "Returns a single Agent by ID."
@@ -1346,7 +1340,7 @@ service AgentsService {
     };
   }
 
-  // AddAgent adds any type of Agent to Inventory.
+  // AddAgent adds an Agent to Inventory.
   rpc AddAgent(AddAgentRequest) returns (AddAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/agents"
@@ -1354,10 +1348,10 @@ service AgentsService {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add an Agent to Inventory"
-      description: "Adds an Agent to Inventory. Only one top-level parameter should be passed."
+      description: "Adds an Agent to Inventory. Only one agent at a time can be passed."
     };
   }
-  // ChangeAgent changes any type of Agent record in Inventory.
+  // ChangeAgent changes a subset of attributes of the Agent record in Inventory.
   rpc ChangeAgent(ChangeAgentRequest) returns (ChangeAgentResponse) {
     option (google.api.http) = {
       put: "/v1/inventory/agents/{agent_id}"
@@ -1365,7 +1359,7 @@ service AgentsService {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Update an Agent in Inventory"
-      description: "Updates an Agent in Inventory. Only one top-level parameter should be passed."
+      description: "Updates an Agent in Inventory. Only one agent at a time can be passed."
     };
   }
 

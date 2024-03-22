@@ -80,10 +80,8 @@ func TestAddExternal(t *testing.T) {
 
 		// Check that external exporter is added by default.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyExternalExporterItems0{
@@ -231,10 +229,8 @@ func TestAddExternal(t *testing.T) {
 
 		// Check that external exporter is added.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyExternalExporterItems0{
@@ -454,10 +450,8 @@ func TestRemoveExternal(t *testing.T) {
 
 		// Check that the service removed with agents.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID %q not found.", serviceID)
 		assert.Nil(t, listAgents)
@@ -484,10 +478,8 @@ func TestRemoveExternal(t *testing.T) {
 
 		// Check that the service removed with agents.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Context: pmmapitests.Context,
-			Body: agents.ListAgentsBody{
-				ServiceID: serviceID,
-			},
+			Context:   pmmapitests.Context,
+			ServiceID: pointer.ToString(serviceID),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID %q not found.", serviceID)
 		assert.Nil(t, listAgents)

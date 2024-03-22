@@ -528,9 +528,7 @@ func TestRemoveNode(t *testing.T) {
 		assert.Nil(t, getServiceResp)
 
 		listAgentsOK, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Body: agents.ListAgentsBody{
-				NodeID: node.Generic.NodeID,
-			},
+			NodeID:  pointer.ToString(node.Generic.NodeID),
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Node with ID %q not found.", node.Generic.NodeID)
