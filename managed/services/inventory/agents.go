@@ -67,8 +67,6 @@ func toInventoryAgent(q *reform.Querier, row *models.Agent, registry agentsRegis
 }
 
 // changeAgent changes common parameters for given Agent.
-//
-//nolint:lll
 func (as *AgentsService) changeAgent(ctx context.Context, agentID string, params *models.ChangeCommonAgentParams) (inventoryv1.Agent, error) { //nolint:ireturn
 	var agent inventoryv1.Agent
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -206,8 +204,6 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.Add
 }
 
 // ChangeNodeExporter updates node_exporter Agent with given parameters.
-//
-//nolint:lll
 func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeNodeExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
 	params := &models.ChangeCommonAgentParams{
 		Enabled:           p.Enable,
@@ -644,7 +640,7 @@ func (as *AgentsService) ChangePostgresExporter(ctx context.Context, agentID str
 	if p.CustomLabels != nil {
 		params.CustomLabels = &p.CustomLabels.Values
 	}
-	ag, err := as.changeAgent(ctx, agentID, params)
+	ag, err := as.changeAgent(ctx, "/agent_id/"+agentID, params)
 	if err != nil {
 		return nil, err
 	}
