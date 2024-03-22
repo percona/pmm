@@ -261,7 +261,7 @@ func (a *Client) Logs(params *LogsParams, writer io.Writer, opts ...ClientOption
 	op := &runtime.ClientOperation{
 		ID:                 "Logs",
 		Method:             "GET",
-		PathPattern:        "/logs.zip",
+		PathPattern:        "/v1/server/logs.zip",
 		ProducesMediaTypes: []string{"application/zip"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

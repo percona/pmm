@@ -579,16 +579,6 @@ message AzureDatabaseExporter {
   LogLevel log_level = 14;
 }
 
-// ChangeCommonAgentParams contains parameters that can be changed for all Agents.
-message ChangeCommonAgentParams {
-  // Enable this Agent. Agents are enabled by default when they get added.
-  optional bool enable = 1;
-  // Replace all custom user-assigned labels.
-  optional common.StringMap custom_labels = 2;
-  // Enables push metrics with vmagent.
-  optional bool enable_push_metrics = 3;
-}
-
 // List
 
 message ListAgentsRequest {
@@ -707,6 +697,8 @@ message AddAgentResponse {
 }
 
 message ChangeAgentRequest {
+  string agent_id = 1 [(validate.rules).string.min_len = 1];
+
   oneof agent {
     // ChangePMMAgentParams pmm_agent = 1;
 
@@ -773,8 +765,12 @@ message AddNodeExporterParams {
 }
 
 message ChangeNodeExporterParams {
-  string agent_id = 1 [(validate.rules).string.min_len = 1];
-  ChangeCommonAgentParams common = 2;
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 2;
+  // Enables push metrics with vmagent.
+  optional bool enable_push_metrics = 3;
 }
 
 // Add/Change MySQLdExporter
@@ -819,8 +815,12 @@ message AddMySQLdExporterParams {
 }
 
 message ChangeMySQLdExporterParams {
-  string agent_id = 1 [(validate.rules).string.min_len = 1];
-  ChangeCommonAgentParams common = 2;
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 2;
+  // Enables push metrics with vmagent.
+  optional bool enable_push_metrics = 3;
 }
 
 // Add/Change MongoDBExporter
@@ -872,8 +872,12 @@ message AddMongoDBExporterParams {
 }
 
 message ChangeMongoDBExporterParams {
-  string agent_id = 1 [(validate.rules).string.min_len = 1];
-  ChangeCommonAgentParams common = 2;
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 2;
+  // Enables push metrics with vmagent.
+  optional bool enable_push_metrics = 3;
 }
 
 // Add/Change PostgresExporter
@@ -918,8 +922,12 @@ message AddPostgresExporterParams {
 }
 
 message ChangePostgresExporterParams {
-  string agent_id = 1 [(validate.rules).string.min_len = 1];
-  ChangeCommonAgentParams common = 2;
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 2;
+  // Enables push metrics with vmagent.
+  optional bool enable_push_metrics = 3;
 }
 
 // Add/Change ProxySQLExporter
@@ -954,8 +962,12 @@ message AddProxySQLExporterParams {
 }
 
 message ChangeProxySQLExporterParams {
-  string agent_id = 1 [(validate.rules).string.min_len = 1];
-  ChangeCommonAgentParams common = 2;
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 2;
+  // Enables push metrics with vmagent.
+  optional bool enable_push_metrics = 3;
 }
 
 // Add/Change QANMySQLPerfSchemaAgent
@@ -994,8 +1006,12 @@ message AddQANMySQLPerfSchemaAgentParams {
 }
 
 message ChangeQANMySQLPerfSchemaAgentParams {
-  string agent_id = 1 [(validate.rules).string.min_len = 1];
-  ChangeCommonAgentParams common = 2;
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 2;
+  // Enables push metrics with vmagent.
+  optional bool enable_push_metrics = 3;
 }
 
 // Add/Change QANMySQLSlowlogAgent
@@ -1037,8 +1053,12 @@ message AddQANMySQLSlowlogAgentParams {
 }
 
 message ChangeQANMySQLSlowlogAgentParams {
-  string agent_id = 1 [(validate.rules).string.min_len = 1];
-  ChangeCommonAgentParams common = 2;
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 2;
+  // Enables push metrics with vmagent.
+  optional bool enable_push_metrics = 3;
 }
 
 // Add/Change QANMongoDBProfilerAgent
@@ -1079,8 +1099,12 @@ message AddQANMongoDBProfilerAgentParams {
 }
 
 message ChangeQANMongoDBProfilerAgentParams {
-  string agent_id = 1 [(validate.rules).string.min_len = 1];
-  ChangeCommonAgentParams common = 2;
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 2;
+  // Enables push metrics with vmagent.
+  optional bool enable_push_metrics = 3;
 }
 
 // Add/Change QANPostgreSQLPgStatementsAgent
@@ -1117,8 +1141,12 @@ message AddQANPostgreSQLPgStatementsAgentParams {
 }
 
 message ChangeQANPostgreSQLPgStatementsAgentParams {
-  string agent_id = 1 [(validate.rules).string.min_len = 1];
-  ChangeCommonAgentParams common = 2;
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 2;
+  // Enables push metrics with vmagent.
+  optional bool enable_push_metrics = 3;
 }
 
 // Add/Change QANPostgreSQLPgStatMonitorAgent
@@ -1157,8 +1185,12 @@ message AddQANPostgreSQLPgStatMonitorAgentParams {
 }
 
 message ChangeQANPostgreSQLPgStatMonitorAgentParams {
-  string agent_id = 1 [(validate.rules).string.min_len = 1];
-  ChangeCommonAgentParams common = 2;
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 2;
+  // Enables push metrics with vmagent.
+  optional bool enable_push_metrics = 3;
 }
 
 // Add/Change RDSExporter
@@ -1187,8 +1219,12 @@ message AddRDSExporterParams {
 }
 
 message ChangeRDSExporterParams {
-  string agent_id = 1 [(validate.rules).string.min_len = 1];
-  ChangeCommonAgentParams common = 2;
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 2;
+  // Enables push metrics with vmagent.
+  optional bool enable_push_metrics = 3;
 }
 
 // Add/Change ExternalExporter
@@ -1218,8 +1254,12 @@ message AddExternalExporterParams {
 }
 
 message ChangeExternalExporterParams {
-  string agent_id = 1 [(validate.rules).string.min_len = 1];
-  ChangeCommonAgentParams common = 2;
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 2;
+  // Enables push metrics with vmagent.
+  optional bool enable_push_metrics = 3;
 }
 
 // Add/Change AzureDatabaseExporter
@@ -1252,8 +1292,12 @@ message AddAzureDatabaseExporterParams {
 }
 
 message ChangeAzureDatabaseExporterParams {
-  string agent_id = 1 [(validate.rules).string.min_len = 1];
-  ChangeCommonAgentParams common = 2;
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 2;
+  // Enables push metrics with vmagent.
+  optional bool enable_push_metrics = 3;
 }
 
 // Remove
@@ -1305,7 +1349,7 @@ service AgentsService {
   // AddAgent adds any type of Agent to Inventory.
   rpc AddAgent(AddAgentRequest) returns (AddAgentResponse) {
     option (google.api.http) = {
-      post: "/v1/inventory/Agents/Add"
+      post: "/v1/inventory/agents"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -1316,7 +1360,7 @@ service AgentsService {
   // ChangeAgent changes any type of Agent record in Inventory.
   rpc ChangeAgent(ChangeAgentRequest) returns (ChangeAgentResponse) {
     option (google.api.http) = {
-      post: "/v1/inventory/Agents/Change"
+      put: "/v1/inventory/agents/{agent_id}"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {

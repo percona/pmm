@@ -1938,147 +1938,6 @@ var _ interface {
 	ErrorName() string
 } = AzureDatabaseExporterValidationError{}
 
-// Validate checks the field values on ChangeCommonAgentParams with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ChangeCommonAgentParams) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on ChangeCommonAgentParams with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// ChangeCommonAgentParamsMultiError, or nil if none found.
-func (m *ChangeCommonAgentParams) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ChangeCommonAgentParams) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if m.Enable != nil {
-		// no validation rules for Enable
-	}
-
-	if m.CustomLabels != nil {
-		if all {
-			switch v := interface{}(m.GetCustomLabels()).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, ChangeCommonAgentParamsValidationError{
-						field:  "CustomLabels",
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, ChangeCommonAgentParamsValidationError{
-						field:  "CustomLabels",
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return ChangeCommonAgentParamsValidationError{
-					field:  "CustomLabels",
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
-		}
-	}
-
-	if m.EnablePushMetrics != nil {
-		// no validation rules for EnablePushMetrics
-	}
-
-	if len(errors) > 0 {
-		return ChangeCommonAgentParamsMultiError(errors)
-	}
-
-	return nil
-}
-
-// ChangeCommonAgentParamsMultiError is an error wrapping multiple validation
-// errors returned by ChangeCommonAgentParams.ValidateAll() if the designated
-// constraints aren't met.
-type ChangeCommonAgentParamsMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ChangeCommonAgentParamsMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ChangeCommonAgentParamsMultiError) AllErrors() []error { return m }
-
-// ChangeCommonAgentParamsValidationError is the validation error returned by
-// ChangeCommonAgentParams.Validate if the designated constraints aren't met.
-type ChangeCommonAgentParamsValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ChangeCommonAgentParamsValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ChangeCommonAgentParamsValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ChangeCommonAgentParamsValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ChangeCommonAgentParamsValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ChangeCommonAgentParamsValidationError) ErrorName() string {
-	return "ChangeCommonAgentParamsValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ChangeCommonAgentParamsValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sChangeCommonAgentParams.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ChangeCommonAgentParamsValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ChangeCommonAgentParamsValidationError{}
-
 // Validate checks the field values on ListAgentsRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -5231,6 +5090,17 @@ func (m *ChangeAgentRequest) validate(all bool) error {
 
 	var errors []error
 
+	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
+		err := ChangeAgentRequestValidationError{
+			field:  "AgentId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	switch v := m.Agent.(type) {
 	case *ChangeAgentRequest_NodeExporter:
 		if v == nil {
@@ -6747,44 +6617,43 @@ func (m *ChangeNodeExporterParams) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeNodeExporterParamsValidationError{
-			field:  "AgentId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
+	if m.Enable != nil {
+		// no validation rules for Enable
 	}
 
-	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeNodeExporterParamsValidationError{
-					field:  "Common",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeNodeExporterParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeNodeExporterParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
 			}
-		case interface{ Validate() error }:
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeNodeExporterParamsValidationError{
-					field:  "Common",
+				return ChangeNodeExporterParamsValidationError{
+					field:  "CustomLabels",
 					reason: "embedded message failed validation",
 					cause:  err,
-				})
+				}
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeNodeExporterParamsValidationError{
-				field:  "Common",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	}
+
+	if m.EnablePushMetrics != nil {
+		// no validation rules for EnablePushMetrics
 	}
 
 	if len(errors) > 0 {
@@ -7050,44 +6919,43 @@ func (m *ChangeMySQLdExporterParams) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeMySQLdExporterParamsValidationError{
-			field:  "AgentId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
+	if m.Enable != nil {
+		// no validation rules for Enable
 	}
 
-	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeMySQLdExporterParamsValidationError{
-					field:  "Common",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeMySQLdExporterParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeMySQLdExporterParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
 			}
-		case interface{ Validate() error }:
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeMySQLdExporterParamsValidationError{
-					field:  "Common",
+				return ChangeMySQLdExporterParamsValidationError{
+					field:  "CustomLabels",
 					reason: "embedded message failed validation",
 					cause:  err,
-				})
+				}
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeMySQLdExporterParamsValidationError{
-				field:  "Common",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	}
+
+	if m.EnablePushMetrics != nil {
+		// no validation rules for EnablePushMetrics
 	}
 
 	if len(errors) > 0 {
@@ -7348,44 +7216,43 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeMongoDBExporterParamsValidationError{
-			field:  "AgentId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
+	if m.Enable != nil {
+		// no validation rules for Enable
 	}
 
-	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeMongoDBExporterParamsValidationError{
-					field:  "Common",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeMongoDBExporterParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeMongoDBExporterParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
 			}
-		case interface{ Validate() error }:
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeMongoDBExporterParamsValidationError{
-					field:  "Common",
+				return ChangeMongoDBExporterParamsValidationError{
+					field:  "CustomLabels",
 					reason: "embedded message failed validation",
 					cause:  err,
-				})
+				}
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeMongoDBExporterParamsValidationError{
-				field:  "Common",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	}
+
+	if m.EnablePushMetrics != nil {
+		// no validation rules for EnablePushMetrics
 	}
 
 	if len(errors) > 0 {
@@ -7654,44 +7521,43 @@ func (m *ChangePostgresExporterParams) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangePostgresExporterParamsValidationError{
-			field:  "AgentId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
+	if m.Enable != nil {
+		// no validation rules for Enable
 	}
 
-	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangePostgresExporterParamsValidationError{
-					field:  "Common",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangePostgresExporterParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangePostgresExporterParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
 			}
-		case interface{ Validate() error }:
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangePostgresExporterParamsValidationError{
-					field:  "Common",
+				return ChangePostgresExporterParamsValidationError{
+					field:  "CustomLabels",
 					reason: "embedded message failed validation",
 					cause:  err,
-				})
+				}
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangePostgresExporterParamsValidationError{
-				field:  "Common",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	}
+
+	if m.EnablePushMetrics != nil {
+		// no validation rules for EnablePushMetrics
 	}
 
 	if len(errors) > 0 {
@@ -7950,44 +7816,43 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeProxySQLExporterParamsValidationError{
-			field:  "AgentId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
+	if m.Enable != nil {
+		// no validation rules for Enable
 	}
 
-	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeProxySQLExporterParamsValidationError{
-					field:  "Common",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeProxySQLExporterParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeProxySQLExporterParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
 			}
-		case interface{ Validate() error }:
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeProxySQLExporterParamsValidationError{
-					field:  "Common",
+				return ChangeProxySQLExporterParamsValidationError{
+					field:  "CustomLabels",
 					reason: "embedded message failed validation",
 					cause:  err,
-				})
+				}
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeProxySQLExporterParamsValidationError{
-				field:  "Common",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	}
+
+	if m.EnablePushMetrics != nil {
+		// no validation rules for EnablePushMetrics
 	}
 
 	if len(errors) > 0 {
@@ -8256,44 +8121,43 @@ func (m *ChangeQANMySQLPerfSchemaAgentParams) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeQANMySQLPerfSchemaAgentParamsValidationError{
-			field:  "AgentId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
+	if m.Enable != nil {
+		// no validation rules for Enable
 	}
 
-	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeQANMySQLPerfSchemaAgentParamsValidationError{
-					field:  "Common",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeQANMySQLPerfSchemaAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeQANMySQLPerfSchemaAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
 			}
-		case interface{ Validate() error }:
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeQANMySQLPerfSchemaAgentParamsValidationError{
-					field:  "Common",
+				return ChangeQANMySQLPerfSchemaAgentParamsValidationError{
+					field:  "CustomLabels",
 					reason: "embedded message failed validation",
 					cause:  err,
-				})
+				}
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeQANMySQLPerfSchemaAgentParamsValidationError{
-				field:  "Common",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	}
+
+	if m.EnablePushMetrics != nil {
+		// no validation rules for EnablePushMetrics
 	}
 
 	if len(errors) > 0 {
@@ -8563,44 +8427,43 @@ func (m *ChangeQANMySQLSlowlogAgentParams) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeQANMySQLSlowlogAgentParamsValidationError{
-			field:  "AgentId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
+	if m.Enable != nil {
+		// no validation rules for Enable
 	}
 
-	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeQANMySQLSlowlogAgentParamsValidationError{
-					field:  "Common",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeQANMySQLSlowlogAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeQANMySQLSlowlogAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
 			}
-		case interface{ Validate() error }:
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeQANMySQLSlowlogAgentParamsValidationError{
-					field:  "Common",
+				return ChangeQANMySQLSlowlogAgentParamsValidationError{
+					field:  "CustomLabels",
 					reason: "embedded message failed validation",
 					cause:  err,
-				})
+				}
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeQANMySQLSlowlogAgentParamsValidationError{
-				field:  "Common",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	}
+
+	if m.EnablePushMetrics != nil {
+		// no validation rules for EnablePushMetrics
 	}
 
 	if len(errors) > 0 {
@@ -8861,44 +8724,43 @@ func (m *ChangeQANMongoDBProfilerAgentParams) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeQANMongoDBProfilerAgentParamsValidationError{
-			field:  "AgentId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
+	if m.Enable != nil {
+		// no validation rules for Enable
 	}
 
-	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeQANMongoDBProfilerAgentParamsValidationError{
-					field:  "Common",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeQANMongoDBProfilerAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeQANMongoDBProfilerAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
 			}
-		case interface{ Validate() error }:
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeQANMongoDBProfilerAgentParamsValidationError{
-					field:  "Common",
+				return ChangeQANMongoDBProfilerAgentParamsValidationError{
+					field:  "CustomLabels",
 					reason: "embedded message failed validation",
 					cause:  err,
-				})
+				}
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeQANMongoDBProfilerAgentParamsValidationError{
-				field:  "Common",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	}
+
+	if m.EnablePushMetrics != nil {
+		// no validation rules for EnablePushMetrics
 	}
 
 	if len(errors) > 0 {
@@ -9168,44 +9030,43 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentParams) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeQANPostgreSQLPgStatementsAgentParamsValidationError{
-			field:  "AgentId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
+	if m.Enable != nil {
+		// no validation rules for Enable
 	}
 
-	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeQANPostgreSQLPgStatementsAgentParamsValidationError{
-					field:  "Common",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeQANPostgreSQLPgStatementsAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeQANPostgreSQLPgStatementsAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
 			}
-		case interface{ Validate() error }:
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeQANPostgreSQLPgStatementsAgentParamsValidationError{
-					field:  "Common",
+				return ChangeQANPostgreSQLPgStatementsAgentParamsValidationError{
+					field:  "CustomLabels",
 					reason: "embedded message failed validation",
 					cause:  err,
-				})
+				}
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeQANPostgreSQLPgStatementsAgentParamsValidationError{
-				field:  "Common",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	}
+
+	if m.EnablePushMetrics != nil {
+		// no validation rules for EnablePushMetrics
 	}
 
 	if len(errors) > 0 {
@@ -9477,44 +9338,43 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentParams) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError{
-			field:  "AgentId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
+	if m.Enable != nil {
+		// no validation rules for Enable
 	}
 
-	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError{
-					field:  "Common",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
 			}
-		case interface{ Validate() error }:
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError{
-					field:  "Common",
+				return ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError{
+					field:  "CustomLabels",
 					reason: "embedded message failed validation",
 					cause:  err,
-				})
+				}
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError{
-				field:  "Common",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	}
+
+	if m.EnablePushMetrics != nil {
+		// no validation rules for EnablePushMetrics
 	}
 
 	if len(errors) > 0 {
@@ -9761,44 +9621,43 @@ func (m *ChangeRDSExporterParams) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeRDSExporterParamsValidationError{
-			field:  "AgentId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
+	if m.Enable != nil {
+		// no validation rules for Enable
 	}
 
-	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeRDSExporterParamsValidationError{
-					field:  "Common",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeRDSExporterParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeRDSExporterParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
 			}
-		case interface{ Validate() error }:
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeRDSExporterParamsValidationError{
-					field:  "Common",
+				return ChangeRDSExporterParamsValidationError{
+					field:  "CustomLabels",
 					reason: "embedded message failed validation",
 					cause:  err,
-				})
+				}
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeRDSExporterParamsValidationError{
-				field:  "Common",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	}
+
+	if m.EnablePushMetrics != nil {
+		// no validation rules for EnablePushMetrics
 	}
 
 	if len(errors) > 0 {
@@ -10041,44 +9900,43 @@ func (m *ChangeExternalExporterParams) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeExternalExporterParamsValidationError{
-			field:  "AgentId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
+	if m.Enable != nil {
+		// no validation rules for Enable
 	}
 
-	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeExternalExporterParamsValidationError{
-					field:  "Common",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeExternalExporterParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeExternalExporterParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
 			}
-		case interface{ Validate() error }:
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeExternalExporterParamsValidationError{
-					field:  "Common",
+				return ChangeExternalExporterParamsValidationError{
+					field:  "CustomLabels",
 					reason: "embedded message failed validation",
 					cause:  err,
-				})
+				}
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeExternalExporterParamsValidationError{
-				field:  "Common",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	}
+
+	if m.EnablePushMetrics != nil {
+		// no validation rules for EnablePushMetrics
 	}
 
 	if len(errors) > 0 {
@@ -10339,44 +10197,43 @@ func (m *ChangeAzureDatabaseExporterParams) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetAgentId()) < 1 {
-		err := ChangeAzureDatabaseExporterParamsValidationError{
-			field:  "AgentId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
+	if m.Enable != nil {
+		// no validation rules for Enable
 	}
 
-	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeAzureDatabaseExporterParamsValidationError{
-					field:  "Common",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAzureDatabaseExporterParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAzureDatabaseExporterParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
 			}
-		case interface{ Validate() error }:
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeAzureDatabaseExporterParamsValidationError{
-					field:  "Common",
+				return ChangeAzureDatabaseExporterParamsValidationError{
+					field:  "CustomLabels",
 					reason: "embedded message failed validation",
 					cause:  err,
-				})
+				}
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeAzureDatabaseExporterParamsValidationError{
-				field:  "Common",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	}
+
+	if m.EnablePushMetrics != nil {
+		// no validation rules for EnablePushMetrics
 	}
 
 	if len(errors) > 0 {

@@ -60,6 +60,9 @@ ChangeAgentParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ChangeAgentParams struct {
+	// AgentID.
+	AgentID string
+
 	// Body.
 	Body ChangeAgentBody
 
@@ -116,6 +119,17 @@ func (o *ChangeAgentParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithAgentID adds the agentID to the change agent params
+func (o *ChangeAgentParams) WithAgentID(agentID string) *ChangeAgentParams {
+	o.SetAgentID(agentID)
+	return o
+}
+
+// SetAgentID adds the agentId to the change agent params
+func (o *ChangeAgentParams) SetAgentID(agentID string) {
+	o.AgentID = agentID
+}
+
 // WithBody adds the body to the change agent params
 func (o *ChangeAgentParams) WithBody(body ChangeAgentBody) *ChangeAgentParams {
 	o.SetBody(body)
@@ -133,6 +147,11 @@ func (o *ChangeAgentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.R
 		return err
 	}
 	var res []error
+
+	// path param agent_id
+	if err := r.SetPathParam("agent_id", o.AgentID); err != nil {
+		return err
+	}
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

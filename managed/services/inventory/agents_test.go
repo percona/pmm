@@ -101,14 +101,15 @@ func TestAgents(t *testing.T) {
 		})
 
 		t.Run("ChangeNodeExporterAndRemoveCustomLabels", func(t *testing.T) {
-			actualNodeExporter, err := as.ChangeNodeExporter(ctx, &inventoryv1.ChangeNodeExporterParams{
-				AgentId: "/agent_id/00000000-0000-4000-8000-000000000006",
-				Common: &inventoryv1.ChangeCommonAgentParams{
+			actualNodeExporter, err := as.ChangeNodeExporter(
+				ctx,
+				"/agent_id/00000000-0000-4000-8000-000000000006",
+				&inventoryv1.ChangeNodeExporterParams{
 					Enable: pointer.ToBool(false),
 					// passing an empty map to remove custom labels
 					CustomLabels: &common.StringMap{},
 				},
-			})
+			)
 			require.NoError(t, err)
 			expectedNodeExporter = &inventoryv1.NodeExporter{
 				AgentId:    "/agent_id/00000000-0000-4000-8000-000000000006",

@@ -84,13 +84,11 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		// Test change API.
 		changeAzureDatabaseExporterOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCommon{
-							Enable:       pointer.ToBool(false),
-							CustomLabels: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCommonCustomLabels{},
-						},
+						Enable:       pointer.ToBool(false),
+						CustomLabels: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
@@ -113,15 +111,13 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 
 		changeAzureDatabaseExporterOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCommon{
-							Enable: pointer.ToBool(true),
-							CustomLabels: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCommonCustomLabels{
-								Values: map[string]string{
-									"new_label": "azure_database_exporter",
-								},
+						Enable: pointer.ToBool(true),
+						CustomLabels: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCustomLabels{
+							Values: map[string]string{
+								"new_label": "azure_database_exporter",
 							},
 						},
 					},
@@ -275,12 +271,10 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		// Test change API.
 		changeAzureDatabaseExporterOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCommon{
-							EnablePushMetrics: pointer.ToBool(true),
-						},
+						EnablePushMetrics: pointer.ToBool(true),
 					},
 				},
 				Context: pmmapitests.Context,
@@ -304,12 +298,10 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 
 		changeAzureDatabaseExporterOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCommon{
-							EnablePushMetrics: pointer.ToBool(false),
-						},
+						EnablePushMetrics: pointer.ToBool(false),
 					},
 				},
 				Context: pmmapitests.Context,

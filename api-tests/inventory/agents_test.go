@@ -555,13 +555,11 @@ func TestQanAgentExporter(t *testing.T) {
 		// Test change API.
 		changeQANMySQLPerfSchemaAgentOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANMysqlPerfschemaAgent: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgent{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon{
-							Enable:       pointer.ToBool(false),
-							CustomLabels: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonCustomLabels{},
-						},
+						Enable:       pointer.ToBool(false),
+						CustomLabels: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
@@ -584,15 +582,13 @@ func TestQanAgentExporter(t *testing.T) {
 
 		changeQANMySQLPerfSchemaAgentOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANMysqlPerfschemaAgent: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgent{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon{
-							Enable: pointer.ToBool(true),
-							CustomLabels: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonCustomLabels{
-								Values: map[string]string{
-									"new_label": "QANMysqlPerfschemaAgent",
-								},
+						Enable: pointer.ToBool(true),
+						CustomLabels: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCustomLabels{
+							Values: map[string]string{
+								"new_label": "QANMysqlPerfschemaAgent",
 							},
 						},
 					},
@@ -818,13 +814,11 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		// Test change API.
 		changeQANPostgreSQLPgStatementsAgentOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANPostgresqlPgstatementsAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon{
-							Enable:       pointer.ToBool(false),
-							CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonCustomLabels{},
-						},
+						Enable:       pointer.ToBool(false),
+						CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
@@ -847,15 +841,13 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 
 		changeQANPostgreSQLPgStatementsAgentOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANPostgresqlPgstatementsAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon{
-							Enable: pointer.ToBool(true),
-							CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonCustomLabels{
-								Values: map[string]string{
-									"new_label": "QANPostgreSQLPgStatementsAgent",
-								},
+						Enable: pointer.ToBool(true),
+						CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCustomLabels{
+							Values: map[string]string{
+								"new_label": "QANPostgreSQLPgStatementsAgent",
 							},
 						},
 					},
@@ -1081,13 +1073,11 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		// Test change API.
 		changeQANPostgreSQLPgStatMonitorAgentOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon{
-							Enable:       pointer.ToBool(false),
-							CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonCustomLabels{},
-						},
+						Enable:       pointer.ToBool(false),
+						CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
@@ -1110,15 +1100,13 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 
 		changeQANPostgreSQLPgStatMonitorAgentOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon{
-							Enable: pointer.ToBool(true),
-							CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonCustomLabels{
-								Values: map[string]string{
-									"new_label": "QANPostgreSQLPgStatMonitorAgent",
-								},
+						Enable: pointer.ToBool(true),
+						CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCustomLabels{
+							Values: map[string]string{
+								"new_label": "QANPostgreSQLPgStatMonitorAgent",
 							},
 						},
 					},

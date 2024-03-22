@@ -15,54 +15,6 @@
     "version": "public"
   },
   "paths": {
-    "/logs.zip": {
-      "get": {
-        "description": "Returns the PMM Server logs.",
-        "produces": [
-          "application/zip"
-        ],
-        "tags": [
-          "ServerService"
-        ],
-        "summary": "Logs",
-        "operationId": "Logs",
-        "parameters": [
-          {
-            "type": "boolean",
-            "description": "Include performance profiling data,",
-            "name": "pprof",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "file"
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/actions/Cancel": {
       "post": {
         "description": "Stops an Action.",
@@ -12021,6 +11973,54 @@
                     "additionalProperties": false
                   },
                   "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/server/logs.zip": {
+      "get": {
+        "description": "Returns the PMM Server logs.",
+        "produces": [
+          "application/zip"
+        ],
+        "tags": [
+          "ServerService"
+        ],
+        "summary": "Logs",
+        "operationId": "Logs",
+        "parameters": [
+          {
+            "type": "boolean",
+            "description": "Include performance profiling data,",
+            "name": "pprof",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
                 }
               }
             }

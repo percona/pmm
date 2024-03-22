@@ -16,13 +16,13 @@ POST /v1/updates/Start                              POST /v1/server/updates:star
 POST /v1/updates/Status                             POST /v1/server/updates:getStatus                ✅ auth_token is passed in the body
 
 **UserService**                                     **UserService**
-GET /v1/user                                        GET /v1/users/me                                 ✅  needs no {id} in path
-PUT /v1/user                                        PUT /v1/users/me                                 ✅  needs no {id} in path
+GET /v1/user                                        GET /v1/users/me                                 ✅
+PUT /v1/user                                        PUT /v1/users/me                                 ✅
 POST /v1/user/list                                  GET /v1/users                                    ✅ 
 
 **AgentsService**                                   **AgentsService**
-POST /v1/inventory/Agents/Add                       POST /v1/inventory/agents
-POST /v1/inventory/Agents/Change                    PUT /v1/inventory/agents/{id}
+POST /v1/inventory/Agents/Add                       POST /v1/inventory/agents                        ✅
+POST /v1/inventory/Agents/Change                    PUT /v1/inventory/agents/{id}                    ✅
 POST /v1/inventory/Agents/Get                       GET /v1/inventory/agents/{id}
 POST /v1/inventory/Agents/List                      GET /v1/inventory/agents
 POST /v1/inventory/Agents/Remove                    DELETE /v1/inventory/agents/{id}

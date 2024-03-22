@@ -56,7 +56,7 @@ func (a *Client) AddAgent(params *AddAgentParams, opts ...ClientOption) (*AddAge
 	op := &runtime.ClientOperation{
 		ID:                 "AddAgent",
 		Method:             "POST",
-		PathPattern:        "/v1/inventory/Agents/Add",
+		PathPattern:        "/v1/inventory/agents",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -94,8 +94,8 @@ func (a *Client) ChangeAgent(params *ChangeAgentParams, opts ...ClientOption) (*
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ChangeAgent",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Agents/Change",
+		Method:             "PUT",
+		PathPattern:        "/v1/inventory/agents/{agent_id}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

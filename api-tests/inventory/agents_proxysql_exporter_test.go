@@ -98,13 +98,11 @@ func TestProxySQLExporter(t *testing.T) {
 		// Test change API.
 		changeProxySQLExporterOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyProxysqlExporterCommon{
-							Enable:       pointer.ToBool(false),
-							CustomLabels: &agents.ChangeAgentParamsBodyProxysqlExporterCommonCustomLabels{},
-						},
+						Enable:       pointer.ToBool(false),
+						CustomLabels: &agents.ChangeAgentParamsBodyProxysqlExporterCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
@@ -128,15 +126,13 @@ func TestProxySQLExporter(t *testing.T) {
 
 		changeProxySQLExporterOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyProxysqlExporterCommon{
-							Enable: pointer.ToBool(true),
-							CustomLabels: &agents.ChangeAgentParamsBodyProxysqlExporterCommonCustomLabels{
-								Values: map[string]string{
-									"new_label": "proxysql_exporter",
-								},
+						Enable: pointer.ToBool(true),
+						CustomLabels: &agents.ChangeAgentParamsBodyProxysqlExporterCustomLabels{
+							Values: map[string]string{
+								"new_label": "proxysql_exporter",
 							},
 						},
 					},
@@ -350,12 +346,10 @@ func TestProxySQLExporter(t *testing.T) {
 
 		// Test change API.
 		changeProxySQLExporterOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-					AgentID: agentID,
-					Common: &agents.ChangeAgentParamsBodyProxysqlExporterCommon{
-						EnablePushMetrics: pointer.ToBool(true),
-					},
+					EnablePushMetrics: pointer.ToBool(true),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -381,12 +375,10 @@ func TestProxySQLExporter(t *testing.T) {
 
 		changeProxySQLExporterOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyProxysqlExporterCommon{
-							EnablePushMetrics: pointer.ToBool(false),
-						},
+						EnablePushMetrics: pointer.ToBool(false),
 					},
 				},
 				Context: pmmapitests.Context,

@@ -52,6 +52,7 @@ var rules = map[string]role{
 	"/server.v1.ServerService/AWSInstanceCheck": none,  // special case - used before Grafana can be accessed
 	"/server.":                                  admin, // TODO: do we need it for older agents?
 	"/server.v1.":                               admin,
+	"/qan.v1.CollectorService.":                 viewer,
 
 	"/v1/alerting":                                viewer,
 	"/v1/backup":                                  admin,
