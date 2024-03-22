@@ -42,7 +42,7 @@ export PMM_RELEASE_BRANCH=""
 cd src/github.com/percona/pmm/managed
 make release
 
-cd src/github.com/percona/pmm/ui
+cd ../ui
 make release
 
 %install
