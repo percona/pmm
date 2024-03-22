@@ -120,6 +120,6 @@ func TestCreateDbIfNotExists(t *testing.T) {
 
 		db := createDB(dsn)
 
-		require.Equal(t, nil, db, "Check connection after we create database")
+		require.Nil(t, db, "Check connection after we create database")
 	})
 }
