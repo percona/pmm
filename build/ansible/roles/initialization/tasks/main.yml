@@ -27,56 +27,61 @@
 
 - name: Set need_upgrade fact
   set_fact:
-    need_upgrade: not pmm_current_version is version(pmm_image_version, '>=')
+    need_upgrade: "{{ pmm_current_version is version(pmm_image_version, '<') }}"
 
 - name: Print current PMM and image versions
   debug:
     msg: "Current version: {{ pmm_current_version }} Image Version: {{ pmm_image_version }}"
 
-- name: Enable maintenance mode before upgrade
-  copy:
-    src: maintenance.html
-    dest: /usr/share/pmm-server/maintenance/
-    owner: pmm
-    group: pmm
-    mode: 0644
+- name: Print need_upgrade fact
+  debug:
+    msg: "Need upgrade: {{ need_upgrade }}"
 
-- name: Upgrade dashboards
-  include_role:
-    name: dashboards
+- name: Perform upgrade tasks
+  block:
+    - name: Enable maintenance mode before upgrade
+      copy:
+        src: maintenance.html
+        dest: /usr/share/pmm-server/maintenance/
+        owner: pmm
+        group: pmm
+        mode: 0644
+    
+    - name: Upgrade dashboards
+      include_role:
+        name: dashboards
+    
+    - name: Copy file with image version
+      copy:
+        src: /usr/share/percona-dashboards/VERSION
+        dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
+        owner: pmm
+        group: pmm
+        mode: 0644
+        remote_src: yes
+    
+    - name: Create a backup directory
+      file:
+        path: /srv/backup
+        state: directory
+        owner: pmm
+        group: pmm
+        mode: 0775
+
+    - name: Wait for PMM to be ready
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:7772/v1/readyz"
+        status_code: 200
+        method: GET
+      retries: 20
+      delay: 5
+    
+    - name: Disable maintenance mode
+      file:
+        state: absent
+        path: /usr/share/pmm-server/maintenance/maintenance.html
   when: need_upgrade
-
-- name: Copy file with image version
-  copy:
-    src: /usr/share/percona-dashboards/VERSION
-    dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
-    owner: pmm
-    group: pmm
-    mode: 0644
-    remote_src: yes
-  when: need_upgrade
-
-- name: Create a backup directory
-  file:
-    path: /srv/backup
-    state: directory
-    owner: pmm
-    group: pmm
-    mode: 0775
 
 # Note: we want to leave this for some time until we achieve stable builds
 - name: Output pmm-managed logs
   shell: sleep 10 && tail -n 300 /srv/logs/pmm-managed.log
-
-- name: Wait for PMM to be ready
-  ansible.builtin.uri:
-    url: "http://127.0.0.1:7772/v1/readyz"
-    status_code: 200
-    method: GET
-  retries: 20
-  delay: 5
-
-- name: Disable maintenance mode
-  file:
-    state: absent
-    path: /usr/share/pmm-server/maintenance/maintenance.html
