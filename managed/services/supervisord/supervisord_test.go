@@ -37,7 +37,7 @@ func TestConfig(t *testing.T) {
 
 	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
-	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL())
 	require.NoError(t, err)
 	pgParams := &models.PGParams{
 		Addr:        "127.0.0.1:5432",
@@ -78,7 +78,7 @@ func TestConfig(t *testing.T) {
 func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
-	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL())
 	require.NoError(t, err)
 	pgParams := &models.PGParams{
 		Addr:        "127.0.0.1:5432",
@@ -129,7 +129,7 @@ func TestDBaaSController(t *testing.T) {
 
 	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
-	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL())
 	require.NoError(t, err)
 	s := New(configDir, pmmUpdateCheck, &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{}}, gRPCMessageMaxSize)
 

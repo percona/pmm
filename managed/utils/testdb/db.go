@@ -73,7 +73,7 @@ func SetupDB(tb testing.TB, db *sql.DB, setupFixtures models.SetupFixturesMode, 
 	_, err := models.SetupDB(context.TODO(), db, models.SetupDBParams{
 		// Uncomment to see all setup queries:
 		// Logf: tb.Logf,
-		Address:          models.DefaultPostgreSQLAddr,
+		Address:          models.DefaultPostgreSQLAddr(),
 		Name:             newName(11),
 		Username:         username,
 		Password:         password,

@@ -49,6 +49,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"gopkg.in/alecthomas/kingpin.v2"
 
+	"github.com/percona/pmm/admin/pkg/iputils"
 	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/percona/pmm/qan-api2/models"
 	aservice "github.com/percona/pmm/qan-api2/services/analytics"
@@ -257,13 +258,13 @@ func main() {
 
 	kingpin.Version(version.ShortInfo())
 	kingpin.HelpFlag.Short('h')
-	grpcBindF := kingpin.Flag("grpc-bind", "GRPC bind address and port").Default("127.0.0.1:9911").String()
-	jsonBindF := kingpin.Flag("json-bind", "JSON bind address and port").Default("127.0.0.1:9922").String()
-	debugBindF := kingpin.Flag("listen-debug-addr", "Debug server listen address").Default("127.0.0.1:9933").String()
+	grpcBindF := kingpin.Flag("grpc-bind", "GRPC bind address and port").Default(net.JoinHostPort(iputils.GetLoopbackAddress(), "9911")).String()
+	jsonBindF := kingpin.Flag("json-bind", "JSON bind address and port").Default(net.JoinHostPort(iputils.GetLoopbackAddress(), "9922")).String()
+	debugBindF := kingpin.Flag("listen-debug-addr", "Debug server listen address").Default(net.JoinHostPort(iputils.GetLoopbackAddress(), "9933")).String()
 	dataRetentionF := kingpin.Flag("data-retention", "QAN data Retention (in days)").Default("30").Uint()
 	dsnF := kingpin.Flag("dsn", "ClickHouse database DSN. Can be override with database/host/port options").Default(defaultDsnF).String()
 	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE").String()
-	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PERCONA_TEST_PMM_CLICKHOUSE_ADDR").String()
+	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default(net.JoinHostPort(iputils.GetLoopbackAddress(), "9000")).Envar("PERCONA_TEST_PMM_CLICKHOUSE_ADDR").String()
 	clickhouseBlockSizeF := kingpin.Flag("clickhouse-block-size", "Number of rows that can be load from table in one cycle").
 		Default("10000").Envar("PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE").String()
 	clickhousePoolSizeF := kingpin.Flag("clickhouse-pool-size", "Controls how much queries can be run simultaneously").

@@ -19,6 +19,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"time"
@@ -29,12 +30,13 @@ import (
 
 	"github.com/percona/pmm/api/agentlocalpb/json/client"
 	agentlocal "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
+	"github.com/percona/pmm/utils/iputils"
 )
 
 // SetTransport configures transport for accessing local pmm-agent API.
 func SetTransport(ctx context.Context, debug bool, port uint32) {
 	// use JSON APIs over HTTP/1.1
-	transport := httptransport.New(fmt.Sprintf("%s:%d", Localhost, port), "/", []string{"http"})
+	transport := httptransport.New(net.JoinHostPort(iputils.GetLoopbackAddress(), fmt.Sprintf("%d", port)), "/", []string{"http"})
 	transport.SetLogger(logrus.WithField("component", "agentlocal-transport"))
 	transport.SetDebug(debug)
 	transport.Context = ctx
@@ -50,10 +52,9 @@ func SetTransport(ctx context.Context, debug bool, port uint32) {
 type NetworkInfo bool
 
 const (
-	RequestNetworkInfo        NetworkInfo = true        //nolint:revive
-	DoNotRequestNetworkInfo   NetworkInfo = false       //nolint:revive
-	Localhost                             = "127.0.0.1" //nolint:revive
-	DefaultPMMAgentListenPort             = 7777        //nolint:revive
+	RequestNetworkInfo        NetworkInfo = true  //nolint:revive
+	DoNotRequestNetworkInfo   NetworkInfo = false //nolint:revive
+	DefaultPMMAgentListenPort             = 7777  //nolint:revive
 )
 
 // ErrNotSetUp is returned by GetStatus when pmm-agent is running, but not set up.

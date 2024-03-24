@@ -36,9 +36,13 @@
     name: nginx
     state: installed
 
+- name: Determine files directory
+  set_fact:
+    files_dir: "{{ 'files_ipv6' if IPV6ONLY == 'true' else 'files' }}"
+
 - name: Add ssl-related files and scripts
   copy:
-    src: "ssl/{{ item.src }}"
+    src: "{{ files_dir }}/ssl/{{ item.src }}"
     dest: "{{ item.dest }}"
     mode: "{{ item.mode }}"
   loop:
@@ -50,7 +54,7 @@
 
 - name: NGINX                       | Copy nginx configs
   copy:
-    src: "{{ item }}"
+    src: "{{ files_dir }}/{{ item }}"
     dest: "/etc/nginx/{{ item }}"
     mode: 0644
   loop:
@@ -78,7 +82,7 @@
 
 - name: Copy local-rss.xml file
   copy:
-    src: local-rss.xml
+    src: "{{ files_dir }}/local-rss.xml"
     dest: /usr/share/pmm-server/static/
     mode: 0644
 

@@ -33,6 +33,7 @@ import (
 	"github.com/percona/pmm/admin/commands/pmm/common"
 	"github.com/percona/pmm/admin/pkg/bubbles/progress"
 	"github.com/percona/pmm/admin/pkg/docker"
+	"github.com/percona/pmm/utils/iputils"
 )
 
 const defaultGrafanaAdminPassword = "admin"
@@ -116,9 +117,13 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 			finalPassword = defaultGrafanaAdminPassword
 		}
 	}
+	url := "http://127.0.0.1"
+	if iputils.IsIPV6Only() {
+		url = "http://[::1]"
+	}
 
 	return &installResult{
-		URL:      "http://localhost",
+		URL:      url,
 		User:     "admin",
 		Password: finalPassword,
 	}, nil
@@ -129,8 +134,8 @@ func (c *InstallCommand) runContainer(ctx context.Context, volume *volume.Volume
 	logrus.Info("Starting PMM Server")
 
 	ports := nat.PortMap{
-		"443/tcp": []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: strconv.Itoa(int(c.HTTPSListenPort))}},
-		"80/tcp":  []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: strconv.Itoa(int(c.HTTPListenPort))}},
+		"443/tcp": []nat.PortBinding{{HostIP: iputils.GetAllInterfacesAddress(), HostPort: strconv.Itoa(int(c.HTTPSListenPort))}},
+		"80/tcp":  []nat.PortBinding{{HostIP: iputils.GetAllInterfacesAddress(), HostPort: strconv.Itoa(int(c.HTTPListenPort))}},
 	}
 
 	containerID, err := startPMMServer(ctx, volume, "", dockerImage, c.dockerFn, ports, c.ContainerName)

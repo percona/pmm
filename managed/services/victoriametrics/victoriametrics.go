@@ -19,6 +19,7 @@ package victoriametrics
 import (
 	"context"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -39,6 +40,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/dir"
+	"github.com/percona/pmm/utils/iputils"
 	"github.com/percona/pmm/utils/pdeathsig"
 )
 
@@ -395,7 +397,7 @@ func scrapeConfigForVMAlert(interval time.Duration) *config.ScrapeConfig {
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{
 				{
-					Targets: []string{"127.0.0.1:8880"},
+					Targets: []string{net.JoinHostPort(iputils.GetLoopbackAddress(), "8880")},
 					Labels:  map[string]string{"instance": "pmm-server"},
 				},
 			},

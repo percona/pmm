@@ -16,6 +16,7 @@ package management
 
 import (
 	"fmt"
+	"net"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -24,6 +25,7 @@ import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	proxysql "github.com/percona/pmm/api/managementpb/json/client/proxy_sql"
+	"github.com/percona/pmm/utils/iputils"
 )
 
 var addProxySQLResultT = commands.ParseTemplate(`
@@ -47,7 +49,7 @@ func (res *addProxySQLResult) String() string {
 //nolint:lll
 type AddProxySQLCommand struct {
 	ServiceName         string            `name:"name" arg:"" default:"${hostname}-proxysql" help:"Service name (autodetected default: ${hostname}-proxysql)"`
-	Address             string            `arg:"" optional:"" help:"ProxySQL address and port (default: 127.0.0.1:6032)"`
+	Address             string            `arg:"" optional:"" help:"ProxySQL address and port (default: 127.0.0.1:6032 (ipv6: [::1]:6032))"`
 	Socket              string            `help:"Path to ProxySQL socket"`
 	NodeID              string            `help:"Node ID (default is autodetected)"`
 	PMMAgentID          string            `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
@@ -82,7 +84,7 @@ func (cmd *AddProxySQLCommand) GetAddress() string {
 
 // GetDefaultAddress returns the default address for AddProxySQLCommand.
 func (cmd *AddProxySQLCommand) GetDefaultAddress() string {
-	return "127.0.0.1:6032"
+	return net.JoinHostPort(iputils.GetLoopbackAddress(), "6032")
 }
 
 // GetSocket returns the socket for AddProxySQLCommand.
