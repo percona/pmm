@@ -368,7 +368,7 @@ func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
 	}
 
 	l := logger.Get(ctx)
-	l.Debugf("pmm-agent with ID %q will be kicked in a moment.", pmmAgentID)
+	l.Debugf("pmm-agent with ID %s will be kicked in a moment.", pmmAgentID)
 
 	// see Run method
 	close(agent.kickChan)
@@ -382,7 +382,7 @@ func (r *Registry) get(pmmAgentID string) (*pmmAgentInfo, error) {
 	pmmAgent := r.agents[pmmAgentID]
 	r.rw.RUnlock()
 	if pmmAgent == nil {
-		return nil, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %q is not currently connected", pmmAgentID)
+		return nil, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %s is not currently connected", pmmAgentID)
 	}
 	return pmmAgent, nil
 }

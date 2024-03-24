@@ -5277,92 +5277,6 @@
         }
       }
     },
-    "/v1/inventory/Agents/GetLogs": {
-      "post": {
-        "description": "Returns Agent logs by ID.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Get Agent logs",
-        "operationId": "GetAgentLogs",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "agent_id": {
-                  "description": "Unique randomly generated instance identifier.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "limit": {
-                  "type": "integer",
-                  "format": "int64",
-                  "title": "is less than this value. 0: no limit",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "logs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 0
-                },
-                "agent_config_log_lines_count": {
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/inventory/Nodes/Add": {
       "post": {
         "description": "Adds a Node.",
@@ -16317,6 +16231,85 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/agents/{agent_id}/logs": {
+      "get": {
+        "description": "Returns Agent logs by ID.",
+        "tags": [
+          "AgentsService"
+        ],
+        "summary": "Get Agent logs",
+        "operationId": "GetAgentLogs",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique randomly generated instance identifier.",
+            "name": "agent_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "Limit the number of log lines to this value. Pass 0 for no limit.",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "logs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
+                },
+                "agent_config_log_lines_count": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 1
+                }
+              }
             }
           },
           "default": {

@@ -645,7 +645,7 @@ message GetAgentResponse {
 message GetAgentLogsRequest {
   // Unique randomly generated instance identifier.
   string agent_id = 1 [(validate.rules).string.min_len = 36];
-  // is less than this value. 0: no limit
+  // Limit the number of log lines to this value. Pass 0 for no limit.
   uint32 limit = 2;
 }
 
@@ -1330,10 +1330,7 @@ service AgentsService {
   }
   // GetAgentLogs returns Agent logs by ID.
   rpc GetAgentLogs(GetAgentLogsRequest) returns (GetAgentLogsResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/GetLogs"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/inventory/agents/{agent_id}/logs"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Agent logs"
       description: "Returns Agent logs by ID."

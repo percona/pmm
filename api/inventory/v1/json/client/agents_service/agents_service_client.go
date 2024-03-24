@@ -172,8 +172,8 @@ func (a *Client) GetAgentLogs(params *GetAgentLogsParams, opts ...ClientOption) 
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "GetAgentLogs",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Agents/GetLogs",
+		Method:             "GET",
+		PathPattern:        "/v1/inventory/agents/{agent_id}/logs",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

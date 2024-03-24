@@ -164,7 +164,8 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRe
 
 // GetAgentLogs returns Agent logs by ID.
 func (s *agentsServer) GetAgentLogs(ctx context.Context, req *inventoryv1.GetAgentLogsRequest) (*inventoryv1.GetAgentLogsResponse, error) {
-	logs, agentConfigLogLinesCount, err := s.s.Logs(ctx, req.AgentId, req.Limit)
+	agentID := models.NormalizeAgentID(req.GetAgentId())
+	logs, agentConfigLogLinesCount, err := s.s.Logs(ctx, agentID, req.GetLimit())
 	if err != nil {
 		return nil, err
 	}
