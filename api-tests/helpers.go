@@ -136,9 +136,7 @@ func RemoveNodes(t TestingT, nodeIDs ...string) {
 
 	for _, nodeID := range nodeIDs {
 		params := &nodes.RemoveNodeParams{
-			Body: nodes.RemoveNodeBody{
-				NodeID: nodeID,
-			},
+			NodeID:  nodeID,
 			Context: context.Background(),
 		}
 		res, err := client.Default.NodesService.RemoveNode(params)

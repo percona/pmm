@@ -29,6 +29,7 @@ import (
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	"github.com/percona/pmm/api/inventory/v1/types"
 )
 
 func TestNodes(t *testing.T) {
@@ -77,10 +78,8 @@ func TestNodes(t *testing.T) {
 		}, "There should be a remote node with id `%s`", remoteNodeID)
 
 		res, err = client.Default.NodesService.ListNodes(&nodes.ListNodesParams{
-			Body: nodes.ListNodesBody{
-				NodeType: pointer.ToString(nodes.ListNodesBodyNodeTypeNODETYPEGENERICNODE),
-			},
-			Context: pmmapitests.Context,
+			NodeType: pointer.ToString(types.NodeTypeGenericNode),
+			Context:  pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		require.NotEmptyf(t, res.Payload.Generic, "There should be at least one generic node")
@@ -125,7 +124,7 @@ func TestGetNode(t *testing.T) {
 		}
 
 		params := &nodes.GetNodeParams{
-			Body:    nodes.GetNodeBody{NodeID: nodeID},
+			NodeID:  nodeID,
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.NodesService.GetNode(params)
@@ -137,7 +136,7 @@ func TestGetNode(t *testing.T) {
 		t.Parallel()
 
 		params := &nodes.GetNodeParams{
-			Body:    nodes.GetNodeBody{NodeID: "pmm-not-found"},
+			NodeID:  "pmm-not-found",
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.NodesService.GetNode(params)
@@ -149,7 +148,6 @@ func TestGetNode(t *testing.T) {
 		t.Parallel()
 
 		params := &nodes.GetNodeParams{
-			Body:    nodes.GetNodeBody{},
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.NodesService.GetNode(params)
@@ -182,7 +180,7 @@ func TestGenericNode(t *testing.T) {
 
 		// Check that the node exists in DB.
 		getNodeRes, err := client.Default.NodesService.GetNode(&nodes.GetNodeParams{
-			Body:    nodes.GetNodeBody{NodeID: nodeID},
+			NodeID:  nodeID,
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -249,7 +247,7 @@ func TestContainerNode(t *testing.T) {
 
 		// Check that the node exists in DB.
 		getNodeRes, err := client.Default.NodesService.GetNode(&nodes.GetNodeParams{
-			Body:    nodes.GetNodeBody{NodeID: nodeID},
+			NodeID:  nodeID,
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -319,7 +317,7 @@ func TestRemoteNode(t *testing.T) {
 
 		// Check node exists in DB.
 		getNodeRes, err := client.Default.NodesService.GetNode(&nodes.GetNodeParams{
-			Body:    nodes.GetNodeBody{NodeID: nodeID},
+			NodeID:  nodeID,
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -378,9 +376,7 @@ func TestRemoveNode(t *testing.T) {
 		nodeID := node.Generic.NodeID
 
 		removeResp, err := client.Default.NodesService.RemoveNode(&nodes.RemoveNodeParams{
-			Body: nodes.RemoveNodeBody{
-				NodeID: nodeID,
-			},
+			NodeID:  nodeID,
 			Context: context.Background(),
 		})
 		assert.NoError(t, err)
@@ -412,9 +408,7 @@ func TestRemoveNode(t *testing.T) {
 		serviceID := service.Mysql.ServiceID
 
 		removeResp, err := client.Default.NodesService.RemoveNode(&nodes.RemoveNodeParams{
-			Body: nodes.RemoveNodeBody{
-				NodeID: node.Generic.NodeID,
-			},
+			NodeID:  node.Generic.NodeID,
 			Context: context.Background(),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Node with ID %q has services.`, node.Generic.NodeID)
@@ -422,7 +416,7 @@ func TestRemoveNode(t *testing.T) {
 
 		// Check that node and service isn't removed.
 		getServiceResp, err := client.Default.NodesService.GetNode(&nodes.GetNodeParams{
-			Body:    nodes.GetNodeBody{NodeID: node.Generic.NodeID},
+			NodeID:  node.Generic.NodeID,
 			Context: pmmapitests.Context,
 		})
 		assert.NotNil(t, getServiceResp)
@@ -448,10 +442,8 @@ func TestRemoveNode(t *testing.T) {
 
 		// Remove with force flag.
 		params := &nodes.RemoveNodeParams{
-			Body: nodes.RemoveNodeBody{
-				NodeID: node.Generic.NodeID,
-				Force:  true,
-			},
+			NodeID:  node.Generic.NodeID,
+			Force:   pointer.ToBool(true),
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.NodesService.RemoveNode(params)
@@ -460,7 +452,7 @@ func TestRemoveNode(t *testing.T) {
 
 		// Check that the node and agents are removed.
 		getServiceResp, err = client.Default.NodesService.GetNode(&nodes.GetNodeParams{
-			Body:    nodes.GetNodeBody{NodeID: node.Generic.NodeID},
+			NodeID:  node.Generic.NodeID,
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Node with ID %q not found.", node.Generic.NodeID)
@@ -499,9 +491,7 @@ func TestRemoveNode(t *testing.T) {
 		_ = pmmapitests.AddPMMAgent(t, node.Generic.NodeID)
 
 		removeResp, err := client.Default.NodesService.RemoveNode(&nodes.RemoveNodeParams{
-			Body: nodes.RemoveNodeBody{
-				NodeID: node.Generic.NodeID,
-			},
+			NodeID:  node.Generic.NodeID,
 			Context: context.Background(),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Node with ID %q has pmm-agent.`, node.Generic.NodeID)
@@ -509,10 +499,8 @@ func TestRemoveNode(t *testing.T) {
 
 		// Remove with force flag.
 		params := &nodes.RemoveNodeParams{
-			Body: nodes.RemoveNodeBody{
-				NodeID: node.Generic.NodeID,
-				Force:  true,
-			},
+			NodeID:  node.Generic.NodeID,
+			Force:   pointer.ToBool(true),
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.NodesService.RemoveNode(params)
@@ -521,7 +509,7 @@ func TestRemoveNode(t *testing.T) {
 
 		// Check that the node and agents are removed.
 		getServiceResp, err := client.Default.NodesService.GetNode(&nodes.GetNodeParams{
-			Body:    nodes.GetNodeBody{NodeID: node.Generic.NodeID},
+			NodeID:  node.Generic.NodeID,
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Node with ID %q not found.", node.Generic.NodeID)
@@ -539,9 +527,7 @@ func TestRemoveNode(t *testing.T) {
 		t.Parallel()
 		nodeID := "not-exist-node-id"
 		removeResp, err := client.Default.NodesService.RemoveNode(&nodes.RemoveNodeParams{
-			Body: nodes.RemoveNodeBody{
-				NodeID: nodeID,
-			},
+			NodeID:  nodeID,
 			Context: context.Background(),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, `Node with ID %q not found.`, nodeID)
@@ -551,7 +537,6 @@ func TestRemoveNode(t *testing.T) {
 	t.Run("Empty params", func(t *testing.T) {
 		t.Parallel()
 		removeResp, err := client.Default.NodesService.RemoveNode(&nodes.RemoveNodeParams{
-			Body:    nodes.RemoveNodeBody{},
 			Context: context.Background(),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid RemoveNodeRequest.NodeId: value length must be at least 1 runes")
@@ -562,10 +547,8 @@ func TestRemoveNode(t *testing.T) {
 		t.Parallel()
 
 		removeResp, err := client.Default.NodesService.RemoveNode(&nodes.RemoveNodeParams{
-			Body: nodes.RemoveNodeBody{
-				NodeID: "pmm-server",
-				Force:  true,
-			},
+			NodeID:  "pmm-server",
+			Force:   pointer.ToBool(true),
 			Context: context.Background(),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 403, codes.PermissionDenied, "PMM Server node can't be removed.")

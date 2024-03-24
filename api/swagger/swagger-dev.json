@@ -5277,1270 +5277,6 @@
         }
       }
     },
-    "/v1/inventory/Nodes/Add": {
-      "post": {
-        "description": "Adds a Node.",
-        "tags": [
-          "NodesService"
-        ],
-        "summary": "Add a Node",
-        "operationId": "AddNode",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "generic": {
-                  "type": "object",
-                  "properties": {
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "address": {
-                      "description": "Node address (DNS name or IP).",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "machine_id": {
-                      "description": "Linux machine-id.",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "distro": {
-                      "description": "Linux distribution name and version.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "node_model": {
-                      "description": "Node model.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "region": {
-                      "description": "Node region.",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "az": {
-                      "description": "Node availability zone.",
-                      "type": "string",
-                      "x-order": 6
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 7
-                    }
-                  },
-                  "x-order": 0
-                },
-                "container": {
-                  "type": "object",
-                  "properties": {
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "address": {
-                      "description": "Node address (DNS name or IP).",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "machine_id": {
-                      "description": "Linux machine-id of the Generic Node where this Container Node runs.",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "container_id": {
-                      "description": "Container identifier. If specified, must be a unique Docker container identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "container_name": {
-                      "description": "Container name.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "node_model": {
-                      "description": "Node model.",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "region": {
-                      "description": "Node region.",
-                      "type": "string",
-                      "x-order": 6
-                    },
-                    "az": {
-                      "description": "Node availability zone.",
-                      "type": "string",
-                      "x-order": 7
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 8
-                    }
-                  },
-                  "x-order": 1
-                },
-                "remote": {
-                  "type": "object",
-                  "properties": {
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "address": {
-                      "description": "Node address (DNS name or IP).",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "node_model": {
-                      "description": "Node model.",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "region": {
-                      "description": "Node region.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "az": {
-                      "description": "Node availability zone.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 5
-                    }
-                  },
-                  "x-order": 2
-                },
-                "remote_rds": {
-                  "type": "object",
-                  "properties": {
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "address": {
-                      "description": "DB instance identifier.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "node_model": {
-                      "description": "Node model.",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "region": {
-                      "description": "Node region.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "az": {
-                      "description": "Node availability zone.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 5
-                    }
-                  },
-                  "x-order": 3
-                },
-                "remote_azure": {
-                  "type": "object",
-                  "properties": {
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "address": {
-                      "description": "DB instance identifier.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "node_model": {
-                      "description": "Node model.",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "region": {
-                      "description": "Node region.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "az": {
-                      "description": "Node availability zone.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 5
-                    }
-                  },
-                  "x-order": 4
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "generic": {
-                  "description": "GenericNode represents a bare metal server or virtual machine.",
-                  "type": "object",
-                  "properties": {
-                    "node_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "address": {
-                      "description": "Node address (DNS name or IP).",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "machine_id": {
-                      "description": "Linux machine-id.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "distro": {
-                      "description": "Linux distribution name and version.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "node_model": {
-                      "description": "Node model.",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "region": {
-                      "description": "Node region.",
-                      "type": "string",
-                      "x-order": 6
-                    },
-                    "az": {
-                      "description": "Node availability zone.",
-                      "type": "string",
-                      "x-order": 7
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 8
-                    }
-                  },
-                  "x-order": 0
-                },
-                "container": {
-                  "description": "ContainerNode represents a Docker container.",
-                  "type": "object",
-                  "properties": {
-                    "node_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "address": {
-                      "description": "Node address (DNS name or IP).",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "machine_id": {
-                      "description": "Linux machine-id of the Generic Node where this Container Node runs.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "container_id": {
-                      "description": "Container identifier. If specified, must be a unique Docker container identifier.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "container_name": {
-                      "description": "Container name.",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "node_model": {
-                      "description": "Node model.",
-                      "type": "string",
-                      "x-order": 6
-                    },
-                    "region": {
-                      "description": "Node region.",
-                      "type": "string",
-                      "x-order": 7
-                    },
-                    "az": {
-                      "description": "Node availability zone.",
-                      "type": "string",
-                      "x-order": 8
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 9
-                    }
-                  },
-                  "x-order": 1
-                },
-                "remote": {
-                  "description": "RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.",
-                  "type": "object",
-                  "properties": {
-                    "node_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "address": {
-                      "description": "Node address (DNS name or IP).",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "node_model": {
-                      "description": "Node model.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "region": {
-                      "description": "Node region.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "az": {
-                      "description": "Node availability zone.",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 6
-                    }
-                  },
-                  "x-order": 2
-                },
-                "remote_rds": {
-                  "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.",
-                  "type": "object",
-                  "properties": {
-                    "node_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "address": {
-                      "description": "DB instance identifier.",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "node_model": {
-                      "description": "Node model.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "region": {
-                      "description": "Node region.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "az": {
-                      "description": "Node availability zone.",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 6
-                    }
-                  },
-                  "x-order": 3
-                },
-                "remote_azure_database": {
-                  "description": "RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.",
-                  "type": "object",
-                  "properties": {
-                    "node_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "address": {
-                      "description": "DB instance identifier.",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "node_model": {
-                      "description": "Node model.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "region": {
-                      "description": "Node region.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "az": {
-                      "description": "Node availability zone.",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 6
-                    }
-                  },
-                  "x-order": 4
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Nodes/Get": {
-      "post": {
-        "description": "Returns a single Node by ID.",
-        "tags": [
-          "NodesService"
-        ],
-        "summary": "Get a Node",
-        "operationId": "GetNode",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "node_id": {
-                  "description": "Unique randomly generated instance identifier.",
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "generic": {
-                  "description": "GenericNode represents a bare metal server or virtual machine.",
-                  "type": "object",
-                  "properties": {
-                    "node_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "address": {
-                      "description": "Node address (DNS name or IP).",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "machine_id": {
-                      "description": "Linux machine-id.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "distro": {
-                      "description": "Linux distribution name and version.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "node_model": {
-                      "description": "Node model.",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "region": {
-                      "description": "Node region.",
-                      "type": "string",
-                      "x-order": 6
-                    },
-                    "az": {
-                      "description": "Node availability zone.",
-                      "type": "string",
-                      "x-order": 7
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 8
-                    }
-                  },
-                  "x-order": 0
-                },
-                "container": {
-                  "description": "ContainerNode represents a Docker container.",
-                  "type": "object",
-                  "properties": {
-                    "node_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "address": {
-                      "description": "Node address (DNS name or IP).",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "machine_id": {
-                      "description": "Linux machine-id of the Generic Node where this Container Node runs.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "container_id": {
-                      "description": "Container identifier. If specified, must be a unique Docker container identifier.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "container_name": {
-                      "description": "Container name.",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "node_model": {
-                      "description": "Node model.",
-                      "type": "string",
-                      "x-order": 6
-                    },
-                    "region": {
-                      "description": "Node region.",
-                      "type": "string",
-                      "x-order": 7
-                    },
-                    "az": {
-                      "description": "Node availability zone.",
-                      "type": "string",
-                      "x-order": 8
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 9
-                    }
-                  },
-                  "x-order": 1
-                },
-                "remote": {
-                  "description": "RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.",
-                  "type": "object",
-                  "properties": {
-                    "node_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "address": {
-                      "description": "Node address (DNS name or IP).",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "node_model": {
-                      "description": "Node model.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "region": {
-                      "description": "Node region.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "az": {
-                      "description": "Node availability zone.",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 6
-                    }
-                  },
-                  "x-order": 2
-                },
-                "remote_rds": {
-                  "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.",
-                  "type": "object",
-                  "properties": {
-                    "node_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "address": {
-                      "description": "DB instance identifier.",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "node_model": {
-                      "description": "Node model.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "region": {
-                      "description": "Node region.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "az": {
-                      "description": "Node availability zone.",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 6
-                    }
-                  },
-                  "x-order": 3
-                },
-                "remote_azure_database": {
-                  "description": "RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.",
-                  "type": "object",
-                  "properties": {
-                    "node_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "address": {
-                      "description": "DB instance identifier.",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "node_model": {
-                      "description": "Node model.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "region": {
-                      "description": "Node region.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "az": {
-                      "description": "Node availability zone.",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 6
-                    }
-                  },
-                  "x-order": 4
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Nodes/List": {
-      "post": {
-        "description": "Returns a list of all Nodes.",
-        "tags": [
-          "NodesService"
-        ],
-        "summary": "List Nodes",
-        "operationId": "ListNodes",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "node_type": {
-                  "description": "NodeType describes supported Node types.",
-                  "type": "string",
-                  "default": "NODE_TYPE_UNSPECIFIED",
-                  "enum": [
-                    "NODE_TYPE_UNSPECIFIED",
-                    "NODE_TYPE_GENERIC_NODE",
-                    "NODE_TYPE_CONTAINER_NODE",
-                    "NODE_TYPE_REMOTE_NODE",
-                    "NODE_TYPE_REMOTE_RDS_NODE",
-                    "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
-                  ],
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "generic": {
-                  "type": "array",
-                  "items": {
-                    "description": "GenericNode represents a bare metal server or virtual machine.",
-                    "type": "object",
-                    "properties": {
-                      "node_id": {
-                        "description": "Unique randomly generated instance identifier.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "node_name": {
-                        "description": "Unique across all Nodes user-defined name.",
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "address": {
-                        "description": "Node address (DNS name or IP).",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "machine_id": {
-                        "description": "Linux machine-id.",
-                        "type": "string",
-                        "x-order": 3
-                      },
-                      "distro": {
-                        "description": "Linux distribution name and version.",
-                        "type": "string",
-                        "x-order": 4
-                      },
-                      "node_model": {
-                        "description": "Node model.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "region": {
-                        "description": "Node region.",
-                        "type": "string",
-                        "x-order": 6
-                      },
-                      "az": {
-                        "description": "Node availability zone.",
-                        "type": "string",
-                        "x-order": 7
-                      },
-                      "custom_labels": {
-                        "description": "Custom user-assigned labels.",
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        },
-                        "x-order": 8
-                      }
-                    }
-                  },
-                  "x-order": 0
-                },
-                "container": {
-                  "type": "array",
-                  "items": {
-                    "description": "ContainerNode represents a Docker container.",
-                    "type": "object",
-                    "properties": {
-                      "node_id": {
-                        "description": "Unique randomly generated instance identifier.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "node_name": {
-                        "description": "Unique across all Nodes user-defined name.",
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "address": {
-                        "description": "Node address (DNS name or IP).",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "machine_id": {
-                        "description": "Linux machine-id of the Generic Node where this Container Node runs.",
-                        "type": "string",
-                        "x-order": 3
-                      },
-                      "container_id": {
-                        "description": "Container identifier. If specified, must be a unique Docker container identifier.",
-                        "type": "string",
-                        "x-order": 4
-                      },
-                      "container_name": {
-                        "description": "Container name.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "node_model": {
-                        "description": "Node model.",
-                        "type": "string",
-                        "x-order": 6
-                      },
-                      "region": {
-                        "description": "Node region.",
-                        "type": "string",
-                        "x-order": 7
-                      },
-                      "az": {
-                        "description": "Node availability zone.",
-                        "type": "string",
-                        "x-order": 8
-                      },
-                      "custom_labels": {
-                        "description": "Custom user-assigned labels.",
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        },
-                        "x-order": 9
-                      }
-                    }
-                  },
-                  "x-order": 1
-                },
-                "remote": {
-                  "type": "array",
-                  "items": {
-                    "description": "RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.",
-                    "type": "object",
-                    "properties": {
-                      "node_id": {
-                        "description": "Unique randomly generated instance identifier.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "node_name": {
-                        "description": "Unique across all Nodes user-defined name.",
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "address": {
-                        "description": "Node address (DNS name or IP).",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "node_model": {
-                        "description": "Node model.",
-                        "type": "string",
-                        "x-order": 3
-                      },
-                      "region": {
-                        "description": "Node region.",
-                        "type": "string",
-                        "x-order": 4
-                      },
-                      "az": {
-                        "description": "Node availability zone.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "custom_labels": {
-                        "description": "Custom user-assigned labels.",
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        },
-                        "x-order": 6
-                      }
-                    }
-                  },
-                  "x-order": 2
-                },
-                "remote_rds": {
-                  "type": "array",
-                  "items": {
-                    "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.",
-                    "type": "object",
-                    "properties": {
-                      "node_id": {
-                        "description": "Unique randomly generated instance identifier.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "node_name": {
-                        "description": "Unique across all Nodes user-defined name.",
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "address": {
-                        "description": "DB instance identifier.",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "node_model": {
-                        "description": "Node model.",
-                        "type": "string",
-                        "x-order": 3
-                      },
-                      "region": {
-                        "description": "Node region.",
-                        "type": "string",
-                        "x-order": 4
-                      },
-                      "az": {
-                        "description": "Node availability zone.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "custom_labels": {
-                        "description": "Custom user-assigned labels.",
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        },
-                        "x-order": 6
-                      }
-                    }
-                  },
-                  "x-order": 3
-                },
-                "remote_azure_database": {
-                  "type": "array",
-                  "items": {
-                    "description": "RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.",
-                    "type": "object",
-                    "properties": {
-                      "node_id": {
-                        "description": "Unique randomly generated instance identifier.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "node_name": {
-                        "description": "Unique across all Nodes user-defined name.",
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "address": {
-                        "description": "DB instance identifier.",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "node_model": {
-                        "description": "Node model.",
-                        "type": "string",
-                        "x-order": 3
-                      },
-                      "region": {
-                        "description": "Node region.",
-                        "type": "string",
-                        "x-order": 4
-                      },
-                      "az": {
-                        "description": "Node availability zone.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "custom_labels": {
-                        "description": "Custom user-assigned labels.",
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        },
-                        "x-order": 6
-                      }
-                    }
-                  },
-                  "x-order": 4
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Nodes/Remove": {
-      "post": {
-        "description": "Removes a Node.",
-        "tags": [
-          "NodesService"
-        ],
-        "summary": "Remove a Node",
-        "operationId": "RemoveNode",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "node_id": {
-                  "description": "Unique randomly generated instance identifier.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "force": {
-                  "description": "Remove node with all dependencies.",
-                  "type": "boolean",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/inventory/Services/Add": {
       "post": {
         "description": "Adds a Service.",
@@ -16310,6 +15046,1242 @@
                   "x-order": 1
                 }
               }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/nodes": {
+      "get": {
+        "description": "Returns a list of all Nodes.",
+        "tags": [
+          "NodesService"
+        ],
+        "summary": "List Nodes",
+        "operationId": "ListNodes",
+        "parameters": [
+          {
+            "enum": [
+              "NODE_TYPE_UNSPECIFIED",
+              "NODE_TYPE_GENERIC_NODE",
+              "NODE_TYPE_CONTAINER_NODE",
+              "NODE_TYPE_REMOTE_NODE",
+              "NODE_TYPE_REMOTE_RDS_NODE",
+              "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+            ],
+            "type": "string",
+            "default": "NODE_TYPE_UNSPECIFIED",
+            "description": "Return only Nodes with matching Node type.",
+            "name": "node_type",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "generic": {
+                  "type": "array",
+                  "items": {
+                    "description": "GenericNode represents a bare metal server or virtual machine.",
+                    "type": "object",
+                    "properties": {
+                      "node_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "node_name": {
+                        "description": "Unique across all Nodes user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "address": {
+                        "description": "Node address (DNS name or IP).",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "machine_id": {
+                        "description": "Linux machine-id.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "distro": {
+                        "description": "Linux distribution name and version.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "node_model": {
+                        "description": "Node model.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "region": {
+                        "description": "Node region.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "az": {
+                        "description": "Node availability zone.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 8
+                      }
+                    }
+                  },
+                  "x-order": 0
+                },
+                "container": {
+                  "type": "array",
+                  "items": {
+                    "description": "ContainerNode represents a Docker container.",
+                    "type": "object",
+                    "properties": {
+                      "node_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "node_name": {
+                        "description": "Unique across all Nodes user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "address": {
+                        "description": "Node address (DNS name or IP).",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "machine_id": {
+                        "description": "Linux machine-id of the Generic Node where this Container Node runs.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "container_id": {
+                        "description": "Container identifier. If specified, must be a unique Docker container identifier.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "container_name": {
+                        "description": "Container name.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "node_model": {
+                        "description": "Node model.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "region": {
+                        "description": "Node region.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "az": {
+                        "description": "Node availability zone.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      }
+                    }
+                  },
+                  "x-order": 1
+                },
+                "remote": {
+                  "type": "array",
+                  "items": {
+                    "description": "RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.",
+                    "type": "object",
+                    "properties": {
+                      "node_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "node_name": {
+                        "description": "Unique across all Nodes user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "address": {
+                        "description": "Node address (DNS name or IP).",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "node_model": {
+                        "description": "Node model.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "region": {
+                        "description": "Node region.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "az": {
+                        "description": "Node availability zone.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 6
+                      }
+                    }
+                  },
+                  "x-order": 2
+                },
+                "remote_rds": {
+                  "type": "array",
+                  "items": {
+                    "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.",
+                    "type": "object",
+                    "properties": {
+                      "node_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "node_name": {
+                        "description": "Unique across all Nodes user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "address": {
+                        "description": "DB instance identifier.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "node_model": {
+                        "description": "Node model.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "region": {
+                        "description": "Node region.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "az": {
+                        "description": "Node availability zone.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 6
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "remote_azure_database": {
+                  "type": "array",
+                  "items": {
+                    "description": "RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.",
+                    "type": "object",
+                    "properties": {
+                      "node_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "node_name": {
+                        "description": "Unique across all Nodes user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "address": {
+                        "description": "DB instance identifier.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "node_model": {
+                        "description": "Node model.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "region": {
+                        "description": "Node region.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "az": {
+                        "description": "Node availability zone.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 6
+                      }
+                    }
+                  },
+                  "x-order": 4
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a Node.",
+        "tags": [
+          "NodesService"
+        ],
+        "summary": "Add a Node",
+        "operationId": "AddNode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "generic": {
+                  "type": "object",
+                  "properties": {
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "address": {
+                      "description": "Node address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "distro": {
+                      "description": "Linux distribution name and version.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    }
+                  },
+                  "x-order": 0
+                },
+                "container": {
+                  "type": "object",
+                  "properties": {
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "address": {
+                      "description": "Node address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id of the Generic Node where this Container Node runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "container_id": {
+                      "description": "Container identifier. If specified, must be a unique Docker container identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "container_name": {
+                      "description": "Container name.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    }
+                  },
+                  "x-order": 1
+                },
+                "remote": {
+                  "type": "object",
+                  "properties": {
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "address": {
+                      "description": "Node address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    }
+                  },
+                  "x-order": 2
+                },
+                "remote_rds": {
+                  "type": "object",
+                  "properties": {
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "address": {
+                      "description": "DB instance identifier.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    }
+                  },
+                  "x-order": 3
+                },
+                "remote_azure": {
+                  "type": "object",
+                  "properties": {
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "address": {
+                      "description": "DB instance identifier.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    }
+                  },
+                  "x-order": 4
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "generic": {
+                  "description": "GenericNode represents a bare metal server or virtual machine.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "Node address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "distro": {
+                      "description": "Linux distribution name and version.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    }
+                  },
+                  "x-order": 0
+                },
+                "container": {
+                  "description": "ContainerNode represents a Docker container.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "Node address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id of the Generic Node where this Container Node runs.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "container_id": {
+                      "description": "Container identifier. If specified, must be a unique Docker container identifier.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "container_name": {
+                      "description": "Container name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    }
+                  },
+                  "x-order": 1
+                },
+                "remote": {
+                  "description": "RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "Node address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 2
+                },
+                "remote_rds": {
+                  "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "DB instance identifier.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 3
+                },
+                "remote_azure_database": {
+                  "description": "RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "DB instance identifier.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 4
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/nodes/{node_id}": {
+      "get": {
+        "description": "Returns a single Node by ID.",
+        "tags": [
+          "NodesService"
+        ],
+        "summary": "Get a Node",
+        "operationId": "GetNode",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique randomly generated instance identifier.",
+            "name": "node_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "generic": {
+                  "description": "GenericNode represents a bare metal server or virtual machine.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "Node address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "distro": {
+                      "description": "Linux distribution name and version.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    }
+                  },
+                  "x-order": 0
+                },
+                "container": {
+                  "description": "ContainerNode represents a Docker container.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "Node address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id of the Generic Node where this Container Node runs.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "container_id": {
+                      "description": "Container identifier. If specified, must be a unique Docker container identifier.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "container_name": {
+                      "description": "Container name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    }
+                  },
+                  "x-order": 1
+                },
+                "remote": {
+                  "description": "RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "Node address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 2
+                },
+                "remote_rds": {
+                  "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "DB instance identifier.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 3
+                },
+                "remote_azure_database": {
+                  "description": "RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "DB instance identifier.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 4
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Removes a Node.",
+        "tags": [
+          "NodesService"
+        ],
+        "summary": "Remove a Node",
+        "operationId": "RemoveNode",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique randomly generated instance identifier.",
+            "name": "node_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "Remove node with all dependencies.",
+            "name": "force",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
             }
           },
           "default": {

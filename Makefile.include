@@ -148,23 +148,23 @@ clean: clean_swagger  ## Remove generated files
 	find api -name '*.validate.go' -print -delete
 
 	SPECS="\
-    api/agentlocal/v1 \
-    api/server/v1 \
-    api/user/v1 \
-    api/inventory/v1 \
-    api/management/v1 \
-    api/management/v1/agent \
-    api/management/v1/node \
-    api/management/v1/service \
-    api/actions/v1 \
-    api/alerting/v1 \
-    api/advisors/v1 \
-    api/backup/v1 \
-    api/dump/v1 \
-    api/role/v1 \
-    api/qan/v1 \
-    api/platform/v1"; \
-  for API in $$SPECS; do \
+		api/agentlocal/v1 \
+		api/server/v1 \
+		api/user/v1 \
+		api/inventory/v1 \
+		api/management/v1 \
+		api/management/v1/agent \
+		api/management/v1/node \
+		api/management/v1/service \
+		api/actions/v1 \
+		api/alerting/v1 \
+		api/advisors/v1 \
+		api/backup/v1 \
+		api/dump/v1 \
+		api/role/v1 \
+		api/qan/v1 \
+		api/platform/v1"; \
+	for API in $$SPECS; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$(basename $$API).json ; \
 	done
 	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json

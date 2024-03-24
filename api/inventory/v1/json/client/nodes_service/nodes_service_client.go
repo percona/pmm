@@ -52,7 +52,7 @@ func (a *Client) AddNode(params *AddNodeParams, opts ...ClientOption) (*AddNodeO
 	op := &runtime.ClientOperation{
 		ID:                 "AddNode",
 		Method:             "POST",
-		PathPattern:        "/v1/inventory/Nodes/Add",
+		PathPattern:        "/v1/inventory/nodes",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -90,8 +90,8 @@ func (a *Client) GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeO
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "GetNode",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Nodes/Get",
+		Method:             "GET",
+		PathPattern:        "/v1/inventory/nodes/{node_id}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -129,8 +129,8 @@ func (a *Client) ListNodes(params *ListNodesParams, opts ...ClientOption) (*List
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ListNodes",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Nodes/List",
+		Method:             "GET",
+		PathPattern:        "/v1/inventory/nodes",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -168,8 +168,8 @@ func (a *Client) RemoveNode(params *RemoveNodeParams, opts ...ClientOption) (*Re
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "RemoveNode",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Nodes/Remove",
+		Method:             "DELETE",
+		PathPattern:        "/v1/inventory/nodes/{node_id}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

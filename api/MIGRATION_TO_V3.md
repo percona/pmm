@@ -29,10 +29,10 @@ POST /v1/inventory/Agents/Remove                    DELETE /v1/inventory/agents/
 POST /v1/inventory/Agents/GetLogs                   GET /v1/inventory/agents/{id}/logs               ✅
 
 **NodesService**                                   **NodesService**
-POST /v1/inventory/Nodes/Add                        POST /v1/inventory/nodes
-POST /v1/inventory/Nodes/Get                        GET /v1/inventory/nodes/{id}
-POST /v1/inventory/Nodes/Delete                     DELETE /v1/inventory/nodes/{id}
-POST /v1/inventory/Nodes/List                       GET /v1/inventory/nodes
+POST /v1/inventory/Nodes/Add                        POST /v1/inventory/nodes                         ✅
+POST /v1/inventory/Nodes/Get                        GET /v1/inventory/nodes/{node_id}                ✅
+POST /v1/inventory/Nodes/Delete                     DELETE /v1/inventory/nodes/{node_id}             ✅
+POST /v1/inventory/Nodes/List                       GET /v1/inventory/nodes                          ✅
 
 **ServicesService**                                 **ServicesService**
 POST /v1/inventory/Services/Add                     POST /v1/inventory/services

@@ -77,9 +77,7 @@ func (cmd *AnnotationCommand) getCurrentNode() (*nodes.GetNodeOKBody, error) {
 	}
 
 	params := &nodes.GetNodeParams{
-		Body: nodes.GetNodeBody{
-			NodeID: status.NodeID,
-		},
+		NodeID:  status.NodeID,
 		Context: Ctx,
 	}
 

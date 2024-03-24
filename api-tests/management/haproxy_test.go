@@ -190,9 +190,7 @@ func TestAddHAProxy(t *testing.T) {
 
 		// Check that node is created and its fields.
 		node, err := inventoryClient.Default.NodesService.GetNode(&nodes.GetNodeParams{
-			Body: nodes.GetNodeBody{
-				NodeID: nodeID,
-			},
+			NodeID:  nodeID,
 			Context: pmmapitests.Context,
 		})
 		assert.NoError(t, err)

@@ -15,6 +15,8 @@
 package inventory
 
 import (
+	"github.com/AlekSi/pointer"
+
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
 	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
@@ -41,10 +43,8 @@ type RemoveNodeCommand struct {
 // RunCmd runs the command for RemoveNodeCommand.
 func (cmd *RemoveNodeCommand) RunCmd() (commands.Result, error) {
 	params := &nodes.RemoveNodeParams{
-		Body: nodes.RemoveNodeBody{
-			NodeID: cmd.NodeID,
-			Force:  cmd.Force,
-		},
+		NodeID:  cmd.NodeID,
+		Force:   pointer.ToBool(cmd.Force),
 		Context: commands.Ctx,
 	}
 	_, err := client.Default.NodesService.RemoveNode(params)

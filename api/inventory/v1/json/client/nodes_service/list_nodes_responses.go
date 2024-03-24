@@ -7,7 +7,6 @@ package nodes_service
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -16,7 +15,6 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // ListNodesReader is a Reader for the ListNodes structure.
@@ -60,7 +58,7 @@ type ListNodesOK struct {
 }
 
 func (o *ListNodesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/List][%d] listNodesOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/inventory/nodes][%d] listNodesOk  %+v", 200, o.Payload)
 }
 
 func (o *ListNodesOK) GetPayload() *ListNodesOKBody {
@@ -102,7 +100,7 @@ func (o *ListNodesDefault) Code() int {
 }
 
 func (o *ListNodesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/List][%d] ListNodes default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/inventory/nodes][%d] ListNodes default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ListNodesDefault) GetPayload() *ListNodesDefaultBody {
@@ -117,107 +115,6 @@ func (o *ListNodesDefault) readResponse(response runtime.ClientResponse, consume
 		return err
 	}
 
-	return nil
-}
-
-/*
-ListNodesBody list nodes body
-swagger:model ListNodesBody
-*/
-type ListNodesBody struct {
-	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_UNSPECIFIED NODE_TYPE_GENERIC_NODE NODE_TYPE_CONTAINER_NODE NODE_TYPE_REMOTE_NODE NODE_TYPE_REMOTE_RDS_NODE NODE_TYPE_REMOTE_AZURE_DATABASE_NODE]
-	NodeType *string `json:"node_type,omitempty"`
-}
-
-// Validate validates this list nodes body
-func (o *ListNodesBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateNodeType(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var listNodesBodyTypeNodeTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		listNodesBodyTypeNodeTypePropEnum = append(listNodesBodyTypeNodeTypePropEnum, v)
-	}
-}
-
-const (
-
-	// ListNodesBodyNodeTypeNODETYPEUNSPECIFIED captures enum value "NODE_TYPE_UNSPECIFIED"
-	ListNodesBodyNodeTypeNODETYPEUNSPECIFIED string = "NODE_TYPE_UNSPECIFIED"
-
-	// ListNodesBodyNodeTypeNODETYPEGENERICNODE captures enum value "NODE_TYPE_GENERIC_NODE"
-	ListNodesBodyNodeTypeNODETYPEGENERICNODE string = "NODE_TYPE_GENERIC_NODE"
-
-	// ListNodesBodyNodeTypeNODETYPECONTAINERNODE captures enum value "NODE_TYPE_CONTAINER_NODE"
-	ListNodesBodyNodeTypeNODETYPECONTAINERNODE string = "NODE_TYPE_CONTAINER_NODE"
-
-	// ListNodesBodyNodeTypeNODETYPEREMOTENODE captures enum value "NODE_TYPE_REMOTE_NODE"
-	ListNodesBodyNodeTypeNODETYPEREMOTENODE string = "NODE_TYPE_REMOTE_NODE"
-
-	// ListNodesBodyNodeTypeNODETYPEREMOTERDSNODE captures enum value "NODE_TYPE_REMOTE_RDS_NODE"
-	ListNodesBodyNodeTypeNODETYPEREMOTERDSNODE string = "NODE_TYPE_REMOTE_RDS_NODE"
-
-	// ListNodesBodyNodeTypeNODETYPEREMOTEAZUREDATABASENODE captures enum value "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
-	ListNodesBodyNodeTypeNODETYPEREMOTEAZUREDATABASENODE string = "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
-)
-
-// prop value enum
-func (o *ListNodesBody) validateNodeTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, listNodesBodyTypeNodeTypePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ListNodesBody) validateNodeType(formats strfmt.Registry) error {
-	if swag.IsZero(o.NodeType) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateNodeTypeEnum("body"+"."+"node_type", "body", *o.NodeType); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// ContextValidate validates this list nodes body based on context it is used
-func (o *ListNodesBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListNodesBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListNodesBody) UnmarshalBinary(b []byte) error {
-	var res ListNodesBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

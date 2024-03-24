@@ -280,10 +280,7 @@ message RemoveNodeResponse {}
 service NodesService {
   // ListNodes returns a list of all Nodes.
   rpc ListNodes(ListNodesRequest) returns (ListNodesResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Nodes/List"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/inventory/nodes"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Nodes"
       description: "Returns a list of all Nodes."
@@ -291,10 +288,7 @@ service NodesService {
   }
   // GetNode returns a single Node by ID.
   rpc GetNode(GetNodeRequest) returns (GetNodeResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Nodes/Get"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/inventory/nodes/{node_id}"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get a Node"
       description: "Returns a single Node by ID."
@@ -303,7 +297,7 @@ service NodesService {
   // AddNode adds any type of Node.
   rpc AddNode(AddNodeRequest) returns (AddNodeResponse) {
     option (google.api.http) = {
-      post: "/v1/inventory/Nodes/Add"
+      post: "/v1/inventory/nodes"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -313,10 +307,7 @@ service NodesService {
   }
   // RemoveNode removes a Node.
   rpc RemoveNode(RemoveNodeRequest) returns (RemoveNodeResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Nodes/Remove"
-      body: "*"
-    };
+    option (google.api.http) = {delete: "/v1/inventory/nodes/{node_id}"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Remove a Node"
       description: "Removes a Node."

@@ -112,9 +112,7 @@ func assertNodeCreated(t pmmapitests.TestingT, nodeID string, expectedResult nod
 	t.Helper()
 
 	nodeOK, err := inventoryClient.Default.NodesService.GetNode(&nodes.GetNodeParams{
-		Body: nodes.GetNodeBody{
-			NodeID: nodeID,
-		},
+		NodeID:  nodeID,
 		Context: pmmapitests.Context,
 	})
 	assert.NoError(t, err)
