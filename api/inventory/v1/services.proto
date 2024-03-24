@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package inventory.v1;
 
+import "common/common.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
@@ -418,6 +419,8 @@ message ChangeServiceRequest {
   optional string cluster = 3;
   optional string replication_set = 4;
   optional string external_group = 5;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 6;
 }
 
 message ChangeServiceResponse {}
@@ -426,10 +429,7 @@ message ChangeServiceResponse {}
 service ServicesService {
   // ListServices returns a list of Services filtered by type.
   rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Services/List"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/inventory/services"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Services"
       description: "Returns a list of Services filtered by type."
@@ -437,10 +437,7 @@ service ServicesService {
   }
   // ListActiveServiceTypes returns a list of active Services.
   rpc ListActiveServiceTypes(ListActiveServiceTypesRequest) returns (ListActiveServiceTypesResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Services/ListTypes"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/inventory/services/types"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Active Service Types"
       description: "Returns a list of active Service types."
@@ -448,10 +445,7 @@ service ServicesService {
   }
   // GetService returns a single Service by ID.
   rpc GetService(GetServiceRequest) returns (GetServiceResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Services/Get"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/inventory/services/{service_id}"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get a Service"
       description: "Returns a single Service by ID."
@@ -460,7 +454,7 @@ service ServicesService {
   // AddService adds any type of Service.
   rpc AddService(AddServiceRequest) returns (AddServiceResponse) {
     option (google.api.http) = {
-      post: "/v1/inventory/Services/Add"
+      post: "/v1/inventory/services"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -470,41 +464,16 @@ service ServicesService {
   }
   // RemoveService removes a Service.
   rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Services/Remove"
-      body: "*"
-    };
+    option (google.api.http) = {delete: "/v1/inventory/services/{service_id}"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Remove Service"
       description: "Removes Service."
     };
   }
-  // AddCustomLabels adds custom labels to a Service.
-  rpc AddCustomLabels(AddCustomLabelsRequest) returns (AddCustomLabelsResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Services/CustomLabels/Add"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add/replace custom labels"
-      description: "Adds or replaces (if the key exists) custom labels for a Service."
-    };
-  }
-  // RemoveCustomLabels removes custom labels from a Service.
-  rpc RemoveCustomLabels(RemoveCustomLabelsRequest) returns (RemoveCustomLabelsResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Services/CustomLabels/Remove"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Remove custom labels"
-      description: "Removes custom labels from a Service by key."
-    };
-  }
   // ChangeService allows changing configuration of a Service.
   rpc ChangeService(ChangeServiceRequest) returns (ChangeServiceResponse) {
     option (google.api.http) = {
-      post: "/v1/inventory/Services/Change"
+      put: "/v1/inventory/services/{service_id}"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {

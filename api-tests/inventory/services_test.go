@@ -28,6 +28,7 @@ import (
 	"github.com/percona/pmm/api/inventory/v1/json/client"
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	"github.com/percona/pmm/api/inventory/v1/types"
 )
 
 func TestServices(t *testing.T) {
@@ -108,11 +109,9 @@ func TestServices(t *testing.T) {
 
 		// Filter by node ID.
 		res, err = client.Default.ServicesService.ListServices(&services.ListServicesParams{
-			Body: services.ListServicesBody{
-				NodeID:      genericNodeID,
-				ServiceType: nil,
-			},
-			Context: pmmapitests.Context,
+			NodeID:      pointer.ToString(genericNodeID),
+			ServiceType: nil,
+			Context:     pmmapitests.Context,
 		})
 		assert.NoError(t, err)
 		require.NotNil(t, res)
@@ -126,10 +125,8 @@ func TestServices(t *testing.T) {
 
 		// Filter by service type.
 		res, err = client.Default.ServicesService.ListServices(&services.ListServicesParams{
-			Body: services.ListServicesBody{
-				ServiceType: pointer.ToString(services.ListServicesBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE),
-			},
-			Context: pmmapitests.Context,
+			ServiceType: pointer.ToString(types.ServiceTypePostgreSQLService),
+			Context:     pmmapitests.Context,
 		})
 		assert.NoError(t, err)
 		require.NotNil(t, res)
@@ -175,7 +172,7 @@ func TestServices(t *testing.T) {
 		defer pmmapitests.RemoveServices(t, remoteServiceID)
 
 		res, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
-			Body:    services.ListServicesBody{NodeID: remoteNodeID},
+			NodeID:  pointer.ToString(remoteNodeID),
 			Context: pmmapitests.Context,
 		})
 		assert.NoError(t, err)
@@ -192,8 +189,8 @@ func TestGetService(t *testing.T) {
 		t.Parallel()
 
 		params := &services.GetServiceParams{
-			Body:    services.GetServiceBody{ServiceID: "pmm-not-found"},
-			Context: pmmapitests.Context,
+			ServiceID: "pmm-not-found",
+			Context:   pmmapitests.Context,
 		}
 		res, err := client.Default.ServicesService.GetService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID \"pmm-not-found\" not found.")
@@ -204,8 +201,8 @@ func TestGetService(t *testing.T) {
 		t.Parallel()
 
 		params := &services.GetServiceParams{
-			Body:    services.GetServiceBody{ServiceID: ""},
-			Context: pmmapitests.Context,
+			ServiceID: "",
+			Context:   pmmapitests.Context,
 		}
 		res, err := client.Default.ServicesService.GetService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid GetServiceRequest.ServiceId: value length must be at least 1 runes")
@@ -233,10 +230,8 @@ func TestRemoveService(t *testing.T) {
 		serviceID := service.Mysql.ServiceID
 
 		params := &services.RemoveServiceParams{
-			Body: services.RemoveServiceBody{
-				ServiceID: serviceID,
-			},
-			Context: pmmapitests.Context,
+			ServiceID: serviceID,
+			Context:   pmmapitests.Context,
 		}
 		res, err := client.Default.ServicesService.RemoveService(params)
 		assert.NoError(t, err)
@@ -276,10 +271,8 @@ func TestRemoveService(t *testing.T) {
 		})
 
 		params := &services.RemoveServiceParams{
-			Body: services.RemoveServiceBody{
-				ServiceID: serviceID,
-			},
-			Context: pmmapitests.Context,
+			ServiceID: serviceID,
+			Context:   pmmapitests.Context,
 		}
 		res, err := client.Default.ServicesService.RemoveService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Service with ID %q has agents.`, serviceID)
@@ -287,11 +280,9 @@ func TestRemoveService(t *testing.T) {
 
 		// Remove with force flag.
 		params = &services.RemoveServiceParams{
-			Body: services.RemoveServiceBody{
-				ServiceID: serviceID,
-				Force:     true,
-			},
-			Context: pmmapitests.Context,
+			ServiceID: serviceID,
+			Force:     pointer.ToBool(true),
+			Context:   pmmapitests.Context,
 		}
 		res, err = client.Default.ServicesService.RemoveService(params)
 		assert.NoError(t, err)
@@ -299,8 +290,8 @@ func TestRemoveService(t *testing.T) {
 
 		// Check that the service and agents are removed.
 		getServiceResp, err := client.Default.ServicesService.GetService(&services.GetServiceParams{
-			Body:    services.GetServiceBody{ServiceID: serviceID},
-			Context: pmmapitests.Context,
+			ServiceID: serviceID,
+			Context:   pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID %q not found.", serviceID)
 		assert.Nil(t, getServiceResp)
@@ -318,10 +309,8 @@ func TestRemoveService(t *testing.T) {
 		serviceID := "not-exist-service-id"
 
 		params := &services.RemoveServiceParams{
-			Body: services.RemoveServiceBody{
-				ServiceID: serviceID,
-			},
-			Context: pmmapitests.Context,
+			ServiceID: serviceID,
+			Context:   pmmapitests.Context,
 		}
 		res, err := client.Default.ServicesService.RemoveService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, `Service with ID %q not found.`, serviceID)
@@ -331,7 +320,6 @@ func TestRemoveService(t *testing.T) {
 	t.Run("Empty params", func(t *testing.T) {
 		t.Parallel()
 		removeResp, err := client.Default.ServicesService.RemoveService(&services.RemoveServiceParams{
-			Body:    services.RemoveServiceBody{},
 			Context: context.Background(),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid RemoveServiceRequest.ServiceId: value length must be at least 1 runes")
@@ -380,8 +368,8 @@ func TestMySQLService(t *testing.T) {
 
 		// Check if the service saved in pmm-managed.
 		serviceRes, err := client.Default.ServicesService.GetService(&services.GetServiceParams{
-			Body:    services.GetServiceBody{ServiceID: serviceID},
-			Context: pmmapitests.Context,
+			ServiceID: serviceID,
+			Context:   pmmapitests.Context,
 		})
 		assert.NoError(t, err)
 		assert.NotNil(t, serviceRes)
@@ -601,8 +589,8 @@ func TestMongoDBService(t *testing.T) {
 
 		// Check if the service saved in pmm-managed.
 		serviceRes, err := client.Default.ServicesService.GetService(&services.GetServiceParams{
-			Body:    services.GetServiceBody{ServiceID: serviceID},
-			Context: pmmapitests.Context,
+			ServiceID: serviceID,
+			Context:   pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, serviceRes)
@@ -837,8 +825,8 @@ func TestPostgreSQLService(t *testing.T) {
 
 		// Check if the service saved in pmm-managed.
 		serviceRes, err := client.Default.ServicesService.GetService(&services.GetServiceParams{
-			Body:    services.GetServiceBody{ServiceID: serviceID},
-			Context: pmmapitests.Context,
+			ServiceID: serviceID,
+			Context:   pmmapitests.Context,
 		})
 		assert.NoError(t, err)
 		assert.NotNil(t, serviceRes)
@@ -1058,8 +1046,8 @@ func TestProxySQLService(t *testing.T) {
 
 		// Check if the service saved in pmm-managed.
 		serviceRes, err := client.Default.ServicesService.GetService(&services.GetServiceParams{
-			Body:    services.GetServiceBody{ServiceID: serviceID},
-			Context: pmmapitests.Context,
+			ServiceID: serviceID,
+			Context:   pmmapitests.Context,
 		})
 		assert.NoError(t, err)
 		assert.NotNil(t, serviceRes)
@@ -1288,8 +1276,8 @@ func TestExternalService(t *testing.T) {
 
 		// Check if the service saved in pmm-managed.
 		serviceRes, err := client.Default.ServicesService.GetService(&services.GetServiceParams{
-			Body:    services.GetServiceBody{ServiceID: serviceID},
-			Context: pmmapitests.Context,
+			ServiceID: serviceID,
+			Context:   pmmapitests.Context,
 		})
 		assert.NoError(t, err)
 		assert.NotNil(t, serviceRes)
@@ -1307,10 +1295,8 @@ func TestExternalService(t *testing.T) {
 
 		// Filter services by external group.
 		servicesList, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
-			Body: services.ListServicesBody{
-				ExternalGroup: "redis",
-			},
-			Context: pmmapitests.Context,
+			ExternalGroup: pointer.ToString("redis"),
+			Context:       pmmapitests.Context,
 		})
 		assert.NoError(t, err)
 		assert.NotNil(t, servicesList)
@@ -1323,10 +1309,8 @@ func TestExternalService(t *testing.T) {
 
 		// Filter services by a non-existing external group.
 		emptyServicesList, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
-			Body: services.ListServicesBody{
-				ExternalGroup: "non-existing-external-group",
-			},
-			Context: pmmapitests.Context,
+			ExternalGroup: pointer.ToString("non-existing-external-group"),
+			Context:       pmmapitests.Context,
 		})
 		assert.NoError(t, err)
 		assert.NotNil(t, emptyServicesList)
@@ -1338,10 +1322,8 @@ func TestExternalService(t *testing.T) {
 
 		//  List services with out filter by external group.
 		noFilterServicesList, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
-			Body: services.ListServicesBody{
-				ExternalGroup: "",
-			},
-			Context: pmmapitests.Context,
+			ExternalGroup: pointer.ToString(""),
+			Context:       pmmapitests.Context,
 		})
 		assert.NoError(t, err)
 		assert.NotNil(t, noFilterServicesList)

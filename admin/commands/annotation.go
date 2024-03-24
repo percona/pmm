@@ -17,6 +17,7 @@ package commands
 import (
 	"strings"
 
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
@@ -107,9 +108,7 @@ func (cmd *AnnotationCommand) getCurrentNodeAllServices() ([]string, error) {
 	}
 
 	params := &services.ListServicesParams{
-		Body: services.ListServicesBody{
-			NodeID: status.NodeID,
-		},
+		NodeID:  pointer.ToString(status.NodeID),
 		Context: Ctx,
 	}
 

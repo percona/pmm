@@ -64,8 +64,9 @@ func serviceType(serviceType inventoryv1.ServiceType) *models.ServiceType {
 
 // ListServices returns a list of Services for a given filters.
 func (s *servicesServer) ListServices(ctx context.Context, req *inventoryv1.ListServicesRequest) (*inventoryv1.ListServicesResponse, error) {
+	nodeID := models.NormalizeNodeID(req.GetNodeId())
 	filters := models.ServiceFilters{
-		NodeID:        req.GetNodeId(),
+		NodeID:        nodeID,
 		ServiceType:   serviceType(req.GetServiceType()),
 		ExternalGroup: req.GetExternalGroup(),
 	}
@@ -115,7 +116,8 @@ func (s *servicesServer) ListActiveServiceTypes(
 
 // GetService returns a single Service by ID.
 func (s *servicesServer) GetService(ctx context.Context, req *inventoryv1.GetServiceRequest) (*inventoryv1.GetServiceResponse, error) {
-	service, err := s.s.Get(ctx, req.ServiceId)
+	serviceID := models.NormalizeServiceID(req.GetServiceId())
+	service, err := s.s.Get(ctx, serviceID)
 	if err != nil {
 		return nil, err
 	}
@@ -302,7 +304,8 @@ func (s *servicesServer) addExternalService(ctx context.Context, params *invento
 
 // RemoveService removes Service.
 func (s *servicesServer) RemoveService(ctx context.Context, req *inventoryv1.RemoveServiceRequest) (*inventoryv1.RemoveServiceResponse, error) {
-	if err := s.s.Remove(ctx, req.ServiceId, req.Force); err != nil {
+	serviceID := models.NormalizeServiceID(req.GetServiceId())
+	if err := s.s.Remove(ctx, serviceID, req.Force); err != nil {
 		return nil, err
 	}
 
@@ -321,8 +324,9 @@ func (s *servicesServer) RemoveCustomLabels(ctx context.Context, req *inventoryv
 
 // ChangeService changes service configuration.
 func (s *servicesServer) ChangeService(ctx context.Context, req *inventoryv1.ChangeServiceRequest) (*inventoryv1.ChangeServiceResponse, error) {
+	serviceID := models.NormalizeServiceID(req.GetServiceId())
 	err := s.s.ChangeService(ctx, s.mgmtServices, &models.ChangeStandardLabelsParams{
-		ServiceID:      req.ServiceId,
+		ServiceID:      serviceID,
 		Cluster:        req.Cluster,
 		Environment:    req.Environment,
 		ReplicationSet: req.ReplicationSet,

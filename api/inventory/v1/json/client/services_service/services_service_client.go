@@ -28,8 +28,6 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddCustomLabels(params *AddCustomLabelsParams, opts ...ClientOption) (*AddCustomLabelsOK, error)
-
 	AddService(params *AddServiceParams, opts ...ClientOption) (*AddServiceOK, error)
 
 	ChangeService(params *ChangeServiceParams, opts ...ClientOption) (*ChangeServiceOK, error)
@@ -40,50 +38,9 @@ type ClientService interface {
 
 	ListServices(params *ListServicesParams, opts ...ClientOption) (*ListServicesOK, error)
 
-	RemoveCustomLabels(params *RemoveCustomLabelsParams, opts ...ClientOption) (*RemoveCustomLabelsOK, error)
-
 	RemoveService(params *RemoveServiceParams, opts ...ClientOption) (*RemoveServiceOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
-}
-
-/*
-AddCustomLabels adds replace custom labels
-
-Adds or replaces (if the key exists) custom labels for a Service.
-*/
-func (a *Client) AddCustomLabels(params *AddCustomLabelsParams, opts ...ClientOption) (*AddCustomLabelsOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewAddCustomLabelsParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "AddCustomLabels",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Services/CustomLabels/Add",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &AddCustomLabelsReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*AddCustomLabelsOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*AddCustomLabelsDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -99,7 +56,7 @@ func (a *Client) AddService(params *AddServiceParams, opts ...ClientOption) (*Ad
 	op := &runtime.ClientOperation{
 		ID:                 "AddService",
 		Method:             "POST",
-		PathPattern:        "/v1/inventory/Services/Add",
+		PathPattern:        "/v1/inventory/services",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -137,8 +94,8 @@ func (a *Client) ChangeService(params *ChangeServiceParams, opts ...ClientOption
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ChangeService",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Services/Change",
+		Method:             "PUT",
+		PathPattern:        "/v1/inventory/services/{service_id}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -176,8 +133,8 @@ func (a *Client) GetService(params *GetServiceParams, opts ...ClientOption) (*Ge
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "GetService",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Services/Get",
+		Method:             "GET",
+		PathPattern:        "/v1/inventory/services/{service_id}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -215,8 +172,8 @@ func (a *Client) ListActiveServiceTypes(params *ListActiveServiceTypesParams, op
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ListActiveServiceTypes",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Services/ListTypes",
+		Method:             "GET",
+		PathPattern:        "/v1/inventory/services/types",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -254,8 +211,8 @@ func (a *Client) ListServices(params *ListServicesParams, opts ...ClientOption) 
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ListServices",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Services/List",
+		Method:             "GET",
+		PathPattern:        "/v1/inventory/services",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -282,45 +239,6 @@ func (a *Client) ListServices(params *ListServicesParams, opts ...ClientOption) 
 }
 
 /*
-RemoveCustomLabels removes custom labels
-
-Removes custom labels from a Service by key.
-*/
-func (a *Client) RemoveCustomLabels(params *RemoveCustomLabelsParams, opts ...ClientOption) (*RemoveCustomLabelsOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewRemoveCustomLabelsParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "RemoveCustomLabels",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Services/CustomLabels/Remove",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &RemoveCustomLabelsReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*RemoveCustomLabelsOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*RemoveCustomLabelsDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
 RemoveService removes service
 
 Removes Service.
@@ -332,8 +250,8 @@ func (a *Client) RemoveService(params *RemoveServiceParams, opts ...ClientOption
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "RemoveService",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Services/Remove",
+		Method:             "DELETE",
+		PathPattern:        "/v1/inventory/services/{service_id}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

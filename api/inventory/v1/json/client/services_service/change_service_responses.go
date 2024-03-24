@@ -58,7 +58,7 @@ type ChangeServiceOK struct {
 }
 
 func (o *ChangeServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/Change][%d] changeServiceOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[PUT /v1/inventory/services/{service_id}][%d] changeServiceOk  %+v", 200, o.Payload)
 }
 
 func (o *ChangeServiceOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *ChangeServiceDefault) Code() int {
 }
 
 func (o *ChangeServiceDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/Change][%d] ChangeService default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[PUT /v1/inventory/services/{service_id}][%d] ChangeService default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ChangeServiceDefault) GetPayload() *ChangeServiceDefaultBody {
@@ -121,9 +121,6 @@ ChangeServiceBody change service body
 swagger:model ChangeServiceBody
 */
 type ChangeServiceBody struct {
-	// service id
-	ServiceID string `json:"service_id,omitempty"`
-
 	// environment
 	Environment *string `json:"environment,omitempty"`
 
@@ -135,15 +132,70 @@ type ChangeServiceBody struct {
 
 	// external group
 	ExternalGroup *string `json:"external_group,omitempty"`
+
+	// custom labels
+	CustomLabels *ChangeServiceParamsBodyCustomLabels `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this change service body
 func (o *ChangeServiceBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change service body based on context it is used
+func (o *ChangeServiceBody) validateCustomLabels(formats strfmt.Registry) error {
+	if swag.IsZero(o.CustomLabels) { // not required
+		return nil
+	}
+
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change service body based on the context it is used
 func (o *ChangeServiceBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeServiceBody) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -299,6 +351,43 @@ func (o *ChangeServiceDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) 
 // UnmarshalBinary interface implementation
 func (o *ChangeServiceDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	var res ChangeServiceDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeServiceParamsBodyCustomLabels A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.
+swagger:model ChangeServiceParamsBodyCustomLabels
+*/
+type ChangeServiceParamsBodyCustomLabels struct {
+	// values
+	Values map[string]string `json:"values,omitempty"`
+}
+
+// Validate validates this change service params body custom labels
+func (o *ChangeServiceParamsBodyCustomLabels) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change service params body custom labels based on context it is used
+func (o *ChangeServiceParamsBodyCustomLabels) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeServiceParamsBodyCustomLabels) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeServiceParamsBodyCustomLabels) UnmarshalBinary(b []byte) error {
+	var res ChangeServiceParamsBodyCustomLabels
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

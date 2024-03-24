@@ -22,6 +22,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -151,11 +152,9 @@ func RemoveServices(t TestingT, serviceIDs ...string) {
 
 	for _, serviceID := range serviceIDs {
 		params := &services.RemoveServiceParams{
-			Body: services.RemoveServiceBody{
-				ServiceID: serviceID,
-				Force:     true,
-			},
-			Context: context.Background(),
+			ServiceID: serviceID,
+			Force:     pointer.ToBool(true),
+			Context:   context.Background(),
 		}
 		res, err := client.Default.ServicesService.RemoveService(params)
 		assert.NoError(t, err)

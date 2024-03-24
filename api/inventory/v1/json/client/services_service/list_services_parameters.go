@@ -60,8 +60,25 @@ ListServicesParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListServicesParams struct {
-	// Body.
-	Body ListServicesBody
+	/* ExternalGroup.
+
+	   Return only services in this external group.
+	*/
+	ExternalGroup *string
+
+	/* NodeID.
+
+	   Return only Services running on that Node.
+	*/
+	NodeID *string
+
+	/* ServiceType.
+
+	   Return only services filtered by service type.
+
+	   Default: "SERVICE_TYPE_UNSPECIFIED"
+	*/
+	ServiceType *string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -80,7 +97,16 @@ func (o *ListServicesParams) WithDefaults() *ListServicesParams {
 //
 // All values with no default are reset to their zero value.
 func (o *ListServicesParams) SetDefaults() {
-	// no default values defined for this parameter
+	serviceTypeDefault := string("SERVICE_TYPE_UNSPECIFIED")
+
+	val := ListServicesParams{
+		ServiceType: &serviceTypeDefault,
+	}
+
+	val.timeout = o.timeout
+	val.Context = o.Context
+	val.HTTPClient = o.HTTPClient
+	*o = val
 }
 
 // WithTimeout adds the timeout to the list services params
@@ -116,15 +142,37 @@ func (o *ListServicesParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the list services params
-func (o *ListServicesParams) WithBody(body ListServicesBody) *ListServicesParams {
-	o.SetBody(body)
+// WithExternalGroup adds the externalGroup to the list services params
+func (o *ListServicesParams) WithExternalGroup(externalGroup *string) *ListServicesParams {
+	o.SetExternalGroup(externalGroup)
 	return o
 }
 
-// SetBody adds the body to the list services params
-func (o *ListServicesParams) SetBody(body ListServicesBody) {
-	o.Body = body
+// SetExternalGroup adds the externalGroup to the list services params
+func (o *ListServicesParams) SetExternalGroup(externalGroup *string) {
+	o.ExternalGroup = externalGroup
+}
+
+// WithNodeID adds the nodeID to the list services params
+func (o *ListServicesParams) WithNodeID(nodeID *string) *ListServicesParams {
+	o.SetNodeID(nodeID)
+	return o
+}
+
+// SetNodeID adds the nodeId to the list services params
+func (o *ListServicesParams) SetNodeID(nodeID *string) {
+	o.NodeID = nodeID
+}
+
+// WithServiceType adds the serviceType to the list services params
+func (o *ListServicesParams) WithServiceType(serviceType *string) *ListServicesParams {
+	o.SetServiceType(serviceType)
+	return o
+}
+
+// SetServiceType adds the serviceType to the list services params
+func (o *ListServicesParams) SetServiceType(serviceType *string) {
+	o.ServiceType = serviceType
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,8 +181,53 @@ func (o *ListServicesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+
+	if o.ExternalGroup != nil {
+
+		// query param external_group
+		var qrExternalGroup string
+
+		if o.ExternalGroup != nil {
+			qrExternalGroup = *o.ExternalGroup
+		}
+		qExternalGroup := qrExternalGroup
+		if qExternalGroup != "" {
+			if err := r.SetQueryParam("external_group", qExternalGroup); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.NodeID != nil {
+
+		// query param node_id
+		var qrNodeID string
+
+		if o.NodeID != nil {
+			qrNodeID = *o.NodeID
+		}
+		qNodeID := qrNodeID
+		if qNodeID != "" {
+			if err := r.SetQueryParam("node_id", qNodeID); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.ServiceType != nil {
+
+		// query param service_type
+		var qrServiceType string
+
+		if o.ServiceType != nil {
+			qrServiceType = *o.ServiceType
+		}
+		qServiceType := qrServiceType
+		if qServiceType != "" {
+			if err := r.SetQueryParam("service_type", qServiceType); err != nil {
+				return err
+			}
+		}
 	}
 
 	if len(res) > 0 {

@@ -61,10 +61,8 @@ func TestAddExternal(t *testing.T) {
 
 		// Check that service is created and its fields.
 		serviceOK, err := inventoryClient.Default.ServicesService.GetService(&services.GetServiceParams{
-			Body: services.GetServiceBody{
-				ServiceID: serviceID,
-			},
-			Context: pmmapitests.Context,
+			ServiceID: serviceID,
+			Context:   pmmapitests.Context,
 		})
 		assert.NoError(t, err)
 		require.NotNil(t, serviceOK)
@@ -135,10 +133,8 @@ func TestAddExternal(t *testing.T) {
 
 		// Check that service is created and its fields.
 		serviceOK, err := inventoryClient.Default.ServicesService.GetService(&services.GetServiceParams{
-			Body: services.GetServiceBody{
-				ServiceID: serviceID,
-			},
-			Context: pmmapitests.Context,
+			ServiceID: serviceID,
+			Context:   pmmapitests.Context,
 		})
 		assert.NoError(t, err)
 		assert.NotNil(t, serviceOK)
@@ -208,10 +204,8 @@ func TestAddExternal(t *testing.T) {
 
 		// Check that service is created and its fields.
 		serviceOK, err := inventoryClient.Default.ServicesService.GetService(&services.GetServiceParams{
-			Body: services.GetServiceBody{
-				ServiceID: serviceID,
-			},
-			Context: pmmapitests.Context,
+			ServiceID: serviceID,
+			Context:   pmmapitests.Context,
 		})
 		assert.NoError(t, err)
 		require.NotNil(t, serviceOK)

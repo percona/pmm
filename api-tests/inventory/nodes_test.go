@@ -423,9 +423,7 @@ func TestRemoveNode(t *testing.T) {
 		assert.NoError(t, err)
 
 		listAgentsOK, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
-			Body: services.ListServicesBody{
-				NodeID: node.Generic.NodeID,
-			},
+			NodeID:  pointer.ToString(node.Generic.NodeID),
 			Context: pmmapitests.Context,
 		})
 		assert.NoError(t, err)
@@ -459,9 +457,7 @@ func TestRemoveNode(t *testing.T) {
 		assert.Nil(t, getServiceResp)
 
 		listAgentsOK, err = client.Default.ServicesService.ListServices(&services.ListServicesParams{
-			Body: services.ListServicesBody{
-				NodeID: node.Generic.NodeID,
-			},
+			NodeID:  pointer.ToString(node.Generic.NodeID),
 			Context: pmmapitests.Context,
 		})
 		assert.NoError(t, err)
