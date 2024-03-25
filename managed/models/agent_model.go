@@ -124,12 +124,13 @@ func (c *AzureOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
 // PostgreSQLOptions represents structure for special PostgreSQL options.
 type PostgreSQLOptions struct {
-	SSLCa              string `json:"ssl_ca"`
-	SSLCert            string `json:"ssl_cert"`
-	SSLKey             string `json:"ssl_key"`
-	AutoDiscoveryLimit int32  `json:"auto_discovery_limit"`
-	DatabaseCount      int32  `json:"database_count"`
-	PGSMVersion        string `json:"pgsm_version"`
+	SSLCa                  string  `json:"ssl_ca"`
+	SSLCert                string  `json:"ssl_cert"`
+	SSLKey                 string  `json:"ssl_key"`
+	AutoDiscoveryLimit     int32   `json:"auto_discovery_limit"`
+	DatabaseCount          int32   `json:"database_count"`
+	PGSMVersion            *string `json:"pgsm_version"`
+	MaxExporterConnections int32   `json:"max_exporter_connections"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.

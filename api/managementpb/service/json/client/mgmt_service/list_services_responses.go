@@ -1235,6 +1235,9 @@ type ListServicesOKBodyServicesItems0AgentsItems0PostgresqlOptions struct {
 
 	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// Maximum number of connections from exporter to PostgreSQL instance.
+	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
 }
 
 // Validate validates this list services OK body services items0 agents items0 postgresql options
