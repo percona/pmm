@@ -56,7 +56,7 @@ install -p -m 0755 bin/pmm-managed-starlark %{buildroot}%{_sbindir}/pmm-managed-
 cd src/github.com/percona/pmm
 cp -pa ./api/swagger %{buildroot}%{_datadir}/%{name}
 
-cp -pa ./ui/dist %{_datadir}/pmm-ui
+cp -pa ./ui/dist %{buildroot}%{_datadir}/pmm-ui
 
 %files
 %license src/%{provider}/LICENSE
