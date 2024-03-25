@@ -13,7 +13,7 @@
 %define full_pmm_version 2.0.0
 
 Name:		pmm-managed
-Version:	%{version}
+Version:	0.0.1
 Release:	%{rpm_release}
 Summary:	Percona Monitoring and Management management daemon
 
@@ -49,13 +49,14 @@ make release
 install -d -p %{buildroot}%{_bindir}
 install -d -p %{buildroot}%{_sbindir}
 install -d -p %{buildroot}%{_datadir}/%{name}
+install -d -p %{buildroot}%{_datadir}/pmm-ui
+install -d -p %{buildroot}%{_datadir}/pmm-ui/assets
 install -p -m 0755 bin/pmm-managed %{buildroot}%{_sbindir}/pmm-managed
 install -p -m 0755 bin/pmm-managed-init %{buildroot}%{_sbindir}/pmm-managed-init
 install -p -m 0755 bin/pmm-managed-starlark %{buildroot}%{_sbindir}/pmm-managed-starlark
 
 cd src/github.com/percona/pmm
 cp -pa ./api/swagger %{buildroot}%{_datadir}/%{name}
-
 cp -pa ./ui/dist %{buildroot}%{_datadir}/pmm-ui
 
 %files
