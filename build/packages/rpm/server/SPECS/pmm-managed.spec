@@ -66,7 +66,7 @@ cp -pa ./ui/dist %{buildroot}%{_datadir}/pmm-ui
 %{_sbindir}/pmm-managed-init
 %{_sbindir}/pmm-managed-starlark
 %{_datadir}/%{name}
-
+%{_datadir}/pmm-ui
 
 %changelog
 * Fri Mar 22 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 3.0.0-1
