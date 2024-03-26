@@ -183,34 +183,34 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 type gRPCServerDeps struct {
 	db                   *reform.DB
 	ha                   *ha.Service
-	vmdb                 *victoriametrics.Service
-	platformClient       *platformClient.Client
-	server               *server.Server
+	checksService        *checks.Service
+	config               *config.Config
 	agentsRegistry       *agents.Registry
 	handler              *agents.Handler
 	actions              *agents.ActionsService
-	agentsStateUpdater   *agents.StateUpdater
+	agentService         *agents.AgentService
+	jobsService          *agents.JobsService
 	connectionCheck      *agents.ConnectionChecker
 	serviceInfoBroker    *agents.ServiceInfoBroker
+	agentsStateUpdater   *agents.StateUpdater
 	grafanaClient        *grafana.Client
-	checksService        *checks.Service
-	vmalert              *vmalert.Service
-	settings             *models.Settings
 	templatesService     *alerting.Service
-	jobsService          *agents.JobsService
-	schedulerService     *scheduler.Service
 	backupService        *backup.Service
 	dumpService          *dump.Service
 	compatibilityService *backup.CompatibilityService
 	backupRemovalService *backup.RemovalService
 	pbmPITRService       *backup.PBMPITRService
-	minioClient          *minio.Client
-	versionCache         *versioncache.Service
-	supervisord          *supervisord.Service
-	config               *config.Config
-	agentService         *agents.AgentService
-	uieventsService      *uievents.Service
 	vmClient             *metrics.Client
+	minioClient          *minio.Client
+	settings             *models.Settings
+	platformClient       *platformClient.Client
+	schedulerService     *scheduler.Service
+	supervisord          *supervisord.Service
+	server               *server.Server
+	uieventsService      *uievents.Service
+	versionCache         *versioncache.Service
+	vmdb                 *victoriametrics.Service
+	vmalert              *vmalert.Service
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -248,7 +248,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	agentv1.RegisterAgentServiceServer(gRPCServer, agentgrpc.NewAgentServer(deps.handler))
 
 	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
-	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.versionCache)
 	agentsSvc := inventory.NewAgentsService(
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
 		deps.vmdb, deps.connectionCheck, deps.serviceInfoBroker, deps.agentService)
@@ -256,10 +255,11 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	mgmtBackupsService := managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService)
 	mgmtArtifactsService := managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pbmPITRService)
 	mgmtRestoreService := managementbackup.NewRestoreService(deps.db)
-	mgmtServices := common.MgmtServices{BackupsService: mgmtBackupsService, ArtifactsService: mgmtArtifactsService, RestoreService: mgmtRestoreService}
+	mgmtServices := common.NewMgmtServices(mgmtBackupsService, mgmtArtifactsService, mgmtRestoreService)
 
+	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.versionCache, mgmtServices)
 	inventoryv1.RegisterNodesServiceServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
-	inventoryv1.RegisterServicesServiceServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc, mgmtServices))
+	inventoryv1.RegisterServicesServiceServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc))
 	inventoryv1.RegisterAgentsServiceServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
 	managementSvc := management.NewManagementService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb, deps.versionCache, deps.grafanaClient)

@@ -96,6 +96,7 @@ gen-api:            ## Generate PMM API
 		api/backup/v1/json/v1.json \
 		api/advisors/v1/json/v1.json \
 		api/alerting/v1/json/v1.json \
+		api/dump/v1/json/v1.json \
 		api/qan/v1/json/v1.json
 	bin/swagger validate api/swagger/swagger.json
 

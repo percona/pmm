@@ -21,6 +21,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"gopkg.in/reform.v1"
 
+	commonv1 "github.com/percona/pmm/api/common"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
@@ -34,6 +35,7 @@ type ServicesService struct {
 	state agentsStateUpdater
 	vmdb  prometheusService
 	vc    versionCache
+	ms    *common.MgmtServices
 }
 
 // NewServicesService creates new ServicesService.
@@ -43,6 +45,7 @@ func NewServicesService(
 	state agentsStateUpdater,
 	vmdb prometheusService,
 	vc versionCache,
+	ms *common.MgmtServices,
 ) *ServicesService {
 	return &ServicesService{
 		db:    db,
@@ -50,6 +53,7 @@ func NewServicesService(
 		state: state,
 		vmdb:  vmdb,
 		vc:    vc,
+		ms:    ms,
 	}
 }
 
@@ -342,116 +346,50 @@ func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) er
 	return nil
 }
 
-// AddCustomLabels adds or replaces (if key exists) custom labels for a service.
-func (ss *ServicesService) AddCustomLabels(ctx context.Context, req *inventoryv1.AddCustomLabelsRequest) (*inventoryv1.AddCustomLabelsResponse, error) {
-	errTx := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
-		if err != nil {
-			return err
-		}
+// ChangeService changes service configuration.
+func (ss *ServicesService) ChangeService(ctx context.Context, labels *models.ChangeStandardLabelsParams, custom *commonv1.StringMap) (inventoryv1.Service, error) { //nolint:ireturn,lll
+	var service *models.Service
 
-		labels, err := service.GetCustomLabels()
-		if err != nil {
-			return err
-		}
-		if labels == nil {
-			labels = req.CustomLabels
-		} else {
-			for k, v := range req.CustomLabels {
-				labels[k] = v
-			}
-		}
-
-		err = service.SetCustomLabels(labels)
-		if err != nil {
-			return err
-		}
-
-		err = tx.UpdateColumns(service, "custom_labels")
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
-	if errTx != nil {
-		return nil, errTx
-	}
-
-	if err := ss.updateScrapeConfig(ctx, req.ServiceId); err != nil {
+	if err := ss.ms.RemoveScheduledTasks(ctx, ss.db, labels); err != nil {
 		return nil, err
 	}
 
-	return &inventoryv1.AddCustomLabelsResponse{}, nil
-}
-
-// RemoveCustomLabels removes custom labels from a service.
-func (ss *ServicesService) RemoveCustomLabels(ctx context.Context, req *inventoryv1.RemoveCustomLabelsRequest) (*inventoryv1.RemoveCustomLabelsResponse, error) {
 	errTx := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+		err := models.ChangeStandardLabels(tx.Querier, labels.ServiceID, models.ServiceStandardLabelsParams{
+			Cluster:        labels.Cluster,
+			Environment:    labels.Environment,
+			ReplicationSet: labels.ReplicationSet,
+			ExternalGroup:  labels.ExternalGroup,
+		})
 		if err != nil {
 			return err
 		}
 
-		labels, err := service.GetCustomLabels()
+		service, err = models.FindServiceByID(tx.Querier, labels.ServiceID)
 		if err != nil {
 			return err
 		}
-		if labels == nil {
+
+		if custom == nil {
 			return nil
 		}
 
-		for _, k := range req.CustomLabelKeys {
-			delete(labels, k)
-		}
-
-		err = service.SetCustomLabels(labels)
+		err = service.SetCustomLabels(custom.GetValues())
 		if err != nil {
 			return err
 		}
 
-		err = tx.UpdateColumns(service, "custom_labels")
-		if err != nil {
-			return err
-		}
-
-		return nil
+		return tx.UpdateColumns(service, "custom_labels")
 	})
 	if errTx != nil {
 		return nil, errTx
 	}
 
-	if err := ss.updateScrapeConfig(ctx, req.ServiceId); err != nil {
+	if err := ss.updateScrapeConfig(ctx, labels.ServiceID); err != nil {
 		return nil, err
 	}
 
-	return &inventoryv1.RemoveCustomLabelsResponse{}, nil
-}
-
-// ChangeService changes service configuration.
-func (ss *ServicesService) ChangeService(ctx context.Context, mgmtServices common.MgmtServices, params *models.ChangeStandardLabelsParams) error {
-	if err := mgmtServices.RemoveScheduledTasks(ctx, ss.db, params); err != nil {
-		return err
-	}
-
-	errTx := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		err := models.ChangeStandardLabels(tx.Querier, params.ServiceID, models.ServiceStandardLabelsParams{
-			Cluster:        params.Cluster,
-			Environment:    params.Environment,
-			ReplicationSet: params.ReplicationSet,
-			ExternalGroup:  params.ExternalGroup,
-		})
-		return err
-	})
-	if errTx != nil {
-		return errTx
-	}
-
-	if err := ss.updateScrapeConfig(ctx, params.ServiceID); err != nil {
-		return err
-	}
-
-	return nil
+	return services.ToAPIService(service)
 }
 
 func (ss *ServicesService) updateScrapeConfig(ctx context.Context, serviceID string) error {

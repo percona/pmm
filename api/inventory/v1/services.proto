@@ -395,24 +395,6 @@ message RemoveServiceRequest {
 
 message RemoveServiceResponse {}
 
-message AddCustomLabelsRequest {
-  // Unique Service ID.
-  string service_id = 1 [(validate.rules).string.min_len = 1];
-  // Custom user-assigned labels to be added.
-  map<string, string> custom_labels = 2;
-}
-
-message AddCustomLabelsResponse {}
-
-message RemoveCustomLabelsRequest {
-  // Unique Service ID.
-  string service_id = 1 [(validate.rules).string.min_len = 1];
-  // Custom user-assigned label keys to be removed.
-  repeated string custom_label_keys = 2;
-}
-
-message RemoveCustomLabelsResponse {}
-
 message ChangeServiceRequest {
   string service_id = 1 [(validate.rules).string.min_len = 1];
   optional string environment = 2;
@@ -423,7 +405,16 @@ message ChangeServiceRequest {
   optional common.StringMap custom_labels = 6;
 }
 
-message ChangeServiceResponse {}
+message ChangeServiceResponse {
+  oneof service {
+    MySQLService mysql = 1;
+    MongoDBService mongodb = 2;
+    PostgreSQLService postgresql = 3;
+    ProxySQLService proxysql = 4;
+    HAProxyService haproxy = 5;
+    ExternalService external = 6;
+  }
+}
 
 // Services service provides public methods for managing Services.
 service ServicesService {
@@ -437,7 +428,10 @@ service ServicesService {
   }
   // ListActiveServiceTypes returns a list of active Services.
   rpc ListActiveServiceTypes(ListActiveServiceTypesRequest) returns (ListActiveServiceTypesResponse) {
-    option (google.api.http) = {get: "/v1/inventory/services/types"};
+    option (google.api.http) = {
+      post: "/v1/inventory/services:getTypes"
+      body: "*"
+    };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Active Service Types"
       description: "Returns a list of active Service types."

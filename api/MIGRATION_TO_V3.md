@@ -39,8 +39,8 @@ POST /v1/inventory/Services/Add                     POST /v1/inventory/services 
 POST /v1/inventory/Services/Change                  PUT /v1/inventory/services/{service_id}          ✅
 POST /v1/inventory/Servicse/Get                     GET /v1/inventory/services/{service_id}          ✅
 POST /v1/inventory/Services/List                    GET /v1/inventory/services                       ✅
-POST /v1/inventory/Services/Remove                  DELETE /v1/inventory/services/{service_id}       ✅ pass ?force=true to remove service with agents
-POST /v1/inventory/Services/ListTypes               GET /v1/inventory/services/types                 ✅
+POST /v1/inventory/Services/Remove                  DELETE /v1/inventory/services/{service_id}       ✅ pass ?force=true to remove a service with agents
+POST /v1/inventory/Services/ListTypes               POST /v1/inventory/services:getTypes             ✅
 POST /v1/inventory/Services/CustomLabels/Add        PUT /v1/inventory/services/{service_id}          ✅ NOTE: merged into PUT /v1/inventory/services/{id}
 POST /v1/inventory/Services/CustomLabels/Remove     PUT /v1/inventory/services/{service_id}          ✅ NOTE: merged into PUT /v1/inventory/services/{id}
 

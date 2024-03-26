@@ -69,6 +69,10 @@ func request_ServicesService_ListActiveServiceTypes_0(ctx context.Context, marsh
 	var protoReq ListActiveServiceTypesRequest
 	var metadata runtime.ServerMetadata
 
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
 	msg, err := client.ListActiveServiceTypes(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
@@ -76,6 +80,10 @@ func request_ServicesService_ListActiveServiceTypes_0(ctx context.Context, marsh
 func local_request_ServicesService_ListActiveServiceTypes_0(ctx context.Context, marshaler runtime.Marshaler, server ServicesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListActiveServiceTypesRequest
 	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 
 	msg, err := server.ListActiveServiceTypes(ctx, &protoReq)
 	return msg, metadata, err
@@ -308,7 +316,7 @@ func RegisterServicesServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		forward_ServicesService_ListServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("GET", pattern_ServicesService_ListActiveServiceTypes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ServicesService_ListActiveServiceTypes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -316,7 +324,7 @@ func RegisterServicesServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.v1.ServicesService/ListActiveServiceTypes", runtime.WithHTTPPathPattern("/v1/inventory/services/types"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.v1.ServicesService/ListActiveServiceTypes", runtime.WithHTTPPathPattern("/v1/inventory/services:getTypes"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -489,13 +497,13 @@ func RegisterServicesServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		forward_ServicesService_ListServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("GET", pattern_ServicesService_ListActiveServiceTypes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ServicesService_ListActiveServiceTypes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.v1.ServicesService/ListActiveServiceTypes", runtime.WithHTTPPathPattern("/v1/inventory/services/types"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.v1.ServicesService/ListActiveServiceTypes", runtime.WithHTTPPathPattern("/v1/inventory/services:getTypes"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -600,7 +608,7 @@ func RegisterServicesServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 var (
 	pattern_ServicesService_ListServices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "inventory", "services"}, ""))
 
-	pattern_ServicesService_ListActiveServiceTypes_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "services", "types"}, ""))
+	pattern_ServicesService_ListActiveServiceTypes_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "inventory", "services"}, "getTypes"))
 
 	pattern_ServicesService_GetService_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "inventory", "services", "service_id"}, ""))
 

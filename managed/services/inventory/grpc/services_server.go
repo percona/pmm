@@ -31,17 +31,15 @@ import (
 )
 
 type servicesServer struct {
-	s            *inventory.ServicesService
-	mgmtServices common.MgmtServices
+	s *inventory.ServicesService
 
 	inventoryv1.UnimplementedServicesServiceServer
 }
 
 // NewServicesServer returns Inventory API handler for managing Services.
-func NewServicesServer(s *inventory.ServicesService, mgmtServices common.MgmtServices) inventoryv1.ServicesServiceServer { //nolint:ireturn
+func NewServicesServer(s *inventory.ServicesService) inventoryv1.ServicesServiceServer { //nolint:ireturn
 	return &servicesServer{
-		s:            s,
-		mgmtServices: mgmtServices,
+		s: s,
 	}
 }
 
@@ -312,31 +310,39 @@ func (s *servicesServer) RemoveService(ctx context.Context, req *inventoryv1.Rem
 	return &inventoryv1.RemoveServiceResponse{}, nil
 }
 
-// AddCustomLabels adds or replaces (if key exists) custom labels for a service.
-func (s *servicesServer) AddCustomLabels(ctx context.Context, req *inventoryv1.AddCustomLabelsRequest) (*inventoryv1.AddCustomLabelsResponse, error) {
-	return s.s.AddCustomLabels(ctx, req)
-}
-
-// RemoveCustomLabels removes custom labels from a service.
-func (s *servicesServer) RemoveCustomLabels(ctx context.Context, req *inventoryv1.RemoveCustomLabelsRequest) (*inventoryv1.RemoveCustomLabelsResponse, error) {
-	return s.s.RemoveCustomLabels(ctx, req)
-}
-
 // ChangeService changes service configuration.
 func (s *servicesServer) ChangeService(ctx context.Context, req *inventoryv1.ChangeServiceRequest) (*inventoryv1.ChangeServiceResponse, error) {
-	serviceID := models.NormalizeServiceID(req.GetServiceId())
-	err := s.s.ChangeService(ctx, s.mgmtServices, &models.ChangeStandardLabelsParams{
-		ServiceID:      serviceID,
+	sl := &models.ChangeStandardLabelsParams{
+		ServiceID:      models.NormalizeServiceID(req.GetServiceId()),
 		Cluster:        req.Cluster,
 		Environment:    req.Environment,
 		ReplicationSet: req.ReplicationSet,
 		ExternalGroup:  req.ExternalGroup,
-	})
+	}
+
+	service, err := s.s.ChangeService(ctx, sl, req.GetCustomLabels())
 	if err != nil {
 		return nil, toAPIError(err)
 	}
 
-	return &inventoryv1.ChangeServiceResponse{}, nil
+	res := &inventoryv1.ChangeServiceResponse{}
+	switch service := service.(type) {
+	case *inventoryv1.MySQLService:
+		res.Service = &inventoryv1.ChangeServiceResponse_Mysql{Mysql: service}
+	case *inventoryv1.MongoDBService:
+		res.Service = &inventoryv1.ChangeServiceResponse_Mongodb{Mongodb: service}
+	case *inventoryv1.PostgreSQLService:
+		res.Service = &inventoryv1.ChangeServiceResponse_Postgresql{Postgresql: service}
+	case *inventoryv1.ProxySQLService:
+		res.Service = &inventoryv1.ChangeServiceResponse_Proxysql{Proxysql: service}
+	case *inventoryv1.HAProxyService:
+		res.Service = &inventoryv1.ChangeServiceResponse_Haproxy{Haproxy: service}
+	case *inventoryv1.ExternalService:
+		res.Service = &inventoryv1.ChangeServiceResponse_External{External: service}
+	default:
+		panic(fmt.Errorf("unhandled inventory Service type %T", service))
+	}
+	return res, nil
 }
 
 // toAPIError converts GO errors into API-level errors.

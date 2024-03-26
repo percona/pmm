@@ -172,8 +172,8 @@ func (a *Client) ListActiveServiceTypes(params *ListActiveServiceTypesParams, op
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ListActiveServiceTypes",
-		Method:             "GET",
-		PathPattern:        "/v1/inventory/services/types",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/services:getTypes",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
