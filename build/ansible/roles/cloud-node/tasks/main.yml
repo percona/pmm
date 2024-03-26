@@ -38,26 +38,14 @@
       - yum-utils
       - cloud-init
       - firewalld
-      - python3-libselinux
-      - python3-firewall
+      - python3-pip
+      - ansible-core
+      - ansible-collection-community-general
+      - ansible-collection-community-postgresql
+      - ansible-collection-ansible-posix
 
-- name: Firewalld                  | Start EL7
-  when:
-    - ansible_distribution == 'CentOS'
-    - ansible_distribution_major_version == '7'
-    - ansible_os_family == 'RedHat'
-  service:
-    name: firewalld
-    state: started
-    enabled: yes
-
-- name: Firewalld                  | Start EL9
-  when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-    - ansible_distribution_major_version == '9'
-    - ansible_os_family == 'RedHat'
-  vars:
-    ansible_python_interpreter: /usr/bin/python3.9
+- name: Firewalld                  | Start
+  when: ansible_os_family == 'RedHat'
   service:
     name: firewalld
     state: started
@@ -159,11 +147,24 @@
   when:
     - create_admin == "true"
     - ansible_virtualization_type != "virtualbox"
+    - ansible_system_vendor != "Microsoft Corporation"
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
     - ansible_distribution_major_version == '9'
   replace:
     dest: /etc/cloud/cloud.cfg.d/00_ol-default-user.cfg
     regexp: "name: ec2-user"
+    replace: "name: admin"
+
+- name: change cloud user for AMI EL9      | Change cloud user (Azure)
+  when:
+    - create_admin == "true"
+    - ansible_virtualization_type != "virtualbox"
+    - ansible_system_vendor == "Microsoft Corporation"
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+  replace:
+    dest: /etc/cloud/cloud.cfg
+    regexp: "name: cloud-user"
     replace: "name: admin"
 
 - name: cloud-init configuration   | stat /etc/waagent.conf
@@ -177,10 +178,23 @@
     regexp: "Provisioning.UseCloudInit=n"
     replace: "Provisioning.UseCloudInit=y"
 
-- name: Azure tweaks
-  when: waagent_conf.stat.exists
+- name: Azure tweaks               | Start EL7
+  when:
+    - waagent_conf.stat.exists
+    - ansible_distribution == 'CentOS'
+    - ansible_distribution_major_version == '7'
   replace:
     dest: /usr/lib/python2.7/site-packages/azurelinuxagent/pa/deprovision/default.py
+    regexp: "warnings, actions, deluser=deluser"
+    replace: "warnings, actions, include_once=False, deluser=deluser"
+
+- name: Azure tweaks               | Start EL9
+  when:
+    - waagent_conf.stat.exists
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+  replace:
+    dest: /usr/lib/python3.9/site-packages/azurelinuxagent/pa/deprovision/default.py
     regexp: "warnings, actions, deluser=deluser"
     replace: "warnings, actions, include_once=False, deluser=deluser"
 
