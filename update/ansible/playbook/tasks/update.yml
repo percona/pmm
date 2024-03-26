@@ -23,7 +23,7 @@
       - grafana-db-migrator
   pre_tasks:
       - name: Check if ansible-core RPM was updated
-      shell: "grep -A 1 'Install ansible-core RPM          | EL9' /srv/logs/pmm-update-perform.log | grep -qE 'changed' && echo 'Updated' || echo 'Not Updated'"
+      shell: "grep -A 1 'Install ansible-core RPM          | EL9' /srv/logs/pmm-update-perform.log | grep -q 'changed' && echo 'Updated' || echo 'Not Updated'"
       register: ansible_core_log
       changed_when: False
       ignore_errors: True
