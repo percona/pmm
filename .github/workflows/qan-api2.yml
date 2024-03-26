@@ -19,6 +19,7 @@ on:
       - "managed/**"
       - "update/**"
       - "vmproxy/**"
+      - "ui/**"
 
 jobs:
   test:
