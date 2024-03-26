@@ -10,7 +10,6 @@ services:
       - 127.0.0.1:443:8443
     environment:
       - PMM_DEBUG=1
-      - PERCONA_TEST_CHECKS_INTERVAL=10s
       # for local development
       # - PMM_DEV_ADVISOR_CHECKS_FILE=/srv/checks/custom-checks.yml
       # for check-dev
