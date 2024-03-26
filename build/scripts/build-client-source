@@ -7,11 +7,12 @@ set -o xtrace
 
 prepare_tarball() {
     local repo_name=$1
+    local git_dir
     if [ $repo_name = 'pmm-submodules' ]; then
-        mkdir -p ${root_dir}/sources/${repo_name}
         git_dir="${root_dir}/sources/${repo_name}"
+        mkdir -p "${git_dir}"
     else
-        local git_dir=$(dirname $(find "${root_dir}/sources/${repo_name}" -name .git | head -1))
+        git_dir=$(dirname $(find "${root_dir}/sources/${repo_name}" -name .git | head -1))
     fi
     local commit=$(git -C "${git_dir}" rev-parse --short HEAD)
     local tarball=${source_dir}/${repo_name}-${commit}.tar.gz
@@ -24,43 +25,43 @@ prepare_tarball() {
 
     if [ -f "${tarball}" ]; then
         echo ${tarball} already exists, skipping build
-    else
-        if [ ${repo_name} = 'pmm-submodules' ]; then
-            tar -C sources -zcf ${repo_name}-${commit}.tar.gz  ${repo_name}
-            mv ${repo_name}-${commit}.tar.gz  ${source_dir}/
-        else
-            git -C "${git_dir}" archive \
-                --format=tar.gz \
-                --prefix=${repo_name}-${commit}/ \
-                -o ${tarball} \
-                "${commit}"
-        fi
+        return
     fi
+
+    if [ ${repo_name} = 'pmm-submodules' ]; then
+        tar -C sources -zcf ${repo_name}-${commit}.tar.gz  ${repo_name}
+        mv ${repo_name}-${commit}.tar.gz  ${source_dir}/
+        return
+    fi
+
+    git -C "${git_dir}" archive \
+        --format=tar.gz \
+        --prefix=${repo_name}-${commit}/ \
+        -o ${tarball} \
+        "${commit}"
 }
 
 prepare_vmagent_tarball() {
     local repo_name=vmagent
     local commit_hash=${vmagent_commit_hash}
-    local commit_short=${commit_hash::6}
+    local commit_short=${commit_hash::7}
     local tarball=${source_dir}/${repo_name}-${commit_short}.tar.gz
     local repo_var=$(
-        echo "${repo_name}_commit" \
-            | sed -e 's:-:_:g' \
-            | tr '[[:lower:]]' '[[:upper:]]'
+        echo "${repo_name}_commit" | sed -e 's:-:_:g' | tr '[[:lower:]]' '[[:upper:]]'
     )
     echo "${repo_var}=$commit_short" >> ${client_properties}
 
     if [ -f "${tarball}" ]; then
         echo ${tarball} already exists, skipping download
     else
-        wget https://github.com/VictoriaMetrics/VictoriaMetrics/archive/${commit_hash}.tar.gz -O ${tarball}
+        curl -o ${tarball} -fSL https://github.com/VictoriaMetrics/VictoriaMetrics/archive/${commit_hash}.tar.gz
     fi
 }
 
 main() {
     rm -rf ${source_tarball}
     mkdir -p ${source_dir}/ $(dirname ${source_tarball}) || :
-    echo "PMM_SUBMODULES_COMMIT=$(git rev-parse --short HEAD)" > ${client_properties}
+
     prepare_vmagent_tarball
     prepare_tarball pmm-submodules
     prepare_tarball pmm

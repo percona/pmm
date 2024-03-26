@@ -20,13 +20,13 @@ fi
 
 CLIENT_IMAGE_VERSION=`echo $DOCKER_CLIENT_TAG | cut -d ':' -f2`
 
-docker build --build-arg BUILD_DATE="`date --rfc-3339=seconds`" \
-             --build-arg VERSION="$CLIENT_IMAGE_VERSION" \
-             --squash \
-             --no-cache \
-             -f ${DOCKER_FILE_LOCATION}/${docker_file} \
-             -t ${DOCKER_CLIENT_TAG} \
-             ${DOCKER_FILE_LOCATION}
+docker buildx build \
+    --build-arg BUILD_DATE="`date --rfc-3339=seconds`" \
+    --build-arg VERSION="$CLIENT_IMAGE_VERSION" \
+    --progress plain \
+    -f ${DOCKER_FILE_LOCATION}/${docker_file} \
+    -t ${DOCKER_CLIENT_TAG} \
+    ${DOCKER_FILE_LOCATION}
 
 if [ -n "${PUSH_DOCKER}" ]; then
     mkdir -p $(dirname ${docker_client_tag_file})
