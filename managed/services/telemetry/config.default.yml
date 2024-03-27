@@ -965,8 +965,8 @@ telemetry:
     summary: "Use of External DBs"
     data:
       - metric_name: "pmm_server_ha_clickhouse_address"
-        column: "PERCONA_TEST_PMM_CLICKHOUSE_ADDR"
+        column: "PMM_CLICKHOUSE_ADDR"
       - metric_name: "pmm_server_ha_postgres_address"
-        column: "PERCONA_TEST_POSTGRES_ADDR"
+        column: "PMM_POSTGRES_ADDR"
       - metric_name: "pmm_server_ha_vm_url"
         column: "PMM_VM_URL"

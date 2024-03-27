@@ -262,12 +262,12 @@ func main() {
 	debugBindF := kingpin.Flag("listen-debug-addr", "Debug server listen address").Default("127.0.0.1:9933").String()
 	dataRetentionF := kingpin.Flag("data-retention", "QAN data Retention (in days)").Default("30").Uint()
 	dsnF := kingpin.Flag("dsn", "ClickHouse database DSN. Can be override with database/host/port options").Default(defaultDsnF).String()
-	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE").String()
-	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PERCONA_TEST_PMM_CLICKHOUSE_ADDR").String()
+	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PMM_CLICKHOUSE_DATABASE").String()
+	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
 	clickhouseBlockSizeF := kingpin.Flag("clickhouse-block-size", "Number of rows that can be load from table in one cycle").
-		Default("10000").Envar("PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE").String()
+		Default("10000").Envar("PMM_CLICKHOUSE_BLOCK_SIZE").String()
 	clickhousePoolSizeF := kingpin.Flag("clickhouse-pool-size", "Controls how much queries can be run simultaneously").
-		Default("2").Envar("PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE").String()
+		Default("2").Envar("PMM_CLICKHOUSE_POOL_SIZE").String()
 
 	debugF := kingpin.Flag("debug", "Enable debug logging").Bool()
 	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug)").Bool()
