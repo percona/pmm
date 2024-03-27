@@ -141,7 +141,7 @@ func RemoveNodes(t TestingT, nodeIDs ...string) {
 			Context: context.Background(),
 		}
 		res, err := client.Default.NodesService.RemoveNode(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, res)
 	}
 }
@@ -157,7 +157,7 @@ func RemoveServices(t TestingT, serviceIDs ...string) {
 			Context:   context.Background(),
 		}
 		res, err := client.Default.ServicesService.RemoveService(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, res)
 	}
 }
@@ -172,7 +172,7 @@ func RemoveAgents(t TestingT, agentIDs ...string) {
 			Context: context.Background(),
 		}
 		res, err := client.Default.AgentsService.RemoveAgent(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, res)
 	}
 }
@@ -191,7 +191,7 @@ func AddGenericNode(t TestingT, nodeName string) *nodes.AddNodeOKBodyGeneric {
 		Context: Context,
 	}
 	res, err := client.Default.NodesService.AddNode(params)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 	require.NotNil(t, res.Payload)
 	require.NotNil(t, res.Payload.Generic)
@@ -212,7 +212,7 @@ func AddRemoteNode(t TestingT, nodeName string) *nodes.AddNodeOKBody {
 		Context: Context,
 	}
 	res, err := client.Default.NodesService.AddNode(params)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
 }
@@ -227,7 +227,7 @@ func AddNode(t TestingT, nodeBody *nodes.AddNodeBody) *nodes.AddNodeOKBody {
 	}
 
 	res, err := client.Default.NodesService.AddNode(params)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 
 	return res.Payload
@@ -245,7 +245,7 @@ func AddPMMAgent(t TestingT, nodeID string) *agents.AddAgentOKBody {
 		},
 		Context: Context,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
 }

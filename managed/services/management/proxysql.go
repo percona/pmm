@@ -28,10 +28,10 @@ import (
 )
 
 // AddProxySQL adds "ProxySQL Service", "ProxySQL Exporter Agent" and "QAN ProxySQL PerfSchema Agent".
-func (s *ManagementService) AddProxySQL(ctx context.Context, req *managementv1.AddProxySQLRequest) (*managementv1.AddProxySQLResponse, error) {
-	res := &managementv1.AddProxySQLResponse{}
+func (s *ManagementService) addProxySQL(ctx context.Context, req *managementv1.AddProxySQLServiceParams) (*managementv1.AddServiceResponse, error) {
+	proxysql := &managementv1.ProxySQLServiceResult{}
 
-	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {
 			return err
@@ -55,7 +55,7 @@ func (s *ManagementService) AddProxySQL(ctx context.Context, req *managementv1.A
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventoryv1.ProxySQLService) //nolint:forcetypeassert
+		proxysql.Service = invService.(*inventoryv1.ProxySQLService) //nolint:forcetypeassert
 
 		req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, req.PmmAgentId)
 		if err != nil {
@@ -93,13 +93,22 @@ func (s *ManagementService) AddProxySQL(ctx context.Context, req *managementv1.A
 		if err != nil {
 			return err
 		}
-		res.ProxysqlExporter = agent.(*inventoryv1.ProxySQLExporter) //nolint:forcetypeassert
+		proxysql.ProxysqlExporter = agent.(*inventoryv1.ProxySQLExporter) //nolint:forcetypeassert
 
 		return nil
-	}); e != nil {
-		return nil, e
+	})
+
+	if errTx != nil {
+		return nil, errTx
 	}
 
 	s.state.RequestStateUpdate(ctx, req.PmmAgentId)
+
+	res := &managementv1.AddServiceResponse{
+		Service: &managementv1.AddServiceResponse_Proxysql{
+			Proxysql: proxysql,
+		},
+	}
+
 	return res, nil
 }

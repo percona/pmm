@@ -81,7 +81,7 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 		},
 	}
 
-	require.Equal(t, 1, len(actualBuckets))
+	require.Len(t, actualBuckets, 1)
 	assert.True(t, utf8.ValidString(actualBuckets[0].Common.Example))
 	tests.AssertBucketsEqual(t, expectedBuckets[0], actualBuckets[0])
 }

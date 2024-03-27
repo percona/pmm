@@ -97,7 +97,7 @@ func TestServices(t *testing.T) {
 		defer pmmapitests.RemoveServices(t, haProxyServiceID)
 
 		res, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{Context: pmmapitests.Context})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, res)
 		assert.NotZerof(t, len(res.Payload.Mysql), "There should be at least one MySQL service")
 		assert.NotZerof(t, len(res.Payload.Postgresql), "There should be at least one PostgreSQL service")
@@ -113,7 +113,7 @@ func TestServices(t *testing.T) {
 			ServiceType: nil,
 			Context:     pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, res)
 		assert.NotZerof(t, len(res.Payload.Mysql), "There should be at least one MySQL service")
 		assert.NotZerof(t, len(res.Payload.Postgresql), "There should be at least one PostgreSQL service")
@@ -128,7 +128,7 @@ func TestServices(t *testing.T) {
 			ServiceType: pointer.ToString(types.ServiceTypePostgreSQLService),
 			Context:     pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, res)
 		assert.NotZerof(t, len(res.Payload.Postgresql), "There should be at least one PostgreSQL service")
 		assertMySQLServiceNotExist(t, res, serviceID)
@@ -175,7 +175,7 @@ func TestServices(t *testing.T) {
 			NodeID:  pointer.ToString(remoteNodeID),
 			Context: pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, res)
 		assert.NotZerof(t, len(res.Payload.Mysql), "There should be at least one node")
 		assertMySQLServiceNotExist(t, res, serviceID)
@@ -234,7 +234,7 @@ func TestRemoveService(t *testing.T) {
 			Context:   pmmapitests.Context,
 		}
 		res, err := client.Default.ServicesService.RemoveService(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, res)
 	})
 
@@ -285,7 +285,7 @@ func TestRemoveService(t *testing.T) {
 			Context:   pmmapitests.Context,
 		}
 		res, err = client.Default.ServicesService.RemoveService(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, res)
 
 		// Check that the service and agents are removed.
@@ -349,7 +349,7 @@ func TestMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.ServicesService.AddService(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.Mysql.ServiceID
 		assert.Equal(t, &services.AddServiceOK{
@@ -371,7 +371,7 @@ func TestMySQLService(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, serviceRes)
 		assert.Equal(t, &services.GetServiceOK{
 			Payload: &services.GetServiceOKBody{
@@ -444,7 +444,7 @@ func TestMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.ServicesService.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port are expected to be passed with address.")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port is expected to be passed along with the host address.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mysql.ServiceID)
 		}
@@ -570,7 +570,7 @@ func TestMongoDBService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.ServicesService.AddService(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.Mongodb.ServiceID
 		assert.Equal(t, &services.AddServiceOK{
@@ -763,7 +763,7 @@ func TestMongoDBService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.ServicesService.AddService(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.Mongodb.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -805,7 +805,7 @@ func TestPostgreSQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.ServicesService.AddService(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.Postgresql.ServiceID
 		assert.Equal(t, &services.AddServiceOK{
@@ -828,7 +828,7 @@ func TestPostgreSQLService(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, serviceRes)
 		assert.Equal(t, &services.GetServiceOK{
 			Payload: &services.GetServiceOKBody{
@@ -902,7 +902,7 @@ func TestPostgreSQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.ServicesService.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port are expected to be passed with address.")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port is expected to be passed along with the host address.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Postgresql.ServiceID)
 		}
@@ -1027,7 +1027,7 @@ func TestProxySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.ServicesService.AddService(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.Proxysql.ServiceID
 		assert.Equal(t, &services.AddServiceOK{
@@ -1049,7 +1049,7 @@ func TestProxySQLService(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, serviceRes)
 		assert.Equal(t, &services.GetServiceOK{
 			Payload: &services.GetServiceOKBody{
@@ -1122,7 +1122,7 @@ func TestProxySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.ServicesService.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port are expected to be passed with address.")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port is expected to be passed along with the host address.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Proxysql.ServiceID)
 		}
@@ -1258,7 +1258,7 @@ func TestExternalService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.ServicesService.AddService(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.External.ServiceID
 		assert.Equal(t, &services.AddServiceOK{
@@ -1279,7 +1279,7 @@ func TestExternalService(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, serviceRes)
 		assert.Equal(t, &services.GetServiceOK{
 			Payload: &services.GetServiceOKBody{
@@ -1298,12 +1298,12 @@ func TestExternalService(t *testing.T) {
 			ExternalGroup: pointer.ToString("redis"),
 			Context:       pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, servicesList)
-		assert.Len(t, servicesList.Payload.Mysql, 0)
-		assert.Len(t, servicesList.Payload.Mongodb, 0)
-		assert.Len(t, servicesList.Payload.Postgresql, 0)
-		assert.Len(t, servicesList.Payload.Proxysql, 0)
+		assert.Empty(t, servicesList.Payload.Mysql)
+		assert.Empty(t, servicesList.Payload.Mongodb)
+		assert.Empty(t, servicesList.Payload.Postgresql)
+		assert.Empty(t, servicesList.Payload.Proxysql)
 		assert.Len(t, servicesList.Payload.External, 1)
 		assert.Conditionf(t, containsExternalWithGroup(servicesList.Payload.External, "redis"), "list does not contain external group %s", "redis")
 
@@ -1312,7 +1312,7 @@ func TestExternalService(t *testing.T) {
 			ExternalGroup: pointer.ToString("non-existing-external-group"),
 			Context:       pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, emptyServicesList)
 		assert.Len(t, emptyServicesList.Payload.Mysql, 0)
 		assert.Len(t, emptyServicesList.Payload.Mongodb, 0)
@@ -1325,13 +1325,13 @@ func TestExternalService(t *testing.T) {
 			ExternalGroup: pointer.ToString(""),
 			Context:       pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, noFilterServicesList)
 		assert.GreaterOrEqual(t, len(noFilterServicesList.Payload.Mysql), 0)
 		assert.GreaterOrEqual(t, len(noFilterServicesList.Payload.Mongodb), 0)
-		assert.GreaterOrEqual(t, len(noFilterServicesList.Payload.Postgresql), 1)
+		assert.NotEmpty(t, noFilterServicesList.Payload.Postgresql)
 		assert.GreaterOrEqual(t, len(noFilterServicesList.Payload.Proxysql), 0)
-		assert.GreaterOrEqual(t, len(noFilterServicesList.Payload.External), 1)
+		assert.NotEmpty(t, noFilterServicesList.Payload.External)
 		assert.Conditionf(t, containsExternalWithGroup(noFilterServicesList.Payload.External, "redis"), "list does not contain external group %s", "redis")
 
 		// Check duplicates.
@@ -1412,7 +1412,7 @@ func TestExternalService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.ServicesService.AddService(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.External.ServiceID
 		assert.Equal(t, &services.AddServiceOK{

@@ -39,22 +39,22 @@ var (
 	_ = inventoryv1.LogLevel(0)
 )
 
-// Validate checks the field values on AddProxySQLRequest with the rules
+// Validate checks the field values on AddProxySQLServiceParams with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddProxySQLRequest) Validate() error {
+func (m *AddProxySQLServiceParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddProxySQLRequest with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on AddProxySQLServiceParams with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddProxySQLRequestMultiError, or nil if none found.
-func (m *AddProxySQLRequest) ValidateAll() error {
+// AddProxySQLServiceParamsMultiError, or nil if none found.
+func (m *AddProxySQLServiceParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddProxySQLRequest) validate(all bool) error {
+func (m *AddProxySQLServiceParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -69,7 +69,7 @@ func (m *AddProxySQLRequest) validate(all bool) error {
 		switch v := interface{}(m.GetAddNode()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddProxySQLRequestValidationError{
+				errors = append(errors, AddProxySQLServiceParamsValidationError{
 					field:  "AddNode",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -77,7 +77,7 @@ func (m *AddProxySQLRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddProxySQLRequestValidationError{
+				errors = append(errors, AddProxySQLServiceParamsValidationError{
 					field:  "AddNode",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -86,7 +86,7 @@ func (m *AddProxySQLRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetAddNode()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddProxySQLRequestValidationError{
+			return AddProxySQLServiceParamsValidationError{
 				field:  "AddNode",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -95,7 +95,7 @@ func (m *AddProxySQLRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetServiceName()) < 1 {
-		err := AddProxySQLRequestValidationError{
+		err := AddProxySQLServiceParamsValidationError{
 			field:  "ServiceName",
 			reason: "value length must be at least 1 runes",
 		}
@@ -112,7 +112,7 @@ func (m *AddProxySQLRequest) validate(all bool) error {
 	// no validation rules for Socket
 
 	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
-		err := AddProxySQLRequestValidationError{
+		err := AddProxySQLServiceParamsValidationError{
 			field:  "PmmAgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -129,7 +129,7 @@ func (m *AddProxySQLRequest) validate(all bool) error {
 	// no validation rules for ReplicationSet
 
 	if utf8.RuneCountInString(m.GetUsername()) < 1 {
-		err := AddProxySQLRequestValidationError{
+		err := AddProxySQLServiceParamsValidationError{
 			field:  "Username",
 			reason: "value length must be at least 1 runes",
 		}
@@ -158,19 +158,19 @@ func (m *AddProxySQLRequest) validate(all bool) error {
 	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
-		return AddProxySQLRequestMultiError(errors)
+		return AddProxySQLServiceParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddProxySQLRequestMultiError is an error wrapping multiple validation errors
-// returned by AddProxySQLRequest.ValidateAll() if the designated constraints
-// aren't met.
-type AddProxySQLRequestMultiError []error
+// AddProxySQLServiceParamsMultiError is an error wrapping multiple validation
+// errors returned by AddProxySQLServiceParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddProxySQLServiceParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddProxySQLRequestMultiError) Error() string {
+func (m AddProxySQLServiceParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -179,11 +179,11 @@ func (m AddProxySQLRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddProxySQLRequestMultiError) AllErrors() []error { return m }
+func (m AddProxySQLServiceParamsMultiError) AllErrors() []error { return m }
 
-// AddProxySQLRequestValidationError is the validation error returned by
-// AddProxySQLRequest.Validate if the designated constraints aren't met.
-type AddProxySQLRequestValidationError struct {
+// AddProxySQLServiceParamsValidationError is the validation error returned by
+// AddProxySQLServiceParams.Validate if the designated constraints aren't met.
+type AddProxySQLServiceParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -191,24 +191,24 @@ type AddProxySQLRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddProxySQLRequestValidationError) Field() string { return e.field }
+func (e AddProxySQLServiceParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddProxySQLRequestValidationError) Reason() string { return e.reason }
+func (e AddProxySQLServiceParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddProxySQLRequestValidationError) Cause() error { return e.cause }
+func (e AddProxySQLServiceParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddProxySQLRequestValidationError) Key() bool { return e.key }
+func (e AddProxySQLServiceParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddProxySQLRequestValidationError) ErrorName() string {
-	return "AddProxySQLRequestValidationError"
+func (e AddProxySQLServiceParamsValidationError) ErrorName() string {
+	return "AddProxySQLServiceParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddProxySQLRequestValidationError) Error() string {
+func (e AddProxySQLServiceParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -220,14 +220,14 @@ func (e AddProxySQLRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddProxySQLRequest.%s: %s%s",
+		"invalid %sAddProxySQLServiceParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddProxySQLRequestValidationError{}
+var _ error = AddProxySQLServiceParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -235,24 +235,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddProxySQLRequestValidationError{}
+} = AddProxySQLServiceParamsValidationError{}
 
-// Validate checks the field values on AddProxySQLResponse with the rules
+// Validate checks the field values on ProxySQLServiceResult with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddProxySQLResponse) Validate() error {
+func (m *ProxySQLServiceResult) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddProxySQLResponse with the rules
+// ValidateAll checks the field values on ProxySQLServiceResult with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddProxySQLResponseMultiError, or nil if none found.
-func (m *AddProxySQLResponse) ValidateAll() error {
+// ProxySQLServiceResultMultiError, or nil if none found.
+func (m *ProxySQLServiceResult) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddProxySQLResponse) validate(all bool) error {
+func (m *ProxySQLServiceResult) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -263,7 +263,7 @@ func (m *AddProxySQLResponse) validate(all bool) error {
 		switch v := interface{}(m.GetService()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddProxySQLResponseValidationError{
+				errors = append(errors, ProxySQLServiceResultValidationError{
 					field:  "Service",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -271,7 +271,7 @@ func (m *AddProxySQLResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddProxySQLResponseValidationError{
+				errors = append(errors, ProxySQLServiceResultValidationError{
 					field:  "Service",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -280,7 +280,7 @@ func (m *AddProxySQLResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetService()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddProxySQLResponseValidationError{
+			return ProxySQLServiceResultValidationError{
 				field:  "Service",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -292,7 +292,7 @@ func (m *AddProxySQLResponse) validate(all bool) error {
 		switch v := interface{}(m.GetProxysqlExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddProxySQLResponseValidationError{
+				errors = append(errors, ProxySQLServiceResultValidationError{
 					field:  "ProxysqlExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -300,7 +300,7 @@ func (m *AddProxySQLResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddProxySQLResponseValidationError{
+				errors = append(errors, ProxySQLServiceResultValidationError{
 					field:  "ProxysqlExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -309,7 +309,7 @@ func (m *AddProxySQLResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetProxysqlExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddProxySQLResponseValidationError{
+			return ProxySQLServiceResultValidationError{
 				field:  "ProxysqlExporter",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -318,19 +318,19 @@ func (m *AddProxySQLResponse) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return AddProxySQLResponseMultiError(errors)
+		return ProxySQLServiceResultMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddProxySQLResponseMultiError is an error wrapping multiple validation
-// errors returned by AddProxySQLResponse.ValidateAll() if the designated
+// ProxySQLServiceResultMultiError is an error wrapping multiple validation
+// errors returned by ProxySQLServiceResult.ValidateAll() if the designated
 // constraints aren't met.
-type AddProxySQLResponseMultiError []error
+type ProxySQLServiceResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddProxySQLResponseMultiError) Error() string {
+func (m ProxySQLServiceResultMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -339,11 +339,11 @@ func (m AddProxySQLResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddProxySQLResponseMultiError) AllErrors() []error { return m }
+func (m ProxySQLServiceResultMultiError) AllErrors() []error { return m }
 
-// AddProxySQLResponseValidationError is the validation error returned by
-// AddProxySQLResponse.Validate if the designated constraints aren't met.
-type AddProxySQLResponseValidationError struct {
+// ProxySQLServiceResultValidationError is the validation error returned by
+// ProxySQLServiceResult.Validate if the designated constraints aren't met.
+type ProxySQLServiceResultValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -351,24 +351,24 @@ type AddProxySQLResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddProxySQLResponseValidationError) Field() string { return e.field }
+func (e ProxySQLServiceResultValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddProxySQLResponseValidationError) Reason() string { return e.reason }
+func (e ProxySQLServiceResultValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddProxySQLResponseValidationError) Cause() error { return e.cause }
+func (e ProxySQLServiceResultValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddProxySQLResponseValidationError) Key() bool { return e.key }
+func (e ProxySQLServiceResultValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddProxySQLResponseValidationError) ErrorName() string {
-	return "AddProxySQLResponseValidationError"
+func (e ProxySQLServiceResultValidationError) ErrorName() string {
+	return "ProxySQLServiceResultValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddProxySQLResponseValidationError) Error() string {
+func (e ProxySQLServiceResultValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -380,14 +380,14 @@ func (e AddProxySQLResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddProxySQLResponse.%s: %s%s",
+		"invalid %sProxySQLServiceResult.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddProxySQLResponseValidationError{}
+var _ error = ProxySQLServiceResultValidationError{}
 
 var _ interface {
 	Field() string
@@ -395,4 +395,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddProxySQLResponseValidationError{}
+} = ProxySQLServiceResultValidationError{}

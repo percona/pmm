@@ -39,12 +39,21 @@ curl -s -X GET http://admin:admin@localhost:8080/v1/inventory/nodes/32c914d1-daf
 ### POST /v1/inventory/Services/Get -> GET /v1/inventory/services/{service_id}
 curl -s -X GET http://admin:admin@localhost:8080/v1/inventory/services/d4dfdccf-c07c-48a6-a101-b119b04d880f
 
+### POST /v1/inventory/Services/List -> GET /v1/inventory/services
+curl -s -X GET http://admin:admin@localhost:8080/v1/inventory/services
+
 ### POST /v1/inventory/Services/Change -> PUT /v1/inventory/services/{service_id} 
 curl -s -X PUT -d '{"cluster": "test2","environment":"dev","replication_set":"main"}' http://admin:admin@localhost:8080/v1/inventory/services/d4dfdccf-c07c-48a6-a101-b119b04d880f
 ### add/update custom labels
 curl -s -X PUT -d '{"custom_labels":{"values":{"env":"foo","bar":"123"}}}' http://admin:admin@localhost:8080/v1/inventory/services/d4dfdccf-c07c-48a6-a101-b119b04d880f
-###  remove a standard label and all custom labels
+### remove a standard label and all custom labels
 curl -s -X PUT -d '{"replication_set":"","custom_labels":{}}' http://admin:admin@localhost:8080/v1/inventory/services/d4dfdccf-c07c-48a6-a101-b119b04d880f
 
 ### POST /v1/inventory/Services/ListTypes -> POST /v1/inventory/services:getTypes
 curl -s -X POST http://admin:admin@localhost:8080/v1/inventory/services:getTypes
+
+### /v1/management/Service/Remove -> DELETE /v1/management/services/{service_id}
+curl -s -X DELETE http://admin:admin@localhost:8080/v1/management/services/b7d3b87a-d366-4cb4-b101-03d68f73a7c0
+### pmm-admin remove mongodb mongo-svc
+### pmm-admin remove mongodb mongo-svc --service-id=/service_id/ed322782-e6fd-4ad9-8ee6-a7d47b62de41
+### pmm-admin remove mongodb --service-id=/service_id/ed322782-e6fd-4ad9-8ee6-a7d47b62de41

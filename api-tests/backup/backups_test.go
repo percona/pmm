@@ -45,42 +45,48 @@ func TestScheduleBackup(t *testing.T) {
 		mongo1Name := pmmapitests.TestString(t, "mongo")
 		mongo2Name := pmmapitests.TestString(t, "mongo")
 
-		mongo1Resp, err := managementClient.Default.ManagementService.AddMongoDB(&mservice.AddMongoDBParams{
-			Context: pmmapitests.Context,
-			Body: mservice.AddMongoDBBody{
-				NodeID:      nodeID,
-				Cluster:     "test_cluster",
-				PMMAgentID:  pmmAgentID,
-				ServiceName: mongo1Name,
-				Address:     "10.10.10.10",
-				Port:        27017,
-				Username:    "username",
+		mongo1Resp, err := managementClient.Default.ManagementService.AddService(
+			&mservice.AddServiceParams{
+				Context: pmmapitests.Context,
+				Body: mservice.AddServiceBody{
+					Mongodb: &mservice.AddServiceParamsBodyMongodb{
+						NodeID:      nodeID,
+						Cluster:     "test_cluster",
+						PMMAgentID:  pmmAgentID,
+						ServiceName: mongo1Name,
+						Address:     "10.10.10.10",
+						Port:        27017,
+						Username:    "username",
 
-				SkipConnectionCheck: true,
-				DisableCollectors:   []string{"global_status", "perf_schema.tablelocks"},
-			},
-		})
+						SkipConnectionCheck: true,
+						DisableCollectors:   []string{"global_status", "perf_schema.tablelocks"},
+					},
+				},
+			})
 		require.NoError(t, err)
-		mongo1ID := mongo1Resp.Payload.Service.ServiceID
+		mongo1ID := mongo1Resp.Payload.Mongodb.Service.ServiceID
 		defer pmmapitests.RemoveServices(t, mongo1ID)
 
-		mongo2Resp, err := managementClient.Default.ManagementService.AddMongoDB(&mservice.AddMongoDBParams{
-			Context: pmmapitests.Context,
-			Body: mservice.AddMongoDBBody{
-				NodeID:      nodeID,
-				Cluster:     "test_cluster",
-				PMMAgentID:  pmmAgentID,
-				ServiceName: mongo2Name,
-				Address:     "10.10.10.11",
-				Port:        27017,
-				Username:    "username",
+		mongo2Resp, err := managementClient.Default.ManagementService.AddService(
+			&mservice.AddServiceParams{
+				Context: pmmapitests.Context,
+				Body: mservice.AddServiceBody{
+					Mongodb: &mservice.AddServiceParamsBodyMongodb{
+						NodeID:      nodeID,
+						Cluster:     "test_cluster",
+						PMMAgentID:  pmmAgentID,
+						ServiceName: mongo2Name,
+						Address:     "10.10.10.11",
+						Port:        27017,
+						Username:    "username",
 
-				SkipConnectionCheck: true,
-				DisableCollectors:   []string{"global_status", "perf_schema.tablelocks"},
-			},
-		})
+						SkipConnectionCheck: true,
+						DisableCollectors:   []string{"global_status", "perf_schema.tablelocks"},
+					},
+				},
+			})
 		require.NoError(t, err)
-		mongo2ID := mongo2Resp.Payload.Service.ServiceID
+		mongo2ID := mongo2Resp.Payload.Postgresql.Service.ServiceID
 		defer pmmapitests.RemoveServices(t, mongo2ID)
 
 		resp, err := backupClient.Default.LocationsService.AddLocation(&locations.AddLocationParams{

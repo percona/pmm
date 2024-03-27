@@ -31,7 +31,7 @@ import (
 
 var mysqlExporterVersionWithPluginCollector = version.MustParse("2.36.0-0")
 
-// mysqldExporterConfig returns desired configuration of mysqld_exporter process.
+// The mysqldExporterConfig returns desired configuration of mysqld_exporter process.
 
 func mysqldExporterConfig(
 	node *models.Node,

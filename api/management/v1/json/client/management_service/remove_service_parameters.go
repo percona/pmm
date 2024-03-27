@@ -60,8 +60,19 @@ RemoveServiceParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type RemoveServiceParams struct {
-	// Body.
-	Body RemoveServiceBody
+	/* ServiceID.
+
+	   Either a Service ID or a Service Name.
+	*/
+	ServiceID string
+
+	/* ServiceType.
+
+	   Service type.
+
+	   Default: "SERVICE_TYPE_UNSPECIFIED"
+	*/
+	ServiceType *string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -80,7 +91,16 @@ func (o *RemoveServiceParams) WithDefaults() *RemoveServiceParams {
 //
 // All values with no default are reset to their zero value.
 func (o *RemoveServiceParams) SetDefaults() {
-	// no default values defined for this parameter
+	serviceTypeDefault := string("SERVICE_TYPE_UNSPECIFIED")
+
+	val := RemoveServiceParams{
+		ServiceType: &serviceTypeDefault,
+	}
+
+	val.timeout = o.timeout
+	val.Context = o.Context
+	val.HTTPClient = o.HTTPClient
+	*o = val
 }
 
 // WithTimeout adds the timeout to the remove service params
@@ -116,15 +136,26 @@ func (o *RemoveServiceParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the remove service params
-func (o *RemoveServiceParams) WithBody(body RemoveServiceBody) *RemoveServiceParams {
-	o.SetBody(body)
+// WithServiceID adds the serviceID to the remove service params
+func (o *RemoveServiceParams) WithServiceID(serviceID string) *RemoveServiceParams {
+	o.SetServiceID(serviceID)
 	return o
 }
 
-// SetBody adds the body to the remove service params
-func (o *RemoveServiceParams) SetBody(body RemoveServiceBody) {
-	o.Body = body
+// SetServiceID adds the serviceId to the remove service params
+func (o *RemoveServiceParams) SetServiceID(serviceID string) {
+	o.ServiceID = serviceID
+}
+
+// WithServiceType adds the serviceType to the remove service params
+func (o *RemoveServiceParams) WithServiceType(serviceType *string) *RemoveServiceParams {
+	o.SetServiceType(serviceType)
+	return o
+}
+
+// SetServiceType adds the serviceType to the remove service params
+func (o *RemoveServiceParams) SetServiceType(serviceType *string) {
+	o.ServiceType = serviceType
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,8 +164,26 @@ func (o *RemoveServiceParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
+
+	// path param service_id
+	if err := r.SetPathParam("service_id", o.ServiceID); err != nil {
 		return err
+	}
+
+	if o.ServiceType != nil {
+
+		// query param service_type
+		var qrServiceType string
+
+		if o.ServiceType != nil {
+			qrServiceType = *o.ServiceType
+		}
+		qServiceType := qrServiceType
+		if qServiceType != "" {
+			if err := r.SetQueryParam("service_type", qServiceType); err != nil {
+				return err
+			}
+		}
 	}
 
 	if len(res) > 0 {

@@ -27,6 +27,7 @@ import (
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	"github.com/percona/pmm/api/inventory/v1/types"
 	"github.com/percona/pmm/api/management/v1/json/client"
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
@@ -43,24 +44,26 @@ func TestAddMongoDB(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-name-for-basic-name")
 
-		params := &mservice.AddMongoDBParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddMongoDBBody{
-				NodeID:      nodeID,
-				PMMAgentID:  pmmAgentID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        27017,
+			Body: mservice.AddServiceBody{
+				Mongodb: &mservice.AddServiceParamsBodyMongodb{
+					NodeID:      nodeID,
+					PMMAgentID:  pmmAgentID,
+					ServiceName: serviceName,
+					Address:     "10.10.10.10",
+					Port:        27017,
 
-				SkipConnectionCheck: true,
-				DisableCollectors:   []string{"database"},
+					SkipConnectionCheck: true,
+					DisableCollectors:   []string{"database"},
+				},
 			},
 		}
-		addMongoDBOK, err := client.Default.ManagementService.AddMongoDB(params)
+		addMongoDBOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMongoDBOK)
-		require.NotNil(t, addMongoDBOK.Payload.Service)
-		serviceID := addMongoDBOK.Payload.Service.ServiceID
+		require.NotNil(t, addMongoDBOK.Payload.Mongodb.Service)
+		serviceID := addMongoDBOK.Payload.Mongodb.Service.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		// Check that service is created and its fields.
@@ -114,26 +117,28 @@ func TestAddMongoDB(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-name-for-all-fields")
 
-		params := &mservice.AddMongoDBParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddMongoDBBody{
-				NodeID:             nodeID,
-				PMMAgentID:         pmmAgentID,
-				ServiceName:        serviceName,
-				Address:            "10.10.10.10",
-				Port:               27017,
-				Username:           "username",
-				Password:           "password",
-				QANMongodbProfiler: true,
+			Body: mservice.AddServiceBody{
+				Mongodb: &mservice.AddServiceParamsBodyMongodb{
+					NodeID:             nodeID,
+					PMMAgentID:         pmmAgentID,
+					ServiceName:        serviceName,
+					Address:            "10.10.10.10",
+					Port:               27017,
+					Username:           "username",
+					Password:           "password",
+					QANMongodbProfiler: true,
 
-				SkipConnectionCheck: true,
+					SkipConnectionCheck: true,
+				},
 			},
 		}
-		addMongoDBOK, err := client.Default.ManagementService.AddMongoDB(params)
+		addMongoDBOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMongoDBOK)
-		require.NotNil(t, addMongoDBOK.Payload.Service)
-		serviceID := addMongoDBOK.Payload.Service.ServiceID
+		require.NotNil(t, addMongoDBOK.Payload.Mongodb.Service)
+		serviceID := addMongoDBOK.Payload.Mongodb.Service.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		// Check that service is created and its fields.
@@ -203,27 +208,29 @@ func TestAddMongoDB(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-name-for-all-fields")
 
-		params := &mservice.AddMongoDBParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddMongoDBBody{
-				NodeID:         nodeID,
-				PMMAgentID:     pmmAgentID,
-				ServiceName:    serviceName,
-				Address:        "10.10.10.10",
-				Port:           27017,
-				Environment:    "some-environment",
-				Cluster:        "cluster-name",
-				ReplicationSet: "replication-set",
-				CustomLabels:   map[string]string{"bar": "foo"},
+			Body: mservice.AddServiceBody{
+				Mongodb: &mservice.AddServiceParamsBodyMongodb{
+					NodeID:         nodeID,
+					PMMAgentID:     pmmAgentID,
+					ServiceName:    serviceName,
+					Address:        "10.10.10.10",
+					Port:           27017,
+					Environment:    "some-environment",
+					Cluster:        "cluster-name",
+					ReplicationSet: "replication-set",
+					CustomLabels:   map[string]string{"bar": "foo"},
 
-				SkipConnectionCheck: true,
+					SkipConnectionCheck: true,
+				},
 			},
 		}
-		addMongoDBOK, err := client.Default.ManagementService.AddMongoDB(params)
+		addMongoDBOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMongoDBOK)
-		require.NotNil(t, addMongoDBOK.Payload.Service)
-		serviceID := addMongoDBOK.Payload.Service.ServiceID
+		require.NotNil(t, addMongoDBOK.Payload.Mongodb.Service)
+		serviceID := addMongoDBOK.Payload.Mongodb.Service.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 		defer removeServiceAgents(t, serviceID)
 
@@ -260,37 +267,41 @@ func TestAddMongoDB(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-for-the-same-name")
 
-		params := &mservice.AddMongoDBParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddMongoDBBody{
-				NodeID:      nodeID,
-				PMMAgentID:  pmmAgentID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        27017,
+			Body: mservice.AddServiceBody{
+				Mongodb: &mservice.AddServiceParamsBodyMongodb{
+					NodeID:      nodeID,
+					PMMAgentID:  pmmAgentID,
+					ServiceName: serviceName,
+					Address:     "10.10.10.10",
+					Port:        27017,
 
-				SkipConnectionCheck: true,
+					SkipConnectionCheck: true,
+				},
 			},
 		}
-		addMongoDBOK, err := client.Default.ManagementService.AddMongoDB(params)
+		addMongoDBOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMongoDBOK)
-		require.NotNil(t, addMongoDBOK.Payload.Service)
-		serviceID := addMongoDBOK.Payload.Service.ServiceID
+		require.NotNil(t, addMongoDBOK.Payload.Mongodb.Service)
+		serviceID := addMongoDBOK.Payload.Mongodb.Service.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 		defer removeServiceAgents(t, serviceID)
 
-		params = &mservice.AddMongoDBParams{
+		params = &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddMongoDBBody{
-				NodeID:      nodeID,
-				PMMAgentID:  pmmAgentID,
-				ServiceName: serviceName,
-				Address:     "11.11.11.11",
-				Port:        27017,
+			Body: mservice.AddServiceBody{
+				Mongodb: &mservice.AddServiceParamsBodyMongodb{
+					NodeID:      nodeID,
+					PMMAgentID:  pmmAgentID,
+					ServiceName: serviceName,
+					Address:     "11.11.11.11",
+					Port:        27017,
+				},
 			},
 		}
-		addMongoDBOK, err = client.Default.ManagementService.AddMongoDB(params)
+		addMongoDBOK, err = client.Default.ManagementService.AddService(params)
 		require.Nil(t, addMongoDBOK)
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, `Service with name %q already exists.`, serviceName)
 	})
@@ -307,64 +318,70 @@ func TestAddMongoDB(t *testing.T) {
 		nodeNameAddNode := pmmapitests.TestString(t, "node-for-add-node-name")
 		serviceName := pmmapitests.TestString(t, "service-name-for-basic-name")
 
-		params := &mservice.AddMongoDBParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddMongoDBBody{
-				AddNode: &mservice.AddMongoDBParamsBodyAddNode{
-					NodeType: pointer.ToString(mservice.AddMongoDBParamsBodyAddNodeNodeTypeNODETYPEGENERICNODE),
-					NodeName: nodeNameAddNode,
-				},
-				PMMAgentID:  pmmAgentID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        27017,
+			Body: mservice.AddServiceBody{
+				Mongodb: &mservice.AddServiceParamsBodyMongodb{
+					AddNode: &mservice.AddServiceParamsBodyMongodbAddNode{
+						NodeType: pointer.ToString(mservice.AddServiceParamsBodyMongodbAddNodeNodeTypeNODETYPEGENERICNODE),
+						NodeName: nodeNameAddNode,
+					},
+					PMMAgentID:  pmmAgentID,
+					ServiceName: serviceName,
+					Address:     "10.10.10.10",
+					Port:        27017,
 
-				SkipConnectionCheck: true,
+					SkipConnectionCheck: true,
+				},
 			},
 		}
-		_, err := client.Default.ManagementService.AddMongoDB(params)
+		_, err := client.Default.ManagementService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "add_node structure can be used only for remote nodes")
 
-		params = &mservice.AddMongoDBParams{
+		params = &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddMongoDBBody{
-				AddNode: &mservice.AddMongoDBParamsBodyAddNode{
-					NodeType: pointer.ToString(mservice.AddMongoDBParamsBodyAddNodeNodeTypeNODETYPEREMOTERDSNODE),
-					NodeName: nodeNameAddNode,
-				},
-				PMMAgentID:  pmmAgentID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        27017,
+			Body: mservice.AddServiceBody{
+				Mongodb: &mservice.AddServiceParamsBodyMongodb{
+					AddNode: &mservice.AddServiceParamsBodyMongodbAddNode{
+						NodeType: pointer.ToString(mservice.AddServiceParamsBodyMongodbAddNodeNodeTypeNODETYPEREMOTERDSNODE),
+						NodeName: nodeNameAddNode,
+					},
+					PMMAgentID:  pmmAgentID,
+					ServiceName: serviceName,
+					Address:     "10.10.10.10",
+					Port:        27017,
 
-				SkipConnectionCheck: true,
+					SkipConnectionCheck: true,
+				},
 			},
 		}
-		_, err = client.Default.ManagementService.AddMongoDB(params)
+		_, err = client.Default.ManagementService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "add_node structure can be used only for remote nodes")
 
-		params = &mservice.AddMongoDBParams{
+		params = &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddMongoDBBody{
-				AddNode: &mservice.AddMongoDBParamsBodyAddNode{
-					NodeType: pointer.ToString(mservice.AddMongoDBParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE),
-					NodeName: nodeNameAddNode,
-				},
-				PMMAgentID:  pmmAgentID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        27017,
+			Body: mservice.AddServiceBody{
+				Mongodb: &mservice.AddServiceParamsBodyMongodb{
+					AddNode: &mservice.AddServiceParamsBodyMongodbAddNode{
+						NodeType: pointer.ToString(mservice.AddServiceParamsBodyMongodbAddNodeNodeTypeNODETYPEREMOTENODE),
+						NodeName: nodeNameAddNode,
+					},
+					PMMAgentID:  pmmAgentID,
+					ServiceName: serviceName,
+					Address:     "10.10.10.10",
+					Port:        27017,
 
-				SkipConnectionCheck: true,
+					SkipConnectionCheck: true,
+				},
 			},
 		}
-		addMongoDBOK, err := client.Default.ManagementService.AddMongoDB(params)
+		addMongoDBOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMongoDBOK)
-		require.NotNil(t, addMongoDBOK.Payload.Service)
-		serviceID := addMongoDBOK.Payload.Service.ServiceID
+		require.NotNil(t, addMongoDBOK.Payload.Mongodb.Service)
+		serviceID := addMongoDBOK.Payload.Mongodb.Service.ServiceID
 
-		newNodeID := addMongoDBOK.Payload.Service.NodeID
+		newNodeID := addMongoDBOK.Payload.Mongodb.Service.NodeID
 		require.NotEqual(t, nodeID, newNodeID)
 		defer pmmapitests.RemoveNodes(t, newNodeID)
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -424,19 +441,21 @@ func TestAddMongoDB(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, remoteNodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &mservice.AddMongoDBParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddMongoDBBody{
-				NodeID:      remoteNodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        3306,
-				PMMAgentID:  pmmAgentID,
+			Body: mservice.AddServiceBody{
+				Mongodb: &mservice.AddServiceParamsBodyMongodb{
+					NodeID:      remoteNodeID,
+					ServiceName: serviceName,
+					Address:     "10.10.10.10",
+					Port:        3306,
+					PMMAgentID:  pmmAgentID,
 
-				SkipConnectionCheck: true,
+					SkipConnectionCheck: true,
+				},
 			},
 		}
-		addMongoDBOK, err := client.Default.ManagementService.AddMongoDB(params)
+		addMongoDBOK, err := client.Default.ManagementService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "node_id or node_name can be used only for generic nodes or container nodes")
 		assert.Nil(t, addMongoDBOK)
 	})
@@ -450,11 +469,15 @@ func TestAddMongoDB(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
-		params := &mservice.AddMongoDBParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body:    mservice.AddMongoDBBody{NodeID: nodeID},
+			Body: mservice.AddServiceBody{
+				Mongodb: &mservice.AddServiceParamsBodyMongodb{
+					NodeID: nodeID,
+				},
+			},
 		}
-		addMongoDBOK, err := client.Default.ManagementService.AddMongoDB(params)
+		addMongoDBOK, err := client.Default.ManagementService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBRequest.ServiceName: value length must be at least 1 runes")
 		assert.Nil(t, addMongoDBOK)
 	})
@@ -469,15 +492,17 @@ func TestAddMongoDB(t *testing.T) {
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &mservice.AddMongoDBParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddMongoDBBody{
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				PMMAgentID:  pmmAgentID,
+			Body: mservice.AddServiceBody{
+				Mongodb: &mservice.AddServiceParamsBodyMongodb{
+					NodeID:      nodeID,
+					ServiceName: serviceName,
+					PMMAgentID:  pmmAgentID,
+				},
 			},
 		}
-		addMongoDBOK, err := client.Default.ManagementService.AddMongoDB(params)
+		addMongoDBOK, err := client.Default.ManagementService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Neither socket nor address passed.")
 		assert.Nil(t, addMongoDBOK)
 	})
@@ -492,17 +517,19 @@ func TestAddMongoDB(t *testing.T) {
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &mservice.AddMongoDBParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddMongoDBBody{
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				PMMAgentID:  pmmAgentID,
+			Body: mservice.AddServiceBody{
+				Mongodb: &mservice.AddServiceParamsBodyMongodb{
+					NodeID:      nodeID,
+					ServiceName: serviceName,
+					Address:     "10.10.10.10",
+					PMMAgentID:  pmmAgentID,
+				},
 			},
 		}
-		addMongoDBOK, err := client.Default.ManagementService.AddMongoDB(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port are expected to be passed with address.")
+		addMongoDBOK, err := client.Default.ManagementService.AddService(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port is expected to be passed along with the host address.")
 		assert.Nil(t, addMongoDBOK)
 	})
 
@@ -516,16 +543,18 @@ func TestAddMongoDB(t *testing.T) {
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &mservice.AddMongoDBParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddMongoDBBody{
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        3306,
+			Body: mservice.AddServiceBody{
+				Mongodb: &mservice.AddServiceParamsBodyMongodb{
+					NodeID:      nodeID,
+					ServiceName: serviceName,
+					Address:     "10.10.10.10",
+					Port:        3306,
+				},
 			},
 		}
-		addMongoDBOK, err := client.Default.ManagementService.AddMongoDB(params)
+		addMongoDBOK, err := client.Default.ManagementService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBRequest.PmmAgentId: value length must be at least 1 runes")
 		assert.Nil(t, addMongoDBOK)
 	})
@@ -540,20 +569,22 @@ func TestAddMongoDB(t *testing.T) {
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &mservice.AddMongoDBParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddMongoDBBody{
-				PMMAgentID:  pmmAgentID,
-				Username:    "username",
-				Password:    "password",
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        27017,
-				Socket:      "/tmp/mongodb-27017.sock",
+			Body: mservice.AddServiceBody{
+				Mongodb: &mservice.AddServiceParamsBodyMongodb{
+					PMMAgentID:  pmmAgentID,
+					Username:    "username",
+					Password:    "password",
+					NodeID:      nodeID,
+					ServiceName: serviceName,
+					Address:     "10.10.10.10",
+					Port:        27017,
+					Socket:      "/tmp/mongodb-27017.sock",
+				},
 			},
 		}
-		addProxySQLOK, err := client.Default.ManagementService.AddMongoDB(params)
+		addProxySQLOK, err := client.Default.ManagementService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and address cannot be specified together.")
 		assert.Nil(t, addProxySQLOK)
 	})
@@ -569,22 +600,24 @@ func TestAddMongoDB(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-name-for-mongo-socket-name")
 
-		params := &mservice.AddMongoDBParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddMongoDBBody{
-				NodeID:      nodeID,
-				PMMAgentID:  pmmAgentID,
-				ServiceName: serviceName,
-				Socket:      "/tmp/mongodb-27017.sock",
+			Body: mservice.AddServiceBody{
+				Mongodb: &mservice.AddServiceParamsBodyMongodb{
+					NodeID:      nodeID,
+					PMMAgentID:  pmmAgentID,
+					ServiceName: serviceName,
+					Socket:      "/tmp/mongodb-27017.sock",
 
-				SkipConnectionCheck: true,
+					SkipConnectionCheck: true,
+				},
 			},
 		}
-		addMongoDBOK, err := client.Default.ManagementService.AddMongoDB(params)
+		addMongoDBOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMongoDBOK)
-		require.NotNil(t, addMongoDBOK.Payload.Service)
-		serviceID := addMongoDBOK.Payload.Service.ServiceID
+		require.NotNil(t, addMongoDBOK.Payload.Mongodb.Service)
+		serviceID := addMongoDBOK.Payload.Mongodb.Service.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		// Check that service is created and its fields.
@@ -637,24 +670,26 @@ func TestAddMongoDB(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-name-for-basic-name")
 
-		params := &mservice.AddMongoDBParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddMongoDBBody{
-				NodeID:      nodeID,
-				PMMAgentID:  pmmAgentID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        27017,
+			Body: mservice.AddServiceBody{
+				Mongodb: &mservice.AddServiceParamsBodyMongodb{
+					NodeID:      nodeID,
+					PMMAgentID:  pmmAgentID,
+					ServiceName: serviceName,
+					Address:     "10.10.10.10",
+					Port:        27017,
 
-				SkipConnectionCheck: true,
-				MetricsMode:         pointer.ToString("METRICS_MODE_PUSH"),
+					SkipConnectionCheck: true,
+					MetricsMode:         pointer.ToString("METRICS_MODE_PUSH"),
+				},
 			},
 		}
-		addMongoDBOK, err := client.Default.ManagementService.AddMongoDB(params)
+		addMongoDBOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMongoDBOK)
-		require.NotNil(t, addMongoDBOK.Payload.Service)
-		serviceID := addMongoDBOK.Payload.Service.ServiceID
+		require.NotNil(t, addMongoDBOK.Payload.Mongodb.Service)
+		serviceID := addMongoDBOK.Payload.Mongodb.Service.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		// Check that service is created and its fields.
@@ -708,24 +743,26 @@ func TestAddMongoDB(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-name-for-basic-name")
 
-		params := &mservice.AddMongoDBParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddMongoDBBody{
-				NodeID:      nodeID,
-				PMMAgentID:  pmmAgentID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        27017,
+			Body: mservice.AddServiceBody{
+				Mongodb: &mservice.AddServiceParamsBodyMongodb{
+					NodeID:      nodeID,
+					PMMAgentID:  pmmAgentID,
+					ServiceName: serviceName,
+					Address:     "10.10.10.10",
+					Port:        27017,
 
-				SkipConnectionCheck: true,
-				MetricsMode:         pointer.ToString("METRICS_MODE_PULL"),
+					SkipConnectionCheck: true,
+					MetricsMode:         pointer.ToString("METRICS_MODE_PULL"),
+				},
 			},
 		}
-		addMongoDBOK, err := client.Default.ManagementService.AddMongoDB(params)
+		addMongoDBOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMongoDBOK)
-		require.NotNil(t, addMongoDBOK.Payload.Service)
-		serviceID := addMongoDBOK.Payload.Service.ServiceID
+		require.NotNil(t, addMongoDBOK.Payload.Mongodb.Service)
+		serviceID := addMongoDBOK.Payload.Mongodb.Service.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		// Check that service is created and its fields.
@@ -778,24 +815,26 @@ func TestAddMongoDB(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-name-for-basic-name")
 
-		params := &mservice.AddMongoDBParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddMongoDBBody{
-				NodeID:      nodeID,
-				PMMAgentID:  pmmAgentID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        27017,
+			Body: mservice.AddServiceBody{
+				Mongodb: &mservice.AddServiceParamsBodyMongodb{
+					NodeID:      nodeID,
+					PMMAgentID:  pmmAgentID,
+					ServiceName: serviceName,
+					Address:     "10.10.10.10",
+					Port:        27017,
 
-				SkipConnectionCheck: true,
-				MetricsMode:         pointer.ToString("METRICS_MODE_UNSPECIFIED"),
+					SkipConnectionCheck: true,
+					MetricsMode:         pointer.ToString("METRICS_MODE_UNSPECIFIED"),
+				},
 			},
 		}
-		addMongoDBOK, err := client.Default.ManagementService.AddMongoDB(params)
+		addMongoDBOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMongoDBOK)
-		require.NotNil(t, addMongoDBOK.Payload.Service)
-		serviceID := addMongoDBOK.Payload.Service.ServiceID
+		require.NotNil(t, addMongoDBOK.Payload.Mongodb.Service)
+		serviceID := addMongoDBOK.Payload.Mongodb.Service.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		// Check that service is created and its fields.
@@ -847,26 +886,28 @@ func TestRemoveMongoDB(t *testing.T) {
 			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 
-		params := &mservice.AddMongoDBParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddMongoDBBody{
-				NodeID:             nodeID,
-				PMMAgentID:         pmmAgentID,
-				ServiceName:        serviceName,
-				Address:            "10.10.10.10",
-				Port:               27017,
-				Username:           "username",
-				Password:           "password",
-				QANMongodbProfiler: withAgents,
+			Body: mservice.AddServiceBody{
+				Mongodb: &mservice.AddServiceParamsBodyMongodb{
+					NodeID:             nodeID,
+					PMMAgentID:         pmmAgentID,
+					ServiceName:        serviceName,
+					Address:            "10.10.10.10",
+					Port:               27017,
+					Username:           "username",
+					Password:           "password",
+					QANMongodbProfiler: withAgents,
 
-				SkipConnectionCheck: true,
+					SkipConnectionCheck: true,
+				},
 			},
 		}
-		addMongoDBOK, err := client.Default.ManagementService.AddMongoDB(params)
+		addMongoDBOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMongoDBOK)
-		require.NotNil(t, addMongoDBOK.Payload.Service)
-		serviceID = addMongoDBOK.Payload.Service.ServiceID
+		require.NotNil(t, addMongoDBOK.Payload.Mongodb.Service)
+		serviceID = addMongoDBOK.Payload.Mongodb.Service.ServiceID
 		return
 	}
 
@@ -878,11 +919,9 @@ func TestRemoveMongoDB(t *testing.T) {
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
-			Body: mservice.RemoveServiceBody{
-				ServiceName: serviceName,
-				ServiceType: pointer.ToString(mservice.RemoveServiceBodyServiceTypeSERVICETYPEMONGODBSERVICE),
-			},
-			Context: pmmapitests.Context,
+			ServiceID:   serviceName,
+			ServiceType: pointer.ToString(types.ServiceTypeMongoDBService),
+			Context:     pmmapitests.Context,
 		})
 		noError := assert.NoError(t, err)
 		notNil := assert.NotNil(t, removeServiceOK)
@@ -907,11 +946,9 @@ func TestRemoveMongoDB(t *testing.T) {
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
-			Body: mservice.RemoveServiceBody{
-				ServiceID:   serviceID,
-				ServiceType: pointer.ToString(mservice.RemoveServiceBodyServiceTypeSERVICETYPEMONGODBSERVICE),
-			},
-			Context: pmmapitests.Context,
+			ServiceID:   serviceID,
+			ServiceType: pointer.ToString(types.ServiceTypeMongoDBService),
+			Context:     pmmapitests.Context,
 		})
 		noError := assert.NoError(t, err)
 		notNil := assert.NotNil(t, removeServiceOK)
@@ -928,26 +965,6 @@ func TestRemoveMongoDB(t *testing.T) {
 		assert.Nil(t, listAgents)
 	})
 
-	t.Run("Both params", func(t *testing.T) {
-		serviceName := pmmapitests.TestString(t, "service-remove-both-params")
-		nodeName := pmmapitests.TestString(t, "node-remove-both-params")
-		nodeID, pmmAgentID, serviceID := addMongoDB(t, serviceName, nodeName, false)
-		defer pmmapitests.RemoveNodes(t, nodeID)
-		defer pmmapitests.RemoveServices(t, serviceID)
-		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
-
-		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
-			Body: mservice.RemoveServiceBody{
-				ServiceID:   serviceID,
-				ServiceName: serviceName,
-				ServiceType: pointer.ToString(mservice.RemoveServiceBodyServiceTypeSERVICETYPEMYSQLSERVICE),
-			},
-			Context: pmmapitests.Context,
-		})
-		assert.Nil(t, removeServiceOK)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "service_id or service_name expected; not both")
-	})
-
 	t.Run("Wrong type", func(t *testing.T) {
 		serviceName := pmmapitests.TestString(t, "service-remove-wrong-type")
 		nodeName := pmmapitests.TestString(t, "node-remove-wrong-type")
@@ -957,11 +974,9 @@ func TestRemoveMongoDB(t *testing.T) {
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
-			Body: mservice.RemoveServiceBody{
-				ServiceID:   serviceID,
-				ServiceType: pointer.ToString(mservice.RemoveServiceBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE),
-			},
-			Context: pmmapitests.Context,
+			ServiceID:   serviceID,
+			ServiceType: pointer.ToString(types.ServiceTypePostgreSQLService),
+			Context:     pmmapitests.Context,
 		})
 		assert.Nil(t, removeServiceOK)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "wrong service type")

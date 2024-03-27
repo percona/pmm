@@ -178,8 +178,8 @@ api-test:             ## Run API tests on dev env.
 
 check:                ## Run required checkers and linters
 	bin/buf lint -v api
-	LOG_LEVEL=error bin/golangci-lint run ; \
-	bin/go-sumtype ./... ; \
+	LOG_LEVEL=error bin/golangci-lint run
+	bin/go-sumtype ./...
 	bin/go-consistent -pedantic ./...
 
 check-license:          ## Run license header checks against source files

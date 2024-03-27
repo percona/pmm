@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package grpc exposes public methods to gRPC servers.
 package grpc
 
 import (
@@ -402,9 +403,7 @@ func pointerToAgentType(agentType models.AgentType) *models.AgentType {
 	return &agentType
 }
 
-// StartPTPgSummaryAction starts pt-pg-summary (PostgreSQL) action and returns the pointer to the response message
-//
-//nolint:lll
+// StartPTPgSummaryAction starts pt-pg-summary (PostgreSQL) action and returns the pointer to the response message.
 func (s *actionsServer) StartPTPgSummaryAction(ctx context.Context, req *actionsv1.StartPTPgSummaryActionRequest) (*actionsv1.StartPTPgSummaryActionResponse, error) {
 	service, err := models.FindServiceByID(s.db.Querier, req.ServiceId)
 	if err != nil {
@@ -467,7 +466,7 @@ func (s *actionsServer) StartPTPgSummaryAction(ctx context.Context, req *actions
 	return &actionsv1.StartPTPgSummaryActionResponse{PmmAgentId: pmmAgentID, ActionId: res.ID}, nil
 }
 
-// StartPTMongoDBSummaryAction starts pt-mongodb-summary action and returns the pointer to the response message
+// StartPTMongoDBSummaryAction starts pt-mongodb-summary action and returns the pointer to the response message.
 //
 //nolint:lll
 func (s *actionsServer) StartPTMongoDBSummaryAction(ctx context.Context, req *actionsv1.StartPTMongoDBSummaryActionRequest) (*actionsv1.StartPTMongoDBSummaryActionResponse, error) {
@@ -526,7 +525,7 @@ func (s *actionsServer) StartPTMongoDBSummaryAction(ctx context.Context, req *ac
 	return &actionsv1.StartPTMongoDBSummaryActionResponse{PmmAgentId: pmmAgentID, ActionId: res.ID}, nil
 }
 
-// StartPTMySQLSummaryAction starts pt-mysql-summary action and returns the pointer to the response message
+// StartPTMySQLSummaryAction starts pt-mysql-summary action and returns the pointer to the response message.
 //
 //nolint:lll
 func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *actionsv1.StartPTMySQLSummaryActionRequest) (*actionsv1.StartPTMySQLSummaryActionResponse, error) {

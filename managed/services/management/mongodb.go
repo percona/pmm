@@ -28,8 +28,8 @@ import (
 )
 
 // AddMongoDB adds "MongoDB Service", "MongoDB Exporter Agent" and "QAN MongoDB Profiler".
-func (s *ManagementService) AddMongoDB(ctx context.Context, req *managementv1.AddMongoDBRequest) (*managementv1.AddMongoDBResponse, error) {
-	res := &managementv1.AddMongoDBResponse{}
+func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.AddMongoDBServiceParams) (*managementv1.AddServiceResponse, error) {
+	mongodb := &managementv1.MongoDBServiceResult{}
 
 	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
@@ -55,7 +55,7 @@ func (s *ManagementService) AddMongoDB(ctx context.Context, req *managementv1.Ad
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventoryv1.MongoDBService) //nolint:forcetypeassert
+		mongodb.Service = invService.(*inventoryv1.MongoDBService) //nolint:forcetypeassert
 
 		mongoDBOptions := models.MongoDBOptionsFromRequest(req)
 
@@ -96,7 +96,7 @@ func (s *ManagementService) AddMongoDB(ctx context.Context, req *managementv1.Ad
 		if err != nil {
 			return err
 		}
-		res.MongodbExporter = agent.(*inventoryv1.MongoDBExporter) //nolint:forcetypeassert
+		mongodb.MongodbExporter = agent.(*inventoryv1.MongoDBExporter) //nolint:forcetypeassert
 
 		if req.QanMongodbProfiler {
 			row, err = models.CreateAgent(tx.Querier, models.QANMongoDBProfilerAgentType, &models.CreateAgentParams{
@@ -119,7 +119,7 @@ func (s *ManagementService) AddMongoDB(ctx context.Context, req *managementv1.Ad
 			if err != nil {
 				return err
 			}
-			res.QanMongodbProfiler = agent.(*inventoryv1.QANMongoDBProfilerAgent) //nolint:forcetypeassert
+			mongodb.QanMongodbProfiler = agent.(*inventoryv1.QANMongoDBProfilerAgent) //nolint:forcetypeassert
 		}
 
 		return nil
@@ -129,6 +129,12 @@ func (s *ManagementService) AddMongoDB(ctx context.Context, req *managementv1.Ad
 
 	s.state.RequestStateUpdate(ctx, req.PmmAgentId)
 	s.vc.RequestSoftwareVersionsUpdate()
+
+	res := &managementv1.AddServiceResponse{
+		Service: &managementv1.AddServiceResponse_Mongodb{
+			Mongodb: mongodb,
+		},
+	}
 
 	return res, nil
 }

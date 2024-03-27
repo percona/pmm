@@ -28,6 +28,7 @@ import (
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	"github.com/percona/pmm/api/inventory/v1/types"
 	"github.com/percona/pmm/api/management/v1/json/client"
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
@@ -43,21 +44,22 @@ func TestAddHAProxy(t *testing.T) {
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-for-basic-name")
-
-		params := &mservice.AddHAProxyParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddHAProxyBody{
-				ServiceName:         serviceName,
-				ListenPort:          8404,
-				NodeID:              nodeID,
-				SkipConnectionCheck: true,
+			Body: mservice.AddServiceBody{
+				Haproxy: &mservice.AddServiceParamsBodyHaproxy{
+					ServiceName:         serviceName,
+					ListenPort:          8404,
+					NodeID:              nodeID,
+					SkipConnectionCheck: true,
+				},
 			},
 		}
-		addHAProxyOK, err := client.Default.ManagementService.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
 		require.NotNil(t, addHAProxyOK)
-		require.NotNil(t, addHAProxyOK.Payload.Service)
-		serviceID := addHAProxyOK.Payload.Service.ServiceID
+		require.NotNil(t, addHAProxyOK.Payload.Haproxy.Service)
+		serviceID := addHAProxyOK.Payload.Haproxy.Service.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		// Check that service is created and its fields.
@@ -108,28 +110,30 @@ func TestAddHAProxy(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-for-all-fields-name")
 
-		params := &mservice.AddHAProxyParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddHAProxyBody{
-				ServiceName:         serviceName,
-				Username:            "username",
-				Password:            "password",
-				Scheme:              "https",
-				MetricsPath:         "/metrics-path",
-				ListenPort:          9250,
-				NodeID:              nodeID,
-				Environment:         "some-environment",
-				Cluster:             "cluster-name",
-				ReplicationSet:      "replication-set",
-				CustomLabels:        map[string]string{"bar": "foo"},
-				SkipConnectionCheck: true,
+			Body: mservice.AddServiceBody{
+				Haproxy: &mservice.AddServiceParamsBodyHaproxy{
+					ServiceName:         serviceName,
+					Username:            "username",
+					Password:            "password",
+					Scheme:              "https",
+					MetricsPath:         "/metrics-path",
+					ListenPort:          9250,
+					NodeID:              nodeID,
+					Environment:         "some-environment",
+					Cluster:             "cluster-name",
+					ReplicationSet:      "replication-set",
+					CustomLabels:        map[string]string{"bar": "foo"},
+					SkipConnectionCheck: true,
+				},
 			},
 		}
-		addHAProxyOK, err := client.Default.ManagementService.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
 		require.NotNil(t, addHAProxyOK)
-		require.NotNil(t, addHAProxyOK.Payload.Service)
-		serviceID := addHAProxyOK.Payload.Service.ServiceID
+		require.NotNil(t, addHAProxyOK.Payload.Haproxy.Service)
+		serviceID := addHAProxyOK.Payload.Haproxy.Service.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 		defer removeServiceAgents(t, serviceID)
 
@@ -158,30 +162,32 @@ func TestAddHAProxy(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-for-basic-name")
 
-		params := &mservice.AddHAProxyParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddHAProxyBody{
-				AddNode: &mservice.AddHAProxyParamsBodyAddNode{
-					NodeType:     pointer.ToString(mservice.AddHAProxyParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE),
-					NodeName:     nodeName,
-					MachineID:    "/machine-id/",
-					Distro:       "linux",
-					Region:       "us-west2",
-					CustomLabels: map[string]string{"foo": "bar-for-node"},
+			Body: mservice.AddServiceBody{
+				Haproxy: &mservice.AddServiceParamsBodyHaproxy{
+					AddNode: &mservice.AddServiceParamsBodyHaproxyAddNode{
+						NodeType:     pointer.ToString(mservice.AddServiceParamsBodyHaproxyAddNodeNodeTypeNODETYPEREMOTENODE),
+						NodeName:     nodeName,
+						MachineID:    "/machine-id/",
+						Distro:       "linux",
+						Region:       "us-west2",
+						CustomLabels: map[string]string{"foo": "bar-for-node"},
+					},
+					Address:             "localhost",
+					ServiceName:         serviceName,
+					ListenPort:          8404,
+					SkipConnectionCheck: true,
 				},
-				Address:             "localhost",
-				ServiceName:         serviceName,
-				ListenPort:          8404,
-				SkipConnectionCheck: true,
 			},
 		}
-		addHAProxyOK, err := client.Default.ManagementService.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
 		require.NotNil(t, addHAProxyOK)
-		require.NotNil(t, addHAProxyOK.Payload.Service)
-		nodeID := addHAProxyOK.Payload.Service.NodeID
+		require.NotNil(t, addHAProxyOK.Payload.Haproxy.Service)
+		nodeID := addHAProxyOK.Payload.Haproxy.Service.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
-		serviceID := addHAProxyOK.Payload.Service.ServiceID
+		serviceID := addHAProxyOK.Payload.Haproxy.Service.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		// Check that node is created and its fields.
@@ -248,32 +254,36 @@ func TestAddHAProxy(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-for-the-same-name")
 
-		params := &mservice.AddHAProxyParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddHAProxyBody{
-				NodeID:              nodeID,
-				ServiceName:         serviceName,
-				ListenPort:          9250,
-				SkipConnectionCheck: true,
+			Body: mservice.AddServiceBody{
+				Haproxy: &mservice.AddServiceParamsBodyHaproxy{
+					NodeID:              nodeID,
+					ServiceName:         serviceName,
+					ListenPort:          9250,
+					SkipConnectionCheck: true,
+				},
 			},
 		}
-		addHAProxyOK, err := client.Default.ManagementService.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
 		require.NotNil(t, addHAProxyOK)
-		require.NotNil(t, addHAProxyOK.Payload.Service)
-		serviceID := addHAProxyOK.Payload.Service.ServiceID
+		require.NotNil(t, addHAProxyOK.Payload.Haproxy.Service)
+		serviceID := addHAProxyOK.Payload.Haproxy.Service.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 		defer removeServiceAgents(t, serviceID)
 
-		params = &mservice.AddHAProxyParams{
+		params = &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddHAProxyBody{
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				ListenPort:  9260,
+			Body: mservice.AddServiceBody{
+				Haproxy: &mservice.AddServiceParamsBodyHaproxy{
+					NodeID:      nodeID,
+					ServiceName: serviceName,
+					ListenPort:  9260,
+				},
 			},
 		}
-		addHAProxyOK, err = client.Default.ManagementService.AddHAProxy(params)
+		addHAProxyOK, err = client.Default.ManagementService.AddService(params)
 		require.Nil(t, addHAProxyOK)
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, `Service with name %q already exists.`, serviceName)
 	})
@@ -284,13 +294,15 @@ func TestAddHAProxy(t *testing.T) {
 		nodeID := genericNode.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		params := &mservice.AddHAProxyParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddHAProxyBody{
-				NodeID: nodeID,
+			Body: mservice.AddServiceBody{
+				Haproxy: &mservice.AddServiceParamsBodyHaproxy{
+					NodeID: nodeID,
+				},
 			},
 		}
-		addHAProxyOK, err := client.Default.ManagementService.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.ManagementService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddHAProxyRequest.ServiceName: value length must be at least 1 runes")
 		assert.Nil(t, addHAProxyOK)
 	})
@@ -302,14 +314,16 @@ func TestAddHAProxy(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &mservice.AddHAProxyParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddHAProxyBody{
-				NodeID:      nodeID,
-				ServiceName: serviceName,
+			Body: mservice.AddServiceBody{
+				Haproxy: &mservice.AddServiceParamsBodyHaproxy{
+					NodeID:      nodeID,
+					ServiceName: serviceName,
+				},
 			},
 		}
-		addHAProxyOK, err := client.Default.ManagementService.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.ManagementService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddHAProxyRequest.ListenPort: value must be inside range (0, 65536)")
 		assert.Nil(t, addHAProxyOK)
 	})
@@ -321,14 +335,16 @@ func TestAddHAProxy(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &mservice.AddHAProxyParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddHAProxyBody{
-				ServiceName: serviceName,
-				ListenPort:  12345,
+			Body: mservice.AddServiceBody{
+				Haproxy: &mservice.AddServiceParamsBodyHaproxy{
+					ServiceName: serviceName,
+					ListenPort:  12345,
+				},
 			},
 		}
-		addHAProxyOK, err := client.Default.ManagementService.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.ManagementService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "expected only one param; node id, node name or register node params")
 		assert.Nil(t, addHAProxyOK)
 	})
@@ -340,18 +356,20 @@ func TestAddHAProxy(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &mservice.AddHAProxyParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddHAProxyBody{
-				AddNode: &mservice.AddHAProxyParamsBodyAddNode{
-					NodeType: pointer.ToString(mservice.AddHAProxyParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE),
-					NodeName: "haproxy-serverless",
+			Body: mservice.AddServiceBody{
+				Haproxy: &mservice.AddServiceParamsBodyHaproxy{
+					AddNode: &mservice.AddServiceParamsBodyHaproxyAddNode{
+						NodeType: pointer.ToString(mservice.AddServiceParamsBodyHaproxyAddNodeNodeTypeNODETYPEREMOTENODE),
+						NodeName: "haproxy-serverless",
+					},
+					ServiceName: serviceName,
+					ListenPort:  12345,
 				},
-				ServiceName: serviceName,
-				ListenPort:  12345,
 			},
 		}
-		addHAProxyOK, err := client.Default.ManagementService.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.ManagementService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "address can't be empty for add node request.")
 		assert.Nil(t, addHAProxyOK)
 	})
@@ -363,22 +381,24 @@ func TestRemoveHAProxy(t *testing.T) {
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
 		nodeID = genericNode.NodeID
 
-		params := &mservice.AddHAProxyParams{
+		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
-			Body: mservice.AddHAProxyBody{
-				NodeID:              nodeID,
-				ServiceName:         serviceName,
-				Username:            "username",
-				Password:            "password",
-				ListenPort:          12345,
-				SkipConnectionCheck: true,
+			Body: mservice.AddServiceBody{
+				Haproxy: &mservice.AddServiceParamsBodyHaproxy{
+					NodeID:              nodeID,
+					ServiceName:         serviceName,
+					Username:            "username",
+					Password:            "password",
+					ListenPort:          12345,
+					SkipConnectionCheck: true,
+				},
 			},
 		}
-		addHAProxyOK, err := client.Default.ManagementService.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
 		require.NotNil(t, addHAProxyOK)
-		require.NotNil(t, addHAProxyOK.Payload.Service)
-		serviceID = addHAProxyOK.Payload.Service.ServiceID
+		require.NotNil(t, addHAProxyOK.Payload.Haproxy.Service)
+		serviceID = addHAProxyOK.Payload.Haproxy.Service.ServiceID
 		return
 	}
 
@@ -389,11 +409,9 @@ func TestRemoveHAProxy(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
-			Body: mservice.RemoveServiceBody{
-				ServiceName: serviceName,
-				ServiceType: pointer.ToString(mservice.RemoveServiceBodyServiceTypeSERVICETYPEHAPROXYSERVICE),
-			},
-			Context: pmmapitests.Context,
+			ServiceID:   serviceName,
+			ServiceType: pointer.ToString(types.ServiceTypeHAProxyService),
+			Context:     pmmapitests.Context,
 		})
 		noError := assert.NoError(t, err)
 		notNil := assert.NotNil(t, removeServiceOK)
@@ -417,11 +435,9 @@ func TestRemoveHAProxy(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
-			Body: mservice.RemoveServiceBody{
-				ServiceID:   serviceID,
-				ServiceType: pointer.ToString(mservice.RemoveServiceBodyServiceTypeSERVICETYPEHAPROXYSERVICE),
-			},
-			Context: pmmapitests.Context,
+			ServiceID:   serviceID,
+			ServiceType: pointer.ToString(types.ServiceTypeHAProxyService),
+			Context:     pmmapitests.Context,
 		})
 		noError := assert.NoError(t, err)
 		notNil := assert.NotNil(t, removeServiceOK)
@@ -438,25 +454,6 @@ func TestRemoveHAProxy(t *testing.T) {
 		assert.Nil(t, listAgents)
 	})
 
-	t.Run("Both params", func(t *testing.T) {
-		serviceName := pmmapitests.TestString(t, "service-remove-both-params")
-		nodeName := pmmapitests.TestString(t, "node-remove-both-params")
-		nodeID, serviceID := addHAProxy(t, serviceName, nodeName)
-		defer pmmapitests.RemoveNodes(t, nodeID)
-		defer pmmapitests.RemoveServices(t, serviceID)
-
-		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
-			Body: mservice.RemoveServiceBody{
-				ServiceID:   serviceID,
-				ServiceName: serviceName,
-				ServiceType: pointer.ToString(mservice.RemoveServiceBodyServiceTypeSERVICETYPEHAPROXYSERVICE),
-			},
-			Context: pmmapitests.Context,
-		})
-		assert.Nil(t, removeServiceOK)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "service_id or service_name expected; not both")
-	})
-
 	t.Run("Wrong type", func(t *testing.T) {
 		serviceName := pmmapitests.TestString(t, "service-remove-wrong-type")
 		nodeName := pmmapitests.TestString(t, "node-remove-wrong-type")
@@ -465,11 +462,9 @@ func TestRemoveHAProxy(t *testing.T) {
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
-			Body: mservice.RemoveServiceBody{
-				ServiceID:   serviceID,
-				ServiceType: pointer.ToString(mservice.RemoveServiceBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE),
-			},
-			Context: pmmapitests.Context,
+			ServiceID:   serviceID,
+			ServiceType: pointer.ToString(types.ServiceTypePostgreSQLService),
+			Context:     pmmapitests.Context,
 		})
 		assert.Nil(t, removeServiceOK)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "wrong service type")
@@ -477,7 +472,6 @@ func TestRemoveHAProxy(t *testing.T) {
 
 	t.Run("No params", func(t *testing.T) {
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
-			Body:    mservice.RemoveServiceBody{},
 			Context: pmmapitests.Context,
 		})
 		assert.Nil(t, removeServiceOK)

@@ -20,6 +20,7 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/helpers"
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 	"github.com/percona/pmm/api/management/v1/json/client"
@@ -47,11 +48,16 @@ type RemoveCommand struct {
 
 // RunCmd runs the command for RemoveCommand.
 func (cmd *RemoveCommand) RunCmd() (commands.Result, error) {
-	if cmd.ServiceID == "" && cmd.ServiceName == "" {
+	// As RemoveService method accepts only one of the service ID or service name in its `serviceID` parameter.
+	// Therefore, we need to check if both are provided. If only one is provided, we take that one.
+	// If both are provided, we take the service ID.
+	var serviceID string
+
+	switch {
+	case cmd.ServiceID == "" && cmd.ServiceName == "":
 		// Automatic service lookup during removal
 		//
-		// Get services and remove it automatically once it's only one
-		// service registered
+		// Remove the service automatically as long as it's the only service registered
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 		if err != nil {
 			return nil, err
@@ -67,31 +73,32 @@ func (cmd *RemoveCommand) RunCmd() (commands.Result, error) {
 		}
 		switch {
 		case len(servicesRes.Payload.Mysql) == 1:
-			cmd.ServiceID = servicesRes.Payload.Mysql[0].ServiceID
+			serviceID = servicesRes.Payload.Mysql[0].ServiceID
 		case len(servicesRes.Payload.Mongodb) == 1:
-			cmd.ServiceID = servicesRes.Payload.Mongodb[0].ServiceID
+			serviceID = servicesRes.Payload.Mongodb[0].ServiceID
 		case len(servicesRes.Payload.Postgresql) == 1:
-			cmd.ServiceID = servicesRes.Payload.Postgresql[0].ServiceID
+			serviceID = servicesRes.Payload.Postgresql[0].ServiceID
 		case len(servicesRes.Payload.Proxysql) == 1:
-			cmd.ServiceID = servicesRes.Payload.Proxysql[0].ServiceID
+			serviceID = servicesRes.Payload.Proxysql[0].ServiceID
 		case len(servicesRes.Payload.Haproxy) == 1:
-			cmd.ServiceID = servicesRes.Payload.Haproxy[0].ServiceID
+			serviceID = servicesRes.Payload.Haproxy[0].ServiceID
 		case len(servicesRes.Payload.External) == 1:
-			cmd.ServiceID = servicesRes.Payload.External[0].ServiceID
+			serviceID = servicesRes.Payload.External[0].ServiceID
 		}
 		if cmd.ServiceID == "" {
 			//nolint:revive,golint
 			return nil, errors.New(`We could not find a service associated with the local node. Please provide "Service ID" or "Service name".`)
 		}
+	case cmd.ServiceName != "" && cmd.ServiceID == "":
+		serviceID = cmd.ServiceName
+	default:
+		serviceID = cmd.ServiceID
 	}
 
 	params := &mservice.RemoveServiceParams{
-		Body: mservice.RemoveServiceBody{
-			ServiceID:   cmd.ServiceID,
-			ServiceName: cmd.ServiceName,
-			ServiceType: cmd.serviceType(),
-		},
-		Context: commands.Ctx,
+		ServiceID:   helpers.StripServiceIDPrefix(serviceID),
+		ServiceType: cmd.serviceType(),
+		Context:     commands.Ctx,
 	}
 	_, err := client.Default.ManagementService.RemoveService(params)
 	if err != nil {

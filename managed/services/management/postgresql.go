@@ -28,10 +28,10 @@ import (
 )
 
 // AddPostgreSQL adds "PostgreSQL Service", "PostgreSQL Exporter Agent" and "QAN PostgreSQL PerfSchema Agent".
-func (s *ManagementService) AddPostgreSQL(ctx context.Context, req *managementv1.AddPostgreSQLRequest) (*managementv1.AddPostgreSQLResponse, error) {
-	res := &managementv1.AddPostgreSQLResponse{}
+func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1.AddPostgreSQLServiceParams) (*managementv1.AddServiceResponse, error) {
+	postgres := &managementv1.PostgreSQLServiceResult{}
 
-	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {
 			return err
@@ -57,7 +57,7 @@ func (s *ManagementService) AddPostgreSQL(ctx context.Context, req *managementv1
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventoryv1.PostgreSQLService) //nolint:forcetypeassert
+		postgres.Service = invService.(*inventoryv1.PostgreSQLService) //nolint:forcetypeassert
 
 		req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, req.PmmAgentId)
 		if err != nil {
@@ -92,9 +92,9 @@ func (s *ManagementService) AddPostgreSQL(ctx context.Context, req *managementv1
 				return err
 			}
 
-			// In case of not available PGSM extension it is switch to PGSS.
+			// In case PGSM extension is unavailable, it will switch to PGSS.
 			if req.QanPostgresqlPgstatmonitorAgent && row.PostgreSQLOptions.PGSMVersion == "" {
-				res.Warning = "Could not to detect the pg_stat_monitor extension on your system. Falling back to the pg_stat_statements."
+				postgres.Warning = "Could not to detect pg_stat_monitor extension on your system. Falling back to pg_stat_statements."
 				req.QanPostgresqlPgstatementsAgent = true
 				req.QanPostgresqlPgstatmonitorAgent = false
 			}
@@ -104,7 +104,7 @@ func (s *ManagementService) AddPostgreSQL(ctx context.Context, req *managementv1
 		if err != nil {
 			return err
 		}
-		res.PostgresExporter = agent.(*inventoryv1.PostgresExporter) //nolint:forcetypeassert
+		postgres.PostgresExporter = agent.(*inventoryv1.PostgresExporter) //nolint:forcetypeassert
 
 		if req.QanPostgresqlPgstatementsAgent {
 			row, err = models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, &models.CreateAgentParams{
@@ -128,7 +128,7 @@ func (s *ManagementService) AddPostgreSQL(ctx context.Context, req *managementv1
 			if err != nil {
 				return err
 			}
-			res.QanPostgresqlPgstatementsAgent = agent.(*inventoryv1.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
+			postgres.QanPostgresqlPgstatementsAgent = agent.(*inventoryv1.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
 		}
 
 		if req.QanPostgresqlPgstatmonitorAgent {
@@ -153,14 +153,23 @@ func (s *ManagementService) AddPostgreSQL(ctx context.Context, req *managementv1
 			if err != nil {
 				return err
 			}
-			res.QanPostgresqlPgstatmonitorAgent = agent.(*inventoryv1.QANPostgreSQLPgStatMonitorAgent) //nolint:forcetypeassert
+			postgres.QanPostgresqlPgstatmonitorAgent = agent.(*inventoryv1.QANPostgreSQLPgStatMonitorAgent) //nolint:forcetypeassert
 		}
 
 		return nil
-	}); e != nil {
-		return nil, e
+	})
+
+	if errTx != nil {
+		return nil, errTx
 	}
 
 	s.state.RequestStateUpdate(ctx, req.PmmAgentId)
+
+	res := &managementv1.AddServiceResponse{
+		Service: &managementv1.AddServiceResponse_Postgresql{
+			Postgresql: postgres,
+		},
+	}
+
 	return res, nil
 }

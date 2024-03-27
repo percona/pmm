@@ -7,7 +7,6 @@ package management_service
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -16,7 +15,6 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // RemoveServiceReader is a Reader for the RemoveService structure.
@@ -60,7 +58,7 @@ type RemoveServiceOK struct {
 }
 
 func (o *RemoveServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Service/Remove][%d] removeServiceOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[DELETE /v1/management/services/{service_id}][%d] removeServiceOk  %+v", 200, o.Payload)
 }
 
 func (o *RemoveServiceOK) GetPayload() interface{} {
@@ -100,7 +98,7 @@ func (o *RemoveServiceDefault) Code() int {
 }
 
 func (o *RemoveServiceDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Service/Remove][%d] RemoveService default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[DELETE /v1/management/services/{service_id}][%d] RemoveService default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *RemoveServiceDefault) GetPayload() *RemoveServiceDefaultBody {
@@ -115,117 +113,6 @@ func (o *RemoveServiceDefault) readResponse(response runtime.ClientResponse, con
 		return err
 	}
 
-	return nil
-}
-
-/*
-RemoveServiceBody remove service body
-swagger:model RemoveServiceBody
-*/
-type RemoveServiceBody struct {
-	// ServiceType describes supported Service types.
-	// Enum: [SERVICE_TYPE_UNSPECIFIED SERVICE_TYPE_MYSQL_SERVICE SERVICE_TYPE_MONGODB_SERVICE SERVICE_TYPE_POSTGRESQL_SERVICE SERVICE_TYPE_PROXYSQL_SERVICE SERVICE_TYPE_HAPROXY_SERVICE SERVICE_TYPE_EXTERNAL_SERVICE]
-	ServiceType *string `json:"service_type,omitempty"`
-
-	// Service ID or Service Name is required.
-	// Unique randomly generated instance identifier.
-	ServiceID string `json:"service_id,omitempty"`
-
-	// Unique across all Services user-defined name.
-	ServiceName string `json:"service_name,omitempty"`
-}
-
-// Validate validates this remove service body
-func (o *RemoveServiceBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateServiceType(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var removeServiceBodyTypeServiceTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_UNSPECIFIED","SERVICE_TYPE_MYSQL_SERVICE","SERVICE_TYPE_MONGODB_SERVICE","SERVICE_TYPE_POSTGRESQL_SERVICE","SERVICE_TYPE_PROXYSQL_SERVICE","SERVICE_TYPE_HAPROXY_SERVICE","SERVICE_TYPE_EXTERNAL_SERVICE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		removeServiceBodyTypeServiceTypePropEnum = append(removeServiceBodyTypeServiceTypePropEnum, v)
-	}
-}
-
-const (
-
-	// RemoveServiceBodyServiceTypeSERVICETYPEUNSPECIFIED captures enum value "SERVICE_TYPE_UNSPECIFIED"
-	RemoveServiceBodyServiceTypeSERVICETYPEUNSPECIFIED string = "SERVICE_TYPE_UNSPECIFIED"
-
-	// RemoveServiceBodyServiceTypeSERVICETYPEMYSQLSERVICE captures enum value "SERVICE_TYPE_MYSQL_SERVICE"
-	RemoveServiceBodyServiceTypeSERVICETYPEMYSQLSERVICE string = "SERVICE_TYPE_MYSQL_SERVICE"
-
-	// RemoveServiceBodyServiceTypeSERVICETYPEMONGODBSERVICE captures enum value "SERVICE_TYPE_MONGODB_SERVICE"
-	RemoveServiceBodyServiceTypeSERVICETYPEMONGODBSERVICE string = "SERVICE_TYPE_MONGODB_SERVICE"
-
-	// RemoveServiceBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE captures enum value "SERVICE_TYPE_POSTGRESQL_SERVICE"
-	RemoveServiceBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE string = "SERVICE_TYPE_POSTGRESQL_SERVICE"
-
-	// RemoveServiceBodyServiceTypeSERVICETYPEPROXYSQLSERVICE captures enum value "SERVICE_TYPE_PROXYSQL_SERVICE"
-	RemoveServiceBodyServiceTypeSERVICETYPEPROXYSQLSERVICE string = "SERVICE_TYPE_PROXYSQL_SERVICE"
-
-	// RemoveServiceBodyServiceTypeSERVICETYPEHAPROXYSERVICE captures enum value "SERVICE_TYPE_HAPROXY_SERVICE"
-	RemoveServiceBodyServiceTypeSERVICETYPEHAPROXYSERVICE string = "SERVICE_TYPE_HAPROXY_SERVICE"
-
-	// RemoveServiceBodyServiceTypeSERVICETYPEEXTERNALSERVICE captures enum value "SERVICE_TYPE_EXTERNAL_SERVICE"
-	RemoveServiceBodyServiceTypeSERVICETYPEEXTERNALSERVICE string = "SERVICE_TYPE_EXTERNAL_SERVICE"
-)
-
-// prop value enum
-func (o *RemoveServiceBody) validateServiceTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, removeServiceBodyTypeServiceTypePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *RemoveServiceBody) validateServiceType(formats strfmt.Registry) error {
-	if swag.IsZero(o.ServiceType) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateServiceTypeEnum("body"+"."+"service_type", "body", *o.ServiceType); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// ContextValidate validates this remove service body based on context it is used
-func (o *RemoveServiceBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *RemoveServiceBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *RemoveServiceBody) UnmarshalBinary(b []byte) error {
-	var res RemoveServiceBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

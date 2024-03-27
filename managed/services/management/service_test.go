@@ -96,20 +96,11 @@ func TestServiceService(t *testing.T) {
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `service_id or service_name expected`), err)
 		})
 
-		t.Run("Both params", func(t *testing.T) {
-			ctx, s, teardown, _ := setup(t)
-			defer teardown(t)
-
-			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceId: "some-id", ServiceName: "some-service-name"})
-			assert.Nil(t, response)
-			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `service_id or service_name expected; not both`), err)
-		})
-
 		t.Run("Not found", func(t *testing.T) {
 			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
-			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceName: "some-service-name"})
+			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceId: "some-service-name"})
 			assert.Nil(t, response)
 			tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with name "some-service-name" not found.`), err)
 		})
@@ -156,7 +147,7 @@ func TestServiceService(t *testing.T) {
 			require.NoError(t, err)
 
 			s.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgent.AgentID)
-			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
+			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceId: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
 			assert.NotNil(t, response)
 			assert.NoError(t, err)
 
@@ -207,7 +198,7 @@ func TestServiceService(t *testing.T) {
 			require.NoError(t, err)
 
 			s.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgent.AgentID)
-			_, err = s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
+			_, err = s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceId: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
 			assert.NoError(t, err)
 
 			_, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
@@ -261,7 +252,7 @@ func TestServiceService(t *testing.T) {
 			require.NoError(t, err)
 
 			s.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgent.AgentID)
-			_, err = s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
+			_, err = s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceId: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
 			assert.NoError(t, err)
 
 			_, err = models.FindServiceByID(s.db.Querier, service.ServiceID)

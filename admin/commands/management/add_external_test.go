@@ -26,7 +26,7 @@ import (
 func TestAddExternal(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		res := &addExternalResult{
-			Service: &mservice.AddExternalOKBodyService{
+			Service: &mservice.AddServiceOKBodyExternalService{
 				ServiceID:   "/service_id/1",
 				ServiceName: "myhost-redis",
 				Group:       "redis",

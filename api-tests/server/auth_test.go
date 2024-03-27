@@ -118,7 +118,7 @@ func TestSetup(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("X-Test-Must-Setup", "1")
 
-		resp, b := doRequest(t, client, req)
+		resp, b := doRequest(t, client, req) //nolint:bodyclose
 
 		assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
 		assert.True(t, strings.HasPrefix(string(b), `<!doctype html>`), string(b))
@@ -151,7 +151,7 @@ func TestSetup(t *testing.T) {
 				require.NoError(t, err)
 				req.Header.Set("X-Test-Must-Setup", "1")
 
-				resp, b := doRequest(t, client, req)
+				resp, b := doRequest(t, client, req) //nolint:bodyclose
 
 				assert.Equal(t, code, resp.StatusCode, "response:\n%s", b)
 				if code == 303 {
@@ -176,7 +176,7 @@ func TestSetup(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("X-Test-Must-Setup", "1")
 
-		resp, b := doRequest(t, client, req)
+		resp, b := doRequest(t, client, req) //nolint:bodyclose
 
 		assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
 		assert.Equal(t, "{}", string(b), "response:\n%s", b)
@@ -210,7 +210,7 @@ func TestSwagger(t *testing.T) {
 				req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				require.NoError(t, err)
 
-				resp, _ := doRequest(t, http.DefaultClient, req)
+				resp, _ := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 				require.NoError(t, err)
 				assert.Equal(t, 200, resp.StatusCode)
@@ -226,7 +226,7 @@ func TestSwagger(t *testing.T) {
 				req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				require.NoError(t, err)
 
-				resp, _ := doRequest(t, http.DefaultClient, req)
+				resp, _ := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 				require.NoError(t, err)
 				assert.Equal(t, 200, resp.StatusCode)
@@ -388,7 +388,7 @@ func deleteUser(t *testing.T, userID int) {
 	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodDelete, u.String(), nil)
 	require.NoError(t, err)
 
-	resp, b := doRequest(t, http.DefaultClient, req)
+	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete user, status code: %d, response: %s", resp.StatusCode, b)
 }
@@ -412,7 +412,7 @@ func createUser(t *testing.T, login string) int {
 	require.NoError(t, err)
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	resp, b := doRequest(t, http.DefaultClient, req)
+	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create user, status code: %d, response: %s", resp.StatusCode, b)
 
@@ -439,7 +439,7 @@ func setRole(t *testing.T, userID int, role string) {
 	require.NoError(t, err)
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	resp, b := doRequest(t, http.DefaultClient, req)
+	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to set role for user, response: %s", b)
 }
@@ -454,7 +454,7 @@ func deleteAPIKey(t *testing.T, apiKeyID int) {
 	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodDelete, u.String(), nil)
 	require.NoError(t, err)
 
-	resp, b := doRequest(t, http.DefaultClient, req)
+	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete API Key, status code: %d, response: %s", resp.StatusCode, b)
 }
@@ -477,7 +477,7 @@ func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
-	resp, b := doRequest(t, http.DefaultClient, req)
+	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create API key, status code: %d, response: %s", resp.StatusCode, b)
 
@@ -492,7 +492,7 @@ func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
 	require.NoError(t, err)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 
-	resp1, b := doRequest(t, http.DefaultClient, req)
+	resp1, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp1.StatusCode, "failed to get API key, status code: %d, response: %s", resp1.StatusCode, b)
 

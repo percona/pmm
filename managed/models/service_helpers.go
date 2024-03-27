@@ -72,7 +72,7 @@ func validateDBConnectionOptions(socket, host *string, port *uint16) error {
 		}
 
 		if port == nil {
-			return status.Errorf(codes.InvalidArgument, "Port are expected to be passed with address.")
+			return status.Errorf(codes.InvalidArgument, "Port is expected to be passed along with the host address.")
 		}
 	}
 

@@ -15,14 +15,35 @@ import "management/v1/proxysql.proto";
 import "management/v1/rds.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
+message AddServiceRequest {
+  oneof service {
+    AddMySQLServiceParams mysql = 1;
+    AddMongoDBServiceParams mongodb = 2;
+    AddPostgreSQLServiceParams postgresql = 3;
+    AddProxySQLServiceParams proxysql = 4;
+    AddHAProxyServiceParams haproxy = 5;
+    AddExternalServiceParams external = 6;
+    AddRDSServiceParams rds = 7;
+  }
+}
+
+message AddServiceResponse {
+  oneof service {
+    MySQLServiceResult mysql = 1;
+    MongoDBServiceResult mongodb = 2;
+    PostgreSQLServiceResult postgresql = 3;
+    ProxySQLServiceResult proxysql = 4;
+    HAProxyServiceResult haproxy = 5;
+    ExternalServiceResult external = 6;
+    RDSServiceResult rds = 7;
+  }
+}
+
 message RemoveServiceRequest {
+  // Either a Service ID or a Service Name.
+  string service_id = 1;
   // Service type.
-  inventory.v1.ServiceType service_type = 1;
-  // Service ID or Service Name is required.
-  // Unique randomly generated instance identifier.
-  string service_id = 2;
-  // Unique across all Services user-defined name.
-  string service_name = 3;
+  inventory.v1.ServiceType service_type = 2;
 }
 
 message RemoveServiceResponse {}
@@ -32,109 +53,67 @@ service ManagementService {
   // AddAnnotation adds an annotation.
   rpc AddAnnotation(AddAnnotationRequest) returns (AddAnnotationResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Annotations/Add"
+      post: "/v1/management/annotations"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add Annotation"
+      summary: "Add an Annotation"
       description: "Adds an annotation."
     };
   }
-  // RegisterNode registers a new Node and pmm-agent.
+  // RegisterNode registers a new Node and a pmm-agent.
   rpc RegisterNode(RegisterNodeRequest) returns (RegisterNodeResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Node/Register"
+      post: "/v1/management/nodes"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Register Node"
-      description: "Registers a new Node and pmm-agent."
+      summary: "Register a Node"
+      description: "Registers a new Node and a pmm-agent."
     };
   }
+
   // AddExternal adds external service and adds external exporter.
   // It automatically adds a service to inventory, which is running on provided "node_id",
   // then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
-  rpc AddExternal(AddExternalRequest) returns (AddExternalResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/External/Add"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add External Service"
-      description: "Adds external service and adds external exporter. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds an \"external exporter\" agent to inventory, which is running on provided \"runs_on_node_id\"."
-    };
-  }
-  // AddHAProxy adds HAProxy service and adds external exporter.
-  // It automatically adds a service to inventory, which is running on provided "node_id",
-  // then adds an "external exporter" agent to inventory.
-  rpc AddHAProxy(AddHAProxyRequest) returns (AddHAProxyResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/HAProxy/Add"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add HAProxy"
-      description: "Adds HAProxy service and external exporter. It automatically adds a service to inventory, which is running on the provided \"node_id\", then adds an \"external exporter\" agent to the inventory."
-    };
-  }
+
   // AddMySQL adds MySQL Service and starts several Agents.
   // It automatically adds a service to inventory, which is running on provided "node_id",
   // then adds "mysqld_exporter", and "qan_mysql_perfschema" agents
   // with provided "pmm_agent_id" and other parameters.
-  rpc AddMySQL(AddMySQLRequest) returns (AddMySQLResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/MySQL/Add"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add MySQL"
-      description: "Adds MySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided \"node_id\", then adds \"mysqld_exporter\", and \"qan_mysql_perfschema\" agents with the provided \"pmm_agent_id\" and other parameters."
-    };
-  }
+
   // AddMongoDB adds MongoDB Service and starts several Agents.
   // It automatically adds a service to inventory, which is running on provided "node_id",
   // then adds "mongodb_exporter", and "qan_mongodb_profiler" agents
   // with provided "pmm_agent_id" and other parameters.
-  rpc AddMongoDB(AddMongoDBRequest) returns (AddMongoDBResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/MongoDB/Add"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add MongoDB"
-      description: "Adds MongoDB Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided \"node_id\", then adds \"mongodb_exporter\", and \"qan_mongodb_profiler\" agents with the provided \"pmm_agent_id\" and other parameters."
-    };
-  }
+
   // AddPostgreSQL adds PostgreSQL Service and starts postgres exporter.
   // It automatically adds a service to inventory, which is running on provided "node_id",
   // then adds "postgres_exporter" with provided "pmm_agent_id" and other parameters.
-  rpc AddPostgreSQL(AddPostgreSQLRequest) returns (AddPostgreSQLResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/PostgreSQL/Add"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add PostgreSQL"
-      description: "Adds PostgreSQL Service and starts postgres exporter. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds \"postgres_exporter\" with provided \"pmm_agent_id\" and other parameters."
-    };
-  }
+
+  // AddHAProxy adds HAProxy service and adds external exporter.
+  // It automatically adds a service to inventory, which is running on provided "node_id",
+  // then adds an "external exporter" agent to inventory.
+
   // AddProxySQL adds ProxySQL Service and starts several Agents.
   // It automatically adds a service to inventory, which is running on provided "node_id",
   // then adds "proxysql_exporter" with provided "pmm_agent_id" and other parameters.
-  rpc AddProxySQL(AddProxySQLRequest) returns (AddProxySQLResponse) {
+
+  // AddService adds a Service and starts several Agents.
+  rpc AddService(AddServiceRequest) returns (AddServiceResponse) {
     option (google.api.http) = {
-      post: "/v1/management/ProxySQL/Add"
+      post: "/v1/management/services"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add ProxySQL"
-      description: "Adds ProxySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds \"proxysql_exporter\" with provided \"pmm_agent_id\" and other parameters."
+      summary: "Add a Service"
+      description: "Adds a service and starts several agents."
     };
   }
   // DiscoverRDS discovers RDS instances.
   rpc DiscoverRDS(DiscoverRDSRequest) returns (DiscoverRDSResponse) {
     option (google.api.http) = {
-      post: "/v1/management/RDS/Discover"
+      post: "/v1/management/services:discoverRDS"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -142,26 +121,12 @@ service ManagementService {
       description: "Discovers RDS instances."
     };
   }
-  // AddRDS adds RDS instance.
-  rpc AddRDS(AddRDSRequest) returns (AddRDSResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/RDS/Add"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add RDS"
-      description: "Adds RDS instance."
-    };
-  }
-  // RemoveService removes Service with Agents.
+  // RemoveService removes a Service along with its Agents.
   rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/Service/Remove"
-      body: "*"
-    };
+    option (google.api.http) = {delete: "/v1/management/services/{service_id}"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Remove Service"
-      description: "Removes a Service along with Agents."
+      summary: "Remove a Service"
+      description: "Removes a Service along with its Agents."
     };
   }
 }

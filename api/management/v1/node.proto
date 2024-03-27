@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package management.v1;
 
-import "google/api/annotations.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/nodes.proto";
 import "management/v1/metrics.proto";

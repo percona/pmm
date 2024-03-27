@@ -56,8 +56,8 @@ func restoreSettingsDefaults(t *testing.T) {
 		Context: pmmapitests.Context,
 	})
 	require.NoError(t, err)
-	assert.Equal(t, true, res.Payload.Settings.TelemetryEnabled)
-	assert.Equal(t, true, res.Payload.Settings.AdvisorEnabled)
+	assert.True(t, res.Payload.Settings.TelemetryEnabled)
+	assert.True(t, res.Payload.Settings.AdvisorEnabled)
 	expectedResolutions := &server.ChangeSettingsOKBodySettingsMetricsResolutions{
 		Hr: "5s",
 		Mr: "10s",

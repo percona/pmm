@@ -39,22 +39,22 @@ var (
 	_ = inventoryv1.LogLevel(0)
 )
 
-// Validate checks the field values on AddMongoDBRequest with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// first error encountered is returned, or nil if there are no violations.
-func (m *AddMongoDBRequest) Validate() error {
+// Validate checks the field values on AddMongoDBServiceParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddMongoDBServiceParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddMongoDBRequest with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on AddMongoDBServiceParams with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddMongoDBRequestMultiError, or nil if none found.
-func (m *AddMongoDBRequest) ValidateAll() error {
+// AddMongoDBServiceParamsMultiError, or nil if none found.
+func (m *AddMongoDBServiceParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddMongoDBRequest) validate(all bool) error {
+func (m *AddMongoDBServiceParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -69,7 +69,7 @@ func (m *AddMongoDBRequest) validate(all bool) error {
 		switch v := interface{}(m.GetAddNode()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddMongoDBRequestValidationError{
+				errors = append(errors, AddMongoDBServiceParamsValidationError{
 					field:  "AddNode",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -77,7 +77,7 @@ func (m *AddMongoDBRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddMongoDBRequestValidationError{
+				errors = append(errors, AddMongoDBServiceParamsValidationError{
 					field:  "AddNode",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -86,7 +86,7 @@ func (m *AddMongoDBRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetAddNode()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddMongoDBRequestValidationError{
+			return AddMongoDBServiceParamsValidationError{
 				field:  "AddNode",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -95,7 +95,7 @@ func (m *AddMongoDBRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetServiceName()) < 1 {
-		err := AddMongoDBRequestValidationError{
+		err := AddMongoDBServiceParamsValidationError{
 			field:  "ServiceName",
 			reason: "value length must be at least 1 runes",
 		}
@@ -112,7 +112,7 @@ func (m *AddMongoDBRequest) validate(all bool) error {
 	// no validation rules for Socket
 
 	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
-		err := AddMongoDBRequestValidationError{
+		err := AddMongoDBServiceParamsValidationError{
 			field:  "PmmAgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -167,19 +167,19 @@ func (m *AddMongoDBRequest) validate(all bool) error {
 	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
-		return AddMongoDBRequestMultiError(errors)
+		return AddMongoDBServiceParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddMongoDBRequestMultiError is an error wrapping multiple validation errors
-// returned by AddMongoDBRequest.ValidateAll() if the designated constraints
-// aren't met.
-type AddMongoDBRequestMultiError []error
+// AddMongoDBServiceParamsMultiError is an error wrapping multiple validation
+// errors returned by AddMongoDBServiceParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddMongoDBServiceParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddMongoDBRequestMultiError) Error() string {
+func (m AddMongoDBServiceParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -188,11 +188,11 @@ func (m AddMongoDBRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddMongoDBRequestMultiError) AllErrors() []error { return m }
+func (m AddMongoDBServiceParamsMultiError) AllErrors() []error { return m }
 
-// AddMongoDBRequestValidationError is the validation error returned by
-// AddMongoDBRequest.Validate if the designated constraints aren't met.
-type AddMongoDBRequestValidationError struct {
+// AddMongoDBServiceParamsValidationError is the validation error returned by
+// AddMongoDBServiceParams.Validate if the designated constraints aren't met.
+type AddMongoDBServiceParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -200,24 +200,24 @@ type AddMongoDBRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddMongoDBRequestValidationError) Field() string { return e.field }
+func (e AddMongoDBServiceParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddMongoDBRequestValidationError) Reason() string { return e.reason }
+func (e AddMongoDBServiceParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddMongoDBRequestValidationError) Cause() error { return e.cause }
+func (e AddMongoDBServiceParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddMongoDBRequestValidationError) Key() bool { return e.key }
+func (e AddMongoDBServiceParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddMongoDBRequestValidationError) ErrorName() string {
-	return "AddMongoDBRequestValidationError"
+func (e AddMongoDBServiceParamsValidationError) ErrorName() string {
+	return "AddMongoDBServiceParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddMongoDBRequestValidationError) Error() string {
+func (e AddMongoDBServiceParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -229,14 +229,14 @@ func (e AddMongoDBRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddMongoDBRequest.%s: %s%s",
+		"invalid %sAddMongoDBServiceParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddMongoDBRequestValidationError{}
+var _ error = AddMongoDBServiceParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -244,24 +244,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddMongoDBRequestValidationError{}
+} = AddMongoDBServiceParamsValidationError{}
 
-// Validate checks the field values on AddMongoDBResponse with the rules
+// Validate checks the field values on MongoDBServiceResult with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddMongoDBResponse) Validate() error {
+func (m *MongoDBServiceResult) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddMongoDBResponse with the rules
+// ValidateAll checks the field values on MongoDBServiceResult with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddMongoDBResponseMultiError, or nil if none found.
-func (m *AddMongoDBResponse) ValidateAll() error {
+// MongoDBServiceResultMultiError, or nil if none found.
+func (m *MongoDBServiceResult) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddMongoDBResponse) validate(all bool) error {
+func (m *MongoDBServiceResult) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -272,7 +272,7 @@ func (m *AddMongoDBResponse) validate(all bool) error {
 		switch v := interface{}(m.GetService()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddMongoDBResponseValidationError{
+				errors = append(errors, MongoDBServiceResultValidationError{
 					field:  "Service",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -280,7 +280,7 @@ func (m *AddMongoDBResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddMongoDBResponseValidationError{
+				errors = append(errors, MongoDBServiceResultValidationError{
 					field:  "Service",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -289,7 +289,7 @@ func (m *AddMongoDBResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetService()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddMongoDBResponseValidationError{
+			return MongoDBServiceResultValidationError{
 				field:  "Service",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -301,7 +301,7 @@ func (m *AddMongoDBResponse) validate(all bool) error {
 		switch v := interface{}(m.GetMongodbExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddMongoDBResponseValidationError{
+				errors = append(errors, MongoDBServiceResultValidationError{
 					field:  "MongodbExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -309,7 +309,7 @@ func (m *AddMongoDBResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddMongoDBResponseValidationError{
+				errors = append(errors, MongoDBServiceResultValidationError{
 					field:  "MongodbExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -318,7 +318,7 @@ func (m *AddMongoDBResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetMongodbExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddMongoDBResponseValidationError{
+			return MongoDBServiceResultValidationError{
 				field:  "MongodbExporter",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -330,7 +330,7 @@ func (m *AddMongoDBResponse) validate(all bool) error {
 		switch v := interface{}(m.GetQanMongodbProfiler()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddMongoDBResponseValidationError{
+				errors = append(errors, MongoDBServiceResultValidationError{
 					field:  "QanMongodbProfiler",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -338,7 +338,7 @@ func (m *AddMongoDBResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddMongoDBResponseValidationError{
+				errors = append(errors, MongoDBServiceResultValidationError{
 					field:  "QanMongodbProfiler",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -347,7 +347,7 @@ func (m *AddMongoDBResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetQanMongodbProfiler()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddMongoDBResponseValidationError{
+			return MongoDBServiceResultValidationError{
 				field:  "QanMongodbProfiler",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -356,19 +356,19 @@ func (m *AddMongoDBResponse) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return AddMongoDBResponseMultiError(errors)
+		return MongoDBServiceResultMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddMongoDBResponseMultiError is an error wrapping multiple validation errors
-// returned by AddMongoDBResponse.ValidateAll() if the designated constraints
-// aren't met.
-type AddMongoDBResponseMultiError []error
+// MongoDBServiceResultMultiError is an error wrapping multiple validation
+// errors returned by MongoDBServiceResult.ValidateAll() if the designated
+// constraints aren't met.
+type MongoDBServiceResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddMongoDBResponseMultiError) Error() string {
+func (m MongoDBServiceResultMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -377,11 +377,11 @@ func (m AddMongoDBResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddMongoDBResponseMultiError) AllErrors() []error { return m }
+func (m MongoDBServiceResultMultiError) AllErrors() []error { return m }
 
-// AddMongoDBResponseValidationError is the validation error returned by
-// AddMongoDBResponse.Validate if the designated constraints aren't met.
-type AddMongoDBResponseValidationError struct {
+// MongoDBServiceResultValidationError is the validation error returned by
+// MongoDBServiceResult.Validate if the designated constraints aren't met.
+type MongoDBServiceResultValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -389,24 +389,24 @@ type AddMongoDBResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddMongoDBResponseValidationError) Field() string { return e.field }
+func (e MongoDBServiceResultValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddMongoDBResponseValidationError) Reason() string { return e.reason }
+func (e MongoDBServiceResultValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddMongoDBResponseValidationError) Cause() error { return e.cause }
+func (e MongoDBServiceResultValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddMongoDBResponseValidationError) Key() bool { return e.key }
+func (e MongoDBServiceResultValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddMongoDBResponseValidationError) ErrorName() string {
-	return "AddMongoDBResponseValidationError"
+func (e MongoDBServiceResultValidationError) ErrorName() string {
+	return "MongoDBServiceResultValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddMongoDBResponseValidationError) Error() string {
+func (e MongoDBServiceResultValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -418,14 +418,14 @@ func (e AddMongoDBResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddMongoDBResponse.%s: %s%s",
+		"invalid %sMongoDBServiceResult.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddMongoDBResponseValidationError{}
+var _ error = MongoDBServiceResultValidationError{}
 
 var _ interface {
 	Field() string
@@ -433,4 +433,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddMongoDBResponseValidationError{}
+} = MongoDBServiceResultValidationError{}

@@ -19,6 +19,7 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
+	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -66,7 +67,29 @@ func NewManagementService(
 	}
 }
 
-// RemoveService removes Service with Agents.
+// AddService add a Service and its Agents.
+func (s *ManagementService) AddService(ctx context.Context, req *managementv1.AddServiceRequest) (*managementv1.AddServiceResponse, error) {
+	switch req.Service.(type) {
+	case *managementv1.AddServiceRequest_Mysql:
+		return s.addMySQL(ctx, req.GetMysql())
+	case *managementv1.AddServiceRequest_Mongodb:
+		return s.addMongoDB(ctx, req.GetMongodb())
+	case *managementv1.AddServiceRequest_Postgresql:
+		return s.addPostgreSQL(ctx, req.GetPostgresql())
+	case *managementv1.AddServiceRequest_Proxysql:
+		return s.addProxySQL(ctx, req.GetProxysql())
+	case *managementv1.AddServiceRequest_Haproxy:
+		return s.addHAProxy(ctx, req.GetHaproxy())
+	case *managementv1.AddServiceRequest_External:
+		return s.addExternal(ctx, req.GetExternal())
+	case *managementv1.AddServiceRequest_Rds:
+		return s.addRDS(ctx, req.GetRds())
+	default:
+		return nil, errors.Errorf("invalid request %v", req.GetService())
+	}
+}
+
+// RemoveService removes a Service along with its Agents.
 func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1.RemoveServiceRequest) (*managementv1.RemoveServiceResponse, error) {
 	err := s.validateRequest(req)
 	if err != nil {
@@ -75,18 +98,20 @@ func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1
 	pmmAgentIDs := make(map[string]struct{})
 	var reloadPrometheusConfig bool
 
-	errTX := s.db.InTransaction(func(tx *reform.TX) error {
+	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var service *models.Service
 		var err error
-		switch {
-		case req.ServiceName != "":
-			service, err = models.FindServiceByName(tx.Querier, req.ServiceName)
-		case req.ServiceId != "":
-			service, err = models.FindServiceByID(tx.Querier, req.ServiceId)
+
+		if LooksLikeID(req.ServiceId) {
+			service, err = models.FindServiceByID(tx.Querier, models.NormalizeServiceID(req.ServiceId))
+		} else {
+			// if it's not a service ID, it is a service name then
+			service, err = models.FindServiceByName(tx.Querier, req.ServiceId)
 		}
 		if err != nil {
 			return err
 		}
+
 		if req.ServiceType != inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED {
 			err := s.checkServiceType(service, req.ServiceType)
 			if err != nil {
@@ -120,7 +145,7 @@ func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1
 			return err
 		}
 
-		// For RDS and Azure remove also node.
+		// For RDS and Azure we also want to remove the node.
 		if node.NodeType == models.RemoteRDSNodeType || node.NodeType == models.RemoteAzureDatabaseNodeType {
 			agents, err = models.FindAgents(tx.Querier, models.AgentFilters{NodeID: node.NodeID})
 			if err != nil {
@@ -168,11 +193,8 @@ func (s *ManagementService) checkServiceType(service *models.Service, serviceTyp
 }
 
 func (s *ManagementService) validateRequest(request *managementv1.RemoveServiceRequest) error {
-	if request.ServiceName == "" && request.ServiceId == "" {
+	if request.ServiceId == "" {
 		return status.Error(codes.InvalidArgument, "service_id or service_name expected")
-	}
-	if request.ServiceName != "" && request.ServiceId != "" {
-		return status.Error(codes.InvalidArgument, "service_id or service_name expected; not both")
 	}
 	return nil
 }

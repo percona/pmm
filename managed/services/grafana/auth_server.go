@@ -53,13 +53,14 @@ var rules = map[string]role{
 	"/server.":                                  admin, // TODO: do we need it for older agents?
 	"/server.v1.":                               admin,
 	"/qan.v1.CollectorService.":                 viewer,
+	"/qan.v1.QANService.":                       viewer,
 
 	"/v1/alerting":                                viewer,
 	"/v1/backup":                                  admin,
 	"/v1/dump":                                    admin,
 	"/v1/role":                                    admin,
 	"/v1/inventory/":                              admin,
-	"/v1/inventory/Services/ListTypes":            viewer,
+	"/v1/inventory/services:getTypes":             viewer,
 	"/v1/management/":                             admin,
 	"/v1/actions/":                                viewer,
 	"/v1/management/Jobs":                         viewer,
@@ -148,7 +149,7 @@ type cacheItem struct {
 
 // clientInterface exist only to make fuzzing simpler.
 type clientInterface interface {
-	getAuthUser(context.Context, http.Header) (authUser, error)
+	getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error)
 }
 
 // AuthServer authenticates incoming requests via Grafana API.

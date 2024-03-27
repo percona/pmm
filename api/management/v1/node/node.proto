@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package node.v1beta1;
 
-import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "inventory/v1/nodes.proto";
 

@@ -54,7 +54,7 @@ func TestMongoDBExplain(t *testing.T) {
 
 		ex := NewMongoDBExplainAction(id, 0, params, os.TempDir())
 		res, err := ex.Run(ctx)
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 
 		want := map[string]interface{}{
 			"indexFilterSet": false,
@@ -69,9 +69,9 @@ func TestMongoDBExplain(t *testing.T) {
 
 		explainM := make(map[string]interface{})
 		err = json.Unmarshal(res, &explainM)
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 		queryPlanner, ok := explainM["queryPlanner"]
-		assert.Equal(t, ok, true)
+		assert.True(t, ok)
 		assert.NotEmpty(t, queryPlanner)
 		assert.Equal(t, want, queryPlanner)
 	})

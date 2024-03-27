@@ -39,22 +39,22 @@ var (
 	_ = inventoryv1.LogLevel(0)
 )
 
-// Validate checks the field values on AddPostgreSQLRequest with the rules
-// defined in the proto definition for this message. If any rules are
+// Validate checks the field values on AddPostgreSQLServiceParams with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddPostgreSQLRequest) Validate() error {
+func (m *AddPostgreSQLServiceParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddPostgreSQLRequest with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on AddPostgreSQLServiceParams with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddPostgreSQLRequestMultiError, or nil if none found.
-func (m *AddPostgreSQLRequest) ValidateAll() error {
+// AddPostgreSQLServiceParamsMultiError, or nil if none found.
+func (m *AddPostgreSQLServiceParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddPostgreSQLRequest) validate(all bool) error {
+func (m *AddPostgreSQLServiceParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -69,7 +69,7 @@ func (m *AddPostgreSQLRequest) validate(all bool) error {
 		switch v := interface{}(m.GetAddNode()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddPostgreSQLRequestValidationError{
+				errors = append(errors, AddPostgreSQLServiceParamsValidationError{
 					field:  "AddNode",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -77,7 +77,7 @@ func (m *AddPostgreSQLRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddPostgreSQLRequestValidationError{
+				errors = append(errors, AddPostgreSQLServiceParamsValidationError{
 					field:  "AddNode",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -86,7 +86,7 @@ func (m *AddPostgreSQLRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetAddNode()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddPostgreSQLRequestValidationError{
+			return AddPostgreSQLServiceParamsValidationError{
 				field:  "AddNode",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -95,7 +95,7 @@ func (m *AddPostgreSQLRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetServiceName()) < 1 {
-		err := AddPostgreSQLRequestValidationError{
+		err := AddPostgreSQLServiceParamsValidationError{
 			field:  "ServiceName",
 			reason: "value length must be at least 1 runes",
 		}
@@ -114,7 +114,7 @@ func (m *AddPostgreSQLRequest) validate(all bool) error {
 	// no validation rules for Socket
 
 	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
-		err := AddPostgreSQLRequestValidationError{
+		err := AddPostgreSQLServiceParamsValidationError{
 			field:  "PmmAgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -131,7 +131,7 @@ func (m *AddPostgreSQLRequest) validate(all bool) error {
 	// no validation rules for ReplicationSet
 
 	if utf8.RuneCountInString(m.GetUsername()) < 1 {
-		err := AddPostgreSQLRequestValidationError{
+		err := AddPostgreSQLServiceParamsValidationError{
 			field:  "Username",
 			reason: "value length must be at least 1 runes",
 		}
@@ -180,19 +180,19 @@ func (m *AddPostgreSQLRequest) validate(all bool) error {
 	// no validation rules for MaxExporterConnections
 
 	if len(errors) > 0 {
-		return AddPostgreSQLRequestMultiError(errors)
+		return AddPostgreSQLServiceParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddPostgreSQLRequestMultiError is an error wrapping multiple validation
-// errors returned by AddPostgreSQLRequest.ValidateAll() if the designated
-// constraints aren't met.
-type AddPostgreSQLRequestMultiError []error
+// AddPostgreSQLServiceParamsMultiError is an error wrapping multiple
+// validation errors returned by AddPostgreSQLServiceParams.ValidateAll() if
+// the designated constraints aren't met.
+type AddPostgreSQLServiceParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddPostgreSQLRequestMultiError) Error() string {
+func (m AddPostgreSQLServiceParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -201,11 +201,11 @@ func (m AddPostgreSQLRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddPostgreSQLRequestMultiError) AllErrors() []error { return m }
+func (m AddPostgreSQLServiceParamsMultiError) AllErrors() []error { return m }
 
-// AddPostgreSQLRequestValidationError is the validation error returned by
-// AddPostgreSQLRequest.Validate if the designated constraints aren't met.
-type AddPostgreSQLRequestValidationError struct {
+// AddPostgreSQLServiceParamsValidationError is the validation error returned
+// by AddPostgreSQLServiceParams.Validate if the designated constraints aren't met.
+type AddPostgreSQLServiceParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -213,24 +213,24 @@ type AddPostgreSQLRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddPostgreSQLRequestValidationError) Field() string { return e.field }
+func (e AddPostgreSQLServiceParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddPostgreSQLRequestValidationError) Reason() string { return e.reason }
+func (e AddPostgreSQLServiceParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddPostgreSQLRequestValidationError) Cause() error { return e.cause }
+func (e AddPostgreSQLServiceParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddPostgreSQLRequestValidationError) Key() bool { return e.key }
+func (e AddPostgreSQLServiceParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddPostgreSQLRequestValidationError) ErrorName() string {
-	return "AddPostgreSQLRequestValidationError"
+func (e AddPostgreSQLServiceParamsValidationError) ErrorName() string {
+	return "AddPostgreSQLServiceParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddPostgreSQLRequestValidationError) Error() string {
+func (e AddPostgreSQLServiceParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -242,14 +242,14 @@ func (e AddPostgreSQLRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddPostgreSQLRequest.%s: %s%s",
+		"invalid %sAddPostgreSQLServiceParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddPostgreSQLRequestValidationError{}
+var _ error = AddPostgreSQLServiceParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -257,24 +257,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddPostgreSQLRequestValidationError{}
+} = AddPostgreSQLServiceParamsValidationError{}
 
-// Validate checks the field values on AddPostgreSQLResponse with the rules
+// Validate checks the field values on PostgreSQLServiceResult with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddPostgreSQLResponse) Validate() error {
+func (m *PostgreSQLServiceResult) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddPostgreSQLResponse with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on PostgreSQLServiceResult with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddPostgreSQLResponseMultiError, or nil if none found.
-func (m *AddPostgreSQLResponse) ValidateAll() error {
+// PostgreSQLServiceResultMultiError, or nil if none found.
+func (m *PostgreSQLServiceResult) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddPostgreSQLResponse) validate(all bool) error {
+func (m *PostgreSQLServiceResult) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -285,7 +285,7 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 		switch v := interface{}(m.GetService()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddPostgreSQLResponseValidationError{
+				errors = append(errors, PostgreSQLServiceResultValidationError{
 					field:  "Service",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -293,7 +293,7 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddPostgreSQLResponseValidationError{
+				errors = append(errors, PostgreSQLServiceResultValidationError{
 					field:  "Service",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -302,7 +302,7 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetService()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddPostgreSQLResponseValidationError{
+			return PostgreSQLServiceResultValidationError{
 				field:  "Service",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -314,7 +314,7 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 		switch v := interface{}(m.GetPostgresExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddPostgreSQLResponseValidationError{
+				errors = append(errors, PostgreSQLServiceResultValidationError{
 					field:  "PostgresExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -322,7 +322,7 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddPostgreSQLResponseValidationError{
+				errors = append(errors, PostgreSQLServiceResultValidationError{
 					field:  "PostgresExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -331,7 +331,7 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetPostgresExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddPostgreSQLResponseValidationError{
+			return PostgreSQLServiceResultValidationError{
 				field:  "PostgresExporter",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -343,7 +343,7 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 		switch v := interface{}(m.GetQanPostgresqlPgstatementsAgent()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddPostgreSQLResponseValidationError{
+				errors = append(errors, PostgreSQLServiceResultValidationError{
 					field:  "QanPostgresqlPgstatementsAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -351,7 +351,7 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddPostgreSQLResponseValidationError{
+				errors = append(errors, PostgreSQLServiceResultValidationError{
 					field:  "QanPostgresqlPgstatementsAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -360,7 +360,7 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetQanPostgresqlPgstatementsAgent()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddPostgreSQLResponseValidationError{
+			return PostgreSQLServiceResultValidationError{
 				field:  "QanPostgresqlPgstatementsAgent",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -372,7 +372,7 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 		switch v := interface{}(m.GetQanPostgresqlPgstatmonitorAgent()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddPostgreSQLResponseValidationError{
+				errors = append(errors, PostgreSQLServiceResultValidationError{
 					field:  "QanPostgresqlPgstatmonitorAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -380,7 +380,7 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddPostgreSQLResponseValidationError{
+				errors = append(errors, PostgreSQLServiceResultValidationError{
 					field:  "QanPostgresqlPgstatmonitorAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -389,7 +389,7 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetQanPostgresqlPgstatmonitorAgent()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddPostgreSQLResponseValidationError{
+			return PostgreSQLServiceResultValidationError{
 				field:  "QanPostgresqlPgstatmonitorAgent",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -400,19 +400,19 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 	// no validation rules for Warning
 
 	if len(errors) > 0 {
-		return AddPostgreSQLResponseMultiError(errors)
+		return PostgreSQLServiceResultMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddPostgreSQLResponseMultiError is an error wrapping multiple validation
-// errors returned by AddPostgreSQLResponse.ValidateAll() if the designated
+// PostgreSQLServiceResultMultiError is an error wrapping multiple validation
+// errors returned by PostgreSQLServiceResult.ValidateAll() if the designated
 // constraints aren't met.
-type AddPostgreSQLResponseMultiError []error
+type PostgreSQLServiceResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddPostgreSQLResponseMultiError) Error() string {
+func (m PostgreSQLServiceResultMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -421,11 +421,11 @@ func (m AddPostgreSQLResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddPostgreSQLResponseMultiError) AllErrors() []error { return m }
+func (m PostgreSQLServiceResultMultiError) AllErrors() []error { return m }
 
-// AddPostgreSQLResponseValidationError is the validation error returned by
-// AddPostgreSQLResponse.Validate if the designated constraints aren't met.
-type AddPostgreSQLResponseValidationError struct {
+// PostgreSQLServiceResultValidationError is the validation error returned by
+// PostgreSQLServiceResult.Validate if the designated constraints aren't met.
+type PostgreSQLServiceResultValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -433,24 +433,24 @@ type AddPostgreSQLResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddPostgreSQLResponseValidationError) Field() string { return e.field }
+func (e PostgreSQLServiceResultValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddPostgreSQLResponseValidationError) Reason() string { return e.reason }
+func (e PostgreSQLServiceResultValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddPostgreSQLResponseValidationError) Cause() error { return e.cause }
+func (e PostgreSQLServiceResultValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddPostgreSQLResponseValidationError) Key() bool { return e.key }
+func (e PostgreSQLServiceResultValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddPostgreSQLResponseValidationError) ErrorName() string {
-	return "AddPostgreSQLResponseValidationError"
+func (e PostgreSQLServiceResultValidationError) ErrorName() string {
+	return "PostgreSQLServiceResultValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddPostgreSQLResponseValidationError) Error() string {
+func (e PostgreSQLServiceResultValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -462,14 +462,14 @@ func (e AddPostgreSQLResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddPostgreSQLResponse.%s: %s%s",
+		"invalid %sPostgreSQLServiceResult.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddPostgreSQLResponseValidationError{}
+var _ error = PostgreSQLServiceResultValidationError{}
 
 var _ interface {
 	Field() string
@@ -477,4 +477,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddPostgreSQLResponseValidationError{}
+} = PostgreSQLServiceResultValidationError{}
