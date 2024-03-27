@@ -17,8 +17,10 @@ package apitests
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
-	"math/rand"
+	"math"
+	"math/big"
 	"reflect"
 	"testing"
 
@@ -26,10 +28,12 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
-	"github.com/percona/pmm/api/inventorypb/json/client"
+	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/managementpb/json/client"
+	"github.com/percona/pmm/api/managementpb/json/client/node"
 )
 
 // ErrorResponse represents the response structure for error scenarios.
@@ -49,7 +53,10 @@ type TestingT interface {
 func TestString(t TestingT, name string) string {
 	t.Helper()
 
-	n := rand.Int() //nolint:gosec
+	// Without proper seed parallel tests can generate same "random" number.
+	n, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt32))
+	require.NoError(t, err)
+
 	return fmt.Sprintf("pmm-api-tests/%s/%s/%s/%d", Hostname, t.Name(), name, n)
 }
 
@@ -130,6 +137,26 @@ func (tt *expectedFailureTestingT) Check() {
 	tt.t.Fatalf("%s expected to fail, but didn't: %s", tt.Name(), tt.link)
 }
 
+// UnregisterNodes unregister specified nodes.
+func UnregisterNodes(t TestingT, nodeIDs ...string) {
+	t.Helper()
+
+	for _, nodeID := range nodeIDs {
+		params := &node.UnregisterNodeParams{
+			Body: node.UnregisterNodeBody{
+				NodeID: nodeID,
+			},
+			Context: context.Background(),
+		}
+
+		res, err := client.Default.Node.UnregisterNode(params)
+		require.NoError(t, err)
+		assert.NotNil(t, res)
+		assert.NotNil(t, res.Payload)
+		assert.Empty(t, res.Payload.Warning)
+	}
+}
+
 // RemoveNodes removes specified nodes.
 func RemoveNodes(t TestingT, nodeIDs ...string) {
 	t.Helper()
@@ -141,7 +168,7 @@ func RemoveNodes(t TestingT, nodeIDs ...string) {
 			},
 			Context: context.Background(),
 		}
-		res, err := client.Default.Nodes.RemoveNode(params)
+		res, err := inventoryClient.Default.Nodes.RemoveNode(params)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 	}
@@ -159,7 +186,7 @@ func RemoveServices(t TestingT, serviceIDs ...string) {
 			},
 			Context: context.Background(),
 		}
-		res, err := client.Default.Services.RemoveService(params)
+		res, err := inventoryClient.Default.Services.RemoveService(params)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 	}
@@ -176,7 +203,7 @@ func RemoveAgents(t TestingT, agentIDs ...string) {
 			},
 			Context: context.Background(),
 		}
-		res, err := client.Default.Agents.RemoveAgent(params)
+		res, err := inventoryClient.Default.Agents.RemoveAgent(params)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 	}
@@ -193,7 +220,7 @@ func AddGenericNode(t TestingT, nodeName string) *nodes.AddGenericNodeOKBodyGene
 		},
 		Context: Context,
 	}
-	res, err := client.Default.Nodes.AddGenericNode(params)
+	res, err := inventoryClient.Default.Nodes.AddGenericNode(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 	require.NotNil(t, res.Payload)
@@ -212,7 +239,7 @@ func AddRemoteNode(t TestingT, nodeName string) *nodes.AddRemoteNodeOKBody {
 		},
 		Context: Context,
 	}
-	res, err := client.Default.Nodes.AddRemoteNode(params)
+	res, err := inventoryClient.Default.Nodes.AddRemoteNode(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
@@ -227,7 +254,7 @@ func AddNode(t TestingT, nodeBody *nodes.AddNodeBody) *nodes.AddNodeOKBody {
 		Context: Context,
 	}
 
-	res, err := client.Default.Nodes.AddNode(params)
+	res, err := inventoryClient.Default.Nodes.AddNode(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 
@@ -238,7 +265,7 @@ func AddNode(t TestingT, nodeBody *nodes.AddNodeBody) *nodes.AddNodeOKBody {
 func AddPMMAgent(t TestingT, nodeID string) *agents.AddPMMAgentOKBody {
 	t.Helper()
 
-	res, err := client.Default.Agents.AddPMMAgent(&agents.AddPMMAgentParams{
+	res, err := inventoryClient.Default.Agents.AddPMMAgent(&agents.AddPMMAgentParams{
 		Body: agents.AddPMMAgentBody{
 			RunsOnNodeID: nodeID,
 		},

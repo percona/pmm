@@ -38,7 +38,7 @@ packages:
     interfaces:
       agentsRegistry:
       agentsStateUpdater:
-      apiKeyProvider:
+      authProvider:
       checksService:
       connectionChecker:
       grafanaClient:

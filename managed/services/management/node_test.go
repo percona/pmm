@@ -21,7 +21,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -38,7 +37,10 @@ import (
 )
 
 func TestNodeService(t *testing.T) {
-	t.Run("Register", func(t *testing.T) {
+	getTestNodeName := func() string {
+		return "test-node"
+	}
+	t.Run("Register/Unregister", func(t *testing.T) {
 		setup := func(t *testing.T) (ctx context.Context, s *NodeService, teardown func(t *testing.T)) {
 			t.Helper()
 
@@ -58,11 +60,17 @@ func TestNodeService(t *testing.T) {
 				"Authorization": "Basic username:password",
 			})
 			ctx = metadata.NewIncomingContext(ctx, md)
-			var apiKeyProvider mockApiKeyProvider
-			apiKeyProvider.Test(t)
-			apiKeyProvider.On("IsAPIKeyAuth", mock.Anything).Return(false)
-			apiKeyProvider.On("CreateAdminAPIKey", ctx, mock.AnythingOfType("string")).Return(int64(0), "test-token", nil)
-			s = NewNodeService(db, &apiKeyProvider)
+
+			serviceAccountID := int(0)
+			nodeName := getTestNodeName()
+			reregister := false
+			force := true
+
+			var authProvider mockAuthProvider
+			authProvider.Test(t)
+			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+			authProvider.On("DeleteServiceAccount", ctx, nodeName, force).Return("", nil)
+			s = NewNodeService(db, &authProvider)
 
 			return
 		}
@@ -73,14 +81,14 @@ func TestNodeService(t *testing.T) {
 
 			res, err := s.Register(ctx, &managementpb.RegisterNodeRequest{
 				NodeType: inventorypb.NodeType_GENERIC_NODE,
-				NodeName: "node",
+				NodeName: "test-node",
 				Address:  "some.address.org",
 				Region:   "region",
 			})
 			expected := &managementpb.RegisterNodeResponse{
 				GenericNode: &inventorypb.GenericNode{
 					NodeId:   "/node_id/00000000-0000-4000-8000-000000000005",
-					NodeName: "node",
+					NodeName: "test-node",
 					Address:  "some.address.org",
 					Region:   "region",
 				},
@@ -97,16 +105,25 @@ func TestNodeService(t *testing.T) {
 			t.Run("Exist", func(t *testing.T) {
 				res, err = s.Register(ctx, &managementpb.RegisterNodeRequest{
 					NodeType: inventorypb.NodeType_GENERIC_NODE,
-					NodeName: "node",
+					NodeName: "test-node",
 				})
 				assert.Nil(t, res)
-				tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "node" already exists.`), err)
+				tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test-node" already exists.`), err)
 			})
 
 			t.Run("Reregister", func(t *testing.T) {
+				serviceAccountID := int(0)
+				nodeName := getTestNodeName()
+				reregister := true
+
+				var authProvider mockAuthProvider
+				authProvider.Test(t)
+				authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+				s.ap = &authProvider
+
 				res, err = s.Register(ctx, &managementpb.RegisterNodeRequest{
 					NodeType:   inventorypb.NodeType_GENERIC_NODE,
-					NodeName:   "node",
+					NodeName:   "test-node",
 					Address:    "some.address.org",
 					Region:     "region",
 					Reregister: true,
@@ -114,7 +131,7 @@ func TestNodeService(t *testing.T) {
 				expected := &managementpb.RegisterNodeResponse{
 					GenericNode: &inventorypb.GenericNode{
 						NodeId:   "/node_id/00000000-0000-4000-8000-000000000008",
-						NodeName: "node",
+						NodeName: "test-node",
 						Address:  "some.address.org",
 						Region:   "region",
 					},
@@ -128,10 +145,20 @@ func TestNodeService(t *testing.T) {
 				assert.Equal(t, expected, res)
 				assert.NoError(t, err)
 			})
+
 			t.Run("Reregister-force", func(t *testing.T) {
+				serviceAccountID := int(0)
+				nodeName := "test-node-new"
+				reregister := true
+
+				var authProvider mockAuthProvider
+				authProvider.Test(t)
+				authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+				s.ap = &authProvider
+
 				res, err = s.Register(ctx, &managementpb.RegisterNodeRequest{
 					NodeType:   inventorypb.NodeType_GENERIC_NODE,
-					NodeName:   "node-name-new",
+					NodeName:   "test-node-new",
 					Address:    "some.address.org",
 					Region:     "region",
 					Reregister: true,
@@ -139,7 +166,7 @@ func TestNodeService(t *testing.T) {
 				expected := &managementpb.RegisterNodeResponse{
 					GenericNode: &inventorypb.GenericNode{
 						NodeId:   "/node_id/00000000-0000-4000-8000-00000000000b",
-						NodeName: "node-name-new",
+						NodeName: "test-node-new",
 						Address:  "some.address.org",
 						Region:   "region",
 					},
@@ -152,6 +179,51 @@ func TestNodeService(t *testing.T) {
 				}
 				assert.Equal(t, expected, res)
 				assert.NoError(t, err)
+			})
+
+			t.Run("Unregister", func(t *testing.T) {
+				serviceAccountID := int(0)
+				nodeName := getTestNodeName()
+				reregister := true
+				force := true
+
+				var authProvider mockAuthProvider
+				authProvider.Test(t)
+				authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+				authProvider.On("DeleteServiceAccount", ctx, nodeName, force).Return("", nil)
+				s.ap = &authProvider
+
+				resRegister, err := s.Register(ctx, &managementpb.RegisterNodeRequest{
+					NodeType:   inventorypb.NodeType_GENERIC_NODE,
+					NodeName:   "test-node",
+					Address:    "some.address.org",
+					Region:     "region",
+					Reregister: true,
+				})
+				assert.NoError(t, err)
+
+				expected := &managementpb.RegisterNodeResponse{
+					GenericNode: &inventorypb.GenericNode{
+						NodeId:   "/node_id/00000000-0000-4000-8000-00000000000e",
+						NodeName: "test-node",
+						Address:  "some.address.org",
+						Region:   "region",
+					},
+					ContainerNode: (*inventorypb.ContainerNode)(nil),
+					PmmAgent: &inventorypb.PMMAgent{
+						AgentId:      "/agent_id/00000000-0000-4000-8000-00000000000f",
+						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-00000000000e",
+					},
+					Token: "test-token",
+				}
+				assert.Equal(t, expected, resRegister)
+
+				res, err := s.Unregister(ctx, &managementpb.UnregisterNodeRequest{
+					NodeId: resRegister.GenericNode.NodeId,
+					Force:  true,
+				})
+				assert.NoError(t, err)
+				assert.Equal(t, "", res.Warning)
 			})
 		})
 	})

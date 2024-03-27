@@ -38,3 +38,8 @@ func NewManagementNodeServer(s *management.NodeService) managementpb.NodeServer 
 func (s *nodeServer) RegisterNode(ctx context.Context, req *managementpb.RegisterNodeRequest) (*managementpb.RegisterNodeResponse, error) {
 	return s.svc.Register(ctx, req)
 }
+
+// UnregisterNode do unregistration of the Node.
+func (s *nodeServer) UnregisterNode(ctx context.Context, req *managementpb.UnregisterNodeRequest) (*managementpb.UnregisterNodeResponse, error) {
+	return s.svc.Unregister(ctx, req)
+}
