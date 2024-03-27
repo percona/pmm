@@ -1158,6 +1158,8 @@ func (m *StartUpdateRequest) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for NewImage
+
 	if len(errors) > 0 {
 		return StartUpdateRequestMultiError(errors)
 	}
