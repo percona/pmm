@@ -66,6 +66,7 @@ func TestEnvVarValidator(t *testing.T) {
 		expectedWarns := []string{
 			`unknown environment variable "UNKNOWN_VAR=VAL"`,
 			`unknown environment variable "ANOTHER_UNKNOWN_VAR=VAL"`,
+			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
 			`unknown environment variable "PERCONA_ENABLE_RBAC=true"`,
 		}
 
@@ -97,13 +98,13 @@ func TestEnvVarValidator(t *testing.T) {
 		t.Parallel()
 
 		envs := []string{
-			"pmm_container=podman",
-			"pmm_no_proxy=localhost",
-			"pmm_http_proxy=http://localhost",
-			"pmm_https_proxy=http://localhost",
-			"PMM_NO_PROXY=localhost",
-			"PMM_HTTP_PROXY=http://localhost",
-			"PMM_HTTPS_PROXY=http://localhost",
+			"container=podman",
+			"no_proxy=localhost",
+			"http_proxy=http://localhost",
+			"https_proxy=http://localhost",
+			"NO_PROXY=localhost",
+			"HTTP_PROXY=http://localhost",
+			"HTTPS_PROXY=http://localhost",
 			"PMM_INSTALL_METHOD=Helm",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{}
@@ -144,23 +145,6 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Equal(t, gotEnvVars, expectedEnvVars)
 		assert.Equal(t, gotErrs, expectedErrs)
 		assert.Nil(t, gotWarns)
-	})
-
-	t.Run("PMM_DEV_PERCONA_PLATFORM_ADDRESS env vars with warnings", func(t *testing.T) {
-		t.Parallel()
-
-		envs := []string{
-			"PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://host:333",
-		}
-		expectedEnvVars := &models.ChangeSettingsParams{}
-		expectedWarns := []string{
-			`environment variable "PMM_DEV_PERCONA_PLATFORM_ADDRESS" IS NOT SUPPORTED and WILL BE REMOVED IN THE FUTURE`,
-		}
-
-		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
-		assert.Nil(t, gotErrs)
-		assert.Equal(t, expectedEnvVars, gotEnvVars)
-		assert.Equal(t, expectedWarns, gotWarns)
 	})
 
 	t.Run("Parse Platform API Timeout", func(t *testing.T) {
