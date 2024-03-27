@@ -100,7 +100,7 @@ services:
   watchtower:
     profiles:
       - pmm
-    image: ${WATCHTOWER_IMAGE:-bupychuk/watchtower}
+    image: ${WATCHTOWER_IMAGE:-perconalab/watchtower}
     container_name: watchtower
     environment:
         - WATCHTOWER_HTTP_LISTEN_PORT=8080
