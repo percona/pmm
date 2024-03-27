@@ -47,9 +47,9 @@ Service name: {{ .Service.ServiceName }}
 `)
 
 type addMySQLResult struct {
-	Service        *mservice.AddMySQLOKBodyService        `json:"service"`
-	MysqldExporter *mservice.AddMySQLOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
-	TableCount     int32                                  `json:"table_count,omitempty"`
+	Service        *mservice.AddServiceOKBodyMysqlService        `json:"service"`
+	MysqldExporter *mservice.AddServiceOKBodyMysqlMysqldExporter `json:"mysqld_exporter,omitempty"`
+	TableCount     int32                                         `json:"table_count,omitempty"`
 }
 
 func (res *addMySQLResult) Result() {}
@@ -208,52 +208,54 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 		tablestatsGroupTableLimit = -1
 	}
 
-	params := &mservice.AddMySQLParams{
-		Body: mservice.AddMySQLBody{
-			NodeID:         cmd.NodeID,
-			ServiceName:    serviceName,
-			Address:        host,
-			Socket:         socket,
-			Port:           int64(port),
-			ExposeExporter: cmd.ExposeExporter,
-			PMMAgentID:     cmd.PMMAgentID,
-			Environment:    cmd.Environment,
-			Cluster:        cmd.Cluster,
-			ReplicationSet: cmd.ReplicationSet,
-			Username:       cmd.Username,
-			Password:       cmd.Password,
-			AgentPassword:  cmd.AgentPassword,
-			CustomLabels:   customLabels,
+	params := &mservice.AddServiceParams{
+		Body: mservice.AddServiceBody{
+			Mysql: &mservice.AddServiceParamsBodyMysql{
+				NodeID:         cmd.NodeID,
+				ServiceName:    serviceName,
+				Address:        host,
+				Socket:         socket,
+				Port:           int64(port),
+				ExposeExporter: cmd.ExposeExporter,
+				PMMAgentID:     cmd.PMMAgentID,
+				Environment:    cmd.Environment,
+				Cluster:        cmd.Cluster,
+				ReplicationSet: cmd.ReplicationSet,
+				Username:       cmd.Username,
+				Password:       cmd.Password,
+				AgentPassword:  cmd.AgentPassword,
+				CustomLabels:   customLabels,
 
-			QANMysqlSlowlog:    cmd.QuerySource == MysqlQuerySourceSlowLog,
-			QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,
+				QANMysqlSlowlog:    cmd.QuerySource == MysqlQuerySourceSlowLog,
+				QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,
 
-			SkipConnectionCheck:    cmd.SkipConnectionCheck,
-			DisableCommentsParsing: disableCommentsParsing,
-			MaxQueryLength:         cmd.MaxQueryLength,
-			DisableQueryExamples:   cmd.DisableQueryExamples,
+				SkipConnectionCheck:    cmd.SkipConnectionCheck,
+				DisableCommentsParsing: disableCommentsParsing,
+				MaxQueryLength:         cmd.MaxQueryLength,
+				DisableQueryExamples:   cmd.DisableQueryExamples,
 
-			MaxSlowlogFileSize:        strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
-			TLS:                       cmd.TLS,
-			TLSSkipVerify:             cmd.TLSSkipVerify,
-			TLSCa:                     tlsCa,
-			TLSCert:                   tlsCert,
-			TLSKey:                    tlsKey,
-			TablestatsGroupTableLimit: tablestatsGroupTableLimit,
-			MetricsMode:               pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
-			DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
-			LogLevel:                  &cmd.AddLogLevel,
+				MaxSlowlogFileSize:        strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
+				TLS:                       cmd.TLS,
+				TLSSkipVerify:             cmd.TLSSkipVerify,
+				TLSCa:                     tlsCa,
+				TLSCert:                   tlsCert,
+				TLSKey:                    tlsKey,
+				TablestatsGroupTableLimit: tablestatsGroupTableLimit,
+				MetricsMode:               pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
+				DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
+				LogLevel:                  &cmd.AddLogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.ManagementService.AddMySQL(params)
+	resp, err := client.Default.ManagementService.AddService(params)
 	if err != nil {
 		return nil, err
 	}
 
 	return &addMySQLResult{
-		Service:        resp.Payload.Service,
-		MysqldExporter: resp.Payload.MysqldExporter,
-		TableCount:     resp.Payload.TableCount,
+		Service:        resp.Payload.Mysql.Service,
+		MysqldExporter: resp.Payload.Mysql.MysqldExporter,
+		TableCount:     resp.Payload.Mysql.TableCount,
 	}, nil
 }

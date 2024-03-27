@@ -27,6 +27,7 @@ import (
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	"github.com/percona/pmm/api/inventory/v1/types"
 	"github.com/percona/pmm/api/management/v1/json/client"
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
@@ -541,7 +542,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			},
 		}
 		addPostgreSQLOK, err := client.Default.ManagementService.AddPostgreSQL(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port are expected to be passed with address.")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port is expected to be passed along with the host address.")
 		assert.Nil(t, addPostgreSQLOK)
 	})
 
@@ -859,11 +860,9 @@ func TestRemovePostgreSQL(t *testing.T) {
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
-			Body: mservice.RemoveServiceBody{
-				ServiceName: serviceName,
-				ServiceType: pointer.ToString(mservice.RemoveServiceBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE),
-			},
-			Context: pmmapitests.Context,
+			ServiceID:   serviceName,
+			ServiceType: pointer.ToString(types.ServiceTypePostgreSQLService),
+			Context:     pmmapitests.Context,
 		})
 		noError := assert.NoError(t, err)
 		notNil := assert.NotNil(t, removeServiceOK)
@@ -888,11 +887,9 @@ func TestRemovePostgreSQL(t *testing.T) {
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
-			Body: mservice.RemoveServiceBody{
-				ServiceID:   serviceID,
-				ServiceType: pointer.ToString(mservice.RemoveServiceBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE),
-			},
-			Context: pmmapitests.Context,
+			ServiceID:   serviceID,
+			ServiceType: pointer.ToString(types.ServiceTypePostgreSQLService),
+			Context:     pmmapitests.Context,
 		})
 		noError := assert.NoError(t, err)
 		notNil := assert.NotNil(t, removeServiceOK)
@@ -909,26 +906,6 @@ func TestRemovePostgreSQL(t *testing.T) {
 		assert.Nil(t, listAgents)
 	})
 
-	t.Run("Both params", func(t *testing.T) {
-		serviceName := pmmapitests.TestString(t, "service-remove-both-params")
-		nodeName := pmmapitests.TestString(t, "node-remove-both-params")
-		nodeID, pmmAgentID, serviceID := addPostgreSQL(t, serviceName, nodeName, false)
-		defer pmmapitests.RemoveNodes(t, nodeID)
-		defer pmmapitests.RemoveServices(t, serviceID)
-		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
-
-		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
-			Body: mservice.RemoveServiceBody{
-				ServiceID:   serviceID,
-				ServiceName: serviceName,
-				ServiceType: pointer.ToString(mservice.RemoveServiceBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE),
-			},
-			Context: pmmapitests.Context,
-		})
-		assert.Nil(t, removeServiceOK)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "service_id or service_name expected; not both")
-	})
-
 	t.Run("Wrong type", func(t *testing.T) {
 		serviceName := pmmapitests.TestString(t, "service-remove-wrong-type")
 		nodeName := pmmapitests.TestString(t, "node-remove-wrong-type")
@@ -938,11 +915,9 @@ func TestRemovePostgreSQL(t *testing.T) {
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
-			Body: mservice.RemoveServiceBody{
-				ServiceID:   serviceID,
-				ServiceType: pointer.ToString(mservice.RemoveServiceBodyServiceTypeSERVICETYPEMYSQLSERVICE),
-			},
-			Context: pmmapitests.Context,
+			ServiceID:   serviceID,
+			ServiceType: pointer.ToString(types.ServiceTypeMySQLService),
+			Context:     pmmapitests.Context,
 		})
 		assert.Nil(t, removeServiceOK)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "wrong service type")

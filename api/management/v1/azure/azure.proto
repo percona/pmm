@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package azure.v1beta1;
 
-import "google/api/annotations.proto";
 import "validate/validate.proto";
 
 // DiscoverAzureDatabaseRequest discover azure databases request.

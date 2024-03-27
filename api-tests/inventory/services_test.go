@@ -444,7 +444,7 @@ func TestMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.ServicesService.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port are expected to be passed with address.")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port is expected to be passed along with the host address.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mysql.ServiceID)
 		}
@@ -902,7 +902,7 @@ func TestPostgreSQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.ServicesService.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port are expected to be passed with address.")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port is expected to be passed along with the host address.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Postgresql.ServiceID)
 		}
@@ -1122,7 +1122,7 @@ func TestProxySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.ServicesService.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port are expected to be passed with address.")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port is expected to be passed along with the host address.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Proxysql.ServiceID)
 		}

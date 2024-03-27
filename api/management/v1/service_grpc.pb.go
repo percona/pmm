@@ -22,9 +22,8 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	ManagementService_AddAnnotation_FullMethodName = "/management.v1.ManagementService/AddAnnotation"
 	ManagementService_RegisterNode_FullMethodName  = "/management.v1.ManagementService/RegisterNode"
-	ManagementService_AddExternal_FullMethodName   = "/management.v1.ManagementService/AddExternal"
+	ManagementService_AddService_FullMethodName    = "/management.v1.ManagementService/AddService"
 	ManagementService_AddHAProxy_FullMethodName    = "/management.v1.ManagementService/AddHAProxy"
-	ManagementService_AddMySQL_FullMethodName      = "/management.v1.ManagementService/AddMySQL"
 	ManagementService_AddMongoDB_FullMethodName    = "/management.v1.ManagementService/AddMongoDB"
 	ManagementService_AddPostgreSQL_FullMethodName = "/management.v1.ManagementService/AddPostgreSQL"
 	ManagementService_AddProxySQL_FullMethodName   = "/management.v1.ManagementService/AddProxySQL"
@@ -39,21 +38,14 @@ const (
 type ManagementServiceClient interface {
 	// AddAnnotation adds an annotation.
 	AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*AddAnnotationResponse, error)
-	// RegisterNode registers a new Node and pmm-agent.
+	// RegisterNode registers a new Node and a pmm-agent.
 	RegisterNode(ctx context.Context, in *RegisterNodeRequest, opts ...grpc.CallOption) (*RegisterNodeResponse, error)
-	// AddExternal adds external service and adds external exporter.
-	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
-	AddExternal(ctx context.Context, in *AddExternalRequest, opts ...grpc.CallOption) (*AddExternalResponse, error)
+	// AddService adds a Service and starts several Agents.
+	AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error)
 	// AddHAProxy adds HAProxy service and adds external exporter.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds an "external exporter" agent to inventory.
 	AddHAProxy(ctx context.Context, in *AddHAProxyRequest, opts ...grpc.CallOption) (*AddHAProxyResponse, error)
-	// AddMySQL adds MySQL Service and starts several Agents.
-	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// then adds "mysqld_exporter", and "qan_mysql_perfschema" agents
-	// with provided "pmm_agent_id" and other parameters.
-	AddMySQL(ctx context.Context, in *AddMySQLRequest, opts ...grpc.CallOption) (*AddMySQLResponse, error)
 	// AddMongoDB adds MongoDB Service and starts several Agents.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds "mongodb_exporter", and "qan_mongodb_profiler" agents
@@ -69,9 +61,9 @@ type ManagementServiceClient interface {
 	AddProxySQL(ctx context.Context, in *AddProxySQLRequest, opts ...grpc.CallOption) (*AddProxySQLResponse, error)
 	// DiscoverRDS discovers RDS instances.
 	DiscoverRDS(ctx context.Context, in *DiscoverRDSRequest, opts ...grpc.CallOption) (*DiscoverRDSResponse, error)
-	// AddRDS adds RDS instance.
+	// AddRDS adds an RDS instance.
 	AddRDS(ctx context.Context, in *AddRDSRequest, opts ...grpc.CallOption) (*AddRDSResponse, error)
-	// RemoveService removes Service with Agents.
+	// RemoveService removes a Service along with its Agents.
 	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error)
 }
 
@@ -101,9 +93,9 @@ func (c *managementServiceClient) RegisterNode(ctx context.Context, in *Register
 	return out, nil
 }
 
-func (c *managementServiceClient) AddExternal(ctx context.Context, in *AddExternalRequest, opts ...grpc.CallOption) (*AddExternalResponse, error) {
-	out := new(AddExternalResponse)
-	err := c.cc.Invoke(ctx, ManagementService_AddExternal_FullMethodName, in, out, opts...)
+func (c *managementServiceClient) AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error) {
+	out := new(AddServiceResponse)
+	err := c.cc.Invoke(ctx, ManagementService_AddService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -113,15 +105,6 @@ func (c *managementServiceClient) AddExternal(ctx context.Context, in *AddExtern
 func (c *managementServiceClient) AddHAProxy(ctx context.Context, in *AddHAProxyRequest, opts ...grpc.CallOption) (*AddHAProxyResponse, error) {
 	out := new(AddHAProxyResponse)
 	err := c.cc.Invoke(ctx, ManagementService_AddHAProxy_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *managementServiceClient) AddMySQL(ctx context.Context, in *AddMySQLRequest, opts ...grpc.CallOption) (*AddMySQLResponse, error) {
-	out := new(AddMySQLResponse)
-	err := c.cc.Invoke(ctx, ManagementService_AddMySQL_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -188,21 +171,14 @@ func (c *managementServiceClient) RemoveService(ctx context.Context, in *RemoveS
 type ManagementServiceServer interface {
 	// AddAnnotation adds an annotation.
 	AddAnnotation(context.Context, *AddAnnotationRequest) (*AddAnnotationResponse, error)
-	// RegisterNode registers a new Node and pmm-agent.
+	// RegisterNode registers a new Node and a pmm-agent.
 	RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error)
-	// AddExternal adds external service and adds external exporter.
-	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
-	AddExternal(context.Context, *AddExternalRequest) (*AddExternalResponse, error)
+	// AddService adds a Service and starts several Agents.
+	AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error)
 	// AddHAProxy adds HAProxy service and adds external exporter.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds an "external exporter" agent to inventory.
 	AddHAProxy(context.Context, *AddHAProxyRequest) (*AddHAProxyResponse, error)
-	// AddMySQL adds MySQL Service and starts several Agents.
-	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// then adds "mysqld_exporter", and "qan_mysql_perfschema" agents
-	// with provided "pmm_agent_id" and other parameters.
-	AddMySQL(context.Context, *AddMySQLRequest) (*AddMySQLResponse, error)
 	// AddMongoDB adds MongoDB Service and starts several Agents.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds "mongodb_exporter", and "qan_mongodb_profiler" agents
@@ -218,9 +194,9 @@ type ManagementServiceServer interface {
 	AddProxySQL(context.Context, *AddProxySQLRequest) (*AddProxySQLResponse, error)
 	// DiscoverRDS discovers RDS instances.
 	DiscoverRDS(context.Context, *DiscoverRDSRequest) (*DiscoverRDSResponse, error)
-	// AddRDS adds RDS instance.
+	// AddRDS adds an RDS instance.
 	AddRDS(context.Context, *AddRDSRequest) (*AddRDSResponse, error)
-	// RemoveService removes Service with Agents.
+	// RemoveService removes a Service along with its Agents.
 	RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error)
 	mustEmbedUnimplementedManagementServiceServer()
 }
@@ -236,16 +212,12 @@ func (UnimplementedManagementServiceServer) RegisterNode(context.Context, *Regis
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterNode not implemented")
 }
 
-func (UnimplementedManagementServiceServer) AddExternal(context.Context, *AddExternalRequest) (*AddExternalResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddExternal not implemented")
+func (UnimplementedManagementServiceServer) AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddService not implemented")
 }
 
 func (UnimplementedManagementServiceServer) AddHAProxy(context.Context, *AddHAProxyRequest) (*AddHAProxyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddHAProxy not implemented")
-}
-
-func (UnimplementedManagementServiceServer) AddMySQL(context.Context, *AddMySQLRequest) (*AddMySQLResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddMySQL not implemented")
 }
 
 func (UnimplementedManagementServiceServer) AddMongoDB(context.Context, *AddMongoDBRequest) (*AddMongoDBResponse, error) {
@@ -320,20 +292,20 @@ func _ManagementService_RegisterNode_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ManagementService_AddExternal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddExternalRequest)
+func _ManagementService_AddService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ManagementServiceServer).AddExternal(ctx, in)
+		return srv.(ManagementServiceServer).AddService(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ManagementService_AddExternal_FullMethodName,
+		FullMethod: ManagementService_AddService_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ManagementServiceServer).AddExternal(ctx, req.(*AddExternalRequest))
+		return srv.(ManagementServiceServer).AddService(ctx, req.(*AddServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -352,24 +324,6 @@ func _ManagementService_AddHAProxy_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ManagementServiceServer).AddHAProxy(ctx, req.(*AddHAProxyRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ManagementService_AddMySQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddMySQLRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ManagementServiceServer).AddMySQL(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ManagementService_AddMySQL_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ManagementServiceServer).AddMySQL(ctx, req.(*AddMySQLRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -498,16 +452,12 @@ var ManagementService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ManagementService_RegisterNode_Handler,
 		},
 		{
-			MethodName: "AddExternal",
-			Handler:    _ManagementService_AddExternal_Handler,
+			MethodName: "AddService",
+			Handler:    _ManagementService_AddService_Handler,
 		},
 		{
 			MethodName: "AddHAProxy",
 			Handler:    _ManagementService_AddHAProxy_Handler,
-		},
-		{
-			MethodName: "AddMySQL",
-			Handler:    _ManagementService_AddMySQL_Handler,
 		},
 		{
 			MethodName: "AddMongoDB",

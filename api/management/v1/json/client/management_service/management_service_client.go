@@ -30,19 +30,17 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	AddAnnotation(params *AddAnnotationParams, opts ...ClientOption) (*AddAnnotationOK, error)
 
-	AddExternal(params *AddExternalParams, opts ...ClientOption) (*AddExternalOK, error)
-
 	AddHAProxy(params *AddHAProxyParams, opts ...ClientOption) (*AddHAProxyOK, error)
 
 	AddMongoDB(params *AddMongoDBParams, opts ...ClientOption) (*AddMongoDBOK, error)
-
-	AddMySQL(params *AddMySQLParams, opts ...ClientOption) (*AddMySQLOK, error)
 
 	AddPostgreSQL(params *AddPostgreSQLParams, opts ...ClientOption) (*AddPostgreSQLOK, error)
 
 	AddProxySQL(params *AddProxySQLParams, opts ...ClientOption) (*AddProxySQLOK, error)
 
 	AddRDS(params *AddRDSParams, opts ...ClientOption) (*AddRDSOK, error)
+
+	AddService(params *AddServiceParams, opts ...ClientOption) (*AddServiceOK, error)
 
 	DiscoverRDS(params *DiscoverRDSParams, opts ...ClientOption) (*DiscoverRDSOK, error)
 
@@ -66,7 +64,7 @@ func (a *Client) AddAnnotation(params *AddAnnotationParams, opts ...ClientOption
 	op := &runtime.ClientOperation{
 		ID:                 "AddAnnotation",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Annotations/Add",
+		PathPattern:        "/v1/management/annotations",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -89,45 +87,6 @@ func (a *Client) AddAnnotation(params *AddAnnotationParams, opts ...ClientOption
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*AddAnnotationDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-AddExternal adds external service
-
-Adds external service and adds external exporter. It automatically adds a service to inventory, which is running on provided "node_id", then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
-*/
-func (a *Client) AddExternal(params *AddExternalParams, opts ...ClientOption) (*AddExternalOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewAddExternalParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "AddExternal",
-		Method:             "POST",
-		PathPattern:        "/v1/management/External/Add",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &AddExternalReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*AddExternalOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*AddExternalDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -206,45 +165,6 @@ func (a *Client) AddMongoDB(params *AddMongoDBParams, opts ...ClientOption) (*Ad
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*AddMongoDBDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-AddMySQL adds my SQL
-
-Adds MySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided "node_id", then adds "mysqld_exporter", and "qan_mysql_perfschema" agents with the provided "pmm_agent_id" and other parameters.
-*/
-func (a *Client) AddMySQL(params *AddMySQLParams, opts ...ClientOption) (*AddMySQLOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewAddMySQLParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "AddMySQL",
-		Method:             "POST",
-		PathPattern:        "/v1/management/MySQL/Add",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &AddMySQLReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*AddMySQLOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*AddMySQLDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -366,6 +286,45 @@ func (a *Client) AddRDS(params *AddRDSParams, opts ...ClientOption) (*AddRDSOK, 
 }
 
 /*
+AddService adds a service
+
+Adds a service and starts several agents.
+*/
+func (a *Client) AddService(params *AddServiceParams, opts ...ClientOption) (*AddServiceOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddServiceParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "AddService",
+		Method:             "POST",
+		PathPattern:        "/v1/management/services",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddServiceReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AddServiceOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddServiceDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 DiscoverRDS discovers RDS
 
 Discovers RDS instances.
@@ -378,7 +337,7 @@ func (a *Client) DiscoverRDS(params *DiscoverRDSParams, opts ...ClientOption) (*
 	op := &runtime.ClientOperation{
 		ID:                 "DiscoverRDS",
 		Method:             "POST",
-		PathPattern:        "/v1/management/RDS/Discover",
+		PathPattern:        "/v1/management/services:discoverRDS",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -407,7 +366,7 @@ func (a *Client) DiscoverRDS(params *DiscoverRDSParams, opts ...ClientOption) (*
 /*
 RegisterNode registers node
 
-Registers a new Node and pmm-agent.
+Registers a new Node and a pmm-agent.
 */
 func (a *Client) RegisterNode(params *RegisterNodeParams, opts ...ClientOption) (*RegisterNodeOK, error) {
 	// TODO: Validate the params before sending
@@ -417,7 +376,7 @@ func (a *Client) RegisterNode(params *RegisterNodeParams, opts ...ClientOption) 
 	op := &runtime.ClientOperation{
 		ID:                 "RegisterNode",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Node/Register",
+		PathPattern:        "/v1/management/nodes",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -446,7 +405,7 @@ func (a *Client) RegisterNode(params *RegisterNodeParams, opts ...ClientOption) 
 /*
 RemoveService removes service
 
-Removes a Service along with Agents.
+Removes a Service along with its Agents.
 */
 func (a *Client) RemoveService(params *RemoveServiceParams, opts ...ClientOption) (*RemoveServiceOK, error) {
 	// TODO: Validate the params before sending
@@ -455,8 +414,8 @@ func (a *Client) RemoveService(params *RemoveServiceParams, opts ...ClientOption
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "RemoveService",
-		Method:             "POST",
-		PathPattern:        "/v1/management/Service/Remove",
+		Method:             "DELETE",
+		PathPattern:        "/v1/management/services/{service_id}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

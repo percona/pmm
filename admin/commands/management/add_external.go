@@ -42,7 +42,7 @@ Group       : {{ .Service.Group }}
 `)
 
 type addExternalResult struct {
-	Service *mservice.AddExternalOKBodyService `json:"service"`
+	Service *mservice.AddServiceOKBodyExternalService `json:"service"`
 }
 
 func (res *addExternalResult) Result() {}
@@ -120,32 +120,34 @@ func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &mservice.AddExternalParams{
-		Body: mservice.AddExternalBody{
-			RunsOnNodeID:        cmd.RunsOnNodeID,
-			ServiceName:         cmd.ServiceName,
-			Username:            cmd.Username,
-			Password:            cmd.Password,
-			Scheme:              cmd.Scheme,
-			MetricsPath:         cmd.MetricsPath,
-			ListenPort:          int64(cmd.ListenPort),
-			NodeID:              cmd.NodeID,
-			Environment:         cmd.Environment,
-			Cluster:             cmd.Cluster,
-			ReplicationSet:      cmd.ReplicationSet,
-			CustomLabels:        customLabels,
-			MetricsMode:         pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
-			Group:               cmd.Group,
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
+	params := &mservice.AddServiceParams{
+		Body: mservice.AddServiceBody{
+			External: &mservice.AddServiceParamsBodyExternal{
+				RunsOnNodeID:        cmd.RunsOnNodeID,
+				ServiceName:         cmd.ServiceName,
+				Username:            cmd.Username,
+				Password:            cmd.Password,
+				Scheme:              cmd.Scheme,
+				MetricsPath:         cmd.MetricsPath,
+				ListenPort:          int64(cmd.ListenPort),
+				NodeID:              cmd.NodeID,
+				Environment:         cmd.Environment,
+				Cluster:             cmd.Cluster,
+				ReplicationSet:      cmd.ReplicationSet,
+				CustomLabels:        customLabels,
+				MetricsMode:         pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
+				Group:               cmd.Group,
+				SkipConnectionCheck: cmd.SkipConnectionCheck,
+			},
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.ManagementService.AddExternal(params)
+	resp, err := client.Default.ManagementService.AddService(params)
 	if err != nil {
 		return nil, err
 	}
 
 	return &addExternalResult{
-		Service: resp.Payload.Service,
+		Service: resp.Payload.External.Service,
 	}, nil
 }
