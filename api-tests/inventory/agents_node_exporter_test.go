@@ -50,7 +50,7 @@ func TestNodeExporter(t *testing.T) {
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
-				Body:    agents.GetAgentBody{AgentID: agentID},
+				AgentID: agentID,
 				Context: pmmapitests.Context,
 			})
 		require.NoError(t, err)
@@ -71,13 +71,11 @@ func TestNodeExporter(t *testing.T) {
 		// Test change API.
 		changeNodeExporterOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyNodeExporterCommon{
-							Enable:       pointer.ToBool(false),
-							CustomLabels: &agents.ChangeAgentParamsBodyNodeExporterCommonCustomLabels{},
-						},
+						Enable:       pointer.ToBool(false),
+						CustomLabels: &agents.ChangeAgentParamsBodyNodeExporterCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
@@ -99,15 +97,13 @@ func TestNodeExporter(t *testing.T) {
 
 		changeNodeExporterOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyNodeExporterCommon{
-							Enable: pointer.ToBool(true),
-							CustomLabels: &agents.ChangeAgentParamsBodyNodeExporterCommonCustomLabels{
-								Values: map[string]string{
-									"new_label": "node_exporter",
-								},
+						Enable: pointer.ToBool(true),
+						CustomLabels: &agents.ChangeAgentParamsBodyNodeExporterCustomLabels{
+							Values: map[string]string{
+								"new_label": "node_exporter",
 							},
 						},
 					},
@@ -198,7 +194,7 @@ func TestNodeExporter(t *testing.T) {
 		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-			Body:    agents.GetAgentBody{AgentID: agentID},
+			AgentID: agentID,
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -219,12 +215,10 @@ func TestNodeExporter(t *testing.T) {
 
 		// Test change API.
 		changeNodeExporterOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
-					AgentID: agentID,
-					Common: &agents.ChangeAgentParamsBodyNodeExporterCommon{
-						EnablePushMetrics: pointer.ToBool(false),
-					},
+					EnablePushMetrics: pointer.ToBool(false),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -246,12 +240,10 @@ func TestNodeExporter(t *testing.T) {
 
 		changeNodeExporterOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyNodeExporterCommon{
-							EnablePushMetrics: pointer.ToBool(true),
-						},
+						EnablePushMetrics: pointer.ToBool(true),
 					},
 				},
 				Context: pmmapitests.Context,

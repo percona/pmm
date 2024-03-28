@@ -18,12 +18,15 @@ package services
 import "github.com/pkg/errors"
 
 var (
-	// ErrAdvisorsDisabled means that advisors checks are disabled and can't be executed.
+	// ErrAdvisorsDisabled means that advisors checks are disabled and can't be called.
 	ErrAdvisorsDisabled = errors.New("Advisor checks are disabled")
 
 	// ErrLocationFolderPairAlreadyUsed returned when location-folder pair already in use and cannot be used for backup.
 	ErrLocationFolderPairAlreadyUsed = errors.New("location-folder pair already used")
 
-	// ErrAlertingDisabled means Percona Alerting is disabled and its APIs can't be executed.
+	// ErrAlertingDisabled means Percona Alerting is disabled and its APIs can't be called.
 	ErrAlertingDisabled = errors.New("Alerting is disabled")
+
+	// ErrAzureDisabled means Azure Monitoring is disabled and its APIs can't be called.
+	ErrAzureDisabled = errors.New("Azure monitoring is disabled")
 )

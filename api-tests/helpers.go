@@ -22,6 +22,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -136,9 +137,7 @@ func RemoveNodes(t TestingT, nodeIDs ...string) {
 
 	for _, nodeID := range nodeIDs {
 		params := &nodes.RemoveNodeParams{
-			Body: nodes.RemoveNodeBody{
-				NodeID: nodeID,
-			},
+			NodeID:  nodeID,
 			Context: context.Background(),
 		}
 		res, err := client.Default.NodesService.RemoveNode(params)
@@ -153,11 +152,9 @@ func RemoveServices(t TestingT, serviceIDs ...string) {
 
 	for _, serviceID := range serviceIDs {
 		params := &services.RemoveServiceParams{
-			Body: services.RemoveServiceBody{
-				ServiceID: serviceID,
-				Force:     true,
-			},
-			Context: context.Background(),
+			ServiceID: serviceID,
+			Force:     pointer.ToBool(true),
+			Context:   context.Background(),
 		}
 		res, err := client.Default.ServicesService.RemoveService(params)
 		assert.NoError(t, err)
@@ -171,9 +168,7 @@ func RemoveAgents(t TestingT, agentIDs ...string) {
 
 	for _, agentID := range agentIDs {
 		params := &agents.RemoveAgentParams{
-			Body: agents.RemoveAgentBody{
-				AgentID: agentID,
-			},
+			AgentID: agentID,
 			Context: context.Background(),
 		}
 		res, err := client.Default.AgentsService.RemoveAgent(params)

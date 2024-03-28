@@ -424,9 +424,9 @@ func TestSettings(t *testing.T) {
 			t.Run("SetPMMPublicAddressWithoutScheme", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 				publicAddress := "192.168.0.42:8443"
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						PMMPublicAddress: publicAddress,
+						PMMPublicAddress: pointer.ToString(publicAddress),
 					},
 					Context: pmmapitests.Context,
 				})

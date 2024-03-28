@@ -146,10 +146,10 @@ func TestScheduleBackup(t *testing.T) {
 			require.NotNil(t, backup)
 
 			// Assert change
-			assert.Equal(t, body.Enabled, backup.Enabled)
-			assert.Equal(t, body.Name, backup.Name)
-			assert.Equal(t, body.Description, backup.Description)
-			assert.Equal(t, body.CronExpression, backup.CronExpression)
+			assert.Equal(t, pointer.GetBool(body.Enabled), backup.Enabled)
+			assert.Equal(t, pointer.GetString(body.Name), backup.Name)
+			assert.Equal(t, pointer.GetString(body.Description), backup.Description)
+			assert.Equal(t, pointer.GetString(body.CronExpression), backup.CronExpression)
 			assert.Equal(t, "backup_folder", backup.Folder)
 
 			_, err = client.RemoveScheduledBackup(&backups.RemoveScheduledBackupParams{

@@ -51,7 +51,7 @@ message ListUsersResponse {
 // UserService contains rpcs related to user data
 service UserService {
   rpc GetUser(GetUserRequest) returns (GetUserResponse) {
-    option (google.api.http) = {get: "/v1/user"};
+    option (google.api.http) = {get: "/v1/users/me"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get user details"
       description: "Retrieve user details from PMM server"
@@ -59,18 +59,18 @@ service UserService {
   }
   rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
     option (google.api.http) = {
-      put: "/v1/user"
+      put: "/v1/users/me"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Update user"
-      description: "Update details of given user in PMM server"
+      summary: "Update a user"
+      description: "Update user details in PMM server"
     };
   }
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
-    option (google.api.http) = {post: "/v1/user/list"};
+    option (google.api.http) = {get: "/v1/users"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "List all users with details"
+      summary: "List all users"
       description: "Retrieve user details for all users from PMM server"
     };
   }

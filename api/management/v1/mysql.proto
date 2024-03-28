@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package management.v1;
 
-import "google/api/annotations.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/log_level.proto";
 import "inventory/v1/services.proto";
@@ -12,7 +11,7 @@ import "validate/validate.proto";
 
 // Add MySQL
 
-message AddMySQLRequest {
+message AddMySQLServiceParams {
   // Node identifier on which a service is been running.
   // Exactly one of these parameters should be present: node_id, node_name, add_node.
   string node_id = 1;
@@ -91,7 +90,7 @@ message AddMySQLRequest {
   bool expose_exporter = 32;
 }
 
-message AddMySQLResponse {
+message MySQLServiceResult {
   inventory.v1.MySQLService service = 1;
   inventory.v1.MySQLdExporter mysqld_exporter = 2;
   inventory.v1.QANMySQLPerfSchemaAgent qan_mysql_perfschema = 3;

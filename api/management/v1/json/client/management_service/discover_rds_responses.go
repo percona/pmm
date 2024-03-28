@@ -60,7 +60,7 @@ type DiscoverRDSOK struct {
 }
 
 func (o *DiscoverRDSOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/RDS/Discover][%d] discoverRdsOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/services:discoverRDS][%d] discoverRdsOk  %+v", 200, o.Payload)
 }
 
 func (o *DiscoverRDSOK) GetPayload() *DiscoverRDSOKBody {
@@ -102,7 +102,7 @@ func (o *DiscoverRDSDefault) Code() int {
 }
 
 func (o *DiscoverRDSDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/RDS/Discover][%d] DiscoverRDS default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/services:discoverRDS][%d] DiscoverRDS default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *DiscoverRDSDefault) GetPayload() *DiscoverRDSDefaultBody {

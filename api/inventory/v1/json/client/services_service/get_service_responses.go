@@ -58,7 +58,7 @@ type GetServiceOK struct {
 }
 
 func (o *GetServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/Get][%d] getServiceOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/inventory/services/{service_id}][%d] getServiceOk  %+v", 200, o.Payload)
 }
 
 func (o *GetServiceOK) GetPayload() *GetServiceOKBody {
@@ -100,7 +100,7 @@ func (o *GetServiceDefault) Code() int {
 }
 
 func (o *GetServiceDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/Get][%d] GetService default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/inventory/services/{service_id}][%d] GetService default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetServiceDefault) GetPayload() *GetServiceDefaultBody {
@@ -115,43 +115,6 @@ func (o *GetServiceDefault) readResponse(response runtime.ClientResponse, consum
 		return err
 	}
 
-	return nil
-}
-
-/*
-GetServiceBody get service body
-swagger:model GetServiceBody
-*/
-type GetServiceBody struct {
-	// Unique randomly generated instance identifier.
-	ServiceID string `json:"service_id,omitempty"`
-}
-
-// Validate validates this get service body
-func (o *GetServiceBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this get service body based on context it is used
-func (o *GetServiceBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetServiceBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetServiceBody) UnmarshalBinary(b []byte) error {
-	var res GetServiceBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

@@ -96,20 +96,11 @@ func TestServiceService(t *testing.T) {
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `service_id or service_name expected`), err)
 		})
 
-		t.Run("Both params", func(t *testing.T) {
-			ctx, s, teardown, _ := setup(t)
-			defer teardown(t)
-
-			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceId: "some-id", ServiceName: "some-service-name"})
-			assert.Nil(t, response)
-			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `service_id or service_name expected; not both`), err)
-		})
-
 		t.Run("Not found", func(t *testing.T) {
 			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
-			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceName: "some-service-name"})
+			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceId: "some-service-name"})
 			assert.Nil(t, response)
 			tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with name "some-service-name" not found.`), err)
 		})
@@ -156,13 +147,13 @@ func TestServiceService(t *testing.T) {
 			require.NoError(t, err)
 
 			s.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgent.AgentID)
-			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
+			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceId: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
 			assert.NotNil(t, response)
 			assert.NoError(t, err)
 
 			agent, err := models.FindAgentByID(s.db.Querier, mysqldExporter.AgentID)
 			assert.Nil(t, agent)
-			tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000007" not found.`), err)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID /agent_id/00000000-0000-4000-8000-000000000007 not found.`), err)
 
 			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
 			assert.Nil(t, service)
@@ -207,17 +198,17 @@ func TestServiceService(t *testing.T) {
 			require.NoError(t, err)
 
 			s.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgent.AgentID)
-			_, err = s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
+			_, err = s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceId: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
 			assert.NoError(t, err)
 
 			_, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
 			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Service with ID "%s" not found.`, service.ServiceID)), err)
 
 			_, err = models.FindAgentByID(s.db.Querier, mysqldExporter.AgentID)
-			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, mysqldExporter.AgentID)), err)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID %s not found.`, mysqldExporter.AgentID)), err)
 
 			_, err = models.FindAgentByID(s.db.Querier, rdsExporter.AgentID)
-			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, rdsExporter.AgentID)), err)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID %s not found.`, rdsExporter.AgentID)), err)
 
 			_, err = models.FindNodeByID(s.db.Querier, node.NodeID)
 			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, node.NodeID)), err)
@@ -261,17 +252,17 @@ func TestServiceService(t *testing.T) {
 			require.NoError(t, err)
 
 			s.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgent.AgentID)
-			_, err = s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
+			_, err = s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceId: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
 			assert.NoError(t, err)
 
 			_, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
 			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Service with ID "%s" not found.`, service.ServiceID)), err)
 
 			_, err = models.FindAgentByID(s.db.Querier, mysqldExporter.AgentID)
-			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, mysqldExporter.AgentID)), err)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID %s not found.`, mysqldExporter.AgentID)), err)
 
 			_, err = models.FindAgentByID(s.db.Querier, azureExporter.AgentID)
-			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, azureExporter.AgentID)), err)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID %s not found.`, azureExporter.AgentID)), err)
 
 			_, err = models.FindNodeByID(s.db.Querier, node.NodeID)
 			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, node.NodeID)), err)

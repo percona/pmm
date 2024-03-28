@@ -46,7 +46,7 @@ type ClientService interface {
 /*
 AddAgent adds an agent to inventory
 
-Adds an Agent to Inventory. Only one top-level parameter should be passed.
+Adds an Agent to Inventory. Only one agent at a time can be passed.
 */
 func (a *Client) AddAgent(params *AddAgentParams, opts ...ClientOption) (*AddAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -56,7 +56,7 @@ func (a *Client) AddAgent(params *AddAgentParams, opts ...ClientOption) (*AddAge
 	op := &runtime.ClientOperation{
 		ID:                 "AddAgent",
 		Method:             "POST",
-		PathPattern:        "/v1/inventory/Agents/Add",
+		PathPattern:        "/v1/inventory/agents",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -85,7 +85,7 @@ func (a *Client) AddAgent(params *AddAgentParams, opts ...ClientOption) (*AddAge
 /*
 ChangeAgent updates an agent in inventory
 
-Updates an Agent in Inventory. Only one top-level parameter should be passed.
+Updates an Agent in Inventory. Only one agent at a time can be passed.
 */
 func (a *Client) ChangeAgent(params *ChangeAgentParams, opts ...ClientOption) (*ChangeAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -94,8 +94,8 @@ func (a *Client) ChangeAgent(params *ChangeAgentParams, opts ...ClientOption) (*
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ChangeAgent",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Agents/Change",
+		Method:             "PUT",
+		PathPattern:        "/v1/inventory/agents/{agent_id}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -133,8 +133,8 @@ func (a *Client) GetAgent(params *GetAgentParams, opts ...ClientOption) (*GetAge
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "GetAgent",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Agents/Get",
+		Method:             "GET",
+		PathPattern:        "/v1/inventory/agents/{agent_id}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -172,8 +172,8 @@ func (a *Client) GetAgentLogs(params *GetAgentLogsParams, opts ...ClientOption) 
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "GetAgentLogs",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Agents/GetLogs",
+		Method:             "GET",
+		PathPattern:        "/v1/inventory/agents/{agent_id}/logs",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -211,8 +211,8 @@ func (a *Client) ListAgents(params *ListAgentsParams, opts ...ClientOption) (*Li
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ListAgents",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Agents/List",
+		Method:             "GET",
+		PathPattern:        "/v1/inventory/agents",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -250,8 +250,8 @@ func (a *Client) RemoveAgent(params *RemoveAgentParams, opts ...ClientOption) (*
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "RemoveAgent",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Agents/Remove",
+		Method:             "DELETE",
+		PathPattern:        "/v1/inventory/agents/{agent_id}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

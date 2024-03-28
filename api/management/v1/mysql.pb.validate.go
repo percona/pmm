@@ -39,22 +39,22 @@ var (
 	_ = inventoryv1.LogLevel(0)
 )
 
-// Validate checks the field values on AddMySQLRequest with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// first error encountered is returned, or nil if there are no violations.
-func (m *AddMySQLRequest) Validate() error {
+// Validate checks the field values on AddMySQLServiceParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddMySQLServiceParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddMySQLRequest with the rules
+// ValidateAll checks the field values on AddMySQLServiceParams with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddMySQLRequestMultiError, or nil if none found.
-func (m *AddMySQLRequest) ValidateAll() error {
+// AddMySQLServiceParamsMultiError, or nil if none found.
+func (m *AddMySQLServiceParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddMySQLRequest) validate(all bool) error {
+func (m *AddMySQLServiceParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -69,7 +69,7 @@ func (m *AddMySQLRequest) validate(all bool) error {
 		switch v := interface{}(m.GetAddNode()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddMySQLRequestValidationError{
+				errors = append(errors, AddMySQLServiceParamsValidationError{
 					field:  "AddNode",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -77,7 +77,7 @@ func (m *AddMySQLRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddMySQLRequestValidationError{
+				errors = append(errors, AddMySQLServiceParamsValidationError{
 					field:  "AddNode",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -86,7 +86,7 @@ func (m *AddMySQLRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetAddNode()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddMySQLRequestValidationError{
+			return AddMySQLServiceParamsValidationError{
 				field:  "AddNode",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -95,7 +95,7 @@ func (m *AddMySQLRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetServiceName()) < 1 {
-		err := AddMySQLRequestValidationError{
+		err := AddMySQLServiceParamsValidationError{
 			field:  "ServiceName",
 			reason: "value length must be at least 1 runes",
 		}
@@ -112,7 +112,7 @@ func (m *AddMySQLRequest) validate(all bool) error {
 	// no validation rules for Socket
 
 	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
-		err := AddMySQLRequestValidationError{
+		err := AddMySQLServiceParamsValidationError{
 			field:  "PmmAgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -129,7 +129,7 @@ func (m *AddMySQLRequest) validate(all bool) error {
 	// no validation rules for ReplicationSet
 
 	if utf8.RuneCountInString(m.GetUsername()) < 1 {
-		err := AddMySQLRequestValidationError{
+		err := AddMySQLServiceParamsValidationError{
 			field:  "Username",
 			reason: "value length must be at least 1 runes",
 		}
@@ -178,19 +178,19 @@ func (m *AddMySQLRequest) validate(all bool) error {
 	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
-		return AddMySQLRequestMultiError(errors)
+		return AddMySQLServiceParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddMySQLRequestMultiError is an error wrapping multiple validation errors
-// returned by AddMySQLRequest.ValidateAll() if the designated constraints
-// aren't met.
-type AddMySQLRequestMultiError []error
+// AddMySQLServiceParamsMultiError is an error wrapping multiple validation
+// errors returned by AddMySQLServiceParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddMySQLServiceParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddMySQLRequestMultiError) Error() string {
+func (m AddMySQLServiceParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -199,11 +199,11 @@ func (m AddMySQLRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddMySQLRequestMultiError) AllErrors() []error { return m }
+func (m AddMySQLServiceParamsMultiError) AllErrors() []error { return m }
 
-// AddMySQLRequestValidationError is the validation error returned by
-// AddMySQLRequest.Validate if the designated constraints aren't met.
-type AddMySQLRequestValidationError struct {
+// AddMySQLServiceParamsValidationError is the validation error returned by
+// AddMySQLServiceParams.Validate if the designated constraints aren't met.
+type AddMySQLServiceParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -211,22 +211,24 @@ type AddMySQLRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddMySQLRequestValidationError) Field() string { return e.field }
+func (e AddMySQLServiceParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddMySQLRequestValidationError) Reason() string { return e.reason }
+func (e AddMySQLServiceParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddMySQLRequestValidationError) Cause() error { return e.cause }
+func (e AddMySQLServiceParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddMySQLRequestValidationError) Key() bool { return e.key }
+func (e AddMySQLServiceParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddMySQLRequestValidationError) ErrorName() string { return "AddMySQLRequestValidationError" }
+func (e AddMySQLServiceParamsValidationError) ErrorName() string {
+	return "AddMySQLServiceParamsValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e AddMySQLRequestValidationError) Error() string {
+func (e AddMySQLServiceParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -238,14 +240,14 @@ func (e AddMySQLRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddMySQLRequest.%s: %s%s",
+		"invalid %sAddMySQLServiceParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddMySQLRequestValidationError{}
+var _ error = AddMySQLServiceParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -253,24 +255,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddMySQLRequestValidationError{}
+} = AddMySQLServiceParamsValidationError{}
 
-// Validate checks the field values on AddMySQLResponse with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// first error encountered is returned, or nil if there are no violations.
-func (m *AddMySQLResponse) Validate() error {
+// Validate checks the field values on MySQLServiceResult with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *MySQLServiceResult) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddMySQLResponse with the rules
+// ValidateAll checks the field values on MySQLServiceResult with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddMySQLResponseMultiError, or nil if none found.
-func (m *AddMySQLResponse) ValidateAll() error {
+// MySQLServiceResultMultiError, or nil if none found.
+func (m *MySQLServiceResult) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddMySQLResponse) validate(all bool) error {
+func (m *MySQLServiceResult) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -281,7 +283,7 @@ func (m *AddMySQLResponse) validate(all bool) error {
 		switch v := interface{}(m.GetService()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddMySQLResponseValidationError{
+				errors = append(errors, MySQLServiceResultValidationError{
 					field:  "Service",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -289,7 +291,7 @@ func (m *AddMySQLResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddMySQLResponseValidationError{
+				errors = append(errors, MySQLServiceResultValidationError{
 					field:  "Service",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -298,7 +300,7 @@ func (m *AddMySQLResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetService()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddMySQLResponseValidationError{
+			return MySQLServiceResultValidationError{
 				field:  "Service",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -310,7 +312,7 @@ func (m *AddMySQLResponse) validate(all bool) error {
 		switch v := interface{}(m.GetMysqldExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddMySQLResponseValidationError{
+				errors = append(errors, MySQLServiceResultValidationError{
 					field:  "MysqldExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -318,7 +320,7 @@ func (m *AddMySQLResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddMySQLResponseValidationError{
+				errors = append(errors, MySQLServiceResultValidationError{
 					field:  "MysqldExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -327,7 +329,7 @@ func (m *AddMySQLResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetMysqldExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddMySQLResponseValidationError{
+			return MySQLServiceResultValidationError{
 				field:  "MysqldExporter",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -339,7 +341,7 @@ func (m *AddMySQLResponse) validate(all bool) error {
 		switch v := interface{}(m.GetQanMysqlPerfschema()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddMySQLResponseValidationError{
+				errors = append(errors, MySQLServiceResultValidationError{
 					field:  "QanMysqlPerfschema",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -347,7 +349,7 @@ func (m *AddMySQLResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddMySQLResponseValidationError{
+				errors = append(errors, MySQLServiceResultValidationError{
 					field:  "QanMysqlPerfschema",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -356,7 +358,7 @@ func (m *AddMySQLResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetQanMysqlPerfschema()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddMySQLResponseValidationError{
+			return MySQLServiceResultValidationError{
 				field:  "QanMysqlPerfschema",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -368,7 +370,7 @@ func (m *AddMySQLResponse) validate(all bool) error {
 		switch v := interface{}(m.GetQanMysqlSlowlog()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddMySQLResponseValidationError{
+				errors = append(errors, MySQLServiceResultValidationError{
 					field:  "QanMysqlSlowlog",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -376,7 +378,7 @@ func (m *AddMySQLResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddMySQLResponseValidationError{
+				errors = append(errors, MySQLServiceResultValidationError{
 					field:  "QanMysqlSlowlog",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -385,7 +387,7 @@ func (m *AddMySQLResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetQanMysqlSlowlog()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddMySQLResponseValidationError{
+			return MySQLServiceResultValidationError{
 				field:  "QanMysqlSlowlog",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -396,19 +398,19 @@ func (m *AddMySQLResponse) validate(all bool) error {
 	// no validation rules for TableCount
 
 	if len(errors) > 0 {
-		return AddMySQLResponseMultiError(errors)
+		return MySQLServiceResultMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddMySQLResponseMultiError is an error wrapping multiple validation errors
-// returned by AddMySQLResponse.ValidateAll() if the designated constraints
+// MySQLServiceResultMultiError is an error wrapping multiple validation errors
+// returned by MySQLServiceResult.ValidateAll() if the designated constraints
 // aren't met.
-type AddMySQLResponseMultiError []error
+type MySQLServiceResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddMySQLResponseMultiError) Error() string {
+func (m MySQLServiceResultMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -417,11 +419,11 @@ func (m AddMySQLResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddMySQLResponseMultiError) AllErrors() []error { return m }
+func (m MySQLServiceResultMultiError) AllErrors() []error { return m }
 
-// AddMySQLResponseValidationError is the validation error returned by
-// AddMySQLResponse.Validate if the designated constraints aren't met.
-type AddMySQLResponseValidationError struct {
+// MySQLServiceResultValidationError is the validation error returned by
+// MySQLServiceResult.Validate if the designated constraints aren't met.
+type MySQLServiceResultValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -429,22 +431,24 @@ type AddMySQLResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddMySQLResponseValidationError) Field() string { return e.field }
+func (e MySQLServiceResultValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddMySQLResponseValidationError) Reason() string { return e.reason }
+func (e MySQLServiceResultValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddMySQLResponseValidationError) Cause() error { return e.cause }
+func (e MySQLServiceResultValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddMySQLResponseValidationError) Key() bool { return e.key }
+func (e MySQLServiceResultValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddMySQLResponseValidationError) ErrorName() string { return "AddMySQLResponseValidationError" }
+func (e MySQLServiceResultValidationError) ErrorName() string {
+	return "MySQLServiceResultValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e AddMySQLResponseValidationError) Error() string {
+func (e MySQLServiceResultValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -456,14 +460,14 @@ func (e AddMySQLResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddMySQLResponse.%s: %s%s",
+		"invalid %sMySQLServiceResult.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddMySQLResponseValidationError{}
+var _ error = MySQLServiceResultValidationError{}
 
 var _ interface {
 	Field() string
@@ -471,4 +475,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddMySQLResponseValidationError{}
+} = MySQLServiceResultValidationError{}

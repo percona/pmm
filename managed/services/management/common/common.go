@@ -37,9 +37,18 @@ type MgmtServices struct {
 	RestoreService   *managementbackup.RestoreService
 }
 
+// NewMgmtServices creates a new MgmtServices instance.
+func NewMgmtServices(bs *managementbackup.BackupsService, as *managementbackup.ArtifactsService, rs *managementbackup.RestoreService) *MgmtServices {
+	return &MgmtServices{
+		BackupsService:   bs,
+		ArtifactsService: as,
+		RestoreService:   rs,
+	}
+}
+
 // RemoveScheduledTasks removes scheduled backup tasks and check there are no running backup/restore tasks in case user changes service cluster label.
 func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, params *models.ChangeStandardLabelsParams) error {
-	if params.Cluster == nil {
+	if params.Cluster == nil || *params.Cluster == "" {
 		return nil
 	}
 
@@ -57,11 +66,9 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 		}
 	}
 
-	if *params.Cluster != "" {
-		servicesInNewCluster, err = models.FindServices(db.Querier, models.ServiceFilters{Cluster: *params.Cluster})
-		if err != nil {
-			return err
-		}
+	servicesInNewCluster, err = models.FindServices(db.Querier, models.ServiceFilters{Cluster: *params.Cluster})
+	if err != nil {
+		return err
 	}
 
 	allServices := append(servicesInCurrentCluster, servicesInNewCluster...) //nolint:gocritic

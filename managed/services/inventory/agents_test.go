@@ -101,14 +101,15 @@ func TestAgents(t *testing.T) {
 		})
 
 		t.Run("ChangeNodeExporterAndRemoveCustomLabels", func(t *testing.T) {
-			actualNodeExporter, err := as.ChangeNodeExporter(ctx, &inventoryv1.ChangeNodeExporterParams{
-				AgentId: "/agent_id/00000000-0000-4000-8000-000000000006",
-				Common: &inventoryv1.ChangeCommonAgentParams{
+			actualNodeExporter, err := as.ChangeNodeExporter(
+				ctx,
+				"/agent_id/00000000-0000-4000-8000-000000000006",
+				&inventoryv1.ChangeNodeExporterParams{
 					Enable: pointer.ToBool(false),
 					// passing an empty map to remove custom labels
 					CustomLabels: &common.StringMap{},
 				},
-			})
+			)
 			require.NoError(t, err)
 			expectedNodeExporter = &inventoryv1.NodeExporter{
 				AgentId:    "/agent_id/00000000-0000-4000-8000-000000000006",
@@ -320,7 +321,7 @@ func TestAgents(t *testing.T) {
 			err := as.Remove(ctx, "/agent_id/00000000-0000-4000-8000-000000000005", true)
 			require.NoError(t, err)
 			actualAgent, err := as.Get(ctx, "/agent_id/00000000-0000-4000-8000-000000000005")
-			tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000005" not found.`), err)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID /agent_id/00000000-0000-4000-8000-000000000005 not found.`), err)
 			assert.Nil(t, actualAgent)
 
 			actualAgents, err = as.List(ctx, models.AgentFilters{})
@@ -374,7 +375,7 @@ func TestAgents(t *testing.T) {
 		_, err := as.AddNodeExporter(ctx, &inventoryv1.AddNodeExporterParams{
 			PmmAgentId: "no-such-id",
 		})
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "no-such-id" not found.`), err)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID no-such-id not found.`), err)
 	})
 
 	t.Run("AddRDSExporter", func(t *testing.T) {
@@ -481,7 +482,7 @@ func TestAgents(t *testing.T) {
 		t.Cleanup(func() { teardown(t) })
 
 		err := as.Remove(ctx, "no-such-id", false)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "no-such-id" not found.`), err)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID no-such-id not found.`), err)
 	})
 
 	t.Run("PushMetricsMongodbExporter", func(t *testing.T) {

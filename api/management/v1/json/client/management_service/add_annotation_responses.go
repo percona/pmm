@@ -58,7 +58,7 @@ type AddAnnotationOK struct {
 }
 
 func (o *AddAnnotationOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Annotations/Add][%d] addAnnotationOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/annotations][%d] addAnnotationOk  %+v", 200, o.Payload)
 }
 
 func (o *AddAnnotationOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *AddAnnotationDefault) Code() int {
 }
 
 func (o *AddAnnotationDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Annotations/Add][%d] AddAnnotation default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/annotations][%d] AddAnnotation default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddAnnotationDefault) GetPayload() *AddAnnotationDefaultBody {
@@ -127,10 +127,10 @@ type AddAnnotationBody struct {
 	// Tags are used to filter annotations.
 	Tags []string `json:"tags"`
 
-	// Used for annotate node.
+	// Used for annotating a node.
 	NodeName string `json:"node_name,omitempty"`
 
-	// Used for annotate services.
+	// Used for annotating services.
 	ServiceNames []string `json:"service_names"`
 }
 

@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package agent.v1beta1;
 
-import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
 message UniversalAgent {

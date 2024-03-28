@@ -41,47 +41,52 @@ import (
 // rules maps original URL prefix to minimal required role.
 var rules = map[string]role{
 	// TODO https://jira.percona.com/browse/PMM-4420
-	"/agent.Agent/Connect": none,
+	"/agent.Agent/Connect":           none, // NOTE: remove before v3 GA
+	"/agent.v1.AgentService/Connect": none,
 
-	"/inventory.":                     admin,
-	"/management.":                    admin,
-	"/actions/":                       viewer,
-	"/server.Server/CheckUpdates":     viewer,
-	"/server.Server/UpdateStatus":     none, // special token-based auth
-	"/server.Server/AWSInstanceCheck": none, // special case - used before Grafana can be accessed
-	"/server.":                        admin,
+	"/inventory.":                               admin,
+	"/management.":                              admin,
+	"/actions/":                                 viewer,
+	"/server.v1.ServerService/CheckUpdates":     viewer,
+	"/server.v1.ServerService/UpdateStatus":     none,  // special token-based auth
+	"/server.v1.ServerService/AWSInstanceCheck": none,  // special case - used before Grafana can be accessed
+	"/server.":                                  admin, // TODO: do we need it for older agents?
+	"/server.v1.":                               admin,
+	"/qan.v1.CollectorService.":                 viewer,
+	"/qan.v1.QANService.":                       viewer,
 
-	"/v1/alerting":                           viewer,
-	"/v1/backup":                             admin,
-	"/v1/dump":                               admin,
-	"/v1/role":                               admin,
-	"/v1/inventory/":                         admin,
-	"/v1/inventory/Services/ListTypes":       viewer,
-	"/v1/management/":                        admin,
-	"/v1/actions/":                           viewer,
-	"/v1/management/Jobs":                    viewer,
-	"/v1/updates/Check":                      viewer,
-	"/v1/updates/Status":                     none, // special token-based auth
-	"/v1/AWSInstanceCheck":                   none, // special case - used before Grafana can be accessed
-	"/v1/updates/":                           admin,
-	"/v1/settings/":                          admin,
-	"/v1/platform/Connect":                   admin,
-	"/v1/platform/Disconnect":                admin,
-	"/v1/platform/SearchOrganizationTickets": viewer,
+	"/v1/alerting":                                viewer,
+	"/v1/backup":                                  admin,
+	"/v1/dump":                                    admin,
+	"/v1/role":                                    admin,
+	"/v1/inventory/":                              admin,
+	"/v1/inventory/services:getTypes":             viewer,
+	"/v1/management/":                             admin,
+	"/v1/actions/":                                viewer,
+	"/v1/management/Jobs":                         viewer,
+	"/v1/server/AWSInstance":                      none, // special case - used before Grafana can be accessed
+	"/v1/server/updates":                          viewer,
+	"/v1/server/updates:start":                    admin,
+	"/v1/server/updates:getStatus":                none, // special token-based auth
+	"/v1/server/settings":                         admin,
+	"/v1/platform/Connect":                        admin,
+	"/v1/platform/Disconnect":                     admin,
+	"/v1/platform/SearchOrganizationTickets":      viewer,
 	"/v1/platform/SearchOrganizationEntitlements": viewer,
 	"/v1/platform/GetContactInformation":          viewer,
 	"/v1/platform/ServerInfo":                     viewer,
 	"/v1/platform/UserStatus":                     viewer,
-
-	"/v1/user": viewer,
+	"/v1/users":                                   viewer,
 
 	// must be available without authentication for health checking
-	"/v1/readyz":            none,
-	"/v1/leaderHealthCheck": none,
-	"/ping":                 none, // PMM 1.x variant
+	"/v1/readyz":                   none, // TODO: remove before v3 GA
+	"/v1/server/readyz":            none,
+	"/v1/server/leaderHealthCheck": none,
+	"/ping":                        none, // PMM 1.x variant
 
 	// must not be available without authentication as it can leak data
-	"/v1/version": viewer,
+	"/v1/version":        viewer, // TODO: remove before v3 GA
+	"/v1/server/version": viewer,
 
 	"/v1/qan/": viewer,
 
@@ -91,7 +96,7 @@ var rules = map[string]role{
 	"/graph":           none,
 	"/swagger":         none,
 
-	"/logs.zip": admin,
+	"/v1/server/logs.zip": admin,
 	// "/auth_request" and "/setup" have auth_request disabled in nginx config
 
 	// "/" is a special case in this code
@@ -108,7 +113,7 @@ const vmProxyHeaderName = "X-Proxy-Filter"
 
 // Only UI is blocked by setup wizard; APIs can be used.
 // Critically, AWSInstanceCheck must be available for the setup wizard itself to work;
-// and /agent.Agent/Connect and Management APIs should be available for pmm-agent on PMM Server registration.
+// and /agent.v1.AgentService/Connect and Management APIs should be available for pmm-agent on PMM Server registration.
 var mustSetupRules = []string{
 	"/prometheus",
 	"/victoriametrics",

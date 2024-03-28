@@ -50,7 +50,7 @@ func TestNextPrefix(t *testing.T) {
 		{"./", "/", "/"},
 		{"hax0r", "/", "/"},
 		{"", "/"},
-		{"/v1/AWSInstanceCheck/..%2finventory/Services/List'"},
+		{"/v1/server/AWSInstanceCheck/..%2f..%2finventory/Services/List'"},
 	} {
 		t.Run(paths[0], func(t *testing.T) {
 			for i, path := range paths[:len(paths)-1] {
@@ -199,42 +199,42 @@ func TestAuthServerAuthenticate(t *testing.T) {
 	})
 
 	for uri, minRole := range map[string]role{
-		"/agent.Agent/Connect": none,
+		"/agent.v1.AgentService/Connect": none,
 
-		"/inventory.Nodes/ListNodes":               admin,
-		"/actions/StartMySQLShowTableStatusAction": viewer,
-		"/management.Service/RemoveService":        admin,
-		"/management.Service/ListServices":         admin,
-		"/management.Annotation/AddAnnotation":     admin,
-		"/server.Server/CheckUpdates":              viewer,
-		"/server.Server/StartUpdate":               admin,
-		"/server.Server/UpdateStatus":              none,
-		"/server.Server/AWSInstanceCheck":          none,
+		"/inventory.v1.Nodes/ListNodes":                  admin,
+		"/actions/StartMySQLShowTableStatusAction":       viewer,
+		"/management.v1.ManagementService/RemoveService": admin,
+		"/management.v1.ManagementService/ListServices":  admin,
+		"/management.v1.ManagementService/AddAnnotation": admin,
+		"/server.v1.ServerService/CheckUpdates":          viewer,
+		"/server.v1.ServerService/StartUpdate":           admin,
+		"/server.v1.ServerService/UpdateStatus":          none,
+		"/server.v1.ServerService/AWSInstanceCheck":      none,
 
-		"/v1/inventory/Nodes/List":              admin,
+		"/v1/inventory/nodes":                   admin,
 		"/v1/actions/StartMySQLShowTableStatus": viewer,
 		"/v1/management/Service/Remove":         admin,
 		"/v1/management/Service/List":           admin,
 		"/v1/management/Agent/List":             admin,
-		"/v1/updates/Check":                     viewer,
-		"/v1/updates/Start":                     admin,
-		"/v1/updates/Status":                    none,
-		"/v1/settings/Get":                      admin,
-		"/v1/AWSInstanceCheck":                  none,
+		"/v1/server/updates":                    viewer,
+		"/v1/server/updates:start":              admin,
+		"/v1/server/updates:getStatus":          none,
+		"/v1/server/settings":                   admin,
+		"/v1/server/AWSInstance":                none,
+		"/v1/users":                             viewer,
 		"/v1/platform/Connect":                  admin,
 
-		"/v1/AWSInstanceCheck/..%2finventory/Services/List": admin,
-		"/v1/AWSInstanceCheck/..%2f..%2flogs.zip":           admin,
+		"/v1/server/AWSInstance/..%2f..%2finventory/Services/List": admin,
+		"/v1/server/AWSInstance/..%2flogs.zip":                     admin,
 
-		"/v1/readyz": none,
-		"/ping":      none,
-
-		"/v1/version": viewer,
+		"/v1/server/version": viewer,
+		"/v1/server/readyz":  none,
+		"/ping":              none,
 
 		"/v1/qan/ObjectDetails/GetQueryExample": viewer,
 
-		"/prometheus/": admin,
-		"/logs.zip":    admin,
+		"/prometheus/":        admin,
+		"/v1/server/logs.zip": admin,
 	} {
 		for _, role := range []role{viewer, editor, admin} {
 			uri := uri
@@ -412,13 +412,13 @@ func Test_cleanPath(t *testing.T) {
 		expected string
 	}{
 		{
-			"/v1/AWSInstanceCheck/..%2finventory/Services/List",
+			"/v1/server/AWSInstanceCheck/..%2f..%2finventory/Services/List",
 			"/v1/inventory/Services/List",
 		}, {
-			"/v1/AWSInstanceCheck/..%2f..%2fmanaged/logs.zip",
+			"/v1/server/AWSInstanceCheck/..%2f..%2f..%2fmanaged/logs.zip",
 			"/managed/logs.zip",
 		}, {
-			"/v1/AWSInstanceCheck/..%2f..%2f/logs.zip",
+			"/v1/server/AWSInstanceCheck/..%2f..%2f..%2f/logs.zip",
 			"/logs.zip",
 		},
 	}

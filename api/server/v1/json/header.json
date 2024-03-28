@@ -9,7 +9,7 @@
     "http"
   ],
   "paths": {
-    "/logs.zip": {
+    "/v1/server/logs.zip": {
       "get": {
         "tags": [
           "ServerService"

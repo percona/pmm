@@ -60,8 +60,11 @@ AWSInstanceCheckParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type AWSInstanceCheckParams struct {
-	// Body.
-	Body AWSInstanceCheckBody
+	/* InstanceID.
+
+	   AWS EC2 instance ID (i-1234567890abcdef0).
+	*/
+	InstanceID *string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -116,15 +119,15 @@ func (o *AWSInstanceCheckParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the AWS instance check params
-func (o *AWSInstanceCheckParams) WithBody(body AWSInstanceCheckBody) *AWSInstanceCheckParams {
-	o.SetBody(body)
+// WithInstanceID adds the instanceID to the AWS instance check params
+func (o *AWSInstanceCheckParams) WithInstanceID(instanceID *string) *AWSInstanceCheckParams {
+	o.SetInstanceID(instanceID)
 	return o
 }
 
-// SetBody adds the body to the AWS instance check params
-func (o *AWSInstanceCheckParams) SetBody(body AWSInstanceCheckBody) {
-	o.Body = body
+// SetInstanceID adds the instanceId to the AWS instance check params
+func (o *AWSInstanceCheckParams) SetInstanceID(instanceID *string) {
+	o.InstanceID = instanceID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,8 +136,21 @@ func (o *AWSInstanceCheckParams) WriteToRequest(r runtime.ClientRequest, reg str
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+
+	if o.InstanceID != nil {
+
+		// query param instance_id
+		var qrInstanceID string
+
+		if o.InstanceID != nil {
+			qrInstanceID = *o.InstanceID
+		}
+		qInstanceID := qrInstanceID
+		if qInstanceID != "" {
+			if err := r.SetQueryParam("instance_id", qInstanceID); err != nil {
+				return err
+			}
+		}
 	}
 
 	if len(res) > 0 {

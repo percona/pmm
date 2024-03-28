@@ -91,13 +91,18 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer, pprofConfig *PprofConfig) e
 		}
 
 		if file.Err != nil {
-			log.WithField("d", time.Since(start).Seconds()).Errorf("%s: %s", file.Name, file.Err)
-
 			// do not let a single error break the whole archive
 			if len(file.Data) != 0 {
 				file.Data = append(file.Data, "\n\n"...)
 			}
-			file.Data = append(file.Data, file.Err.Error()...)
+
+			// Do not log the error for `supervisorctl status` command, as it is expected to fail.
+			// Read more at https://github.com/Supervisor/supervisor/issues/1223#issuecomment-480845901.
+			if file.Name != "supervisorctl_status.log" && file.Err.Error() != "exit status 3" {
+				log.WithField("d", time.Since(start).Seconds()).Errorf("%s: %s", file.Name, file.Err)
+
+				file.Data = append(file.Data, file.Err.Error()...)
+			}
 		}
 
 		if file.Modified.IsZero() {
@@ -161,6 +166,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 		"/etc/supervisord.d/qan-api2.ini",
 		"/etc/supervisord.d/victoriametrics.ini",
 		"/etc/supervisord.d/vmalert.ini",
+		"/etc/supervisord.d/vmproxy.ini",
 
 		"/usr/local/percona/pmm/config/pmm-agent.yaml",
 	} {
@@ -183,14 +189,6 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 	b, err := readCmdOutput(ctx, "supervisorctl", "status")
 	files = append(files, fileContent{
 		Name: "supervisorctl_status.log",
-		Data: b,
-		Err:  err,
-	})
-
-	// add systemd status for OVF/AMI
-	b, err = readCmdOutput(ctx, "systemctl", "-l", "status")
-	files = append(files, fileContent{
-		Name: "systemctl_status.log",
 		Data: b,
 		Err:  err,
 	})

@@ -38,9 +38,9 @@ type AgentsServiceClient interface {
 	GetAgent(ctx context.Context, in *GetAgentRequest, opts ...grpc.CallOption) (*GetAgentResponse, error)
 	// GetAgentLogs returns Agent logs by ID.
 	GetAgentLogs(ctx context.Context, in *GetAgentLogsRequest, opts ...grpc.CallOption) (*GetAgentLogsResponse, error)
-	// AddAgent adds any type of Agent to Inventory.
+	// AddAgent adds an Agent to Inventory.
 	AddAgent(ctx context.Context, in *AddAgentRequest, opts ...grpc.CallOption) (*AddAgentResponse, error)
-	// ChangeAgent changes any type of Agent record in Inventory.
+	// ChangeAgent changes a subset of attributes of the Agent record in Inventory.
 	ChangeAgent(ctx context.Context, in *ChangeAgentRequest, opts ...grpc.CallOption) (*ChangeAgentResponse, error)
 	// RemoveAgent removes an Agent.
 	RemoveAgent(ctx context.Context, in *RemoveAgentRequest, opts ...grpc.CallOption) (*RemoveAgentResponse, error)
@@ -118,9 +118,9 @@ type AgentsServiceServer interface {
 	GetAgent(context.Context, *GetAgentRequest) (*GetAgentResponse, error)
 	// GetAgentLogs returns Agent logs by ID.
 	GetAgentLogs(context.Context, *GetAgentLogsRequest) (*GetAgentLogsResponse, error)
-	// AddAgent adds any type of Agent to Inventory.
+	// AddAgent adds an Agent to Inventory.
 	AddAgent(context.Context, *AddAgentRequest) (*AddAgentResponse, error)
-	// ChangeAgent changes any type of Agent record in Inventory.
+	// ChangeAgent changes a subset of attributes of the Agent record in Inventory.
 	ChangeAgent(context.Context, *ChangeAgentRequest) (*ChangeAgentResponse, error)
 	// RemoveAgent removes an Agent.
 	RemoveAgent(context.Context, *RemoveAgentRequest) (*RemoveAgentResponse, error)

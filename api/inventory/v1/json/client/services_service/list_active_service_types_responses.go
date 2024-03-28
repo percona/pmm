@@ -60,7 +60,7 @@ type ListActiveServiceTypesOK struct {
 }
 
 func (o *ListActiveServiceTypesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/ListTypes][%d] listActiveServiceTypesOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/services:getTypes][%d] listActiveServiceTypesOk  %+v", 200, o.Payload)
 }
 
 func (o *ListActiveServiceTypesOK) GetPayload() *ListActiveServiceTypesOKBody {
@@ -102,7 +102,7 @@ func (o *ListActiveServiceTypesDefault) Code() int {
 }
 
 func (o *ListActiveServiceTypesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/ListTypes][%d] ListActiveServiceTypes default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/services:getTypes][%d] ListActiveServiceTypes default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ListActiveServiceTypesDefault) GetPayload() *ListActiveServiceTypesDefaultBody {

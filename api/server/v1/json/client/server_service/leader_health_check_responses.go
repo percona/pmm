@@ -58,7 +58,7 @@ type LeaderHealthCheckOK struct {
 }
 
 func (o *LeaderHealthCheckOK) Error() string {
-	return fmt.Sprintf("[POST /v1/leaderHealthCheck][%d] leaderHealthCheckOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/server/leaderHealthCheck][%d] leaderHealthCheckOk  %+v", 200, o.Payload)
 }
 
 func (o *LeaderHealthCheckOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *LeaderHealthCheckDefault) Code() int {
 }
 
 func (o *LeaderHealthCheckDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/leaderHealthCheck][%d] LeaderHealthCheck default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/server/leaderHealthCheck][%d] LeaderHealthCheck default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *LeaderHealthCheckDefault) GetPayload() *LeaderHealthCheckDefaultBody {

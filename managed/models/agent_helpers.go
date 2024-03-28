@@ -30,11 +30,21 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+const (
+	agentIDPrefix   = "/agent_id/"
+	serviceIDPrefix = "/service_id/"
+	nodeIDPrefix    = "/node_id/"
+)
+
 // MySQLOptionsParams contains methods to create MySQLOptions object.
 type MySQLOptionsParams interface {
 	GetTlsCa() string
 	GetTlsCert() string
 	GetTlsKey() string
+}
+
+func agentID() string {
+	return "/agent_id/" + uuid.New().String()
 }
 
 // MySQLOptionsFromRequest creates MySQLOptions object from request.
@@ -154,6 +164,36 @@ func AzureOptionsFromRequest(params AzureOptionsParams) *AzureOptions {
 	return nil
 }
 
+// Add a prefix since gRPC does not allow to pass an URL path segment that begins with a slash.
+// TODO: remove these Normalize functions once we drop prefixes in agent/service/node IDs.
+
+// NormalizeAgentID adds a prefix to the agent ID if it does not already contain it.
+func NormalizeAgentID(agentID string) string {
+	if agentID == "" || strings.HasPrefix(agentID, agentIDPrefix) {
+		return agentID
+	}
+
+	return agentIDPrefix + agentID
+}
+
+// NormalizeServiceID adds a prefix to the service ID if it does not already contain it.
+func NormalizeServiceID(serviceID string) string {
+	if serviceID == "" || strings.HasPrefix(serviceID, serviceIDPrefix) {
+		return serviceID
+	}
+
+	return serviceIDPrefix + serviceID
+}
+
+// NormalizeNodeID adds a prefix to the node ID if it does not already contain it.
+func NormalizeNodeID(nodeID string) string {
+	if nodeID == "" || strings.HasPrefix(nodeID, nodeIDPrefix) {
+		return nodeID
+	}
+
+	return nodeIDPrefix + nodeID
+}
+
 func checkUniqueAgentID(q *reform.Querier, id string) error {
 	if id == "" {
 		panic("empty Agent ID")
@@ -168,7 +208,7 @@ func checkUniqueAgentID(q *reform.Querier, id string) error {
 		return errors.WithStack(err)
 	}
 
-	return status.Errorf(codes.AlreadyExists, "Agent with ID %q already exists.", id)
+	return status.Errorf(codes.AlreadyExists, "Agent with ID %s already exists.", id)
 }
 
 // AgentFilters represents filters for agents list.
@@ -244,7 +284,7 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 	err := q.Reload(agent)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return nil, status.Errorf(codes.NotFound, "Agent with ID %q not found.", id)
+			return nil, status.Errorf(codes.NotFound, "Agent with ID %s not found.", id)
 		}
 		return nil, errors.WithStack(err)
 	}
@@ -579,8 +619,7 @@ func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabe
 
 // CreatePMMAgent creates PMMAgent.
 func CreatePMMAgent(q *reform.Querier, runsOnNodeID string, customLabels map[string]string) (*Agent, error) {
-	id := "/agent_id/" + uuid.New().String()
-	return createPMMAgentWithID(q, id, runsOnNodeID, customLabels)
+	return createPMMAgentWithID(q, agentID(), runsOnNodeID, customLabels)
 }
 
 // CreateNodeExporter creates NodeExporter.
@@ -595,7 +634,7 @@ func CreateNodeExporter(q *reform.Querier,
 ) (*Agent, error) {
 	// TODO merge into CreateAgent
 
-	id := "/agent_id/" + uuid.New().String()
+	id := agentID()
 	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
 	}
@@ -649,7 +688,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 	}
 	var pmmAgentID *string
 	runsOnNodeID := pointer.ToString(params.RunsOnNodeID)
-	id := "/agent_id/" + uuid.New().String()
+	id := agentID()
 	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
 	}
@@ -823,7 +862,7 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 
 // CreateAgent creates Agent with given type.
 func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentParams) (*Agent, error) { //nolint:unparam
-	id := "/agent_id/" + uuid.New().String()
+	id := agentID()
 	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
 	}
@@ -967,7 +1006,7 @@ func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) 
 	if len(structs) != 0 {
 		switch mode {
 		case RemoveRestrict:
-			return nil, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %q has agents.", id)
+			return nil, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %s has agents.", id)
 		case RemoveCascade:
 			for _, str := range structs {
 				agentID := str.(*Agent).AgentID //nolint:forcetypeassert

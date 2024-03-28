@@ -74,7 +74,7 @@ func TestPostgresExporter(t *testing.T) {
 		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-			Body:    agents.GetAgentBody{AgentID: agentID},
+			AgentID: agentID,
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -99,13 +99,11 @@ func TestPostgresExporter(t *testing.T) {
 		// Test change API.
 		changePostgresExporterOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyPostgresExporterCommon{
-							Enable:       pointer.ToBool(false),
-							CustomLabels: &agents.ChangeAgentParamsBodyPostgresExporterCommonCustomLabels{},
-						},
+						Enable:       pointer.ToBool(false),
+						CustomLabels: &agents.ChangeAgentParamsBodyPostgresExporterCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
@@ -130,15 +128,13 @@ func TestPostgresExporter(t *testing.T) {
 
 		changePostgresExporterOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyPostgresExporterCommon{
-							Enable: pointer.ToBool(true),
-							CustomLabels: &agents.ChangeAgentParamsBodyPostgresExporterCommonCustomLabels{
-								Values: map[string]string{
-									"new_label": "postgres_exporter",
-								},
+						Enable: pointer.ToBool(true),
+						CustomLabels: &agents.ChangeAgentParamsBodyPostgresExporterCustomLabels{
+							Values: map[string]string{
+								"new_label": "postgres_exporter",
 							},
 						},
 					},
@@ -334,7 +330,7 @@ func TestPostgresExporter(t *testing.T) {
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
-				Body:    agents.GetAgentBody{AgentID: agentID},
+				AgentID: agentID,
 				Context: pmmapitests.Context,
 			})
 		require.NoError(t, err)
@@ -359,12 +355,10 @@ func TestPostgresExporter(t *testing.T) {
 		// Test change API.
 		changePostgresExporterOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyPostgresExporterCommon{
-							EnablePushMetrics: pointer.ToBool(false),
-						},
+						EnablePushMetrics: pointer.ToBool(false),
 					},
 				},
 				Context: pmmapitests.Context,
@@ -389,12 +383,10 @@ func TestPostgresExporter(t *testing.T) {
 
 		changePostgresExporterOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyPostgresExporterCommon{
-							EnablePushMetrics: pointer.ToBool(true),
-						},
+						EnablePushMetrics: pointer.ToBool(true),
 					},
 				},
 				Context: pmmapitests.Context,
