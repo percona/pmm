@@ -16,6 +16,7 @@
 package models
 
 import (
+	"database/sql/driver"
 	"time"
 
 	"github.com/asaskevich/govalidator"
@@ -29,6 +30,12 @@ type MetricsResolutions struct {
 	MR time.Duration `json:"mr"`
 	LR time.Duration `json:"lr"`
 }
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (r MetricsResolutions) Value() (driver.Value, error) { return jsonValue(r) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (r *MetricsResolutions) Scan(src interface{}) error { return jsonScan(r, src) }
 
 // SaaS contains settings related to the SaaS platform.
 type SaaS struct {

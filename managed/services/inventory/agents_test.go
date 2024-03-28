@@ -18,6 +18,7 @@ package inventory
 import (
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
@@ -25,8 +26,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/api/common"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -82,6 +85,9 @@ func TestAgents(t *testing.T) {
 			AgentId: "/agent_id/00000000-0000-4000-8000-000000000006",
 			Common: &inventorypb.ChangeCommonAgentParams{
 				Disable: true,
+				MetricsResolutions: &common.MetricsResolutions{
+					Hr: durationpb.New(10 * time.Second),
+				},
 			},
 		})
 		require.NoError(t, err)
@@ -90,6 +96,9 @@ func TestAgents(t *testing.T) {
 			PmmAgentId: "/agent_id/00000000-0000-4000-8000-000000000005",
 			Disabled:   true,
 			Status:     inventorypb.AgentStatus_UNKNOWN,
+			MetricsResolutions: &common.MetricsResolutions{
+				Hr: durationpb.New(10 * time.Second),
+			},
 		}
 		assert.Equal(t, expectedNodeExporter, actualNodeExporter)
 

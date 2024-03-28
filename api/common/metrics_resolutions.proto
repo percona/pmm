@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package common;
+
+import "google/protobuf/duration.proto";
+
+// MetricsResolutions represents Prometheus exporters metrics resolutions.
+message MetricsResolutions {
+  // High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+  google.protobuf.Duration hr = 1;
+  // Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+  google.protobuf.Duration mr = 2;
+  // Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+  google.protobuf.Duration lr = 3;
+}

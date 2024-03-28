@@ -18,6 +18,7 @@ package models
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
@@ -741,6 +742,7 @@ type CreateAgentParams struct {
 	ExposeExporter                 bool
 	DisableCollectors              []string
 	LogLevel                       string
+	MetricsResolutions             *MetricsResolutions
 }
 
 func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
@@ -909,6 +911,14 @@ type ChangeCommonAgentParams struct {
 	CustomLabels       map[string]string
 	RemoveCustomLabels bool
 	DisablePushMetrics *bool
+	MetricsResolutions ChangeMetricsResolutionsParams
+}
+
+// ChangeMetricsResolutionsParams contains metrics resolutions for change.
+type ChangeMetricsResolutionsParams struct {
+	HR *time.Duration
+	MR *time.Duration
+	LR *time.Duration
 }
 
 // ChangeAgent changes common parameters for given Agent.
@@ -943,6 +953,24 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 		if err = row.SetCustomLabels(params.CustomLabels); err != nil {
 			return nil, err
 		}
+	}
+
+	if row.MetricsResolutions == nil {
+		row.MetricsResolutions = &MetricsResolutions{}
+	}
+	if params.MetricsResolutions.LR != nil {
+		row.MetricsResolutions.LR = *params.MetricsResolutions.LR
+	}
+	if params.MetricsResolutions.MR != nil {
+		row.MetricsResolutions.MR = *params.MetricsResolutions.MR
+	}
+	if params.MetricsResolutions.HR != nil {
+		row.MetricsResolutions.HR = *params.MetricsResolutions.HR
+	}
+
+	// If all resolutions are empty, then drop whole MetricsResolution field.
+	if row.MetricsResolutions.HR == 0 && row.MetricsResolutions.MR == 0 && row.MetricsResolutions.LR == 0 {
+		row.MetricsResolutions = nil
 	}
 
 	if err = q.Update(row); err != nil {
