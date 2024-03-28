@@ -36,8 +36,6 @@ import (
 )
 
 var commonExpectedFiles = []string{
-	"alertmanager.ini",
-	"alertmanager.log",
 	"clickhouse-server.log",
 	"grafana.log",
 	"installed.json",
@@ -169,10 +167,6 @@ func TestFiles(t *testing.T) {
 			continue
 		}
 
-		if f.Name == "dbaas-controller.log" {
-			continue
-		}
-
 		if f.Name == "supervisorctl_status.log" {
 			// FIXME: this fails following the transition to EL9
 			continue
@@ -211,9 +205,6 @@ func TestZip(t *testing.T) {
 		"client/pmm-agent/pmm-agent.log",
 		"systemctl_status.log",
 		"prometheus.base.yml",
-	}
-	if os.Getenv("ENABLE_DBAAS") == "1" {
-		additionalFiles = append(additionalFiles, "dbaas-controller.log")
 	}
 	// zip file includes client files
 	expected := append(commonExpectedFiles, additionalFiles...) //nolint:gocritic

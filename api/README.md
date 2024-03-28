@@ -23,9 +23,3 @@ make init
 ```
 make gen
 ```
-
-
-## Alertmanager
-
-`alertmanager/openapi.yaml` is copied from https://github.com/prometheus/alertmanager/blob/master/api/v2/openapi.yaml.
-Then Swagger client is generated using `make gen-alertmanager`.

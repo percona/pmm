@@ -35,6 +35,7 @@ compose.yml
 *.sw[o,p]
 
 .env
+.netrc
 
 cli-tests/node_modules/
 cli-tests/playwright-report/

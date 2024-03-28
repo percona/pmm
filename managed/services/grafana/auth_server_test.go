@@ -228,14 +228,12 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/v1/readyz": none,
 		"/ping":      none,
 
-		"/v1/version":         viewer,
-		"/managed/v1/version": viewer,
+		"/v1/version": viewer,
 
 		"/v0/qan/ObjectDetails/GetQueryExample": viewer,
 
-		"/prometheus/":   admin,
-		"/alertmanager/": admin,
-		"/logs.zip":      admin,
+		"/prometheus/": admin,
+		"/logs.zip":    admin,
 	} {
 		for _, role := range []role{viewer, editor, admin} {
 			uri := uri

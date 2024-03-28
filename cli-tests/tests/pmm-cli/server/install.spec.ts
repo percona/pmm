@@ -6,7 +6,7 @@ test.describe.configure({ mode: 'parallel' });
 
 test.describe('PMM Server Install tests', async () => {
   const defaultAdminPassword = 'admin';
-  const defaultServImage = 'percona/pmm-server:2';
+  const defaultServImage = 'perconalab/pmm-server:3-dev-latest';
   const defaultContainerName = 'pmm-server';
   const defaultVolumeName = 'pmm-data';
   const adminPassword = 'admin123';

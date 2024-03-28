@@ -38,10 +38,6 @@ linters-settings:
   goimports:
     local-prefixes: github.com/percona/pmm
 
-  gomoddirectives:
-    replace-allow-list:
-      - github.com/percona-platform/dbaas-api
-
   ireturn:
     allow:
       - anon

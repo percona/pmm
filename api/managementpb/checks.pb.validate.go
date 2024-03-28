@@ -309,8 +309,6 @@ func (m *CheckResult) validate(all bool) error {
 
 	// no validation rules for CheckName
 
-	// no validation rules for AlertId
-
 	// no validation rules for Silenced
 
 	if len(errors) > 0 {

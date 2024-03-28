@@ -48,12 +48,8 @@ func restoreSettingsDefaults(t *testing.T) {
 				StandardInterval: "86400s",
 				RareInterval:     "280800s",
 			},
-			DataRetention:               "2592000s",
-			AWSPartitions:               []string{"aws"},
-			RemoveAlertManagerURL:       true,
-			RemoveAlertManagerRules:     true,
-			RemoveEmailAlertingSettings: true,
-			RemoveSlackAlertingSettings: true,
+			DataRetention: "2592000s",
+			AWSPartitions: []string{"aws"},
 		},
 		Context: pmmapitests.Context,
 	})
@@ -74,8 +70,6 @@ func restoreSettingsDefaults(t *testing.T) {
 	assert.Equal(t, expectedSTTIntervals, res.Payload.Settings.SttCheckIntervals)
 	assert.Equal(t, "2592000s", res.Payload.Settings.DataRetention)
 	assert.Equal(t, []string{"aws"}, res.Payload.Settings.AWSPartitions)
-	assert.Equal(t, "", res.Payload.Settings.AlertManagerURL)
-	assert.Equal(t, "", res.Payload.Settings.AlertManagerRules)
 }
 
 func restoreCheckIntervalDefaults(t *testing.T) {

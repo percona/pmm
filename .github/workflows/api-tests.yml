@@ -1,4 +1,4 @@
-name: 'API'
+name: 'API Tests'
 
 on:
   # NOTE: no action on `push` and `pull_request` since the API tests need to be run
@@ -70,7 +70,7 @@ jobs:
       MYSQL_IMAGE: ${{ github.event.inputs.MYSQL_IMAGE || 'percona:5.7' }}
       POSTGRESQL_IMAGE: ${{ github.event.inputs.POSTGRESQL_IMAGE || 'postgres:12' }}
       MONGODB_IMAGE: ${{ github.event.inputs.MONGODB_IMAGE || 'percona/percona-server-mongodb:4.4' }}
-      PMM_SERVER_IMAGE: ${{ github.event.inputs.PMM_SERVER_IMAGE || 'perconalab/pmm-server:dev-latest' }}
+      PMM_SERVER_IMAGE: ${{ github.event.inputs.PMM_SERVER_IMAGE || 'perconalab/pmm-server:3-dev-latest' }}
 
     steps:
       - name: Check out code
@@ -98,8 +98,8 @@ jobs:
                 - PERCONA_TEST_PLATFORM_ADDRESS=https://check-dev.percona.com
                 - PERCONA_TEST_PLATFORM_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX
               ports:
-                - 80:80
-                - 443:443
+                - 80:8080
+                - 443:8443
               volumes:
                 - ./managed/testdata/checks:/srv/checks
           EOF

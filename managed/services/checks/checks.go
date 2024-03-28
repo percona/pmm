@@ -260,7 +260,7 @@ func (s *Service) GetSecurityCheckResults() ([]services.CheckResult, error) {
 	return s.alertsRegistry.getCheckResults(""), nil
 }
 
-// GetChecksResults returns the failed checks for a given service from AlertManager.
+// GetChecksResults returns the failed checks for a given service.
 func (s *Service) GetChecksResults(_ context.Context, serviceID string) ([]services.CheckResult, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
