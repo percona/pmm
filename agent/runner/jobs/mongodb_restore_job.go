@@ -42,7 +42,7 @@ type MongoDBRestoreJob struct {
 	l               *logrus.Entry
 	name            string
 	pitrTimestamp   time.Time
-	dbURL           *string
+	dbURL           string
 	locationConfig  BackupLocationConfig
 	agentsRestarter agentsRestarter
 	jobLogger       *pbmJobLogger
@@ -56,7 +56,7 @@ func NewMongoDBRestoreJob(
 	timeout time.Duration,
 	name string,
 	pitrTimestamp time.Time,
-	dbConfig *string,
+	dbConfig string,
 	locationConfig BackupLocationConfig,
 	restarter agentsRestarter,
 	folder string,
@@ -92,6 +92,11 @@ func (j *MongoDBRestoreJob) Timeout() time.Duration {
 	return j.timeout
 }
 
+// DSN returns DSN required for the Job.
+func (j *MongoDBRestoreJob) DSN() string {
+	return j.dbURL
+}
+
 // Run starts Job execution.
 func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	defer j.jobLogger.sendLog(send, "", true)
@@ -121,7 +126,7 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	configParams := pbmConfigParams{
 		configFilePath: confFile,
 		forceResync:    true,
-		dbURL:          j.dbURL,
+		dsn:            j.dbURL,
 	}
 	if err := pbmConfigure(ctx, j.l, configParams); err != nil {
 		return errors.Wrap(err, "failed to configure pbm")

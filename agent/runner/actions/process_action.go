@@ -59,6 +59,11 @@ func (a *processAction) Type() string {
 	return a.command
 }
 
+// DSN returns a DSN for the Action.
+func (a *processAction) DSN() string {
+	return "" // no DSN for process action
+}
+
 // Run runs an Action and returns output and error.
 func (a *processAction) Run(ctx context.Context) ([]byte, error) {
 	cmd := exec.CommandContext(ctx, a.command, a.arg...) //nolint:gosec

@@ -173,15 +173,15 @@ type pbmError struct {
 type pbmConfigParams struct {
 	configFilePath string
 	forceResync    bool
-	dbURL          *string
+	dsn            string
 }
 
-func execPBMCommand(ctx context.Context, dbURL *string, to interface{}, args ...string) error {
+func execPBMCommand(ctx context.Context, dsn string, to interface{}, args ...string) error {
 	nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
 	defer cancel()
 
-	args = append(args, "--out=json", "--mongodb-uri="+*dbURL)
-	cmd := exec.CommandContext(nCtx, pbmBin, args...) // #nosec G204
+	args = append(args, "--out=json", "--mongodb-uri="+dsn) //nolint:goconst
+	cmd := exec.CommandContext(nCtx, pbmBin, args...)       // #nosec G204
 
 	b, err := cmd.Output()
 	if err != nil {
@@ -198,17 +198,17 @@ func execPBMCommand(ctx context.Context, dbURL *string, to interface{}, args ...
 	return json.Unmarshal(b, to)
 }
 
-func retrieveLogs(ctx context.Context, dbURL *string, event string) ([]pbmLogEntry, error) {
+func retrieveLogs(ctx context.Context, dsn string, event string) ([]pbmLogEntry, error) {
 	var logs []pbmLogEntry
 
-	if err := execPBMCommand(ctx, dbURL, &logs, "logs", "--event="+event, "--tail=0"); err != nil {
+	if err := execPBMCommand(ctx, dsn, &logs, "logs", "--event="+event, "--tail=0"); err != nil {
 		return nil, err
 	}
 
 	return logs, nil
 }
 
-func waitForPBMNoRunningOperations(ctx context.Context, l logrus.FieldLogger, dbURL *string) error {
+func waitForPBMNoRunningOperations(ctx context.Context, l logrus.FieldLogger, dsn string) error {
 	l.Info("Waiting for no running pbm operations.")
 
 	ticker := time.NewTicker(statusCheckInterval)
@@ -217,7 +217,7 @@ func waitForPBMNoRunningOperations(ctx context.Context, l logrus.FieldLogger, db
 	for {
 		select {
 		case <-ticker.C:
-			status, err := getPBMStatus(ctx, dbURL)
+			status, err := getPBMStatus(ctx, dsn)
 			if err != nil {
 				return err
 			}
@@ -230,8 +230,8 @@ func waitForPBMNoRunningOperations(ctx context.Context, l logrus.FieldLogger, db
 	}
 }
 
-func isShardedCluster(ctx context.Context, dbURL *string) (bool, error) {
-	status, err := getPBMStatus(ctx, dbURL)
+func isShardedCluster(ctx context.Context, dsn string) (bool, error) {
+	status, err := getPBMStatus(ctx, dsn)
 	if err != nil {
 		return false, err
 	}
@@ -243,15 +243,15 @@ func isShardedCluster(ctx context.Context, dbURL *string) (bool, error) {
 	return false, nil
 }
 
-func getPBMStatus(ctx context.Context, dbURL *string) (*pbmStatus, error) {
+func getPBMStatus(ctx context.Context, dsn string) (*pbmStatus, error) {
 	var status pbmStatus
-	if err := execPBMCommand(ctx, dbURL, &status, "status"); err != nil {
+	if err := execPBMCommand(ctx, dsn, &status, "status"); err != nil {
 		return nil, errors.Wrap(err, "pbm status error")
 	}
 	return &status, nil
 }
 
-func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *string, name string) error {
+func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dsn string, name string) error {
 	l.Infof("waiting for pbm backup: %s", name)
 	ticker := time.NewTicker(statusCheckInterval)
 	defer ticker.Stop()
@@ -262,7 +262,7 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *string, 
 		select {
 		case <-ticker.C:
 			var info describeInfo
-			err := execPBMCommand(ctx, dbURL, &info, "describe-backup", name)
+			err := execPBMCommand(ctx, dsn, &info, "describe-backup", name)
 			if err != nil {
 				// for the first couple of seconds after backup process starts describe-backup command may return this error
 				if (strings.HasSuffix(err.Error(), "no such file") ||
@@ -311,7 +311,7 @@ func findPITRRestore(list []pbmListRestore, restoreInfoPITRTime int64, startedAt
 	return nil
 }
 
-func findPITRRestoreName(ctx context.Context, dbURL *string, restoreInfo *pbmRestore) (string, error) {
+func findPITRRestoreName(ctx context.Context, dsn string, restoreInfo *pbmRestore) (string, error) {
 	restoreInfoPITRTime, err := time.Parse("2006-01-02T15:04:05", restoreInfo.PITR)
 	if err != nil {
 		return "", err
@@ -326,7 +326,7 @@ func findPITRRestoreName(ctx context.Context, dbURL *string, restoreInfo *pbmRes
 		case <-ticker.C:
 			checks++
 			var list []pbmListRestore
-			if err := execPBMCommand(ctx, dbURL, &list, "list", "--restore"); err != nil {
+			if err := execPBMCommand(ctx, dsn, &list, "list", "--restore"); err != nil {
 				return "", errors.Wrapf(err, "pbm status error")
 			}
 			entry := findPITRRestore(list, restoreInfoPITRTime.Unix(), restoreInfo.StartedAt)
@@ -344,14 +344,14 @@ func findPITRRestoreName(ctx context.Context, dbURL *string, restoreInfo *pbmRes
 	}
 }
 
-func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *string, restoreInfo *pbmRestore, backupType, confFile string) error {
+func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dsn string, restoreInfo *pbmRestore, backupType, confFile string) error {
 	l.Infof("Detecting restore name")
 	var name string
 	var err error
 
 	// @TODO Do like this until https://jira.percona.com/browse/PBM-723 is not done.
 	if restoreInfo.PITR != "" { // TODO add more checks of PBM responses.
-		name, err = findPITRRestoreName(ctx, dbURL, restoreInfo)
+		name, err = findPITRRestoreName(ctx, dsn, restoreInfo)
 		if err != nil {
 			return err
 		}
@@ -370,9 +370,9 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *string,
 		case <-ticker.C:
 			var info describeInfo
 			if backupType == "physical" {
-				err = execPBMCommand(ctx, dbURL, &info, "describe-restore", name, "--config="+confFile)
+				err = execPBMCommand(ctx, dsn, &info, "describe-restore", name, "--config="+confFile)
 			} else {
-				err = execPBMCommand(ctx, dbURL, &info, "describe-restore", name)
+				err = execPBMCommand(ctx, dsn, &info, "describe-restore", name)
 			}
 			if err != nil {
 				if maxRetryCount > 0 {
@@ -412,7 +412,7 @@ func pbmConfigure(ctx context.Context, l logrus.FieldLogger, params pbmConfigPar
 	args := []string{
 		"config",
 		"--out=json",
-		"--mongodb-uri=" + *params.dbURL,
+		"--mongodb-uri=" + params.dsn,
 		"--file=" + params.configFilePath,
 	}
 
@@ -425,7 +425,7 @@ func pbmConfigure(ctx context.Context, l logrus.FieldLogger, params pbmConfigPar
 		args := []string{
 			"config",
 			"--out=json",
-			"--mongodb-uri=" + *params.dbURL,
+			"--mongodb-uri=" + params.dsn,
 			"--force-resync",
 		}
 		output, err := exec.CommandContext(nCtx, pbmBin, args...).CombinedOutput() //nolint:gosec
@@ -549,8 +549,8 @@ func groupPartlyDoneErrors(info describeInfo) error {
 }
 
 // pbmGetSnapshotTimestamp returns time the backup restores target db to.
-func pbmGetSnapshotTimestamp(ctx context.Context, l logrus.FieldLogger, dbURL *string, backupName string) (*time.Time, error) {
-	snapshots, err := getSnapshots(ctx, l, dbURL)
+func pbmGetSnapshotTimestamp(ctx context.Context, l logrus.FieldLogger, dsn string, backupName string) (*time.Time, error) {
+	snapshots, err := getSnapshots(ctx, l, dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -565,7 +565,7 @@ func pbmGetSnapshotTimestamp(ctx context.Context, l logrus.FieldLogger, dbURL *s
 }
 
 // getSnapshots returns all PBM snapshots found in configured location.
-func getSnapshots(ctx context.Context, l logrus.FieldLogger, dbURL *string) ([]pbmSnapshot, error) {
+func getSnapshots(ctx context.Context, l logrus.FieldLogger, dsn string) ([]pbmSnapshot, error) {
 	// Sometimes PBM returns empty list of snapshots, that's why we're trying to get them several times.
 	ticker := time.NewTicker(listCheckInterval)
 	defer ticker.Stop()
@@ -575,7 +575,7 @@ func getSnapshots(ctx context.Context, l logrus.FieldLogger, dbURL *string) ([]p
 		select {
 		case <-ticker.C:
 			checks++
-			status, err := getPBMStatus(ctx, dbURL)
+			status, err := getPBMStatus(ctx, dsn)
 			if err != nil {
 				return nil, err
 			}

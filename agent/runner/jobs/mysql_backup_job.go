@@ -76,6 +76,11 @@ func (j *MySQLBackupJob) Timeout() time.Duration {
 	return j.timeout
 }
 
+// DSN returns DSN for the Job.
+func (j *MySQLBackupJob) DSN() string {
+	return j.connConf.createDBURL().String()
+}
+
 // Run starts Job execution.
 func (j *MySQLBackupJob) Run(ctx context.Context, send Send) error {
 	if err := j.binariesInstalled(); err != nil {

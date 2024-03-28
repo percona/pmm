@@ -55,6 +55,11 @@ func (a *mysqlQueryShowAction) Type() string {
 	return "mysql-query-show"
 }
 
+// DSN returns a DSN for the Action.
+func (a *mysqlQueryShowAction) DSN() string {
+	return a.params.Dsn
+}
+
 // Run runs an Action and returns output and error.
 func (a *mysqlQueryShowAction) Run(ctx context.Context) ([]byte, error) {
 	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles)

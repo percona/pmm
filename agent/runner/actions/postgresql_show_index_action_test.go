@@ -42,7 +42,9 @@ func TestPostgreSQLShowIndex(t *testing.T) {
 			Dsn:   dsn,
 			Table: "city",
 		}
-		a := NewPostgreSQLShowIndexAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLShowIndexAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -68,7 +70,9 @@ func TestPostgreSQLShowIndex(t *testing.T) {
 			Dsn:   dsn,
 			Table: "public.city",
 		}
-		a := NewPostgreSQLShowIndexAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLShowIndexAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 

@@ -52,7 +52,9 @@ func TestMongoDBExplain(t *testing.T) {
 			Query: `{"ns":"test.coll","op":"query","query":{"k":{"$lte":{"$numberInt":"1"}}}}`,
 		}
 
-		ex := NewMongoDBExplainAction(id, 0, params, os.TempDir())
+		ex, err := NewMongoDBExplainAction(id, 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		res, err := ex.Run(ctx)
 		assert.Nil(t, err)
 
@@ -130,7 +132,9 @@ func TestNewMongoDBExplain(t *testing.T) {
 				Query: string(query),
 			}
 
-			ex := NewMongoDBExplainAction(id, 0, params, os.TempDir())
+			ex, err := NewMongoDBExplainAction(id, 0, params, os.TempDir())
+			require.NoError(t, err)
+
 			res, err := ex.Run(ctx)
 			assert.NoError(t, err)
 
