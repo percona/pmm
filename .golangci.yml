@@ -76,7 +76,7 @@ linters-settings:
         xml: camel
 
   unused:
-    check-exported: false #TODO: set true for agent
+    exported-is-used: false #TODO: set true for agent
 
   unparam:
     check-exported: true
@@ -125,12 +125,12 @@ linters:
 
 run:
   timeout: 5m
-  skip-dirs:
-    - agent/agents/mongodb/internal/
-    - qan-api2/migrations/
 
 issues:
   exclude-use-default: false
+  exclude-dirs:
+    - agent/agents/mongodb/internal
+    - qan-api2/migrations
   exclude:
     # gas: Duplicated errcheck checks
     - "G104: Errors unhandled"
@@ -148,6 +148,7 @@ issues:
         - forcetypeassert  # for tests' brevity sake
         - funlen           # tests may be long
         - gocognit         # triggered by subtests
+        - goconst          # not critical for tests
         - gomnd            # tests are full of magic numbers
         - ireturn          # we have exceptions, so need to silence them in tests
         - lll              # tests often require long lines
