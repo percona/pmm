@@ -11,7 +11,7 @@ enum AgentStatus {
   STARTING = 1;
   // Agent is running.
   RUNNING = 2;
-  // Agent encountered error and will be restarted automatically soon.
+  // Agent will be restarted automatically soon.
   WAITING = 3;
   // Agent is stopping.
   STOPPING = 4;
@@ -19,4 +19,6 @@ enum AgentStatus {
   DONE = 5;
   // Agent is not connected, we don't know anything about it's state.
   UNKNOWN = 6;
+  // Agent encountered error when starting.
+  INITIALIZATION_ERROR = 7;
 }

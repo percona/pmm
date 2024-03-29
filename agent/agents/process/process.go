@@ -17,6 +17,7 @@ package process
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -53,12 +54,14 @@ const (
 // implements its own logic, and then switches to then next state via "go toXXX()". "go" statement is used
 // only to avoid stack overflow; there are no extra goroutines for states.
 type Process struct {
-	params  *Params
-	l       *logrus.Entry
-	pl      *processLogger
-	changes chan inventorypb.AgentStatus
-	backoff *backoff.Backoff
-	ctxDone chan struct{}
+	params      *Params
+	l           *logrus.Entry
+	pl          *processLogger
+	changes     chan inventorypb.AgentStatus
+	backoff     *backoff.Backoff
+	ctxDone     chan struct{}
+	err         chan error
+	initialized chan bool
 
 	// recreated on each restart
 	cmd     *exec.Cmd
@@ -88,13 +91,23 @@ func (p *Params) String() string {
 // New creates new process.
 func New(params *Params, redactWords []string, l *logrus.Entry) *Process {
 	return &Process{
-		params:  params,
-		l:       l,
-		pl:      newProcessLogger(l, keepLogLines, redactWords),
-		changes: make(chan inventorypb.AgentStatus, 10),
-		backoff: backoff.New(backoffMinDelay, backoffMaxDelay),
-		ctxDone: make(chan struct{}),
+		params:      params,
+		l:           l,
+		pl:          newProcessLogger(l, keepLogLines, redactWords),
+		changes:     make(chan inventorypb.AgentStatus, 10),
+		backoff:     backoff.New(backoffMinDelay, backoffMaxDelay),
+		ctxDone:     make(chan struct{}),
+		err:         make(chan error),
+		initialized: make(chan bool, 2),
 	}
+}
+
+func (p *Process) IsInitialized() <-chan bool {
+	return p.initialized
+}
+
+func (p *Process) GetError() <-chan error {
+	return p.err
 }
 
 // Run starts process and runs until ctx is canceled.
@@ -107,7 +120,7 @@ func (p *Process) Run(ctx context.Context) {
 }
 
 // STARTING -> RUNNING.
-// STARTING -> WAITING.
+// STARTING -> FAILING
 func (p *Process) toStarting() {
 	p.l.Tracef("Process: starting.")
 	p.changes <- inventorypb.AgentStatus_STARTING
@@ -128,7 +141,7 @@ func (p *Process) toStarting() {
 
 	if err := p.cmd.Start(); err != nil {
 		p.l.Warnf("Process: failed to start: %s.", err)
-		go p.toWaiting()
+		go p.toFailing(err)
 		return
 	}
 
@@ -142,10 +155,11 @@ func (p *Process) toStarting() {
 	defer t.Stop()
 	select {
 	case <-t.C:
+		p.initialized <- true
 		go p.toRunning()
 	case <-p.cmdDone:
 		p.l.Warnf("Process: exited early: %s.", p.cmd.ProcessState)
-		go p.toWaiting()
+		go p.toFailing(errors.New("exited early"))
 	}
 }
 
@@ -190,6 +204,16 @@ func (p *Process) toWaiting() {
 	case <-p.ctxDone:
 		go p.toDone()
 	}
+}
+
+// FAILING -> DONE
+func (p *Process) toFailing(err error) {
+	p.l.Tracef("Process: failing")
+	p.changes <- inventorypb.AgentStatus_INITIALIZATION_ERROR
+	p.l.Infof("Process: exited: %s.", p.cmd.ProcessState)
+	go p.toDone()
+	p.initialized <- false
+	p.err <- err
 }
 
 // STOPPING -> DONE.

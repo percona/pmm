@@ -149,7 +149,7 @@
                         "x-order": 4
                       },
                       "status": {
-                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.\n - INITIALIZATION_ERROR: Agent encountered error when starting.",
                         "type": "string",
                         "default": "AGENT_STATUS_INVALID",
                         "enum": [
@@ -159,7 +159,8 @@
                           "WAITING",
                           "STOPPING",
                           "DONE",
-                          "UNKNOWN"
+                          "UNKNOWN",
+                          "INITIALIZATION_ERROR"
                         ],
                         "x-order": 2
                       }
@@ -342,7 +343,7 @@
                         "x-order": 4
                       },
                       "status": {
-                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.\n - INITIALIZATION_ERROR: Agent encountered error when starting.",
                         "type": "string",
                         "default": "AGENT_STATUS_INVALID",
                         "enum": [
@@ -352,7 +353,8 @@
                           "WAITING",
                           "STOPPING",
                           "DONE",
-                          "UNKNOWN"
+                          "UNKNOWN",
+                          "INITIALIZATION_ERROR"
                         ],
                         "x-order": 2
                       }
