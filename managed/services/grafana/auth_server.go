@@ -531,6 +531,8 @@ func cleanPath(p string) (string, error) {
 
 	cleanedPath := path.Clean(unescaped)
 
+	cleanedPath = strings.ReplaceAll(cleanedPath, "\n", " ")
+
 	u, err := url.Parse(cleanedPath)
 	if err != nil {
 		return "", err

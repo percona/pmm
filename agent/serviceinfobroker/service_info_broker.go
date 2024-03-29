@@ -237,7 +237,7 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		res.Error = err.Error()
 	}
-	res.PgsmVersion = pgsmVersion
+	res.PgsmVersion = &pgsmVersion
 
 	return &res
 }
