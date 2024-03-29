@@ -55,24 +55,24 @@ POST /v1/management/PostgreSQL/Add                  POST /v1/management/services
 POST /v1/management/ProxySQL/Add                    POST /v1/management/services                     ✅
 POST /v1/management/RDS/Add                         POST /v1/management/services                     ✅
 POST /v1/management/RDS/Discover                    POST /v1/management/services:discoverRDS         ✅
-POST /v1/management/Service/Remove                  DELETE /v1/management/services/{service_id}      ✅  {service_id}, optionally ?service_type=
+POST /v1/management/Service/Remove                  DELETE /v1/management/services/{service_id}      ✅ NOTE: in addition, it accepts ?service_type=
 
 **ActionsService**                                  **ActionService**
-POST /v1/actions/Cancel                             POST /v1/actions:cancelAction
-POST /v1/actions/Get                                GET /v1/actions/{id}
-POST /v1/actions/StartMongoDBExplain                POST /v1/actions:startServiceAction              NOTE: several similar actions are merged into one
-POST /v1/actions/StartMySQLExplain                  POST /v1/actions:startServiceAction
-POST /v1/actions/StartMySQLExplainJSON              POST /v1/actions:startServiceAction
-POST /v1/actions/StartMySQLExplainTraditionalJSON   POST /v1/actions:startServiceAction
-POST /v1/actions/StartMySQLShowCreateTable          POST /v1/actions:startServiceAction
-POST /v1/actions/StartMySQLShowIndex                POST /v1/actions:startServiceAction
-POST /v1/actions/StartMySQLShowTableStatus          POST /v1/actions:startServiceAction
-POST /v1/actions/StartPTMongoDBSummary              POST /v1/actions:startServiceAction
-POST /v1/actions/StartPTMySQLSummary                POST /v1/actions:startServiceAction
-POST /v1/actions/StartPTPgSummary                   POST /v1/actions:startServiceAction
-POST /v1/actions/StartPostgreSQLShowCreateTable     POST /v1/actions:startServiceAction
-POST /v1/actions/StartPostgreSQLShowIndex           POST /v1/actions:startServiceAction
-POST /v1/actions/StartPTSummary                     POST /v1/actions:startNodeAction
+POST /v1/actions/Cancel                             POST /v1/actions:cancelAction                    ✅
+POST /v1/actions/Get                                GET /v1/actions/{action_id}                      ✅
+POST /v1/actions/StartMySQLExplain                  POST /v1/actions:startServiceAction              ✅ NOTE: several endpoints merged into one
+POST /v1/actions/StartMySQLExplainJSON              POST /v1/actions:startServiceAction              ✅
+POST /v1/actions/StartMySQLExplainTraditionalJSON   POST /v1/actions:startServiceAction              ✅
+POST /v1/actions/StartMySQLShowIndex                POST /v1/actions:startServiceAction              ✅
+POST /v1/actions/StartMySQLShowCreateTable          POST /v1/actions:startServiceAction              ✅
+POST /v1/actions/StartMySQLShowTableStatus          POST /v1/actions:startServiceAction              ✅
+POST /v1/actions/StartPostgreSQLShowCreateTable     POST /v1/actions:startServiceAction              ✅
+POST /v1/actions/StartPostgreSQLShowIndex           POST /v1/actions:startServiceAction              ✅
+POST /v1/actions/StartMongoDBExplain                POST /v1/actions:startServiceAction              ✅
+POST /v1/actions/StartPTMongoDBSummary              POST /v1/actions:startServiceAction              ✅
+POST /v1/actions/StartPTMySQLSummary                POST /v1/actions:startServiceAction              ✅
+POST /v1/actions/StartPTPgSummary                   POST /v1/actions:startServiceAction              ✅
+POST /v1/actions/StartPTSummary                     POST /v1/actions:startNodeAction                 ✅
 
 **AlertingService**                                 **AlertingService**
 POST /v1/alerting/Rules/Create                      POST /v1/alerting/rules
@@ -82,9 +82,9 @@ POST /v1/alerting/Templates/List                    GET /v1/alerting/templates
 POST /v1/alerting/Templates/Delete                  DELETE /v1/alerting/templates/{name}
 
 **AdvisorService**                                 **AdvisorService**
-POST /v1/advisors/Change                            POST /v1/advisors/checks:batchChange         Note: allows to update multiple checks
+POST /v1/advisors/Change                            POST /v1/advisors/checks:batchChange
 <!-- POST /v1/advisors/FailedChecks                 POST /v1/advisors/checks:failedChecks        !!! try to implement as a GET request, see below -->
-POST /v1/advisors/FailedChecks                      GET /v1/advisors/checks/failedChecks         ex: ?service_id=1234-5678-abcd-efgh&page_params.page_size=100&page_params.index=1
+POST /v1/advisors/FailedChecks                      GET /v1/advisors/checks/failedChecks         ex: ?service_id=1234&page_size=100&page_index=1
 POST /v1/advisors/List                              GET /v1/advisors
 POST /v1/advisors/ListChecks                        GET /v1/advisors/checks
 POST /v1/advisors/StartChecks                       POST /v1/advisors/checks:start

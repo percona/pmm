@@ -34,6 +34,7 @@ const (
 	agentIDPrefix   = "/agent_id/"
 	serviceIDPrefix = "/service_id/"
 	nodeIDPrefix    = "/node_id/"
+	actionIDPrefix  = "/action_id/"
 )
 
 // MySQLOptionsParams contains methods to create MySQLOptions object.
@@ -169,7 +170,7 @@ func AzureOptionsFromRequest(params AzureOptionsParams) *AzureOptions {
 
 // NormalizeAgentID adds a prefix to the agent ID if it does not already contain it.
 func NormalizeAgentID(agentID string) string {
-	if agentID == "" || strings.HasPrefix(agentID, agentIDPrefix) {
+	if agentID == "" || agentID == "pmm-server" || strings.HasPrefix(agentID, agentIDPrefix) {
 		return agentID
 	}
 
@@ -192,6 +193,15 @@ func NormalizeNodeID(nodeID string) string {
 	}
 
 	return nodeIDPrefix + nodeID
+}
+
+// NormalizeActionID adds a prefix to the node ID if it does not already contain it.
+func NormalizeActionID(actionID string) string {
+	if actionID == "" || strings.HasPrefix(actionID, nodeIDPrefix) {
+		return actionID
+	}
+
+	return nodeIDPrefix + actionID
 }
 
 func checkUniqueAgentID(q *reform.Querier, id string) error {

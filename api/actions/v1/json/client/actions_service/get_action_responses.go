@@ -58,7 +58,7 @@ type GetActionOK struct {
 }
 
 func (o *GetActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/actions/Get][%d] getActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/actions/{action_id}][%d] getActionOk  %+v", 200, o.Payload)
 }
 
 func (o *GetActionOK) GetPayload() *GetActionOKBody {
@@ -100,7 +100,7 @@ func (o *GetActionDefault) Code() int {
 }
 
 func (o *GetActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/actions/Get][%d] GetAction default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/actions/{action_id}][%d] GetAction default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetActionDefault) GetPayload() *GetActionDefaultBody {
@@ -115,43 +115,6 @@ func (o *GetActionDefault) readResponse(response runtime.ClientResponse, consume
 		return err
 	}
 
-	return nil
-}
-
-/*
-GetActionBody get action body
-swagger:model GetActionBody
-*/
-type GetActionBody struct {
-	// Unique Action ID.
-	ActionID string `json:"action_id,omitempty"`
-}
-
-// Validate validates this get action body
-func (o *GetActionBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this get action body based on context it is used
-func (o *GetActionBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetActionBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetActionBody) UnmarshalBinary(b []byte) error {
-	var res GetActionBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

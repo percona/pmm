@@ -258,22 +258,22 @@ var _ interface {
 	ErrorName() string
 } = GetActionResponseValidationError{}
 
-// Validate checks the field values on StartMySQLExplainActionRequest with the
+// Validate checks the field values on StartMySQLExplainActionParams with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *StartMySQLExplainActionRequest) Validate() error {
+func (m *StartMySQLExplainActionParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on StartMySQLExplainActionRequest with
+// ValidateAll checks the field values on StartMySQLExplainActionParams with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the result is a list of violation errors wrapped in
-// StartMySQLExplainActionRequestMultiError, or nil if none found.
-func (m *StartMySQLExplainActionRequest) ValidateAll() error {
+// StartMySQLExplainActionParamsMultiError, or nil if none found.
+func (m *StartMySQLExplainActionParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *StartMySQLExplainActionRequest) validate(all bool) error {
+func (m *StartMySQLExplainActionParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -283,7 +283,7 @@ func (m *StartMySQLExplainActionRequest) validate(all bool) error {
 	// no validation rules for PmmAgentId
 
 	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := StartMySQLExplainActionRequestValidationError{
+		err := StartMySQLExplainActionParamsValidationError{
 			field:  "ServiceId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -298,19 +298,19 @@ func (m *StartMySQLExplainActionRequest) validate(all bool) error {
 	// no validation rules for Database
 
 	if len(errors) > 0 {
-		return StartMySQLExplainActionRequestMultiError(errors)
+		return StartMySQLExplainActionParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// StartMySQLExplainActionRequestMultiError is an error wrapping multiple
-// validation errors returned by StartMySQLExplainActionRequest.ValidateAll()
+// StartMySQLExplainActionParamsMultiError is an error wrapping multiple
+// validation errors returned by StartMySQLExplainActionParams.ValidateAll()
 // if the designated constraints aren't met.
-type StartMySQLExplainActionRequestMultiError []error
+type StartMySQLExplainActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m StartMySQLExplainActionRequestMultiError) Error() string {
+func (m StartMySQLExplainActionParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -319,12 +319,12 @@ func (m StartMySQLExplainActionRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m StartMySQLExplainActionRequestMultiError) AllErrors() []error { return m }
+func (m StartMySQLExplainActionParamsMultiError) AllErrors() []error { return m }
 
-// StartMySQLExplainActionRequestValidationError is the validation error
-// returned by StartMySQLExplainActionRequest.Validate if the designated
+// StartMySQLExplainActionParamsValidationError is the validation error
+// returned by StartMySQLExplainActionParams.Validate if the designated
 // constraints aren't met.
-type StartMySQLExplainActionRequestValidationError struct {
+type StartMySQLExplainActionParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -332,24 +332,24 @@ type StartMySQLExplainActionRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e StartMySQLExplainActionRequestValidationError) Field() string { return e.field }
+func (e StartMySQLExplainActionParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e StartMySQLExplainActionRequestValidationError) Reason() string { return e.reason }
+func (e StartMySQLExplainActionParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e StartMySQLExplainActionRequestValidationError) Cause() error { return e.cause }
+func (e StartMySQLExplainActionParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e StartMySQLExplainActionRequestValidationError) Key() bool { return e.key }
+func (e StartMySQLExplainActionParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e StartMySQLExplainActionRequestValidationError) ErrorName() string {
-	return "StartMySQLExplainActionRequestValidationError"
+func (e StartMySQLExplainActionParamsValidationError) ErrorName() string {
+	return "StartMySQLExplainActionParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e StartMySQLExplainActionRequestValidationError) Error() string {
+func (e StartMySQLExplainActionParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -361,14 +361,14 @@ func (e StartMySQLExplainActionRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sStartMySQLExplainActionRequest.%s: %s%s",
+		"invalid %sStartMySQLExplainActionParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = StartMySQLExplainActionRequestValidationError{}
+var _ error = StartMySQLExplainActionParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -376,24 +376,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = StartMySQLExplainActionRequestValidationError{}
+} = StartMySQLExplainActionParamsValidationError{}
 
-// Validate checks the field values on StartMySQLExplainActionResponse with the
+// Validate checks the field values on StartMySQLExplainActionResult with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *StartMySQLExplainActionResponse) Validate() error {
+func (m *StartMySQLExplainActionResult) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on StartMySQLExplainActionResponse with
+// ValidateAll checks the field values on StartMySQLExplainActionResult with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the result is a list of violation errors wrapped in
-// StartMySQLExplainActionResponseMultiError, or nil if none found.
-func (m *StartMySQLExplainActionResponse) ValidateAll() error {
+// StartMySQLExplainActionResultMultiError, or nil if none found.
+func (m *StartMySQLExplainActionResult) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *StartMySQLExplainActionResponse) validate(all bool) error {
+func (m *StartMySQLExplainActionResult) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -405,19 +405,19 @@ func (m *StartMySQLExplainActionResponse) validate(all bool) error {
 	// no validation rules for PmmAgentId
 
 	if len(errors) > 0 {
-		return StartMySQLExplainActionResponseMultiError(errors)
+		return StartMySQLExplainActionResultMultiError(errors)
 	}
 
 	return nil
 }
 
-// StartMySQLExplainActionResponseMultiError is an error wrapping multiple
-// validation errors returned by StartMySQLExplainActionResponse.ValidateAll()
+// StartMySQLExplainActionResultMultiError is an error wrapping multiple
+// validation errors returned by StartMySQLExplainActionResult.ValidateAll()
 // if the designated constraints aren't met.
-type StartMySQLExplainActionResponseMultiError []error
+type StartMySQLExplainActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m StartMySQLExplainActionResponseMultiError) Error() string {
+func (m StartMySQLExplainActionResultMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -426,12 +426,12 @@ func (m StartMySQLExplainActionResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m StartMySQLExplainActionResponseMultiError) AllErrors() []error { return m }
+func (m StartMySQLExplainActionResultMultiError) AllErrors() []error { return m }
 
-// StartMySQLExplainActionResponseValidationError is the validation error
-// returned by StartMySQLExplainActionResponse.Validate if the designated
+// StartMySQLExplainActionResultValidationError is the validation error
+// returned by StartMySQLExplainActionResult.Validate if the designated
 // constraints aren't met.
-type StartMySQLExplainActionResponseValidationError struct {
+type StartMySQLExplainActionResultValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -439,24 +439,24 @@ type StartMySQLExplainActionResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e StartMySQLExplainActionResponseValidationError) Field() string { return e.field }
+func (e StartMySQLExplainActionResultValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e StartMySQLExplainActionResponseValidationError) Reason() string { return e.reason }
+func (e StartMySQLExplainActionResultValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e StartMySQLExplainActionResponseValidationError) Cause() error { return e.cause }
+func (e StartMySQLExplainActionResultValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e StartMySQLExplainActionResponseValidationError) Key() bool { return e.key }
+func (e StartMySQLExplainActionResultValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e StartMySQLExplainActionResponseValidationError) ErrorName() string {
-	return "StartMySQLExplainActionResponseValidationError"
+func (e StartMySQLExplainActionResultValidationError) ErrorName() string {
+	return "StartMySQLExplainActionResultValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e StartMySQLExplainActionResponseValidationError) Error() string {
+func (e StartMySQLExplainActionResultValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -468,14 +468,14 @@ func (e StartMySQLExplainActionResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sStartMySQLExplainActionResponse.%s: %s%s",
+		"invalid %sStartMySQLExplainActionResult.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = StartMySQLExplainActionResponseValidationError{}
+var _ error = StartMySQLExplainActionResultValidationError{}
 
 var _ interface {
 	Field() string
@@ -483,25 +483,25 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = StartMySQLExplainActionResponseValidationError{}
+} = StartMySQLExplainActionResultValidationError{}
 
-// Validate checks the field values on StartMySQLExplainJSONActionRequest with
+// Validate checks the field values on StartMySQLExplainJSONActionParams with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the first error encountered is returned, or nil if there are
 // no violations.
-func (m *StartMySQLExplainJSONActionRequest) Validate() error {
+func (m *StartMySQLExplainJSONActionParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on StartMySQLExplainJSONActionRequest
+// ValidateAll checks the field values on StartMySQLExplainJSONActionParams
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, the result is a list of violation errors wrapped in
-// StartMySQLExplainJSONActionRequestMultiError, or nil if none found.
-func (m *StartMySQLExplainJSONActionRequest) ValidateAll() error {
+// StartMySQLExplainJSONActionParamsMultiError, or nil if none found.
+func (m *StartMySQLExplainJSONActionParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *StartMySQLExplainJSONActionRequest) validate(all bool) error {
+func (m *StartMySQLExplainJSONActionParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -511,7 +511,7 @@ func (m *StartMySQLExplainJSONActionRequest) validate(all bool) error {
 	// no validation rules for PmmAgentId
 
 	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := StartMySQLExplainJSONActionRequestValidationError{
+		err := StartMySQLExplainJSONActionParamsValidationError{
 			field:  "ServiceId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -526,20 +526,20 @@ func (m *StartMySQLExplainJSONActionRequest) validate(all bool) error {
 	// no validation rules for Database
 
 	if len(errors) > 0 {
-		return StartMySQLExplainJSONActionRequestMultiError(errors)
+		return StartMySQLExplainJSONActionParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// StartMySQLExplainJSONActionRequestMultiError is an error wrapping multiple
+// StartMySQLExplainJSONActionParamsMultiError is an error wrapping multiple
 // validation errors returned by
-// StartMySQLExplainJSONActionRequest.ValidateAll() if the designated
+// StartMySQLExplainJSONActionParams.ValidateAll() if the designated
 // constraints aren't met.
-type StartMySQLExplainJSONActionRequestMultiError []error
+type StartMySQLExplainJSONActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m StartMySQLExplainJSONActionRequestMultiError) Error() string {
+func (m StartMySQLExplainJSONActionParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -548,12 +548,12 @@ func (m StartMySQLExplainJSONActionRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m StartMySQLExplainJSONActionRequestMultiError) AllErrors() []error { return m }
+func (m StartMySQLExplainJSONActionParamsMultiError) AllErrors() []error { return m }
 
-// StartMySQLExplainJSONActionRequestValidationError is the validation error
-// returned by StartMySQLExplainJSONActionRequest.Validate if the designated
+// StartMySQLExplainJSONActionParamsValidationError is the validation error
+// returned by StartMySQLExplainJSONActionParams.Validate if the designated
 // constraints aren't met.
-type StartMySQLExplainJSONActionRequestValidationError struct {
+type StartMySQLExplainJSONActionParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -561,24 +561,24 @@ type StartMySQLExplainJSONActionRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e StartMySQLExplainJSONActionRequestValidationError) Field() string { return e.field }
+func (e StartMySQLExplainJSONActionParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e StartMySQLExplainJSONActionRequestValidationError) Reason() string { return e.reason }
+func (e StartMySQLExplainJSONActionParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e StartMySQLExplainJSONActionRequestValidationError) Cause() error { return e.cause }
+func (e StartMySQLExplainJSONActionParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e StartMySQLExplainJSONActionRequestValidationError) Key() bool { return e.key }
+func (e StartMySQLExplainJSONActionParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e StartMySQLExplainJSONActionRequestValidationError) ErrorName() string {
-	return "StartMySQLExplainJSONActionRequestValidationError"
+func (e StartMySQLExplainJSONActionParamsValidationError) ErrorName() string {
+	return "StartMySQLExplainJSONActionParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e StartMySQLExplainJSONActionRequestValidationError) Error() string {
+func (e StartMySQLExplainJSONActionParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -590,14 +590,14 @@ func (e StartMySQLExplainJSONActionRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sStartMySQLExplainJSONActionRequest.%s: %s%s",
+		"invalid %sStartMySQLExplainJSONActionParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = StartMySQLExplainJSONActionRequestValidationError{}
+var _ error = StartMySQLExplainJSONActionParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -605,25 +605,25 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = StartMySQLExplainJSONActionRequestValidationError{}
+} = StartMySQLExplainJSONActionParamsValidationError{}
 
-// Validate checks the field values on StartMySQLExplainJSONActionResponse with
+// Validate checks the field values on StartMySQLExplainJSONActionResult with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the first error encountered is returned, or nil if there are
 // no violations.
-func (m *StartMySQLExplainJSONActionResponse) Validate() error {
+func (m *StartMySQLExplainJSONActionResult) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on StartMySQLExplainJSONActionResponse
+// ValidateAll checks the field values on StartMySQLExplainJSONActionResult
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, the result is a list of violation errors wrapped in
-// StartMySQLExplainJSONActionResponseMultiError, or nil if none found.
-func (m *StartMySQLExplainJSONActionResponse) ValidateAll() error {
+// StartMySQLExplainJSONActionResultMultiError, or nil if none found.
+func (m *StartMySQLExplainJSONActionResult) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *StartMySQLExplainJSONActionResponse) validate(all bool) error {
+func (m *StartMySQLExplainJSONActionResult) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -635,20 +635,20 @@ func (m *StartMySQLExplainJSONActionResponse) validate(all bool) error {
 	// no validation rules for PmmAgentId
 
 	if len(errors) > 0 {
-		return StartMySQLExplainJSONActionResponseMultiError(errors)
+		return StartMySQLExplainJSONActionResultMultiError(errors)
 	}
 
 	return nil
 }
 
-// StartMySQLExplainJSONActionResponseMultiError is an error wrapping multiple
+// StartMySQLExplainJSONActionResultMultiError is an error wrapping multiple
 // validation errors returned by
-// StartMySQLExplainJSONActionResponse.ValidateAll() if the designated
+// StartMySQLExplainJSONActionResult.ValidateAll() if the designated
 // constraints aren't met.
-type StartMySQLExplainJSONActionResponseMultiError []error
+type StartMySQLExplainJSONActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m StartMySQLExplainJSONActionResponseMultiError) Error() string {
+func (m StartMySQLExplainJSONActionResultMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -657,12 +657,12 @@ func (m StartMySQLExplainJSONActionResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m StartMySQLExplainJSONActionResponseMultiError) AllErrors() []error { return m }
+func (m StartMySQLExplainJSONActionResultMultiError) AllErrors() []error { return m }
 
-// StartMySQLExplainJSONActionResponseValidationError is the validation error
-// returned by StartMySQLExplainJSONActionResponse.Validate if the designated
+// StartMySQLExplainJSONActionResultValidationError is the validation error
+// returned by StartMySQLExplainJSONActionResult.Validate if the designated
 // constraints aren't met.
-type StartMySQLExplainJSONActionResponseValidationError struct {
+type StartMySQLExplainJSONActionResultValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -670,24 +670,24 @@ type StartMySQLExplainJSONActionResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e StartMySQLExplainJSONActionResponseValidationError) Field() string { return e.field }
+func (e StartMySQLExplainJSONActionResultValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e StartMySQLExplainJSONActionResponseValidationError) Reason() string { return e.reason }
+func (e StartMySQLExplainJSONActionResultValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e StartMySQLExplainJSONActionResponseValidationError) Cause() error { return e.cause }
+func (e StartMySQLExplainJSONActionResultValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e StartMySQLExplainJSONActionResponseValidationError) Key() bool { return e.key }
+func (e StartMySQLExplainJSONActionResultValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e StartMySQLExplainJSONActionResponseValidationError) ErrorName() string {
-	return "StartMySQLExplainJSONActionResponseValidationError"
+func (e StartMySQLExplainJSONActionResultValidationError) ErrorName() string {
+	return "StartMySQLExplainJSONActionResultValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e StartMySQLExplainJSONActionResponseValidationError) Error() string {
+func (e StartMySQLExplainJSONActionResultValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -699,14 +699,14 @@ func (e StartMySQLExplainJSONActionResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sStartMySQLExplainJSONActionResponse.%s: %s%s",
+		"invalid %sStartMySQLExplainJSONActionResult.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = StartMySQLExplainJSONActionResponseValidationError{}
+var _ error = StartMySQLExplainJSONActionResultValidationError{}
 
 var _ interface {
 	Field() string
@@ -714,26 +714,26 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = StartMySQLExplainJSONActionResponseValidationError{}
+} = StartMySQLExplainJSONActionResultValidationError{}
 
 // Validate checks the field values on
-// StartMySQLExplainTraditionalJSONActionRequest with the rules defined in the
+// StartMySQLExplainTraditionalJSONActionParams with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
-func (m *StartMySQLExplainTraditionalJSONActionRequest) Validate() error {
+func (m *StartMySQLExplainTraditionalJSONActionParams) Validate() error {
 	return m.validate(false)
 }
 
 // ValidateAll checks the field values on
-// StartMySQLExplainTraditionalJSONActionRequest with the rules defined in the
+// StartMySQLExplainTraditionalJSONActionParams with the rules defined in the
 // proto definition for this message. If any rules are violated, the result is
 // a list of violation errors wrapped in
-// StartMySQLExplainTraditionalJSONActionRequestMultiError, or nil if none found.
-func (m *StartMySQLExplainTraditionalJSONActionRequest) ValidateAll() error {
+// StartMySQLExplainTraditionalJSONActionParamsMultiError, or nil if none found.
+func (m *StartMySQLExplainTraditionalJSONActionParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *StartMySQLExplainTraditionalJSONActionRequest) validate(all bool) error {
+func (m *StartMySQLExplainTraditionalJSONActionParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -743,7 +743,7 @@ func (m *StartMySQLExplainTraditionalJSONActionRequest) validate(all bool) error
 	// no validation rules for PmmAgentId
 
 	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := StartMySQLExplainTraditionalJSONActionRequestValidationError{
+		err := StartMySQLExplainTraditionalJSONActionParamsValidationError{
 			field:  "ServiceId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -758,20 +758,20 @@ func (m *StartMySQLExplainTraditionalJSONActionRequest) validate(all bool) error
 	// no validation rules for Database
 
 	if len(errors) > 0 {
-		return StartMySQLExplainTraditionalJSONActionRequestMultiError(errors)
+		return StartMySQLExplainTraditionalJSONActionParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// StartMySQLExplainTraditionalJSONActionRequestMultiError is an error wrapping
+// StartMySQLExplainTraditionalJSONActionParamsMultiError is an error wrapping
 // multiple validation errors returned by
-// StartMySQLExplainTraditionalJSONActionRequest.ValidateAll() if the
+// StartMySQLExplainTraditionalJSONActionParams.ValidateAll() if the
 // designated constraints aren't met.
-type StartMySQLExplainTraditionalJSONActionRequestMultiError []error
+type StartMySQLExplainTraditionalJSONActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m StartMySQLExplainTraditionalJSONActionRequestMultiError) Error() string {
+func (m StartMySQLExplainTraditionalJSONActionParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -780,13 +780,13 @@ func (m StartMySQLExplainTraditionalJSONActionRequestMultiError) Error() string 
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m StartMySQLExplainTraditionalJSONActionRequestMultiError) AllErrors() []error { return m }
+func (m StartMySQLExplainTraditionalJSONActionParamsMultiError) AllErrors() []error { return m }
 
-// StartMySQLExplainTraditionalJSONActionRequestValidationError is the
+// StartMySQLExplainTraditionalJSONActionParamsValidationError is the
 // validation error returned by
-// StartMySQLExplainTraditionalJSONActionRequest.Validate if the designated
+// StartMySQLExplainTraditionalJSONActionParams.Validate if the designated
 // constraints aren't met.
-type StartMySQLExplainTraditionalJSONActionRequestValidationError struct {
+type StartMySQLExplainTraditionalJSONActionParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -794,26 +794,24 @@ type StartMySQLExplainTraditionalJSONActionRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e StartMySQLExplainTraditionalJSONActionRequestValidationError) Field() string { return e.field }
+func (e StartMySQLExplainTraditionalJSONActionParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e StartMySQLExplainTraditionalJSONActionRequestValidationError) Reason() string {
-	return e.reason
-}
+func (e StartMySQLExplainTraditionalJSONActionParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e StartMySQLExplainTraditionalJSONActionRequestValidationError) Cause() error { return e.cause }
+func (e StartMySQLExplainTraditionalJSONActionParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e StartMySQLExplainTraditionalJSONActionRequestValidationError) Key() bool { return e.key }
+func (e StartMySQLExplainTraditionalJSONActionParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e StartMySQLExplainTraditionalJSONActionRequestValidationError) ErrorName() string {
-	return "StartMySQLExplainTraditionalJSONActionRequestValidationError"
+func (e StartMySQLExplainTraditionalJSONActionParamsValidationError) ErrorName() string {
+	return "StartMySQLExplainTraditionalJSONActionParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e StartMySQLExplainTraditionalJSONActionRequestValidationError) Error() string {
+func (e StartMySQLExplainTraditionalJSONActionParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -825,14 +823,14 @@ func (e StartMySQLExplainTraditionalJSONActionRequestValidationError) Error() st
 	}
 
 	return fmt.Sprintf(
-		"invalid %sStartMySQLExplainTraditionalJSONActionRequest.%s: %s%s",
+		"invalid %sStartMySQLExplainTraditionalJSONActionParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = StartMySQLExplainTraditionalJSONActionRequestValidationError{}
+var _ error = StartMySQLExplainTraditionalJSONActionParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -840,26 +838,26 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = StartMySQLExplainTraditionalJSONActionRequestValidationError{}
+} = StartMySQLExplainTraditionalJSONActionParamsValidationError{}
 
 // Validate checks the field values on
-// StartMySQLExplainTraditionalJSONActionResponse with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
+// StartMySQLExplainTraditionalJSONActionResult with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
-func (m *StartMySQLExplainTraditionalJSONActionResponse) Validate() error {
+func (m *StartMySQLExplainTraditionalJSONActionResult) Validate() error {
 	return m.validate(false)
 }
 
 // ValidateAll checks the field values on
-// StartMySQLExplainTraditionalJSONActionResponse with the rules defined in
-// the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in
-// StartMySQLExplainTraditionalJSONActionResponseMultiError, or nil if none found.
-func (m *StartMySQLExplainTraditionalJSONActionResponse) ValidateAll() error {
+// StartMySQLExplainTraditionalJSONActionResult with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in
+// StartMySQLExplainTraditionalJSONActionResultMultiError, or nil if none found.
+func (m *StartMySQLExplainTraditionalJSONActionResult) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *StartMySQLExplainTraditionalJSONActionResponse) validate(all bool) error {
+func (m *StartMySQLExplainTraditionalJSONActionResult) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -871,20 +869,20 @@ func (m *StartMySQLExplainTraditionalJSONActionResponse) validate(all bool) erro
 	// no validation rules for PmmAgentId
 
 	if len(errors) > 0 {
-		return StartMySQLExplainTraditionalJSONActionResponseMultiError(errors)
+		return StartMySQLExplainTraditionalJSONActionResultMultiError(errors)
 	}
 
 	return nil
 }
 
-// StartMySQLExplainTraditionalJSONActionResponseMultiError is an error
-// wrapping multiple validation errors returned by
-// StartMySQLExplainTraditionalJSONActionResponse.ValidateAll() if the
+// StartMySQLExplainTraditionalJSONActionResultMultiError is an error wrapping
+// multiple validation errors returned by
+// StartMySQLExplainTraditionalJSONActionResult.ValidateAll() if the
 // designated constraints aren't met.
-type StartMySQLExplainTraditionalJSONActionResponseMultiError []error
+type StartMySQLExplainTraditionalJSONActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m StartMySQLExplainTraditionalJSONActionResponseMultiError) Error() string {
+func (m StartMySQLExplainTraditionalJSONActionResultMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -893,13 +891,13 @@ func (m StartMySQLExplainTraditionalJSONActionResponseMultiError) Error() string
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m StartMySQLExplainTraditionalJSONActionResponseMultiError) AllErrors() []error { return m }
+func (m StartMySQLExplainTraditionalJSONActionResultMultiError) AllErrors() []error { return m }
 
-// StartMySQLExplainTraditionalJSONActionResponseValidationError is the
+// StartMySQLExplainTraditionalJSONActionResultValidationError is the
 // validation error returned by
-// StartMySQLExplainTraditionalJSONActionResponse.Validate if the designated
+// StartMySQLExplainTraditionalJSONActionResult.Validate if the designated
 // constraints aren't met.
-type StartMySQLExplainTraditionalJSONActionResponseValidationError struct {
+type StartMySQLExplainTraditionalJSONActionResultValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -907,26 +905,24 @@ type StartMySQLExplainTraditionalJSONActionResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e StartMySQLExplainTraditionalJSONActionResponseValidationError) Field() string { return e.field }
+func (e StartMySQLExplainTraditionalJSONActionResultValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e StartMySQLExplainTraditionalJSONActionResponseValidationError) Reason() string {
-	return e.reason
-}
+func (e StartMySQLExplainTraditionalJSONActionResultValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e StartMySQLExplainTraditionalJSONActionResponseValidationError) Cause() error { return e.cause }
+func (e StartMySQLExplainTraditionalJSONActionResultValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e StartMySQLExplainTraditionalJSONActionResponseValidationError) Key() bool { return e.key }
+func (e StartMySQLExplainTraditionalJSONActionResultValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e StartMySQLExplainTraditionalJSONActionResponseValidationError) ErrorName() string {
-	return "StartMySQLExplainTraditionalJSONActionResponseValidationError"
+func (e StartMySQLExplainTraditionalJSONActionResultValidationError) ErrorName() string {
+	return "StartMySQLExplainTraditionalJSONActionResultValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e StartMySQLExplainTraditionalJSONActionResponseValidationError) Error() string {
+func (e StartMySQLExplainTraditionalJSONActionResultValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -938,14 +934,14 @@ func (e StartMySQLExplainTraditionalJSONActionResponseValidationError) Error() s
 	}
 
 	return fmt.Sprintf(
-		"invalid %sStartMySQLExplainTraditionalJSONActionResponse.%s: %s%s",
+		"invalid %sStartMySQLExplainTraditionalJSONActionResult.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = StartMySQLExplainTraditionalJSONActionResponseValidationError{}
+var _ error = StartMySQLExplainTraditionalJSONActionResultValidationError{}
 
 var _ interface {
 	Field() string
@@ -953,26 +949,25 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = StartMySQLExplainTraditionalJSONActionResponseValidationError{}
+} = StartMySQLExplainTraditionalJSONActionResultValidationError{}
 
-// Validate checks the field values on StartMySQLShowCreateTableActionRequest
+// Validate checks the field values on StartMySQLShowCreateTableActionParams
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, the first error encountered is returned, or nil if
 // there are no violations.
-func (m *StartMySQLShowCreateTableActionRequest) Validate() error {
+func (m *StartMySQLShowCreateTableActionParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on
-// StartMySQLShowCreateTableActionRequest with the rules defined in the proto
-// definition for this message. If any rules are violated, the result is a
-// list of violation errors wrapped in
-// StartMySQLShowCreateTableActionRequestMultiError, or nil if none found.
-func (m *StartMySQLShowCreateTableActionRequest) ValidateAll() error {
+// ValidateAll checks the field values on StartMySQLShowCreateTableActionParams
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// StartMySQLShowCreateTableActionParamsMultiError, or nil if none found.
+func (m *StartMySQLShowCreateTableActionParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *StartMySQLShowCreateTableActionRequest) validate(all bool) error {
+func (m *StartMySQLShowCreateTableActionParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -982,7 +977,7 @@ func (m *StartMySQLShowCreateTableActionRequest) validate(all bool) error {
 	// no validation rules for PmmAgentId
 
 	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := StartMySQLShowCreateTableActionRequestValidationError{
+		err := StartMySQLShowCreateTableActionParamsValidationError{
 			field:  "ServiceId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -993,7 +988,7 @@ func (m *StartMySQLShowCreateTableActionRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetTableName()) < 1 {
-		err := StartMySQLShowCreateTableActionRequestValidationError{
+		err := StartMySQLShowCreateTableActionParamsValidationError{
 			field:  "TableName",
 			reason: "value length must be at least 1 runes",
 		}
@@ -1006,20 +1001,20 @@ func (m *StartMySQLShowCreateTableActionRequest) validate(all bool) error {
 	// no validation rules for Database
 
 	if len(errors) > 0 {
-		return StartMySQLShowCreateTableActionRequestMultiError(errors)
+		return StartMySQLShowCreateTableActionParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// StartMySQLShowCreateTableActionRequestMultiError is an error wrapping
+// StartMySQLShowCreateTableActionParamsMultiError is an error wrapping
 // multiple validation errors returned by
-// StartMySQLShowCreateTableActionRequest.ValidateAll() if the designated
+// StartMySQLShowCreateTableActionParams.ValidateAll() if the designated
 // constraints aren't met.
-type StartMySQLShowCreateTableActionRequestMultiError []error
+type StartMySQLShowCreateTableActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m StartMySQLShowCreateTableActionRequestMultiError) Error() string {
+func (m StartMySQLShowCreateTableActionParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1028,12 +1023,12 @@ func (m StartMySQLShowCreateTableActionRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m StartMySQLShowCreateTableActionRequestMultiError) AllErrors() []error { return m }
+func (m StartMySQLShowCreateTableActionParamsMultiError) AllErrors() []error { return m }
 
-// StartMySQLShowCreateTableActionRequestValidationError is the validation
-// error returned by StartMySQLShowCreateTableActionRequest.Validate if the
+// StartMySQLShowCreateTableActionParamsValidationError is the validation error
+// returned by StartMySQLShowCreateTableActionParams.Validate if the
 // designated constraints aren't met.
-type StartMySQLShowCreateTableActionRequestValidationError struct {
+type StartMySQLShowCreateTableActionParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1041,24 +1036,24 @@ type StartMySQLShowCreateTableActionRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e StartMySQLShowCreateTableActionRequestValidationError) Field() string { return e.field }
+func (e StartMySQLShowCreateTableActionParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e StartMySQLShowCreateTableActionRequestValidationError) Reason() string { return e.reason }
+func (e StartMySQLShowCreateTableActionParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e StartMySQLShowCreateTableActionRequestValidationError) Cause() error { return e.cause }
+func (e StartMySQLShowCreateTableActionParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e StartMySQLShowCreateTableActionRequestValidationError) Key() bool { return e.key }
+func (e StartMySQLShowCreateTableActionParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e StartMySQLShowCreateTableActionRequestValidationError) ErrorName() string {
-	return "StartMySQLShowCreateTableActionRequestValidationError"
+func (e StartMySQLShowCreateTableActionParamsValidationError) ErrorName() string {
+	return "StartMySQLShowCreateTableActionParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e StartMySQLShowCreateTableActionRequestValidationError) Error() string {
+func (e StartMySQLShowCreateTableActionParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1070,14 +1065,14 @@ func (e StartMySQLShowCreateTableActionRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sStartMySQLShowCreateTableActionRequest.%s: %s%s",
+		"invalid %sStartMySQLShowCreateTableActionParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = StartMySQLShowCreateTableActionRequestValidationError{}
+var _ error = StartMySQLShowCreateTableActionParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -1085,26 +1080,25 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = StartMySQLShowCreateTableActionRequestValidationError{}
+} = StartMySQLShowCreateTableActionParamsValidationError{}
 
-// Validate checks the field values on StartMySQLShowCreateTableActionResponse
+// Validate checks the field values on StartMySQLShowCreateTableActionResult
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, the first error encountered is returned, or nil if
 // there are no violations.
-func (m *StartMySQLShowCreateTableActionResponse) Validate() error {
+func (m *StartMySQLShowCreateTableActionResult) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on
-// StartMySQLShowCreateTableActionResponse with the rules defined in the proto
-// definition for this message. If any rules are violated, the result is a
-// list of violation errors wrapped in
-// StartMySQLShowCreateTableActionResponseMultiError, or nil if none found.
-func (m *StartMySQLShowCreateTableActionResponse) ValidateAll() error {
+// ValidateAll checks the field values on StartMySQLShowCreateTableActionResult
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// StartMySQLShowCreateTableActionResultMultiError, or nil if none found.
+func (m *StartMySQLShowCreateTableActionResult) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *StartMySQLShowCreateTableActionResponse) validate(all bool) error {
+func (m *StartMySQLShowCreateTableActionResult) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1116,20 +1110,20 @@ func (m *StartMySQLShowCreateTableActionResponse) validate(all bool) error {
 	// no validation rules for PmmAgentId
 
 	if len(errors) > 0 {
-		return StartMySQLShowCreateTableActionResponseMultiError(errors)
+		return StartMySQLShowCreateTableActionResultMultiError(errors)
 	}
 
 	return nil
 }
 
-// StartMySQLShowCreateTableActionResponseMultiError is an error wrapping
+// StartMySQLShowCreateTableActionResultMultiError is an error wrapping
 // multiple validation errors returned by
-// StartMySQLShowCreateTableActionResponse.ValidateAll() if the designated
+// StartMySQLShowCreateTableActionResult.ValidateAll() if the designated
 // constraints aren't met.
-type StartMySQLShowCreateTableActionResponseMultiError []error
+type StartMySQLShowCreateTableActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m StartMySQLShowCreateTableActionResponseMultiError) Error() string {
+func (m StartMySQLShowCreateTableActionResultMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1138,12 +1132,12 @@ func (m StartMySQLShowCreateTableActionResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m StartMySQLShowCreateTableActionResponseMultiError) AllErrors() []error { return m }
+func (m StartMySQLShowCreateTableActionResultMultiError) AllErrors() []error { return m }
 
-// StartMySQLShowCreateTableActionResponseValidationError is the validation
-// error returned by StartMySQLShowCreateTableActionResponse.Validate if the
+// StartMySQLShowCreateTableActionResultValidationError is the validation error
+// returned by StartMySQLShowCreateTableActionResult.Validate if the
 // designated constraints aren't met.
-type StartMySQLShowCreateTableActionResponseValidationError struct {
+type StartMySQLShowCreateTableActionResultValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1151,24 +1145,24 @@ type StartMySQLShowCreateTableActionResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e StartMySQLShowCreateTableActionResponseValidationError) Field() string { return e.field }
+func (e StartMySQLShowCreateTableActionResultValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e StartMySQLShowCreateTableActionResponseValidationError) Reason() string { return e.reason }
+func (e StartMySQLShowCreateTableActionResultValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e StartMySQLShowCreateTableActionResponseValidationError) Cause() error { return e.cause }
+func (e StartMySQLShowCreateTableActionResultValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e StartMySQLShowCreateTableActionResponseValidationError) Key() bool { return e.key }
+func (e StartMySQLShowCreateTableActionResultValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e StartMySQLShowCreateTableActionResponseValidationError) ErrorName() string {
-	return "StartMySQLShowCreateTableActionResponseValidationError"
+func (e StartMySQLShowCreateTableActionResultValidationError) ErrorName() string {
+	return "StartMySQLShowCreateTableActionResultValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e StartMySQLShowCreateTableActionResponseValidationError) Error() string {
+func (e StartMySQLShowCreateTableActionResultValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1180,14 +1174,14 @@ func (e StartMySQLShowCreateTableActionResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sStartMySQLShowCreateTableActionResponse.%s: %s%s",
+		"invalid %sStartMySQLShowCreateTableActionResult.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = StartMySQLShowCreateTableActionResponseValidationError{}
+var _ error = StartMySQLShowCreateTableActionResultValidationError{}
 
 var _ interface {
 	Field() string
@@ -1195,26 +1189,25 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = StartMySQLShowCreateTableActionResponseValidationError{}
+} = StartMySQLShowCreateTableActionResultValidationError{}
 
-// Validate checks the field values on StartMySQLShowTableStatusActionRequest
+// Validate checks the field values on StartMySQLShowTableStatusActionParams
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, the first error encountered is returned, or nil if
 // there are no violations.
-func (m *StartMySQLShowTableStatusActionRequest) Validate() error {
+func (m *StartMySQLShowTableStatusActionParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on
-// StartMySQLShowTableStatusActionRequest with the rules defined in the proto
-// definition for this message. If any rules are violated, the result is a
-// list of violation errors wrapped in
-// StartMySQLShowTableStatusActionRequestMultiError, or nil if none found.
-func (m *StartMySQLShowTableStatusActionRequest) ValidateAll() error {
+// ValidateAll checks the field values on StartMySQLShowTableStatusActionParams
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// StartMySQLShowTableStatusActionParamsMultiError, or nil if none found.
+func (m *StartMySQLShowTableStatusActionParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *StartMySQLShowTableStatusActionRequest) validate(all bool) error {
+func (m *StartMySQLShowTableStatusActionParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1224,7 +1217,7 @@ func (m *StartMySQLShowTableStatusActionRequest) validate(all bool) error {
 	// no validation rules for PmmAgentId
 
 	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := StartMySQLShowTableStatusActionRequestValidationError{
+		err := StartMySQLShowTableStatusActionParamsValidationError{
 			field:  "ServiceId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -1235,7 +1228,7 @@ func (m *StartMySQLShowTableStatusActionRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetTableName()) < 1 {
-		err := StartMySQLShowTableStatusActionRequestValidationError{
+		err := StartMySQLShowTableStatusActionParamsValidationError{
 			field:  "TableName",
 			reason: "value length must be at least 1 runes",
 		}
@@ -1248,20 +1241,20 @@ func (m *StartMySQLShowTableStatusActionRequest) validate(all bool) error {
 	// no validation rules for Database
 
 	if len(errors) > 0 {
-		return StartMySQLShowTableStatusActionRequestMultiError(errors)
+		return StartMySQLShowTableStatusActionParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// StartMySQLShowTableStatusActionRequestMultiError is an error wrapping
+// StartMySQLShowTableStatusActionParamsMultiError is an error wrapping
 // multiple validation errors returned by
-// StartMySQLShowTableStatusActionRequest.ValidateAll() if the designated
+// StartMySQLShowTableStatusActionParams.ValidateAll() if the designated
 // constraints aren't met.
-type StartMySQLShowTableStatusActionRequestMultiError []error
+type StartMySQLShowTableStatusActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m StartMySQLShowTableStatusActionRequestMultiError) Error() string {
+func (m StartMySQLShowTableStatusActionParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1270,12 +1263,12 @@ func (m StartMySQLShowTableStatusActionRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m StartMySQLShowTableStatusActionRequestMultiError) AllErrors() []error { return m }
+func (m StartMySQLShowTableStatusActionParamsMultiError) AllErrors() []error { return m }
 
-// StartMySQLShowTableStatusActionRequestValidationError is the validation
-// error returned by StartMySQLShowTableStatusActionRequest.Validate if the
+// StartMySQLShowTableStatusActionParamsValidationError is the validation error
+// returned by StartMySQLShowTableStatusActionParams.Validate if the
 // designated constraints aren't met.
-type StartMySQLShowTableStatusActionRequestValidationError struct {
+type StartMySQLShowTableStatusActionParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1283,24 +1276,24 @@ type StartMySQLShowTableStatusActionRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e StartMySQLShowTableStatusActionRequestValidationError) Field() string { return e.field }
+func (e StartMySQLShowTableStatusActionParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e StartMySQLShowTableStatusActionRequestValidationError) Reason() string { return e.reason }
+func (e StartMySQLShowTableStatusActionParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e StartMySQLShowTableStatusActionRequestValidationError) Cause() error { return e.cause }
+func (e StartMySQLShowTableStatusActionParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e StartMySQLShowTableStatusActionRequestValidationError) Key() bool { return e.key }
+func (e StartMySQLShowTableStatusActionParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e StartMySQLShowTableStatusActionRequestValidationError) ErrorName() string {
-	return "StartMySQLShowTableStatusActionRequestValidationError"
+func (e StartMySQLShowTableStatusActionParamsValidationError) ErrorName() string {
+	return "StartMySQLShowTableStatusActionParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e StartMySQLShowTableStatusActionRequestValidationError) Error() string {
+func (e StartMySQLShowTableStatusActionParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1312,14 +1305,14 @@ func (e StartMySQLShowTableStatusActionRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sStartMySQLShowTableStatusActionRequest.%s: %s%s",
+		"invalid %sStartMySQLShowTableStatusActionParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = StartMySQLShowTableStatusActionRequestValidationError{}
+var _ error = StartMySQLShowTableStatusActionParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -1327,26 +1320,25 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = StartMySQLShowTableStatusActionRequestValidationError{}
+} = StartMySQLShowTableStatusActionParamsValidationError{}
 
-// Validate checks the field values on StartMySQLShowTableStatusActionResponse
+// Validate checks the field values on StartMySQLShowTableStatusActionResult
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, the first error encountered is returned, or nil if
 // there are no violations.
-func (m *StartMySQLShowTableStatusActionResponse) Validate() error {
+func (m *StartMySQLShowTableStatusActionResult) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on
-// StartMySQLShowTableStatusActionResponse with the rules defined in the proto
-// definition for this message. If any rules are violated, the result is a
-// list of violation errors wrapped in
-// StartMySQLShowTableStatusActionResponseMultiError, or nil if none found.
-func (m *StartMySQLShowTableStatusActionResponse) ValidateAll() error {
+// ValidateAll checks the field values on StartMySQLShowTableStatusActionResult
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// StartMySQLShowTableStatusActionResultMultiError, or nil if none found.
+func (m *StartMySQLShowTableStatusActionResult) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *StartMySQLShowTableStatusActionResponse) validate(all bool) error {
+func (m *StartMySQLShowTableStatusActionResult) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1358,20 +1350,20 @@ func (m *StartMySQLShowTableStatusActionResponse) validate(all bool) error {
 	// no validation rules for PmmAgentId
 
 	if len(errors) > 0 {
-		return StartMySQLShowTableStatusActionResponseMultiError(errors)
+		return StartMySQLShowTableStatusActionResultMultiError(errors)
 	}
 
 	return nil
 }
 
-// StartMySQLShowTableStatusActionResponseMultiError is an error wrapping
+// StartMySQLShowTableStatusActionResultMultiError is an error wrapping
 // multiple validation errors returned by
-// StartMySQLShowTableStatusActionResponse.ValidateAll() if the designated
+// StartMySQLShowTableStatusActionResult.ValidateAll() if the designated
 // constraints aren't met.
-type StartMySQLShowTableStatusActionResponseMultiError []error
+type StartMySQLShowTableStatusActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m StartMySQLShowTableStatusActionResponseMultiError) Error() string {
+func (m StartMySQLShowTableStatusActionResultMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1380,12 +1372,12 @@ func (m StartMySQLShowTableStatusActionResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m StartMySQLShowTableStatusActionResponseMultiError) AllErrors() []error { return m }
+func (m StartMySQLShowTableStatusActionResultMultiError) AllErrors() []error { return m }
 
-// StartMySQLShowTableStatusActionResponseValidationError is the validation
-// error returned by StartMySQLShowTableStatusActionResponse.Validate if the
+// StartMySQLShowTableStatusActionResultValidationError is the validation error
+// returned by StartMySQLShowTableStatusActionResult.Validate if the
 // designated constraints aren't met.
-type StartMySQLShowTableStatusActionResponseValidationError struct {
+type StartMySQLShowTableStatusActionResultValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1393,24 +1385,24 @@ type StartMySQLShowTableStatusActionResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e StartMySQLShowTableStatusActionResponseValidationError) Field() string { return e.field }
+func (e StartMySQLShowTableStatusActionResultValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e StartMySQLShowTableStatusActionResponseValidationError) Reason() string { return e.reason }
+func (e StartMySQLShowTableStatusActionResultValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e StartMySQLShowTableStatusActionResponseValidationError) Cause() error { return e.cause }
+func (e StartMySQLShowTableStatusActionResultValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e StartMySQLShowTableStatusActionResponseValidationError) Key() bool { return e.key }
+func (e StartMySQLShowTableStatusActionResultValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e StartMySQLShowTableStatusActionResponseValidationError) ErrorName() string {
-	return "StartMySQLShowTableStatusActionResponseValidationError"
+func (e StartMySQLShowTableStatusActionResultValidationError) ErrorName() string {
+	return "StartMySQLShowTableStatusActionResultValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e StartMySQLShowTableStatusActionResponseValidationError) Error() string {
+func (e StartMySQLShowTableStatusActionResultValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1422,14 +1414,14 @@ func (e StartMySQLShowTableStatusActionResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sStartMySQLShowTableStatusActionResponse.%s: %s%s",
+		"invalid %sStartMySQLShowTableStatusActionResult.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = StartMySQLShowTableStatusActionResponseValidationError{}
+var _ error = StartMySQLShowTableStatusActionResultValidationError{}
 
 var _ interface {
 	Field() string
@@ -1437,25 +1429,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = StartMySQLShowTableStatusActionResponseValidationError{}
+} = StartMySQLShowTableStatusActionResultValidationError{}
 
-// Validate checks the field values on StartMySQLShowIndexActionRequest with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *StartMySQLShowIndexActionRequest) Validate() error {
+// Validate checks the field values on StartMySQLShowIndexActionParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *StartMySQLShowIndexActionParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on StartMySQLShowIndexActionRequest with
+// ValidateAll checks the field values on StartMySQLShowIndexActionParams with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the result is a list of violation errors wrapped in
-// StartMySQLShowIndexActionRequestMultiError, or nil if none found.
-func (m *StartMySQLShowIndexActionRequest) ValidateAll() error {
+// StartMySQLShowIndexActionParamsMultiError, or nil if none found.
+func (m *StartMySQLShowIndexActionParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *StartMySQLShowIndexActionRequest) validate(all bool) error {
+func (m *StartMySQLShowIndexActionParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1465,7 +1456,7 @@ func (m *StartMySQLShowIndexActionRequest) validate(all bool) error {
 	// no validation rules for PmmAgentId
 
 	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := StartMySQLShowIndexActionRequestValidationError{
+		err := StartMySQLShowIndexActionParamsValidationError{
 			field:  "ServiceId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -1476,7 +1467,7 @@ func (m *StartMySQLShowIndexActionRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetTableName()) < 1 {
-		err := StartMySQLShowIndexActionRequestValidationError{
+		err := StartMySQLShowIndexActionParamsValidationError{
 			field:  "TableName",
 			reason: "value length must be at least 1 runes",
 		}
@@ -1489,20 +1480,19 @@ func (m *StartMySQLShowIndexActionRequest) validate(all bool) error {
 	// no validation rules for Database
 
 	if len(errors) > 0 {
-		return StartMySQLShowIndexActionRequestMultiError(errors)
+		return StartMySQLShowIndexActionParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// StartMySQLShowIndexActionRequestMultiError is an error wrapping multiple
-// validation errors returned by
-// StartMySQLShowIndexActionRequest.ValidateAll() if the designated
-// constraints aren't met.
-type StartMySQLShowIndexActionRequestMultiError []error
+// StartMySQLShowIndexActionParamsMultiError is an error wrapping multiple
+// validation errors returned by StartMySQLShowIndexActionParams.ValidateAll()
+// if the designated constraints aren't met.
+type StartMySQLShowIndexActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m StartMySQLShowIndexActionRequestMultiError) Error() string {
+func (m StartMySQLShowIndexActionParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1511,12 +1501,12 @@ func (m StartMySQLShowIndexActionRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m StartMySQLShowIndexActionRequestMultiError) AllErrors() []error { return m }
+func (m StartMySQLShowIndexActionParamsMultiError) AllErrors() []error { return m }
 
-// StartMySQLShowIndexActionRequestValidationError is the validation error
-// returned by StartMySQLShowIndexActionRequest.Validate if the designated
+// StartMySQLShowIndexActionParamsValidationError is the validation error
+// returned by StartMySQLShowIndexActionParams.Validate if the designated
 // constraints aren't met.
-type StartMySQLShowIndexActionRequestValidationError struct {
+type StartMySQLShowIndexActionParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1524,24 +1514,24 @@ type StartMySQLShowIndexActionRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e StartMySQLShowIndexActionRequestValidationError) Field() string { return e.field }
+func (e StartMySQLShowIndexActionParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e StartMySQLShowIndexActionRequestValidationError) Reason() string { return e.reason }
+func (e StartMySQLShowIndexActionParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e StartMySQLShowIndexActionRequestValidationError) Cause() error { return e.cause }
+func (e StartMySQLShowIndexActionParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e StartMySQLShowIndexActionRequestValidationError) Key() bool { return e.key }
+func (e StartMySQLShowIndexActionParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e StartMySQLShowIndexActionRequestValidationError) ErrorName() string {
-	return "StartMySQLShowIndexActionRequestValidationError"
+func (e StartMySQLShowIndexActionParamsValidationError) ErrorName() string {
+	return "StartMySQLShowIndexActionParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e StartMySQLShowIndexActionRequestValidationError) Error() string {
+func (e StartMySQLShowIndexActionParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1553,14 +1543,14 @@ func (e StartMySQLShowIndexActionRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sStartMySQLShowIndexActionRequest.%s: %s%s",
+		"invalid %sStartMySQLShowIndexActionParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = StartMySQLShowIndexActionRequestValidationError{}
+var _ error = StartMySQLShowIndexActionParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -1568,25 +1558,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = StartMySQLShowIndexActionRequestValidationError{}
+} = StartMySQLShowIndexActionParamsValidationError{}
 
-// Validate checks the field values on StartMySQLShowIndexActionResponse with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *StartMySQLShowIndexActionResponse) Validate() error {
+// Validate checks the field values on StartMySQLShowIndexActionResult with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *StartMySQLShowIndexActionResult) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on StartMySQLShowIndexActionResponse
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// StartMySQLShowIndexActionResponseMultiError, or nil if none found.
-func (m *StartMySQLShowIndexActionResponse) ValidateAll() error {
+// ValidateAll checks the field values on StartMySQLShowIndexActionResult with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// StartMySQLShowIndexActionResultMultiError, or nil if none found.
+func (m *StartMySQLShowIndexActionResult) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *StartMySQLShowIndexActionResponse) validate(all bool) error {
+func (m *StartMySQLShowIndexActionResult) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1598,20 +1587,19 @@ func (m *StartMySQLShowIndexActionResponse) validate(all bool) error {
 	// no validation rules for PmmAgentId
 
 	if len(errors) > 0 {
-		return StartMySQLShowIndexActionResponseMultiError(errors)
+		return StartMySQLShowIndexActionResultMultiError(errors)
 	}
 
 	return nil
 }
 
-// StartMySQLShowIndexActionResponseMultiError is an error wrapping multiple
-// validation errors returned by
-// StartMySQLShowIndexActionResponse.ValidateAll() if the designated
-// constraints aren't met.
-type StartMySQLShowIndexActionResponseMultiError []error
+// StartMySQLShowIndexActionResultMultiError is an error wrapping multiple
+// validation errors returned by StartMySQLShowIndexActionResult.ValidateAll()
+// if the designated constraints aren't met.
+type StartMySQLShowIndexActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m StartMySQLShowIndexActionResponseMultiError) Error() string {
+func (m StartMySQLShowIndexActionResultMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1620,12 +1608,12 @@ func (m StartMySQLShowIndexActionResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m StartMySQLShowIndexActionResponseMultiError) AllErrors() []error { return m }
+func (m StartMySQLShowIndexActionResultMultiError) AllErrors() []error { return m }
 
-// StartMySQLShowIndexActionResponseValidationError is the validation error
-// returned by StartMySQLShowIndexActionResponse.Validate if the designated
+// StartMySQLShowIndexActionResultValidationError is the validation error
+// returned by StartMySQLShowIndexActionResult.Validate if the designated
 // constraints aren't met.
-type StartMySQLShowIndexActionResponseValidationError struct {
+type StartMySQLShowIndexActionResultValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1633,24 +1621,24 @@ type StartMySQLShowIndexActionResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e StartMySQLShowIndexActionResponseValidationError) Field() string { return e.field }
+func (e StartMySQLShowIndexActionResultValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e StartMySQLShowIndexActionResponseValidationError) Reason() string { return e.reason }
+func (e StartMySQLShowIndexActionResultValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e StartMySQLShowIndexActionResponseValidationError) Cause() error { return e.cause }
+func (e StartMySQLShowIndexActionResultValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e StartMySQLShowIndexActionResponseValidationError) Key() bool { return e.key }
+func (e StartMySQLShowIndexActionResultValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e StartMySQLShowIndexActionResponseValidationError) ErrorName() string {
-	return "StartMySQLShowIndexActionResponseValidationError"
+func (e StartMySQLShowIndexActionResultValidationError) ErrorName() string {
+	return "StartMySQLShowIndexActionResultValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e StartMySQLShowIndexActionResponseValidationError) Error() string {
+func (e StartMySQLShowIndexActionResultValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1662,14 +1650,14 @@ func (e StartMySQLShowIndexActionResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sStartMySQLShowIndexActionResponse.%s: %s%s",
+		"invalid %sStartMySQLShowIndexActionResult.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = StartMySQLShowIndexActionResponseValidationError{}
+var _ error = StartMySQLShowIndexActionResultValidationError{}
 
 var _ interface {
 	Field() string
@@ -1677,26 +1665,26 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = StartMySQLShowIndexActionResponseValidationError{}
+} = StartMySQLShowIndexActionResultValidationError{}
 
 // Validate checks the field values on
-// StartPostgreSQLShowCreateTableActionRequest with the rules defined in the
+// StartPostgreSQLShowCreateTableActionParams with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
-func (m *StartPostgreSQLShowCreateTableActionRequest) Validate() error {
+func (m *StartPostgreSQLShowCreateTableActionParams) Validate() error {
 	return m.validate(false)
 }
 
 // ValidateAll checks the field values on
-// StartPostgreSQLShowCreateTableActionRequest with the rules defined in the
+// StartPostgreSQLShowCreateTableActionParams with the rules defined in the
 // proto definition for this message. If any rules are violated, the result is
 // a list of violation errors wrapped in
-// StartPostgreSQLShowCreateTableActionRequestMultiError, or nil if none found.
-func (m *StartPostgreSQLShowCreateTableActionRequest) ValidateAll() error {
+// StartPostgreSQLShowCreateTableActionParamsMultiError, or nil if none found.
+func (m *StartPostgreSQLShowCreateTableActionParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *StartPostgreSQLShowCreateTableActionRequest) validate(all bool) error {
+func (m *StartPostgreSQLShowCreateTableActionParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1706,7 +1694,7 @@ func (m *StartPostgreSQLShowCreateTableActionRequest) validate(all bool) error {
 	// no validation rules for PmmAgentId
 
 	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := StartPostgreSQLShowCreateTableActionRequestValidationError{
+		err := StartPostgreSQLShowCreateTableActionParamsValidationError{
 			field:  "ServiceId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -1717,7 +1705,7 @@ func (m *StartPostgreSQLShowCreateTableActionRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetTableName()) < 1 {
-		err := StartPostgreSQLShowCreateTableActionRequestValidationError{
+		err := StartPostgreSQLShowCreateTableActionParamsValidationError{
 			field:  "TableName",
 			reason: "value length must be at least 1 runes",
 		}
@@ -1730,20 +1718,20 @@ func (m *StartPostgreSQLShowCreateTableActionRequest) validate(all bool) error {
 	// no validation rules for Database
 
 	if len(errors) > 0 {
-		return StartPostgreSQLShowCreateTableActionRequestMultiError(errors)
+		return StartPostgreSQLShowCreateTableActionParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// StartPostgreSQLShowCreateTableActionRequestMultiError is an error wrapping
+// StartPostgreSQLShowCreateTableActionParamsMultiError is an error wrapping
 // multiple validation errors returned by
-// StartPostgreSQLShowCreateTableActionRequest.ValidateAll() if the designated
+// StartPostgreSQLShowCreateTableActionParams.ValidateAll() if the designated
 // constraints aren't met.
-type StartPostgreSQLShowCreateTableActionRequestMultiError []error
+type StartPostgreSQLShowCreateTableActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m StartPostgreSQLShowCreateTableActionRequestMultiError) Error() string {
+func (m StartPostgreSQLShowCreateTableActionParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1752,12 +1740,12 @@ func (m StartPostgreSQLShowCreateTableActionRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m StartPostgreSQLShowCreateTableActionRequestMultiError) AllErrors() []error { return m }
+func (m StartPostgreSQLShowCreateTableActionParamsMultiError) AllErrors() []error { return m }
 
-// StartPostgreSQLShowCreateTableActionRequestValidationError is the validation
-// error returned by StartPostgreSQLShowCreateTableActionRequest.Validate if
+// StartPostgreSQLShowCreateTableActionParamsValidationError is the validation
+// error returned by StartPostgreSQLShowCreateTableActionParams.Validate if
 // the designated constraints aren't met.
-type StartPostgreSQLShowCreateTableActionRequestValidationError struct {
+type StartPostgreSQLShowCreateTableActionParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1765,24 +1753,24 @@ type StartPostgreSQLShowCreateTableActionRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e StartPostgreSQLShowCreateTableActionRequestValidationError) Field() string { return e.field }
+func (e StartPostgreSQLShowCreateTableActionParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e StartPostgreSQLShowCreateTableActionRequestValidationError) Reason() string { return e.reason }
+func (e StartPostgreSQLShowCreateTableActionParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e StartPostgreSQLShowCreateTableActionRequestValidationError) Cause() error { return e.cause }
+func (e StartPostgreSQLShowCreateTableActionParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e StartPostgreSQLShowCreateTableActionRequestValidationError) Key() bool { return e.key }
+func (e StartPostgreSQLShowCreateTableActionParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e StartPostgreSQLShowCreateTableActionRequestValidationError) ErrorName() string {
-	return "StartPostgreSQLShowCreateTableActionRequestValidationError"
+func (e StartPostgreSQLShowCreateTableActionParamsValidationError) ErrorName() string {
+	return "StartPostgreSQLShowCreateTableActionParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e StartPostgreSQLShowCreateTableActionRequestValidationError) Error() string {
+func (e StartPostgreSQLShowCreateTableActionParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1794,14 +1782,14 @@ func (e StartPostgreSQLShowCreateTableActionRequestValidationError) Error() stri
 	}
 
 	return fmt.Sprintf(
-		"invalid %sStartPostgreSQLShowCreateTableActionRequest.%s: %s%s",
+		"invalid %sStartPostgreSQLShowCreateTableActionParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = StartPostgreSQLShowCreateTableActionRequestValidationError{}
+var _ error = StartPostgreSQLShowCreateTableActionParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -1809,26 +1797,26 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = StartPostgreSQLShowCreateTableActionRequestValidationError{}
+} = StartPostgreSQLShowCreateTableActionParamsValidationError{}
 
 // Validate checks the field values on
-// StartPostgreSQLShowCreateTableActionResponse with the rules defined in the
+// StartPostgreSQLShowCreateTableActionResult with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
-func (m *StartPostgreSQLShowCreateTableActionResponse) Validate() error {
+func (m *StartPostgreSQLShowCreateTableActionResult) Validate() error {
 	return m.validate(false)
 }
 
 // ValidateAll checks the field values on
-// StartPostgreSQLShowCreateTableActionResponse with the rules defined in the
+// StartPostgreSQLShowCreateTableActionResult with the rules defined in the
 // proto definition for this message. If any rules are violated, the result is
 // a list of violation errors wrapped in
-// StartPostgreSQLShowCreateTableActionResponseMultiError, or nil if none found.
-func (m *StartPostgreSQLShowCreateTableActionResponse) ValidateAll() error {
+// StartPostgreSQLShowCreateTableActionResultMultiError, or nil if none found.
+func (m *StartPostgreSQLShowCreateTableActionResult) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *StartPostgreSQLShowCreateTableActionResponse) validate(all bool) error {
+func (m *StartPostgreSQLShowCreateTableActionResult) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1840,20 +1828,20 @@ func (m *StartPostgreSQLShowCreateTableActionResponse) validate(all bool) error 
 	// no validation rules for PmmAgentId
 
 	if len(errors) > 0 {
-		return StartPostgreSQLShowCreateTableActionResponseMultiError(errors)
+		return StartPostgreSQLShowCreateTableActionResultMultiError(errors)
 	}
 
 	return nil
 }
 
-// StartPostgreSQLShowCreateTableActionResponseMultiError is an error wrapping
+// StartPostgreSQLShowCreateTableActionResultMultiError is an error wrapping
 // multiple validation errors returned by
-// StartPostgreSQLShowCreateTableActionResponse.ValidateAll() if the
-// designated constraints aren't met.
-type StartPostgreSQLShowCreateTableActionResponseMultiError []error
+// StartPostgreSQLShowCreateTableActionResult.ValidateAll() if the designated
+// constraints aren't met.
+type StartPostgreSQLShowCreateTableActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m StartPostgreSQLShowCreateTableActionResponseMultiError) Error() string {
+func (m StartPostgreSQLShowCreateTableActionResultMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1862,13 +1850,12 @@ func (m StartPostgreSQLShowCreateTableActionResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m StartPostgreSQLShowCreateTableActionResponseMultiError) AllErrors() []error { return m }
+func (m StartPostgreSQLShowCreateTableActionResultMultiError) AllErrors() []error { return m }
 
-// StartPostgreSQLShowCreateTableActionResponseValidationError is the
-// validation error returned by
-// StartPostgreSQLShowCreateTableActionResponse.Validate if the designated
-// constraints aren't met.
-type StartPostgreSQLShowCreateTableActionResponseValidationError struct {
+// StartPostgreSQLShowCreateTableActionResultValidationError is the validation
+// error returned by StartPostgreSQLShowCreateTableActionResult.Validate if
+// the designated constraints aren't met.
+type StartPostgreSQLShowCreateTableActionResultValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1876,24 +1863,24 @@ type StartPostgreSQLShowCreateTableActionResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e StartPostgreSQLShowCreateTableActionResponseValidationError) Field() string { return e.field }
+func (e StartPostgreSQLShowCreateTableActionResultValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e StartPostgreSQLShowCreateTableActionResponseValidationError) Reason() string { return e.reason }
+func (e StartPostgreSQLShowCreateTableActionResultValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e StartPostgreSQLShowCreateTableActionResponseValidationError) Cause() error { return e.cause }
+func (e StartPostgreSQLShowCreateTableActionResultValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e StartPostgreSQLShowCreateTableActionResponseValidationError) Key() bool { return e.key }
+func (e StartPostgreSQLShowCreateTableActionResultValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e StartPostgreSQLShowCreateTableActionResponseValidationError) ErrorName() string {
-	return "StartPostgreSQLShowCreateTableActionResponseValidationError"
+func (e StartPostgreSQLShowCreateTableActionResultValidationError) ErrorName() string {
+	return "StartPostgreSQLShowCreateTableActionResultValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e StartPostgreSQLShowCreateTableActionResponseValidationError) Error() string {
+func (e StartPostgreSQLShowCreateTableActionResultValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1905,14 +1892,14 @@ func (e StartPostgreSQLShowCreateTableActionResponseValidationError) Error() str
 	}
 
 	return fmt.Sprintf(
-		"invalid %sStartPostgreSQLShowCreateTableActionResponse.%s: %s%s",
+		"invalid %sStartPostgreSQLShowCreateTableActionResult.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = StartPostgreSQLShowCreateTableActionResponseValidationError{}
+var _ error = StartPostgreSQLShowCreateTableActionResultValidationError{}
 
 var _ interface {
 	Field() string
@@ -1920,25 +1907,25 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = StartPostgreSQLShowCreateTableActionResponseValidationError{}
+} = StartPostgreSQLShowCreateTableActionResultValidationError{}
 
-// Validate checks the field values on StartPostgreSQLShowIndexActionRequest
+// Validate checks the field values on StartPostgreSQLShowIndexActionParams
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, the first error encountered is returned, or nil if
 // there are no violations.
-func (m *StartPostgreSQLShowIndexActionRequest) Validate() error {
+func (m *StartPostgreSQLShowIndexActionParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on StartPostgreSQLShowIndexActionRequest
+// ValidateAll checks the field values on StartPostgreSQLShowIndexActionParams
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, the result is a list of violation errors wrapped in
-// StartPostgreSQLShowIndexActionRequestMultiError, or nil if none found.
-func (m *StartPostgreSQLShowIndexActionRequest) ValidateAll() error {
+// StartPostgreSQLShowIndexActionParamsMultiError, or nil if none found.
+func (m *StartPostgreSQLShowIndexActionParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *StartPostgreSQLShowIndexActionRequest) validate(all bool) error {
+func (m *StartPostgreSQLShowIndexActionParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1948,7 +1935,7 @@ func (m *StartPostgreSQLShowIndexActionRequest) validate(all bool) error {
 	// no validation rules for PmmAgentId
 
 	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := StartPostgreSQLShowIndexActionRequestValidationError{
+		err := StartPostgreSQLShowIndexActionParamsValidationError{
 			field:  "ServiceId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -1959,7 +1946,7 @@ func (m *StartPostgreSQLShowIndexActionRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetTableName()) < 1 {
-		err := StartPostgreSQLShowIndexActionRequestValidationError{
+		err := StartPostgreSQLShowIndexActionParamsValidationError{
 			field:  "TableName",
 			reason: "value length must be at least 1 runes",
 		}
@@ -1972,20 +1959,20 @@ func (m *StartPostgreSQLShowIndexActionRequest) validate(all bool) error {
 	// no validation rules for Database
 
 	if len(errors) > 0 {
-		return StartPostgreSQLShowIndexActionRequestMultiError(errors)
+		return StartPostgreSQLShowIndexActionParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// StartPostgreSQLShowIndexActionRequestMultiError is an error wrapping
-// multiple validation errors returned by
-// StartPostgreSQLShowIndexActionRequest.ValidateAll() if the designated
+// StartPostgreSQLShowIndexActionParamsMultiError is an error wrapping multiple
+// validation errors returned by
+// StartPostgreSQLShowIndexActionParams.ValidateAll() if the designated
 // constraints aren't met.
-type StartPostgreSQLShowIndexActionRequestMultiError []error
+type StartPostgreSQLShowIndexActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m StartPostgreSQLShowIndexActionRequestMultiError) Error() string {
+func (m StartPostgreSQLShowIndexActionParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1994,12 +1981,12 @@ func (m StartPostgreSQLShowIndexActionRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m StartPostgreSQLShowIndexActionRequestMultiError) AllErrors() []error { return m }
+func (m StartPostgreSQLShowIndexActionParamsMultiError) AllErrors() []error { return m }
 
-// StartPostgreSQLShowIndexActionRequestValidationError is the validation error
-// returned by StartPostgreSQLShowIndexActionRequest.Validate if the
-// designated constraints aren't met.
-type StartPostgreSQLShowIndexActionRequestValidationError struct {
+// StartPostgreSQLShowIndexActionParamsValidationError is the validation error
+// returned by StartPostgreSQLShowIndexActionParams.Validate if the designated
+// constraints aren't met.
+type StartPostgreSQLShowIndexActionParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2007,24 +1994,24 @@ type StartPostgreSQLShowIndexActionRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e StartPostgreSQLShowIndexActionRequestValidationError) Field() string { return e.field }
+func (e StartPostgreSQLShowIndexActionParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e StartPostgreSQLShowIndexActionRequestValidationError) Reason() string { return e.reason }
+func (e StartPostgreSQLShowIndexActionParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e StartPostgreSQLShowIndexActionRequestValidationError) Cause() error { return e.cause }
+func (e StartPostgreSQLShowIndexActionParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e StartPostgreSQLShowIndexActionRequestValidationError) Key() bool { return e.key }
+func (e StartPostgreSQLShowIndexActionParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e StartPostgreSQLShowIndexActionRequestValidationError) ErrorName() string {
-	return "StartPostgreSQLShowIndexActionRequestValidationError"
+func (e StartPostgreSQLShowIndexActionParamsValidationError) ErrorName() string {
+	return "StartPostgreSQLShowIndexActionParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e StartPostgreSQLShowIndexActionRequestValidationError) Error() string {
+func (e StartPostgreSQLShowIndexActionParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2036,14 +2023,14 @@ func (e StartPostgreSQLShowIndexActionRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sStartPostgreSQLShowIndexActionRequest.%s: %s%s",
+		"invalid %sStartPostgreSQLShowIndexActionParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = StartPostgreSQLShowIndexActionRequestValidationError{}
+var _ error = StartPostgreSQLShowIndexActionParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -2051,26 +2038,25 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = StartPostgreSQLShowIndexActionRequestValidationError{}
+} = StartPostgreSQLShowIndexActionParamsValidationError{}
 
-// Validate checks the field values on StartPostgreSQLShowIndexActionResponse
+// Validate checks the field values on StartPostgreSQLShowIndexActionResult
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, the first error encountered is returned, or nil if
 // there are no violations.
-func (m *StartPostgreSQLShowIndexActionResponse) Validate() error {
+func (m *StartPostgreSQLShowIndexActionResult) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on
-// StartPostgreSQLShowIndexActionResponse with the rules defined in the proto
-// definition for this message. If any rules are violated, the result is a
-// list of violation errors wrapped in
-// StartPostgreSQLShowIndexActionResponseMultiError, or nil if none found.
-func (m *StartPostgreSQLShowIndexActionResponse) ValidateAll() error {
+// ValidateAll checks the field values on StartPostgreSQLShowIndexActionResult
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// StartPostgreSQLShowIndexActionResultMultiError, or nil if none found.
+func (m *StartPostgreSQLShowIndexActionResult) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *StartPostgreSQLShowIndexActionResponse) validate(all bool) error {
+func (m *StartPostgreSQLShowIndexActionResult) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -2082,20 +2068,20 @@ func (m *StartPostgreSQLShowIndexActionResponse) validate(all bool) error {
 	// no validation rules for PmmAgentId
 
 	if len(errors) > 0 {
-		return StartPostgreSQLShowIndexActionResponseMultiError(errors)
+		return StartPostgreSQLShowIndexActionResultMultiError(errors)
 	}
 
 	return nil
 }
 
-// StartPostgreSQLShowIndexActionResponseMultiError is an error wrapping
-// multiple validation errors returned by
-// StartPostgreSQLShowIndexActionResponse.ValidateAll() if the designated
+// StartPostgreSQLShowIndexActionResultMultiError is an error wrapping multiple
+// validation errors returned by
+// StartPostgreSQLShowIndexActionResult.ValidateAll() if the designated
 // constraints aren't met.
-type StartPostgreSQLShowIndexActionResponseMultiError []error
+type StartPostgreSQLShowIndexActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m StartPostgreSQLShowIndexActionResponseMultiError) Error() string {
+func (m StartPostgreSQLShowIndexActionResultMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -2104,12 +2090,12 @@ func (m StartPostgreSQLShowIndexActionResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m StartPostgreSQLShowIndexActionResponseMultiError) AllErrors() []error { return m }
+func (m StartPostgreSQLShowIndexActionResultMultiError) AllErrors() []error { return m }
 
-// StartPostgreSQLShowIndexActionResponseValidationError is the validation
-// error returned by StartPostgreSQLShowIndexActionResponse.Validate if the
-// designated constraints aren't met.
-type StartPostgreSQLShowIndexActionResponseValidationError struct {
+// StartPostgreSQLShowIndexActionResultValidationError is the validation error
+// returned by StartPostgreSQLShowIndexActionResult.Validate if the designated
+// constraints aren't met.
+type StartPostgreSQLShowIndexActionResultValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2117,24 +2103,24 @@ type StartPostgreSQLShowIndexActionResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e StartPostgreSQLShowIndexActionResponseValidationError) Field() string { return e.field }
+func (e StartPostgreSQLShowIndexActionResultValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e StartPostgreSQLShowIndexActionResponseValidationError) Reason() string { return e.reason }
+func (e StartPostgreSQLShowIndexActionResultValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e StartPostgreSQLShowIndexActionResponseValidationError) Cause() error { return e.cause }
+func (e StartPostgreSQLShowIndexActionResultValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e StartPostgreSQLShowIndexActionResponseValidationError) Key() bool { return e.key }
+func (e StartPostgreSQLShowIndexActionResultValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e StartPostgreSQLShowIndexActionResponseValidationError) ErrorName() string {
-	return "StartPostgreSQLShowIndexActionResponseValidationError"
+func (e StartPostgreSQLShowIndexActionResultValidationError) ErrorName() string {
+	return "StartPostgreSQLShowIndexActionResultValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e StartPostgreSQLShowIndexActionResponseValidationError) Error() string {
+func (e StartPostgreSQLShowIndexActionResultValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2146,14 +2132,14 @@ func (e StartPostgreSQLShowIndexActionResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sStartPostgreSQLShowIndexActionResponse.%s: %s%s",
+		"invalid %sStartPostgreSQLShowIndexActionResult.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = StartPostgreSQLShowIndexActionResponseValidationError{}
+var _ error = StartPostgreSQLShowIndexActionResultValidationError{}
 
 var _ interface {
 	Field() string
@@ -2161,25 +2147,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = StartPostgreSQLShowIndexActionResponseValidationError{}
+} = StartPostgreSQLShowIndexActionResultValidationError{}
 
-// Validate checks the field values on StartMongoDBExplainActionRequest with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *StartMongoDBExplainActionRequest) Validate() error {
+// Validate checks the field values on StartMongoDBExplainActionParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *StartMongoDBExplainActionParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on StartMongoDBExplainActionRequest with
+// ValidateAll checks the field values on StartMongoDBExplainActionParams with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the result is a list of violation errors wrapped in
-// StartMongoDBExplainActionRequestMultiError, or nil if none found.
-func (m *StartMongoDBExplainActionRequest) ValidateAll() error {
+// StartMongoDBExplainActionParamsMultiError, or nil if none found.
+func (m *StartMongoDBExplainActionParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *StartMongoDBExplainActionRequest) validate(all bool) error {
+func (m *StartMongoDBExplainActionParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -2189,7 +2174,7 @@ func (m *StartMongoDBExplainActionRequest) validate(all bool) error {
 	// no validation rules for PmmAgentId
 
 	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := StartMongoDBExplainActionRequestValidationError{
+		err := StartMongoDBExplainActionParamsValidationError{
 			field:  "ServiceId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -2200,7 +2185,7 @@ func (m *StartMongoDBExplainActionRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetQuery()) < 1 {
-		err := StartMongoDBExplainActionRequestValidationError{
+		err := StartMongoDBExplainActionParamsValidationError{
 			field:  "Query",
 			reason: "value length must be at least 1 runes",
 		}
@@ -2211,20 +2196,19 @@ func (m *StartMongoDBExplainActionRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return StartMongoDBExplainActionRequestMultiError(errors)
+		return StartMongoDBExplainActionParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// StartMongoDBExplainActionRequestMultiError is an error wrapping multiple
-// validation errors returned by
-// StartMongoDBExplainActionRequest.ValidateAll() if the designated
-// constraints aren't met.
-type StartMongoDBExplainActionRequestMultiError []error
+// StartMongoDBExplainActionParamsMultiError is an error wrapping multiple
+// validation errors returned by StartMongoDBExplainActionParams.ValidateAll()
+// if the designated constraints aren't met.
+type StartMongoDBExplainActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m StartMongoDBExplainActionRequestMultiError) Error() string {
+func (m StartMongoDBExplainActionParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -2233,12 +2217,12 @@ func (m StartMongoDBExplainActionRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m StartMongoDBExplainActionRequestMultiError) AllErrors() []error { return m }
+func (m StartMongoDBExplainActionParamsMultiError) AllErrors() []error { return m }
 
-// StartMongoDBExplainActionRequestValidationError is the validation error
-// returned by StartMongoDBExplainActionRequest.Validate if the designated
+// StartMongoDBExplainActionParamsValidationError is the validation error
+// returned by StartMongoDBExplainActionParams.Validate if the designated
 // constraints aren't met.
-type StartMongoDBExplainActionRequestValidationError struct {
+type StartMongoDBExplainActionParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2246,24 +2230,24 @@ type StartMongoDBExplainActionRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e StartMongoDBExplainActionRequestValidationError) Field() string { return e.field }
+func (e StartMongoDBExplainActionParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e StartMongoDBExplainActionRequestValidationError) Reason() string { return e.reason }
+func (e StartMongoDBExplainActionParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e StartMongoDBExplainActionRequestValidationError) Cause() error { return e.cause }
+func (e StartMongoDBExplainActionParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e StartMongoDBExplainActionRequestValidationError) Key() bool { return e.key }
+func (e StartMongoDBExplainActionParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e StartMongoDBExplainActionRequestValidationError) ErrorName() string {
-	return "StartMongoDBExplainActionRequestValidationError"
+func (e StartMongoDBExplainActionParamsValidationError) ErrorName() string {
+	return "StartMongoDBExplainActionParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e StartMongoDBExplainActionRequestValidationError) Error() string {
+func (e StartMongoDBExplainActionParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2275,14 +2259,14 @@ func (e StartMongoDBExplainActionRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sStartMongoDBExplainActionRequest.%s: %s%s",
+		"invalid %sStartMongoDBExplainActionParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = StartMongoDBExplainActionRequestValidationError{}
+var _ error = StartMongoDBExplainActionParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -2290,25 +2274,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = StartMongoDBExplainActionRequestValidationError{}
+} = StartMongoDBExplainActionParamsValidationError{}
 
-// Validate checks the field values on StartMongoDBExplainActionResponse with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *StartMongoDBExplainActionResponse) Validate() error {
+// Validate checks the field values on StartMongoDBExplainActionResult with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *StartMongoDBExplainActionResult) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on StartMongoDBExplainActionResponse
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// StartMongoDBExplainActionResponseMultiError, or nil if none found.
-func (m *StartMongoDBExplainActionResponse) ValidateAll() error {
+// ValidateAll checks the field values on StartMongoDBExplainActionResult with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// StartMongoDBExplainActionResultMultiError, or nil if none found.
+func (m *StartMongoDBExplainActionResult) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *StartMongoDBExplainActionResponse) validate(all bool) error {
+func (m *StartMongoDBExplainActionResult) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -2320,20 +2303,19 @@ func (m *StartMongoDBExplainActionResponse) validate(all bool) error {
 	// no validation rules for PmmAgentId
 
 	if len(errors) > 0 {
-		return StartMongoDBExplainActionResponseMultiError(errors)
+		return StartMongoDBExplainActionResultMultiError(errors)
 	}
 
 	return nil
 }
 
-// StartMongoDBExplainActionResponseMultiError is an error wrapping multiple
-// validation errors returned by
-// StartMongoDBExplainActionResponse.ValidateAll() if the designated
-// constraints aren't met.
-type StartMongoDBExplainActionResponseMultiError []error
+// StartMongoDBExplainActionResultMultiError is an error wrapping multiple
+// validation errors returned by StartMongoDBExplainActionResult.ValidateAll()
+// if the designated constraints aren't met.
+type StartMongoDBExplainActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m StartMongoDBExplainActionResponseMultiError) Error() string {
+func (m StartMongoDBExplainActionResultMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -2342,12 +2324,12 @@ func (m StartMongoDBExplainActionResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m StartMongoDBExplainActionResponseMultiError) AllErrors() []error { return m }
+func (m StartMongoDBExplainActionResultMultiError) AllErrors() []error { return m }
 
-// StartMongoDBExplainActionResponseValidationError is the validation error
-// returned by StartMongoDBExplainActionResponse.Validate if the designated
+// StartMongoDBExplainActionResultValidationError is the validation error
+// returned by StartMongoDBExplainActionResult.Validate if the designated
 // constraints aren't met.
-type StartMongoDBExplainActionResponseValidationError struct {
+type StartMongoDBExplainActionResultValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2355,24 +2337,24 @@ type StartMongoDBExplainActionResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e StartMongoDBExplainActionResponseValidationError) Field() string { return e.field }
+func (e StartMongoDBExplainActionResultValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e StartMongoDBExplainActionResponseValidationError) Reason() string { return e.reason }
+func (e StartMongoDBExplainActionResultValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e StartMongoDBExplainActionResponseValidationError) Cause() error { return e.cause }
+func (e StartMongoDBExplainActionResultValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e StartMongoDBExplainActionResponseValidationError) Key() bool { return e.key }
+func (e StartMongoDBExplainActionResultValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e StartMongoDBExplainActionResponseValidationError) ErrorName() string {
-	return "StartMongoDBExplainActionResponseValidationError"
+func (e StartMongoDBExplainActionResultValidationError) ErrorName() string {
+	return "StartMongoDBExplainActionResultValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e StartMongoDBExplainActionResponseValidationError) Error() string {
+func (e StartMongoDBExplainActionResultValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2384,14 +2366,14 @@ func (e StartMongoDBExplainActionResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sStartMongoDBExplainActionResponse.%s: %s%s",
+		"invalid %sStartMongoDBExplainActionResult.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = StartMongoDBExplainActionResponseValidationError{}
+var _ error = StartMongoDBExplainActionResultValidationError{}
 
 var _ interface {
 	Field() string
@@ -2399,7 +2381,653 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = StartMongoDBExplainActionResponseValidationError{}
+} = StartMongoDBExplainActionResultValidationError{}
+
+// Validate checks the field values on StartPTPgSummaryActionParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *StartPTPgSummaryActionParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on StartPTPgSummaryActionParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// StartPTPgSummaryActionParamsMultiError, or nil if none found.
+func (m *StartPTPgSummaryActionParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *StartPTPgSummaryActionParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for PmmAgentId
+
+	// no validation rules for ServiceId
+
+	if len(errors) > 0 {
+		return StartPTPgSummaryActionParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// StartPTPgSummaryActionParamsMultiError is an error wrapping multiple
+// validation errors returned by StartPTPgSummaryActionParams.ValidateAll() if
+// the designated constraints aren't met.
+type StartPTPgSummaryActionParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m StartPTPgSummaryActionParamsMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m StartPTPgSummaryActionParamsMultiError) AllErrors() []error { return m }
+
+// StartPTPgSummaryActionParamsValidationError is the validation error returned
+// by StartPTPgSummaryActionParams.Validate if the designated constraints
+// aren't met.
+type StartPTPgSummaryActionParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e StartPTPgSummaryActionParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e StartPTPgSummaryActionParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e StartPTPgSummaryActionParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e StartPTPgSummaryActionParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e StartPTPgSummaryActionParamsValidationError) ErrorName() string {
+	return "StartPTPgSummaryActionParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e StartPTPgSummaryActionParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sStartPTPgSummaryActionParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = StartPTPgSummaryActionParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = StartPTPgSummaryActionParamsValidationError{}
+
+// Validate checks the field values on StartPTPgSummaryActionResult with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *StartPTPgSummaryActionResult) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on StartPTPgSummaryActionResult with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// StartPTPgSummaryActionResultMultiError, or nil if none found.
+func (m *StartPTPgSummaryActionResult) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *StartPTPgSummaryActionResult) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ActionId
+
+	// no validation rules for PmmAgentId
+
+	if len(errors) > 0 {
+		return StartPTPgSummaryActionResultMultiError(errors)
+	}
+
+	return nil
+}
+
+// StartPTPgSummaryActionResultMultiError is an error wrapping multiple
+// validation errors returned by StartPTPgSummaryActionResult.ValidateAll() if
+// the designated constraints aren't met.
+type StartPTPgSummaryActionResultMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m StartPTPgSummaryActionResultMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m StartPTPgSummaryActionResultMultiError) AllErrors() []error { return m }
+
+// StartPTPgSummaryActionResultValidationError is the validation error returned
+// by StartPTPgSummaryActionResult.Validate if the designated constraints
+// aren't met.
+type StartPTPgSummaryActionResultValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e StartPTPgSummaryActionResultValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e StartPTPgSummaryActionResultValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e StartPTPgSummaryActionResultValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e StartPTPgSummaryActionResultValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e StartPTPgSummaryActionResultValidationError) ErrorName() string {
+	return "StartPTPgSummaryActionResultValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e StartPTPgSummaryActionResultValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sStartPTPgSummaryActionResult.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = StartPTPgSummaryActionResultValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = StartPTPgSummaryActionResultValidationError{}
+
+// Validate checks the field values on StartPTMongoDBSummaryActionParams with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *StartPTMongoDBSummaryActionParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on StartPTMongoDBSummaryActionParams
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// StartPTMongoDBSummaryActionParamsMultiError, or nil if none found.
+func (m *StartPTMongoDBSummaryActionParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *StartPTMongoDBSummaryActionParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for PmmAgentId
+
+	// no validation rules for ServiceId
+
+	if len(errors) > 0 {
+		return StartPTMongoDBSummaryActionParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// StartPTMongoDBSummaryActionParamsMultiError is an error wrapping multiple
+// validation errors returned by
+// StartPTMongoDBSummaryActionParams.ValidateAll() if the designated
+// constraints aren't met.
+type StartPTMongoDBSummaryActionParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m StartPTMongoDBSummaryActionParamsMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m StartPTMongoDBSummaryActionParamsMultiError) AllErrors() []error { return m }
+
+// StartPTMongoDBSummaryActionParamsValidationError is the validation error
+// returned by StartPTMongoDBSummaryActionParams.Validate if the designated
+// constraints aren't met.
+type StartPTMongoDBSummaryActionParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e StartPTMongoDBSummaryActionParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e StartPTMongoDBSummaryActionParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e StartPTMongoDBSummaryActionParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e StartPTMongoDBSummaryActionParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e StartPTMongoDBSummaryActionParamsValidationError) ErrorName() string {
+	return "StartPTMongoDBSummaryActionParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e StartPTMongoDBSummaryActionParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sStartPTMongoDBSummaryActionParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = StartPTMongoDBSummaryActionParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = StartPTMongoDBSummaryActionParamsValidationError{}
+
+// Validate checks the field values on StartPTMongoDBSummaryActionResult with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *StartPTMongoDBSummaryActionResult) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on StartPTMongoDBSummaryActionResult
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// StartPTMongoDBSummaryActionResultMultiError, or nil if none found.
+func (m *StartPTMongoDBSummaryActionResult) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *StartPTMongoDBSummaryActionResult) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ActionId
+
+	// no validation rules for PmmAgentId
+
+	if len(errors) > 0 {
+		return StartPTMongoDBSummaryActionResultMultiError(errors)
+	}
+
+	return nil
+}
+
+// StartPTMongoDBSummaryActionResultMultiError is an error wrapping multiple
+// validation errors returned by
+// StartPTMongoDBSummaryActionResult.ValidateAll() if the designated
+// constraints aren't met.
+type StartPTMongoDBSummaryActionResultMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m StartPTMongoDBSummaryActionResultMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m StartPTMongoDBSummaryActionResultMultiError) AllErrors() []error { return m }
+
+// StartPTMongoDBSummaryActionResultValidationError is the validation error
+// returned by StartPTMongoDBSummaryActionResult.Validate if the designated
+// constraints aren't met.
+type StartPTMongoDBSummaryActionResultValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e StartPTMongoDBSummaryActionResultValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e StartPTMongoDBSummaryActionResultValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e StartPTMongoDBSummaryActionResultValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e StartPTMongoDBSummaryActionResultValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e StartPTMongoDBSummaryActionResultValidationError) ErrorName() string {
+	return "StartPTMongoDBSummaryActionResultValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e StartPTMongoDBSummaryActionResultValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sStartPTMongoDBSummaryActionResult.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = StartPTMongoDBSummaryActionResultValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = StartPTMongoDBSummaryActionResultValidationError{}
+
+// Validate checks the field values on StartPTMySQLSummaryActionParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *StartPTMySQLSummaryActionParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on StartPTMySQLSummaryActionParams with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// StartPTMySQLSummaryActionParamsMultiError, or nil if none found.
+func (m *StartPTMySQLSummaryActionParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *StartPTMySQLSummaryActionParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for PmmAgentId
+
+	// no validation rules for ServiceId
+
+	if len(errors) > 0 {
+		return StartPTMySQLSummaryActionParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// StartPTMySQLSummaryActionParamsMultiError is an error wrapping multiple
+// validation errors returned by StartPTMySQLSummaryActionParams.ValidateAll()
+// if the designated constraints aren't met.
+type StartPTMySQLSummaryActionParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m StartPTMySQLSummaryActionParamsMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m StartPTMySQLSummaryActionParamsMultiError) AllErrors() []error { return m }
+
+// StartPTMySQLSummaryActionParamsValidationError is the validation error
+// returned by StartPTMySQLSummaryActionParams.Validate if the designated
+// constraints aren't met.
+type StartPTMySQLSummaryActionParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e StartPTMySQLSummaryActionParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e StartPTMySQLSummaryActionParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e StartPTMySQLSummaryActionParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e StartPTMySQLSummaryActionParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e StartPTMySQLSummaryActionParamsValidationError) ErrorName() string {
+	return "StartPTMySQLSummaryActionParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e StartPTMySQLSummaryActionParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sStartPTMySQLSummaryActionParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = StartPTMySQLSummaryActionParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = StartPTMySQLSummaryActionParamsValidationError{}
+
+// Validate checks the field values on StartPTMySQLSummaryActionResult with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *StartPTMySQLSummaryActionResult) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on StartPTMySQLSummaryActionResult with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// StartPTMySQLSummaryActionResultMultiError, or nil if none found.
+func (m *StartPTMySQLSummaryActionResult) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *StartPTMySQLSummaryActionResult) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ActionId
+
+	// no validation rules for PmmAgentId
+
+	if len(errors) > 0 {
+		return StartPTMySQLSummaryActionResultMultiError(errors)
+	}
+
+	return nil
+}
+
+// StartPTMySQLSummaryActionResultMultiError is an error wrapping multiple
+// validation errors returned by StartPTMySQLSummaryActionResult.ValidateAll()
+// if the designated constraints aren't met.
+type StartPTMySQLSummaryActionResultMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m StartPTMySQLSummaryActionResultMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m StartPTMySQLSummaryActionResultMultiError) AllErrors() []error { return m }
+
+// StartPTMySQLSummaryActionResultValidationError is the validation error
+// returned by StartPTMySQLSummaryActionResult.Validate if the designated
+// constraints aren't met.
+type StartPTMySQLSummaryActionResultValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e StartPTMySQLSummaryActionResultValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e StartPTMySQLSummaryActionResultValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e StartPTMySQLSummaryActionResultValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e StartPTMySQLSummaryActionResultValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e StartPTMySQLSummaryActionResultValidationError) ErrorName() string {
+	return "StartPTMySQLSummaryActionResultValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e StartPTMySQLSummaryActionResultValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sStartPTMySQLSummaryActionResult.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = StartPTMySQLSummaryActionResultValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = StartPTMySQLSummaryActionResultValidationError{}
 
 // Validate checks the field values on StartPTSummaryActionRequest with the
 // rules defined in the proto definition for this message. If any rules are
@@ -2615,656 +3243,6 @@ var _ interface {
 	ErrorName() string
 } = StartPTSummaryActionResponseValidationError{}
 
-// Validate checks the field values on StartPTPgSummaryActionRequest with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *StartPTPgSummaryActionRequest) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on StartPTPgSummaryActionRequest with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// StartPTPgSummaryActionRequestMultiError, or nil if none found.
-func (m *StartPTPgSummaryActionRequest) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *StartPTPgSummaryActionRequest) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for PmmAgentId
-
-	// no validation rules for ServiceId
-
-	if len(errors) > 0 {
-		return StartPTPgSummaryActionRequestMultiError(errors)
-	}
-
-	return nil
-}
-
-// StartPTPgSummaryActionRequestMultiError is an error wrapping multiple
-// validation errors returned by StartPTPgSummaryActionRequest.ValidateAll()
-// if the designated constraints aren't met.
-type StartPTPgSummaryActionRequestMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m StartPTPgSummaryActionRequestMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m StartPTPgSummaryActionRequestMultiError) AllErrors() []error { return m }
-
-// StartPTPgSummaryActionRequestValidationError is the validation error
-// returned by StartPTPgSummaryActionRequest.Validate if the designated
-// constraints aren't met.
-type StartPTPgSummaryActionRequestValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e StartPTPgSummaryActionRequestValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e StartPTPgSummaryActionRequestValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e StartPTPgSummaryActionRequestValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e StartPTPgSummaryActionRequestValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e StartPTPgSummaryActionRequestValidationError) ErrorName() string {
-	return "StartPTPgSummaryActionRequestValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e StartPTPgSummaryActionRequestValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sStartPTPgSummaryActionRequest.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = StartPTPgSummaryActionRequestValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = StartPTPgSummaryActionRequestValidationError{}
-
-// Validate checks the field values on StartPTPgSummaryActionResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *StartPTPgSummaryActionResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on StartPTPgSummaryActionResponse with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// StartPTPgSummaryActionResponseMultiError, or nil if none found.
-func (m *StartPTPgSummaryActionResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *StartPTPgSummaryActionResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for ActionId
-
-	// no validation rules for PmmAgentId
-
-	if len(errors) > 0 {
-		return StartPTPgSummaryActionResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// StartPTPgSummaryActionResponseMultiError is an error wrapping multiple
-// validation errors returned by StartPTPgSummaryActionResponse.ValidateAll()
-// if the designated constraints aren't met.
-type StartPTPgSummaryActionResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m StartPTPgSummaryActionResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m StartPTPgSummaryActionResponseMultiError) AllErrors() []error { return m }
-
-// StartPTPgSummaryActionResponseValidationError is the validation error
-// returned by StartPTPgSummaryActionResponse.Validate if the designated
-// constraints aren't met.
-type StartPTPgSummaryActionResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e StartPTPgSummaryActionResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e StartPTPgSummaryActionResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e StartPTPgSummaryActionResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e StartPTPgSummaryActionResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e StartPTPgSummaryActionResponseValidationError) ErrorName() string {
-	return "StartPTPgSummaryActionResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e StartPTPgSummaryActionResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sStartPTPgSummaryActionResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = StartPTPgSummaryActionResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = StartPTPgSummaryActionResponseValidationError{}
-
-// Validate checks the field values on StartPTMongoDBSummaryActionRequest with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *StartPTMongoDBSummaryActionRequest) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on StartPTMongoDBSummaryActionRequest
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// StartPTMongoDBSummaryActionRequestMultiError, or nil if none found.
-func (m *StartPTMongoDBSummaryActionRequest) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *StartPTMongoDBSummaryActionRequest) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for PmmAgentId
-
-	// no validation rules for ServiceId
-
-	if len(errors) > 0 {
-		return StartPTMongoDBSummaryActionRequestMultiError(errors)
-	}
-
-	return nil
-}
-
-// StartPTMongoDBSummaryActionRequestMultiError is an error wrapping multiple
-// validation errors returned by
-// StartPTMongoDBSummaryActionRequest.ValidateAll() if the designated
-// constraints aren't met.
-type StartPTMongoDBSummaryActionRequestMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m StartPTMongoDBSummaryActionRequestMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m StartPTMongoDBSummaryActionRequestMultiError) AllErrors() []error { return m }
-
-// StartPTMongoDBSummaryActionRequestValidationError is the validation error
-// returned by StartPTMongoDBSummaryActionRequest.Validate if the designated
-// constraints aren't met.
-type StartPTMongoDBSummaryActionRequestValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e StartPTMongoDBSummaryActionRequestValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e StartPTMongoDBSummaryActionRequestValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e StartPTMongoDBSummaryActionRequestValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e StartPTMongoDBSummaryActionRequestValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e StartPTMongoDBSummaryActionRequestValidationError) ErrorName() string {
-	return "StartPTMongoDBSummaryActionRequestValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e StartPTMongoDBSummaryActionRequestValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sStartPTMongoDBSummaryActionRequest.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = StartPTMongoDBSummaryActionRequestValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = StartPTMongoDBSummaryActionRequestValidationError{}
-
-// Validate checks the field values on StartPTMongoDBSummaryActionResponse with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *StartPTMongoDBSummaryActionResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on StartPTMongoDBSummaryActionResponse
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// StartPTMongoDBSummaryActionResponseMultiError, or nil if none found.
-func (m *StartPTMongoDBSummaryActionResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *StartPTMongoDBSummaryActionResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for ActionId
-
-	// no validation rules for PmmAgentId
-
-	if len(errors) > 0 {
-		return StartPTMongoDBSummaryActionResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// StartPTMongoDBSummaryActionResponseMultiError is an error wrapping multiple
-// validation errors returned by
-// StartPTMongoDBSummaryActionResponse.ValidateAll() if the designated
-// constraints aren't met.
-type StartPTMongoDBSummaryActionResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m StartPTMongoDBSummaryActionResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m StartPTMongoDBSummaryActionResponseMultiError) AllErrors() []error { return m }
-
-// StartPTMongoDBSummaryActionResponseValidationError is the validation error
-// returned by StartPTMongoDBSummaryActionResponse.Validate if the designated
-// constraints aren't met.
-type StartPTMongoDBSummaryActionResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e StartPTMongoDBSummaryActionResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e StartPTMongoDBSummaryActionResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e StartPTMongoDBSummaryActionResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e StartPTMongoDBSummaryActionResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e StartPTMongoDBSummaryActionResponseValidationError) ErrorName() string {
-	return "StartPTMongoDBSummaryActionResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e StartPTMongoDBSummaryActionResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sStartPTMongoDBSummaryActionResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = StartPTMongoDBSummaryActionResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = StartPTMongoDBSummaryActionResponseValidationError{}
-
-// Validate checks the field values on StartPTMySQLSummaryActionRequest with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *StartPTMySQLSummaryActionRequest) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on StartPTMySQLSummaryActionRequest with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// StartPTMySQLSummaryActionRequestMultiError, or nil if none found.
-func (m *StartPTMySQLSummaryActionRequest) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *StartPTMySQLSummaryActionRequest) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for PmmAgentId
-
-	// no validation rules for ServiceId
-
-	if len(errors) > 0 {
-		return StartPTMySQLSummaryActionRequestMultiError(errors)
-	}
-
-	return nil
-}
-
-// StartPTMySQLSummaryActionRequestMultiError is an error wrapping multiple
-// validation errors returned by
-// StartPTMySQLSummaryActionRequest.ValidateAll() if the designated
-// constraints aren't met.
-type StartPTMySQLSummaryActionRequestMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m StartPTMySQLSummaryActionRequestMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m StartPTMySQLSummaryActionRequestMultiError) AllErrors() []error { return m }
-
-// StartPTMySQLSummaryActionRequestValidationError is the validation error
-// returned by StartPTMySQLSummaryActionRequest.Validate if the designated
-// constraints aren't met.
-type StartPTMySQLSummaryActionRequestValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e StartPTMySQLSummaryActionRequestValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e StartPTMySQLSummaryActionRequestValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e StartPTMySQLSummaryActionRequestValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e StartPTMySQLSummaryActionRequestValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e StartPTMySQLSummaryActionRequestValidationError) ErrorName() string {
-	return "StartPTMySQLSummaryActionRequestValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e StartPTMySQLSummaryActionRequestValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sStartPTMySQLSummaryActionRequest.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = StartPTMySQLSummaryActionRequestValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = StartPTMySQLSummaryActionRequestValidationError{}
-
-// Validate checks the field values on StartPTMySQLSummaryActionResponse with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *StartPTMySQLSummaryActionResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on StartPTMySQLSummaryActionResponse
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// StartPTMySQLSummaryActionResponseMultiError, or nil if none found.
-func (m *StartPTMySQLSummaryActionResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *StartPTMySQLSummaryActionResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for ActionId
-
-	// no validation rules for PmmAgentId
-
-	if len(errors) > 0 {
-		return StartPTMySQLSummaryActionResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// StartPTMySQLSummaryActionResponseMultiError is an error wrapping multiple
-// validation errors returned by
-// StartPTMySQLSummaryActionResponse.ValidateAll() if the designated
-// constraints aren't met.
-type StartPTMySQLSummaryActionResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m StartPTMySQLSummaryActionResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m StartPTMySQLSummaryActionResponseMultiError) AllErrors() []error { return m }
-
-// StartPTMySQLSummaryActionResponseValidationError is the validation error
-// returned by StartPTMySQLSummaryActionResponse.Validate if the designated
-// constraints aren't met.
-type StartPTMySQLSummaryActionResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e StartPTMySQLSummaryActionResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e StartPTMySQLSummaryActionResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e StartPTMySQLSummaryActionResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e StartPTMySQLSummaryActionResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e StartPTMySQLSummaryActionResponseValidationError) ErrorName() string {
-	return "StartPTMySQLSummaryActionResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e StartPTMySQLSummaryActionResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sStartPTMySQLSummaryActionResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = StartPTMySQLSummaryActionResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = StartPTMySQLSummaryActionResponseValidationError{}
-
 // Validate checks the field values on CancelActionRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -3479,3 +3457,1201 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CancelActionResponseValidationError{}
+
+// Validate checks the field values on StartServiceActionRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *StartServiceActionRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on StartServiceActionRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// StartServiceActionRequestMultiError, or nil if none found.
+func (m *StartServiceActionRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *StartServiceActionRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	switch v := m.Action.(type) {
+	case *StartServiceActionRequest_MysqlExplain:
+		if v == nil {
+			err := StartServiceActionRequestValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMysqlExplain()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "MysqlExplain",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "MysqlExplain",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMysqlExplain()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionRequestValidationError{
+					field:  "MysqlExplain",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionRequest_MysqlExplainJson:
+		if v == nil {
+			err := StartServiceActionRequestValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMysqlExplainJson()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "MysqlExplainJson",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "MysqlExplainJson",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMysqlExplainJson()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionRequestValidationError{
+					field:  "MysqlExplainJson",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionRequest_MysqlExplainTraditionalJson:
+		if v == nil {
+			err := StartServiceActionRequestValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMysqlExplainTraditionalJson()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "MysqlExplainTraditionalJson",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "MysqlExplainTraditionalJson",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMysqlExplainTraditionalJson()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionRequestValidationError{
+					field:  "MysqlExplainTraditionalJson",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionRequest_MysqlShowIndex:
+		if v == nil {
+			err := StartServiceActionRequestValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMysqlShowIndex()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "MysqlShowIndex",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "MysqlShowIndex",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMysqlShowIndex()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionRequestValidationError{
+					field:  "MysqlShowIndex",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionRequest_MysqlShowCreateTable:
+		if v == nil {
+			err := StartServiceActionRequestValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMysqlShowCreateTable()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "MysqlShowCreateTable",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "MysqlShowCreateTable",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMysqlShowCreateTable()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionRequestValidationError{
+					field:  "MysqlShowCreateTable",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionRequest_MysqlShowTableStatus:
+		if v == nil {
+			err := StartServiceActionRequestValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMysqlShowTableStatus()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "MysqlShowTableStatus",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "MysqlShowTableStatus",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMysqlShowTableStatus()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionRequestValidationError{
+					field:  "MysqlShowTableStatus",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionRequest_PostgresShowCreateTable:
+		if v == nil {
+			err := StartServiceActionRequestValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetPostgresShowCreateTable()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "PostgresShowCreateTable",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "PostgresShowCreateTable",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetPostgresShowCreateTable()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionRequestValidationError{
+					field:  "PostgresShowCreateTable",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionRequest_PostgresShowIndex:
+		if v == nil {
+			err := StartServiceActionRequestValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetPostgresShowIndex()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "PostgresShowIndex",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "PostgresShowIndex",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetPostgresShowIndex()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionRequestValidationError{
+					field:  "PostgresShowIndex",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionRequest_MongodbExplain:
+		if v == nil {
+			err := StartServiceActionRequestValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMongodbExplain()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "MongodbExplain",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "MongodbExplain",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMongodbExplain()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionRequestValidationError{
+					field:  "MongodbExplain",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionRequest_PtMongodbSummary:
+		if v == nil {
+			err := StartServiceActionRequestValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetPtMongodbSummary()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "PtMongodbSummary",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "PtMongodbSummary",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetPtMongodbSummary()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionRequestValidationError{
+					field:  "PtMongodbSummary",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionRequest_PtMysqlSummary:
+		if v == nil {
+			err := StartServiceActionRequestValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetPtMysqlSummary()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "PtMysqlSummary",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "PtMysqlSummary",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetPtMysqlSummary()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionRequestValidationError{
+					field:  "PtMysqlSummary",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionRequest_PtPostgresSummary:
+		if v == nil {
+			err := StartServiceActionRequestValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetPtPostgresSummary()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "PtPostgresSummary",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionRequestValidationError{
+						field:  "PtPostgresSummary",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetPtPostgresSummary()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionRequestValidationError{
+					field:  "PtPostgresSummary",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
+	}
+
+	if len(errors) > 0 {
+		return StartServiceActionRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// StartServiceActionRequestMultiError is an error wrapping multiple validation
+// errors returned by StartServiceActionRequest.ValidateAll() if the
+// designated constraints aren't met.
+type StartServiceActionRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m StartServiceActionRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m StartServiceActionRequestMultiError) AllErrors() []error { return m }
+
+// StartServiceActionRequestValidationError is the validation error returned by
+// StartServiceActionRequest.Validate if the designated constraints aren't met.
+type StartServiceActionRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e StartServiceActionRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e StartServiceActionRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e StartServiceActionRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e StartServiceActionRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e StartServiceActionRequestValidationError) ErrorName() string {
+	return "StartServiceActionRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e StartServiceActionRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sStartServiceActionRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = StartServiceActionRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = StartServiceActionRequestValidationError{}
+
+// Validate checks the field values on StartServiceActionResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *StartServiceActionResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on StartServiceActionResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// StartServiceActionResponseMultiError, or nil if none found.
+func (m *StartServiceActionResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *StartServiceActionResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	switch v := m.Action.(type) {
+	case *StartServiceActionResponse_MysqlExplain:
+		if v == nil {
+			err := StartServiceActionResponseValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMysqlExplain()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "MysqlExplain",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "MysqlExplain",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMysqlExplain()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionResponseValidationError{
+					field:  "MysqlExplain",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionResponse_MysqlExplainJson:
+		if v == nil {
+			err := StartServiceActionResponseValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMysqlExplainJson()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "MysqlExplainJson",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "MysqlExplainJson",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMysqlExplainJson()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionResponseValidationError{
+					field:  "MysqlExplainJson",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionResponse_MysqlExplainTraditionalJson:
+		if v == nil {
+			err := StartServiceActionResponseValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMysqlExplainTraditionalJson()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "MysqlExplainTraditionalJson",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "MysqlExplainTraditionalJson",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMysqlExplainTraditionalJson()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionResponseValidationError{
+					field:  "MysqlExplainTraditionalJson",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionResponse_MysqlShowIndex:
+		if v == nil {
+			err := StartServiceActionResponseValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMysqlShowIndex()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "MysqlShowIndex",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "MysqlShowIndex",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMysqlShowIndex()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionResponseValidationError{
+					field:  "MysqlShowIndex",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionResponse_MysqlShowCreateTable:
+		if v == nil {
+			err := StartServiceActionResponseValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMysqlShowCreateTable()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "MysqlShowCreateTable",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "MysqlShowCreateTable",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMysqlShowCreateTable()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionResponseValidationError{
+					field:  "MysqlShowCreateTable",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionResponse_MysqlShowTableStatus:
+		if v == nil {
+			err := StartServiceActionResponseValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMysqlShowTableStatus()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "MysqlShowTableStatus",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "MysqlShowTableStatus",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMysqlShowTableStatus()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionResponseValidationError{
+					field:  "MysqlShowTableStatus",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionResponse_PostgresqlShowCreateTable:
+		if v == nil {
+			err := StartServiceActionResponseValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetPostgresqlShowCreateTable()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "PostgresqlShowCreateTable",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "PostgresqlShowCreateTable",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetPostgresqlShowCreateTable()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionResponseValidationError{
+					field:  "PostgresqlShowCreateTable",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionResponse_PostgresqlShowIndex:
+		if v == nil {
+			err := StartServiceActionResponseValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetPostgresqlShowIndex()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "PostgresqlShowIndex",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "PostgresqlShowIndex",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetPostgresqlShowIndex()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionResponseValidationError{
+					field:  "PostgresqlShowIndex",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionResponse_MongodbExplain:
+		if v == nil {
+			err := StartServiceActionResponseValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMongodbExplain()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "MongodbExplain",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "MongodbExplain",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMongodbExplain()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionResponseValidationError{
+					field:  "MongodbExplain",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionResponse_PtMongodbSummary:
+		if v == nil {
+			err := StartServiceActionResponseValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetPtMongodbSummary()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "PtMongodbSummary",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "PtMongodbSummary",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetPtMongodbSummary()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionResponseValidationError{
+					field:  "PtMongodbSummary",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionResponse_PtMysqlSummary:
+		if v == nil {
+			err := StartServiceActionResponseValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetPtMysqlSummary()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "PtMysqlSummary",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "PtMysqlSummary",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetPtMysqlSummary()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionResponseValidationError{
+					field:  "PtMysqlSummary",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *StartServiceActionResponse_PtPostgresSummary:
+		if v == nil {
+			err := StartServiceActionResponseValidationError{
+				field:  "Action",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetPtPostgresSummary()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "PtPostgresSummary",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartServiceActionResponseValidationError{
+						field:  "PtPostgresSummary",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetPtPostgresSummary()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartServiceActionResponseValidationError{
+					field:  "PtPostgresSummary",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
+	}
+
+	if len(errors) > 0 {
+		return StartServiceActionResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// StartServiceActionResponseMultiError is an error wrapping multiple
+// validation errors returned by StartServiceActionResponse.ValidateAll() if
+// the designated constraints aren't met.
+type StartServiceActionResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m StartServiceActionResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m StartServiceActionResponseMultiError) AllErrors() []error { return m }
+
+// StartServiceActionResponseValidationError is the validation error returned
+// by StartServiceActionResponse.Validate if the designated constraints aren't met.
+type StartServiceActionResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e StartServiceActionResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e StartServiceActionResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e StartServiceActionResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e StartServiceActionResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e StartServiceActionResponseValidationError) ErrorName() string {
+	return "StartServiceActionResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e StartServiceActionResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sStartServiceActionResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = StartServiceActionResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = StartServiceActionResponseValidationError{}

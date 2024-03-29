@@ -42,10 +42,8 @@ func TestPTSummary(t *testing.T) {
 
 	for {
 		actionOK, err := client.Default.ActionsService.GetAction(&actions.GetActionParams{
-			Context: ctx,
-			Body: actions.GetActionBody{
-				ActionID: explainActionOK.Payload.ActionID,
-			},
+			Context:  ctx,
+			ActionID: explainActionOK.Payload.ActionID,
 		})
 		require.NoError(t, err)
 

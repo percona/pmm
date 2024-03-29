@@ -16,74 +16,8 @@
     "version": "develop"
   },
   "paths": {
-    "/v1/actions/Cancel": {
-      "post": {
-        "description": "Stops an Action.",
-        "tags": [
-          "ActionsService"
-        ],
-        "summary": "Cancel Action",
-        "operationId": "CancelAction",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "action_id": {
-                  "description": "Unique Action ID. Required.",
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/actions/Get": {
-      "post": {
+    "/v1/actions/{action_id}": {
+      "get": {
         "description": "Gets the result of a given Action.",
         "tags": [
           "ActionsService"
@@ -92,19 +26,11 @@
         "operationId": "GetAction",
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "action_id": {
-                  "description": "Unique Action ID.",
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
+            "type": "string",
+            "description": "Unique Action ID.",
+            "name": "action_id",
+            "in": "path",
+            "required": true
           }
         ],
         "responses": {
@@ -175,14 +101,14 @@
         }
       }
     },
-    "/v1/actions/StartMongoDBExplain": {
+    "/v1/actions:cancelAction": {
       "post": {
-        "description": "Starts 'MongoDB EXPLAIN' Action.",
+        "description": "Stops an Action.",
         "tags": [
           "ActionsService"
         ],
-        "summary": "Start 'MongoDB EXPLAIN' Action",
-        "operationId": "StartMongoDBExplainAction",
+        "summary": "Cancel an Action",
+        "operationId": "CancelAction",
         "parameters": [
           {
             "name": "body",
@@ -191,20 +117,10 @@
             "schema": {
               "type": "object",
               "properties": {
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to run this Action.",
+                "action_id": {
+                  "description": "Unique Action ID. Required.",
                   "type": "string",
                   "x-order": 0
-                },
-                "service_id": {
-                  "description": "Service ID for this Action. Required.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "query": {
-                  "description": "Query. Required.",
-                  "type": "string",
-                  "x-order": 2
                 }
               }
             }
@@ -214,19 +130,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object",
-              "properties": {
-                "action_id": {
-                  "description": "Unique Action ID.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to this Action was started.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
+              "type": "object"
             }
           },
           "default": {
@@ -263,844 +167,7 @@
         }
       }
     },
-    "/v1/actions/StartMySQLExplain": {
-      "post": {
-        "description": "Starts 'MySQL EXPLAIN' Action with traditional output.",
-        "tags": [
-          "ActionsService"
-        ],
-        "summary": "Start 'MySQL EXPLAIN' Action",
-        "operationId": "StartMySQLExplainAction",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to run this Action.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "service_id": {
-                  "description": "Service ID for this Action. Required.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "query_id": {
-                  "description": "Query ID of query.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "placeholders": {
-                  "type": "array",
-                  "title": "Array of placeholder values",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 3
-                },
-                "database": {
-                  "description": "Database name. Required if it can't be deduced from the query ID.",
-                  "type": "string",
-                  "x-order": 4
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "action_id": {
-                  "description": "Unique Action ID.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to this Action was started.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/actions/StartMySQLExplainJSON": {
-      "post": {
-        "description": "Starts 'MySQL EXPLAIN' Action with JSON output.",
-        "tags": [
-          "ActionsService"
-        ],
-        "summary": "Start 'MySQL EXPLAIN JSON' Action",
-        "operationId": "StartMySQLExplainJSONAction",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to run this Action.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "service_id": {
-                  "description": "Service ID for this Action. Required.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "query_id": {
-                  "description": "Query ID of query.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "placeholders": {
-                  "type": "array",
-                  "title": "Array of placeholder values",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 3
-                },
-                "database": {
-                  "description": "Database name. Required if it can't be deduced from the query ID.",
-                  "type": "string",
-                  "x-order": 4
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "action_id": {
-                  "description": "Unique Action ID.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to this Action was started.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/actions/StartMySQLExplainTraditionalJSON": {
-      "post": {
-        "description": "Starts 'MySQL EXPLAIN' Action with traditional JSON output.",
-        "tags": [
-          "ActionsService"
-        ],
-        "summary": "Start 'MySQL EXPLAIN Traditional JSON' Action",
-        "operationId": "StartMySQLExplainTraditionalJSONAction",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to run this Action.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "service_id": {
-                  "description": "Service ID for this Action. Required.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "query_id": {
-                  "description": "Query ID of query.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "placeholders": {
-                  "type": "array",
-                  "title": "Array of placeholder values",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 3
-                },
-                "database": {
-                  "description": "Database name. Required if it can't be deduced from the query ID.",
-                  "type": "string",
-                  "x-order": 4
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "action_id": {
-                  "description": "Unique Action ID.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to this Action was started.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/actions/StartMySQLShowCreateTable": {
-      "post": {
-        "description": "Starts 'MySQL SHOW CREATE TABLE' Action.",
-        "tags": [
-          "ActionsService"
-        ],
-        "summary": "Start 'MySQL SHOW CREATE TABLE' Action",
-        "operationId": "StartMySQLShowCreateTableAction",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to run this Action.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "service_id": {
-                  "description": "Service ID for this Action. Required.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "table_name": {
-                  "description": "Table name. Required. May additionally contain a database name.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "database": {
-                  "description": "Database name. Required if not given in the table_name field.",
-                  "type": "string",
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "action_id": {
-                  "description": "Unique Action ID.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to this Action was started.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/actions/StartMySQLShowIndex": {
-      "post": {
-        "description": "Starts 'MySQL SHOW INDEX' Action.",
-        "tags": [
-          "ActionsService"
-        ],
-        "summary": "Start 'MySQL SHOW INDEX' Action",
-        "operationId": "StartMySQLShowIndexAction",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to run this Action.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "service_id": {
-                  "description": "Service ID for this Action. Required.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "table_name": {
-                  "description": "Table name. Required. May additionally contain a database name.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "database": {
-                  "description": "Database name. Required if not given in the table_name field.",
-                  "type": "string",
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "action_id": {
-                  "description": "Unique Action ID.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to this Action was started.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/actions/StartMySQLShowTableStatus": {
-      "post": {
-        "description": "Starts 'MySQL SHOW TABLE STATUS' Action.",
-        "tags": [
-          "ActionsService"
-        ],
-        "summary": "Start 'MySQL SHOW TABLE STATUS' Action",
-        "operationId": "StartMySQLShowTableStatusAction",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to run this Action.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "service_id": {
-                  "description": "Service ID for this Action. Required.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "table_name": {
-                  "description": "Table name. Required. May additionally contain a database name.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "database": {
-                  "description": "Database name. Required if not given in the table_name field.",
-                  "type": "string",
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "action_id": {
-                  "description": "Unique Action ID.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to this Action was started.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/actions/StartPTMongoDBSummary": {
-      "post": {
-        "description": "Starts 'Percona Toolkit MongoDB Summary' Action.",
-        "tags": [
-          "ActionsService"
-        ],
-        "summary": "Start 'PT MongoDB Summary' Action",
-        "operationId": "StartPTMongoDBSummaryAction",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "title": "Message to prepare pt-mongodb-summary data",
-              "properties": {
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to run this Action.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "service_id": {
-                  "description": "Service ID for this Action.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "title": "Message to retrieve the prepared pt-mongodb-summary data",
-              "properties": {
-                "action_id": {
-                  "description": "Unique Action ID.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to this Action was started.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/actions/StartPTMySQLSummary": {
-      "post": {
-        "description": "Starts 'Percona Toolkit MySQL Summary' Action.",
-        "tags": [
-          "ActionsService"
-        ],
-        "summary": "Start 'PT MySQL Summary' Action",
-        "operationId": "StartPTMySQLSummaryAction",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "title": "Message to prepare pt-mysql-summary data",
-              "properties": {
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to run this Action.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "service_id": {
-                  "description": "Service ID for this Action.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "title": "Message to retrieve the prepared pt-mysql-summary data",
-              "properties": {
-                "action_id": {
-                  "description": "Unique Action ID.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to this Action was started.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/actions/StartPTPgSummary": {
-      "post": {
-        "description": "Starts 'Percona Toolkit PostgreSQL Summary' Action.",
-        "tags": [
-          "ActionsService"
-        ],
-        "summary": "Start 'PT PostgreSQL Summary' Action",
-        "operationId": "StartPTPgSummaryAction",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "title": "Message to prepare pt-pg-summary data",
-              "properties": {
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to run this Action.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "service_id": {
-                  "description": "Service ID for this Action.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "title": "Message to retrieve the prepared pt-pg-summary data",
-              "properties": {
-                "action_id": {
-                  "description": "Unique Action ID.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to this Action was started.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/actions/StartPTSummary": {
+    "/v1/actions:startNodeAction": {
       "post": {
         "description": "Starts 'Percona Toolkit Summary' Action.",
         "tags": [
@@ -1183,14 +250,14 @@
         }
       }
     },
-    "/v1/actions/StartPostgreSQLShowCreateTable": {
+    "/v1/actions:startServiceAction": {
       "post": {
-        "description": "Starts 'PostgreSQL SHOW CREATE TABLE' Action.",
+        "description": "Starts a Service Action.",
         "tags": [
           "ActionsService"
         ],
-        "summary": "Start 'PostgreSQL SHOW CREATE TABLE' Action",
-        "operationId": "StartPostgreSQLShowCreateTableAction",
+        "summary": "Start a Service Action",
+        "operationId": "StartServiceAction",
         "parameters": [
           {
             "name": "body",
@@ -1199,118 +266,309 @@
             "schema": {
               "type": "object",
               "properties": {
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to run this Action.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "service_id": {
-                  "description": "Service ID for this Action. Required.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "table_name": {
-                  "description": "Table name. Required. May additionally contain a database name.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "database": {
-                  "description": "Database name. Required if not given in the table_name field.",
-                  "type": "string",
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "action_id": {
-                  "description": "Unique Action ID.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to this Action was started.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
+                "mysql_explain": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to run this Action.",
+                      "type": "string",
+                      "x-order": 0
                     },
-                    "additionalProperties": false
+                    "service_id": {
+                      "description": "Service ID for this Action. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "query_id": {
+                      "description": "Query ID of query.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "placeholders": {
+                      "type": "array",
+                      "title": "Array of placeholder values",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 3
+                    },
+                    "database": {
+                      "description": "Database name. Required if it can't be deduced from the query ID.",
+                      "type": "string",
+                      "x-order": 4
+                    }
+                  },
+                  "x-order": 0
+                },
+                "mysql_explain_json": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to run this Action.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service ID for this Action. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "query_id": {
+                      "description": "Query ID of query.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "placeholders": {
+                      "type": "array",
+                      "title": "Array of placeholder values",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 3
+                    },
+                    "database": {
+                      "description": "Database name. Required if it can't be deduced from the query ID.",
+                      "type": "string",
+                      "x-order": 4
+                    }
+                  },
+                  "x-order": 1
+                },
+                "mysql_explain_traditional_json": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to run this Action.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service ID for this Action. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "query_id": {
+                      "description": "Query ID of query.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "placeholders": {
+                      "type": "array",
+                      "title": "Array of placeholder values",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 3
+                    },
+                    "database": {
+                      "description": "Database name. Required if it can't be deduced from the query ID.",
+                      "type": "string",
+                      "x-order": 4
+                    }
                   },
                   "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/actions/StartPostgreSQLShowIndex": {
-      "post": {
-        "description": "Starts 'PostgreSQL SHOW INDEX' Action.",
-        "tags": [
-          "ActionsService"
-        ],
-        "summary": "Start 'PostgreSQL SHOW INDEX' Action",
-        "operationId": "StartPostgreSQLShowIndexAction",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to run this Action.",
-                  "type": "string",
-                  "x-order": 0
                 },
-                "service_id": {
-                  "description": "Service ID for this Action. Required.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "table_name": {
-                  "description": "Table name. Required. May additionally contain a database name.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "database": {
-                  "description": "Database name. Required if not given in the table_name field.",
-                  "type": "string",
+                "mysql_show_index": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to run this Action.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service ID for this Action. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "table_name": {
+                      "description": "Table name. Required. May additionally contain a database name.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "database": {
+                      "description": "Database name. Required if not given in the table_name field.",
+                      "type": "string",
+                      "x-order": 3
+                    }
+                  },
                   "x-order": 3
+                },
+                "mysql_show_create_table": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to run this Action.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service ID for this Action. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "table_name": {
+                      "description": "Table name. Required. May additionally contain a database name.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "database": {
+                      "description": "Database name. Required if not given in the table_name field.",
+                      "type": "string",
+                      "x-order": 3
+                    }
+                  },
+                  "x-order": 4
+                },
+                "mysql_show_table_status": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to run this Action.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service ID for this Action. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "table_name": {
+                      "description": "Table name. Required. May additionally contain a database name.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "database": {
+                      "description": "Database name. Required if not given in the table_name field.",
+                      "type": "string",
+                      "x-order": 3
+                    }
+                  },
+                  "x-order": 5
+                },
+                "postgres_show_create_table": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to run this Action.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service ID for this Action. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "table_name": {
+                      "description": "Table name. Required. May additionally contain a database name.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "database": {
+                      "description": "Database name. Required if not given in the table_name field.",
+                      "type": "string",
+                      "x-order": 3
+                    }
+                  },
+                  "x-order": 6
+                },
+                "postgres_show_index": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to run this Action.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service ID for this Action. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "table_name": {
+                      "description": "Table name. Required. May additionally contain a database name.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "database": {
+                      "description": "Database name. Required if not given in the table_name field.",
+                      "type": "string",
+                      "x-order": 3
+                    }
+                  },
+                  "x-order": 7
+                },
+                "mongodb_explain": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to run this Action.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service ID for this Action. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "query": {
+                      "description": "Query. Required.",
+                      "type": "string",
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 8
+                },
+                "pt_mongodb_summary": {
+                  "type": "object",
+                  "title": "Message to prepare pt-mongodb-summary data",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to run this Action.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service ID for this Action.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 9
+                },
+                "pt_mysql_summary": {
+                  "type": "object",
+                  "title": "Message to prepare pt-mysql-summary data",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to run this Action.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service ID for this Action.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 10
+                },
+                "pt_postgres_summary": {
+                  "type": "object",
+                  "title": "Message to prepare pt-pg-summary data",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to run this Action.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service ID for this Action.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 11
                 }
               }
             }
@@ -1322,15 +580,200 @@
             "schema": {
               "type": "object",
               "properties": {
-                "action_id": {
-                  "description": "Unique Action ID.",
-                  "type": "string",
+                "mysql_explain": {
+                  "type": "object",
+                  "properties": {
+                    "action_id": {
+                      "description": "Unique Action ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to this Action was started.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
                   "x-order": 0
                 },
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to this Action was started.",
-                  "type": "string",
+                "mysql_explain_json": {
+                  "type": "object",
+                  "properties": {
+                    "action_id": {
+                      "description": "Unique Action ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to this Action was started.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
                   "x-order": 1
+                },
+                "mysql_explain_traditional_json": {
+                  "type": "object",
+                  "properties": {
+                    "action_id": {
+                      "description": "Unique Action ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to this Action was started.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 2
+                },
+                "mysql_show_index": {
+                  "type": "object",
+                  "properties": {
+                    "action_id": {
+                      "description": "Unique Action ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to this Action was started.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 3
+                },
+                "mysql_show_create_table": {
+                  "type": "object",
+                  "properties": {
+                    "action_id": {
+                      "description": "Unique Action ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to this Action was started.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 4
+                },
+                "mysql_show_table_status": {
+                  "type": "object",
+                  "properties": {
+                    "action_id": {
+                      "description": "Unique Action ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to this Action was started.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 5
+                },
+                "postgresql_show_create_table": {
+                  "type": "object",
+                  "properties": {
+                    "action_id": {
+                      "description": "Unique Action ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to this Action was started.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 6
+                },
+                "postgresql_show_index": {
+                  "type": "object",
+                  "properties": {
+                    "action_id": {
+                      "description": "Unique Action ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to this Action was started.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 7
+                },
+                "mongodb_explain": {
+                  "type": "object",
+                  "properties": {
+                    "action_id": {
+                      "description": "Unique Action ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to this Action was started.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 8
+                },
+                "pt_mongodb_summary": {
+                  "type": "object",
+                  "title": "Message to retrieve the prepared pt-mongodb-summary data",
+                  "properties": {
+                    "action_id": {
+                      "description": "Unique Action ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to this Action was started.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 9
+                },
+                "pt_mysql_summary": {
+                  "type": "object",
+                  "title": "Message to retrieve the prepared pt-mysql-summary data",
+                  "properties": {
+                    "action_id": {
+                      "description": "Unique Action ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to this Action was started.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 10
+                },
+                "pt_postgres_summary": {
+                  "type": "object",
+                  "title": "Message to retrieve the prepared pt-pg-summary data",
+                  "properties": {
+                    "action_id": {
+                      "description": "Unique Action ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to this Action was started.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 11
                 }
               }
             }
