@@ -41,6 +41,7 @@ echo $fb_commit_sha > fbCommitSha
 # Create cache directories. 
 test -d "${root_dir}/go-path" || mkdir -p "go-path"
 test -d "${root_dir}/go-build" || mkdir -p "go-build"
+test -d "${root_dir}/yarn-cache" || mkdir -p "yarn-cache"
 
 PATH_TO_SCRIPTS="sources/pmm/src/github.com/percona/pmm/build/scripts"
 export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:3

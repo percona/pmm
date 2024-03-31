@@ -112,6 +112,9 @@ build() {
     if [ -d "${root_dir}/go-build" ]; then
         volume_mounts+=" -v ${root_dir}/go-build:/home/builder/.cache/go-build"
     fi
+    if [ -d "${root_dir}/yarn-cache" ]; then
+        volume_mounts+=" -v ${root_dir}/yarn-cache:/home/builder/.yarn"
+    fi
     if [ -d "${root_dir}/go-path" ]; then
         volume_mounts+=" -v ${root_dir}/go-path:/home/builder/go/pkg/mod"
     fi
