@@ -104,7 +104,6 @@ build() {
     local CH_TAG=${rpm_version#*-}
     local cache_dir=RELEASE
     local volume_mounts="-v ${rpmbuild_dir}/SOURCES:/home/builder/rpm/SOURCES -v ${rpms_dir}:/home/builder/rpm/RPMS"
-    # local build_deps=("grafana.spec" "percona-dashboards.spec")
 
     if ! is_build_needed "${spec_name}" "${rpm_version}"; then
         return
@@ -117,6 +116,7 @@ build() {
         volume_mounts+=" -v ${root_dir}/go-path:/home/builder/go/pkg/mod"
     fi
 
+    echo "Start building Server RPMs..."
     echo "spec_name: ${spec_name}"
     echo "repo_name: ${repo_name}"
     echo "rpm_verison: ${rpm_version}"
@@ -125,7 +125,7 @@ build() {
         set -o errexit
         set -o xtrace
 
-        sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
+        sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES /home/builder/.cache
 
         # Add 'Epoch' to spec file to prevent update of rpms which are built in PR build
         if [ ${RPM_EPOCH} = 1 ]; then
@@ -142,8 +142,10 @@ build() {
             sleep 1
         done
 
+        # Only these two specs have build dependencies
         if [[ ${spec_name} =~ ^grafana$|^percona-dashboards$ ]]; then
-            sudo yum-builddep --randomwait=1 -y SOURCES/${spec_name}.spec
+            sleep 5s
+            sudo yum-builddep -y SOURCES/${spec_name}.spec
         fi
 
         spectool -C SOURCES -g SOURCES/${spec_name}.spec
@@ -160,7 +162,7 @@ build() {
     # cp ${rpms_dir}/${spec_name}-${rpm_version}/*/*.rpm ${rpms_dir}
 
     if ! command -v aws &> /dev/null; then
-        echo "AWS CLI is not installed. Skipping upload to S3."
+        echo "AWS CLI is not installed. Upload to S3 will be skipped."
         return
     fi
 
@@ -172,9 +174,10 @@ build() {
         ${rpms_dir}/${spec_name}-${rpm_version} \
         s3://pmm-build-cache/${cache_dir}/${rpmbuild_dist}/${spec_name}-${rpm_version} \
         || :
+
+    echo "Finished building Server RPMs, spec_name: ${spec_name}.spec, repo_name: ${repo_name}"
 }
 
-build "$1" "$2"
-echo "build-server-rpm finished, spec_name: $1, repo_name: ${2:-$1}"
+build "$@"
 
 # vim: expandtab shiftwidth=4 tabstop=4
