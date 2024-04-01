@@ -24,7 +24,7 @@ is_build_needed() {
     local spec_name=$1
     local rpm_version=$2
     local packages=
-    local cache_dir=RELEASE
+    local s3_cache_dir=RELEASE
 
     # Structure of S3 build cache
     # s3://pmm-build-cache/PR-BUILDS/7 - el7
@@ -36,13 +36,13 @@ is_build_needed() {
 
     # RPM_EPOCH is set to 1 for Feature Builds
     if [ "$RPM_EPOCH" = 1 ]; then
-        cache_dir=PR-BUILDS
+        s3_cache_dir=PR-BUILDS
     fi
     if command -v aws &> /dev/null; then
         aws s3 sync \
             --region us-east-2 \
             --no-sign-request \
-            s3://pmm-build-cache/${cache_dir}/${rpmbuild_dist}/${spec_name}-${rpm_version} \
+            s3://pmm-build-cache/${s3_cache_dir}/${rpmbuild_dist}/${spec_name}-${rpm_version} \
             ${rpms_dir}/${spec_name}-${rpm_version}
     fi
 
@@ -102,7 +102,7 @@ build() {
     local rpm_version=$(get_rpm_version "${spec_name}")
     local CH_VERSION=${rpm_version%-*}
     local CH_TAG=${rpm_version#*-}
-    local cache_dir=RELEASE
+    local s3_cache_dir=RELEASE
     local volume_mounts="-v ${rpmbuild_dir}/SOURCES:/home/builder/rpm/SOURCES -v ${rpms_dir}:/home/builder/rpm/RPMS"
 
     if ! is_build_needed "${spec_name}" "${rpm_version}"; then
@@ -170,12 +170,12 @@ build() {
     fi
 
     if [ "$RPM_EPOCH" = 1 ]; then
-      cache_dir=PR-BUILDS
+      s3_cache_dir=PR-BUILDS
     fi
     aws s3 sync \
         --region us-east-2 \
         ${rpms_dir}/${spec_name}-${rpm_version} \
-        s3://pmm-build-cache/${cache_dir}/${rpmbuild_dist}/${spec_name}-${rpm_version} \
+        s3://pmm-build-cache/${s3_cache_dir}/${rpmbuild_dist}/${spec_name}-${rpm_version} \
         || :
 
     echo "Finished building Server RPMs, spec_name: ${spec_name}.spec, repo_name: ${repo_name}"
