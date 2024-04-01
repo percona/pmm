@@ -1,12 +1,8 @@
+%undefine _missing_build_ids_terminate_build
+
 %global repo            VictoriaMetrics
 %global provider        github.com/VictoriaMetrics/%{repo}
 %global commit          pmm-6401-v1.93.4
-
-%if ! 0%{?gobuild:1}
-# https://github.com/rpm-software-management/rpm/issues/367
-# https://fedoraproject.org/wiki/PackagingDrafts/Go#Build_ID
-%define gobuild(o:) go build -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom | od -An -tx1 | tr -d ' \\n')" -a -v -x %{?**};
-%endif
 
 Name:           percona-victoriametrics
 Version:        1.93.4

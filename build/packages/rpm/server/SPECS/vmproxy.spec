@@ -1,3 +1,4 @@
+%undefine _missing_build_ids_terminate_build
 %global _dwz_low_mem_die_limit 0
 
 %global repo            pmm
@@ -9,12 +10,6 @@
 
 # the line below is sed'ed by build/bin/build-server-rpm to set a correct version
 %define full_pmm_version 2.0.0
-
-%if ! 0%{?gobuild:1}
-# https://github.com/rpm-software-management/rpm/issues/367
-# https://fedoraproject.org/wiki/PackagingDrafts/Go#Build_ID
-%define gobuild(o:) go build -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom | od -An -tx1 | tr -d ' \\n')" -a -v -x %{?**};
-%endif
 
 Name:     vmproxy
 Version:  %{full_pmm_version}
@@ -44,7 +39,7 @@ make -C vmproxy release
 
 %install
 install -d -p %{buildroot}%{_sbindir}
-install -p -m 0755 vmproxy/bin/vmproxy %{buildroot}%{_sbindir}/vmproxy
+install -p -m 0755 ./bin/vmproxy %{buildroot}%{_sbindir}/vmproxy
 
 
 %files

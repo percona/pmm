@@ -11,12 +11,6 @@
 # the line below is sed'ed by build/bin/build-server-rpm to set a correct version
 %define full_pmm_version 2.0.0
 
-%if ! 0%{?gobuild:1}
-# https://github.com/rpm-software-management/rpm/issues/367
-# https://fedoraproject.org/wiki/PackagingDrafts/Go#Build_ID
-%define gobuild(o:) go build -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom | od -An -tx1 | tr -d ' \\n')" -a -v -x %{?**};
-%endif
-
 Name:           pmm-qan
 Version:        %{version}
 Release:        %{rpm_release}
