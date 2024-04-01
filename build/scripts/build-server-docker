@@ -35,7 +35,7 @@ fi
 IMAGE_VERSION=$(echo "$DOCKER_TAG" | cut -d ':' -f2)
 
 docker buildx build \
-    --build-arg BUILD_DATE=$(date --rfc-3339=seconds) \
+    --build-arg BUILD_DATE="$(date --rfc-3339=seconds)" \
     --build-arg VERSION="$IMAGE_VERSION" \
     --progress plain \
     -f ${docker_root}/${docker_file} \
