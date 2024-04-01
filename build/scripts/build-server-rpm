@@ -128,7 +128,7 @@ build() {
         set -o errexit
         set -o xtrace
 
-        sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES /home/builder/.cache
+        sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES /home/builder/.cache /home/builder/go
 
         # Add 'Epoch' to spec file to prevent update of rpms which are built in PR build
         if [ ${RPM_EPOCH} = 1 ]; then
