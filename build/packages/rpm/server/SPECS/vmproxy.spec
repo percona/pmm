@@ -1,25 +1,29 @@
-%undefine _missing_build_ids_terminate_build
 %global _dwz_low_mem_die_limit 0
 
 %global repo            pmm
 %global provider        github.com/percona/%{repo}
 %global commit          8f74cea10d85e441ee88ef4b12bc47bc05165ba9
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
-%define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         1
-%define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
+%define release         2
+%define rpm_release     %{release}.%{shortcommit}%{?dist}
 
 # the line below is sed'ed by build/bin/build-server-rpm to set a correct version
 %define full_pmm_version 2.0.0
 
-Name:		vmproxy
-Version:	%{full_pmm_version}
-Release:	%{rpm_release}
-Summary:	Percona VMProxy stateless reverse proxy for VictoriaMetrics
+%if ! 0%{?gobuild:1}
+# https://github.com/rpm-software-management/rpm/issues/367
+# https://fedoraproject.org/wiki/PackagingDrafts/Go#Build_ID
+%define gobuild(o:) go build -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom | od -An -tx1 | tr -d ' \\n')" -a -v -x %{?**};
+%endif
 
-License:	AGPLv3
-URL:		https://%{provider}
-Source0:	https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
+Name:     vmproxy
+Version:  %{full_pmm_version}
+Release:  %{rpm_release}
+Summary:  Percona VMProxy stateless reverse proxy for VictoriaMetrics
+
+License:  AGPLv3
+URL:      https://%{provider}
+Source0:  https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
 
 %description
 VMProxy is a stateless reverse proxy which proxies requests to VictoriaMetrics and
@@ -27,33 +31,31 @@ optionally adds `extra_filters` query based on the provided configuration.
 
 
 %prep
-%setup -q -n pmm-%{commit}
-mkdir -p src/github.com/percona
-ln -s $(pwd) src/%{provider}
+%setup -q -n %{repo}-%{commit}
 
 
 %build
-
 export PMM_RELEASE_VERSION=%{full_pmm_version}
 export PMM_RELEASE_FULLCOMMIT=%{commit}
 export PMM_RELEASE_BRANCH=""
 
-cd src/github.com/percona/pmm/vmproxy
-make release
+make -C vmproxy release
 
 
 %install
-install -d -p %{buildroot}%{_bindir}
 install -d -p %{buildroot}%{_sbindir}
-install -p -m 0755 bin/vmproxy %{buildroot}%{_sbindir}/vmproxy
+install -p -m 0755 vmproxy/bin/vmproxy %{buildroot}%{_sbindir}/vmproxy
 
 
 %files
-%license src/%{provider}/vmproxy/LICENSE
-%doc src/%{provider}/vmproxy/README.md
+%license vmproxy/LICENSE
+%doc vmproxy/README.md
 %{_sbindir}/vmproxy
 
 
 %changelog
+* Mon Apr 1 2024 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-2
+- PMM-12899 Use module and build cache
+
 * Mon Dec 5 2022 Michal Kralik <michal.kralik@percona.com> - 2.34.0-1
 - Initial release of VMProxy

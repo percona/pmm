@@ -1,8 +1,3 @@
-# Go build id is not supported for now.
-# https://github.com/rpm-software-management/rpm/issues/367
-# https://bugzilla.redhat.com/show_bug.cgi?id=1295951
-%undefine _missing_build_ids_terminate_build
-
 %global repo            pmm
 %global provider        github.com/percona/%{repo}
 %global import_path     %{provider}
@@ -10,17 +5,22 @@
 # see: https://github.com/percona/pmm/blob/main/build/scripts/build-server-rpm#L58
 %global commit          0000000000000000000000000000000000000000
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
-%define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         17
-%define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
+%define release         18
+%define rpm_release     %{release}.%{shortcommit}%{?dist}
 
 # the line below is sed'ed by build/bin/build-server-rpm to set a correct version
 %define full_pmm_version 2.0.0
 
-Name:           percona-qan-api2
+%if ! 0%{?gobuild:1}
+# https://github.com/rpm-software-management/rpm/issues/367
+# https://fedoraproject.org/wiki/PackagingDrafts/Go#Build_ID
+%define gobuild(o:) go build -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom | od -An -tx1 | tr -d ' \\n')" -a -v -x %{?**};
+%endif
+
+Name:           pmm-qan
 Version:        %{version}
 Release:        %{rpm_release}
-Summary:        Query Analytics API v2 for PMM
+Summary:        Query Analytics API for PMM
 
 License:        AGPLv3
 URL:            https://%{provider}
@@ -32,10 +32,7 @@ See PMM docs for more information - https://docs.percona.com/percona-monitoring-
 
 
 %prep
-%setup -T -c -n %{repo}-%{version}
-%setup -q -c -a 0 -n %{repo}-%{version}
-mkdir -p src/github.com/percona
-mv %{repo}-%{commit} src/%{provider}
+%setup -q -n %{repo}-%{commit}
 
 
 %build
@@ -43,29 +40,31 @@ export PMM_RELEASE_VERSION=%{full_pmm_version}
 export PMM_RELEASE_FULLCOMMIT=%{commit}
 export PMM_RELEASE_BRANCH=""
 
-cd src/%{provider}/qan-api2
-make release
+make -C qan-api2 release
 
 
 %install
 
 install -d -p %{buildroot}%{_sbindir}
-install -p -m 0755 src/%{provider}/bin/qan-api2 %{buildroot}%{_sbindir}/%{name}
+install -p -m 0755 ./bin/qan-api2 %{buildroot}%{_sbindir}/%{name}
 
 
 %files
 %attr(0755, root, root) %{_sbindir}/%{name}
-%license src/%{provider}/qan-api2/LICENSE
-%doc src/%{provider}/qan-api2/README.md
+%license qan-api2/LICENSE
+%doc qan-api2/README.md
 
 %changelog
-* Mon Nov  7 2022 Alexander Tymchuk <alexander.tymchuk@percona.com> - 2.0.0-17
+* Wed Apr 1 2024 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-18
+- PMM-12899 Use module and build cache
+
+* Mon Nov 7 2022 Alexander Tymchuk <alexander.tymchuk@percona.com> - 2.0.0-17
 - PMM-10117 migrate QAN API to monorepo
 
 * Mon May 16 2022 Nikita Beletskii <nikita.beletskii@percona.com> - 2.0.0-16
 - PMM-10027 remove useless packages
 
-* Thu Jul  2 2020 Mykyta Solomko <mykyta.solomko@percona.com> - 2.0.0-15
+* Thu Jul 2 2020 Mykyta Solomko <mykyta.solomko@percona.com> - 2.0.0-15
 - PMM-5645 built using Golang 1.14
 
 * Tue Mar 19 2019 Vadim Yalovets <vadim.yalovets@percona.com> - 2.0.0-4

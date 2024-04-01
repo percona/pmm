@@ -1,27 +1,30 @@
-%global debug_package   %{nil}
 %global __strip         /bin/true
 
-%global repo		grafana-dashboards
-%global provider	github.com/percona/%{repo}
-%global import_path	%{provider}
-%global commit		ad4af6808bcd361284e8eb8cd1f36b1e98e32bce
-%global shortcommit	%(c=%{commit}; echo ${c:0:7})
-%define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         21
-%define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
+%global repo            grafana-dashboards
+%global provider        github.com/percona/%{repo}
+%global import_path     %{provider}
+%global commit          ad4af6808bcd361284e8eb8cd1f36b1e98e32bce
+%global shortcommit     %(c=%{commit}; echo ${c:0:7})
+%define release         22
+%define rpm_release     %{release}.%{shortcommit}%{?dist}
 
-Name:		percona-dashboards
-Version:	%{version}
-Release:	%{rpm_release}
-Summary:	Grafana dashboards for monitoring
+%if ! 0%{?gobuild:1}
+# https://github.com/rpm-software-management/rpm/issues/367
+# https://fedoraproject.org/wiki/PackagingDrafts/Go#Build_ID
+%define gobuild(o:) go build -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom | od -An -tx1 | tr -d ' \\n')" -a -v -x %{?**};
+%endif
 
-License:	AGPLv3
-URL:		https://%{provider}
-Source0:	https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
+Name:     percona-dashboards
+Version:  %{version}
+Release:  %{rpm_release}
+Summary:  Grafana dashboards for monitoring
+
+License:  AGPLv3
+URL:      https://%{provider}
+Source0:  https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
 
 BuildRequires:	nodejs
 Requires:	percona-grafana
-Provides:	percona-grafana-dashboards = %{version}-%{release}
 
 %description
 This is a set of Grafana dashboards for database and system monitoring
@@ -57,6 +60,9 @@ echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 
 
 %changelog
+* Wed Mar 20 2024 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-22
+- PMM-12899 Use module and build cache
+
 * Wed Nov 29 2023 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-21
 - PMM-12693 Run Grafana as non-root user
 

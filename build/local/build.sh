@@ -12,7 +12,7 @@ while test "$#" -gt 0; do
       NO_UPDATE=1
       ;;
     --no-client)
-      NO_CLIENT=1
+      NO_CLIENT=1; NO_CLIENT_DOCKER=1
       ;;
     --no-client-docker)
       NO_CLIENT_DOCKER=1
@@ -99,7 +99,7 @@ fi
 # Building client docker image takes 17s
 GIT_COMMIT=$(git rev-parse HEAD | head -c 8)
 export DOCKER_CLIENT_TAG=local/pmm-client:${GIT_COMMIT}
-if [ "$NO_CLIENT_DOCKER" -eq 0 ] || [ "$NO_CLIENT" -eq 0 ]; then
+if [ "$NO_CLIENT_DOCKER" -eq 0 ]; then
   "$PATH_TO_SCRIPTS/build-client-docker"
 fi
 
@@ -113,7 +113,6 @@ fi
 # total time: ??? - subsequent build, using cache from prior builds
 
 export RPM_EPOCH=1
-export RPMBUILD_DIST="el9"
 
 if [ "$NO_SERVER_RPM" -eq 0 ]; then
   "$PATH_TO_SCRIPTS/build-server-rpm" percona-dashboards grafana-dashboards
@@ -129,7 +128,6 @@ if [ "$NO_SERVER_RPM" -eq 0 ]; then
 fi
 
 export DOCKER_TAG=local/pmm-server:${GIT_COMMIT}
-export RPMBUILD_DIST=el9
 export DOCKERFILE=Dockerfile.el9
 ${PATH_TO_SCRIPTS}/build-server-docker
 

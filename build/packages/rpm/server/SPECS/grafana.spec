@@ -1,15 +1,13 @@
-%global debug_package   %{nil}
 %global commit          f283b87d773da4ad61ca65660e72c084ac8f8716
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
-%define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         104
+%define release         105
 %define grafana_version 10.4.0
 %define full_pmm_version 2.0.0
 %define full_version    v%{grafana_version}-%{full_pmm_version}
-%define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
+%define rpm_release     %{release}.%{shortcommit}%{?dist}
 
 %if ! 0%{?gobuild:1}
-%define gobuild(o:) go build -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \\n')" -a -v -x %{?**};
+%define gobuild(o:) go build -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom | od -An -tx1 | tr -d ' \\n')" -a -v -x %{?**};
 %endif
 
 Name:           percona-grafana
@@ -24,8 +22,9 @@ ExclusiveArch:  %{ix86} x86_64 %{arm}
 BuildRequires: fontconfig
 
 %description
-Grafana is an open source, feature rich metrics dashboard and graph editor for
-Graphite, InfluxDB & OpenTSDB.
+Grafana is an open source observability and data visualization platform.
+Visualize metrics, logs, and traces from multiple sources like
+Prometheus, Loki, Elasticsearch, InfluxDB, Postgres and many more.
 
 %prep
 %setup -q -n grafana-%{commit}
@@ -77,7 +76,7 @@ getent passwd pmm >/dev/null || echo "User pmm does not exist. Please create it 
 exit 0
 
 %changelog
-* Wed Mar 20 2024 Alex Demidoff <alexander.demidoff@percona.com> - 10.4.0-2
+* Wed Mar 20 2024 Alex Demidoff <alexander.demidoff@percona.com> - 10.4.0-105
 - PMM-12899 Use module and build cache
 
 * Tue Mar 12 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 10.4.0-1
