@@ -6,6 +6,7 @@ UPDATE_ONLY=0
 NO_CLIENT=0
 NO_CLIENT_DOCKER=0
 NO_SERVER_RPM=0
+START_TIME=$(date +%s)
 LOG_FILE="/tmp/build.log"
 
 while test "$#" -gt 0; do
@@ -296,6 +297,9 @@ main() {
   export DOCKER_TAG=local/pmm-server:${GIT_COMMIT}
   export DOCKERFILE=Dockerfile.el9
   build_with_logs "${PATH_TO_SCRIPTS}/build-server-docker"
+
+  echo "Done building PMM artifacts."
+  echo "Total execution time, sec: $(($(date +%s) - $START_TIME))" | tee -a $LOG_FILE
 }
 
 # Local reference test environment
