@@ -157,6 +157,5 @@ main() {
 }
 
 main
-exit 0
 
 # vim: expandtab shiftwidth=4 tabstop=4

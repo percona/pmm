@@ -75,7 +75,7 @@ install -d -p %{buildroot}%{_sharedstatedir}/grafana
 %pre
 getent group pmm >/dev/null || echo "Group pmm does not exist. Please create it manually."
 getent passwd pmm >/dev/null || echo "User pmm does not exist. Please create it manually."
-exit 0
+
 
 %changelog
 * Wed Mar 20 2024 Alex Demidoff <alexander.demidoff@percona.com> - 10.4.0-105

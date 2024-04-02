@@ -5,52 +5,56 @@ set -o xtrace
 
 . $(dirname $0)/vars
 
-if [ -f "${docker_tarball}" ]; then
-    echo Docker tarball found, skipping docker build...
-    exit 0
-fi
+main() {
+  echo -----------------------------------------
+  echo "Building docker image for PMM Server..."
+  echo -----------------------------------------
 
-echo -----------------------------------------
-echo "Building docker image for PMM Server..."
-echo -----------------------------------------
+  if [ -f "${docker_tarball}" ]; then
+      echo Docker tarball found, skipping docker build...
+      return
+  fi
 
-docker_root=$(realpath ${rpms_dir}/..)
-cp -r ${root_dir}/tmp/source/pmm/build/ansible ${docker_root}/ansible
-cp ${root_dir}/tmp/source/pmm/build/docker/server/* ${docker_root}/
-cp ${root_dir}/results/tarball/pmm-client-*.tar.gz ${docker_root}/pmm-client.tar.gz
+  docker_root=$(realpath ${rpms_dir}/..)
+  cp -r ${root_dir}/tmp/source/pmm/build/ansible ${docker_root}/ansible
+  cp ${root_dir}/tmp/source/pmm/build/docker/server/* ${docker_root}/
+  cp ${root_dir}/results/tarball/pmm-client-*.tar.gz ${docker_root}/pmm-client.tar.gz
 
-git -C ${root_dir} rev-parse HEAD > ${docker_root}/gitCommit
-ls -la ${rpms_dir}
-docker run --rm -v ${rpms_dir}:/home/builder/rpm/RPMS ${rpmbuild_docker_image} sh -c "
-    sudo chown -R builder /home/builder/rpm/RPMS
-    until /usr/bin/createrepo_c --update /home/builder/rpm/RPMS; do
-        echo "waiting"
-        sleep 1
-    done
-"
+  git -C ${root_dir} rev-parse HEAD > ${docker_root}/gitCommit
+  ls -la ${rpms_dir}
+  docker run --rm -v ${rpms_dir}:/home/builder/rpm/RPMS ${rpmbuild_docker_image} sh -c "
+      sudo chown -R builder /home/builder/rpm/RPMS
+      until /usr/bin/createrepo_c --update /home/builder/rpm/RPMS; do
+          echo "waiting"
+          sleep 1
+      done
+  "
 
-if [ -z "${DOCKER_TAG}" ]; then
-    DOCKER_TAG=perconalab/pmm-server-fb:${full_pmm_version}
-fi
+  if [ -z "${DOCKER_TAG}" ]; then
+      DOCKER_TAG=perconalab/pmm-server-fb:${full_pmm_version}
+  fi
 
-IMAGE_VERSION=$(echo "$DOCKER_TAG" | cut -d ':' -f2)
+  IMAGE_VERSION=$(echo "$DOCKER_TAG" | cut -d ':' -f2)
 
-docker buildx build \
-    --build-arg BUILD_DATE="$(date --rfc-3339=seconds)" \
-    --build-arg VERSION="$IMAGE_VERSION" \
-    --progress plain \
-    -f ${docker_root}/${docker_file} \
-    -t ${DOCKER_TAG} \
-    ${docker_root}
+  docker buildx build \
+      --build-arg BUILD_DATE="$(date --rfc-3339=seconds)" \
+      --build-arg VERSION="$IMAGE_VERSION" \
+      --progress plain \
+      -f ${docker_root}/${docker_file} \
+      -t ${DOCKER_TAG} \
+      ${docker_root}
 
-if [ -n "${PUSH_DOCKER}" ]; then
-    mkdir -p $(dirname ${docker_tag_file})
-    echo ${DOCKER_TAG} > ${docker_tag_file}
-    docker push ${DOCKER_TAG}
-fi
-if [ -n "${SAVE_DOCKER}" ]; then
-    mkdir -p $(dirname ${docker_tarball})
-    docker save ${DOCKER_TAG} > ${docker_tarball}
-fi
+  if [ -n "${PUSH_DOCKER}" ]; then
+      mkdir -p $(dirname ${docker_tag_file})
+      echo ${DOCKER_TAG} > ${docker_tag_file}
+      docker push ${DOCKER_TAG}
+  fi
+  if [ -n "${SAVE_DOCKER}" ]; then
+      mkdir -p $(dirname ${docker_tarball})
+      docker save ${DOCKER_TAG} > ${docker_tarball}
+  fi
+}
+
+main
 
 # vim: expandtab shiftwidth=4 tabstop=4

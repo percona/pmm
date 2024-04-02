@@ -6,7 +6,7 @@ UPDATE_ONLY=0
 NO_CLIENT=0
 NO_CLIENT_DOCKER=0
 NO_SERVER_RPM=0
-OUTPUT_LOG_FILE="/tmp/build.log"
+LOG_FILE="/tmp/build.log"
 
 while test "$#" -gt 0; do
   case "$1" in
@@ -25,9 +25,18 @@ while test "$#" -gt 0; do
     --no-server-rpm)
       NO_SERVER_RPM=1
       ;;
+    --log-file)
+      shift
+      if [ -z "$1" ]; then
+        echo "Missing argument for --log-file"
+        exit 1
+      fi
+      LOG_FILE="$1"
+      ;;
     *)
       echo "Unknown argument: $1"
-      echo "Usage: $0 [--no-update | --update-only] [--no-client] [--no-client-docker] [--no-server-rpm]"
+      echo "Usage: $0 [--no-update | --update-only] [--no-client] [--no-client-docker] [--no-server-rpm] [--log-file <path>]"
+      echo
       exit 1
       ;;
   esac
@@ -150,16 +159,16 @@ build_with_logs() {
   local end_time
 
   if [ ! -f "$script" ]; then
-    echo "Fatal: script $script does not exist"
+    echo "FATAL: script $script does not exist"
     exit 1
   fi
 
   start_time=$(date +%s)
   if [ "$#" -gt 1 ]; then
     shift
-    $script "$@" | tee -a $OUTPUT_LOG_FILE
+    $script "$@" | tee -a $LOG_FILE
   else
-    $script | tee -a $OUTPUT_LOG_FILE
+    $script | tee -a $LOG_FILE
   fi
   end_time=$(date +%s)
 
@@ -172,9 +181,9 @@ init() {
     echo "Removing tmp directory..."
     rm -rf tmp
   fi
-  if [ -f "$OUTPUT_LOG_FILE" ]; then
+  if [ -f "$LOG_FILE" ]; then
     echo "Removing the log file..."
-    rm -f $OUTPUT_LOG_FILE
+    rm -f $LOG_FILE
   fi
 
   # Define global variables
