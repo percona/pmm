@@ -172,7 +172,7 @@ build_with_logs() {
   fi
   end_time=$(date +%s)
 
-  echo "Execution time for $script: $((end_time - start_time)) seconds"
+  echo "Execution time for $script: $((end_time - start_time)) seconds" | tee -a $LOG_FILE
 }
 
 init() {
