@@ -470,13 +470,13 @@ type ChangeNodeExporterOKBodyNodeExporter struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN INITIALIZATION_ERROR]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -515,7 +515,7 @@ var changeNodeExporterOkBodyNodeExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN","INITIALIZATION_ERROR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -531,6 +531,9 @@ const (
 	// ChangeNodeExporterOKBodyNodeExporterStatusSTARTING captures enum value "STARTING"
 	ChangeNodeExporterOKBodyNodeExporterStatusSTARTING string = "STARTING"
 
+	// ChangeNodeExporterOKBodyNodeExporterStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	ChangeNodeExporterOKBodyNodeExporterStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
+
 	// ChangeNodeExporterOKBodyNodeExporterStatusRUNNING captures enum value "RUNNING"
 	ChangeNodeExporterOKBodyNodeExporterStatusRUNNING string = "RUNNING"
 
@@ -545,9 +548,6 @@ const (
 
 	// ChangeNodeExporterOKBodyNodeExporterStatusUNKNOWN captures enum value "UNKNOWN"
 	ChangeNodeExporterOKBodyNodeExporterStatusUNKNOWN string = "UNKNOWN"
-
-	// ChangeNodeExporterOKBodyNodeExporterStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
-	ChangeNodeExporterOKBodyNodeExporterStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 )
 
 // prop value enum

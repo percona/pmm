@@ -60,7 +60,7 @@ type Process struct {
 	changes     chan inventorypb.AgentStatus
 	backoff     *backoff.Backoff
 	ctxDone     chan struct{}
-	err         chan error
+	err         error
 	initialized chan bool
 
 	// recreated on each restart
@@ -97,8 +97,7 @@ func New(params *Params, redactWords []string, l *logrus.Entry) *Process {
 		changes:     make(chan inventorypb.AgentStatus, 10),
 		backoff:     backoff.New(backoffMinDelay, backoffMaxDelay),
 		ctxDone:     make(chan struct{}),
-		err:         make(chan error),
-		initialized: make(chan bool, 2),
+		initialized: make(chan bool),
 	}
 }
 
@@ -106,7 +105,7 @@ func (p *Process) IsInitialized() <-chan bool {
 	return p.initialized
 }
 
-func (p *Process) GetError() <-chan error {
+func (p *Process) GetError() error {
 	return p.err
 }
 
@@ -212,8 +211,8 @@ func (p *Process) toFailing(err error) {
 	p.changes <- inventorypb.AgentStatus_INITIALIZATION_ERROR
 	p.l.Infof("Process: exited: %s.", p.cmd.ProcessState)
 	go p.toDone()
+	p.err = err
 	p.initialized <- false
-	p.err <- err
 }
 
 // STOPPING -> DONE.

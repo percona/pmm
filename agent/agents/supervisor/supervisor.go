@@ -490,7 +490,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 
 	if !<-process.IsInitialized() {
 		defer cancel()
-		return <-process.GetError()
+		return process.GetError()
 	}
 
 	//nolint:forcetypeassert

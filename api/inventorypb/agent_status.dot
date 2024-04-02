@@ -9,7 +9,8 @@ digraph {
   UNKNOWN [fillcolor=yellow];
 
   STARTING -> RUNNING;
-  STARTING -> FAILING; [style=dotted]
+  STARTING -> FAILING;
+  STARTING -> UNKNOWN; [style=dotted]
 
   RUNNING -> STOPPING;
   RUNNING -> WAITING;
@@ -19,7 +20,8 @@ digraph {
   WAITING -> DONE;
   WAITING -> UNKNOWN; [style=dotted]
 
-  FAILING -> DONE; [style=dotted]
+  FAILING -> DONE; 
+  FAILING -> UNKNOWN; [style=dotted]
 
   STOPPING -> DONE;
   STOPPING -> UNKNOWN; [style=dotted]

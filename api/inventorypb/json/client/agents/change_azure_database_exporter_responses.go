@@ -473,13 +473,13 @@ type ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN INITIALIZATION_ERROR]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -518,7 +518,7 @@ var changeAzureDatabaseExporterOkBodyAzureDatabaseExporterTypeStatusPropEnum []i
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN","INITIALIZATION_ERROR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -534,6 +534,9 @@ const (
 	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusSTARTING captures enum value "STARTING"
 	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusSTARTING string = "STARTING"
 
+	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
+
 	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusRUNNING captures enum value "RUNNING"
 	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusRUNNING string = "RUNNING"
 
@@ -548,9 +551,6 @@ const (
 
 	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusUNKNOWN captures enum value "UNKNOWN"
 	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusUNKNOWN string = "UNKNOWN"
-
-	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
-	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 )
 
 // prop value enum
