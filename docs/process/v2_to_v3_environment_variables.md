@@ -19,6 +19,8 @@ Below is a list of affected variables and their new names.
 | `METRICS_RESOLUTION_HR`                       | `PMM_METRICS_RESOLUTION_HR`                |                                                              |
 | `METRICS_RESOLUTION_LR`                       | `PMM_METRICS_RESOLUTION_LR`                |                                                              |
 | `METRICS_RESOLUTION_MR`                       | `PMM_METRICS_RESOLUTION_MR`                |                                                              |
+| `OAUTH_PMM_CLIENT_ID`                         | `PMM_DEV_OAUTH_CLIENT_ID`                  |                                                              |
+| `OAUTH_PMM_CLIENT_SECRET`                     | `PMM_DEV_OAUTH_CLIENT_SECRET`              |                                                              |
 | `PERCONA_TEST_AUTH_HOST`                      |                                            | Removed in PMM v3, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS`    |
 | `PERCONA_TEST_CHECKS_FILE`                    | `PMM_DEV_ADVISOR_CHECKS_FILE`              |                                                              |
 | `PERCONA_TEST_CHECKS_HOST`                    |                                            | Removed in PMM v3, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS`    |
