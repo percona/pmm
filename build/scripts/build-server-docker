@@ -6,15 +6,16 @@ set -o xtrace
 . $(dirname $0)/vars
 
 if [ -f "${docker_tarball}" ]; then
-    echo skip docker build
+    echo Docker tarball found, skipping docker build...
     exit 0
 fi
 
+echo -----------------------------------------
+echo "Building docker image for PMM Server..."
+echo -----------------------------------------
+
 docker_root=$(realpath ${rpms_dir}/..)
 cp -r ${root_dir}/tmp/source/pmm/build/ansible ${docker_root}/ansible
-ls ${docker_root}/ansible
-ls ${docker_root}/ansible/roles/pmm-images
-ls ${docker_root}/ansible/roles/pmm-images/tasks
 cp ${root_dir}/tmp/source/pmm/build/docker/server/* ${docker_root}/
 cp ${root_dir}/results/tarball/pmm-client-*.tar.gz ${docker_root}/pmm-client.tar.gz
 

@@ -108,6 +108,10 @@ copy_component() {
 }
 
 main() {
+    echo -----------------------------------------
+    echo "Building PMM Client binary files..."
+    echo -----------------------------------------
+
     extract_source_tarball
 
     gobuild_component "vmagent" "" "github.com/VictoriaMetrics/VictoriaMetrics" "app/vmagent"

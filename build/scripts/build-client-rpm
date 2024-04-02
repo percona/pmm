@@ -6,6 +6,10 @@ set -o errexit
 set -o xtrace
 
 main() {
+    echo -----------------------------------------
+    echo "Building PMM Client RPM files..."
+    echo -----------------------------------------
+
     local IMAGE=${1:-${rpmbuild_docker_image}}
     docker run --rm -v ${bin_dir}:/home/builder/bin -v ${root_dir}/results:/home/builder/results ${IMAGE} sh -c "
         set -o errexit
@@ -13,7 +17,7 @@ main() {
 
         export pmm_version=$pmm_version
         export pmm_release=$pmm_release
-        export sudo_path=\$(ls /usr/bin/sudo)
+        export sudo_path=\$$(command -v sudo)
         mkdir -p /tmp/pmm
         cd /home/builder/results
         /home/builder/bin/build-client-packages \

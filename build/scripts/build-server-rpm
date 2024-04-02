@@ -43,7 +43,7 @@ is_build_needed() {
             --region us-east-2 \
             --no-sign-request \
             s3://pmm-build-cache/${s3_cache_dir}/${rpmbuild_dist}/${spec_name}-${rpm_version} \
-            ${rpms_dir}/${spec_name}-${rpm_version}
+            ${rpms_dir}/${spec_name}-${rpm_version} || :
     fi
 
     packages=$(find ${rpms_dir}/${spec_name}-${rpm_version} -name "*.${rpmbuild_dist}.*.rpm" | wc -l)
@@ -108,6 +108,10 @@ build() {
     if ! is_build_needed "${spec_name}" "${rpm_version}"; then
         return
     fi
+
+    echo -------------------------------------------------------
+    echo "Building PMM Server RPM for ${spec_name} component..."
+    echo -------------------------------------------------------
 
     if [ -d "${root_dir}/go-build" ]; then
         volume_mounts+=" -v ${root_dir}/go-build:/home/builder/.cache/go-build"

@@ -6,9 +6,13 @@ set -o xtrace
 . $(dirname $0)/vars
 
 if [ -f "${docker_client_tarball}" ]; then
-    echo skip docker build
+    echo Docker client tarball found, skipping docker build...
     exit 0
 fi
+
+echo -----------------------------------------
+echo "Building docker image for PMM Client..."
+echo -----------------------------------------
 
 DOCKER_FILE_LOCATION=tmp/source/pmm/build/docker/client # relative to `root_dir`
 cp ${root_dir}/results/tarball/pmm-client-*.tar.gz ${root_dir}/${DOCKER_FILE_LOCATION}/pmm-client.tar.gz
