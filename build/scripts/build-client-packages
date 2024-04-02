@@ -174,26 +174,26 @@ get_system(){
 }
 
 install_deps() {
-    local RUN_CMD
+    local PACKAGES
     if [ $INSTALL = 0 ]; then
-        echo "Dependencies will not be installed"
+        echo "Dependencies will not be installed."
         return;
     fi
     if [ ! $( id -u ) -eq 0 ]; then
-        echo "It is not possible to instal dependencies. Please run as root"
+        echo "It is not possible to install dependencies. Please run as root."
         exit 1
     fi
     if [ "$OS" = "rpm" ]; then
         # yum -y install git curl wget rpmdevtools bison yum-utils rpm-build
-        command -v git || RUN_CMD+=" git"
-        command -v curl || RUN_CMD+=" curl"
-        command -v wget || RUN_CMD+=" wget"
-        command -v spectool || RUN_CMD+=" rpmdevtools"
-        command -v bison || RUN_CMD+=" bison"
-        command -v repoquery || RUN_CMD+=" yum-utils"
-        command -v rpmbuild || RUN_CMD+=" rpm-build"
-        if [ -n "$RUN_CMD" ]; then
-            yum -y install "$RUN_CMD"
+        command -v git || PACKAGES+=" git"
+        command -v curl || PACKAGES+=" curl"
+        command -v wget || PACKAGES+=" wget"
+        command -v spectool || PACKAGES+=" rpmdevtools"
+        command -v bison || PACKAGES+=" bison"
+        command -v repoquery || PACKAGES+=" yum-utils"
+        command -v rpmbuild || PACKAGES+=" rpm-build"
+        if [ -n "$PACKAGES" ]; then
+            yum -y install "$PACKAGES"
         fi
     else
         apt-get update

@@ -106,11 +106,11 @@ update() {
     DIR="."
   elif [ -d "$DIR" ]; then # pwd is outside pmm-submodules
     if ! check-files "$DIR"; then
-      echo "FATAL: could not locate known files in ${PWD}/${DIR}"
+      echo "Fatal: could not locate known files in ${PWD}/${DIR}"
       exit 1
     fi
   else
-    echo "FATAL: could not locate known files in $PWD"
+    echo "Fatal: could not locate known files in $PWD"
     exit 1
   fi
 
@@ -155,13 +155,13 @@ get_branch_name() {
 }
 
 build_with_logs() {
-  local script="$1"
+  local script="$PATH_TO_SCRIPTS/$1"
   local start_time
   local end_time
-  local script_name=$(basename $script)
+  local script_name="$1"
 
   if [ ! -f "$script" ]; then
-    echo "FATAL: script $script does not exist"
+    echo "Fatal: script $script does not exist"
     exit 1
   fi
 
@@ -175,14 +175,23 @@ build_with_logs() {
   fi
   end_time=$(date +%s)
 
-  echo "Execution time (in sec) for $script_name: $((end_time - start_time))" | tee 
+  echo ---
+  echo "Execution time (in sec) for $script_name: $((end_time - start_time))" | tee -a $LOG_FILE
+  echo ---
 }
 
 init() {
-  # Remove the temp directory
+  local tmp_files
+  # Remove stale files and directories
   if [ -d tmp ]; then
-    echo "Removing tmp directory..."
-    rm -rf tmp
+    echo "Removing stale files and directories..."
+    if [ -d "tmp/pmm-server" ]; then
+      tmp_files=$(find tmp/pmm-server | grep -v "RPMS")
+      tmp_files=($tmp_files)
+      for f in "${tmp_files[@]}"; do
+        rm -rf "$f"
+      done
+    fi
   fi
   if [ -f "$LOG_FILE" ]; then
     echo "Removing the log file..."
@@ -252,23 +261,23 @@ main() {
 
   if [ "$NO_CLIENT" -eq 0 ]; then
     # Build client source: 4m39s from scratch, 0m27s using cache
-    build_with_logs "$PATH_TO_SCRIPTS/build-client-source"
+    build_with_logs build-client-source
 
     # Build client binary: ??? from scratch, 0m20s using cache
-    build_with_logs "$PATH_TO_SCRIPTS/build-client-binary"
+    build_with_logs build-client-binary
 
     # Building client source rpm takes 13s (caching does not apply)
-    build_with_logs "$PATH_TO_SCRIPTS/build-client-srpm"
+    build_with_logs build-client-srpm
 
     # Building client rpm takes 1m40s
-    build_with_logs "$PATH_TO_SCRIPTS/build-client-rpm"
+    build_with_logs build-client-rpm
   fi
 
   # Building client docker image takes 17s
   GIT_COMMIT=$(git rev-parse HEAD | head -c 8)
   export DOCKER_CLIENT_TAG=local/pmm-client:${GIT_COMMIT}
   if [ "$NO_CLIENT_DOCKER" -eq 0 ]; then
-    build_with_logs "$PATH_TO_SCRIPTS/build-client-docker"
+    build_with_logs build-client-docker
   fi
 
   # Building PMM CLient locally (non-CI, i.e. non-Jenkins)
@@ -282,24 +291,27 @@ main() {
 
   export RPM_EPOCH=1
   if [ "$NO_SERVER_RPM" -eq 0 ]; then
-    build_with_logs "$PATH_TO_SCRIPTS/build-server-rpm" percona-dashboards grafana-dashboards
-    build_with_logs "$PATH_TO_SCRIPTS/build-server-rpm" pmm-managed pmm
-    build_with_logs "$PATH_TO_SCRIPTS/build-server-rpm" percona-qan-api2 pmm
-    build_with_logs "$PATH_TO_SCRIPTS/build-server-rpm" pmm-update pmm
-    build_with_logs "$PATH_TO_SCRIPTS/build-server-rpm" pmm-dump
-    build_with_logs "$PATH_TO_SCRIPTS/build-server-rpm" vmproxy pmm
+    build_with_logs build-server-rpm percona-dashboards grafana-dashboards
+    build_with_logs build-server-rpm pmm-managed pmm
+    build_with_logs build-server-rpm percona-qan-api2 pmm
+    build_with_logs build-server-rpm pmm-update pmm
+    build_with_logs build-server-rpm pmm-dump
+    build_with_logs build-server-rpm vmproxy pmm
 
     # 3rd-party
-    build_with_logs "$PATH_TO_SCRIPTS/build-server-rpm" victoriametrics
-    build_with_logs "$PATH_TO_SCRIPTS/build-server-rpm" grafana
+    build_with_logs build-server-rpm victoriametrics
+    build_with_logs build-server-rpm grafana
   fi
 
   export DOCKER_TAG=local/pmm-server:${GIT_COMMIT}
   export DOCKERFILE=Dockerfile.el9
-  build_with_logs "${PATH_TO_SCRIPTS}/build-server-docker"
+  build_with_logs build-server-docker
 
+  echo
   echo "Done building PMM artifacts."
+  echo ---
   echo "Total execution time, sec: $(($(date +%s) - $START_TIME))" | tee -a $LOG_FILE
+  echo ---
 }
 
 # Local reference test environment
