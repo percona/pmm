@@ -8,6 +8,32 @@ NO_CLIENT_DOCKER=0
 NO_SERVER_RPM=0
 OUTPUT_LOG_FILE="/tmp/build.log"
 
+while test "$#" -gt 0; do
+  case "$1" in
+    --update-only)
+      UPDATE_ONLY=1; NO_UPDATE=0
+      ;;
+    --no-update)
+      NO_UPDATE=1
+      ;;
+    --no-client)
+      NO_CLIENT=1; NO_CLIENT_DOCKER=1
+      ;;
+    --no-client-docker)
+      NO_CLIENT_DOCKER=1
+      ;;
+    --no-server-rpm)
+      NO_SERVER_RPM=1
+      ;;
+    *)
+      echo "Unknown argument: $1"
+      echo "Usage: $0 [--no-update | --update-only] [--no-client] [--no-client-docker] [--no-server-rpm]"
+      exit 1
+      ;;
+  esac
+  shift
+done
+
 needs-to-pull() {
   local UPSTREAM=${1:-'@{u}'}
   local LOCAL=$(git rev-parse @)
@@ -106,48 +132,6 @@ update() {
   cd "$CURDIR" > /dev/null
 }
 
-
-while test "$#" -gt 0; do
-  case "$1" in
-    --update-only)
-      UPDATE_ONLY=1; NO_UPDATE=0
-      ;;
-    --no-update)
-      NO_UPDATE=1
-      ;;
-    --no-client)
-      NO_CLIENT=1; NO_CLIENT_DOCKER=1
-      ;;
-    --no-client-docker)
-      NO_CLIENT_DOCKER=1
-      ;;
-    --no-server-rpm)
-      NO_SERVER_RPM=1
-      ;;
-    *)
-      echo "Unknown argument: $1"
-      echo "Usage: $0 [--no-update | --update-only] [--no-client] [--no-client-docker] [--no-server-rpm]"
-      exit 1
-      ;;
-  esac
-  shift
-done
-
-if [ "$NO_UPDATE" -eq 0 ]; then
-  MD5SUM=$(md5sum $(dirname $0)/build.sh)
-  
-  # Update submodules and PR branches
-  update
-
-  test "$UPDATE_ONLY" -eq 1 && return
-
-  if [ "$MD5SUM" != "$(md5sum $(dirname $0)/build.sh)" ]; then
-    echo "The updated version of this script has been fetched from the repository, exiting..."
-    echo "Please run it again, i.e. '/bin/bash $(dirname $0)/build.sh --no-update'"
-    return
-  fi
-fi
-
 get_branch_name() {
   local module="${1:-}"
   local branch_name
@@ -224,7 +208,6 @@ init() {
   test -d "${root_dir}/go-build" || mkdir -p "go-build"
   test -d "${root_dir}/yarn-cache" || mkdir -p "yarn-cache"
   test -d "${root_dir}/yum-cache" || mkdir -p "yum-cache"
-
 }
 
 cleanup() {
@@ -239,12 +222,21 @@ cleanup() {
     pmmUITestsCommitSha
 }
 
-# Local reference test environment
-# CPU: 4 cores
-# RAM: 16GB
-# OS: Ubuntu 22.04.1 LTS
-
 main() {
+  if [ "$NO_UPDATE" -eq 0 ]; then
+    MD5SUM=$(md5sum $(dirname $0)/build.sh)
+    
+    # Update submodules and PR branches
+    update
+
+    test "$UPDATE_ONLY" -eq 1 && return
+
+    if [ "$MD5SUM" != "$(md5sum $(dirname $0)/build.sh)" ]; then
+      echo "The updated version of this script has been fetched from the repository, exiting..."
+      echo "Please run it again, i.e. '/bin/bash $(dirname $0)/build.sh --no-update'"
+      return
+    fi
+  fi
 
   if [ "$NO_CLIENT" -eq 0 ]; then
     # Build client source: 4m39s from scratch, 0m27s using cache
@@ -294,6 +286,11 @@ main() {
   export DOCKERFILE=Dockerfile.el9
   build_with_logs "${PATH_TO_SCRIPTS}/build-server-docker"
 }
+
+# Local reference test environment
+# CPU: 4 cores
+# RAM: 16GB
+# OS: Ubuntu 22.04.1 LTS
 
 init
 main
