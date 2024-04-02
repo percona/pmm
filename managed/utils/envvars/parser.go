@@ -36,7 +36,7 @@ const (
 	envPlatformInsecure       = "PMM_DEV_PERCONA_PLATFORM_INSECURE"
 	envPlatformPublicKey      = "PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY"
 	evnInterfaceToBind        = "PMM_INTERFACE_TO_BIND"
-	envEnableAccessControl    = "PMM_ENABLE_RBAC"
+	envEnableAccessControl    = "PMM_ENABLE_ACCESS_CONTROL"
 	envPlatformAPITimeout     = "PMM_PERCONA_PLATFORM_API_TIMEOUT"
 	defaultPlatformAPITimeout = 30 * time.Second
 	// ENVvmAgentPrefix is the prefix for environment variables related to the VM agent.
@@ -62,7 +62,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - PMM_METRICS_RESOLUTION, PMM_METRICS_RESOLUTION_MR, PMM_METRICS_RESOLUTION_HR, PMM_METRICS_RESOLUTION_LR are durations of metrics resolution;
 //   - PMM_DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
 //   - PMM_ENABLE_AZURE_DISCOVER enables Azure Discover;
-//   - PMM_ENABLE_RBAC enables Access control;
+//   - PMM_ENABLE_ACCESS_CONTROL enables Access control;
 //   - the environment variables prefixed with GF_ passed as related to Grafana.
 //   - the environment variables relating to proxies
 //   - the environment variable set by podman
@@ -217,14 +217,13 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 
 			if strings.HasPrefix(k, "PERCONA_") {
 				warns = append(warns, "PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation")
+				continue
 			}
 
 			if !strings.HasPrefix(k, "PMM_TEST_PERCONA") {
 				warns = append(warns, fmt.Sprintf("unknown environment variable %q", env))
 				continue
 			}
-
-			warns = append(warns, fmt.Sprintf("environment variable %q IS NOT SUPPORTED and WILL BE REMOVED IN THE FUTURE", k))
 		}
 
 		if err != nil {

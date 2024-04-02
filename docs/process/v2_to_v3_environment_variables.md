@@ -4,7 +4,6 @@ Below is a list of affected variables and their new names.
 
 | PMM 2                                         | PMM 3                                      | Comments                                                     |
 |-----------------------------------------------|--------------------------------------------|--------------------------------------------------------------|
-| `CONTAINER`                                   | `PMM_CONTAINER`                            |                                                              |
 | `DATA_RETENTION`                              | `PMM_DATA_RETENTION`                       |                                                              |
 | `DISABLE_ALERTING`                            | `PMM_DISABLE_ALERTING`                     |                                                              |
 | `DISABLE_UPDATES`                             | `PMM_DISABLE_UPDATES`                      |                                                              |
@@ -12,8 +11,7 @@ Below is a list of affected variables and their new names.
 | `PERCONA_PLATFORM_API_TIMEOUT`                | `PMM_PERCONA_PLATFORM_API_TIMEOUT`         |                                                              |
 | `DISABLE_BACKUP_MANAGEMENT`                   | `PMM_DISABLE_BACKUP_MANAGEMENT`            |                                                              |
 | `ENABLE_AZUREDISCOVER`                        | `PMM_ENABLE_AZURE_DISCOVER`                |                                                              |
-| `ENABLE_RBAC`                                 | `PMM_ENABLE_RBAC`                          |                                                              |
-| `ENABLE_RBAC`                                 | `PMM_ENABLE_RBAC`                          |                                                              |
+| `ENABLE_RBAC`                                 | `PMM_ENABLE_ACCESS_CONTROL`                |                                                              |
 | `LESS_LOG_NOISE`                              | `PMM_LESS_LOG_NOISE`                       |                                                              |
 | `METRICS_RESOLUTION`                          | `PMM_METRICS_RESOLUTION`                   |                                                              |
 | `METRICS_RESOLUTION_HR`                       | `PMM_METRICS_RESOLUTION_HR`                |                                                              |
@@ -31,7 +29,7 @@ Below is a list of affected variables and their new names.
 | `PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE`      | `PMM_CLICKHOUSE_BLOCK_SIZE`                |                                                              |
 | `PERCONA_TEST_PMM_CLICKHOUSE_DATABASE`        | `PMM_CLICKHOUSE_DATABASE`                  |                                                              |
 | `PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE`      | `PMM_CLICKHOUSE_DATASOURCE`                |                                                              |
-| `PERCONA_TEST_PMM_CLICKHOUSE_HOST`            | `PMM_CLICKHOUSE_HOST`                      |                                                              |
+| `PERCONA_TEST_PMM_CLICKHOUSE_HOST`            | `PERCONA_DEV_PMM_CLICKHOUSE_HOST`          |                                                              |
 | `PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE`       | `PMM_CLICKHOUSE_POOL_SIZE`                 |                                                              |
 | `PERCONA_TEST_PMM_CLICKHOUSE_PORT`            | `PMM_CLICKHOUSE_PORT`                      |                                                              |
 | `PERCONA_TEST_PMM_DISABLE_BUILTIN_CLICKHOUSE` | `PMM_DISABLE_BUILTIN_CLICKHOUSE`           |                                                              |
