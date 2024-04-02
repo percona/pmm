@@ -157,6 +157,7 @@ build_with_logs() {
   local script="$1"
   local start_time
   local end_time
+  local script_name=$(basename $script)
 
   if [ ! -f "$script" ]; then
     echo "FATAL: script $script does not exist"
@@ -166,13 +167,14 @@ build_with_logs() {
   start_time=$(date +%s)
   if [ "$#" -gt 1 ]; then
     shift
+    script_name="${script_name}:($1)"
     $script "$@" | tee -a $LOG_FILE
   else
     $script | tee -a $LOG_FILE
   fi
   end_time=$(date +%s)
 
-  echo "Execution time for $script: $((end_time - start_time)) seconds" | tee -a $LOG_FILE
+  echo "Execution time (in sec) for $script_name: $((end_time - start_time))" | tee 
 }
 
 init() {
