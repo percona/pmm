@@ -42,9 +42,6 @@ make -C update release
 
 
 %install
-install -d %{buildroot}%{_datadir}/%{name}
-cp -pav ./update/ansible %{buildroot}%{_datadir}/%{name}
-
 install -d %{buildroot}%{_sbindir}
 install -p -m 0755 update/bin/pmm-update %{buildroot}%{_sbindir}/
 
@@ -53,7 +50,6 @@ install -p -m 0755 update/bin/pmm-update %{buildroot}%{_sbindir}/
 %license update/LICENSE
 %doc update/README.md
 %{_sbindir}/pmm-update
-%{_datadir}/%{name}
 
 
 %changelog
