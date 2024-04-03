@@ -6,6 +6,7 @@ UPDATE_ONLY=0
 NO_CLIENT=0
 NO_CLIENT_DOCKER=0
 NO_SERVER_RPM=0
+NO_SERVER_DOCKER=0
 START_TIME=$(date +%s)
 LOG_FILE="/tmp/build.log"
 
@@ -24,7 +25,18 @@ while test "$#" -gt 0; do
       NO_CLIENT_DOCKER=1
       ;;
     --no-server-rpm)
+      if [ "$NO_SERVER_DOCKER" -eq 1 ]; then
+        echo "Cannot disable both server RPM and server Docker"
+        exit 1
+      fi
       NO_SERVER_RPM=1
+      ;;
+    --no-server-docker)
+      if [ "$NO_SERVER_RPM" -eq 1 ]; then
+        echo "Cannot disable both server RPM and server Docker"
+        exit 1
+      fi
+      NO_SERVER_DOCKER=1
       ;;
     --log-file)
       shift
@@ -311,9 +323,11 @@ main() {
     build_with_logs build-server-rpm grafana
   fi
 
-  export DOCKER_TAG=local/pmm-server:${GIT_COMMIT}
-  export DOCKERFILE=Dockerfile.el9
-  build_with_logs build-server-docker
+  if [ "$NO_SERVER_DOCKER" -eq 0 ]; then
+    export DOCKER_TAG=local/pmm-server:${GIT_COMMIT}
+    export DOCKERFILE=Dockerfile.el9
+    build_with_logs build-server-docker
+  fi
 
   echo
   echo "Done building PMM artifacts."
