@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package supervisord
+package server
 
 import (
 	"bytes"
@@ -24,7 +24,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
@@ -55,28 +54,9 @@ type PMMUpdateChecker struct {
 
 // NewPMMUpdateChecker returns a PMMUpdateChecker instance that can be shared across different parts of the code.
 // Since this is used inside this package, it could be a singleton, but it would make things mode difficult to test.
-func NewPMMUpdateChecker(l *logrus.Entry) *PMMUpdateChecker {
+func NewPMMUpdateChecker() *PMMUpdateChecker {
 	return &PMMUpdateChecker{
-		l: l,
-	}
-}
-
-// run runs check for updates loop until ctx is canceled.
-func (p *PMMUpdateChecker) run(ctx context.Context) {
-	p.l.Info("Starting...")
-	ticker := time.NewTicker(updateCheckInterval)
-	defer ticker.Stop()
-
-	for {
-		_ = p.check(ctx)
-
-		select {
-		case <-ticker.C:
-			// continue with next loop iteration
-		case <-ctx.Done():
-			p.l.Info("Done.")
-			return
-		}
+		l: logrus.WithField("component", "pmm-update-checker"),
 	}
 }
 
@@ -125,46 +105,4 @@ func (p *PMMUpdateChecker) cmdRun(ctx context.Context, cmdLine string) ([]byte, 
 	b, err := cmd.Output()
 	p.cmdMutex.Unlock()
 	return b, stderr, err
-}
-
-// checkResult returns last `pmm-update -check` result and check time.
-// It may force re-check if last result is empty or too old.
-func (p *PMMUpdateChecker) checkResult(ctx context.Context) (*version.UpdateCheckResult, time.Time) {
-	p.checkRW.RLock()
-	defer p.checkRW.RUnlock()
-
-	if time.Since(p.lastCheckTime) > updateCheckResultFresh {
-		p.checkRW.RUnlock()
-		_ = p.check(ctx)
-		p.checkRW.RLock()
-	}
-
-	return p.lastCheckResult, p.lastCheckTime
-}
-
-// check calls `pmm-update -check` and fills lastInstalledPackageInfo/lastCheckResult/lastCheckTime on success.
-func (p *PMMUpdateChecker) check(ctx context.Context) error {
-	p.checkRW.Lock()
-	defer p.checkRW.Unlock()
-
-	cmdLine := "pmm-update -check"
-	b, stderr, err := p.cmdRun(ctx, cmdLine)
-	if err != nil {
-		p.l.Errorf("%s output: %s. Error: %s", cmdLine, stderr.Bytes(), err)
-		return errors.WithStack(err)
-	}
-
-	var res version.UpdateCheckResult
-	if err = json.Unmarshal(b, &res); err != nil {
-		p.l.Errorf("%s output: %s", cmdLine, stderr.Bytes())
-		return errors.WithStack(err)
-	}
-
-	p.l.Debugf("%s output: %s", cmdLine, stderr.Bytes())
-	p.installedRW.Lock()
-	p.lastInstalledPackageInfo = &res.Installed
-	p.installedRW.Unlock()
-	p.lastCheckResult = &res
-	p.lastCheckTime = time.Now()
-	return nil
 }

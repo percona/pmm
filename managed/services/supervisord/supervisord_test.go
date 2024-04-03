@@ -22,19 +22,15 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
 )
 
-const gRPCMessageMaxSize = uint32(100 * 1024 * 1024)
-
 func TestConfig(t *testing.T) {
 	t.Parallel()
 
-	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
 	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	require.NoError(t, err)
@@ -48,7 +44,7 @@ func TestConfig(t *testing.T) {
 		SSLKeyPath:  "path-to-key",
 		SSLCertPath: "path-to-cert",
 	}
-	s := New(configDir, pmmUpdateCheck, &models.Params{VMParams: vmParams, PGParams: pgParams, HAParams: &models.HAParams{}}, gRPCMessageMaxSize)
+	s := New(configDir, &models.Params{VMParams: vmParams, PGParams: pgParams, HAParams: &models.HAParams{}})
 	settings := &models.Settings{
 		DataRetention:    30 * 24 * time.Hour,
 		PMMPublicAddress: "192.168.0.42:8443",
@@ -73,7 +69,6 @@ func TestConfig(t *testing.T) {
 }
 
 func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
-	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
 	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	require.NoError(t, err)
@@ -87,7 +82,7 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 		SSLKeyPath:  "path-to-key",
 		SSLCertPath: "path-to-cert",
 	}
-	s := New(configDir, pmmUpdateCheck, &models.Params{VMParams: vmParams, PGParams: pgParams, HAParams: &models.HAParams{}}, gRPCMessageMaxSize)
+	s := New(configDir, &models.Params{VMParams: vmParams, PGParams: pgParams, HAParams: &models.HAParams{}})
 	settings := &models.Settings{
 		DataRetention:    30 * 24 * time.Hour,
 		PMMPublicAddress: "192.168.0.42:8443",

@@ -17,11 +17,11 @@ package server
 
 import (
 	"context"
+	"net/url"
 	"time"
 
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/version"
 )
 
 // healthChecker interface wraps all services that implements the IsReady method to report the
@@ -73,13 +73,13 @@ type vmAlertExternalRules interface {
 // supervisordService is a subset of methods of supervisord.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type supervisordService interface {
-	InstalledPMMVersion(ctx context.Context) *version.PackageInfo
-	LastCheckUpdatesResult(ctx context.Context) (*version.UpdateCheckResult, time.Time)
-	ForceCheckUpdates(ctx context.Context) error
-
-	StartUpdate() (uint32, error)
-	UpdateRunning() bool
-	UpdateLog(offset uint32) ([]string, uint32, error)
+	//InstalledPMMVersion(ctx context.Context) *version.PackageInfo
+	//LastCheckUpdatesResult(ctx context.Context) (*version.UpdateCheckResult, time.Time)
+	//ForceCheckUpdates(ctx context.Context) error
+	//
+	//StartUpdate() (uint32, error)
+	//UpdateRunning() bool
+	//UpdateLog(offset uint32) ([]string, uint32, error)
 
 	UpdateConfiguration(settings *models.Settings, ssoDetails *models.PerconaSSODetails) error
 }
@@ -107,4 +107,11 @@ type templatesService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type haService interface {
 	IsLeader() bool
+}
+
+// victoriaMetricsParams is a subset of methods of models.VMParams used by this package.
+// We use it instead of real type to avoid dependency cycle.
+type victoriaMetricsParams interface {
+	ExternalVM() bool
+	URLFor(path string) (*url.URL, error)
 }

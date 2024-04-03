@@ -189,15 +189,14 @@ func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 		res.Managed.Timestamp = timestamppb.New(t)
 	}
 
-	if v := s.supervisord.InstalledPMMVersion(ctx); v != nil {
-		res.Version = v.Version
-		res.Server = &serverpb.VersionInfo{
-			Version:     v.Version,
-			FullVersion: v.FullVersion,
-		}
-		if v.BuildTime != nil {
-			res.Server.Timestamp = timestamppb.New(*v.BuildTime)
-		}
+	v := s.updater.InstalledPMMVersion()
+	res.Version = v.Version
+	res.Server = &serverpb.VersionInfo{
+		Version:     v.Version,
+		FullVersion: v.FullVersion,
+	}
+	if v.BuildTime != nil {
+		res.Server.Timestamp = timestamppb.New(*v.BuildTime)
 	}
 
 	return res, nil
@@ -298,7 +297,17 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 		return nil, status.Error(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
 	}
 
-	err := s.updater.StartUpdate(ctx, req.GetNewImage())
+	newImage := req.GetNewImage()
+	if newImage == "" {
+		latest, err := s.updater.latest(ctx)
+		if err != nil {
+			s.l.WithError(err).Error("Failed to get latest version")
+			newImage = defaultLatestPMMImage
+		} else {
+			newImage = fmt.Sprintf("%s:%s", latest.Repo, latest.Version)
+		}
+	}
+	err := s.updater.StartUpdate(ctx, newImage)
 	if err != nil {
 		return nil, err
 	}
@@ -331,13 +340,13 @@ func (s *Server) UpdateStatus(ctx context.Context, req *serverpb.UpdateStatusReq
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 	for ctx.Err() == nil {
-		done = !s.supervisord.UpdateRunning()
+		done = !s.updater.IsRunning()
 		if done {
 			// give supervisord a second to flush logs to file
 			time.Sleep(time.Second)
 		}
 
-		lines, newOffset, err = s.supervisord.UpdateLog(req.LogOffset)
+		lines, newOffset, err = s.updater.UpdateLog(req.LogOffset)
 		if err != nil {
 			s.l.Warn(err)
 		}
