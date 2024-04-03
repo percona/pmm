@@ -17,13 +17,12 @@ package victoriametrics
 
 import (
 	"github.com/AlekSi/pointer"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/version"
 	config "github.com/percona/promconfig"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
-
-	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/version"
 )
 
 // AddScrapeConfigs - adds agents scrape configuration to given scrape config,
@@ -209,7 +208,8 @@ func AddInternalServicesToScrape(cfg *config.Config, s models.MetricsResolutions
 		scrapeConfigForAlertmanager(s.MR),
 		scrapeConfigForGrafana(s.MR),
 		scrapeConfigForPMMManaged(s.MR),
-		scrapeConfigForQANAPI2(s.MR))
+		scrapeConfigForQANAPI2(s.MR),
+		scrapeConfigForClickhouse(s.MR))
 	// TODO Refactor to remove boolean positional parameter when Prometheus is removed
 	if dbaas {
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForDBaaSController(s.MR))
