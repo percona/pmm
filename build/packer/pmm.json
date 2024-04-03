@@ -64,7 +64,7 @@
     },
     {
       "type": "virtualbox-ovf",
-      "vm_name": "PMM-Server-EL9-{{isotime \"2006-01-02-1504\"}}",
+      "vm_name": "PMM3-Server-{{isotime \"2006-01-02-1504\"}}",
       "export_opts": [
         "--ovf10",
         "--manifest",
