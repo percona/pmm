@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // NewListTemplatesParams creates a new ListTemplatesParams object,
@@ -60,8 +61,27 @@ ListTemplatesParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListTemplatesParams struct {
-	// Body.
-	Body ListTemplatesBody
+	/* PageIndex.
+
+	   Index of the requested page, starts from 0.
+
+	   Format: int32
+	*/
+	PageIndex *int32
+
+	/* PageSize.
+
+	   Maximum number of results per page.
+
+	   Format: int32
+	*/
+	PageSize *int32
+
+	/* Reload.
+
+	   If true, template files will be re-read from disk.
+	*/
+	Reload *bool
 
 	timeout    time.Duration
 	Context    context.Context
@@ -116,15 +136,37 @@ func (o *ListTemplatesParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the list templates params
-func (o *ListTemplatesParams) WithBody(body ListTemplatesBody) *ListTemplatesParams {
-	o.SetBody(body)
+// WithPageIndex adds the pageIndex to the list templates params
+func (o *ListTemplatesParams) WithPageIndex(pageIndex *int32) *ListTemplatesParams {
+	o.SetPageIndex(pageIndex)
 	return o
 }
 
-// SetBody adds the body to the list templates params
-func (o *ListTemplatesParams) SetBody(body ListTemplatesBody) {
-	o.Body = body
+// SetPageIndex adds the pageIndex to the list templates params
+func (o *ListTemplatesParams) SetPageIndex(pageIndex *int32) {
+	o.PageIndex = pageIndex
+}
+
+// WithPageSize adds the pageSize to the list templates params
+func (o *ListTemplatesParams) WithPageSize(pageSize *int32) *ListTemplatesParams {
+	o.SetPageSize(pageSize)
+	return o
+}
+
+// SetPageSize adds the pageSize to the list templates params
+func (o *ListTemplatesParams) SetPageSize(pageSize *int32) {
+	o.PageSize = pageSize
+}
+
+// WithReload adds the reload to the list templates params
+func (o *ListTemplatesParams) WithReload(reload *bool) *ListTemplatesParams {
+	o.SetReload(reload)
+	return o
+}
+
+// SetReload adds the reload to the list templates params
+func (o *ListTemplatesParams) SetReload(reload *bool) {
+	o.Reload = reload
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,8 +175,53 @@ func (o *ListTemplatesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+
+	if o.PageIndex != nil {
+
+		// query param page_index
+		var qrPageIndex int32
+
+		if o.PageIndex != nil {
+			qrPageIndex = *o.PageIndex
+		}
+		qPageIndex := swag.FormatInt32(qrPageIndex)
+		if qPageIndex != "" {
+			if err := r.SetQueryParam("page_index", qPageIndex); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.PageSize != nil {
+
+		// query param page_size
+		var qrPageSize int32
+
+		if o.PageSize != nil {
+			qrPageSize = *o.PageSize
+		}
+		qPageSize := swag.FormatInt32(qrPageSize)
+		if qPageSize != "" {
+			if err := r.SetQueryParam("page_size", qPageSize); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.Reload != nil {
+
+		// query param reload
+		var qrReload bool
+
+		if o.Reload != nil {
+			qrReload = *o.Reload
+		}
+		qReload := swag.FormatBool(qrReload)
+		if qReload != "" {
+			if err := r.SetQueryParam("reload", qReload); err != nil {
+				return err
+			}
+		}
 	}
 
 	if len(res) > 0 {

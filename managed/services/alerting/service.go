@@ -424,9 +424,11 @@ func (s *Service) ListTemplates(ctx context.Context, req *alerting.ListTemplates
 
 	var pageIndex int
 	var pageSize int
-	if req.PageParams != nil {
-		pageIndex = int(req.PageParams.Index)
-		pageSize = int(req.PageParams.PageSize)
+	if req.PageIndex != nil {
+		pageIndex = int(*req.PageIndex)
+	}
+	if req.PageSize != nil {
+		pageSize = int(*req.PageSize)
 	}
 
 	if req.Reload {
@@ -435,17 +437,15 @@ func (s *Service) ListTemplates(ctx context.Context, req *alerting.ListTemplates
 
 	templates := s.GetTemplates()
 	res := &alerting.ListTemplatesResponse{
-		Templates: make([]*alerting.Template, 0, len(templates)),
-		Totals: &managementv1.PageTotals{
-			TotalItems: int32(len(templates)),
-			TotalPages: 1,
-		},
+		Templates:  make([]*alerting.Template, 0, len(templates)),
+		TotalItems: int32(len(templates)),
+		TotalPages: 1,
 	}
 
 	if pageSize > 0 {
-		res.Totals.TotalPages = int32(len(templates) / pageSize)
+		res.TotalPages = int32(len(templates) / pageSize)
 		if len(templates)%pageSize > 0 {
-			res.Totals.TotalPages++
+			res.TotalPages++
 		}
 	}
 
@@ -592,7 +592,7 @@ func (s *Service) DeleteTemplate(ctx context.Context, req *alerting.DeleteTempla
 		return nil, services.ErrAlertingDisabled
 	}
 
-	e := s.db.InTransaction(func(tx *reform.TX) error {
+	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		return models.RemoveTemplate(tx.Querier, req.Name)
 	})
 	if e != nil {

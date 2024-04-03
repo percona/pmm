@@ -75,11 +75,11 @@ POST /v1/actions/StartPTPgSummary                   POST /v1/actions:startServic
 POST /v1/actions/StartPTSummary                     POST /v1/actions:startNodeAction                 ✅
 
 **AlertingService**                                 **AlertingService**
-POST /v1/alerting/Rules/Create                      POST /v1/alerting/rules
-POST /v1/alerting/Templates/Create                  POST /v1/alerting/templates
-POST /v1/alerting/Templates/Update                  PUT /v1/alerting/templates/{name}
-POST /v1/alerting/Templates/List                    GET /v1/alerting/templates
-POST /v1/alerting/Templates/Delete                  DELETE /v1/alerting/templates/{name}
+POST /v1/alerting/Rules/Create                      POST /v1/alerting/rules                          ✅
+POST /v1/alerting/Templates/Create                  POST /v1/alerting/templates                      ✅
+POST /v1/alerting/Templates/Update                  PUT /v1/alerting/templates/{name}                ✅
+POST /v1/alerting/Templates/List                    GET /v1/alerting/templates                       ✅
+POST /v1/alerting/Templates/Delete                  DELETE /v1/alerting/templates/{name}             ✅
 
 **AdvisorService**                                 **AdvisorService**
 POST /v1/advisors/Change                            POST /v1/advisors/checks:batchChange

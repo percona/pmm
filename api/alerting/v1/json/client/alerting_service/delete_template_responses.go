@@ -58,7 +58,7 @@ type DeleteTemplateOK struct {
 }
 
 func (o *DeleteTemplateOK) Error() string {
-	return fmt.Sprintf("[POST /v1/alerting/Templates/Delete][%d] deleteTemplateOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[DELETE /v1/alerting/templates/{name}][%d] deleteTemplateOk  %+v", 200, o.Payload)
 }
 
 func (o *DeleteTemplateOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *DeleteTemplateDefault) Code() int {
 }
 
 func (o *DeleteTemplateDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/alerting/Templates/Delete][%d] DeleteTemplate default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[DELETE /v1/alerting/templates/{name}][%d] DeleteTemplate default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *DeleteTemplateDefault) GetPayload() *DeleteTemplateDefaultBody {
@@ -113,43 +113,6 @@ func (o *DeleteTemplateDefault) readResponse(response runtime.ClientResponse, co
 		return err
 	}
 
-	return nil
-}
-
-/*
-DeleteTemplateBody delete template body
-swagger:model DeleteTemplateBody
-*/
-type DeleteTemplateBody struct {
-	// name
-	Name string `json:"name,omitempty"`
-}
-
-// Validate validates this delete template body
-func (o *DeleteTemplateBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this delete template body based on context it is used
-func (o *DeleteTemplateBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DeleteTemplateBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DeleteTemplateBody) UnmarshalBinary(b []byte) error {
-	var res DeleteTemplateBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

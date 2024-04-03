@@ -58,7 +58,7 @@ type CreateTemplateOK struct {
 }
 
 func (o *CreateTemplateOK) Error() string {
-	return fmt.Sprintf("[POST /v1/alerting/Templates/Create][%d] createTemplateOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/alerting/templates][%d] createTemplateOk  %+v", 200, o.Payload)
 }
 
 func (o *CreateTemplateOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *CreateTemplateDefault) Code() int {
 }
 
 func (o *CreateTemplateDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/alerting/Templates/Create][%d] CreateTemplate default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/alerting/templates][%d] CreateTemplate default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *CreateTemplateDefault) GetPayload() *CreateTemplateDefaultBody {
