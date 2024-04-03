@@ -198,7 +198,7 @@ purge_files() {
   if [ -d tmp ]; then
     echo "Removing stale files and directories..."
     if [ -d "tmp/pmm-server" ]; then
-      tmp_files=$(find tmp/pmm-server | grep -v "RPMS" | grep -Ev "^tmp/pmm-server$")
+      tmp_files=$(find tmp/pmm-server | grep -v "RPMS" | grep -Ev "^tmp/pmm-server$" || :)
       tmp_files=($tmp_files)
       for f in "${tmp_files[@]}"; do
         rm -rf "$f"
