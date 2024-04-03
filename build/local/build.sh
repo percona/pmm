@@ -186,11 +186,14 @@ init() {
   if [ -d tmp ]; then
     echo "Removing stale files and directories..."
     if [ -d "tmp/pmm-server" ]; then
-      tmp_files=$(find tmp/pmm-server | grep -v "RPMS")
+      tmp_files=$(find tmp/pmm-server | grep -v "RPMS" | grep -Ev "^tmp/pmm-server$")
       tmp_files=($tmp_files)
       for f in "${tmp_files[@]}"; do
         rm -rf "$f"
       done
+    fi
+    if [ -d "tmp/source/pmm" ]; then
+      rm -rf tmp/source/pmm
     fi
   fi
   if [ -f "$LOG_FILE" ]; then
