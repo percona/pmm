@@ -180,7 +180,7 @@ build_with_logs() {
   echo ---
 }
 
-init() {
+purge_files() {
   local tmp_files
   # Remove stale files and directories
   if [ -d tmp ]; then
@@ -200,7 +200,9 @@ init() {
     echo "Removing the log file..."
     rm -f $LOG_FILE
   fi
+}
 
+init() {
   # Define global variables
   pmm_commit=$(git submodule status | grep 'sources/pmm/src' | awk -F ' ' '{print $1}')
   echo $pmm_commit > apiCommitSha
@@ -262,6 +264,9 @@ main() {
     fi
   fi
 
+  init
+  purge_files
+
   if [ "$NO_CLIENT" -eq 0 ]; then
     # Build client source: 4m39s from scratch, 0m27s using cache
     build_with_logs build-client-source
@@ -315,6 +320,8 @@ main() {
   echo ---
   echo "Total execution time, sec: $(($(date +%s) - $START_TIME))" | tee -a $LOG_FILE
   echo ---
+
+  cleanup
 }
 
 # Local reference test environment
@@ -322,6 +329,4 @@ main() {
 # RAM: 16GB
 # OS: Ubuntu 22.04.1 LTS
 
-init
 main
-cleanup
