@@ -22,16 +22,14 @@
       - vmproxy
       - grafana-db-migrator
   pre_tasks:
-      - name: Check if ansible-core RPM was updated
-      shell: "grep -A 1 'Install ansible-core RPM          | EL9' /srv/logs/pmm-update-perform.log | grep -q 'changed' && echo 'Updated' || echo 'Not Updated'"
-      register: ansible_core_log
-      changed_when: False
-      ignore_errors: True
+    - name: Check for updates of ansible-core package
+      shell: yum list updates ansible-core | grep -q 'ansible-core' && echo 'Available' || echo 'Not Available'
+      register: ansible_core_update
 
-    - name: Log message if ansible-core RPM was updated
+    - name: Log message if ansible-core package needs update
       debug:
-        msg: "The ansible-core package was updated. The playbook is currently being re-run to apply the changes."
-      when: ansible_core_log.stdout == "Updated"
+        msg: "The ansible-core package needs update. Playbook will re-run to apply the changes."
+      when: ansible_core_update.stdout == "Available"
 
     - name: Remove ansible RPM if installed   | EL9
       when:
