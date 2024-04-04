@@ -252,10 +252,10 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
 		deps.vmdb, deps.connectionCheck, deps.serviceInfoBroker, deps.agentService)
 
-	mgmtBackupsService := managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService)
+	mgmtBackupService := managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService)
 	mgmtArtifactsService := managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pbmPITRService)
 	mgmtRestoreService := managementbackup.NewRestoreService(deps.db)
-	mgmtServices := common.NewMgmtServices(mgmtBackupsService, mgmtArtifactsService, mgmtRestoreService)
+	mgmtServices := common.NewMgmtServices(mgmtBackupService, mgmtArtifactsService, mgmtRestoreService)
 
 	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.versionCache, mgmtServices)
 	inventoryv1.RegisterNodesServiceServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
@@ -273,7 +273,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	alertingpb.RegisterAlertingServiceServer(gRPCServer, deps.templatesService)
 
-	backuppb.RegisterBackupsServiceServer(gRPCServer, mgmtBackupsService)
+	backuppb.RegisterBackupServiceServer(gRPCServer, mgmtBackupService)
 	backuppb.RegisterLocationsServiceServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
 	backuppb.RegisterArtifactsServiceServer(gRPCServer, mgmtArtifactsService)
 	backuppb.RegisterRestoreServiceServer(gRPCServer, mgmtRestoreService)
@@ -365,7 +365,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 		alertingpb.RegisterAlertingServiceHandlerFromEndpoint,
 
-		backuppb.RegisterBackupsServiceHandlerFromEndpoint,
+		backuppb.RegisterBackupServiceHandlerFromEndpoint,
 		backuppb.RegisterLocationsServiceHandlerFromEndpoint,
 		backuppb.RegisterArtifactsServiceHandlerFromEndpoint,
 		backuppb.RegisterRestoreServiceHandlerFromEndpoint,

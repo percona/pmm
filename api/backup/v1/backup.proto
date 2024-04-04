@@ -171,7 +171,7 @@ message LogChunk {
 }
 
 // Backups service handles backup operations to DB.
-service BackupsService {
+service BackupService {
   // StartBackup request backup specified service to location.
   rpc StartBackup(StartBackupRequest) returns (StartBackupResponse) {
     option (google.api.http) = {

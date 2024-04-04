@@ -386,7 +386,7 @@
       "post": {
         "description": "Change a scheduled backup.",
         "tags": [
-          "BackupsService"
+          "BackupService"
         ],
         "summary": "Change a Scheduled Backup",
         "operationId": "ChangeScheduledBackup",
@@ -499,7 +499,7 @@
       "post": {
         "description": "Get logs from the underlying tools for a backup/restore job.",
         "tags": [
-          "BackupsService"
+          "BackupService"
         ],
         "summary": "Get Logs",
         "operationId": "GetLogs",
@@ -603,7 +603,7 @@
       "post": {
         "description": "List services that are compatible with the backup artifact.",
         "tags": [
-          "BackupsService"
+          "BackupService"
         ],
         "summary": "List Compatible Services",
         "operationId": "ListArtifactCompatibleServices",
@@ -809,7 +809,7 @@
       "post": {
         "description": "List all scheduled backups.",
         "tags": [
-          "BackupsService"
+          "BackupService"
         ],
         "summary": "List Scheduled Backups",
         "operationId": "ListScheduledBackups",
@@ -993,7 +993,7 @@
       "post": {
         "description": "Remove a scheduled backup.",
         "tags": [
-          "BackupsService"
+          "BackupService"
         ],
         "summary": "Remove a Scheduled Backup",
         "operationId": "RemoveScheduledBackup",
@@ -1142,7 +1142,7 @@
       "post": {
         "description": "Schedule a backup to run at a specified time.",
         "tags": [
-          "BackupsService"
+          "BackupService"
         ],
         "summary": "Schedule a Backup",
         "operationId": "ScheduleBackup",
@@ -1289,7 +1289,7 @@
       "post": {
         "description": "Could return the Error message in the details containing specific ErrorCode indicating failure reason:\nERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service\nERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud\nERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup",
         "tags": [
-          "BackupsService"
+          "BackupService"
         ],
         "summary": "Start a Backup",
         "operationId": "StartBackup",
@@ -2059,7 +2059,7 @@
       "name": "ArtifactsService"
     },
     {
-      "name": "BackupsService"
+      "name": "BackupService"
     },
     {
       "name": "LocationsService"

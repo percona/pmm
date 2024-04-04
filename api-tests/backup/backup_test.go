@@ -27,7 +27,7 @@ import (
 	pmmapitests "github.com/percona/pmm/api-tests"
 	"github.com/percona/pmm/api-tests/management"
 	backupClient "github.com/percona/pmm/api/backup/v1/json/client"
-	backups "github.com/percona/pmm/api/backup/v1/json/client/backups_service"
+	backup "github.com/percona/pmm/api/backup/v1/json/client/backup_service"
 	locations "github.com/percona/pmm/api/backup/v1/json/client/locations_service"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
@@ -104,17 +104,17 @@ func TestScheduleBackup(t *testing.T) {
 		defer deleteLocation(t, backupClient.Default.LocationsService, locationID)
 
 		t.Run("schedule logical backup", func(t *testing.T) {
-			client := backupClient.Default.BackupsService
-			backupRes, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
-				Body: backups.ScheduleBackupBody{
+			client := backupClient.Default.BackupService
+			backupRes, err := client.ScheduleBackup(&backup.ScheduleBackupParams{
+				Body: backup.ScheduleBackupBody{
 					ServiceID:      mongo1ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing",
 					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
+					Mode:           pointer.ToString(backup.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
 					Enabled:        false,
-					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelDATAMODELLOGICAL),
+					DataModel:      pointer.ToString(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
 					Folder:         "backup_folder",
 				},
 				Context: pmmapitests.Context,
@@ -123,50 +123,50 @@ func TestScheduleBackup(t *testing.T) {
 			require.NoError(t, err)
 			assert.NotEmpty(t, backupRes.Payload.ScheduledBackupID)
 
-			body := backups.ChangeScheduledBackupBody{
+			body := backup.ChangeScheduledBackupBody{
 				ScheduledBackupID: backupRes.Payload.ScheduledBackupID,
 				Enabled:           pointer.ToBool(true),
 				CronExpression:    pointer.ToString("0 2 2 2 2"),
 				Name:              pointer.ToString("test2"),
 				Description:       pointer.ToString("test2"),
 			}
-			changeRes, err := client.ChangeScheduledBackup(&backups.ChangeScheduledBackupParams{
+			changeRes, err := client.ChangeScheduledBackup(&backup.ChangeScheduledBackupParams{
 				Body:    body,
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
 			assert.NotEmpty(t, changeRes)
 
-			listRes, err := client.ListScheduledBackups(&backups.ListScheduledBackupsParams{
+			listRes, err := client.ListScheduledBackups(&backup.ListScheduledBackupsParams{
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
 
-			var backup *backups.ListScheduledBackupsOKBodyScheduledBackupsItems0
+			var bkp *backup.ListScheduledBackupsOKBodyScheduledBackupsItems0
 			for _, b := range listRes.Payload.ScheduledBackups {
 				if b.ScheduledBackupID == backupRes.Payload.ScheduledBackupID {
-					backup = b
+					bkp = b
 					break
 				}
 			}
-			require.NotNil(t, backup)
+			require.NotNil(t, bkp)
 
 			// Assert change
-			assert.Equal(t, pointer.GetBool(body.Enabled), backup.Enabled)
-			assert.Equal(t, pointer.GetString(body.Name), backup.Name)
-			assert.Equal(t, pointer.GetString(body.Description), backup.Description)
-			assert.Equal(t, pointer.GetString(body.CronExpression), backup.CronExpression)
-			assert.Equal(t, "backup_folder", backup.Folder)
+			assert.Equal(t, pointer.GetBool(body.Enabled), bkp.Enabled)
+			assert.Equal(t, pointer.GetString(body.Name), bkp.Name)
+			assert.Equal(t, pointer.GetString(body.Description), bkp.Description)
+			assert.Equal(t, pointer.GetString(body.CronExpression), bkp.CronExpression)
+			assert.Equal(t, "backup_folder", bkp.Folder)
 
-			_, err = client.RemoveScheduledBackup(&backups.RemoveScheduledBackupParams{
-				Body: backups.RemoveScheduledBackupBody{
+			_, err = client.RemoveScheduledBackup(&backup.RemoveScheduledBackupParams{
+				Body: backup.RemoveScheduledBackupBody{
 					ScheduledBackupID: backupRes.Payload.ScheduledBackupID,
 				},
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
 
-			find := func(id string, backups []*backups.ListScheduledBackupsOKBodyScheduledBackupsItems0) *backups.ListScheduledBackupsOKBodyScheduledBackupsItems0 {
+			find := func(id string, backups []*backup.ListScheduledBackupsOKBodyScheduledBackupsItems0) *backup.ListScheduledBackupsOKBodyScheduledBackupsItems0 {
 				for _, b := range backups {
 					if b.ScheduledBackupID == id {
 						return b
@@ -174,7 +174,7 @@ func TestScheduleBackup(t *testing.T) {
 				}
 				return nil
 			}
-			listRes, err = client.ListScheduledBackups(&backups.ListScheduledBackupsParams{
+			listRes, err = client.ListScheduledBackups(&backup.ListScheduledBackupsParams{
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
@@ -185,17 +185,17 @@ func TestScheduleBackup(t *testing.T) {
 		})
 
 		t.Run("create multiple snapshot backups", func(t *testing.T) {
-			client := backupClient.Default.BackupsService
-			sb1, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
-				Body: backups.ScheduleBackupBody{
+			client := backupClient.Default.BackupService
+			sb1, err := client.ScheduleBackup(&backup.ScheduleBackupParams{
+				Body: backup.ScheduleBackupBody{
 					ServiceID:      mongo1ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing1",
 					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
+					Mode:           pointer.ToString(backup.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelDATAMODELLOGICAL),
+					DataModel:      pointer.ToString(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -203,16 +203,16 @@ func TestScheduleBackup(t *testing.T) {
 			require.NoError(t, err)
 			defer removeScheduledBackup(t, sb1.Payload.ScheduledBackupID)
 
-			sb2, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
-				Body: backups.ScheduleBackupBody{
+			sb2, err := client.ScheduleBackup(&backup.ScheduleBackupParams{
+				Body: backup.ScheduleBackupBody{
 					ServiceID:      mongo1ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing2",
 					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
+					Mode:           pointer.ToString(backup.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelDATAMODELLOGICAL),
+					DataModel:      pointer.ToString(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -222,18 +222,18 @@ func TestScheduleBackup(t *testing.T) {
 		})
 
 		t.Run("create PITR backup when other backups disabled", func(t *testing.T) {
-			client := backupClient.Default.BackupsService
+			client := backupClient.Default.BackupService
 
-			sb1, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
-				Body: backups.ScheduleBackupBody{
+			sb1, err := client.ScheduleBackup(&backup.ScheduleBackupParams{
+				Body: backup.ScheduleBackupBody{
 					ServiceID:      mongo1ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing1",
 					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
+					Mode:           pointer.ToString(backup.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
 					Enabled:        false,
-					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelDATAMODELLOGICAL),
+					DataModel:      pointer.ToString(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -241,16 +241,16 @@ func TestScheduleBackup(t *testing.T) {
 			require.NoError(t, err)
 			defer removeScheduledBackup(t, sb1.Payload.ScheduledBackupID)
 
-			pitrb1, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
-				Body: backups.ScheduleBackupBody{
+			pitrb1, err := client.ScheduleBackup(&backup.ScheduleBackupParams{
+				Body: backup.ScheduleBackupBody{
 					ServiceID:      mongo1ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing2",
 					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeBACKUPMODEPITR),
+					Mode:           pointer.ToString(backup.ScheduleBackupBodyModeBACKUPMODEPITR),
 					Enabled:        false,
-					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelDATAMODELLOGICAL),
+					DataModel:      pointer.ToString(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -258,16 +258,16 @@ func TestScheduleBackup(t *testing.T) {
 			require.NoError(t, err)
 			defer removeScheduledBackup(t, pitrb1.Payload.ScheduledBackupID)
 
-			pitrb2, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
-				Body: backups.ScheduleBackupBody{
+			pitrb2, err := client.ScheduleBackup(&backup.ScheduleBackupParams{
+				Body: backup.ScheduleBackupBody{
 					ServiceID:      mongo1ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing3",
 					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeBACKUPMODEPITR),
+					Mode:           pointer.ToString(backup.ScheduleBackupBodyModeBACKUPMODEPITR),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelDATAMODELLOGICAL),
+					DataModel:      pointer.ToString(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -277,17 +277,17 @@ func TestScheduleBackup(t *testing.T) {
 		})
 
 		t.Run("only one enabled PITR backup allowed for the same cluster", func(t *testing.T) {
-			client := backupClient.Default.BackupsService
-			sb1, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
-				Body: backups.ScheduleBackupBody{
+			client := backupClient.Default.BackupService
+			sb1, err := client.ScheduleBackup(&backup.ScheduleBackupParams{
+				Body: backup.ScheduleBackupBody{
 					ServiceID:      mongo1ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing1",
 					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeBACKUPMODEPITR),
+					Mode:           pointer.ToString(backup.ScheduleBackupBodyModeBACKUPMODEPITR),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelDATAMODELLOGICAL),
+					DataModel:      pointer.ToString(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -295,16 +295,16 @@ func TestScheduleBackup(t *testing.T) {
 			require.NoError(t, err)
 			defer removeScheduledBackup(t, sb1.Payload.ScheduledBackupID)
 
-			_, err = client.ScheduleBackup(&backups.ScheduleBackupParams{
-				Body: backups.ScheduleBackupBody{
+			_, err = client.ScheduleBackup(&backup.ScheduleBackupParams{
+				Body: backup.ScheduleBackupBody{
 					ServiceID:      mongo2ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing2",
 					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeBACKUPMODEPITR),
+					Mode:           pointer.ToString(backup.ScheduleBackupBodyModeBACKUPMODEPITR),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelDATAMODELLOGICAL),
+					DataModel:      pointer.ToString(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -313,17 +313,17 @@ func TestScheduleBackup(t *testing.T) {
 		})
 
 		t.Run("physical backups fail when PITR is enabled", func(t *testing.T) {
-			client := backupClient.Default.BackupsService
-			_, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
-				Body: backups.ScheduleBackupBody{
+			client := backupClient.Default.BackupService
+			_, err := client.ScheduleBackup(&backup.ScheduleBackupParams{
+				Body: backup.ScheduleBackupBody{
 					ServiceID:      mongo1ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
 					Name:           "some_backup_name",
 					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeBACKUPMODEPITR),
+					Mode:           pointer.ToString(backup.ScheduleBackupBodyModeBACKUPMODEPITR),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backups.ScheduleBackupBodyDataModelDATAMODELPHYSICAL),
+					DataModel:      pointer.ToString(backup.ScheduleBackupBodyDataModelDATAMODELPHYSICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -332,17 +332,17 @@ func TestScheduleBackup(t *testing.T) {
 		})
 
 		t.Run("physical backup snapshots can be scheduled", func(t *testing.T) {
-			client := backupClient.Default.BackupsService
-			backupRes, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
-				Body: backups.ScheduleBackupBody{
+			client := backupClient.Default.BackupService
+			backupRes, err := client.ScheduleBackup(&backup.ScheduleBackupParams{
+				Body: backup.ScheduleBackupBody{
 					ServiceID:      mongo1ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing",
 					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
+					Mode:           pointer.ToString(backup.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backups.ScheduleBackupBodyDataModelDATAMODELPHYSICAL),
+					DataModel:      pointer.ToString(backup.ScheduleBackupBodyDataModelDATAMODELPHYSICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -356,8 +356,8 @@ func TestScheduleBackup(t *testing.T) {
 
 func removeScheduledBackup(t *testing.T, id string) {
 	t.Helper()
-	_, err := backupClient.Default.BackupsService.RemoveScheduledBackup(&backups.RemoveScheduledBackupParams{
-		Body: backups.RemoveScheduledBackupBody{
+	_, err := backupClient.Default.BackupService.RemoveScheduledBackup(&backup.RemoveScheduledBackupParams{
+		Body: backup.RemoveScheduledBackupBody{
 			ScheduledBackupID: id,
 		},
 		Context: pmmapitests.Context,

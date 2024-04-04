@@ -32,15 +32,15 @@ var ErrClusterLocked = errors.New("cluster/service is locked")
 
 // MgmtServices represents a collection of management services.
 type MgmtServices struct {
-	BackupsService   *managementbackup.BackupsService
+	BackupService    *managementbackup.BackupService
 	ArtifactsService *managementbackup.ArtifactsService
 	RestoreService   *managementbackup.RestoreService
 }
 
 // NewMgmtServices creates a new MgmtServices instance.
-func NewMgmtServices(bs *managementbackup.BackupsService, as *managementbackup.ArtifactsService, rs *managementbackup.RestoreService) *MgmtServices {
+func NewMgmtServices(bs *managementbackup.BackupService, as *managementbackup.ArtifactsService, rs *managementbackup.RestoreService) *MgmtServices {
 	return &MgmtServices{
-		BackupsService:   bs,
+		BackupService:    bs,
 		ArtifactsService: as,
 		RestoreService:   rs,
 	}
@@ -79,7 +79,7 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 		sMap[service.ServiceID] = struct{}{}
 	}
 
-	scheduledTasks, err := s.BackupsService.ListScheduledBackups(ctx, &backuppb.ListScheduledBackupsRequest{})
+	scheduledTasks, err := s.BackupService.ListScheduledBackups(ctx, &backuppb.ListScheduledBackupsRequest{})
 	if err != nil {
 		return err
 	}
@@ -87,7 +87,7 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 	// Remove scheduled tasks.
 	for _, task := range scheduledTasks.ScheduledBackups {
 		if _, ok := sMap[task.ServiceId]; ok {
-			_, err = s.BackupsService.RemoveScheduledBackup(ctx, &backuppb.RemoveScheduledBackupRequest{ScheduledBackupId: task.ScheduledBackupId})
+			_, err = s.BackupService.RemoveScheduledBackup(ctx, &backuppb.RemoveScheduledBackupRequest{ScheduledBackupId: task.ScheduledBackupId})
 			if err != nil {
 				return err
 			}

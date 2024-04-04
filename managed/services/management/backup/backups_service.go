@@ -40,15 +40,15 @@ import (
 	"github.com/percona/pmm/managed/services/scheduler"
 )
 
-// BackupsService represents backups API.
-type BackupsService struct {
+// BackupService represents backups API.
+type BackupService struct {
 	db                   *reform.DB
 	backupService        backupService
 	compatibilityService compatibilityService
 	scheduleService      scheduleService
 	l                    *logrus.Entry
 
-	backuppb.UnimplementedBackupsServiceServer
+	backuppb.UnimplementedBackupServiceServer
 }
 
 const (
@@ -67,8 +67,8 @@ func NewBackupsService(
 	backupService backupService,
 	cSvc compatibilityService,
 	scheduleService scheduleService,
-) *BackupsService {
-	return &BackupsService{
+) *BackupService {
+	return &BackupService{
 		l:                    logrus.WithField("component", "management/backup/backups"),
 		db:                   db,
 		backupService:        backupService,
@@ -78,7 +78,7 @@ func NewBackupsService(
 }
 
 // StartBackup starts on-demand backup.
-func (s *BackupsService) StartBackup(ctx context.Context, req *backuppb.StartBackupRequest) (*backuppb.StartBackupResponse, error) {
+func (s *BackupService) StartBackup(ctx context.Context, req *backuppb.StartBackupRequest) (*backuppb.StartBackupResponse, error) {
 	if req.Retries > maxRetriesAttempts {
 		return nil, status.Errorf(codes.InvalidArgument, "Exceeded max retries %d.", maxRetriesAttempts)
 	}
@@ -131,7 +131,7 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backuppb.StartBac
 }
 
 // RestoreBackup starts restore backup job.
-func (s *BackupsService) RestoreBackup(
+func (s *BackupService) RestoreBackup(
 	ctx context.Context,
 	req *backuppb.RestoreBackupRequest,
 ) (*backuppb.RestoreBackupResponse, error) {
@@ -161,7 +161,7 @@ func (s *BackupsService) RestoreBackup(
 }
 
 // ScheduleBackup add new backup task to scheduler.
-func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.ScheduleBackupRequest) (*backuppb.ScheduleBackupResponse, error) {
+func (s *BackupService) ScheduleBackup(ctx context.Context, req *backuppb.ScheduleBackupRequest) (*backuppb.ScheduleBackupResponse, error) {
 	var id string
 
 	if req.Retries > maxRetriesAttempts {
@@ -264,7 +264,7 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 }
 
 // ListScheduledBackups lists all tasks related to a backup.
-func (s *BackupsService) ListScheduledBackups(ctx context.Context, req *backuppb.ListScheduledBackupsRequest) (*backuppb.ListScheduledBackupsResponse, error) { //nolint:revive,lll
+func (s *BackupService) ListScheduledBackups(ctx context.Context, req *backuppb.ListScheduledBackupsRequest) (*backuppb.ListScheduledBackupsResponse, error) { //nolint:revive,lll
 	tasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{
 		Types: []models.ScheduledTaskType{
 			models.ScheduledMySQLBackupTask,
@@ -319,7 +319,7 @@ func (s *BackupsService) ListScheduledBackups(ctx context.Context, req *backuppb
 }
 
 // ChangeScheduledBackup changes existing scheduled backup task.
-func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backuppb.ChangeScheduledBackupRequest) (*backuppb.ChangeScheduledBackupResponse, error) {
+func (s *BackupService) ChangeScheduledBackup(ctx context.Context, req *backuppb.ChangeScheduledBackupRequest) (*backuppb.ChangeScheduledBackupResponse, error) {
 	var disablePITR bool
 	var serviceID string
 
@@ -392,7 +392,7 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupp
 }
 
 // RemoveScheduledBackup stops and removes existing scheduled backup task.
-func (s *BackupsService) RemoveScheduledBackup(ctx context.Context, req *backuppb.RemoveScheduledBackupRequest) (*backuppb.RemoveScheduledBackupResponse, error) {
+func (s *BackupService) RemoveScheduledBackup(ctx context.Context, req *backuppb.RemoveScheduledBackupRequest) (*backuppb.RemoveScheduledBackupResponse, error) {
 	task, err := models.FindScheduledTaskByID(s.db.Querier, req.ScheduledBackupId)
 	if err != nil {
 		return nil, err
@@ -442,7 +442,7 @@ func (s *BackupsService) RemoveScheduledBackup(ctx context.Context, req *backupp
 }
 
 // GetLogs returns logs from the underlying tools for a backup/restore job.
-func (s *BackupsService) GetLogs(_ context.Context, req *backuppb.GetLogsRequest) (*backuppb.GetLogsResponse, error) {
+func (s *BackupService) GetLogs(_ context.Context, req *backuppb.GetLogsRequest) (*backuppb.GetLogsResponse, error) {
 	jobsFilter := models.JobsFilter{
 		Types: []models.JobType{
 			models.MySQLBackupJob,
@@ -505,7 +505,7 @@ func (s *BackupsService) GetLogs(_ context.Context, req *backuppb.GetLogsRequest
 }
 
 // ListArtifactCompatibleServices lists compatible service for restoring given artifact.
-func (s *BackupsService) ListArtifactCompatibleServices(
+func (s *BackupService) ListArtifactCompatibleServices(
 	ctx context.Context,
 	req *backuppb.ListArtifactCompatibleServicesRequest,
 ) (*backuppb.ListArtifactCompatibleServicesResponse, error) {
@@ -729,5 +729,5 @@ func isNameSafe(name string) error {
 
 // Check interfaces.
 var (
-	_ backuppb.BackupsServiceServer = (*BackupsService)(nil)
+	_ backuppb.BackupServiceServer = (*BackupService)(nil)
 )

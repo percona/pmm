@@ -70,7 +70,7 @@ func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(
 	sib.Test(t)
 
 	mgmtServices := &common.MgmtServices{
-		BackupsService:   nil, // FIXME: &backup.mockBackupService{} is not public
+		BackupService:    nil, // FIXME: &backup.mockBackupService{} is not public
 		ArtifactsService: nil, // FIXME: &backup.mockArtifactsService{} does not exist
 		RestoreService:   nil, // FIXME: &backup.mockRestoreService{} does not exist
 	}
