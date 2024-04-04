@@ -82,13 +82,12 @@ POST /v1/alerting/Templates/List                    GET /v1/alerting/templates  
 POST /v1/alerting/Templates/Delete                  DELETE /v1/alerting/templates/{name}             ✅
 
 **AdvisorService**                                 **AdvisorService**
-POST /v1/advisors/Change                            POST /v1/advisors/checks:batchChange
-<!-- POST /v1/advisors/FailedChecks                 POST /v1/advisors/checks:failedChecks        !!! try to implement as a GET request, see below -->
-POST /v1/advisors/FailedChecks                      GET /v1/advisors/checks/failedChecks         ex: ?service_id=1234&page_size=100&page_index=1
-POST /v1/advisors/List                              GET /v1/advisors
-POST /v1/advisors/ListChecks                        GET /v1/advisors/checks
-POST /v1/advisors/StartChecks                       POST /v1/advisors/checks:start
-POST /v1/advisors/ListFailedServices                GET /v1/advisors/failedServices
+POST /v1/advisors/Change                            POST /v1/advisors/checks:batchChange             ✅
+POST /v1/advisors/FailedChecks                      GET /v1/advisors/checks/failed                   ✅ ?service_id=1234&page_size=100&page_index=1
+POST /v1/advisors/List                              GET /v1/advisors                                 ✅
+POST /v1/advisors/ListChecks                        GET /v1/advisors/checks                          ✅
+POST /v1/advisors/StartChecks                       POST /v1/advisors/checks:start                   ✅
+POST /v1/advisors/ListFailedServices                GET /v1/advisors/failedServices                  ✅
 
 **ArtifactsService**                                **ArtifactsService**                             TODO: merge to BackupService
 POST /v1/backup/Artifacts/List                      GET /v1/backups/artifacts

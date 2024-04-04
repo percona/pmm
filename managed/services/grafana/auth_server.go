@@ -60,13 +60,13 @@ var rules = map[string]role{
 	"/qan.v1.QANService.":                       viewer,
 
 	"/v1/alerting":                                viewer,
+	"/v1/actions/":                                viewer,
 	"/v1/backup":                                  admin,
 	"/v1/dump":                                    admin,
 	"/v1/role":                                    admin,
 	"/v1/inventory/":                              admin,
 	"/v1/inventory/services:getTypes":             viewer,
 	"/v1/management/":                             admin,
-	"/v1/actions/":                                viewer,
 	"/v1/management/Jobs":                         viewer,
 	"/v1/server/AWSInstance":                      none, // special case - used before Grafana can be accessed
 	"/v1/server/updates":                          viewer,

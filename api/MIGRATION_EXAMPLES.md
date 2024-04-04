@@ -57,3 +57,6 @@ curl -s -X DELETE http://admin:admin@localhost:8080/v1/management/services/b7d3b
 ### pmm-admin remove mongodb mongo-svc
 ### pmm-admin remove mongodb mongo-svc --service-id=/service_id/ed322782-e6fd-4ad9-8ee6-a7d47b62de41
 ### pmm-admin remove mongodb --service-id=/service_id/ed322782-e6fd-4ad9-8ee6-a7d47b62de41
+
+# POST /v1/advisors/FailedChecks -> GET /v1/advisors/checks/failed
+curl -s -X GET "http://admin:admin@localhost:8080/v1/advisors/checks/failed?service_id=bcc83096-b006-4d2e-ac17-365a57c3e37a&page_size=100"

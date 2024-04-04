@@ -60,7 +60,7 @@ type ChangeAdvisorChecksOK struct {
 }
 
 func (o *ChangeAdvisorChecksOK) Error() string {
-	return fmt.Sprintf("[POST /v1/advisors/Change][%d] changeAdvisorChecksOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/advisors/checks:batchChange][%d] changeAdvisorChecksOk  %+v", 200, o.Payload)
 }
 
 func (o *ChangeAdvisorChecksOK) GetPayload() interface{} {
@@ -100,7 +100,7 @@ func (o *ChangeAdvisorChecksDefault) Code() int {
 }
 
 func (o *ChangeAdvisorChecksDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/advisors/Change][%d] ChangeAdvisorChecks default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/advisors/checks:batchChange][%d] ChangeAdvisorChecks default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ChangeAdvisorChecksDefault) GetPayload() *ChangeAdvisorChecksDefaultBody {
