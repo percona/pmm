@@ -15,14 +15,16 @@
 package management
 
 import (
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/helpers"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
 	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 type unregisterResult struct {
@@ -77,15 +79,21 @@ func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &nodes.RemoveNodeParams{
-		NodeID:  nodeID,
-		Force:   pointer.ToBool(cmd.Force),
+	params := &mservice.UnregisterNodeParams{
+		Body: mservice.UnregisterNodeBody{
+			NodeID: nodeID,
+			Force:  cmd.Force,
+		},
 		Context: commands.Ctx,
 	}
 
-	_, err = client.Default.NodesService.RemoveNode(params)
+	res, err := managementClient.Default.ManagementService.UnregisterNode(params)
 	if err != nil {
 		return nil, err
+	}
+
+	if res.Payload.Warning != "" {
+		logrus.Warning(res.Payload.Warning)
 	}
 
 	return &unregisterResult{

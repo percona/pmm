@@ -21,7 +21,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -38,7 +37,10 @@ import (
 )
 
 func TestNodeService(t *testing.T) {
-	t.Run("Register", func(t *testing.T) {
+	getTestNodeName := func() string {
+		return "test-node"
+	}
+	t.Run("Register/Unregister", func(t *testing.T) {
 		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T)) {
 			t.Helper()
 
@@ -61,6 +63,11 @@ func TestNodeService(t *testing.T) {
 			vmdb := &mockPrometheusService{}
 			vmdb.Test(t)
 
+			serviceAccountID := int(0)
+			nodeName := getTestNodeName()
+			reregister := false
+			force := true
+
 			state := &mockAgentsStateUpdater{}
 			state.Test(t)
 
@@ -76,14 +83,12 @@ func TestNodeService(t *testing.T) {
 			vc := &mockVersionCache{}
 			vc.Test(t)
 
-			grafanaClient := &mockGrafanaClient{}
-			grafanaClient.Test(t)
+			authProvider := &mockGrafanaClient{}
+			authProvider.Test(t)
+			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+			authProvider.On("DeleteServiceAccount", ctx, nodeName, force).Return("", nil)
 
-			grafanaClient.Test(t)
-			grafanaClient.On("IsAPIKeyAuth", mock.Anything).Return(false)
-			grafanaClient.On("CreateAdminAPIKey", ctx, mock.AnythingOfType("string")).Return(int64(0), "test-token", nil)
-
-			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient)
+			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, authProvider)
 
 			return ctx, s, teardown
 		}
@@ -94,14 +99,14 @@ func TestNodeService(t *testing.T) {
 
 			res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
 				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
-				NodeName: "node",
+				NodeName: "test-node",
 				Address:  "some.address.org",
 				Region:   "region",
 			})
 			expected := &managementv1.RegisterNodeResponse{
 				GenericNode: &inventoryv1.GenericNode{
 					NodeId:   "/node_id/00000000-0000-4000-8000-000000000005",
-					NodeName: "node",
+					NodeName: "test-node",
 					Address:  "some.address.org",
 					Region:   "region",
 				},
@@ -118,16 +123,25 @@ func TestNodeService(t *testing.T) {
 			t.Run("Exist", func(t *testing.T) {
 				res, err = s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
 					NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
-					NodeName: "node",
+					NodeName: "test-node",
 				})
 				assert.Nil(t, res)
-				tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "node" already exists.`), err)
+				tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test-node" already exists.`), err)
 			})
 
 			t.Run("Reregister", func(t *testing.T) {
+				serviceAccountID := int(0)
+				nodeName := getTestNodeName()
+				reregister := true
+
+				authProvider := &mockGrafanaClient{}
+				authProvider.Test(t)
+				authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+				s.grafanaClient = authProvider
+
 				res, err = s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
 					NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
-					NodeName:   "node",
+					NodeName:   "test-node",
 					Address:    "some.address.org",
 					Region:     "region",
 					Reregister: true,
@@ -135,7 +149,7 @@ func TestNodeService(t *testing.T) {
 				expected := &managementv1.RegisterNodeResponse{
 					GenericNode: &inventoryv1.GenericNode{
 						NodeId:   "/node_id/00000000-0000-4000-8000-000000000008",
-						NodeName: "node",
+						NodeName: "test-node",
 						Address:  "some.address.org",
 						Region:   "region",
 					},
@@ -149,10 +163,20 @@ func TestNodeService(t *testing.T) {
 				assert.Equal(t, expected, res)
 				assert.NoError(t, err)
 			})
+
 			t.Run("Reregister-force", func(t *testing.T) {
+				serviceAccountID := int(0)
+				nodeName := "test-node-new"
+				reregister := true
+
+				authProvider := &mockGrafanaClient{}
+				authProvider.Test(t)
+				authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+				s.grafanaClient = authProvider
+
 				res, err = s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
 					NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
-					NodeName:   "node-name-new",
+					NodeName:   "test-node-new",
 					Address:    "some.address.org",
 					Region:     "region",
 					Reregister: true,
@@ -160,7 +184,7 @@ func TestNodeService(t *testing.T) {
 				expected := &managementv1.RegisterNodeResponse{
 					GenericNode: &inventoryv1.GenericNode{
 						NodeId:   "/node_id/00000000-0000-4000-8000-00000000000b",
-						NodeName: "node-name-new",
+						NodeName: "test-node-new",
 						Address:  "some.address.org",
 						Region:   "region",
 					},
@@ -173,6 +197,51 @@ func TestNodeService(t *testing.T) {
 				}
 				assert.Equal(t, expected, res)
 				assert.NoError(t, err)
+			})
+
+			t.Run("Unregister", func(t *testing.T) {
+				serviceAccountID := int(0)
+				nodeName := getTestNodeName()
+				reregister := true
+				force := true
+
+				authProvider := &mockGrafanaClient{}
+				authProvider.Test(t)
+				authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+				authProvider.On("DeleteServiceAccount", ctx, nodeName, force).Return("", nil)
+				s.grafanaClient = authProvider
+
+				resRegister, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+					NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+					NodeName:   "test-node",
+					Address:    "some.address.org",
+					Region:     "region",
+					Reregister: true,
+				})
+				assert.NoError(t, err)
+
+				expected := &managementv1.RegisterNodeResponse{
+					GenericNode: &inventoryv1.GenericNode{
+						NodeId:   "/node_id/00000000-0000-4000-8000-00000000000e",
+						NodeName: "test-node",
+						Address:  "some.address.org",
+						Region:   "region",
+					},
+					ContainerNode: (*inventoryv1.ContainerNode)(nil),
+					PmmAgent: &inventoryv1.PMMAgent{
+						AgentId:      "/agent_id/00000000-0000-4000-8000-00000000000f",
+						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-00000000000e",
+					},
+					Token: "test-token",
+				}
+				assert.Equal(t, expected, resRegister)
+
+				res, err := s.Unregister(ctx, &managementv1.UnregisterNodeRequest{
+					NodeId: resRegister.GenericNode.NodeId,
+					Force:  true,
+				})
+				assert.NoError(t, err)
+				assert.Equal(t, "", res.Warning)
 			})
 		})
 	})

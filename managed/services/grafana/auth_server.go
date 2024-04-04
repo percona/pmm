@@ -38,11 +38,15 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
+const (
+	connectionEndpoint = "/agent.v1.AgentService/Connect"
+)
+
 // rules maps original URL prefix to minimal required role.
 var rules = map[string]role{
 	// TODO https://jira.percona.com/browse/PMM-4420
-	"/agent.Agent/Connect":           none, // NOTE: remove before v3 GA
-	"/agent.v1.AgentService/Connect": none,
+	"/agent.Agent/Connect": none, // NOTE: remove before v3 GA
+	connectionEndpoint:     admin,
 
 	"/inventory.":                               admin,
 	"/management.":                              admin,
@@ -467,6 +471,17 @@ func nextPrefix(path string) string {
 	return path[:i+1]
 }
 
+func isLocalAgentConnection(req *http.Request) bool {
+	ip := strings.Split(req.RemoteAddr, ":")[0]
+	pmmAgent := req.Header.Get("Pmm-Agent-Id")
+	path := req.Header.Get("X-Original-Uri")
+	if ip == "127.0.0.1" && pmmAgent == "pmm-server" && path == connectionEndpoint {
+		return true
+	}
+
+	return false
+}
+
 // authenticate checks if user has access to a specific path.
 // It returns user information retrieved during authentication.
 // Paths which require no Grafana role return zero value for
@@ -506,22 +521,30 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 		return nil, nil
 	}
 
-	// Get authenticated user from Grafana
-	authUser, authErr := s.getAuthUser(ctx, req, l)
-	if authErr != nil {
-		return nil, authErr
+	var user *authUser
+	if isLocalAgentConnection(req) {
+		user = &authUser{
+			role:   rules[connectionEndpoint],
+			userID: 0,
+		}
+	} else {
+		var authErr *authError
+		// Get authenticated user from Grafana
+		user, authErr = s.getAuthUser(ctx, req, l)
+		if authErr != nil {
+			return nil, authErr
+		}
 	}
+	l = l.WithField("role", user.role.String())
 
-	l = l.WithField("role", authUser.role.String())
-
-	if authUser.role == grafanaAdmin {
+	if user.role == grafanaAdmin {
 		l.Debugf("Grafana admin, allowing access.")
-		return authUser, nil
+		return user, nil
 	}
 
-	if minRole <= authUser.role {
+	if minRole <= user.role {
 		l.Debugf("Minimal required role is %q, granting access.", minRole)
-		return authUser, nil
+		return user, nil
 	}
 
 	l.Warnf("Minimal required role is %q.", minRole)
@@ -535,6 +558,8 @@ func cleanPath(p string) (string, error) {
 	}
 
 	cleanedPath := path.Clean(unescaped)
+
+	cleanedPath = strings.ReplaceAll(cleanedPath, "\n", " ")
 
 	u, err := url.Parse(cleanedPath)
 	if err != nil {

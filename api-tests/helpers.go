@@ -17,8 +17,10 @@ package apitests
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
-	"math/rand"
+	"math"
+	"math/big"
 	"reflect"
 	"testing"
 
@@ -31,6 +33,8 @@ import (
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 // ErrorResponse represents the response structure for error scenarios.
@@ -50,7 +54,10 @@ type TestingT interface {
 func TestString(t TestingT, name string) string {
 	t.Helper()
 
-	n := rand.Int() //nolint:gosec
+	// Without proper seed parallel tests can generate same "random" number.
+	n, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt32))
+	require.NoError(t, err)
+
 	return fmt.Sprintf("pmm-api-tests/%s/%s/%s/%d", Hostname, t.Name(), name, n)
 }
 
@@ -129,6 +136,26 @@ func (tt *expectedFailureTestingT) Check() {
 	}
 
 	tt.t.Fatalf("%s expected to fail, but didn't: %s", tt.Name(), tt.link)
+}
+
+// UnregisterNodes unregister specified nodes.
+func UnregisterNodes(t TestingT, nodeIDs ...string) {
+	t.Helper()
+
+	for _, nodeID := range nodeIDs {
+		params := &mservice.UnregisterNodeParams{
+			Body: mservice.UnregisterNodeBody{
+				NodeID: nodeID,
+			},
+			Context: context.Background(),
+		}
+
+		res, err := managementClient.Default.ManagementService.UnregisterNode(params)
+		require.NoError(t, err)
+		assert.NotNil(t, res)
+		assert.NotNil(t, res.Payload)
+		assert.Empty(t, res.Payload.Warning)
+	}
 }
 
 // RemoveNodes removes specified nodes.

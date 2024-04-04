@@ -17,14 +17,9 @@ package management
 
 import (
 	"context"
-	"fmt"
-	"math/rand"
-	"net/http"
 
 	"github.com/AlekSi/pointer"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
@@ -32,12 +27,12 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/auth"
 )
 
 // RegisterNode performs the registration of a new node.
 func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) {
 	res := &managementv1.RegisterNodeResponse{}
-
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		node, err := models.FindNodeByName(tx.Querier, req.NodeName)
 		switch status.Code(err) { //nolint:exhaustive
@@ -119,30 +114,44 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 		return nil, e
 	}
 
-	l := logrus.WithField("component", "node")
-	// get authorization from headers.
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		msg := "Couldn't create Admin API Key: cannot get headers from metadata"
-		l.Errorln(msg)
-		res.Warning = msg
-		return res, nil
-	}
-	authorizationHeaders := md.Get("Authorization")
-	if len(authorizationHeaders) == 0 {
-		return nil, status.Error(codes.Unauthenticated, "Authorization error.")
-	}
-	headers := make(http.Header)
-	headers.Set("Authorization", authorizationHeaders[0])
-	if !s.grafanaClient.IsAPIKeyAuth(headers) {
-		apiKeyName := fmt.Sprintf("pmm-agent-%s-%d", req.NodeName, rand.Int63()) //nolint:gosec
-		_, res.Token, e = s.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
+	authHeaders, _ := auth.GetHeadersFromContext(ctx)
+	token := auth.GetTokenFromHeaders(authHeaders)
+	if token != "" {
+		res.Token = token
+	} else {
+		_, res.Token, e = s.grafanaClient.CreateServiceAccount(ctx, req.NodeName, req.Reregister)
 		if e != nil {
-			msg := fmt.Sprintf("Couldn't create Admin API Key: %s", e)
-			l.Errorln(msg)
-			res.Warning = msg
+			return nil, e
 		}
 	}
 
 	return res, nil
+}
+
+// Unregister do unregistration of the node.
+func (s *ManagementService) Unregister(ctx context.Context, req *managementv1.UnregisterNodeRequest) (*managementv1.UnregisterNodeResponse, error) {
+	node, err := models.FindNodeByID(s.db.Querier, req.NodeId)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.db.InTransaction(func(tx *reform.TX) error {
+		return models.RemoveNode(tx.Querier, req.NodeId, models.RemoveCascade)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	warning, err := s.grafanaClient.DeleteServiceAccount(ctx, node.NodeName, req.Force)
+	if err != nil {
+		// TODO: need to pass the logger to the service
+		// s.l.WithError(err).Error("deleting service account")
+		return &managementv1.UnregisterNodeResponse{
+			Warning: err.Error(),
+		}, nil
+	}
+
+	return &managementv1.UnregisterNodeResponse{
+		Warning: warning,
+	}, nil
 }

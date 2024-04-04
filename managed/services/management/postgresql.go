@@ -92,9 +92,9 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 				return err
 			}
 
-			// In case PGSM extension is unavailable, it will switch to PGSS.
-			if req.QanPostgresqlPgstatmonitorAgent && row.PostgreSQLOptions.PGSMVersion == "" {
-				postgres.Warning = "Could not to detect pg_stat_monitor extension on your system. Falling back to pg_stat_statements."
+			// In case of not available PGSM extension it is switch to PGSS.
+			if req.QanPostgresqlPgstatmonitorAgent && row.PostgreSQLOptions.PGSMVersion != nil && *row.PostgreSQLOptions.PGSMVersion == "" {
+				postgres.Warning = "Could not to detect the pg_stat_monitor extension on your system. Falling back to the pg_stat_statements."
 				req.QanPostgresqlPgstatementsAgent = true
 				req.QanPostgresqlPgstatmonitorAgent = false
 			}

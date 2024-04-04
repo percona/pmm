@@ -40,7 +40,7 @@ func TestScheduleBackup(t *testing.T) {
 			NodeName: nodeName,
 			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
-		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer pmmapitests.UnregisterNodes(t, nodeID)
 		defer management.RemovePMMAgentWithSubAgents(t, pmmAgentID)
 		mongo1Name := pmmapitests.TestString(t, "mongo")
 		mongo2Name := pmmapitests.TestString(t, "mongo")

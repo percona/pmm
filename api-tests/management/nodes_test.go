@@ -40,7 +40,7 @@ func TestNodeRegister(t *testing.T) {
 				NodeName: nodeName,
 				NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 			})
-			defer pmmapitests.RemoveNodes(t, nodeID)
+			defer pmmapitests.UnregisterNodes(t, nodeID)
 			defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 			// Check Node is created
 			assertNodeCreated(t, nodeID, nodes.GetNodeOKBody{
@@ -66,7 +66,7 @@ func TestNodeRegister(t *testing.T) {
 				Address:  "node-address-1",
 				Region:   "region-1",
 			})
-			defer pmmapitests.RemoveNodes(t, nodeID)
+			defer pmmapitests.UnregisterNodes(t, nodeID)
 			defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 			body := mservice.RegisterNodeBody{
@@ -109,8 +109,9 @@ func TestNodeRegister(t *testing.T) {
 			node, err := client.Default.ManagementService.RegisterNode(&params)
 			assert.NoError(t, err)
 
-			defer pmmapitests.RemoveNodes(t, node.Payload.GenericNode.NodeID)
+			defer pmmapitests.UnregisterNodes(t, node.Payload.GenericNode.NodeID)
 			defer RemovePMMAgentWithSubAgents(t, node.Payload.PMMAgent.AgentID)
+
 			assertNodeExporterCreated(t, node.Payload.PMMAgent.AgentID)
 		})
 
@@ -122,7 +123,7 @@ func TestNodeRegister(t *testing.T) {
 				Address:  "node-address-3",
 				Region:   "region-3",
 			})
-			defer pmmapitests.RemoveNodes(t, nodeID)
+			defer pmmapitests.UnregisterNodes(t, nodeID)
 			defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 			body := mservice.RegisterNodeBody{
@@ -148,9 +149,9 @@ func TestNodeRegister(t *testing.T) {
 				Address:  "node-address-4",
 				Region:   "region-4",
 			})
-
 			assert.NotEmpty(t, nodeID)
 			assert.NotEmpty(t, pmmAgentID)
+			pmmapitests.UnregisterNodes(t, nodeID)
 
 			body := mservice.RegisterNodeBody{
 				NodeName:   nodeName + "_new",
@@ -166,7 +167,7 @@ func TestNodeRegister(t *testing.T) {
 			node, err := client.Default.ManagementService.RegisterNode(&params)
 			assert.NoError(t, err)
 
-			defer pmmapitests.RemoveNodes(t, node.Payload.GenericNode.NodeID)
+			defer pmmapitests.UnregisterNodes(t, node.Payload.GenericNode.NodeID)
 			_, ok := assertNodeExporterCreated(t, node.Payload.PMMAgent.AgentID)
 			if ok {
 				defer RemovePMMAgentWithSubAgents(t, node.Payload.PMMAgent.AgentID)
@@ -190,7 +191,7 @@ func TestNodeRegister(t *testing.T) {
 				DisableCollectors: []string{"diskstats", "filesystem", "standard.process"},
 			}
 			nodeID, pmmAgentID := RegisterGenericNode(t, body)
-			defer pmmapitests.RemoveNodes(t, nodeID)
+			defer pmmapitests.UnregisterNodes(t, nodeID)
 			defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 			// Check Node is created
@@ -298,7 +299,7 @@ func TestNodeRegister(t *testing.T) {
 				NodeName: nodeName,
 				NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE),
 			})
-			defer pmmapitests.RemoveNodes(t, nodeID)
+			defer pmmapitests.UnregisterNodes(t, nodeID)
 			defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 			// Check Node is created
@@ -337,7 +338,7 @@ func TestNodeRegister(t *testing.T) {
 				CustomLabels:  map[string]string{"foo": "bar"},
 			}
 			nodeID, pmmAgentID := registerContainerNode(t, body)
-			defer pmmapitests.RemoveNodes(t, nodeID)
+			defer pmmapitests.UnregisterNodes(t, nodeID)
 			defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 			// Check Node is created

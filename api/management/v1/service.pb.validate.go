@@ -1034,3 +1034,213 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = RemoveServiceResponseValidationError{}
+
+// Validate checks the field values on UnregisterNodeRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UnregisterNodeRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UnregisterNodeRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UnregisterNodeRequestMultiError, or nil if none found.
+func (m *UnregisterNodeRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UnregisterNodeRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for NodeId
+
+	// no validation rules for Force
+
+	if len(errors) > 0 {
+		return UnregisterNodeRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// UnregisterNodeRequestMultiError is an error wrapping multiple validation
+// errors returned by UnregisterNodeRequest.ValidateAll() if the designated
+// constraints aren't met.
+type UnregisterNodeRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UnregisterNodeRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UnregisterNodeRequestMultiError) AllErrors() []error { return m }
+
+// UnregisterNodeRequestValidationError is the validation error returned by
+// UnregisterNodeRequest.Validate if the designated constraints aren't met.
+type UnregisterNodeRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UnregisterNodeRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UnregisterNodeRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UnregisterNodeRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UnregisterNodeRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UnregisterNodeRequestValidationError) ErrorName() string {
+	return "UnregisterNodeRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UnregisterNodeRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUnregisterNodeRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UnregisterNodeRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UnregisterNodeRequestValidationError{}
+
+// Validate checks the field values on UnregisterNodeResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UnregisterNodeResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UnregisterNodeResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UnregisterNodeResponseMultiError, or nil if none found.
+func (m *UnregisterNodeResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UnregisterNodeResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Warning
+
+	if len(errors) > 0 {
+		return UnregisterNodeResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// UnregisterNodeResponseMultiError is an error wrapping multiple validation
+// errors returned by UnregisterNodeResponse.ValidateAll() if the designated
+// constraints aren't met.
+type UnregisterNodeResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UnregisterNodeResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UnregisterNodeResponseMultiError) AllErrors() []error { return m }
+
+// UnregisterNodeResponseValidationError is the validation error returned by
+// UnregisterNodeResponse.Validate if the designated constraints aren't met.
+type UnregisterNodeResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UnregisterNodeResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UnregisterNodeResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UnregisterNodeResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UnregisterNodeResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UnregisterNodeResponseValidationError) ErrorName() string {
+	return "UnregisterNodeResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UnregisterNodeResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUnregisterNodeResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UnregisterNodeResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UnregisterNodeResponseValidationError{}

@@ -162,7 +162,7 @@ func TestChangeAdvisorChecks(t *testing.T) {
 			}
 		})
 
-		t.Run("change interval error", func(t *testing.T) {
+		t.Run("unrecognized interval is ignored", func(t *testing.T) {
 			t.Cleanup(func() { restoreCheckIntervalDefaults(t) })
 
 			resp, err := advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)

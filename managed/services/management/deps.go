@@ -17,7 +17,6 @@ package management
 
 import (
 	"context"
-	"net/http"
 	"time"
 
 	"github.com/percona-platform/saas/pkg/check"
@@ -67,8 +66,8 @@ type checksService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type grafanaClient interface {
 	CreateAnnotation(context.Context, []string, time.Time, string, string) (string, error)
-	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
-	IsAPIKeyAuth(headers http.Header) bool
+	CreateServiceAccount(ctx context.Context, noneName string, reregister bool) (int, string, error)
+	DeleteServiceAccount(ctx context.Context, noneName string, force bool) (string, error)
 }
 
 // jobsService is a subset of methods of agents.JobsService used by this package.

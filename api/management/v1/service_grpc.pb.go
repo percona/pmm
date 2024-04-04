@@ -20,11 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ManagementService_AddAnnotation_FullMethodName = "/management.v1.ManagementService/AddAnnotation"
-	ManagementService_RegisterNode_FullMethodName  = "/management.v1.ManagementService/RegisterNode"
-	ManagementService_AddService_FullMethodName    = "/management.v1.ManagementService/AddService"
-	ManagementService_DiscoverRDS_FullMethodName   = "/management.v1.ManagementService/DiscoverRDS"
-	ManagementService_RemoveService_FullMethodName = "/management.v1.ManagementService/RemoveService"
+	ManagementService_AddAnnotation_FullMethodName  = "/management.v1.ManagementService/AddAnnotation"
+	ManagementService_RegisterNode_FullMethodName   = "/management.v1.ManagementService/RegisterNode"
+	ManagementService_UnregisterNode_FullMethodName = "/management.v1.ManagementService/UnregisterNode"
+	ManagementService_AddService_FullMethodName     = "/management.v1.ManagementService/AddService"
+	ManagementService_DiscoverRDS_FullMethodName    = "/management.v1.ManagementService/DiscoverRDS"
+	ManagementService_RemoveService_FullMethodName  = "/management.v1.ManagementService/RemoveService"
 )
 
 // ManagementServiceClient is the client API for ManagementService service.
@@ -35,6 +36,8 @@ type ManagementServiceClient interface {
 	AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*AddAnnotationResponse, error)
 	// RegisterNode registers a new Node and a pmm-agent.
 	RegisterNode(ctx context.Context, in *RegisterNodeRequest, opts ...grpc.CallOption) (*RegisterNodeResponse, error)
+	// UnregisterNode unregisters a Node, pmm-agent and removes the service account and its token.
+	UnregisterNode(ctx context.Context, in *UnregisterNodeRequest, opts ...grpc.CallOption) (*UnregisterNodeResponse, error)
 	// AddService adds a Service and starts several Agents.
 	AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error)
 	// DiscoverRDS discovers RDS instances.
@@ -63,6 +66,15 @@ func (c *managementServiceClient) AddAnnotation(ctx context.Context, in *AddAnno
 func (c *managementServiceClient) RegisterNode(ctx context.Context, in *RegisterNodeRequest, opts ...grpc.CallOption) (*RegisterNodeResponse, error) {
 	out := new(RegisterNodeResponse)
 	err := c.cc.Invoke(ctx, ManagementService_RegisterNode_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managementServiceClient) UnregisterNode(ctx context.Context, in *UnregisterNodeRequest, opts ...grpc.CallOption) (*UnregisterNodeResponse, error) {
+	out := new(UnregisterNodeResponse)
+	err := c.cc.Invoke(ctx, ManagementService_UnregisterNode_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -104,6 +116,8 @@ type ManagementServiceServer interface {
 	AddAnnotation(context.Context, *AddAnnotationRequest) (*AddAnnotationResponse, error)
 	// RegisterNode registers a new Node and a pmm-agent.
 	RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error)
+	// UnregisterNode unregisters a Node, pmm-agent and removes the service account and its token.
+	UnregisterNode(context.Context, *UnregisterNodeRequest) (*UnregisterNodeResponse, error)
 	// AddService adds a Service and starts several Agents.
 	AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error)
 	// DiscoverRDS discovers RDS instances.
@@ -122,6 +136,10 @@ func (UnimplementedManagementServiceServer) AddAnnotation(context.Context, *AddA
 
 func (UnimplementedManagementServiceServer) RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterNode not implemented")
+}
+
+func (UnimplementedManagementServiceServer) UnregisterNode(context.Context, *UnregisterNodeRequest) (*UnregisterNodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnregisterNode not implemented")
 }
 
 func (UnimplementedManagementServiceServer) AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error) {
@@ -180,6 +198,24 @@ func _ManagementService_RegisterNode_Handler(srv interface{}, ctx context.Contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ManagementServiceServer).RegisterNode(ctx, req.(*RegisterNodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ManagementService_UnregisterNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnregisterNodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagementServiceServer).UnregisterNode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ManagementService_UnregisterNode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagementServiceServer).UnregisterNode(ctx, req.(*UnregisterNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -252,6 +288,10 @@ var ManagementService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RegisterNode",
 			Handler:    _ManagementService_RegisterNode_Handler,
+		},
+		{
+			MethodName: "UnregisterNode",
+			Handler:    _ManagementService_UnregisterNode_Handler,
 		},
 		{
 			MethodName: "AddService",

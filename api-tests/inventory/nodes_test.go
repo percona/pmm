@@ -33,7 +33,6 @@ import (
 )
 
 func TestNodes(t *testing.T) {
-	t.Parallel()
 	t.Run("List", func(t *testing.T) {
 		t.Parallel()
 
@@ -103,7 +102,6 @@ func TestNodes(t *testing.T) {
 }
 
 func TestGetNode(t *testing.T) {
-	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -157,7 +155,6 @@ func TestGetNode(t *testing.T) {
 }
 
 func TestGenericNode(t *testing.T) {
-	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -222,7 +219,6 @@ func TestGenericNode(t *testing.T) {
 }
 
 func TestContainerNode(t *testing.T) {
-	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -292,7 +288,6 @@ func TestContainerNode(t *testing.T) {
 }
 
 func TestRemoteNode(t *testing.T) {
-	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -361,7 +356,6 @@ func TestRemoteNode(t *testing.T) {
 }
 
 func TestRemoveNode(t *testing.T) {
-	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
