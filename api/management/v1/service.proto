@@ -27,6 +27,18 @@ message RemoveServiceRequest {
 
 message RemoveServiceResponse {}
 
+message UnregisterNodeRequest {
+  // Node_id to be unregistered.
+  string node_id = 1;
+  // Force delete node, related service account, even if it has more service tokens attached.
+  bool force = 2;
+}
+
+message UnregisterNodeResponse {
+  // Warning message if there are more service tokens attached to service account.
+  string warning = 1;
+}
+
 // ManagementService provides public methods for managing and querying Services.
 service ManagementService {
   // AddAnnotation adds an annotation.
@@ -49,6 +61,17 @@ service ManagementService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Register Node"
       description: "Registers a new Node and pmm-agent."
+    };
+  }
+  // UnregisterNode unregisters a Node, pmm-agent and removes the service account and its token.
+  rpc UnregisterNode(UnregisterNodeRequest) returns (UnregisterNodeResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Node/Unregister"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Unregister Node"
+      description: "Unregisters a Node and pmm-agent"
     };
   }
   // AddExternal adds external service and adds external exporter.

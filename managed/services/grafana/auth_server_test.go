@@ -32,6 +32,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -162,7 +163,6 @@ func TestAuthServerMustSetup(t *testing.T) {
 
 func TestAuthServerAuthenticate(t *testing.T) {
 	t.Parallel()
-	// logrus.SetLevel(logrus.TraceLevel)
 
 	checker := &mockAwsInstanceChecker{}
 	checker.Test(t)
@@ -199,7 +199,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 	})
 
 	for uri, minRole := range map[string]role{
-		"/agent.Agent/Connect": none,
+		"/agent.Agent/Connect": admin,
 
 		"/inventory.Nodes/ListNodes":               admin,
 		"/actions/StartMySQLShowTableStatusAction": viewer,
@@ -268,6 +268,75 @@ func TestAuthServerAuthenticate(t *testing.T) {
 			})
 		}
 	}
+}
+
+func TestServerClientConnection(t *testing.T) {
+	t.Parallel()
+
+	checker := &mockAwsInstanceChecker{}
+	checker.Test(t)
+	t.Cleanup(func() { checker.AssertExpectations(t) })
+
+	ctx := context.Background()
+	c := NewClient("127.0.0.1:3000")
+	s := NewAuthServer(c, checker, nil)
+
+	t.Run("Basic auth - success", func(t *testing.T) {
+		t.Parallel()
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, connectionEndpoint, nil)
+		require.NoError(t, err)
+		req.SetBasicAuth("admin", "admin")
+
+		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		assert.Nil(t, authError)
+	})
+
+	t.Run("Basic auth - fail", func(t *testing.T) {
+		t.Parallel()
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, connectionEndpoint, nil)
+		require.NoError(t, err)
+		req.SetBasicAuth("admin", "wrong")
+
+		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		assert.Equal(t, codes.Unauthenticated, authError.code)
+	})
+
+	t.Run("Token auth - success", func(t *testing.T) {
+		t.Parallel()
+
+		nodeName := fmt.Sprintf("N1-%d", time.Now().UnixNano())
+		headersMD := metadata.New(map[string]string{
+			"Authorization": "Basic YWRtaW46YWRtaW4=",
+		})
+		ctx := metadata.NewIncomingContext(context.Background(), headersMD)
+		_, serviceToken, err := c.CreateServiceAccount(ctx, nodeName, true)
+		require.NoError(t, err)
+		defer func() {
+			warning, err := c.DeleteServiceAccount(ctx, nodeName, true)
+			require.NoError(t, err)
+			require.Empty(t, warning)
+		}()
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, connectionEndpoint, nil)
+		require.NoError(t, err)
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", serviceToken))
+
+		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		assert.Nil(t, authError)
+	})
+
+	t.Run("Token auth - fail", func(t *testing.T) {
+		t.Parallel()
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, connectionEndpoint, nil)
+		require.NoError(t, err)
+		req.Header.Set("Authorization", "Bearer wrong")
+
+		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		assert.Equal(t, codes.Unauthenticated, authError.code)
+	})
 }
 
 func TestAuthServerAddVMGatewayToken(t *testing.T) {
@@ -420,6 +489,9 @@ func Test_cleanPath(t *testing.T) {
 		}, {
 			"/v1/AWSInstanceCheck/..%2f..%2f/logs.zip",
 			"/logs.zip",
+		}, {
+			"/graph/api/datasources/proxy/8/?query=WITH%20(%0A%20%20%20%20CASE%20%0A%20%20%20%20%20%20%20%20WHEN%20(3000%20%25%2060)%20%3D%200%20THEN%203000%0A%20%20%20%20ELSE%2060%20END%0A)%20AS%20scale%0ASELECT%0A%20%20%20%20(intDiv(toUInt32(timestamp)%2C%203000)%20*%203000)%20*%201000%20as%20t%2C%0A%20%20%20%20hostname%20h%2C%0A%20%20%20%20status%20s%2C%0A%20%20%20%20SUM(req_count)%20as%20req_count%0AFROM%20pinba.report_by_all%0AWHERE%0A%20%20%20%20timestamp%20%3E%3D%20toDateTime(1707139680)%20AND%20timestamp%20%3C%3D%20toDateTime(1707312480)%0A%20%20%20%20AND%20status%20%3E%3D%20400%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20schema%20%3D%20%27all%27%20ELSE%201%20END%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20hostname%20%3D%20%27all%27%20ELSE%201%20END%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20server_name%20%3D%20%27all%27%20ELSE%201%20END%0AGROUP%20BY%20t%2C%20h%2C%20s%0AORDER%20BY%20t%20FORMAT%20JSON",
+			"/graph/api/datasources/proxy/8/",
 		},
 	}
 	for _, tt := range tests {

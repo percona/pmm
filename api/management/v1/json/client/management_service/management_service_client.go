@@ -50,6 +50,8 @@ type ClientService interface {
 
 	RemoveService(params *RemoveServiceParams, opts ...ClientOption) (*RemoveServiceOK, error)
 
+	UnregisterNode(params *UnregisterNodeParams, opts ...ClientOption) (*UnregisterNodeOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -479,6 +481,45 @@ func (a *Client) RemoveService(params *RemoveServiceParams, opts ...ClientOption
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*RemoveServiceDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+UnregisterNode unregisters node
+
+Unregisters a Node and pmm-agent
+*/
+func (a *Client) UnregisterNode(params *UnregisterNodeParams, opts ...ClientOption) (*UnregisterNodeOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUnregisterNodeParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "UnregisterNode",
+		Method:             "POST",
+		PathPattern:        "/v1/management/Node/Unregister",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &UnregisterNodeReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*UnregisterNodeOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*UnregisterNodeDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
