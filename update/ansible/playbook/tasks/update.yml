@@ -50,6 +50,7 @@
       when:
         - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
         - ansible_distribution_major_version == '9'
+        - not ansible_check_mode
       yum:
         name:
           - ansible-core
