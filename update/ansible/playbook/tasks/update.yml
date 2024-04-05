@@ -22,6 +22,43 @@
       - vmproxy
       - grafana-db-migrator
   pre_tasks:
+    - name: Check for updates of ansible-core package | EL9
+      shell: yum list updates ansible-core | grep -q 'ansible-core' && echo 'Available' || echo 'Not Available'
+      register: ansible_core_update
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+
+    - name: Log message if ansible-core package needs update | EL9
+      debug:
+        msg: "The ansible-core package needs update. Playbook will re-run to apply the changes."
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+        - ansible_core_update.stdout == "Available"
+
+    - name: Remove ansible RPM if installed   | EL9
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+      yum:
+        name: ansible
+        state: absent
+      ignore_errors: yes
+
+    - name: Install ansible-core RPM          | EL9
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+        - not ansible_check_mode
+      yum:
+        name:
+          - ansible-core
+          - ansible-collection-community-general
+          - ansible-collection-community-postgresql
+          - ansible-collection-ansible-posix
+        state: latest
+
     - name: detect /srv/pmm-distribution
       stat:
         path: /srv/pmm-distribution
@@ -270,27 +307,6 @@
         - libssh2
         - sshpass
         - vi
-
-    - name: Remove ansible RPM if installed   | EL9
-      when:
-        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-        - ansible_distribution_major_version == '9'
-      yum:
-        name: ansible
-        state: absent
-      ignore_errors: yes
-
-    - name: Install ansible-core RPM          | EL9
-      when:
-        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-        - ansible_distribution_major_version == '9'
-      yum:
-        name:
-          - ansible-core
-          - ansible-collection-community-general
-          - ansible-collection-community-postgresql
-          - ansible-collection-ansible-posix
-        state: present
 
     - name: Update system packages EL9
       when:
