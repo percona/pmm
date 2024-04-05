@@ -59,7 +59,7 @@ type ListPitrTimerangesOK struct {
 }
 
 func (o *ListPitrTimerangesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Artifacts/ListPITRTimeranges][%d] listPitrTimerangesOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/backups/artifacts/{artifact_id}/pitr-timeranges][%d] listPitrTimerangesOk  %+v", 200, o.Payload)
 }
 
 func (o *ListPitrTimerangesOK) GetPayload() *ListPitrTimerangesOKBody {
@@ -101,7 +101,7 @@ func (o *ListPitrTimerangesDefault) Code() int {
 }
 
 func (o *ListPitrTimerangesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Artifacts/ListPITRTimeranges][%d] ListPitrTimeranges default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/backups/artifacts/{artifact_id}/pitr-timeranges][%d] ListPitrTimeranges default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ListPitrTimerangesDefault) GetPayload() *ListPitrTimerangesDefaultBody {
@@ -116,43 +116,6 @@ func (o *ListPitrTimerangesDefault) readResponse(response runtime.ClientResponse
 		return err
 	}
 
-	return nil
-}
-
-/*
-ListPitrTimerangesBody list pitr timeranges body
-swagger:model ListPitrTimerangesBody
-*/
-type ListPitrTimerangesBody struct {
-	// Artifact ID represents artifact whose location has PITR timeranges to be retrieved.
-	ArtifactID string `json:"artifact_id,omitempty"`
-}
-
-// Validate validates this list pitr timeranges body
-func (o *ListPitrTimerangesBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this list pitr timeranges body based on context it is used
-func (o *ListPitrTimerangesBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListPitrTimerangesBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListPitrTimerangesBody) UnmarshalBinary(b []byte) error {
-	var res ListPitrTimerangesBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

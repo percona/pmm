@@ -60,8 +60,11 @@ ListPitrTimerangesParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListPitrTimerangesParams struct {
-	// Body.
-	Body ListPitrTimerangesBody
+	/* ArtifactID.
+
+	   Artifact ID represents artifact whose location has PITR timeranges to be retrieved.
+	*/
+	ArtifactID string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -116,15 +119,15 @@ func (o *ListPitrTimerangesParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the list pitr timeranges params
-func (o *ListPitrTimerangesParams) WithBody(body ListPitrTimerangesBody) *ListPitrTimerangesParams {
-	o.SetBody(body)
+// WithArtifactID adds the artifactID to the list pitr timeranges params
+func (o *ListPitrTimerangesParams) WithArtifactID(artifactID string) *ListPitrTimerangesParams {
+	o.SetArtifactID(artifactID)
 	return o
 }
 
-// SetBody adds the body to the list pitr timeranges params
-func (o *ListPitrTimerangesParams) SetBody(body ListPitrTimerangesBody) {
-	o.Body = body
+// SetArtifactID adds the artifactId to the list pitr timeranges params
+func (o *ListPitrTimerangesParams) SetArtifactID(artifactID string) {
+	o.ArtifactID = artifactID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,7 +136,9 @@ func (o *ListPitrTimerangesParams) WriteToRequest(r runtime.ClientRequest, reg s
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
+
+	// path param artifact_id
+	if err := r.SetPathParam("artifact_id", o.ArtifactID); err != nil {
 		return err
 	}
 

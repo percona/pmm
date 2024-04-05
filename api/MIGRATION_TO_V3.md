@@ -24,9 +24,10 @@ POST /v1/user/list                                  GET /v1/users               
 POST /v1/inventory/Agents/Add                       POST /v1/inventory/agents                        ✅
 POST /v1/inventory/Agents/Change                    PUT /v1/inventory/agents/{agent_id}              ✅
 POST /v1/inventory/Agents/Get                       GET /v1/inventory/agents/{agent_id}              ✅
-POST /v1/inventory/Agents/List                      GET /v1/inventory/agents                         ✅ Query param filters: service_id, node_id, pmm_agent_id and agent_type
+POST /v1/inventory/Agents/List                      GET /v1/inventory/agents                         ✅ Query param filters: service_id, node_id, 
+                                                                                                        pmm_agent_id and agent_type
 POST /v1/inventory/Agents/Remove                    DELETE /v1/inventory/agents/{agent_id}           ✅
-POST /v1/inventory/Agents/GetLogs                   GET /v1/inventory/agents/{id}/logs               ✅
+POST /v1/inventory/Agents/GetLogs                   GET /v1/inventory/agents/{agent_id}/logs         ✅
 
 **NodesService**                                   **NodesService**
 POST /v1/inventory/Nodes/Add                        POST /v1/inventory/nodes                         ✅
@@ -90,17 +91,17 @@ POST /v1/advisors/StartChecks                       POST /v1/advisors/checks:sta
 POST /v1/advisors/ListFailedServices                GET /v1/advisors/failedServices                  ✅
 
 **ArtifactsService**                                **ArtifactsService**                             TODO: merge to BackupService
-POST /v1/backup/Artifacts/List                      GET /v1/backups/artifacts
-POST /v1/backup/Artifacts/Delete                    DELETE /v1/backups/artifacts/{id}                ?remove_files=true
-POST /v1/backup/Artifacts/PITRTimeranges            GET /v1/backups/artifacts/{id}/pitr_timeranges
+POST /v1/backup/Artifacts/List                      GET /v1/backups/artifacts                        ✅
+POST /v1/backup/Artifacts/Delete                    DELETE /v1/backups/artifacts/{artifact_id}       ✅ ?remove_files=true
+POST /v1/backup/Artifacts/PITRTimeranges            GET /v1/backups/artifacts/{artifact_id}/pitr-timeranges ✅
 
-**BackupsService**                                  **BackupService**                                TODO: rename to singular
+**BackupsService**                                  **BackupService**                                NOTE: BackupsService renamed to BackupService
 POST /v1/backup/Backups/ChangeScheduled             PUT /v1/backups:changeScheduled
 POST /v1/backup/Backups/GetLogs                     GET /v1/backups/{id}/logs
-POST /v1/backup/Backups/ListArtifactCompatibleServices GET /v1/backups/{id}/services                 Could also be /compatible_services
+POST /v1/backup/Backups/ListArtifactCompatibleServices GET /v1/backups/{id}/compatible-services
 POST /v1/backup/Backups/ListScheduled               GET /v1/backups/scheduled
 POST /v1/backup/Backups/RemoveScheduled             GET /v1/backups/scheduled/{id}
-<!-- POST /v1/backup/Backups/Restore                                                                 Moved to RestoreService -->
+POST /v1/backup/Backups/Restore                                                                      NOTE: Moved to RestoreService
 POST /v1/backup/Backups/Schedule                    POST /v1/backups:schedule
 POST /v1/backup/Backups/Start                       POST /v1/backups:start
 
@@ -112,7 +113,7 @@ POST /v1/backup/Locations/Remove                    DELETE /v1/backups/locations
 POST /v1/backup/Locations/TestConfig                POST /v1/backups/locations:testConfig
 
 **RestoreHistoryService**                           **RestoreService**
-POST /v1/backup/RestoreHistory/List                 GET /v1/backups/restores                         Note: could also be restore_history
+POST /v1/backup/RestoreHistory/List                 GET /v1/backups/restores
 POST /v1/backup/Backups/Restore                     POST /v1/backups/restores:start
 
 **DumpsService**                                    **DumpService**                                  TODO: rename to singular

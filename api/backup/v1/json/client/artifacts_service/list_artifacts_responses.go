@@ -60,7 +60,7 @@ type ListArtifactsOK struct {
 }
 
 func (o *ListArtifactsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Artifacts/List][%d] listArtifactsOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/backups/artifacts][%d] listArtifactsOk  %+v", 200, o.Payload)
 }
 
 func (o *ListArtifactsOK) GetPayload() *ListArtifactsOKBody {
@@ -102,7 +102,7 @@ func (o *ListArtifactsDefault) Code() int {
 }
 
 func (o *ListArtifactsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Artifacts/List][%d] ListArtifacts default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/backups/artifacts][%d] ListArtifacts default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ListArtifactsDefault) GetPayload() *ListArtifactsDefaultBody {

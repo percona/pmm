@@ -58,7 +58,7 @@ type DeleteArtifactOK struct {
 }
 
 func (o *DeleteArtifactOK) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Artifacts/Delete][%d] deleteArtifactOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/backups/artifacts/{artifact_id}][%d] deleteArtifactOk  %+v", 200, o.Payload)
 }
 
 func (o *DeleteArtifactOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *DeleteArtifactDefault) Code() int {
 }
 
 func (o *DeleteArtifactDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Artifacts/Delete][%d] DeleteArtifact default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/backups/artifacts/{artifact_id}][%d] DeleteArtifact default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *DeleteArtifactDefault) GetPayload() *DeleteArtifactDefaultBody {
@@ -121,9 +121,6 @@ DeleteArtifactBody delete artifact body
 swagger:model DeleteArtifactBody
 */
 type DeleteArtifactBody struct {
-	// Machine-readable artifact ID.
-	ArtifactID string `json:"artifact_id,omitempty"`
-
 	// Removes all the backup files associated with artifact if flag is set.
 	RemoveFiles bool `json:"remove_files,omitempty"`
 }

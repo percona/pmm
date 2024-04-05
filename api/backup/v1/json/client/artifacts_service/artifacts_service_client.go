@@ -48,7 +48,7 @@ func (a *Client) DeleteArtifact(params *DeleteArtifactParams, opts ...ClientOpti
 	op := &runtime.ClientOperation{
 		ID:                 "DeleteArtifact",
 		Method:             "POST",
-		PathPattern:        "/v1/backup/Artifacts/Delete",
+		PathPattern:        "/v1/backups/artifacts/{artifact_id}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -84,8 +84,8 @@ func (a *Client) ListArtifacts(params *ListArtifactsParams, opts ...ClientOption
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ListArtifacts",
-		Method:             "POST",
-		PathPattern:        "/v1/backup/Artifacts/List",
+		Method:             "GET",
+		PathPattern:        "/v1/backups/artifacts",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -121,8 +121,8 @@ func (a *Client) ListPitrTimeranges(params *ListPitrTimerangesParams, opts ...Cl
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ListPitrTimeranges",
-		Method:             "POST",
-		PathPattern:        "/v1/backup/Artifacts/ListPITRTimeranges",
+		Method:             "GET",
+		PathPattern:        "/v1/backups/artifacts/{artifact_id}/pitr-timeranges",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

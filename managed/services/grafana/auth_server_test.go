@@ -222,6 +222,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/v1/server/updates:getStatus":          none,
 		"/v1/server/settings":                   admin,
 		"/v1/server/AWSInstance":                none,
+		"/v1/backups":                           admin,
 		"/v1/users":                             viewer,
 		"/v1/platform/Connect":                  admin,
 

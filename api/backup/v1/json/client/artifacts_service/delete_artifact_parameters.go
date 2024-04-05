@@ -60,6 +60,12 @@ DeleteArtifactParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type DeleteArtifactParams struct {
+	/* ArtifactID.
+
+	   Machine-readable artifact ID.
+	*/
+	ArtifactID string
+
 	// Body.
 	Body DeleteArtifactBody
 
@@ -116,6 +122,17 @@ func (o *DeleteArtifactParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithArtifactID adds the artifactID to the delete artifact params
+func (o *DeleteArtifactParams) WithArtifactID(artifactID string) *DeleteArtifactParams {
+	o.SetArtifactID(artifactID)
+	return o
+}
+
+// SetArtifactID adds the artifactId to the delete artifact params
+func (o *DeleteArtifactParams) SetArtifactID(artifactID string) {
+	o.ArtifactID = artifactID
+}
+
 // WithBody adds the body to the delete artifact params
 func (o *DeleteArtifactParams) WithBody(body DeleteArtifactBody) *DeleteArtifactParams {
 	o.SetBody(body)
@@ -133,6 +150,11 @@ func (o *DeleteArtifactParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 		return err
 	}
 	var res []error
+
+	// path param artifact_id
+	if err := r.SetPathParam("artifact_id", o.ArtifactID); err != nil {
+		return err
+	}
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

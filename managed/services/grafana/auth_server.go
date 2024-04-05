@@ -61,7 +61,8 @@ var rules = map[string]role{
 
 	"/v1/alerting":                                viewer,
 	"/v1/actions/":                                viewer,
-	"/v1/backup":                                  admin,
+	"/v1/backup":                                  admin, // TODO: remove once we finish refactoring the whole backup API
+	"/v1/backups":                                 admin,
 	"/v1/dump":                                    admin,
 	"/v1/role":                                    admin,
 	"/v1/inventory/":                              admin,

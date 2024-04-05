@@ -15,373 +15,6 @@
     "version": "v1beta1"
   },
   "paths": {
-    "/v1/backup/Artifacts/Delete": {
-      "post": {
-        "tags": [
-          "ArtifactsService"
-        ],
-        "summary": "DeleteArtifact deletes specified artifact.",
-        "operationId": "DeleteArtifact",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "artifact_id": {
-                  "description": "Machine-readable artifact ID.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "remove_files": {
-                  "description": "Removes all the backup files associated with artifact if flag is set.",
-                  "type": "boolean",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/backup/Artifacts/List": {
-      "post": {
-        "tags": [
-          "ArtifactsService"
-        ],
-        "summary": "ListArtifacts returns a list of all backup artifacts.",
-        "operationId": "ListArtifacts",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "artifacts": {
-                  "type": "array",
-                  "items": {
-                    "description": "Artifact represents single backup artifact.",
-                    "type": "object",
-                    "properties": {
-                      "artifact_id": {
-                        "description": "Machine-readable artifact ID.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "created_at": {
-                        "description": "Artifact creation time.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 9
-                      },
-                      "data_model": {
-                        "description": "DataModel is a model used for performing a backup.",
-                        "type": "string",
-                        "default": "DATA_MODEL_UNSPECIFIED",
-                        "enum": [
-                          "DATA_MODEL_UNSPECIFIED",
-                          "DATA_MODEL_PHYSICAL",
-                          "DATA_MODEL_LOGICAL"
-                        ],
-                        "x-order": 7
-                      },
-                      "folder": {
-                        "description": "Folder to store artifact on a storage.",
-                        "type": "string",
-                        "x-order": 12
-                      },
-                      "is_sharded_cluster": {
-                        "description": "Source database setup type.",
-                        "type": "boolean",
-                        "x-order": 11
-                      },
-                      "location_id": {
-                        "description": "Machine-readable location ID.",
-                        "type": "string",
-                        "x-order": 3
-                      },
-                      "location_name": {
-                        "description": "Location name.",
-                        "type": "string",
-                        "x-order": 4
-                      },
-                      "metadata_list": {
-                        "description": "List of artifact metadata.",
-                        "type": "array",
-                        "items": {
-                          "description": "Metadata contains extra artifact data like files it consists of, tool specific data, etc.",
-                          "type": "object",
-                          "properties": {
-                            "file_list": {
-                              "description": "List of files backup consists of.",
-                              "type": "array",
-                              "items": {
-                                "description": "File represents file or folder on a storage.",
-                                "type": "object",
-                                "properties": {
-                                  "is_directory": {
-                                    "type": "boolean",
-                                    "x-order": 1
-                                  },
-                                  "name": {
-                                    "type": "string",
-                                    "x-order": 0
-                                  }
-                                }
-                              },
-                              "x-order": 0
-                            },
-                            "pbm_metadata": {
-                              "description": "PbmMetadata contains additional data for pbm cli tools.",
-                              "type": "object",
-                              "properties": {
-                                "name": {
-                                  "description": "Name of backup in backup tool representation.",
-                                  "type": "string",
-                                  "x-order": 0
-                                }
-                              },
-                              "x-order": 2
-                            },
-                            "restore_to": {
-                              "description": "Exact time DB can be restored to.",
-                              "type": "string",
-                              "format": "date-time",
-                              "x-order": 1
-                            }
-                          }
-                        },
-                        "x-order": 13
-                      },
-                      "mode": {
-                        "description": "BackupMode specifies backup mode.",
-                        "type": "string",
-                        "default": "BACKUP_MODE_UNSPECIFIED",
-                        "enum": [
-                          "BACKUP_MODE_UNSPECIFIED",
-                          "BACKUP_MODE_SNAPSHOT",
-                          "BACKUP_MODE_INCREMENTAL",
-                          "BACKUP_MODE_PITR"
-                        ],
-                        "x-order": 10
-                      },
-                      "name": {
-                        "type": "string",
-                        "title": "Artifact name",
-                        "x-order": 1
-                      },
-                      "service_id": {
-                        "description": "Machine-readable service ID.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "service_name": {
-                        "description": "Service name.",
-                        "type": "string",
-                        "x-order": 6
-                      },
-                      "status": {
-                        "description": "BackupStatus shows the current status of execution of backup.",
-                        "type": "string",
-                        "default": "BACKUP_STATUS_UNSPECIFIED",
-                        "enum": [
-                          "BACKUP_STATUS_UNSPECIFIED",
-                          "BACKUP_STATUS_PENDING",
-                          "BACKUP_STATUS_IN_PROGRESS",
-                          "BACKUP_STATUS_PAUSED",
-                          "BACKUP_STATUS_SUCCESS",
-                          "BACKUP_STATUS_ERROR",
-                          "BACKUP_STATUS_DELETING",
-                          "BACKUP_STATUS_FAILED_TO_DELETE",
-                          "BACKUP_STATUS_CLEANUP_IN_PROGRESS"
-                        ],
-                        "x-order": 8
-                      },
-                      "vendor": {
-                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
-                        "type": "string",
-                        "x-order": 2
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/backup/Artifacts/ListPITRTimeranges": {
-      "post": {
-        "tags": [
-          "ArtifactsService"
-        ],
-        "summary": "ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location",
-        "operationId": "ListPitrTimeranges",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "artifact_id": {
-                  "description": "Artifact ID represents artifact whose location has PITR timeranges to be retrieved.",
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "timeranges": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "end_timestamp": {
-                        "description": "end_timestamp is the time of the last event in the PITR chunk.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 1
-                      },
-                      "start_timestamp": {
-                        "description": "start_timestamp is the time of the first event in the PITR chunk.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 0
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/backup/Backups/ChangeScheduled": {
       "post": {
         "description": "Change a scheduled backup.",
@@ -2011,6 +1644,357 @@
                         "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
                         "type": "string",
                         "x-order": 3
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/backups/artifacts": {
+      "get": {
+        "tags": [
+          "ArtifactsService"
+        ],
+        "summary": "ListArtifacts returns a list of all backup artifacts.",
+        "operationId": "ListArtifacts",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "artifacts": {
+                  "type": "array",
+                  "items": {
+                    "description": "Artifact represents single backup artifact.",
+                    "type": "object",
+                    "properties": {
+                      "artifact_id": {
+                        "description": "Machine-readable artifact ID.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "created_at": {
+                        "description": "Artifact creation time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 9
+                      },
+                      "data_model": {
+                        "description": "DataModel is a model used for performing a backup.",
+                        "type": "string",
+                        "default": "DATA_MODEL_UNSPECIFIED",
+                        "enum": [
+                          "DATA_MODEL_UNSPECIFIED",
+                          "DATA_MODEL_PHYSICAL",
+                          "DATA_MODEL_LOGICAL"
+                        ],
+                        "x-order": 7
+                      },
+                      "folder": {
+                        "description": "Folder to store artifact on a storage.",
+                        "type": "string",
+                        "x-order": 12
+                      },
+                      "is_sharded_cluster": {
+                        "description": "Source database setup type.",
+                        "type": "boolean",
+                        "x-order": 11
+                      },
+                      "location_id": {
+                        "description": "Machine-readable location ID.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "location_name": {
+                        "description": "Location name.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "metadata_list": {
+                        "description": "List of artifact metadata.",
+                        "type": "array",
+                        "items": {
+                          "description": "Metadata contains extra artifact data like files it consists of, tool specific data, etc.",
+                          "type": "object",
+                          "properties": {
+                            "file_list": {
+                              "description": "List of files backup consists of.",
+                              "type": "array",
+                              "items": {
+                                "description": "File represents file or folder on a storage.",
+                                "type": "object",
+                                "properties": {
+                                  "is_directory": {
+                                    "type": "boolean",
+                                    "x-order": 1
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "x-order": 0
+                                  }
+                                }
+                              },
+                              "x-order": 0
+                            },
+                            "pbm_metadata": {
+                              "description": "PbmMetadata contains additional data for pbm cli tools.",
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "description": "Name of backup in backup tool representation.",
+                                  "type": "string",
+                                  "x-order": 0
+                                }
+                              },
+                              "x-order": 2
+                            },
+                            "restore_to": {
+                              "description": "Exact time DB can be restored to.",
+                              "type": "string",
+                              "format": "date-time",
+                              "x-order": 1
+                            }
+                          }
+                        },
+                        "x-order": 13
+                      },
+                      "mode": {
+                        "description": "BackupMode specifies backup mode.",
+                        "type": "string",
+                        "default": "BACKUP_MODE_UNSPECIFIED",
+                        "enum": [
+                          "BACKUP_MODE_UNSPECIFIED",
+                          "BACKUP_MODE_SNAPSHOT",
+                          "BACKUP_MODE_INCREMENTAL",
+                          "BACKUP_MODE_PITR"
+                        ],
+                        "x-order": 10
+                      },
+                      "name": {
+                        "type": "string",
+                        "title": "Artifact name",
+                        "x-order": 1
+                      },
+                      "service_id": {
+                        "description": "Machine-readable service ID.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "service_name": {
+                        "description": "Service name.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "status": {
+                        "description": "BackupStatus shows the current status of execution of backup.",
+                        "type": "string",
+                        "default": "BACKUP_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "BACKUP_STATUS_UNSPECIFIED",
+                          "BACKUP_STATUS_PENDING",
+                          "BACKUP_STATUS_IN_PROGRESS",
+                          "BACKUP_STATUS_PAUSED",
+                          "BACKUP_STATUS_SUCCESS",
+                          "BACKUP_STATUS_ERROR",
+                          "BACKUP_STATUS_DELETING",
+                          "BACKUP_STATUS_FAILED_TO_DELETE",
+                          "BACKUP_STATUS_CLEANUP_IN_PROGRESS"
+                        ],
+                        "x-order": 8
+                      },
+                      "vendor": {
+                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
+                        "type": "string",
+                        "x-order": 2
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/backups/artifacts/{artifact_id}": {
+      "post": {
+        "tags": [
+          "ArtifactsService"
+        ],
+        "summary": "DeleteArtifact deletes specified artifact.",
+        "operationId": "DeleteArtifact",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Machine-readable artifact ID.",
+            "name": "artifact_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "remove_files": {
+                  "description": "Removes all the backup files associated with artifact if flag is set.",
+                  "type": "boolean",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/backups/artifacts/{artifact_id}/pitr-timeranges": {
+      "get": {
+        "tags": [
+          "ArtifactsService"
+        ],
+        "summary": "ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location",
+        "operationId": "ListPitrTimeranges",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Artifact ID represents artifact whose location has PITR timeranges to be retrieved.",
+            "name": "artifact_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "timeranges": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "end_timestamp": {
+                        "description": "end_timestamp is the time of the last event in the PITR chunk.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 1
+                      },
+                      "start_timestamp": {
+                        "description": "start_timestamp is the time of the first event in the PITR chunk.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 0
                       }
                     }
                   },

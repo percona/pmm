@@ -37,10 +37,6 @@ func request_ArtifactsService_ListArtifacts_0(ctx context.Context, marshaler run
 	var protoReq ListArtifactsRequest
 	var metadata runtime.ServerMetadata
 
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
 	msg, err := client.ListArtifacts(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
@@ -48,10 +44,6 @@ func request_ArtifactsService_ListArtifacts_0(ctx context.Context, marshaler run
 func local_request_ArtifactsService_ListArtifacts_0(ctx context.Context, marshaler runtime.Marshaler, server ArtifactsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListArtifactsRequest
 	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 
 	msg, err := server.ListArtifacts(ctx, &protoReq)
 	return msg, metadata, err
@@ -63,6 +55,23 @@ func request_ArtifactsService_DeleteArtifact_0(ctx context.Context, marshaler ru
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["artifact_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "artifact_id")
+	}
+
+	protoReq.ArtifactId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "artifact_id", err)
 	}
 
 	msg, err := client.DeleteArtifact(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -77,6 +86,23 @@ func local_request_ArtifactsService_DeleteArtifact_0(ctx context.Context, marsha
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["artifact_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "artifact_id")
+	}
+
+	protoReq.ArtifactId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "artifact_id", err)
+	}
+
 	msg, err := server.DeleteArtifact(ctx, &protoReq)
 	return msg, metadata, err
 }
@@ -85,8 +111,21 @@ func request_ArtifactsService_ListPitrTimeranges_0(ctx context.Context, marshale
 	var protoReq ListPitrTimerangesRequest
 	var metadata runtime.ServerMetadata
 
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["artifact_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "artifact_id")
+	}
+
+	protoReq.ArtifactId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "artifact_id", err)
 	}
 
 	msg, err := client.ListPitrTimeranges(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -97,8 +136,21 @@ func local_request_ArtifactsService_ListPitrTimeranges_0(ctx context.Context, ma
 	var protoReq ListPitrTimerangesRequest
 	var metadata runtime.ServerMetadata
 
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["artifact_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "artifact_id")
+	}
+
+	protoReq.ArtifactId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "artifact_id", err)
 	}
 
 	msg, err := server.ListPitrTimeranges(ctx, &protoReq)
@@ -110,7 +162,7 @@ func local_request_ArtifactsService_ListPitrTimeranges_0(ctx context.Context, ma
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterArtifactsServiceHandlerFromEndpoint instead.
 func RegisterArtifactsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ArtifactsServiceServer) error {
-	mux.Handle("POST", pattern_ArtifactsService_ListArtifacts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_ArtifactsService_ListArtifacts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -118,7 +170,7 @@ func RegisterArtifactsServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.ArtifactsService/ListArtifacts", runtime.WithHTTPPathPattern("/v1/backup/Artifacts/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.ArtifactsService/ListArtifacts", runtime.WithHTTPPathPattern("/v1/backups/artifacts"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -142,7 +194,7 @@ func RegisterArtifactsServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.ArtifactsService/DeleteArtifact", runtime.WithHTTPPathPattern("/v1/backup/Artifacts/Delete"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.ArtifactsService/DeleteArtifact", runtime.WithHTTPPathPattern("/v1/backups/artifacts/{artifact_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -158,7 +210,7 @@ func RegisterArtifactsServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		forward_ArtifactsService_DeleteArtifact_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_ArtifactsService_ListPitrTimeranges_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_ArtifactsService_ListPitrTimeranges_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -166,7 +218,7 @@ func RegisterArtifactsServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.ArtifactsService/ListPitrTimeranges", runtime.WithHTTPPathPattern("/v1/backup/Artifacts/ListPITRTimeranges"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.ArtifactsService/ListPitrTimeranges", runtime.WithHTTPPathPattern("/v1/backups/artifacts/{artifact_id}/pitr-timeranges"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -222,13 +274,13 @@ func RegisterArtifactsServiceHandler(ctx context.Context, mux *runtime.ServeMux,
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "ArtifactsServiceClient" to call the correct interceptors.
 func RegisterArtifactsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ArtifactsServiceClient) error {
-	mux.Handle("POST", pattern_ArtifactsService_ListArtifacts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_ArtifactsService_ListArtifacts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.ArtifactsService/ListArtifacts", runtime.WithHTTPPathPattern("/v1/backup/Artifacts/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.ArtifactsService/ListArtifacts", runtime.WithHTTPPathPattern("/v1/backups/artifacts"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -249,7 +301,7 @@ func RegisterArtifactsServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.ArtifactsService/DeleteArtifact", runtime.WithHTTPPathPattern("/v1/backup/Artifacts/Delete"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.ArtifactsService/DeleteArtifact", runtime.WithHTTPPathPattern("/v1/backups/artifacts/{artifact_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -264,13 +316,13 @@ func RegisterArtifactsServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		forward_ArtifactsService_DeleteArtifact_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_ArtifactsService_ListPitrTimeranges_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_ArtifactsService_ListPitrTimeranges_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.ArtifactsService/ListPitrTimeranges", runtime.WithHTTPPathPattern("/v1/backup/Artifacts/ListPITRTimeranges"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.ArtifactsService/ListPitrTimeranges", runtime.WithHTTPPathPattern("/v1/backups/artifacts/{artifact_id}/pitr-timeranges"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -289,11 +341,11 @@ func RegisterArtifactsServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 }
 
 var (
-	pattern_ArtifactsService_ListArtifacts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "backup", "Artifacts", "List"}, ""))
+	pattern_ArtifactsService_ListArtifacts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "backups", "artifacts"}, ""))
 
-	pattern_ArtifactsService_DeleteArtifact_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "backup", "Artifacts", "Delete"}, ""))
+	pattern_ArtifactsService_DeleteArtifact_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "backups", "artifacts", "artifact_id"}, ""))
 
-	pattern_ArtifactsService_ListPitrTimeranges_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "backup", "Artifacts", "ListPITRTimeranges"}, ""))
+	pattern_ArtifactsService_ListPitrTimeranges_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "backups", "artifacts", "artifact_id", "pitr-timeranges"}, ""))
 )
 
 var (
