@@ -51,8 +51,8 @@ test-cover:                     ## Run tests and collect cross-package coverage 
 	go test $(TEST_FLAGS) -race -coverprofile=cover.out -covermode=atomic -coverpkg=./... ./...
 
 env-up:                         ## Start development environment
-	docker-compose up --force-recreate --abort-on-container-exit --renew-anon-volumes --remove-orphans
+	docker compose up --force-recreate --abort-on-container-exit --renew-anon-volumes --remove-orphans
 
 env-down:                       ## Stop development environment
-	docker-compose down --volumes --remove-orphans
+	docker compose down --volumes --remove-orphans
 
