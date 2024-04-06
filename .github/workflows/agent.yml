@@ -94,7 +94,7 @@ jobs:
       - name: Build and install
         run: make install
 
-      - name: Launch the containers
+      - name: Launch containers
         env:
           ENV_UP_FLAGS: "--detach"
         run: make env-up
