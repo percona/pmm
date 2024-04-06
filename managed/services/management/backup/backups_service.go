@@ -393,7 +393,8 @@ func (s *BackupService) ChangeScheduledBackup(ctx context.Context, req *backuppb
 
 // RemoveScheduledBackup stops and removes existing scheduled backup task.
 func (s *BackupService) RemoveScheduledBackup(ctx context.Context, req *backuppb.RemoveScheduledBackupRequest) (*backuppb.RemoveScheduledBackupResponse, error) {
-	task, err := models.FindScheduledTaskByID(s.db.Querier, req.ScheduledBackupId)
+	scheduledBackupId := models.NormalizeScheduledTaskID(req.ScheduledBackupId)
+	task, err := models.FindScheduledTaskByID(s.db.Querier, scheduledBackupId)
 	if err != nil {
 		return nil, err
 	}
@@ -409,9 +410,9 @@ func (s *BackupService) RemoveScheduledBackup(ctx context.Context, req *backuppb
 		return nil, errors.Errorf("non-backup task: %s", task.Type)
 	}
 
-	errTx := s.db.InTransaction(func(tx *reform.TX) error {
+	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		artifacts, err := models.FindArtifacts(tx.Querier, models.ArtifactFilters{
-			ScheduleID: req.ScheduledBackupId,
+			ScheduleID: scheduledBackupId,
 		})
 		if err != nil {
 			return err
@@ -426,7 +427,7 @@ func (s *BackupService) RemoveScheduledBackup(ctx context.Context, req *backuppb
 			}
 		}
 
-		return s.scheduleService.Remove(req.ScheduledBackupId)
+		return s.scheduleService.Remove(scheduledBackupId)
 	})
 	if errTx != nil {
 		return nil, errTx
@@ -456,9 +457,9 @@ func (s *BackupService) GetLogs(_ context.Context, req *backuppb.GetLogsRequest)
 
 	switch {
 	case req.ArtifactId != "":
-		jobsFilter.ArtifactID = req.ArtifactId
+		jobsFilter.ArtifactID = models.NormalizeArtifactID(req.ArtifactId)
 	case req.RestoreId != "":
-		jobsFilter.RestoreID = req.RestoreId
+		jobsFilter.RestoreID = models.NormalizeRestoreID(req.RestoreId)
 	default:
 		return nil, status.Error(codes.InvalidArgument, "One of artifact ID or restore ID is required")
 	}
@@ -509,7 +510,8 @@ func (s *BackupService) ListArtifactCompatibleServices(
 	ctx context.Context,
 	req *backuppb.ListArtifactCompatibleServicesRequest,
 ) (*backuppb.ListArtifactCompatibleServicesResponse, error) {
-	compatibleServices, err := s.compatibilityService.FindArtifactCompatibleServices(ctx, req.ArtifactId)
+	artifactID := models.NormalizeActionID(req.ArtifactId)
+	compatibleServices, err := s.compatibilityService.FindArtifactCompatibleServices(ctx, artifactID)
 	switch {
 	case err == nil:
 	case errors.Is(err, models.ErrNotFound):

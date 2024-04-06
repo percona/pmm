@@ -31,10 +31,13 @@ import (
 )
 
 const (
-	agentIDPrefix   = "/agent_id/"
-	serviceIDPrefix = "/service_id/"
-	nodeIDPrefix    = "/node_id/"
-	actionIDPrefix  = "/action_id/"
+	agentIDPrefix         = "/agent_id/"
+	serviceIDPrefix       = "/service_id/"
+	nodeIDPrefix          = "/node_id/"
+	actionIDPrefix        = "/action_id/"
+	scheduledTaskIDPrefix = "/scheduled_task_id/"
+	artifactIDPrefix      = "/artifact_id/"
+	restoreIDPrefix       = "/restore_id/"
 )
 
 // MySQLOptionsParams contains methods to create MySQLOptions object.
@@ -170,38 +173,50 @@ func AzureOptionsFromRequest(params AzureOptionsParams) *AzureOptions {
 
 // NormalizeAgentID adds a prefix to the agent ID if it does not already contain it.
 func NormalizeAgentID(agentID string) string {
-	if agentID == "" || agentID == "pmm-server" || strings.HasPrefix(agentID, agentIDPrefix) {
+	if agentID == "pmm-server" {
 		return agentID
 	}
 
-	return agentIDPrefix + agentID
+	return normalizeID(agentID, agentIDPrefix)
 }
 
 // NormalizeServiceID adds a prefix to the service ID if it does not already contain it.
 func NormalizeServiceID(serviceID string) string {
-	if serviceID == "" || strings.HasPrefix(serviceID, serviceIDPrefix) {
-		return serviceID
-	}
-
-	return serviceIDPrefix + serviceID
+	return normalizeID(serviceID, serviceIDPrefix)
 }
 
 // NormalizeNodeID adds a prefix to the node ID if it does not already contain it.
 func NormalizeNodeID(nodeID string) string {
-	if nodeID == "" || strings.HasPrefix(nodeID, nodeIDPrefix) {
-		return nodeID
-	}
-
-	return nodeIDPrefix + nodeID
+	return normalizeID(nodeID, nodeIDPrefix)
 }
 
 // NormalizeActionID adds a prefix to the node ID if it does not already contain it.
 func NormalizeActionID(actionID string) string {
-	if actionID == "" || strings.HasPrefix(actionID, nodeIDPrefix) {
-		return actionID
+	return normalizeID(actionID, nodeIDPrefix)
+}
+
+// NormalizeScheduledTaskID adds a prefix to the sheduled task ID if it does not already contain it.
+func NormalizeScheduledTaskID(sTaskID string) string {
+	return normalizeID(sTaskID, scheduledTaskIDPrefix)
+}
+
+// NormalizeArtifactID adds a prefix to the artifact ID if it does not already contain it.
+func NormalizeArtifactID(artifactID string) string {
+	return normalizeID(artifactID, artifactIDPrefix)
+}
+
+// NormalizeRestoreID adds a prefix to the restore ID if it does not already contain it.
+func NormalizeRestoreID(artifactID string) string {
+	return normalizeID(artifactID, restoreIDPrefix)
+}
+
+// normalizeID adds a prefix to ID if it does not already contain it.
+func normalizeID(id, prefix string) string {
+	if id == "" || strings.HasPrefix(id, prefix) {
+		return id
 	}
 
-	return nodeIDPrefix + actionID
+	return prefix + id
 }
 
 func checkUniqueAgentID(q *reform.Querier, id string) error {

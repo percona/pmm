@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -517,13 +518,14 @@ func TestGetLogs(t *testing.T) {
 	}
 
 	t.Run("get backup logs", func(t *testing.T) {
+		artifactID := models.NormalizeArtifactID(uuid.New().String())
 		job, err := models.CreateJob(db.Querier, models.CreateJobParams{
 			PMMAgentID: "agent",
 			Type:       models.MongoDBBackupJob,
 			Data: &models.JobData{
 				MongoDBBackup: &models.MongoDBBackupJobData{
 					ServiceID:  "svc",
-					ArtifactID: "artifact",
+					ArtifactID: artifactID,
 				},
 			},
 		})
@@ -539,7 +541,7 @@ func TestGetLogs(t *testing.T) {
 
 		for _, tc := range testCases {
 			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
-				ArtifactId: "artifact",
+				ArtifactId: artifactID,
 				Offset:     tc.offset,
 				Limit:      tc.limit,
 			})
@@ -553,13 +555,14 @@ func TestGetLogs(t *testing.T) {
 	})
 
 	t.Run("get physical restore logs", func(t *testing.T) {
+		restoreID := models.NormalizeRestoreID(uuid.New().String())
 		job, err := models.CreateJob(db.Querier, models.CreateJobParams{
 			PMMAgentID: "agent",
 			Type:       models.MongoDBBackupJob,
 			Data: &models.JobData{
 				MongoDBRestoreBackup: &models.MongoDBRestoreBackupJobData{
 					ServiceID: "svc",
-					RestoreID: "physical-restore-1",
+					RestoreID: restoreID,
 					DataModel: models.PhysicalDataModel,
 				},
 			},
@@ -575,7 +578,7 @@ func TestGetLogs(t *testing.T) {
 		}
 		for _, tc := range testCases {
 			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
-				RestoreId: "physical-restore-1",
+				RestoreId: restoreID,
 				Offset:    tc.offset,
 				Limit:     tc.limit,
 			})
@@ -589,13 +592,14 @@ func TestGetLogs(t *testing.T) {
 	})
 
 	t.Run("get logical restore logs", func(t *testing.T) {
+		restoreID := models.NormalizeRestoreID(uuid.New().String())
 		logicalRestore, err := models.CreateJob(db.Querier, models.CreateJobParams{
 			PMMAgentID: "agent",
 			Type:       models.MongoDBBackupJob,
 			Data: &models.JobData{
 				MongoDBRestoreBackup: &models.MongoDBRestoreBackupJobData{
 					ServiceID: "svc",
-					RestoreID: "logical-restore-1",
+					RestoreID: restoreID,
 					DataModel: models.LogicalDataModel,
 				},
 			},
@@ -612,7 +616,7 @@ func TestGetLogs(t *testing.T) {
 
 		for _, tc := range testCases {
 			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
-				RestoreId: "logical-restore-1",
+				RestoreId: restoreID,
 				Offset:    tc.offset,
 				Limit:     tc.limit,
 			})

@@ -96,14 +96,14 @@ POST /v1/backup/Artifacts/Delete                    DELETE /v1/backups/artifacts
 POST /v1/backup/Artifacts/PITRTimeranges            GET /v1/backups/artifacts/{artifact_id}/pitr-timeranges ✅
 
 **BackupsService**                                  **BackupService**                                NOTE: BackupsService renamed to BackupService
-POST /v1/backup/Backups/ChangeScheduled             PUT /v1/backups:changeScheduled
-POST /v1/backup/Backups/GetLogs                     GET /v1/backups/{id}/logs
-POST /v1/backup/Backups/ListArtifactCompatibleServices GET /v1/backups/{id}/compatible-services
-POST /v1/backup/Backups/ListScheduled               GET /v1/backups/scheduled
-POST /v1/backup/Backups/RemoveScheduled             GET /v1/backups/scheduled/{id}
+POST /v1/backup/Backups/ChangeScheduled             PUT /v1/backups:changeScheduled                  ✅
+POST /v1/backup/Backups/GetLogs                     GET /v1/backups/{artifact_id}/logs
+POST /v1/backup/Backups/ListArtifactCompatibleServices GET /v1/backups/{artifact_id}/compatible-services
+POST /v1/backup/Backups/ListScheduled               GET /v1/backups/scheduled                        ✅
+POST /v1/backup/Backups/RemoveScheduled             DELETE /v1/backups/scheduled/{scheduled_backup_id} ✅
 POST /v1/backup/Backups/Restore                                                                      NOTE: Moved to RestoreService
-POST /v1/backup/Backups/Schedule                    POST /v1/backups:schedule
-POST /v1/backup/Backups/Start                       POST /v1/backups:start
+POST /v1/backup/Backups/Schedule                    POST /v1/backups:schedule                        ✅
+POST /v1/backup/Backups/Start                       POST /v1/backups:start                           ✅
 
 **LocationsService**                                **LocationsService**
 POST /v1/backup/Locations/Add                       POST /v1/backups/locations
@@ -184,4 +184,4 @@ The custom method should be used in the following cases:
 1. When the action cannot be performed by the standard RESTful methods. 
 2. When the action performed is not idempotent.
 3. When the action performed manipulates data, but does not fit into the standard CRUD operations.
-4. When the action performed might contain sensitive data, that cannot be passed via URL query params.
+4. When the action performed contains sensitive data, that cannot be passed via URL query params.
