@@ -58,7 +58,7 @@ type ListLocationsOK struct {
 }
 
 func (o *ListLocationsOK) Error() string {
-	return fmt.Sprintf("[GET /v1/backup/locations][%d] listLocationsOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/backups/locations][%d] listLocationsOk  %+v", 200, o.Payload)
 }
 
 func (o *ListLocationsOK) GetPayload() *ListLocationsOKBody {
@@ -100,7 +100,7 @@ func (o *ListLocationsDefault) Code() int {
 }
 
 func (o *ListLocationsDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/backup/locations][%d] ListLocations default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/backups/locations][%d] ListLocations default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ListLocationsDefault) GetPayload() *ListLocationsDefaultBody {

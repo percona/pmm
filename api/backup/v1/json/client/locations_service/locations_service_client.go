@@ -132,7 +132,7 @@ func (a *Client) ListLocations(params *ListLocationsParams, opts ...ClientOption
 	op := &runtime.ClientOperation{
 		ID:                 "ListLocations",
 		Method:             "GET",
-		PathPattern:        "/v1/backup/locations",
+		PathPattern:        "/v1/backups/locations",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -210,7 +210,7 @@ func (a *Client) TestLocationConfig(params *TestLocationConfigParams, opts ...Cl
 	op := &runtime.ClientOperation{
 		ID:                 "TestLocationConfig",
 		Method:             "POST",
-		PathPattern:        "/v1/backup/locations:testConfig",
+		PathPattern:        "/v1/backups/locations:testConfig",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

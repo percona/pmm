@@ -116,12 +116,12 @@ POST /v1/backup/Locations/TestConfig                POST /v1/backups/locations:t
 POST /v1/backup/RestoreHistory/List                 GET /v1/backups/restores                         ✅
 POST /v1/backup/Backups/Restore                     POST /v1/backups/restores:start                  ✅
 
-**DumpsService**                                    **DumpService**                                  TODO: rename to singular
-POST /v1/dump/List                                  GET /v1/dumps
-POST /v1/dump/Delete                                POST /v1/dumps:batchDelete                       accepts an array in body
-POST /v1/dump/GetLogs                               GET /v1/dumps/{id}/logs                          ?offset=10,limit=100
-POST /v1/dump/Start                                 POST /v1/dumps:start                          
-POST /v1/dump/Upload                                POST /v1/dumps:upload
+**DumpsService**                                    **DumpService**                                  NOTE: renamed to DumpService
+POST /v1/dump/List                                  GET /v1/dumps                                    ✅
+POST /v1/dump/Delete                                POST /v1/dumps:batchDelete                       ✅ accepts an array in body
+POST /v1/dump/GetLogs                               GET /v1/dumps/{dump_id}/logs                     ✅ ?offset=0&limit=100
+POST /v1/dump/Start                                 POST /v1/dumps:start                             ✅              
+POST /v1/dump/Upload                                POST /v1/dumps:upload                            ✅
 
 **RoleService**                                     **AccessControlService**                         TODO: rename to AccessControlService
 POST /v1/role/Assign                                POST /v1/accesscontrol/roles:assign

@@ -4,6 +4,7 @@ package dump.v1beta1;
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
 enum DumpStatus {
@@ -85,40 +86,54 @@ message UploadDumpRequest {
 
 message UploadDumpResponse {}
 
-service DumpsService {
+service DumpService {
   // StartDump request creates pmm dump.
   rpc StartDump(StartDumpRequest) returns (StartDumpResponse) {
     option (google.api.http) = {
-      post: "/v1/dump/Start"
+      post: "/v1/dumps:start"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start a New Dump"
+      description: "Start a new dump."
     };
   }
   // ListDumps returns a list of all pmm dumps.
   rpc ListDumps(ListDumpsRequest) returns (ListDumpsResponse) {
-    option (google.api.http) = {
-      post: "/v1/dump/List"
-      body: "*"
+    option (google.api.http) = {get: "/v1/dumps"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List All Dumps"
+      description: "List all dumps"
     };
   }
   // DeleteDump deletes specified pmm dump.
   rpc DeleteDump(DeleteDumpRequest) returns (DeleteDumpResponse) {
     option (google.api.http) = {
-      post: "/v1/dump/Delete"
+      post: "/v1/dumps:batchDelete"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Delete Dumps"
+      description: "Delete selected dumps."
     };
   }
   // GetLogs returns logs from pmm-dump tool.
   rpc GetDumpLogs(GetDumpLogsRequest) returns (GetDumpLogsResponse) {
-    option (google.api.http) = {
-      post: "/v1/dump/GetLogs"
-      body: "*"
+    option (google.api.http) = {get: "/v1/dumps/{dump_id}/logs"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Dump Logs"
+      description: "Get logs of a selected dump."
     };
   }
-  // UploadDump uploads selected dumps to remote server.
+  // UploadDump uploads selected dumps to a remote server.
   rpc UploadDump(UploadDumpRequest) returns (UploadDumpResponse) {
     option (google.api.http) = {
-      post: "/v1/dump/Upload"
+      post: "/v1/dumps:upload"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Upload Dumps"
+      description: "Upload selected dumps to a remote server."
     };
   }
 }

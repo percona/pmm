@@ -278,7 +278,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	backuppb.RegisterArtifactsServiceServer(gRPCServer, mgmtArtifactsService)
 	backuppb.RegisterRestoreServiceServer(gRPCServer, mgmtRestoreService)
 
-	dumpv1beta1.RegisterDumpsServiceServer(gRPCServer, managementdump.New(deps.db, deps.grafanaClient, deps.dumpService))
+	dumpv1beta1.RegisterDumpServiceServer(gRPCServer, managementdump.New(deps.db, deps.grafanaClient, deps.dumpService))
 
 	userv1.RegisterUserServiceServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
@@ -370,7 +370,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		backuppb.RegisterArtifactsServiceHandlerFromEndpoint,
 		backuppb.RegisterRestoreServiceHandlerFromEndpoint,
 
-		dumpv1beta1.RegisterDumpsServiceHandlerFromEndpoint,
+		dumpv1beta1.RegisterDumpServiceHandlerFromEndpoint,
 
 		platformv1.RegisterPlatformServiceHandlerFromEndpoint,
 		uieventsv1.RegisterUIEventsServiceHandlerFromEndpoint,

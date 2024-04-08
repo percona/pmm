@@ -33,7 +33,7 @@ var (
 	_ = metadata.Join
 )
 
-func request_DumpsService_StartDump_0(ctx context.Context, marshaler runtime.Marshaler, client DumpsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_DumpService_StartDump_0(ctx context.Context, marshaler runtime.Marshaler, client DumpServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartDumpRequest
 	var metadata runtime.ServerMetadata
 
@@ -45,7 +45,7 @@ func request_DumpsService_StartDump_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-func local_request_DumpsService_StartDump_0(ctx context.Context, marshaler runtime.Marshaler, server DumpsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_DumpService_StartDump_0(ctx context.Context, marshaler runtime.Marshaler, server DumpServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartDumpRequest
 	var metadata runtime.ServerMetadata
 
@@ -57,31 +57,23 @@ func local_request_DumpsService_StartDump_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-func request_DumpsService_ListDumps_0(ctx context.Context, marshaler runtime.Marshaler, client DumpsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_DumpService_ListDumps_0(ctx context.Context, marshaler runtime.Marshaler, client DumpServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListDumpsRequest
 	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 
 	msg, err := client.ListDumps(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_DumpsService_ListDumps_0(ctx context.Context, marshaler runtime.Marshaler, server DumpsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_DumpService_ListDumps_0(ctx context.Context, marshaler runtime.Marshaler, server DumpServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListDumpsRequest
 	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 
 	msg, err := server.ListDumps(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-func request_DumpsService_DeleteDump_0(ctx context.Context, marshaler runtime.Marshaler, client DumpsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_DumpService_DeleteDump_0(ctx context.Context, marshaler runtime.Marshaler, client DumpServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq DeleteDumpRequest
 	var metadata runtime.ServerMetadata
 
@@ -93,7 +85,7 @@ func request_DumpsService_DeleteDump_0(ctx context.Context, marshaler runtime.Ma
 	return msg, metadata, err
 }
 
-func local_request_DumpsService_DeleteDump_0(ctx context.Context, marshaler runtime.Marshaler, server DumpsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_DumpService_DeleteDump_0(ctx context.Context, marshaler runtime.Marshaler, server DumpServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq DeleteDumpRequest
 	var metadata runtime.ServerMetadata
 
@@ -105,11 +97,33 @@ func local_request_DumpsService_DeleteDump_0(ctx context.Context, marshaler runt
 	return msg, metadata, err
 }
 
-func request_DumpsService_GetDumpLogs_0(ctx context.Context, marshaler runtime.Marshaler, client DumpsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+var filter_DumpService_GetDumpLogs_0 = &utilities.DoubleArray{Encoding: map[string]int{"dump_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+
+func request_DumpService_GetDumpLogs_0(ctx context.Context, marshaler runtime.Marshaler, client DumpServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetDumpLogsRequest
 	var metadata runtime.ServerMetadata
 
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["dump_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "dump_id")
+	}
+
+	protoReq.DumpId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "dump_id", err)
+	}
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_DumpService_GetDumpLogs_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -117,11 +131,31 @@ func request_DumpsService_GetDumpLogs_0(ctx context.Context, marshaler runtime.M
 	return msg, metadata, err
 }
 
-func local_request_DumpsService_GetDumpLogs_0(ctx context.Context, marshaler runtime.Marshaler, server DumpsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_DumpService_GetDumpLogs_0(ctx context.Context, marshaler runtime.Marshaler, server DumpServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetDumpLogsRequest
 	var metadata runtime.ServerMetadata
 
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["dump_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "dump_id")
+	}
+
+	protoReq.DumpId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "dump_id", err)
+	}
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_DumpService_GetDumpLogs_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -129,7 +163,7 @@ func local_request_DumpsService_GetDumpLogs_0(ctx context.Context, marshaler run
 	return msg, metadata, err
 }
 
-func request_DumpsService_UploadDump_0(ctx context.Context, marshaler runtime.Marshaler, client DumpsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_DumpService_UploadDump_0(ctx context.Context, marshaler runtime.Marshaler, client DumpServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq UploadDumpRequest
 	var metadata runtime.ServerMetadata
 
@@ -141,7 +175,7 @@ func request_DumpsService_UploadDump_0(ctx context.Context, marshaler runtime.Ma
 	return msg, metadata, err
 }
 
-func local_request_DumpsService_UploadDump_0(ctx context.Context, marshaler runtime.Marshaler, server DumpsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_DumpService_UploadDump_0(ctx context.Context, marshaler runtime.Marshaler, server DumpServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq UploadDumpRequest
 	var metadata runtime.ServerMetadata
 
@@ -153,12 +187,12 @@ func local_request_DumpsService_UploadDump_0(ctx context.Context, marshaler runt
 	return msg, metadata, err
 }
 
-// RegisterDumpsServiceHandlerServer registers the http handlers for service DumpsService to "mux".
-// UnaryRPC     :call DumpsServiceServer directly.
+// RegisterDumpServiceHandlerServer registers the http handlers for service DumpService to "mux".
+// UnaryRPC     :call DumpServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterDumpsServiceHandlerFromEndpoint instead.
-func RegisterDumpsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server DumpsServiceServer) error {
-	mux.Handle("POST", pattern_DumpsService_StartDump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterDumpServiceHandlerFromEndpoint instead.
+func RegisterDumpServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server DumpServiceServer) error {
+	mux.Handle("POST", pattern_DumpService_StartDump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -166,12 +200,12 @@ func RegisterDumpsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.DumpsService/StartDump", runtime.WithHTTPPathPattern("/v1/dump/Start"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.DumpService/StartDump", runtime.WithHTTPPathPattern("/v1/dumps:start"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_DumpsService_StartDump_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_DumpService_StartDump_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -179,10 +213,10 @@ func RegisterDumpsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			return
 		}
 
-		forward_DumpsService_StartDump_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_DumpService_StartDump_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_DumpsService_ListDumps_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_DumpService_ListDumps_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -190,12 +224,12 @@ func RegisterDumpsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.DumpsService/ListDumps", runtime.WithHTTPPathPattern("/v1/dump/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.DumpService/ListDumps", runtime.WithHTTPPathPattern("/v1/dumps"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_DumpsService_ListDumps_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_DumpService_ListDumps_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -203,10 +237,10 @@ func RegisterDumpsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			return
 		}
 
-		forward_DumpsService_ListDumps_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_DumpService_ListDumps_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_DumpsService_DeleteDump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_DumpService_DeleteDump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -214,12 +248,12 @@ func RegisterDumpsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.DumpsService/DeleteDump", runtime.WithHTTPPathPattern("/v1/dump/Delete"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.DumpService/DeleteDump", runtime.WithHTTPPathPattern("/v1/dumps:batchDelete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_DumpsService_DeleteDump_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_DumpService_DeleteDump_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -227,10 +261,10 @@ func RegisterDumpsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			return
 		}
 
-		forward_DumpsService_DeleteDump_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_DumpService_DeleteDump_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_DumpsService_GetDumpLogs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_DumpService_GetDumpLogs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -238,12 +272,12 @@ func RegisterDumpsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.DumpsService/GetDumpLogs", runtime.WithHTTPPathPattern("/v1/dump/GetLogs"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.DumpService/GetDumpLogs", runtime.WithHTTPPathPattern("/v1/dumps/{dump_id}/logs"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_DumpsService_GetDumpLogs_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_DumpService_GetDumpLogs_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -251,10 +285,10 @@ func RegisterDumpsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			return
 		}
 
-		forward_DumpsService_GetDumpLogs_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_DumpService_GetDumpLogs_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_DumpsService_UploadDump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_DumpService_UploadDump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -262,12 +296,12 @@ func RegisterDumpsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.DumpsService/UploadDump", runtime.WithHTTPPathPattern("/v1/dump/Upload"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.DumpService/UploadDump", runtime.WithHTTPPathPattern("/v1/dumps:upload"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_DumpsService_UploadDump_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_DumpService_UploadDump_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -275,15 +309,15 @@ func RegisterDumpsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			return
 		}
 
-		forward_DumpsService_UploadDump_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_DumpService_UploadDump_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterDumpsServiceHandlerFromEndpoint is same as RegisterDumpsServiceHandler but
+// RegisterDumpServiceHandlerFromEndpoint is same as RegisterDumpServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterDumpsServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterDumpServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -303,149 +337,149 @@ func RegisterDumpsServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.S
 		}()
 	}()
 
-	return RegisterDumpsServiceHandler(ctx, mux, conn)
+	return RegisterDumpServiceHandler(ctx, mux, conn)
 }
 
-// RegisterDumpsServiceHandler registers the http handlers for service DumpsService to "mux".
+// RegisterDumpServiceHandler registers the http handlers for service DumpService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterDumpsServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterDumpsServiceHandlerClient(ctx, mux, NewDumpsServiceClient(conn))
+func RegisterDumpServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterDumpServiceHandlerClient(ctx, mux, NewDumpServiceClient(conn))
 }
 
-// RegisterDumpsServiceHandlerClient registers the http handlers for service DumpsService
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "DumpsServiceClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "DumpsServiceClient"
+// RegisterDumpServiceHandlerClient registers the http handlers for service DumpService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "DumpServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "DumpServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "DumpsServiceClient" to call the correct interceptors.
-func RegisterDumpsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client DumpsServiceClient) error {
-	mux.Handle("POST", pattern_DumpsService_StartDump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "DumpServiceClient" to call the correct interceptors.
+func RegisterDumpServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client DumpServiceClient) error {
+	mux.Handle("POST", pattern_DumpService_StartDump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.DumpsService/StartDump", runtime.WithHTTPPathPattern("/v1/dump/Start"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.DumpService/StartDump", runtime.WithHTTPPathPattern("/v1/dumps:start"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_DumpsService_StartDump_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_DumpService_StartDump_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_DumpsService_StartDump_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_DumpService_StartDump_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_DumpsService_ListDumps_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_DumpService_ListDumps_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.DumpsService/ListDumps", runtime.WithHTTPPathPattern("/v1/dump/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.DumpService/ListDumps", runtime.WithHTTPPathPattern("/v1/dumps"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_DumpsService_ListDumps_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_DumpService_ListDumps_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_DumpsService_ListDumps_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_DumpService_ListDumps_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_DumpsService_DeleteDump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_DumpService_DeleteDump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.DumpsService/DeleteDump", runtime.WithHTTPPathPattern("/v1/dump/Delete"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.DumpService/DeleteDump", runtime.WithHTTPPathPattern("/v1/dumps:batchDelete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_DumpsService_DeleteDump_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_DumpService_DeleteDump_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_DumpsService_DeleteDump_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_DumpService_DeleteDump_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_DumpsService_GetDumpLogs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_DumpService_GetDumpLogs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.DumpsService/GetDumpLogs", runtime.WithHTTPPathPattern("/v1/dump/GetLogs"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.DumpService/GetDumpLogs", runtime.WithHTTPPathPattern("/v1/dumps/{dump_id}/logs"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_DumpsService_GetDumpLogs_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_DumpService_GetDumpLogs_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_DumpsService_GetDumpLogs_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_DumpService_GetDumpLogs_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_DumpsService_UploadDump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_DumpService_UploadDump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.DumpsService/UploadDump", runtime.WithHTTPPathPattern("/v1/dump/Upload"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.DumpService/UploadDump", runtime.WithHTTPPathPattern("/v1/dumps:upload"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_DumpsService_UploadDump_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_DumpService_UploadDump_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_DumpsService_UploadDump_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_DumpService_UploadDump_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
 var (
-	pattern_DumpsService_StartDump_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "dump", "Start"}, ""))
+	pattern_DumpService_StartDump_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "dumps"}, "start"))
 
-	pattern_DumpsService_ListDumps_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "dump", "List"}, ""))
+	pattern_DumpService_ListDumps_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "dumps"}, ""))
 
-	pattern_DumpsService_DeleteDump_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "dump", "Delete"}, ""))
+	pattern_DumpService_DeleteDump_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "dumps"}, "batchDelete"))
 
-	pattern_DumpsService_GetDumpLogs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "dump", "GetLogs"}, ""))
+	pattern_DumpService_GetDumpLogs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "dumps", "dump_id", "logs"}, ""))
 
-	pattern_DumpsService_UploadDump_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "dump", "Upload"}, ""))
+	pattern_DumpService_UploadDump_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "dumps"}, "upload"))
 )
 
 var (
-	forward_DumpsService_StartDump_0 = runtime.ForwardResponseMessage
+	forward_DumpService_StartDump_0 = runtime.ForwardResponseMessage
 
-	forward_DumpsService_ListDumps_0 = runtime.ForwardResponseMessage
+	forward_DumpService_ListDumps_0 = runtime.ForwardResponseMessage
 
-	forward_DumpsService_DeleteDump_0 = runtime.ForwardResponseMessage
+	forward_DumpService_DeleteDump_0 = runtime.ForwardResponseMessage
 
-	forward_DumpsService_GetDumpLogs_0 = runtime.ForwardResponseMessage
+	forward_DumpService_GetDumpLogs_0 = runtime.ForwardResponseMessage
 
-	forward_DumpsService_UploadDump_0 = runtime.ForwardResponseMessage
+	forward_DumpService_UploadDump_0 = runtime.ForwardResponseMessage
 )

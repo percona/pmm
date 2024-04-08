@@ -15,189 +15,14 @@
     "version": "v1beta1"
   },
   "paths": {
-    "/v1/dump/Delete": {
-      "post": {
+    "/v1/dumps": {
+      "get": {
+        "description": "List all dumps",
         "tags": [
-          "DumpsService"
+          "DumpService"
         ],
-        "summary": "DeleteDump deletes specified pmm dump.",
-        "operationId": "DeleteDump",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "dump_ids": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/dump/GetLogs": {
-      "post": {
-        "tags": [
-          "DumpsService"
-        ],
-        "summary": "GetLogs returns logs from pmm-dump tool.",
-        "operationId": "GetDumpLogs",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "dump_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "limit": {
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 2
-                },
-                "offset": {
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "end": {
-                  "type": "boolean",
-                  "x-order": 1
-                },
-                "logs": {
-                  "type": "array",
-                  "items": {
-                    "description": "LogChunk represent one chunk of logs.",
-                    "type": "object",
-                    "properties": {
-                      "chunk_id": {
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 0
-                      },
-                      "data": {
-                        "type": "string",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/dump/List": {
-      "post": {
-        "tags": [
-          "DumpsService"
-        ],
-        "summary": "ListDumps returns a list of all pmm dumps.",
+        "summary": "List All Dumps",
         "operationId": "ListDumps",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -287,12 +112,175 @@
         }
       }
     },
-    "/v1/dump/Start": {
-      "post": {
+    "/v1/dumps/{dump_id}/logs": {
+      "get": {
+        "description": "Get logs of a selected dump.",
         "tags": [
-          "DumpsService"
+          "DumpService"
         ],
-        "summary": "StartDump request creates pmm dump.",
+        "summary": "Get Dump Logs",
+        "operationId": "GetDumpLogs",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "dump_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "offset",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "end": {
+                  "type": "boolean",
+                  "x-order": 1
+                },
+                "logs": {
+                  "type": "array",
+                  "items": {
+                    "description": "LogChunk represent one chunk of logs.",
+                    "type": "object",
+                    "properties": {
+                      "chunk_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 0
+                      },
+                      "data": {
+                        "type": "string",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dumps:batchDelete": {
+      "post": {
+        "description": "Delete selected dumps.",
+        "tags": [
+          "DumpService"
+        ],
+        "summary": "Delete Dumps",
+        "operationId": "DeleteDump",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "dump_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dumps:start": {
+      "post": {
+        "description": "Start a new dump.",
+        "tags": [
+          "DumpService"
+        ],
+        "summary": "Start a New Dump",
         "operationId": "StartDump",
         "parameters": [
           {
@@ -378,12 +366,13 @@
         }
       }
     },
-    "/v1/dump/Upload": {
+    "/v1/dumps:upload": {
       "post": {
+        "description": "Upload selected dumps to a remote server.",
         "tags": [
-          "DumpsService"
+          "DumpService"
         ],
-        "summary": "UploadDump uploads selected dumps to remote server.",
+        "summary": "Upload Dumps",
         "operationId": "UploadDump",
         "parameters": [
           {
@@ -470,7 +459,7 @@
   },
   "tags": [
     {
-      "name": "DumpsService"
+      "name": "DumpService"
     }
   ]
 }

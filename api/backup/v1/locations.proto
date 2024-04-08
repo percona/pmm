@@ -90,7 +90,7 @@ message TestLocationConfigResponse {}
 service LocationsService {
   // ListLocations returns a list of all backup locations.
   rpc ListLocations(ListLocationsRequest) returns (ListLocationsResponse) {
-    option (google.api.http) = {get: "/v1/backup/locations"};
+    option (google.api.http) = {get: "/v1/backups/locations"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Backup Locations"
       description: "List backup locations."
@@ -129,7 +129,7 @@ service LocationsService {
   // TestLocationConfig tests backup location and credentials.
   rpc TestLocationConfig(TestLocationConfigRequest) returns (TestLocationConfigResponse) {
     option (google.api.http) = {
-      post: "/v1/backup/locations:testConfig"
+      post: "/v1/backups/locations:testConfig"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {

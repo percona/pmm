@@ -50,7 +50,7 @@ type Service struct {
 	dumpService   dumpService
 	grafanaClient *grafana.Client
 
-	dumpv1beta1.UnimplementedDumpsServiceServer
+	dumpv1beta1.UnimplementedDumpServiceServer
 }
 
 // New creates a new instance of the Service with the provided dependencies.

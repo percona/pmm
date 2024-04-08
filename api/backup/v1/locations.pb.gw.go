@@ -234,7 +234,7 @@ func RegisterLocationsServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.LocationsService/ListLocations", runtime.WithHTTPPathPattern("/v1/backup/locations"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.LocationsService/ListLocations", runtime.WithHTTPPathPattern("/v1/backups/locations"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -330,7 +330,7 @@ func RegisterLocationsServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.LocationsService/TestLocationConfig", runtime.WithHTTPPathPattern("/v1/backup/locations:testConfig"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.LocationsService/TestLocationConfig", runtime.WithHTTPPathPattern("/v1/backups/locations:testConfig"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -392,7 +392,7 @@ func RegisterLocationsServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.LocationsService/ListLocations", runtime.WithHTTPPathPattern("/v1/backup/locations"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.LocationsService/ListLocations", runtime.WithHTTPPathPattern("/v1/backups/locations"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -476,7 +476,7 @@ func RegisterLocationsServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.LocationsService/TestLocationConfig", runtime.WithHTTPPathPattern("/v1/backup/locations:testConfig"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.LocationsService/TestLocationConfig", runtime.WithHTTPPathPattern("/v1/backups/locations:testConfig"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -495,7 +495,7 @@ func RegisterLocationsServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 }
 
 var (
-	pattern_LocationsService_ListLocations_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "backup", "locations"}, ""))
+	pattern_LocationsService_ListLocations_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "backups", "locations"}, ""))
 
 	pattern_LocationsService_AddLocation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "backups", "locations"}, ""))
 
@@ -503,7 +503,7 @@ var (
 
 	pattern_LocationsService_RemoveLocation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "backups", "locations", "location_id"}, ""))
 
-	pattern_LocationsService_TestLocationConfig_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "backup", "locations"}, "testConfig"))
+	pattern_LocationsService_TestLocationConfig_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "backups", "locations"}, "testConfig"))
 )
 
 var (

@@ -2150,211 +2150,6 @@
         }
       }
     },
-    "/v1/backup/locations": {
-      "get": {
-        "description": "List backup locations.",
-        "tags": [
-          "LocationsService"
-        ],
-        "summary": "List Backup Locations",
-        "operationId": "ListLocations",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "locations": {
-                  "type": "array",
-                  "items": {
-                    "description": "Location represents single Backup Location.",
-                    "type": "object",
-                    "properties": {
-                      "location_id": {
-                        "description": "Machine-readable ID.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "name": {
-                        "type": "string",
-                        "title": "Location name",
-                        "x-order": 1
-                      },
-                      "description": {
-                        "type": "string",
-                        "title": "Short description",
-                        "x-order": 2
-                      },
-                      "filesystem_config": {
-                        "description": "FilesystemLocationConfig represents file system location config.",
-                        "type": "object",
-                        "properties": {
-                          "path": {
-                            "type": "string",
-                            "x-order": 0
-                          }
-                        },
-                        "x-order": 3
-                      },
-                      "s3_config": {
-                        "description": "S3LocationConfig represents S3 bucket configuration.",
-                        "type": "object",
-                        "properties": {
-                          "endpoint": {
-                            "type": "string",
-                            "x-order": 0
-                          },
-                          "access_key": {
-                            "type": "string",
-                            "x-order": 1
-                          },
-                          "secret_key": {
-                            "type": "string",
-                            "x-order": 2
-                          },
-                          "bucket_name": {
-                            "type": "string",
-                            "x-order": 3
-                          }
-                        },
-                        "x-order": 4
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/backup/locations:testConfig": {
-      "post": {
-        "description": "Test a backup location and credentials.",
-        "tags": [
-          "LocationsService"
-        ],
-        "summary": "Test a Backup Location and Credentials",
-        "operationId": "TestLocationConfig",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "filesystem_config": {
-                  "description": "FilesystemLocationConfig represents file system location config.",
-                  "type": "object",
-                  "properties": {
-                    "path": {
-                      "type": "string",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 0
-                },
-                "s3_config": {
-                  "description": "S3LocationConfig represents S3 bucket configuration.",
-                  "type": "object",
-                  "properties": {
-                    "endpoint": {
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "access_key": {
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "secret_key": {
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "bucket_name": {
-                      "type": "string",
-                      "x-order": 3
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/backups/artifacts": {
       "get": {
         "tags": [
@@ -2707,6 +2502,114 @@
       }
     },
     "/v1/backups/locations": {
+      "get": {
+        "description": "List backup locations.",
+        "tags": [
+          "LocationsService"
+        ],
+        "summary": "List Backup Locations",
+        "operationId": "ListLocations",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "locations": {
+                  "type": "array",
+                  "items": {
+                    "description": "Location represents single Backup Location.",
+                    "type": "object",
+                    "properties": {
+                      "location_id": {
+                        "description": "Machine-readable ID.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "name": {
+                        "type": "string",
+                        "title": "Location name",
+                        "x-order": 1
+                      },
+                      "description": {
+                        "type": "string",
+                        "title": "Short description",
+                        "x-order": 2
+                      },
+                      "filesystem_config": {
+                        "description": "FilesystemLocationConfig represents file system location config.",
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string",
+                            "x-order": 0
+                          }
+                        },
+                        "x-order": 3
+                      },
+                      "s3_config": {
+                        "description": "S3LocationConfig represents S3 bucket configuration.",
+                        "type": "object",
+                        "properties": {
+                          "endpoint": {
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "access_key": {
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "secret_key": {
+                            "type": "string",
+                            "x-order": 2
+                          },
+                          "bucket_name": {
+                            "type": "string",
+                            "x-order": 3
+                          }
+                        },
+                        "x-order": 4
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "description": "Add a backup location.",
         "tags": [
@@ -2947,6 +2850,101 @@
             "description": "Force mode",
             "name": "force",
             "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/backups/locations:testConfig": {
+      "post": {
+        "description": "Test a backup location and credentials.",
+        "tags": [
+          "LocationsService"
+        ],
+        "summary": "Test a Backup Location and Credentials",
+        "operationId": "TestLocationConfig",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "filesystem_config": {
+                  "description": "FilesystemLocationConfig represents file system location config.",
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 0
+                },
+                "s3_config": {
+                  "description": "S3LocationConfig represents S3 bucket configuration.",
+                  "type": "object",
+                  "properties": {
+                    "endpoint": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "access_key": {
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "secret_key": {
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "bucket_name": {
+                      "type": "string",
+                      "x-order": 3
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -4126,189 +4124,14 @@
         }
       }
     },
-    "/v1/dump/Delete": {
-      "post": {
+    "/v1/dumps": {
+      "get": {
+        "description": "List all dumps",
         "tags": [
-          "DumpsService"
+          "DumpService"
         ],
-        "summary": "DeleteDump deletes specified pmm dump.",
-        "operationId": "DeleteDump",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "dump_ids": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/dump/GetLogs": {
-      "post": {
-        "tags": [
-          "DumpsService"
-        ],
-        "summary": "GetLogs returns logs from pmm-dump tool.",
-        "operationId": "GetDumpLogs",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "dump_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "offset": {
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 1
-                },
-                "limit": {
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "logs": {
-                  "type": "array",
-                  "items": {
-                    "description": "LogChunk represent one chunk of logs.",
-                    "type": "object",
-                    "properties": {
-                      "chunk_id": {
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 0
-                      },
-                      "data": {
-                        "type": "string",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 0
-                },
-                "end": {
-                  "type": "boolean",
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/dump/List": {
-      "post": {
-        "tags": [
-          "DumpsService"
-        ],
-        "summary": "ListDumps returns a list of all pmm dumps.",
+        "summary": "List All Dumps",
         "operationId": "ListDumps",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -4398,12 +4221,175 @@
         }
       }
     },
-    "/v1/dump/Start": {
-      "post": {
+    "/v1/dumps/{dump_id}/logs": {
+      "get": {
+        "description": "Get logs of a selected dump.",
         "tags": [
-          "DumpsService"
+          "DumpService"
         ],
-        "summary": "StartDump request creates pmm dump.",
+        "summary": "Get Dump Logs",
+        "operationId": "GetDumpLogs",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "dump_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "offset",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "logs": {
+                  "type": "array",
+                  "items": {
+                    "description": "LogChunk represent one chunk of logs.",
+                    "type": "object",
+                    "properties": {
+                      "chunk_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 0
+                      },
+                      "data": {
+                        "type": "string",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 0
+                },
+                "end": {
+                  "type": "boolean",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dumps:batchDelete": {
+      "post": {
+        "description": "Delete selected dumps.",
+        "tags": [
+          "DumpService"
+        ],
+        "summary": "Delete Dumps",
+        "operationId": "DeleteDump",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "dump_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dumps:start": {
+      "post": {
+        "description": "Start a new dump.",
+        "tags": [
+          "DumpService"
+        ],
+        "summary": "Start a New Dump",
         "operationId": "StartDump",
         "parameters": [
           {
@@ -4489,12 +4475,13 @@
         }
       }
     },
-    "/v1/dump/Upload": {
+    "/v1/dumps:upload": {
       "post": {
+        "description": "Upload selected dumps to a remote server.",
         "tags": [
-          "DumpsService"
+          "DumpService"
         ],
-        "summary": "UploadDump uploads selected dumps to remote server.",
+        "summary": "Upload Dumps",
         "operationId": "UploadDump",
         "parameters": [
           {
@@ -12794,7 +12781,7 @@
       "name": "AlertingService"
     },
     {
-      "name": "DumpsService"
+      "name": "DumpService"
     },
     {
       "name": "CollectorService"

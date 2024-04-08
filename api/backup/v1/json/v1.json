@@ -15,211 +15,6 @@
     "version": "v1beta1"
   },
   "paths": {
-    "/v1/backup/locations": {
-      "get": {
-        "description": "List backup locations.",
-        "tags": [
-          "LocationsService"
-        ],
-        "summary": "List Backup Locations",
-        "operationId": "ListLocations",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "locations": {
-                  "type": "array",
-                  "items": {
-                    "description": "Location represents single Backup Location.",
-                    "type": "object",
-                    "properties": {
-                      "description": {
-                        "type": "string",
-                        "title": "Short description",
-                        "x-order": 2
-                      },
-                      "filesystem_config": {
-                        "description": "FilesystemLocationConfig represents file system location config.",
-                        "type": "object",
-                        "properties": {
-                          "path": {
-                            "type": "string",
-                            "x-order": 0
-                          }
-                        },
-                        "x-order": 3
-                      },
-                      "location_id": {
-                        "description": "Machine-readable ID.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "name": {
-                        "type": "string",
-                        "title": "Location name",
-                        "x-order": 1
-                      },
-                      "s3_config": {
-                        "description": "S3LocationConfig represents S3 bucket configuration.",
-                        "type": "object",
-                        "properties": {
-                          "access_key": {
-                            "type": "string",
-                            "x-order": 1
-                          },
-                          "bucket_name": {
-                            "type": "string",
-                            "x-order": 3
-                          },
-                          "endpoint": {
-                            "type": "string",
-                            "x-order": 0
-                          },
-                          "secret_key": {
-                            "type": "string",
-                            "x-order": 2
-                          }
-                        },
-                        "x-order": 4
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/backup/locations:testConfig": {
-      "post": {
-        "description": "Test a backup location and credentials.",
-        "tags": [
-          "LocationsService"
-        ],
-        "summary": "Test a Backup Location and Credentials",
-        "operationId": "TestLocationConfig",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "filesystem_config": {
-                  "description": "FilesystemLocationConfig represents file system location config.",
-                  "type": "object",
-                  "properties": {
-                    "path": {
-                      "type": "string",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 0
-                },
-                "s3_config": {
-                  "description": "S3LocationConfig represents S3 bucket configuration.",
-                  "type": "object",
-                  "properties": {
-                    "access_key": {
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "bucket_name": {
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "endpoint": {
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "secret_key": {
-                      "type": "string",
-                      "x-order": 2
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/backups/artifacts": {
       "get": {
         "tags": [
@@ -572,6 +367,114 @@
       }
     },
     "/v1/backups/locations": {
+      "get": {
+        "description": "List backup locations.",
+        "tags": [
+          "LocationsService"
+        ],
+        "summary": "List Backup Locations",
+        "operationId": "ListLocations",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "locations": {
+                  "type": "array",
+                  "items": {
+                    "description": "Location represents single Backup Location.",
+                    "type": "object",
+                    "properties": {
+                      "description": {
+                        "type": "string",
+                        "title": "Short description",
+                        "x-order": 2
+                      },
+                      "filesystem_config": {
+                        "description": "FilesystemLocationConfig represents file system location config.",
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string",
+                            "x-order": 0
+                          }
+                        },
+                        "x-order": 3
+                      },
+                      "location_id": {
+                        "description": "Machine-readable ID.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "name": {
+                        "type": "string",
+                        "title": "Location name",
+                        "x-order": 1
+                      },
+                      "s3_config": {
+                        "description": "S3LocationConfig represents S3 bucket configuration.",
+                        "type": "object",
+                        "properties": {
+                          "access_key": {
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "bucket_name": {
+                            "type": "string",
+                            "x-order": 3
+                          },
+                          "endpoint": {
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "secret_key": {
+                            "type": "string",
+                            "x-order": 2
+                          }
+                        },
+                        "x-order": 4
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "description": "Add a backup location.",
         "tags": [
@@ -812,6 +715,101 @@
             "description": "Force mode",
             "name": "force",
             "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/backups/locations:testConfig": {
+      "post": {
+        "description": "Test a backup location and credentials.",
+        "tags": [
+          "LocationsService"
+        ],
+        "summary": "Test a Backup Location and Credentials",
+        "operationId": "TestLocationConfig",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "filesystem_config": {
+                  "description": "FilesystemLocationConfig represents file system location config.",
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 0
+                },
+                "s3_config": {
+                  "description": "S3LocationConfig represents S3 bucket configuration.",
+                  "type": "object",
+                  "properties": {
+                    "access_key": {
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "bucket_name": {
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "endpoint": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "secret_key": {
+                      "type": "string",
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
           }
         ],
         "responses": {
