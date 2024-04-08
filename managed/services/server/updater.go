@@ -35,8 +35,10 @@ import (
 )
 
 // defaultLatestPMMImage is the default image name to use when the latest version cannot be determined.
-const defaultLatestPMMImage = "perconalab/pmm-server:3-dev-latest"
-const pmmUpdatePerformLog = "/srv/logs/pmm-update-perform-init.log"
+const (
+	defaultLatestPMMImage = "perconalab/pmm-server:3-dev-latest"
+	pmmUpdatePerformLog   = "/srv/logs/pmm-update-perform-init.log"
+)
 
 // Updater is a service to check for updates and trigger the update process.
 type Updater struct {
@@ -202,7 +204,7 @@ func (up *Updater) latest(ctx context.Context) (*version.PackageInfo, error) {
 	fileName := "/etc/pmm-server-update-version.json"
 	content, err := os.ReadFile(fileName)
 	if err != nil && !os.IsNotExist(err) {
-		s.l.WithError(err).Error("Failed to read file")
+		up.l.WithError(err).Error("Failed to read file")
 		return nil, errors.Wrap(err, "failed to read file")
 	}
 	if err == nil {
@@ -215,19 +217,27 @@ func (up *Updater) latest(ctx context.Context) (*version.PackageInfo, error) {
 		return &info, nil
 	}
 	if os.Getenv("PMM_SERVER_UPDATE_VERSION") != "" {
-		return s.parseDockerTag(os.Getenv("PMM_SERVER_UPDATE_VERSION")), nil
+		return up.parseDockerTag(os.Getenv("PMM_SERVER_UPDATE_VERSION")), nil
 	}
 
 	// File does not exist, ENV variable doesn't provided, get the latest tag from DockerHub
+	return up.latestAvailableFromDockerHub(ctx, err)
+}
+
+// latestAvailableFromDockerHub returns the latest available version from DockerHub.
+// It returns the latest minor version for the current major version.
+// If the current version is the latest minor version, it returns the next major version.
+// If the current version is the latest version, it returns the current version.
+func (up *Updater) latestAvailableFromDockerHub(ctx context.Context, err error) (*version.PackageInfo, error) {
 	u := "https://registry.hub.docker.com/v2/repositories/percona/pmm-server/tags/"
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
-		s.l.WithError(err).Error("Failed to create request")
+		up.l.WithError(err).Error("Failed to create request")
 		return nil, errors.Wrap(err, "failed to create request")
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		s.l.WithError(err).Error("Failed to get tags from DockerHub")
+		up.l.WithError(err).Error("Failed to get tags from DockerHub")
 		return nil, errors.Wrap(err, "failed to get tags from DockerHub")
 	}
 	defer resp.Body.Close() //nolint:errcheck
@@ -240,16 +250,16 @@ func (up *Updater) latest(ctx context.Context) (*version.PackageInfo, error) {
 
 	if len(tagsResponse.Results) != 0 {
 		currentVersion, err := version.Parse(up.currentVersion())
-			if err != nil {
-				up.l.WithError(err).Error("Failed to parse current version")
-				return nil, errors.Wrap(err, "failed to parse current version")
-			}
+		if err != nil {
+			up.l.WithError(err).Error("Failed to parse current version")
+			return nil, errors.Wrap(err, "failed to parse current version")
+		}
 
-			update, err := up.next(*currentVersion, tagsResponse.Results)
-			if err != nil {
-				up.l.WithError(err).Error("Failed to get latest minor version")
-				return nil, errors.Wrap(err, "failed to get latest minor version")
-			}
+		update, err := up.next(*currentVersion, tagsResponse.Results)
+		if err != nil {
+			up.l.WithError(err).Error("Failed to get latest minor version")
+			return nil, errors.Wrap(err, "failed to get latest minor version")
+		}
 		return up.parseDockerTag(update.DockerImage), nil
 	}
 	return nil, errors.New("no tags found")

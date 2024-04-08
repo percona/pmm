@@ -22,14 +22,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/pmm/managed/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/managed/models"
 )
 
 // TODO move tests to other files and remove this one.
 func TestDevContainer(t *testing.T) {
-
 	t.Run("UpdateConfiguration", func(t *testing.T) {
 		// logrus.SetLevel(logrus.DebugLevel)
 		vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)

@@ -34,12 +34,13 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/envvars"
-	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
+
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/envvars"
+	"github.com/percona/pmm/utils/pdeathsig"
 )
 
 const (
@@ -84,7 +85,7 @@ const (
 )
 
 // New creates new service.
-func New(configDir string, params *models.Params, ) *Service {
+func New(configDir string, params *models.Params) *Service {
 	path, _ := exec.LookPath("supervisorctl")
 	return &Service{
 		configDir:         configDir,

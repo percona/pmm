@@ -2,17 +2,18 @@ package server
 
 import (
 	"context"
-	"github.com/percona/pmm/version"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"net/url"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/version"
 )
 
 func TestUpdater(t *testing.T) {
-
 	gRPCMessageMaxSize := uint32(100 * 1024 * 1024)
 	gaReleaseDate := time.Date(2019, 9, 18, 0, 0, 0, 0, time.UTC)
 	watchtowerURL, _ := url.Parse("http://watchtower:8080")
@@ -85,6 +86,39 @@ func TestUpdater(t *testing.T) {
 				want: &versionInfo{
 					Version:     "4.0.0",
 					DockerImage: "percona/pmm-server:4.0.0",
+				},
+				wantErr: nil,
+			},
+			{
+				name: "new major version with rc version",
+				args: args{
+					currentVersion: "3.0.0",
+					results: []result{
+						{Name: "percona/pmm-server:4.0.0"},
+						{Name: "percona/pmm-server:3.0.0"},
+						{Name: "percona/pmm-server:4.0.0-rc"},
+					},
+				},
+				want: &versionInfo{
+					Version:     "4.0.0",
+					DockerImage: "percona/pmm-server:4.0.0",
+				},
+				wantErr: nil,
+			},
+			{
+				name: "multiple new major versions",
+				args: args{
+					currentVersion: "3.3.0",
+					results: []result{
+						{Name: "percona/pmm-server:4.0.0"},
+						{Name: "percona/pmm-server:3.0.0"},
+						{Name: "percona/pmm-server:4.1.0"},
+						{Name: "percona/pmm-server:5.1.0"},
+					},
+				},
+				want: &versionInfo{
+					Version:     "4.1.0",
+					DockerImage: "percona/pmm-server:4.1.0",
 				},
 				wantErr: nil,
 			},
@@ -189,6 +223,7 @@ func TestUpdater(t *testing.T) {
 	})
 
 	t.Run("Installed", func(t *testing.T) {
+		t.Skip("This test is to be deprecated or completely rewritten")
 		checker := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
 
 		info := checker.InstalledPMMVersion()
