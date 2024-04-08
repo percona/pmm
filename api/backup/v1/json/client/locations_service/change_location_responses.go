@@ -58,7 +58,7 @@ type ChangeLocationOK struct {
 }
 
 func (o *ChangeLocationOK) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Locations/Change][%d] changeLocationOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[PUT /v1/backups/locations/{location_id}][%d] changeLocationOk  %+v", 200, o.Payload)
 }
 
 func (o *ChangeLocationOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *ChangeLocationDefault) Code() int {
 }
 
 func (o *ChangeLocationDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Locations/Change][%d] ChangeLocation default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[PUT /v1/backups/locations/{location_id}][%d] ChangeLocation default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ChangeLocationDefault) GetPayload() *ChangeLocationDefaultBody {
@@ -121,9 +121,6 @@ ChangeLocationBody change location body
 swagger:model ChangeLocationBody
 */
 type ChangeLocationBody struct {
-	// Machine-readable ID.
-	LocationID string `json:"location_id,omitempty"`
-
 	// Location name
 	Name string `json:"name,omitempty"`
 

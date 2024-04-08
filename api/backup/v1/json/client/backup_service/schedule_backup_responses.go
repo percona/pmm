@@ -60,7 +60,7 @@ type ScheduleBackupOK struct {
 }
 
 func (o *ScheduleBackupOK) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Backups/Schedule][%d] scheduleBackupOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/backups:schedule][%d] scheduleBackupOk  %+v", 200, o.Payload)
 }
 
 func (o *ScheduleBackupOK) GetPayload() *ScheduleBackupOKBody {
@@ -102,7 +102,7 @@ func (o *ScheduleBackupDefault) Code() int {
 }
 
 func (o *ScheduleBackupDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Backups/Schedule][%d] ScheduleBackup default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/backups:schedule][%d] ScheduleBackup default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ScheduleBackupDefault) GetPayload() *ScheduleBackupDefaultBody {

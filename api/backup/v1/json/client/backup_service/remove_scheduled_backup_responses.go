@@ -58,7 +58,7 @@ type RemoveScheduledBackupOK struct {
 }
 
 func (o *RemoveScheduledBackupOK) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Backups/RemoveScheduled][%d] removeScheduledBackupOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[DELETE /v1/backups/{scheduled_backup_id}][%d] removeScheduledBackupOk  %+v", 200, o.Payload)
 }
 
 func (o *RemoveScheduledBackupOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *RemoveScheduledBackupDefault) Code() int {
 }
 
 func (o *RemoveScheduledBackupDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Backups/RemoveScheduled][%d] RemoveScheduledBackup default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[DELETE /v1/backups/{scheduled_backup_id}][%d] RemoveScheduledBackup default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *RemoveScheduledBackupDefault) GetPayload() *RemoveScheduledBackupDefaultBody {
@@ -113,43 +113,6 @@ func (o *RemoveScheduledBackupDefault) readResponse(response runtime.ClientRespo
 		return err
 	}
 
-	return nil
-}
-
-/*
-RemoveScheduledBackupBody remove scheduled backup body
-swagger:model RemoveScheduledBackupBody
-*/
-type RemoveScheduledBackupBody struct {
-	// scheduled backup id
-	ScheduledBackupID string `json:"scheduled_backup_id,omitempty"`
-}
-
-// Validate validates this remove scheduled backup body
-func (o *RemoveScheduledBackupBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this remove scheduled backup body based on context it is used
-func (o *RemoveScheduledBackupBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *RemoveScheduledBackupBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *RemoveScheduledBackupBody) UnmarshalBinary(b []byte) error {
-	var res RemoveScheduledBackupBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

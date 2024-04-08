@@ -159,10 +159,8 @@ func TestScheduleBackup(t *testing.T) {
 			assert.Equal(t, "backup_folder", bkp.Folder)
 
 			_, err = client.RemoveScheduledBackup(&backup.RemoveScheduledBackupParams{
-				Body: backup.RemoveScheduledBackupBody{
-					ScheduledBackupID: backupRes.Payload.ScheduledBackupID,
-				},
-				Context: pmmapitests.Context,
+				ScheduledBackupID: backupRes.Payload.ScheduledBackupID,
+				Context:           pmmapitests.Context,
 			})
 			require.NoError(t, err)
 
@@ -357,10 +355,8 @@ func TestScheduleBackup(t *testing.T) {
 func removeScheduledBackup(t *testing.T, id string) {
 	t.Helper()
 	_, err := backupClient.Default.BackupService.RemoveScheduledBackup(&backup.RemoveScheduledBackupParams{
-		Body: backup.RemoveScheduledBackupBody{
-			ScheduledBackupID: id,
-		},
-		Context: pmmapitests.Context,
+		ScheduledBackupID: id,
+		Context:           pmmapitests.Context,
 	})
 	require.NoError(t, err)
 }

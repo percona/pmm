@@ -106,11 +106,11 @@ POST /v1/backup/Backups/Schedule                    POST /v1/backups:schedule   
 POST /v1/backup/Backups/Start                       POST /v1/backups:start                           ✅
 
 **LocationsService**                                **LocationsService**
-POST /v1/backup/Locations/Add                       POST /v1/backups/locations
-POST /v1/backup/Locations/Change                    PUT /v1/backups/locations/{id}                   Extract the location_id from the body to {id}
-POST /v1/backup/Locations/List                      GET /v1/backups/locations
-POST /v1/backup/Locations/Remove                    DELETE /v1/backups/locations/{id}                ?force=true
-POST /v1/backup/Locations/TestConfig                POST /v1/backups/locations:testConfig
+POST /v1/backup/Locations/Add                       POST /v1/backups/locations                       ✅
+POST /v1/backup/Locations/Change                    PUT /v1/backups/locations/{location_id}          ✅
+POST /v1/backup/Locations/List                      GET /v1/backups/locations                        ✅
+POST /v1/backup/Locations/Remove                    DELETE /v1/backups/locations/{location_id}       ✅ ?force=true
+POST /v1/backup/Locations/TestConfig                POST /v1/backups/locations:testConfig            ✅
 
 **RestoreHistoryService**                           **RestoreService**
 POST /v1/backup/RestoreHistory/List                 GET /v1/backups/restores

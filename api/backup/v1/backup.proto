@@ -185,9 +185,7 @@ service BackupService {
   }
   // ListArtifactCompatibleServices lists compatible services for restoring a backup.
   rpc ListArtifactCompatibleServices(ListArtifactCompatibleServicesRequest) returns (ListArtifactCompatibleServicesResponse) {
-    option (google.api.http) = {
-      get: "/v1/backups/{artifact_id}/compatible-services"
-    };
+    option (google.api.http) = {get: "/v1/backups/{artifact_id}/compatible-services"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Compatible Services"
       description: "List services that are compatible with the backup artifact."
@@ -206,9 +204,7 @@ service BackupService {
   }
   // ListScheduledBackups returns all scheduled backups.
   rpc ListScheduledBackups(ListScheduledBackupsRequest) returns (ListScheduledBackupsResponse) {
-    option (google.api.http) = {
-      get: "/v1/backups/scheduled"
-    };
+    option (google.api.http) = {get: "/v1/backups/scheduled"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Scheduled Backups"
       description: "List all scheduled backups."
@@ -227,9 +223,7 @@ service BackupService {
   }
   // RemoveScheduledBackup removes existing scheduled backup.
   rpc RemoveScheduledBackup(RemoveScheduledBackupRequest) returns (RemoveScheduledBackupResponse) {
-    option (google.api.http) = {
-      delete: "/v1/backups/{scheduled_backup_id}"
-    };
+    option (google.api.http) = {delete: "/v1/backups/{scheduled_backup_id}"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Remove a Scheduled Backup"
       description: "Remove a scheduled backup."

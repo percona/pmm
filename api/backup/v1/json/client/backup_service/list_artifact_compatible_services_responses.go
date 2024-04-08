@@ -58,7 +58,7 @@ type ListArtifactCompatibleServicesOK struct {
 }
 
 func (o *ListArtifactCompatibleServicesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Backups/ListArtifactCompatibleServices][%d] listArtifactCompatibleServicesOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/backups/{artifact_id}/compatible-services][%d] listArtifactCompatibleServicesOk  %+v", 200, o.Payload)
 }
 
 func (o *ListArtifactCompatibleServicesOK) GetPayload() *ListArtifactCompatibleServicesOKBody {
@@ -100,7 +100,7 @@ func (o *ListArtifactCompatibleServicesDefault) Code() int {
 }
 
 func (o *ListArtifactCompatibleServicesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Backups/ListArtifactCompatibleServices][%d] ListArtifactCompatibleServices default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/backups/{artifact_id}/compatible-services][%d] ListArtifactCompatibleServices default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ListArtifactCompatibleServicesDefault) GetPayload() *ListArtifactCompatibleServicesDefaultBody {
@@ -115,43 +115,6 @@ func (o *ListArtifactCompatibleServicesDefault) readResponse(response runtime.Cl
 		return err
 	}
 
-	return nil
-}
-
-/*
-ListArtifactCompatibleServicesBody list artifact compatible services body
-swagger:model ListArtifactCompatibleServicesBody
-*/
-type ListArtifactCompatibleServicesBody struct {
-	// Artifact id used to determine restore compatibility.
-	ArtifactID string `json:"artifact_id,omitempty"`
-}
-
-// Validate validates this list artifact compatible services body
-func (o *ListArtifactCompatibleServicesBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this list artifact compatible services body based on context it is used
-func (o *ListArtifactCompatibleServicesBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListArtifactCompatibleServicesBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListArtifactCompatibleServicesBody) UnmarshalBinary(b []byte) error {
-	var res ListArtifactCompatibleServicesBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

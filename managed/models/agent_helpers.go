@@ -38,6 +38,7 @@ const (
 	scheduledTaskIDPrefix = "/scheduled_task_id/"
 	artifactIDPrefix      = "/artifact_id/"
 	restoreIDPrefix       = "/restore_id/"
+	locationIDPrefix      = "/location_id/"
 )
 
 // MySQLOptionsParams contains methods to create MySQLOptions object.
@@ -206,8 +207,13 @@ func NormalizeArtifactID(artifactID string) string {
 }
 
 // NormalizeRestoreID adds a prefix to the restore ID if it does not already contain it.
-func NormalizeRestoreID(artifactID string) string {
-	return normalizeID(artifactID, restoreIDPrefix)
+func NormalizeRestoreID(restoreID string) string {
+	return normalizeID(restoreID, restoreIDPrefix)
+}
+
+// NormalizeLocationID adds a prefix to the location ID if it does not already contain it.
+func NormalizeLocationID(locationID string) string {
+	return normalizeID(locationID, locationIDPrefix)
 }
 
 // normalizeID adds a prefix to ID if it does not already contain it.

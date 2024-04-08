@@ -60,6 +60,9 @@ GetLogsParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type GetLogsParams struct {
+	// ArtifactID.
+	ArtifactID string
+
 	// Body.
 	Body GetLogsBody
 
@@ -116,6 +119,17 @@ func (o *GetLogsParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithArtifactID adds the artifactID to the get logs params
+func (o *GetLogsParams) WithArtifactID(artifactID string) *GetLogsParams {
+	o.SetArtifactID(artifactID)
+	return o
+}
+
+// SetArtifactID adds the artifactId to the get logs params
+func (o *GetLogsParams) SetArtifactID(artifactID string) {
+	o.ArtifactID = artifactID
+}
+
 // WithBody adds the body to the get logs params
 func (o *GetLogsParams) WithBody(body GetLogsBody) *GetLogsParams {
 	o.SetBody(body)
@@ -133,6 +147,11 @@ func (o *GetLogsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regis
 		return err
 	}
 	var res []error
+
+	// path param artifact_id
+	if err := r.SetPathParam("artifact_id", o.ArtifactID); err != nil {
+		return err
+	}
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

@@ -42,7 +42,9 @@ type ClientService interface {
 }
 
 /*
-AddLocation adds location adds backup location
+AddLocation adds a backup location
+
+Add a backup location.
 */
 func (a *Client) AddLocation(params *AddLocationParams, opts ...ClientOption) (*AddLocationOK, error) {
 	// TODO: Validate the params before sending
@@ -52,7 +54,7 @@ func (a *Client) AddLocation(params *AddLocationParams, opts ...ClientOption) (*
 	op := &runtime.ClientOperation{
 		ID:                 "AddLocation",
 		Method:             "POST",
-		PathPattern:        "/v1/backup/Locations/Add",
+		PathPattern:        "/v1/backups/locations",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -79,7 +81,9 @@ func (a *Client) AddLocation(params *AddLocationParams, opts ...ClientOption) (*
 }
 
 /*
-ChangeLocation changes location changes backup location
+ChangeLocation changes a backup location
+
+Change a backup location.
 */
 func (a *Client) ChangeLocation(params *ChangeLocationParams, opts ...ClientOption) (*ChangeLocationOK, error) {
 	// TODO: Validate the params before sending
@@ -88,8 +92,8 @@ func (a *Client) ChangeLocation(params *ChangeLocationParams, opts ...ClientOpti
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ChangeLocation",
-		Method:             "POST",
-		PathPattern:        "/v1/backup/Locations/Change",
+		Method:             "PUT",
+		PathPattern:        "/v1/backups/locations/{location_id}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -116,7 +120,9 @@ func (a *Client) ChangeLocation(params *ChangeLocationParams, opts ...ClientOpti
 }
 
 /*
-ListLocations lists locations returns a list of all backup locations
+ListLocations lists backup locations
+
+List backup locations.
 */
 func (a *Client) ListLocations(params *ListLocationsParams, opts ...ClientOption) (*ListLocationsOK, error) {
 	// TODO: Validate the params before sending
@@ -125,8 +131,8 @@ func (a *Client) ListLocations(params *ListLocationsParams, opts ...ClientOption
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ListLocations",
-		Method:             "POST",
-		PathPattern:        "/v1/backup/Locations/List",
+		Method:             "GET",
+		PathPattern:        "/v1/backup/locations",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -153,7 +159,9 @@ func (a *Client) ListLocations(params *ListLocationsParams, opts ...ClientOption
 }
 
 /*
-RemoveLocation removes location removes existing backup location
+RemoveLocation removes a scheduled backup
+
+Remove a backup location.
 */
 func (a *Client) RemoveLocation(params *RemoveLocationParams, opts ...ClientOption) (*RemoveLocationOK, error) {
 	// TODO: Validate the params before sending
@@ -162,8 +170,8 @@ func (a *Client) RemoveLocation(params *RemoveLocationParams, opts ...ClientOpti
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "RemoveLocation",
-		Method:             "POST",
-		PathPattern:        "/v1/backup/Locations/Remove",
+		Method:             "DELETE",
+		PathPattern:        "/v1/backups/locations/{location_id}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -190,7 +198,9 @@ func (a *Client) RemoveLocation(params *RemoveLocationParams, opts ...ClientOpti
 }
 
 /*
-TestLocationConfig tests location config tests backup location and credentials
+TestLocationConfig tests a backup location and credentials
+
+Test a backup location and credentials.
 */
 func (a *Client) TestLocationConfig(params *TestLocationConfigParams, opts ...ClientOption) (*TestLocationConfigOK, error) {
 	// TODO: Validate the params before sending
@@ -200,7 +210,7 @@ func (a *Client) TestLocationConfig(params *TestLocationConfigParams, opts ...Cl
 	op := &runtime.ClientOperation{
 		ID:                 "TestLocationConfig",
 		Method:             "POST",
-		PathPattern:        "/v1/backup/Locations/TestConfig",
+		PathPattern:        "/v1/backup/locations:testConfig",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

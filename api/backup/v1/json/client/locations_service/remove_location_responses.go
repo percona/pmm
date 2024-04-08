@@ -58,7 +58,7 @@ type RemoveLocationOK struct {
 }
 
 func (o *RemoveLocationOK) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Locations/Remove][%d] removeLocationOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[DELETE /v1/backups/locations/{location_id}][%d] removeLocationOk  %+v", 200, o.Payload)
 }
 
 func (o *RemoveLocationOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *RemoveLocationDefault) Code() int {
 }
 
 func (o *RemoveLocationDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Locations/Remove][%d] RemoveLocation default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[DELETE /v1/backups/locations/{location_id}][%d] RemoveLocation default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *RemoveLocationDefault) GetPayload() *RemoveLocationDefaultBody {
@@ -113,46 +113,6 @@ func (o *RemoveLocationDefault) readResponse(response runtime.ClientResponse, co
 		return err
 	}
 
-	return nil
-}
-
-/*
-RemoveLocationBody remove location body
-swagger:model RemoveLocationBody
-*/
-type RemoveLocationBody struct {
-	// Machine-readable ID.
-	LocationID string `json:"location_id,omitempty"`
-
-	// Force mode
-	Force bool `json:"force,omitempty"`
-}
-
-// Validate validates this remove location body
-func (o *RemoveLocationBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this remove location body based on context it is used
-func (o *RemoveLocationBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *RemoveLocationBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *RemoveLocationBody) UnmarshalBinary(b []byte) error {
-	var res RemoveLocationBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

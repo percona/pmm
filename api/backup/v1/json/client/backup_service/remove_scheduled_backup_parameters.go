@@ -60,8 +60,8 @@ RemoveScheduledBackupParams contains all the parameters to send to the API endpo
 	Typically these are written to a http.Request.
 */
 type RemoveScheduledBackupParams struct {
-	// Body.
-	Body RemoveScheduledBackupBody
+	// ScheduledBackupID.
+	ScheduledBackupID string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -116,15 +116,15 @@ func (o *RemoveScheduledBackupParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the remove scheduled backup params
-func (o *RemoveScheduledBackupParams) WithBody(body RemoveScheduledBackupBody) *RemoveScheduledBackupParams {
-	o.SetBody(body)
+// WithScheduledBackupID adds the scheduledBackupID to the remove scheduled backup params
+func (o *RemoveScheduledBackupParams) WithScheduledBackupID(scheduledBackupID string) *RemoveScheduledBackupParams {
+	o.SetScheduledBackupID(scheduledBackupID)
 	return o
 }
 
-// SetBody adds the body to the remove scheduled backup params
-func (o *RemoveScheduledBackupParams) SetBody(body RemoveScheduledBackupBody) {
-	o.Body = body
+// SetScheduledBackupID adds the scheduledBackupId to the remove scheduled backup params
+func (o *RemoveScheduledBackupParams) SetScheduledBackupID(scheduledBackupID string) {
+	o.ScheduledBackupID = scheduledBackupID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,7 +133,9 @@ func (o *RemoveScheduledBackupParams) WriteToRequest(r runtime.ClientRequest, re
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
+
+	// path param scheduled_backup_id
+	if err := r.SetPathParam("scheduled_backup_id", o.ScheduledBackupID); err != nil {
 		return err
 	}
 

@@ -60,9 +60,6 @@ ListScheduledBackupsParams contains all the parameters to send to the API endpoi
 	Typically these are written to a http.Request.
 */
 type ListScheduledBackupsParams struct {
-	// Body.
-	Body interface{}
-
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
@@ -116,28 +113,12 @@ func (o *ListScheduledBackupsParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the list scheduled backups params
-func (o *ListScheduledBackupsParams) WithBody(body interface{}) *ListScheduledBackupsParams {
-	o.SetBody(body)
-	return o
-}
-
-// SetBody adds the body to the list scheduled backups params
-func (o *ListScheduledBackupsParams) SetBody(body interface{}) {
-	o.Body = body
-}
-
 // WriteToRequest writes these params to a swagger request
 func (o *ListScheduledBackupsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
 	var res []error
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
-	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

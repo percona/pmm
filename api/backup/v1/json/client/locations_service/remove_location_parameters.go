@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // NewRemoveLocationParams creates a new RemoveLocationParams object,
@@ -60,8 +61,17 @@ RemoveLocationParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type RemoveLocationParams struct {
-	// Body.
-	Body RemoveLocationBody
+	/* Force.
+
+	   Force mode
+	*/
+	Force *bool
+
+	/* LocationID.
+
+	   Machine-readable ID.
+	*/
+	LocationID string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -116,15 +126,26 @@ func (o *RemoveLocationParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the remove location params
-func (o *RemoveLocationParams) WithBody(body RemoveLocationBody) *RemoveLocationParams {
-	o.SetBody(body)
+// WithForce adds the force to the remove location params
+func (o *RemoveLocationParams) WithForce(force *bool) *RemoveLocationParams {
+	o.SetForce(force)
 	return o
 }
 
-// SetBody adds the body to the remove location params
-func (o *RemoveLocationParams) SetBody(body RemoveLocationBody) {
-	o.Body = body
+// SetForce adds the force to the remove location params
+func (o *RemoveLocationParams) SetForce(force *bool) {
+	o.Force = force
+}
+
+// WithLocationID adds the locationID to the remove location params
+func (o *RemoveLocationParams) WithLocationID(locationID string) *RemoveLocationParams {
+	o.SetLocationID(locationID)
+	return o
+}
+
+// SetLocationID adds the locationId to the remove location params
+func (o *RemoveLocationParams) SetLocationID(locationID string) {
+	o.LocationID = locationID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,7 +154,25 @@ func (o *RemoveLocationParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
+
+	if o.Force != nil {
+
+		// query param force
+		var qrForce bool
+
+		if o.Force != nil {
+			qrForce = *o.Force
+		}
+		qForce := swag.FormatBool(qrForce)
+		if qForce != "" {
+			if err := r.SetQueryParam("force", qForce); err != nil {
+				return err
+			}
+		}
+	}
+
+	// path param location_id
+	if err := r.SetPathParam("location_id", o.LocationID); err != nil {
 		return err
 	}
 

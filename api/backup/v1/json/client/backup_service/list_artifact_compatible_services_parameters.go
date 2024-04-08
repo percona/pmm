@@ -60,8 +60,11 @@ ListArtifactCompatibleServicesParams contains all the parameters to send to the 
 	Typically these are written to a http.Request.
 */
 type ListArtifactCompatibleServicesParams struct {
-	// Body.
-	Body ListArtifactCompatibleServicesBody
+	/* ArtifactID.
+
+	   Artifact id used to determine restore compatibility.
+	*/
+	ArtifactID string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -116,15 +119,15 @@ func (o *ListArtifactCompatibleServicesParams) SetHTTPClient(client *http.Client
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the list artifact compatible services params
-func (o *ListArtifactCompatibleServicesParams) WithBody(body ListArtifactCompatibleServicesBody) *ListArtifactCompatibleServicesParams {
-	o.SetBody(body)
+// WithArtifactID adds the artifactID to the list artifact compatible services params
+func (o *ListArtifactCompatibleServicesParams) WithArtifactID(artifactID string) *ListArtifactCompatibleServicesParams {
+	o.SetArtifactID(artifactID)
 	return o
 }
 
-// SetBody adds the body to the list artifact compatible services params
-func (o *ListArtifactCompatibleServicesParams) SetBody(body ListArtifactCompatibleServicesBody) {
-	o.Body = body
+// SetArtifactID adds the artifactId to the list artifact compatible services params
+func (o *ListArtifactCompatibleServicesParams) SetArtifactID(artifactID string) {
+	o.ArtifactID = artifactID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,7 +136,9 @@ func (o *ListArtifactCompatibleServicesParams) WriteToRequest(r runtime.ClientRe
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
+
+	// path param artifact_id
+	if err := r.SetPathParam("artifact_id", o.ArtifactID); err != nil {
 		return err
 	}
 

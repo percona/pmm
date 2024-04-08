@@ -170,7 +170,8 @@ func (s *LocationsService) ChangeLocation(ctx context.Context, req *backuppb.Cha
 	}
 
 	err := s.db.InTransaction(func(tx *reform.TX) error {
-		_, err := models.ChangeBackupLocation(tx.Querier, req.LocationId, params)
+		locationID := models.NormalizeLocationID(req.LocationId)
+		_, err := models.ChangeBackupLocation(tx.Querier, locationID, params)
 		if err != nil {
 			return err
 		}
@@ -222,14 +223,15 @@ func (s *LocationsService) TestLocationConfig(
 }
 
 // RemoveLocation removes backup location.
-func (s *LocationsService) RemoveLocation(_ context.Context, req *backuppb.RemoveLocationRequest) (*backuppb.RemoveLocationResponse, error) {
+func (s *LocationsService) RemoveLocation(ctx context.Context, req *backuppb.RemoveLocationRequest) (*backuppb.RemoveLocationResponse, error) {
 	mode := models.RemoveRestrict
 	if req.Force {
 		mode = models.RemoveCascade
 	}
 
-	err := s.db.InTransaction(func(tx *reform.TX) error {
-		return models.RemoveBackupLocation(tx.Querier, req.LocationId, mode)
+	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		locationID := models.NormalizeLocationID(req.LocationId)
+		return models.RemoveBackupLocation(tx.Querier, locationID, mode)
 	})
 	if err != nil {
 		return nil, err

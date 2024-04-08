@@ -3,6 +3,7 @@ syntax = "proto3";
 package backup.v1;
 
 import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
 // FilesystemLocationConfig represents file system location config.
@@ -89,37 +90,51 @@ message TestLocationConfigResponse {}
 service LocationsService {
   // ListLocations returns a list of all backup locations.
   rpc ListLocations(ListLocationsRequest) returns (ListLocationsResponse) {
-    option (google.api.http) = {
-      post: "/v1/backup/Locations/List"
-      body: "*"
+    option (google.api.http) = {get: "/v1/backup/locations"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Backup Locations"
+      description: "List backup locations."
     };
   }
   // AddLocation adds backup location.
   rpc AddLocation(AddLocationRequest) returns (AddLocationResponse) {
     option (google.api.http) = {
-      post: "/v1/backup/Locations/Add"
+      post: "/v1/backups/locations"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add a Backup Location"
+      description: "Add a backup location."
     };
   }
   // ChangeLocation changes backup location.
   rpc ChangeLocation(ChangeLocationRequest) returns (ChangeLocationResponse) {
     option (google.api.http) = {
-      post: "/v1/backup/Locations/Change"
+      put: "/v1/backups/locations/{location_id}"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change a Backup Location"
+      description: "Change a backup location."
     };
   }
   // RemoveLocation removes existing backup location.
   rpc RemoveLocation(RemoveLocationRequest) returns (RemoveLocationResponse) {
-    option (google.api.http) = {
-      post: "/v1/backup/Locations/Remove"
-      body: "*"
+    option (google.api.http) = {delete: "/v1/backups/locations/{location_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Remove a Scheduled Backup"
+      description: "Remove a backup location."
     };
   }
   // TestLocationConfig tests backup location and credentials.
   rpc TestLocationConfig(TestLocationConfigRequest) returns (TestLocationConfigResponse) {
     option (google.api.http) = {
-      post: "/v1/backup/Locations/TestConfig"
+      post: "/v1/backup/locations:testConfig"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Test a Backup Location and Credentials"
+      description: "Test a backup location and credentials."
     };
   }
 }

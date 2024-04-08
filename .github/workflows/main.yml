@@ -93,7 +93,8 @@ jobs:
               exit $code
             else
               echo
-              # suppress passing to reviewdog because of https://github.com/reviewdog/reviewdog/issues/1696
+              # Suppress passing to reviewdog because of https://github.com/reviewdog/reviewdog/issues/1696
+              # TODO: re-enable before merging to v3
               # echo "$out" | bin/reviewdog -f=buf -reporter=github-pr-review -fail-on-error=true
             fi
           else

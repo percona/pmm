@@ -58,7 +58,7 @@ type TestLocationConfigOK struct {
 }
 
 func (o *TestLocationConfigOK) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Locations/TestConfig][%d] testLocationConfigOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/backup/locations:testConfig][%d] testLocationConfigOk  %+v", 200, o.Payload)
 }
 
 func (o *TestLocationConfigOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *TestLocationConfigDefault) Code() int {
 }
 
 func (o *TestLocationConfigDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Locations/TestConfig][%d] TestLocationConfig default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/backup/locations:testConfig][%d] TestLocationConfig default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *TestLocationConfigDefault) GetPayload() *TestLocationConfigDefaultBody {

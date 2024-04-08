@@ -57,8 +57,8 @@ func (a *Client) ChangeScheduledBackup(params *ChangeScheduledBackupParams, opts
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ChangeScheduledBackup",
-		Method:             "POST",
-		PathPattern:        "/v1/backup/Backups/ChangeScheduled",
+		Method:             "PUT",
+		PathPattern:        "/v1/backups:changeScheduled",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -97,7 +97,7 @@ func (a *Client) GetLogs(params *GetLogsParams, opts ...ClientOption) (*GetLogsO
 	op := &runtime.ClientOperation{
 		ID:                 "GetLogs",
 		Method:             "POST",
-		PathPattern:        "/v1/backup/Backups/GetLogs",
+		PathPattern:        "/v1/backups/{artifact_id}/logs",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -135,8 +135,8 @@ func (a *Client) ListArtifactCompatibleServices(params *ListArtifactCompatibleSe
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ListArtifactCompatibleServices",
-		Method:             "POST",
-		PathPattern:        "/v1/backup/Backups/ListArtifactCompatibleServices",
+		Method:             "GET",
+		PathPattern:        "/v1/backups/{artifact_id}/compatible-services",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -174,8 +174,8 @@ func (a *Client) ListScheduledBackups(params *ListScheduledBackupsParams, opts .
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ListScheduledBackups",
-		Method:             "POST",
-		PathPattern:        "/v1/backup/Backups/ListScheduled",
+		Method:             "GET",
+		PathPattern:        "/v1/backups/scheduled",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -213,8 +213,8 @@ func (a *Client) RemoveScheduledBackup(params *RemoveScheduledBackupParams, opts
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "RemoveScheduledBackup",
-		Method:             "POST",
-		PathPattern:        "/v1/backup/Backups/RemoveScheduled",
+		Method:             "DELETE",
+		PathPattern:        "/v1/backups/{scheduled_backup_id}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -253,7 +253,7 @@ func (a *Client) ScheduleBackup(params *ScheduleBackupParams, opts ...ClientOpti
 	op := &runtime.ClientOperation{
 		ID:                 "ScheduleBackup",
 		Method:             "POST",
-		PathPattern:        "/v1/backup/Backups/Schedule",
+		PathPattern:        "/v1/backups:schedule",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -296,7 +296,7 @@ func (a *Client) StartBackup(params *StartBackupParams, opts ...ClientOption) (*
 	op := &runtime.ClientOperation{
 		ID:                 "StartBackup",
 		Method:             "POST",
-		PathPattern:        "/v1/backup/Backups/Start",
+		PathPattern:        "/v1/backups:start",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

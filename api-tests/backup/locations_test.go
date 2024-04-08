@@ -19,6 +19,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -230,11 +231,11 @@ func TestChangeLocation(t *testing.T) {
 	t.Parallel()
 	client := backupClient.Default.LocationsService
 
-	checkChange := func(t *testing.T, req locations.ChangeLocationBody, locations []*locations.ListLocationsOKBodyLocationsItems0) {
+	checkChange := func(t *testing.T, req locations.ChangeLocationBody, locationID string, locations []*locations.ListLocationsOKBodyLocationsItems0) {
 		t.Helper()
 		var found bool
 		for _, loc := range locations {
-			if loc.LocationID == req.LocationID {
+			if loc.LocationID == locationID {
 				assert.Equal(t, req.Name, loc.Name)
 				if req.Description != "" {
 					assert.Equal(t, req.Description, loc.Description)
@@ -282,22 +283,22 @@ func TestChangeLocation(t *testing.T) {
 		defer deleteLocation(t, client, resp.Payload.LocationID)
 
 		updateBody := locations.ChangeLocationBody{
-			LocationID: resp.Payload.LocationID,
-			Name:       gofakeit.Name(),
+			Name: gofakeit.Name(),
 			FilesystemConfig: &locations.ChangeLocationParamsBodyFilesystemConfig{
 				Path: "/tmp/nested",
 			},
 		}
 		_, err = client.ChangeLocation(&locations.ChangeLocationParams{
-			Body:    updateBody,
-			Context: pmmapitests.Context,
+			LocationID: resp.Payload.LocationID,
+			Body:       updateBody,
+			Context:    pmmapitests.Context,
 		})
 		require.NoError(t, err)
 
 		listResp, err := client.ListLocations(&locations.ListLocationsParams{Context: pmmapitests.Context})
 		require.NoError(t, err)
 
-		checkChange(t, updateBody, listResp.Payload.Locations)
+		checkChange(t, updateBody, resp.Payload.LocationID, listResp.Payload.Locations)
 	})
 
 	t.Run("update only name", func(t *testing.T) {
@@ -318,12 +319,12 @@ func TestChangeLocation(t *testing.T) {
 		defer deleteLocation(t, client, resp.Payload.LocationID)
 
 		updateBody := locations.ChangeLocationBody{
-			LocationID: resp.Payload.LocationID,
-			Name:       gofakeit.Name(),
+			Name: gofakeit.Name(),
 		}
 		_, err = client.ChangeLocation(&locations.ChangeLocationParams{
-			Body:    updateBody,
-			Context: pmmapitests.Context,
+			LocationID: resp.Payload.LocationID,
+			Body:       updateBody,
+			Context:    pmmapitests.Context,
 		})
 		require.NoError(t, err)
 
@@ -366,8 +367,7 @@ func TestChangeLocation(t *testing.T) {
 		defer deleteLocation(t, client, resp.Payload.LocationID)
 
 		updateBody := locations.ChangeLocationBody{
-			LocationID: resp.Payload.LocationID,
-			Name:       gofakeit.Name(),
+			Name: gofakeit.Name(),
 			S3Config: &locations.ChangeLocationParamsBodyS3Config{
 				Endpoint:   "https://s3.us-west-2.amazonaws.com",
 				AccessKey:  accessKey,
@@ -376,15 +376,16 @@ func TestChangeLocation(t *testing.T) {
 			},
 		}
 		_, err = client.ChangeLocation(&locations.ChangeLocationParams{
-			Body:    updateBody,
-			Context: pmmapitests.Context,
+			LocationID: resp.Payload.LocationID,
+			Body:       updateBody,
+			Context:    pmmapitests.Context,
 		})
 		require.NoError(t, err)
 
 		listResp, err := client.ListLocations(&locations.ListLocationsParams{Context: pmmapitests.Context})
 		require.NoError(t, err)
 
-		checkChange(t, updateBody, listResp.Payload.Locations)
+		checkChange(t, updateBody, resp.Payload.LocationID, listResp.Payload.Locations)
 	})
 
 	t.Run("change to existing name - error", func(t *testing.T) {
@@ -419,15 +420,15 @@ func TestChangeLocation(t *testing.T) {
 		defer deleteLocation(t, client, resp2.Payload.LocationID)
 
 		updateBody := locations.ChangeLocationBody{
-			LocationID: resp2.Payload.LocationID,
-			Name:       addReqBody1.Name,
+			Name: addReqBody1.Name,
 			FilesystemConfig: &locations.ChangeLocationParamsBodyFilesystemConfig{
 				Path: "/tmp",
 			},
 		}
 		_, err = client.ChangeLocation(&locations.ChangeLocationParams{
-			Body:    updateBody,
-			Context: pmmapitests.Context,
+			LocationID: resp2.Payload.LocationID,
+			Body:       updateBody,
+			Context:    pmmapitests.Context,
 		})
 
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, `Location with name "%s" already exists.`, updateBody.Name)
@@ -450,11 +451,9 @@ func TestRemoveLocation(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = client.RemoveLocation(&locations.RemoveLocationParams{
-		Body: locations.RemoveLocationBody{
-			LocationID: resp.Payload.LocationID,
-			Force:      false,
-		},
-		Context: pmmapitests.Context,
+		LocationID: resp.Payload.LocationID,
+		Force:      pointer.ToBool(false),
+		Context:    pmmapitests.Context,
 	})
 
 	require.NoError(t, err)
@@ -569,11 +568,9 @@ func TestLocationConfigValidation(t *testing.T) {
 func deleteLocation(t *testing.T, client locations.ClientService, id string) {
 	t.Helper()
 	_, err := client.RemoveLocation(&locations.RemoveLocationParams{
-		Body: locations.RemoveLocationBody{
-			LocationID: id,
-			Force:      false,
-		},
-		Context: pmmapitests.Context,
+		LocationID: id,
+		Force:      pointer.ToBool(false),
+		Context:    pmmapitests.Context,
 	})
 	assert.NoError(t, err)
 }

@@ -58,7 +58,7 @@ type AddLocationOK struct {
 }
 
 func (o *AddLocationOK) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Locations/Add][%d] addLocationOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/backups/locations][%d] addLocationOk  %+v", 200, o.Payload)
 }
 
 func (o *AddLocationOK) GetPayload() *AddLocationOKBody {
@@ -100,7 +100,7 @@ func (o *AddLocationDefault) Code() int {
 }
 
 func (o *AddLocationDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Locations/Add][%d] AddLocation default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/backups/locations][%d] AddLocation default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddLocationDefault) GetPayload() *AddLocationDefaultBody {

@@ -59,7 +59,7 @@ type ChangeScheduledBackupOK struct {
 }
 
 func (o *ChangeScheduledBackupOK) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Backups/ChangeScheduled][%d] changeScheduledBackupOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[PUT /v1/backups:changeScheduled][%d] changeScheduledBackupOk  %+v", 200, o.Payload)
 }
 
 func (o *ChangeScheduledBackupOK) GetPayload() interface{} {
@@ -99,7 +99,7 @@ func (o *ChangeScheduledBackupDefault) Code() int {
 }
 
 func (o *ChangeScheduledBackupDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Backups/ChangeScheduled][%d] ChangeScheduledBackup default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[PUT /v1/backups:changeScheduled][%d] ChangeScheduledBackup default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ChangeScheduledBackupDefault) GetPayload() *ChangeScheduledBackupDefaultBody {

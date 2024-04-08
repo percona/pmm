@@ -58,7 +58,7 @@ type GetLogsOK struct {
 }
 
 func (o *GetLogsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Backups/GetLogs][%d] getLogsOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/backups/{artifact_id}/logs][%d] getLogsOk  %+v", 200, o.Payload)
 }
 
 func (o *GetLogsOK) GetPayload() *GetLogsOKBody {
@@ -100,7 +100,7 @@ func (o *GetLogsDefault) Code() int {
 }
 
 func (o *GetLogsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/Backups/GetLogs][%d] GetLogs default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/backups/{artifact_id}/logs][%d] GetLogs default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetLogsDefault) GetPayload() *GetLogsDefaultBody {
@@ -123,9 +123,6 @@ GetLogsBody get logs body
 swagger:model GetLogsBody
 */
 type GetLogsBody struct {
-	// artifact id
-	ArtifactID string `json:"artifact_id,omitempty"`
-
 	// offset
 	Offset int64 `json:"offset,omitempty"`
 
