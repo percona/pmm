@@ -165,10 +165,14 @@ func (s *Updater) LastCheckUpdatesResult(ctx context.Context) (*version.UpdateCh
 }
 
 func (s *Updater) latest(ctx context.Context) (*version.PackageInfo, error) {
+	// Read from file, if it's not exist read from ENV variable, if it's not exist get the latest tag from DockerHub.
 	fileName := "/etc/pmm-server-update-version.json"
 	content, err := os.ReadFile(fileName)
-	switch {
-	case err == nil:
+	if err != nil && !os.IsNotExist(err) {
+		s.l.WithError(err).Error("Failed to read file")
+		return nil, errors.Wrap(err, "failed to read file")
+	}
+	if err == nil {
 		info := version.PackageInfo{}
 		err = json.Unmarshal(content, &info)
 		if err != nil {
@@ -176,38 +180,36 @@ func (s *Updater) latest(ctx context.Context) (*version.PackageInfo, error) {
 			return nil, errors.Wrap(err, "failed to unmarshal file")
 		}
 		return &info, nil
-	case err != nil && !os.IsNotExist(err):
-		s.l.WithError(err).Error("Failed to read file")
-		return nil, errors.Wrap(err, "failed to read file")
-	case os.Getenv("PMM_SERVER_UPDATE_VERSION") != "":
-		return s.parseDockerTag(os.Getenv("PMM_SERVER_UPDATE_VERSION")), nil
-	default: // os.IsNotExist(err)
-		// File does not exist, get the latest tag from DockerHub
-		u := "https://registry.hub.docker.com/v2/repositories/percona/pmm-server/tags/"
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
-		if err != nil {
-			s.l.WithError(err).Error("Failed to create request")
-			return nil, errors.Wrap(err, "failed to create request")
-		}
-		resp, err := http.DefaultClient.Do(req)
-		if err != nil {
-			s.l.WithError(err).Error("Failed to get tags from DockerHub")
-			return nil, errors.Wrap(err, "failed to get tags from DockerHub")
-		}
-		defer resp.Body.Close() //nolint:errcheck
-
-		var tagsResponse TagsResponse
-		if err := json.NewDecoder(resp.Body).Decode(&tagsResponse); err != nil {
-			s.l.WithError(err).Error("Failed to decode response")
-			return nil, errors.Wrap(err, "failed to decode response")
-		}
-
-		if len(tagsResponse.Results) != 0 {
-			// Assuming the first tag is the latest
-			return s.parseDockerTag(tagsResponse.Results[0].Name), nil
-		}
-		return nil, errors.New("no tags found")
 	}
+	if os.Getenv("PMM_SERVER_UPDATE_VERSION") != "" {
+		return s.parseDockerTag(os.Getenv("PMM_SERVER_UPDATE_VERSION")), nil
+	}
+
+	// File does not exist, ENV variable doesn't provided, get the latest tag from DockerHub
+	u := "https://registry.hub.docker.com/v2/repositories/percona/pmm-server/tags/"
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+	if err != nil {
+		s.l.WithError(err).Error("Failed to create request")
+		return nil, errors.Wrap(err, "failed to create request")
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		s.l.WithError(err).Error("Failed to get tags from DockerHub")
+		return nil, errors.Wrap(err, "failed to get tags from DockerHub")
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	var tagsResponse TagsResponse
+	if err := json.NewDecoder(resp.Body).Decode(&tagsResponse); err != nil {
+		s.l.WithError(err).Error("Failed to decode response")
+		return nil, errors.Wrap(err, "failed to decode response")
+	}
+
+	if len(tagsResponse.Results) != 0 {
+		// Assuming the first tag is the latest
+		return s.parseDockerTag(tagsResponse.Results[0].Name), nil
+	}
+	return nil, errors.New("no tags found")
 }
 
 func (s *Updater) parseDockerTag(tag string) *version.PackageInfo {
