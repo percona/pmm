@@ -70,10 +70,7 @@ message RestoreBackupResponse {
 service RestoreService {
   // ListRestores returns a list of all backup restore history items.
   rpc ListRestores(ListRestoresRequest) returns (ListRestoresResponse) {
-    option (google.api.http) = {
-      post: "/v1/backup/RestoreHistory/List"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/backups/restores"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Restore History"
       description: "List all backup restore history items"
@@ -82,7 +79,7 @@ service RestoreService {
   // RestoreBackup requests the backup restore.
   rpc RestoreBackup(RestoreBackupRequest) returns (RestoreBackupResponse) {
     option (google.api.http) = {
-      post: "/v1/backup/Backups/Restore"
+      post: "/v1/backups/restores:start"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {

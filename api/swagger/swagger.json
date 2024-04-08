@@ -2150,242 +2150,6 @@
         }
       }
     },
-    "/v1/backup/Backups/Restore": {
-      "post": {
-        "description": "Could return the Error message in the details containing specific ErrorCode indicating failure reason:\nERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service\nERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud\nERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup\nERROR_CODE_INCOMPATIBLE_TARGET_MYSQL - target MySQL version is not compatible with the artifact for performing a restore of the backup",
-        "tags": [
-          "RestoreService"
-        ],
-        "summary": "Restore from a Backup",
-        "operationId": "RestoreBackup",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "service_id": {
-                  "description": "Service identifier where backup should be restored.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "artifact_id": {
-                  "description": "Artifact id to restore.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "pitr_timestamp": {
-                  "type": "string",
-                  "format": "date-time",
-                  "title": "Timestamp of PITR to restore to",
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "restore_id": {
-                  "description": "Unique restore identifier.",
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/backup/RestoreHistory/List": {
-      "post": {
-        "description": "List all backup restore history items",
-        "tags": [
-          "RestoreService"
-        ],
-        "summary": "List Restore History",
-        "operationId": "ListRestores",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "items": {
-                  "type": "array",
-                  "items": {
-                    "description": "RestoreHistoryItem represents single backup restore item.",
-                    "type": "object",
-                    "properties": {
-                      "restore_id": {
-                        "description": "Machine-readable restore id.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "artifact_id": {
-                        "description": "ID of the artifact used for restore.",
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "name": {
-                        "description": "Artifact name used for restore.",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "vendor": {
-                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
-                        "type": "string",
-                        "x-order": 3
-                      },
-                      "location_id": {
-                        "description": "Machine-readable location ID.",
-                        "type": "string",
-                        "x-order": 4
-                      },
-                      "location_name": {
-                        "description": "Location name.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "service_id": {
-                        "description": "Machine-readable service ID.",
-                        "type": "string",
-                        "x-order": 6
-                      },
-                      "service_name": {
-                        "description": "Service name.",
-                        "type": "string",
-                        "x-order": 7
-                      },
-                      "data_model": {
-                        "description": "DataModel is a model used for performing a backup.",
-                        "type": "string",
-                        "default": "DATA_MODEL_UNSPECIFIED",
-                        "enum": [
-                          "DATA_MODEL_UNSPECIFIED",
-                          "DATA_MODEL_PHYSICAL",
-                          "DATA_MODEL_LOGICAL"
-                        ],
-                        "x-order": 8
-                      },
-                      "status": {
-                        "description": "RestoreStatus shows the current status of execution of restore.",
-                        "type": "string",
-                        "default": "RESTORE_STATUS_UNSPECIFIED",
-                        "enum": [
-                          "RESTORE_STATUS_UNSPECIFIED",
-                          "RESTORE_STATUS_IN_PROGRESS",
-                          "RESTORE_STATUS_SUCCESS",
-                          "RESTORE_STATUS_ERROR"
-                        ],
-                        "x-order": 9
-                      },
-                      "started_at": {
-                        "description": "Restore start time.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 10
-                      },
-                      "finished_at": {
-                        "description": "Restore finish time.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 11
-                      },
-                      "pitr_timestamp": {
-                        "description": "PITR timestamp is filled for PITR restores, empty otherwise.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 12
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/backup/locations": {
       "get": {
         "description": "List backup locations.",
@@ -3190,6 +2954,232 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/backups/restores": {
+      "get": {
+        "description": "List all backup restore history items",
+        "tags": [
+          "RestoreService"
+        ],
+        "summary": "List Restore History",
+        "operationId": "ListRestores",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "description": "RestoreHistoryItem represents single backup restore item.",
+                    "type": "object",
+                    "properties": {
+                      "restore_id": {
+                        "description": "Machine-readable restore id.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "artifact_id": {
+                        "description": "ID of the artifact used for restore.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "name": {
+                        "description": "Artifact name used for restore.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "vendor": {
+                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "location_id": {
+                        "description": "Machine-readable location ID.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "location_name": {
+                        "description": "Location name.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "service_id": {
+                        "description": "Machine-readable service ID.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "service_name": {
+                        "description": "Service name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "data_model": {
+                        "description": "DataModel is a model used for performing a backup.",
+                        "type": "string",
+                        "default": "DATA_MODEL_UNSPECIFIED",
+                        "enum": [
+                          "DATA_MODEL_UNSPECIFIED",
+                          "DATA_MODEL_PHYSICAL",
+                          "DATA_MODEL_LOGICAL"
+                        ],
+                        "x-order": 8
+                      },
+                      "status": {
+                        "description": "RestoreStatus shows the current status of execution of restore.",
+                        "type": "string",
+                        "default": "RESTORE_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "RESTORE_STATUS_UNSPECIFIED",
+                          "RESTORE_STATUS_IN_PROGRESS",
+                          "RESTORE_STATUS_SUCCESS",
+                          "RESTORE_STATUS_ERROR"
+                        ],
+                        "x-order": 9
+                      },
+                      "started_at": {
+                        "description": "Restore start time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 10
+                      },
+                      "finished_at": {
+                        "description": "Restore finish time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 11
+                      },
+                      "pitr_timestamp": {
+                        "description": "PITR timestamp is filled for PITR restores, empty otherwise.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 12
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/backups/restores:start": {
+      "post": {
+        "description": "Could return the Error message in the details containing specific ErrorCode indicating failure reason:\nERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service\nERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud\nERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup\nERROR_CODE_INCOMPATIBLE_TARGET_MYSQL - target MySQL version is not compatible with the artifact for performing a restore of the backup",
+        "tags": [
+          "RestoreService"
+        ],
+        "summary": "Restore from a Backup",
+        "operationId": "RestoreBackup",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "description": "Service identifier where backup should be restored.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "artifact_id": {
+                  "description": "Artifact id to restore.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "pitr_timestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Timestamp of PITR to restore to",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "restore_id": {
+                  "description": "Unique restore identifier.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {

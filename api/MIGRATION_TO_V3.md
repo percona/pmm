@@ -113,8 +113,8 @@ POST /v1/backup/Locations/Remove                    DELETE /v1/backups/locations
 POST /v1/backup/Locations/TestConfig                POST /v1/backups/locations:testConfig            ✅
 
 **RestoreHistoryService**                           **RestoreService**
-POST /v1/backup/RestoreHistory/List                 GET /v1/backups/restores
-POST /v1/backup/Backups/Restore                     POST /v1/backups/restores:start
+POST /v1/backup/RestoreHistory/List                 GET /v1/backups/restores                         ✅
+POST /v1/backup/Backups/Restore                     POST /v1/backups/restores:start                  ✅
 
 **DumpsService**                                    **DumpService**                                  TODO: rename to singular
 POST /v1/dump/List                                  GET /v1/dumps

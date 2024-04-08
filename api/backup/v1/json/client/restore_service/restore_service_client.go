@@ -47,8 +47,8 @@ func (a *Client) ListRestores(params *ListRestoresParams, opts ...ClientOption) 
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ListRestores",
-		Method:             "POST",
-		PathPattern:        "/v1/backup/RestoreHistory/List",
+		Method:             "GET",
+		PathPattern:        "/v1/backups/restores",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -92,7 +92,7 @@ func (a *Client) RestoreBackup(params *RestoreBackupParams, opts ...ClientOption
 	op := &runtime.ClientOperation{
 		ID:                 "RestoreBackup",
 		Method:             "POST",
-		PathPattern:        "/v1/backup/Backups/Restore",
+		PathPattern:        "/v1/backups/restores:start",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
