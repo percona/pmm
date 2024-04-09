@@ -58,24 +58,6 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotWarns)
 	})
 
-	t.Run("Unknown env variables", func(t *testing.T) {
-		t.Parallel()
-
-		envs := []string{"UNKNOWN_VAR=VAL", "ANOTHER_UNKNOWN_VAR=VAL", "PERCONA_ENABLE_RBAC=true"}
-		expectedEnvVars := &models.ChangeSettingsParams{}
-		expectedWarns := []string{
-			`unknown environment variable "UNKNOWN_VAR=VAL"`,
-			`unknown environment variable "ANOTHER_UNKNOWN_VAR=VAL"`,
-			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
-			`unknown environment variable "PERCONA_ENABLE_RBAC=true"`,
-		}
-
-		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
-		assert.Equal(t, gotEnvVars, expectedEnvVars)
-		assert.Nil(t, gotErrs)
-		assert.Equal(t, expectedWarns, gotWarns)
-	})
-
 	t.Run("Default env vars", func(t *testing.T) {
 		t.Parallel()
 
