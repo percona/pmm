@@ -59,6 +59,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	rolev1beta1 "github.com/percona/pmm/api/accesscontrol/v1beta1"
 	actionsv1 "github.com/percona/pmm/api/actions/v1"
 	advisorsv1 "github.com/percona/pmm/api/advisors/v1"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -69,7 +70,6 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	managementv1beta1 "github.com/percona/pmm/api/management/v1/service"
 	platformv1 "github.com/percona/pmm/api/platform/v1"
-	rolev1beta1 "github.com/percona/pmm/api/role/v1beta1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	uieventsv1 "github.com/percona/pmm/api/uievents/v1"
 	userv1 "github.com/percona/pmm/api/user/v1"
@@ -269,7 +269,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	actionsv1.RegisterActionsServiceServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
 	advisorsv1.RegisterAdvisorServiceServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
 
-	rolev1beta1.RegisterRoleServiceServer(gRPCServer, management.NewRoleService(deps.db))
+	rolev1beta1.RegisterAccessControlServiceServer(gRPCServer, management.NewAccessControlService(deps.db))
 
 	alertingpb.RegisterAlertingServiceServer(gRPCServer, deps.templatesService)
 
@@ -361,7 +361,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		managementv1.RegisterManagementServiceHandlerFromEndpoint,
 		actionsv1.RegisterActionsServiceHandlerFromEndpoint,
 		advisorsv1.RegisterAdvisorServiceHandlerFromEndpoint,
-		rolev1beta1.RegisterRoleServiceHandlerFromEndpoint,
+		rolev1beta1.RegisterAccessControlServiceHandlerFromEndpoint,
 
 		alertingpb.RegisterAlertingServiceHandlerFromEndpoint,
 

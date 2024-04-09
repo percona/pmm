@@ -123,14 +123,14 @@ POST /v1/dump/GetLogs                               GET /v1/dumps/{dump_id}/logs
 POST /v1/dump/Start                                 POST /v1/dumps:start                             ✅              
 POST /v1/dump/Upload                                POST /v1/dumps:upload                            ✅
 
-**RoleService**                                     **AccessControlService**                         TODO: rename to AccessControlService
-POST /v1/role/Assign                                POST /v1/accesscontrol/roles:assign
-POST /v1/role/Create                                POST /v1/accesscontrol/roles
-POST /v1/role/Delete                                DELETE /v1/accesscontrol/roles/{id}              ?replacement_role_id=id
-POST /v1/role/Get                                   GET /v1/accesscontrol/roles/{id}
-POST /v1/role/List                                  GET /v1/accesscontrol/roles
-POST /v1/role/SetDefault                            POST /v1/accesscontrol/roles:setDefault
-POST /v1/role/Update                                PUT /v1/accesscontrol/roles/{id}                 Extract the role_id from the body to {id}
+**RoleService**                                     **AccessControlService**                         NOTE: renamed to AccessControlService
+POST /v1/role/Assign                                POST /v1/accesscontrol/roles:assign              ✅
+POST /v1/role/Create                                POST /v1/accesscontrol/roles                     ✅
+POST /v1/role/Delete                                DELETE /v1/accesscontrol/roles/{role_id}         ✅ ?replacement_role_id=abcdedf-123456
+POST /v1/role/Get                                   GET /v1/accesscontrol/roles/{role_id}            ✅
+POST /v1/role/List                                  GET /v1/accesscontrol/roles                      ✅
+POST /v1/role/SetDefault                            POST /v1/accesscontrol/roles:setDefault          ✅
+POST /v1/role/Update                                PUT /v1/accesscontrol/roles/{role_id}            ✅
 
 **MgmtService**                                     **ManagementV1Beta1Service**                     NOTE: promote to v1 from v1beta1
 POST /v1/management/Agent/List                      GET /v1/management/agents

@@ -63,3 +63,6 @@ curl -s -X GET "http://admin:admin@127.0.0.1:8080/v1/advisors/checks/failed?serv
 
 # POST /v1/backup/Artifacts/PITRTimeranges -> GET /v1/backups/artifacts/{artifact_id}/pitr-timeranges
 curl -s -X GET http://admin:admin@127.0.0.1:8080/v1/backups/artifacts/bcc83096-b006-4d2e-ac17-365a57c3e37a/pitr-timeranges
+
+# POST /v1/role/List -> GET /v1/accesscontrol/roles
+curl -i -X GET http://admin:admin@127.0.0.1:8080/v1/roles

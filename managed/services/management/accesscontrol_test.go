@@ -27,7 +27,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	rolev1beta1 "github.com/percona/pmm/api/role/v1beta1"
+	rolev1beta1 "github.com/percona/pmm/api/accesscontrol/v1beta1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -35,7 +35,7 @@ import (
 )
 
 //nolint:paralleltest
-func TestRoleService(t *testing.T) {
+func TestAccessControlService(t *testing.T) {
 	ctx := logger.Set(context.Background(), t.Name())
 	uuid.SetRand(&tests.IDReader{})
 
@@ -50,7 +50,7 @@ func TestRoleService(t *testing.T) {
 		require.NoError(t, sqlDB.Close())
 	}(t)
 
-	s := NewRoleService(db)
+	s := NewAccessControlService(db)
 	teardown := func(t *testing.T) {
 		t.Helper()
 
@@ -258,7 +258,7 @@ func TestRoleService(t *testing.T) {
 	})
 }
 
-func createDummyRoles(ctx context.Context, t *testing.T, s *RoleService) (uint32, uint32) {
+func createDummyRoles(ctx context.Context, t *testing.T, s *AccessControlService) (uint32, uint32) {
 	t.Helper()
 
 	rA, err := s.CreateRole(ctx, &rolev1beta1.CreateRoleRequest{

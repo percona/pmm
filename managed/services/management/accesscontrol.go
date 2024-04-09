@@ -25,31 +25,31 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	rolev1beta1 "github.com/percona/pmm/api/role/v1beta1"
+	rolev1beta1 "github.com/percona/pmm/api/accesscontrol/v1beta1"
 	"github.com/percona/pmm/managed/models"
 )
 
 // ErrInvalidRoleData is returned when a row cannot be asserted to role.
 var ErrInvalidRoleData = errors.New("InvalidRoleData")
 
-// RoleService represents service for working with roles.
-type RoleService struct {
+// AccessControlService represents service for working with roles.
+type AccessControlService struct {
 	db *reform.DB
 
-	rolev1beta1.UnimplementedRoleServiceServer
+	rolev1beta1.UnimplementedAccessControlServiceServer
 }
 
-// NewRoleService creates a RoleService instance.
-func NewRoleService(db *reform.DB) *RoleService {
+// NewAccessControlService creates a AccessControlService instance.
+func NewAccessControlService(db *reform.DB) *AccessControlService {
 	//nolint:exhaustruct
-	return &RoleService{
+	return &AccessControlService{
 		db: db,
 	}
 }
 
 // Enabled returns if service is enabled and can be used.
-func (r *RoleService) Enabled() bool {
-	settings, err := models.GetSettings(r.db)
+func (acs *AccessControlService) Enabled() bool {
+	settings, err := models.GetSettings(acs.db)
 	if err != nil {
 		logrus.WithError(err).Error("cannot get settings")
 		return false
@@ -58,14 +58,14 @@ func (r *RoleService) Enabled() bool {
 }
 
 // CreateRole creates a new Role.
-func (r *RoleService) CreateRole(_ context.Context, req *rolev1beta1.CreateRoleRequest) (*rolev1beta1.CreateRoleResponse, error) {
+func (acs *AccessControlService) CreateRole(_ context.Context, req *rolev1beta1.CreateRoleRequest) (*rolev1beta1.CreateRoleResponse, error) {
 	role := models.Role{
 		Title:       req.Title,
 		Description: req.Description,
 		Filter:      req.Filter,
 	}
 
-	if err := models.CreateRole(r.db.Querier, &role); err != nil {
+	if err := models.CreateRole(acs.db.Querier, &role); err != nil {
 		return nil, err
 	}
 
@@ -77,9 +77,9 @@ func (r *RoleService) CreateRole(_ context.Context, req *rolev1beta1.CreateRoleR
 // UpdateRole updates a Role.
 //
 //nolint:unparam
-func (r *RoleService) UpdateRole(_ context.Context, req *rolev1beta1.UpdateRoleRequest) (*rolev1beta1.UpdateRoleResponse, error) {
+func (acs *AccessControlService) UpdateRole(_ context.Context, req *rolev1beta1.UpdateRoleRequest) (*rolev1beta1.UpdateRoleResponse, error) {
 	var role models.Role
-	if err := r.db.FindByPrimaryKeyTo(&role, req.RoleId); err != nil {
+	if err := acs.db.FindByPrimaryKeyTo(&role, req.RoleId); err != nil {
 		if errors.As(err, &reform.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "Role not found")
 		}
@@ -96,7 +96,7 @@ func (r *RoleService) UpdateRole(_ context.Context, req *rolev1beta1.UpdateRoleR
 		role.Filter = *req.Filter
 	}
 
-	if err := r.db.Update(&role); err != nil {
+	if err := acs.db.Update(&role); err != nil {
 		return nil, err
 	}
 
@@ -106,8 +106,8 @@ func (r *RoleService) UpdateRole(_ context.Context, req *rolev1beta1.UpdateRoleR
 // DeleteRole deletes a Role.
 //
 //nolint:unparam
-func (r *RoleService) DeleteRole(ctx context.Context, req *rolev1beta1.DeleteRoleRequest) (*rolev1beta1.DeleteRoleResponse, error) {
-	errTx := r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+func (acs *AccessControlService) DeleteRole(ctx context.Context, req *rolev1beta1.DeleteRoleRequest) (*rolev1beta1.DeleteRoleResponse, error) {
+	errTx := acs.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		if err := models.DeleteRole(tx, int(req.RoleId), int(req.ReplacementRoleId)); err != nil {
 			if errors.Is(err, models.ErrRoleNotFound) {
 				return status.Errorf(codes.NotFound, "Role not found")
@@ -126,9 +126,9 @@ func (r *RoleService) DeleteRole(ctx context.Context, req *rolev1beta1.DeleteRol
 }
 
 // GetRole retrieves a Role.
-func (r *RoleService) GetRole(_ context.Context, req *rolev1beta1.GetRoleRequest) (*rolev1beta1.GetRoleResponse, error) {
+func (acs *AccessControlService) GetRole(_ context.Context, req *rolev1beta1.GetRoleRequest) (*rolev1beta1.GetRoleResponse, error) {
 	var role models.Role
-	if err := r.db.Querier.FindByPrimaryKeyTo(&role, req.RoleId); err != nil {
+	if err := acs.db.Querier.FindByPrimaryKeyTo(&role, req.RoleId); err != nil {
 		if errors.As(err, &reform.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "Role not found")
 		}
@@ -145,8 +145,8 @@ func (r *RoleService) GetRole(_ context.Context, req *rolev1beta1.GetRoleRequest
 }
 
 // ListRoles lists all Roles.
-func (r *RoleService) ListRoles(_ context.Context, _ *rolev1beta1.ListRolesRequest) (*rolev1beta1.ListRolesResponse, error) {
-	rows, err := r.db.Querier.SelectAllFrom(models.RoleTable, "")
+func (acs *AccessControlService) ListRoles(_ context.Context, _ *rolev1beta1.ListRolesRequest) (*rolev1beta1.ListRolesResponse, error) {
+	rows, err := acs.db.Querier.SelectAllFrom(models.RoleTable, "")
 	if err != nil {
 		return nil, err
 	}
@@ -176,8 +176,8 @@ func (r *RoleService) ListRoles(_ context.Context, _ *rolev1beta1.ListRolesReque
 // AssignRoles assigns a Role to a user.
 //
 //nolint:unparam
-func (r *RoleService) AssignRoles(ctx context.Context, req *rolev1beta1.AssignRolesRequest) (*rolev1beta1.AssignRolesResponse, error) {
-	err := r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+func (acs *AccessControlService) AssignRoles(ctx context.Context, req *rolev1beta1.AssignRolesRequest) (*rolev1beta1.AssignRolesResponse, error) {
+	err := acs.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		roleIDs := make([]int, 0, len(req.RoleIds))
 		for _, id := range req.RoleIds {
 			roleIDs = append(roleIDs, int(id))
@@ -197,8 +197,8 @@ func (r *RoleService) AssignRoles(ctx context.Context, req *rolev1beta1.AssignRo
 // SetDefaultRole configures default role to be assigned to users.
 //
 //nolint:unparam
-func (r *RoleService) SetDefaultRole(ctx context.Context, req *rolev1beta1.SetDefaultRoleRequest) (*rolev1beta1.SetDefaultRoleResponse, error) {
-	err := r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+func (acs *AccessControlService) SetDefaultRole(ctx context.Context, req *rolev1beta1.SetDefaultRoleRequest) (*rolev1beta1.SetDefaultRoleResponse, error) {
+	err := acs.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		return models.ChangeDefaultRole(tx, int(req.RoleId))
 	})
 	if err != nil {

@@ -70,88 +70,79 @@ message ListRolesResponse {
 }
 
 // Service Role provides public methods for managing Roles.
-service RoleService {
+service AccessControlService {
   // CreateRole creates a new role.
   rpc CreateRole(CreateRoleRequest) returns (CreateRoleResponse) {
     option (google.api.http) = {
-      post: "/v1/role/Create"
+      post: "/v1/accesscontrol/roles"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Create Role"
-      description: "Creates a new Role."
+      summary: "Create a Role"
+      description: "Creates a new role."
     };
   }
 
   // UpdateRole creates a new role.
   rpc UpdateRole(UpdateRoleRequest) returns (UpdateRoleResponse) {
     option (google.api.http) = {
-      post: "/v1/role/Update"
+      put: "/v1/accesscontrol/roles/{role_id}"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Update Role"
-      description: "Updates an existing Role."
+      summary: "Update a Role"
+      description: "Updates an existing role."
     };
   }
 
   // DeleteRole creates a new role.
   rpc DeleteRole(DeleteRoleRequest) returns (DeleteRoleResponse) {
-    option (google.api.http) = {
-      post: "/v1/role/Delete"
-      body: "*"
-    };
+    option (google.api.http) = {delete: "/v1/accesscontrol/roles/{role_id}"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Delete Role"
-      description: "Deletes a Role."
+      summary: "Delete a Role"
+      description: "Deletes a role."
     };
   }
 
   // GetRole retrieves a single role.
   rpc GetRole(GetRoleRequest) returns (GetRoleResponse) {
-    option (google.api.http) = {
-      post: "/v1/role/Get"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/accesscontrol/roles/{role_id}"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Get Role"
-      description: "Retrieves a Role by ID."
+      summary: "Get a Role"
+      description: "Retrieves a role by ID."
     };
   }
 
   // ListRoles retrieves a roles.
   rpc ListRoles(ListRolesRequest) returns (ListRolesResponse) {
-    option (google.api.http) = {
-      post: "/v1/role/List"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/accesscontrol/roles"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Roles"
-      description: "Lists Roles."
+      description: "Lists all roles."
     };
   }
 
   // AssignRoles replaces all assigned roles for a user.
   rpc AssignRoles(AssignRolesRequest) returns (AssignRolesResponse) {
     option (google.api.http) = {
-      post: "/v1/role/Assign"
+      post: "/v1/accesscontrol/roles:assign"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Assign Roles"
-      description: "Replaces all existing Roles for a User."
+      summary: "Assign Roles to a User"
+      description: "Replaces all existing roles for a user."
     };
   }
 
   // SetDefaultRole configures default role assigned to users.
   rpc SetDefaultRole(SetDefaultRoleRequest) returns (SetDefaultRoleResponse) {
     option (google.api.http) = {
-      post: "/v1/role/SetDefault"
+      post: "/v1/accesscontrol/roles:setDefault"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Set default Role"
-      description: "Configures a default Role assigned to Users."
+      summary: "Set a Default Role"
+      description: "Configures a default role assigned to users."
     };
   }
 }
