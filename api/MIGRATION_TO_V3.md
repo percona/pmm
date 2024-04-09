@@ -132,7 +132,7 @@ POST /v1/role/List                                  GET /v1/accesscontrol/roles
 POST /v1/role/SetDefault                            POST /v1/accesscontrol/roles:setDefault
 POST /v1/role/Update                                PUT /v1/accesscontrol/roles/{id}                 Extract the role_id from the body to {id}
 
-**MgmtService**                                     **ManagementV1Beta1Service**                     NOTE: promoted to v1 from v1beta1
+**MgmtService**                                     **ManagementV1Beta1Service**                     NOTE: promote to v1 from v1beta1
 POST /v1/management/Agent/List                      GET /v1/management/agents
 POST /v1/management/Node/Get                        GET /v1/management/nodes/{id}
 POST /v1/management/Node/List                       GET /v1/management/nodes

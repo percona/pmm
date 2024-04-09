@@ -62,8 +62,8 @@ gen-api:            ## Generate PMM API
 		api/advisors/v1 \
 		api/alerting/v1 \
 		api/backup/v1 \
-		api/dump/v1 \
-		api/role/v1 \
+		api/dump/v1beta1 \
+		api/role/v1beta1 \
 		api/qan/v1 \
 		api/platform/v1"; \
 	for API in $$SPECS; do \
@@ -96,7 +96,7 @@ gen-api:            ## Generate PMM API
 		api/backup/v1/json/v1.json \
 		api/advisors/v1/json/v1.json \
 		api/alerting/v1/json/v1.json \
-		api/dump/v1/json/v1.json \
+		api/dump/v1beta1/json/v1beta1.json \
 		api/qan/v1/json/v1.json
 	bin/swagger validate api/swagger/swagger.json
 
@@ -117,8 +117,8 @@ gen-api:            ## Generate PMM API
 		api/alerting/v1/json/v1.json \
 		api/advisors/v1/json/v1.json \
 		api/backup/v1/json/v1.json \
-		api/dump/v1/json/v1.json \
-		api/role/v1/json/v1.json \
+		api/dump/v1beta1/json/v1beta1.json \
+		api/role/v1beta1/json/v1beta1.json \
 		api/qan/v1/json/v1.json \
 		api/platform/v1/json/v1.json
 
@@ -161,8 +161,8 @@ clean: clean_swagger  ## Remove generated files
 		api/alerting/v1 \
 		api/advisors/v1 \
 		api/backup/v1 \
-		api/dump/v1 \
-		api/role/v1 \
+		api/dump/v1beta1 \
+		api/role/v1beta1 \
 		api/qan/v1 \
 		api/platform/v1"; \
 	for API in $$SPECS; do \

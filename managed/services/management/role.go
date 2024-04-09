@@ -25,7 +25,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	rolev1beta1 "github.com/percona/pmm/api/role/v1"
+	rolev1beta1 "github.com/percona/pmm/api/role/v1beta1"
 	"github.com/percona/pmm/managed/models"
 )
 

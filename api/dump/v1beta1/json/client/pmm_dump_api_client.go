@@ -10,10 +10,10 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/role/v1/json/client/role_service"
+	"github.com/percona/pmm/api/dump/v1beta1/json/client/dump_service"
 )
 
-// Default PMM roles API HTTP client.
+// Default PMM dump API HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -28,14 +28,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"http", "https"}
 
-// NewHTTPClient creates a new PMM roles API HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *PMMRolesAPI {
+// NewHTTPClient creates a new PMM dump API HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *PMMDumpAPI {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new PMM roles API HTTP client,
+// NewHTTPClientWithConfig creates a new PMM dump API HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMRolesAPI {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMDumpAPI {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -46,16 +46,16 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMM
 	return New(transport, formats)
 }
 
-// New creates a new PMM roles API client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMRolesAPI {
+// New creates a new PMM dump API client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMDumpAPI {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(PMMRolesAPI)
+	cli := new(PMMDumpAPI)
 	cli.Transport = transport
-	cli.RoleService = role_service.New(transport, formats)
+	cli.DumpService = dump_service.New(transport, formats)
 	return cli
 }
 
@@ -98,15 +98,15 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// PMMRolesAPI is a client for PMM roles API
-type PMMRolesAPI struct {
-	RoleService role_service.ClientService
+// PMMDumpAPI is a client for PMM dump API
+type PMMDumpAPI struct {
+	DumpService dump_service.ClientService
 
 	Transport runtime.ClientTransport
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *PMMRolesAPI) SetTransport(transport runtime.ClientTransport) {
+func (c *PMMDumpAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.RoleService.SetTransport(transport)
+	c.DumpService.SetTransport(transport)
 }
