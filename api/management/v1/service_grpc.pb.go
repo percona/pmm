@@ -23,6 +23,8 @@ const (
 	ManagementService_AddAnnotation_FullMethodName  = "/management.v1.ManagementService/AddAnnotation"
 	ManagementService_RegisterNode_FullMethodName   = "/management.v1.ManagementService/RegisterNode"
 	ManagementService_UnregisterNode_FullMethodName = "/management.v1.ManagementService/UnregisterNode"
+	ManagementService_ListNodes_FullMethodName      = "/management.v1.ManagementService/ListNodes"
+	ManagementService_GetNode_FullMethodName        = "/management.v1.ManagementService/GetNode"
 	ManagementService_AddService_FullMethodName     = "/management.v1.ManagementService/AddService"
 	ManagementService_DiscoverRDS_FullMethodName    = "/management.v1.ManagementService/DiscoverRDS"
 	ManagementService_RemoveService_FullMethodName  = "/management.v1.ManagementService/RemoveService"
@@ -38,6 +40,10 @@ type ManagementServiceClient interface {
 	RegisterNode(ctx context.Context, in *RegisterNodeRequest, opts ...grpc.CallOption) (*RegisterNodeResponse, error)
 	// UnregisterNode unregisters a Node, pmm-agent and removes the service account and its token.
 	UnregisterNode(ctx context.Context, in *UnregisterNodeRequest, opts ...grpc.CallOption) (*UnregisterNodeResponse, error)
+	// ListNode returns a list of nodes.
+	ListNodes(ctx context.Context, in *ListNodesRequest, opts ...grpc.CallOption) (*ListNodesResponse, error)
+	// GetNode returns a single Node by ID.
+	GetNode(ctx context.Context, in *GetNodeRequest, opts ...grpc.CallOption) (*GetNodeResponse, error)
 	// AddService adds a Service and starts several Agents.
 	AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error)
 	// DiscoverRDS discovers RDS instances.
@@ -81,6 +87,24 @@ func (c *managementServiceClient) UnregisterNode(ctx context.Context, in *Unregi
 	return out, nil
 }
 
+func (c *managementServiceClient) ListNodes(ctx context.Context, in *ListNodesRequest, opts ...grpc.CallOption) (*ListNodesResponse, error) {
+	out := new(ListNodesResponse)
+	err := c.cc.Invoke(ctx, ManagementService_ListNodes_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managementServiceClient) GetNode(ctx context.Context, in *GetNodeRequest, opts ...grpc.CallOption) (*GetNodeResponse, error) {
+	out := new(GetNodeResponse)
+	err := c.cc.Invoke(ctx, ManagementService_GetNode_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *managementServiceClient) AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error) {
 	out := new(AddServiceResponse)
 	err := c.cc.Invoke(ctx, ManagementService_AddService_FullMethodName, in, out, opts...)
@@ -118,6 +142,10 @@ type ManagementServiceServer interface {
 	RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error)
 	// UnregisterNode unregisters a Node, pmm-agent and removes the service account and its token.
 	UnregisterNode(context.Context, *UnregisterNodeRequest) (*UnregisterNodeResponse, error)
+	// ListNode returns a list of nodes.
+	ListNodes(context.Context, *ListNodesRequest) (*ListNodesResponse, error)
+	// GetNode returns a single Node by ID.
+	GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error)
 	// AddService adds a Service and starts several Agents.
 	AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error)
 	// DiscoverRDS discovers RDS instances.
@@ -140,6 +168,14 @@ func (UnimplementedManagementServiceServer) RegisterNode(context.Context, *Regis
 
 func (UnimplementedManagementServiceServer) UnregisterNode(context.Context, *UnregisterNodeRequest) (*UnregisterNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnregisterNode not implemented")
+}
+
+func (UnimplementedManagementServiceServer) ListNodes(context.Context, *ListNodesRequest) (*ListNodesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListNodes not implemented")
+}
+
+func (UnimplementedManagementServiceServer) GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNode not implemented")
 }
 
 func (UnimplementedManagementServiceServer) AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error) {
@@ -220,6 +256,42 @@ func _ManagementService_UnregisterNode_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ManagementService_ListNodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListNodesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagementServiceServer).ListNodes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ManagementService_ListNodes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagementServiceServer).ListNodes(ctx, req.(*ListNodesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ManagementService_GetNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagementServiceServer).GetNode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ManagementService_GetNode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagementServiceServer).GetNode(ctx, req.(*GetNodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ManagementService_AddService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddServiceRequest)
 	if err := dec(in); err != nil {
@@ -292,6 +364,14 @@ var ManagementService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UnregisterNode",
 			Handler:    _ManagementService_UnregisterNode_Handler,
+		},
+		{
+			MethodName: "ListNodes",
+			Handler:    _ManagementService_ListNodes_Handler,
+		},
+		{
+			MethodName: "GetNode",
+			Handler:    _ManagementService_GetNode_Handler,
 		},
 		{
 			MethodName: "AddService",

@@ -48,6 +48,9 @@ POST /v1/inventory/Services/CustomLabels/Remove     PUT /v1/inventory/services/{
 **ManagementService**                               **ManagementService**
 POST /v1/management/Annotations/Add                 POST /v1/management/annotations                  ✅
 POST /v1/management/Node/Register                   POST /v1/management/nodes                        ✅
+POST /v1/management/Node/Unregister                 DELETE /v1/management/nodes/{node_id}            ✅ ?force=true
+POST /v1/management/Node/Get                        GET /v1/management/nodes/{node_id}               ✅ Moved from MgmtService
+POST /v1/management/Node/List                       GET /v1/management/nodes                         ✅ Moved from MgmtService
 POST /v1/management/External/Add                    POST /v1/management/services                     ✅ NOTE: several endpoints merged into one
 POST /v1/management/HAProxy/Add                     POST /v1/management/services                     ✅
 POST /v1/management/MongoDB/Add                     POST /v1/management/services                     ✅
@@ -57,6 +60,14 @@ POST /v1/management/ProxySQL/Add                    POST /v1/management/services
 POST /v1/management/RDS/Add                         POST /v1/management/services                     ✅
 POST /v1/management/RDS/Discover                    POST /v1/management/services:discoverRDS         ✅
 POST /v1/management/Service/Remove                  DELETE /v1/management/services/{service_id}      ✅ NOTE: in addition, it accepts ?service_type=
+
+**MgmtService**                                     **ManagementV1Beta1Service**                     NOTE: promote to v1 from v1beta1
+POST /v1/management/Agent/List                      GET /v1/management/agents
+POST /v1/management/Node/Get                        GET /v1/management/nodes/{node_id}
+POST /v1/management/Node/List                       GET /v1/management/nodes
+POST /v1/management/AzureDatabase/Add               POST /v1/management/services/azure
+POST /v1/management/AzureDatabase/Discover          POST /v1/management/services/azure:discover
+POST /v1/management/Service/List                    GET /v1/management/services
 
 **ActionsService**                                  **ActionService**
 POST /v1/actions/Cancel                             POST /v1/actions:cancelAction                    ✅
@@ -131,14 +142,6 @@ POST /v1/role/Get                                   GET /v1/accesscontrol/roles/
 POST /v1/role/List                                  GET /v1/accesscontrol/roles                      ✅
 POST /v1/role/SetDefault                            POST /v1/accesscontrol/roles:setDefault          ✅
 POST /v1/role/Update                                PUT /v1/accesscontrol/roles/{role_id}            ✅
-
-**MgmtService**                                     **ManagementV1Beta1Service**                     NOTE: promote to v1 from v1beta1
-POST /v1/management/Agent/List                      GET /v1/management/agents
-POST /v1/management/Node/Get                        GET /v1/management/nodes/{id}
-POST /v1/management/Node/List                       GET /v1/management/nodes
-POST /v1/management/AzureDatabase/Add               POST /v1/management/services/azure
-POST /v1/management/AzureDatabase/Discover          POST /v1/management/services/azure:discover
-POST /v1/management/Service/List                    GET /v1/management/services
 
 **QANService**                                      **QANService**
 POST /v1/qan/Filters/Get                            POST /v1/qan/metrics:getFilters                  accepts a bunch of params, incl. an array

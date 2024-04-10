@@ -130,13 +130,14 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 
 // Unregister do unregistration of the node.
 func (s *ManagementService) Unregister(ctx context.Context, req *managementv1.UnregisterNodeRequest) (*managementv1.UnregisterNodeResponse, error) {
-	node, err := models.FindNodeByID(s.db.Querier, req.NodeId)
+	nodeID := models.NormalizeNodeID(req.NodeId)
+	node, err := models.FindNodeByID(s.db.Querier, nodeID)
 	if err != nil {
 		return nil, err
 	}
 
 	err = s.db.InTransaction(func(tx *reform.TX) error {
-		return models.RemoveNode(tx.Querier, req.NodeId, models.RemoveCascade)
+		return models.RemoveNode(tx.Querier, nodeID, models.RemoveCascade)
 	})
 	if err != nil {
 		return nil, err

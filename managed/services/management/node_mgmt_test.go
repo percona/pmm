@@ -33,7 +33,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
-	nodev1beta1 "github.com/percona/pmm/api/management/v1/node"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -44,7 +44,7 @@ func TestMgmtNodeService(t *testing.T) {
 	t.Run("ListNodes", func(t *testing.T) {
 		now = models.Now()
 
-		setup := func(t *testing.T) (context.Context, *MgmtServiceService, func(t *testing.T)) {
+		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T)) {
 			t.Helper()
 
 			origNowF := models.Now
@@ -67,10 +67,22 @@ func TestMgmtNodeService(t *testing.T) {
 			state := &mockAgentsStateUpdater{}
 			state.Test(t)
 
+			cc := &mockConnectionChecker{}
+			cc.Test(t)
+
+			sib := &mockServiceInfoBroker{}
+			sib.Test(t)
+
 			vmClient := &mockVictoriaMetricsClient{}
 			vmClient.Test(t)
 
-			s := NewMgmtServiceService(db, ar, state, vmdb, vmClient)
+			vc := &mockVersionCache{}
+			vc.Test(t)
+
+			grafanaClient := &mockGrafanaClient{}
+			grafanaClient.Test(t)
+
+			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
 
 			teardown := func(t *testing.T) {
 				t.Helper()
@@ -80,7 +92,11 @@ func TestMgmtNodeService(t *testing.T) {
 				require.NoError(t, sqlDB.Close())
 				ar.AssertExpectations(t)
 				state.AssertExpectations(t)
+				cc.AssertExpectations(t)
+				sib.AssertExpectations(t)
 				vmdb.AssertExpectations(t)
+				vc.AssertExpectations(t)
+				grafanaClient.AssertExpectations(t)
 				vmClient.AssertExpectations(t)
 			}
 
@@ -110,11 +126,11 @@ func TestMgmtNodeService(t *testing.T) {
 			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
-			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodesRequest{})
+			res, err := s.ListNodes(ctx, &managementv1.ListNodesRequest{})
 			require.NoError(t, err)
 
-			expected := &nodev1beta1.ListNodesResponse{
-				Nodes: []*nodev1beta1.UniversalNode{
+			expected := &managementv1.ListNodesResponse{
+				Nodes: []*managementv1.UniversalNode{
 					{
 						NodeId:        "pmm-server",
 						NodeType:      "generic",
@@ -130,7 +146,7 @@ func TestMgmtNodeService(t *testing.T) {
 						CustomLabels:  nil,
 						CreatedAt:     timestamppb.New(now),
 						UpdatedAt:     timestamppb.New(now),
-						Agents: []*nodev1beta1.UniversalNode_Agent{
+						Agents: []*managementv1.UniversalNode_Agent{
 							{
 								AgentId:     nodeExporterID,
 								AgentType:   "node_exporter",
@@ -144,14 +160,14 @@ func TestMgmtNodeService(t *testing.T) {
 								IsConnected: true,
 							},
 						},
-						Services: []*nodev1beta1.UniversalNode_Service{
+						Services: []*managementv1.UniversalNode_Service{
 							{
 								ServiceId:   postgresqlServiceID,
 								ServiceType: "postgresql",
 								ServiceName: "pmm-server-postgresql",
 							},
 						},
-						Status: nodev1beta1.UniversalNode_STATUS_UP,
+						Status: managementv1.UniversalNode_STATUS_UP,
 					},
 				},
 			}
@@ -167,7 +183,7 @@ func TestMgmtNodeService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 
-			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodesRequest{
+			res, err := s.ListNodes(ctx, &managementv1.ListNodesRequest{
 				NodeType: inventoryv1.NodeType_NODE_TYPE_REMOTE_NODE,
 			})
 
@@ -193,13 +209,13 @@ func TestMgmtNodeService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 
-			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodesRequest{
+			res, err := s.ListNodes(ctx, &managementv1.ListNodesRequest{
 				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 			})
 			require.NoError(t, err)
 
-			expected := &nodev1beta1.ListNodesResponse{
-				Nodes: []*nodev1beta1.UniversalNode{
+			expected := &managementv1.ListNodesResponse{
+				Nodes: []*managementv1.UniversalNode{
 					{
 						NodeId:        "pmm-server",
 						NodeType:      "generic",
@@ -215,7 +231,7 @@ func TestMgmtNodeService(t *testing.T) {
 						CustomLabels:  nil,
 						CreatedAt:     timestamppb.New(now),
 						UpdatedAt:     timestamppb.New(now),
-						Agents: []*nodev1beta1.UniversalNode_Agent{
+						Agents: []*managementv1.UniversalNode_Agent{
 							{
 								AgentId:     nodeExporterID,
 								AgentType:   "node_exporter",
@@ -229,14 +245,14 @@ func TestMgmtNodeService(t *testing.T) {
 								IsConnected: true,
 							},
 						},
-						Services: []*nodev1beta1.UniversalNode_Service{
+						Services: []*managementv1.UniversalNode_Service{
 							{
 								ServiceId:   postgresqlServiceID,
 								ServiceType: "postgresql",
 								ServiceName: "pmm-server-postgresql",
 							},
 						},
-						Status: nodev1beta1.UniversalNode_STATUS_UP,
+						Status: managementv1.UniversalNode_STATUS_UP,
 					},
 				},
 			}
@@ -248,7 +264,7 @@ func TestMgmtNodeService(t *testing.T) {
 	t.Run("GetNode", func(t *testing.T) {
 		now := models.Now()
 
-		setup := func(t *testing.T) (context.Context, *MgmtServiceService, func(t *testing.T)) {
+		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T)) {
 			t.Helper()
 
 			origNowF := models.Now
@@ -270,10 +286,22 @@ func TestMgmtNodeService(t *testing.T) {
 			state := &mockAgentsStateUpdater{}
 			state.Test(t)
 
+			cc := &mockConnectionChecker{}
+			cc.Test(t)
+
+			sib := &mockServiceInfoBroker{}
+			sib.Test(t)
+
+			vc := &mockVersionCache{}
+			vc.Test(t)
+
+			grafanaClient := &mockGrafanaClient{}
+			grafanaClient.Test(t)
+
 			vmClient := &mockVictoriaMetricsClient{}
 			vmClient.Test(t)
 
-			s := NewMgmtServiceService(db, ar, state, vmdb, vmClient)
+			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
 
 			teardown := func(t *testing.T) {
 				t.Helper()
@@ -281,7 +309,15 @@ func TestMgmtNodeService(t *testing.T) {
 				uuid.SetRand(nil)
 
 				require.NoError(t, sqlDB.Close())
+
 				ar.AssertExpectations(t)
+				state.AssertExpectations(t)
+				cc.AssertExpectations(t)
+				sib.AssertExpectations(t)
+				vmdb.AssertExpectations(t)
+				vc.AssertExpectations(t)
+				grafanaClient.AssertExpectations(t)
+				vmClient.AssertExpectations(t)
 			}
 
 			return ctx, s, teardown
@@ -301,10 +337,10 @@ func TestMgmtNodeService(t *testing.T) {
 					Value:     1,
 				},
 			}
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil).Times(2)
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil).Times(1)
 
-			expected := &nodev1beta1.GetNodeResponse{
-				Node: &nodev1beta1.UniversalNode{
+			expected := &managementv1.GetNodeResponse{
+				Node: &managementv1.UniversalNode{
 					NodeId:        "pmm-server",
 					NodeType:      "generic",
 					NodeName:      "pmm-server",
@@ -319,11 +355,11 @@ func TestMgmtNodeService(t *testing.T) {
 					CustomLabels:  nil,
 					CreatedAt:     timestamppb.New(now),
 					UpdatedAt:     timestamppb.New(now),
-					Status:        nodev1beta1.UniversalNode_STATUS_UP,
+					Status:        managementv1.UniversalNode_STATUS_UP,
 				},
 			}
 
-			node, err := s.GetNode(ctx, &nodev1beta1.GetNodeRequest{
+			node, err := s.GetNode(ctx, &managementv1.GetNodeRequest{
 				NodeId: models.PMMServerNodeID,
 			})
 
@@ -336,7 +372,7 @@ func TestMgmtNodeService(t *testing.T) {
 			ctx, s, teardown := setup(t)
 			t.Cleanup(func() { teardown(t) })
 
-			node, err := s.GetNode(ctx, &nodev1beta1.GetNodeRequest{
+			node, err := s.GetNode(ctx, &managementv1.GetNodeRequest{
 				NodeId: nodeID,
 			})
 
@@ -348,7 +384,7 @@ func TestMgmtNodeService(t *testing.T) {
 			ctx, s, teardown := setup(t)
 			t.Cleanup(func() { teardown(t) })
 
-			node, err := s.GetNode(ctx, &nodev1beta1.GetNodeRequest{
+			node, err := s.GetNode(ctx, &managementv1.GetNodeRequest{
 				NodeId: "",
 			})
 

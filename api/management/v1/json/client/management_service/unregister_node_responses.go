@@ -58,7 +58,7 @@ type UnregisterNodeOK struct {
 }
 
 func (o *UnregisterNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Node/Unregister][%d] unregisterNodeOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[DELETE /v1/management/nodes/{node_id}][%d] unregisterNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *UnregisterNodeOK) GetPayload() *UnregisterNodeOKBody {
@@ -100,7 +100,7 @@ func (o *UnregisterNodeDefault) Code() int {
 }
 
 func (o *UnregisterNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Node/Unregister][%d] UnregisterNode default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[DELETE /v1/management/nodes/{node_id}][%d] UnregisterNode default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *UnregisterNodeDefault) GetPayload() *UnregisterNodeDefaultBody {
@@ -115,46 +115,6 @@ func (o *UnregisterNodeDefault) readResponse(response runtime.ClientResponse, co
 		return err
 	}
 
-	return nil
-}
-
-/*
-UnregisterNodeBody unregister node body
-swagger:model UnregisterNodeBody
-*/
-type UnregisterNodeBody struct {
-	// Node_id to be unregistered.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Force delete node, related service account, even if it has more service tokens attached.
-	Force bool `json:"force,omitempty"`
-}
-
-// Validate validates this unregister node body
-func (o *UnregisterNodeBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this unregister node body based on context it is used
-func (o *UnregisterNodeBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *UnregisterNodeBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *UnregisterNodeBody) UnmarshalBinary(b []byte) error {
-	var res UnregisterNodeBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

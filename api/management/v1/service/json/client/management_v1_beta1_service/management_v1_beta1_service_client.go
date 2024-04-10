@@ -32,11 +32,7 @@ type ClientService interface {
 
 	DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams, opts ...ClientOption) (*DiscoverAzureDatabaseOK, error)
 
-	GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeOK, error)
-
 	ListAgents(params *ListAgentsParams, opts ...ClientOption) (*ListAgentsOK, error)
-
-	ListNodes(params *ListNodesParams, opts ...ClientOption) (*ListNodesOK, error)
 
 	ListServices(params *ListServicesParams, opts ...ClientOption) (*ListServicesOK, error)
 
@@ -122,45 +118,6 @@ func (a *Client) DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams, opts
 }
 
 /*
-GetNode gets node
-
-Returns a single Node by ID.
-*/
-func (a *Client) GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewGetNodeParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "GetNode",
-		Method:             "POST",
-		PathPattern:        "/v1/management/Node/Get",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &GetNodeReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*GetNodeOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*GetNodeDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
 ListAgents lists agents
 
 Returns a filtered list of Agents.
@@ -196,45 +153,6 @@ func (a *Client) ListAgents(params *ListAgentsParams, opts ...ClientOption) (*Li
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ListAgentsDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-ListNodes lists nodes
-
-Returns a filtered list of Nodes.
-*/
-func (a *Client) ListNodes(params *ListNodesParams, opts ...ClientOption) (*ListNodesOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewListNodesParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "ListNodes",
-		Method:             "POST",
-		PathPattern:        "/v1/management/Node/List",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &ListNodesReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*ListNodesOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*ListNodesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

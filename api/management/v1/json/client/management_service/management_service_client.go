@@ -34,6 +34,10 @@ type ClientService interface {
 
 	DiscoverRDS(params *DiscoverRDSParams, opts ...ClientOption) (*DiscoverRDSOK, error)
 
+	GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeOK, error)
+
+	ListNodes(params *ListNodesParams, opts ...ClientOption) (*ListNodesOK, error)
+
 	RegisterNode(params *RegisterNodeParams, opts ...ClientOption) (*RegisterNodeOK, error)
 
 	RemoveService(params *RemoveServiceParams, opts ...ClientOption) (*RemoveServiceOK, error)
@@ -161,6 +165,84 @@ func (a *Client) DiscoverRDS(params *DiscoverRDSParams, opts ...ClientOption) (*
 }
 
 /*
+GetNode gets node
+
+Returns a single Node by ID.
+*/
+func (a *Client) GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetNodeParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetNode",
+		Method:             "POST",
+		PathPattern:        "/v1/management/Node/Get",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetNodeReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetNodeOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetNodeDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListNodes lists nodes
+
+Returns a filtered list of Nodes.
+*/
+func (a *Client) ListNodes(params *ListNodesParams, opts ...ClientOption) (*ListNodesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListNodesParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListNodes",
+		Method:             "GET",
+		PathPattern:        "/v1/management/nodes",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListNodesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListNodesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListNodesDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 RegisterNode registers a node
 
 Registers a new Node and a pmm-agent.
@@ -239,7 +321,7 @@ func (a *Client) RemoveService(params *RemoveServiceParams, opts ...ClientOption
 }
 
 /*
-UnregisterNode unregisters node
+UnregisterNode unregisters a node
 
 Unregisters a Node and pmm-agent
 */
@@ -250,8 +332,8 @@ func (a *Client) UnregisterNode(params *UnregisterNodeParams, opts ...ClientOpti
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "UnregisterNode",
-		Method:             "POST",
-		PathPattern:        "/v1/management/Node/Unregister",
+		Method:             "DELETE",
+		PathPattern:        "/v1/management/nodes/{node_id}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

@@ -16343,7 +16343,7 @@
           "ManagementV1Beta1Service"
         ],
         "summary": "List Agents",
-        "operationId": "ListAgentsMixin6",
+        "operationId": "ListAgentsMixin5",
         "parameters": [
           {
             "description": "Only one of the parameters below must be set.",
@@ -17077,10 +17077,10 @@
       "post": {
         "description": "Returns a single Node by ID.",
         "tags": [
-          "ManagementV1Beta1Service"
+          "ManagementService"
         ],
         "summary": "Get Node",
-        "operationId": "GetNodeMixin6",
+        "operationId": "GetNodeMixin3",
         "parameters": [
           {
             "name": "body",
@@ -17290,313 +17290,6 @@
         }
       }
     },
-    "/v1/management/Node/List": {
-      "post": {
-        "description": "Returns a filtered list of Nodes.",
-        "tags": [
-          "ManagementV1Beta1Service"
-        ],
-        "summary": "List Nodes",
-        "operationId": "ListNodesMixin6",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "node_type": {
-                  "description": "NodeType describes supported Node types.",
-                  "type": "string",
-                  "default": "NODE_TYPE_UNSPECIFIED",
-                  "enum": [
-                    "NODE_TYPE_UNSPECIFIED",
-                    "NODE_TYPE_GENERIC_NODE",
-                    "NODE_TYPE_CONTAINER_NODE",
-                    "NODE_TYPE_REMOTE_NODE",
-                    "NODE_TYPE_REMOTE_RDS_NODE",
-                    "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
-                  ],
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "nodes": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "node_id": {
-                        "description": "Unique Node identifier.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "node_type": {
-                        "description": "Node type.",
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "node_name": {
-                        "description": "User-defined node name.",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "machine_id": {
-                        "description": "Linux machine-id.",
-                        "type": "string",
-                        "x-order": 3
-                      },
-                      "distro": {
-                        "description": "Linux distribution name and version.",
-                        "type": "string",
-                        "x-order": 4
-                      },
-                      "node_model": {
-                        "description": "Node model.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "container_id": {
-                        "description": "A node's unique docker container identifier.",
-                        "type": "string",
-                        "x-order": 6
-                      },
-                      "container_name": {
-                        "description": "Container name.",
-                        "type": "string",
-                        "x-order": 7
-                      },
-                      "address": {
-                        "description": "Node address (DNS name or IP).",
-                        "type": "string",
-                        "x-order": 8
-                      },
-                      "region": {
-                        "description": "Node region.",
-                        "type": "string",
-                        "x-order": 9
-                      },
-                      "az": {
-                        "description": "Node availability zone.",
-                        "type": "string",
-                        "x-order": 10
-                      },
-                      "custom_labels": {
-                        "description": "Custom user-assigned labels for Node.",
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        },
-                        "x-order": 11
-                      },
-                      "created_at": {
-                        "description": "Creation timestamp.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 12
-                      },
-                      "updated_at": {
-                        "description": "Last update timestamp.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 13
-                      },
-                      "status": {
-                        "description": "Node status.\n\n - STATUS_UNSPECIFIED: Invalid status.\n - STATUS_UP: The node is up.\n - STATUS_DOWN: The node is down.\n - STATUS_UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).",
-                        "type": "string",
-                        "default": "STATUS_UNSPECIFIED",
-                        "enum": [
-                          "STATUS_UNSPECIFIED",
-                          "STATUS_UP",
-                          "STATUS_DOWN",
-                          "STATUS_UNKNOWN"
-                        ],
-                        "x-order": 14
-                      },
-                      "agents": {
-                        "description": "List of agents related to this node.",
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "agent_id": {
-                              "description": "Unique Agent identifier.",
-                              "type": "string",
-                              "x-order": 0
-                            },
-                            "agent_type": {
-                              "description": "Agent type.",
-                              "type": "string",
-                              "x-order": 1
-                            },
-                            "status": {
-                              "description": "Actual Agent status.",
-                              "type": "string",
-                              "x-order": 2
-                            },
-                            "is_connected": {
-                              "description": "True if Agent is running and connected to pmm-managed.",
-                              "type": "boolean",
-                              "x-order": 3
-                            }
-                          }
-                        },
-                        "x-order": 15
-                      },
-                      "services": {
-                        "description": "List of services running on this node.",
-                        "type": "array",
-                        "items": {
-                          "description": "Service represents a service running on a node.",
-                          "type": "object",
-                          "properties": {
-                            "service_id": {
-                              "description": "Unique Service identifier.",
-                              "type": "string",
-                              "x-order": 0
-                            },
-                            "service_type": {
-                              "description": "Service type.",
-                              "type": "string",
-                              "x-order": 1
-                            },
-                            "service_name": {
-                              "description": "Service name.",
-                              "type": "string",
-                              "x-order": 2
-                            }
-                          }
-                        },
-                        "x-order": 16
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/Node/Unregister": {
-      "post": {
-        "description": "Unregisters a Node and pmm-agent",
-        "tags": [
-          "ManagementService"
-        ],
-        "summary": "Unregister Node",
-        "operationId": "UnregisterNode",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "node_id": {
-                  "description": "Node_id to be unregistered.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "force": {
-                  "description": "Force delete node, related service account, even if it has more service tokens attached.",
-                  "type": "boolean",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "warning": {
-                  "description": "Warning message if there are more service tokens attached to service account.",
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/management/Service/List": {
       "post": {
         "description": "Returns a filtered list of Services.",
@@ -17604,7 +17297,7 @@
           "ManagementV1Beta1Service"
         ],
         "summary": "List Services",
-        "operationId": "ListServicesMixin6",
+        "operationId": "ListServicesMixin5",
         "parameters": [
           {
             "name": "body",
@@ -18201,6 +17894,224 @@
       }
     },
     "/v1/management/nodes": {
+      "get": {
+        "description": "Returns a filtered list of Nodes.",
+        "tags": [
+          "ManagementService"
+        ],
+        "summary": "List Nodes",
+        "operationId": "ListNodesMixin3",
+        "parameters": [
+          {
+            "enum": [
+              "NODE_TYPE_UNSPECIFIED",
+              "NODE_TYPE_GENERIC_NODE",
+              "NODE_TYPE_CONTAINER_NODE",
+              "NODE_TYPE_REMOTE_NODE",
+              "NODE_TYPE_REMOTE_RDS_NODE",
+              "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+            ],
+            "type": "string",
+            "default": "NODE_TYPE_UNSPECIFIED",
+            "description": "Node type to be filtered out.",
+            "name": "node_type",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "nodes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "node_id": {
+                        "description": "Unique Node identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "node_type": {
+                        "description": "Node type.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "node_name": {
+                        "description": "User-defined node name.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "machine_id": {
+                        "description": "Linux machine-id.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "distro": {
+                        "description": "Linux distribution name and version.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "node_model": {
+                        "description": "Node model.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "container_id": {
+                        "description": "A node's unique docker container identifier.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "container_name": {
+                        "description": "Container name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "address": {
+                        "description": "Node address (DNS name or IP).",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "region": {
+                        "description": "Node region.",
+                        "type": "string",
+                        "x-order": 9
+                      },
+                      "az": {
+                        "description": "Node availability zone.",
+                        "type": "string",
+                        "x-order": 10
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels for Node.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 11
+                      },
+                      "created_at": {
+                        "description": "Creation timestamp.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 12
+                      },
+                      "updated_at": {
+                        "description": "Last update timestamp.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 13
+                      },
+                      "status": {
+                        "description": "Node status.\n\n - STATUS_UNSPECIFIED: Invalid status.\n - STATUS_UP: The node is up.\n - STATUS_DOWN: The node is down.\n - STATUS_UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).",
+                        "type": "string",
+                        "default": "STATUS_UNSPECIFIED",
+                        "enum": [
+                          "STATUS_UNSPECIFIED",
+                          "STATUS_UP",
+                          "STATUS_DOWN",
+                          "STATUS_UNKNOWN"
+                        ],
+                        "x-order": 14
+                      },
+                      "agents": {
+                        "description": "List of agents related to this node.",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "agent_id": {
+                              "description": "Unique Agent identifier.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "agent_type": {
+                              "description": "Agent type.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "status": {
+                              "description": "Actual Agent status.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "is_connected": {
+                              "description": "True if Agent is running and connected to pmm-managed.",
+                              "type": "boolean",
+                              "x-order": 3
+                            }
+                          }
+                        },
+                        "x-order": 15
+                      },
+                      "services": {
+                        "description": "List of services running on this node.",
+                        "type": "array",
+                        "items": {
+                          "description": "Service represents a service running on a node.",
+                          "type": "object",
+                          "properties": {
+                            "service_id": {
+                              "description": "Unique Service identifier.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "service_type": {
+                              "description": "Service type.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "service_name": {
+                              "description": "Service name.",
+                              "type": "string",
+                              "x-order": 2
+                            }
+                          }
+                        },
+                        "x-order": 16
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "description": "Registers a new Node and a pmm-agent.",
         "tags": [
@@ -18231,7 +18142,7 @@
                   "x-order": 0
                 },
                 "node_name": {
-                  "description": "Unique across all Nodes user-defined name.",
+                  "description": "A user-defined name unique across all Nodes.",
                   "type": "string",
                   "x-order": 1
                 },
@@ -18486,6 +18397,77 @@
                   "description": "Warning message.",
                   "type": "string",
                   "x-order": 4
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/nodes/{node_id}": {
+      "delete": {
+        "description": "Unregisters a Node and pmm-agent",
+        "tags": [
+          "ManagementService"
+        ],
+        "summary": "Unregister a Node",
+        "operationId": "UnregisterNode",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Node_id to be unregistered.",
+            "name": "node_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "Force delete node, related service account, even if it has more service tokens attached.",
+            "name": "force",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "warning": {
+                  "description": "Warning message if there are more service tokens attached to service account.",
+                  "type": "string",
+                  "x-order": 0
                 }
               }
             }

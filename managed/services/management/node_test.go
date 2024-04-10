@@ -88,7 +88,10 @@ func TestNodeService(t *testing.T) {
 			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
 			authProvider.On("DeleteServiceAccount", ctx, nodeName, force).Return("", nil)
 
-			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, authProvider)
+			vmClient := &mockVictoriaMetricsClient{}
+			vmClient.Test(t)
+
+			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, authProvider, vmClient)
 
 			return ctx, s, teardown
 		}

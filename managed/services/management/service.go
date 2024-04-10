@@ -40,6 +40,7 @@ type ManagementService struct { //nolint:revive
 	vmdb          prometheusService
 	vc            versionCache
 	grafanaClient grafanaClient
+	vmClient      victoriaMetricsClient
 
 	managementv1.UnimplementedManagementServiceServer
 }
@@ -54,6 +55,7 @@ func NewManagementService(
 	vmdb prometheusService,
 	vc versionCache,
 	grafanaClient grafanaClient,
+	vmClient victoriaMetricsClient,
 ) *ManagementService {
 	return &ManagementService{
 		db:            db,
@@ -64,6 +66,7 @@ func NewManagementService(
 		vmdb:          vmdb,
 		vc:            vc,
 		grafanaClient: grafanaClient,
+		vmClient:      vmClient,
 	}
 }
 

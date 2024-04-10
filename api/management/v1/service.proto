@@ -3,6 +3,8 @@ syntax = "proto3";
 package management.v1;
 
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "inventory/v1/nodes.proto";
 import "inventory/v1/services.proto";
 import "management/v1/annotation.proto";
 import "management/v1/external.proto";
@@ -14,6 +16,7 @@ import "management/v1/postgresql.proto";
 import "management/v1/proxysql.proto";
 import "management/v1/rds.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
 
 message AddServiceRequest {
   oneof service {
@@ -50,7 +53,7 @@ message RemoveServiceResponse {}
 
 message UnregisterNodeRequest {
   // Node_id to be unregistered.
-  string node_id = 1;
+  string node_id = 1 [(validate.rules).string.min_len = 1];
   // Force delete node, related service account, even if it has more service tokens attached.
   bool force = 2;
 }
@@ -58,6 +61,93 @@ message UnregisterNodeRequest {
 message UnregisterNodeResponse {
   // Warning message if there are more service tokens attached to service account.
   string warning = 1;
+}
+
+message UniversalNode {
+  // Node status.
+  enum Status {
+    // Invalid status.
+    STATUS_UNSPECIFIED = 0;
+    // The node is up.
+    STATUS_UP = 1;
+    // The node is down.
+    STATUS_DOWN = 2;
+    // The node's status cannot be known (e.g. there are no metrics yet).
+    STATUS_UNKNOWN = 3;
+  }
+  // Service represents a service running on a node.
+  message Service {
+    // Unique Service identifier.
+    string service_id = 1;
+    // Service type.
+    string service_type = 2;
+    // Service name.
+    string service_name = 3;
+  }
+
+  message Agent {
+    // Unique Agent identifier.
+    string agent_id = 1;
+    // Agent type.
+    string agent_type = 2;
+    // Actual Agent status.
+    string status = 3;
+    // True if Agent is running and connected to pmm-managed.
+    bool is_connected = 4;
+  }
+
+  // Unique Node identifier.
+  string node_id = 1;
+  // Node type.
+  string node_type = 2;
+  // User-defined node name.
+  string node_name = 3;
+  // Linux machine-id.
+  string machine_id = 4;
+  // Linux distribution name and version.
+  string distro = 5;
+  // Node model.
+  string node_model = 6;
+  // A node's unique docker container identifier.
+  string container_id = 7;
+  // Container name.
+  string container_name = 8;
+  // Node address (DNS name or IP).
+  string address = 9;
+  // Node region.
+  string region = 10;
+  // Node availability zone.
+  string az = 11;
+  // Custom user-assigned labels for Node.
+  map<string, string> custom_labels = 12;
+  // Creation timestamp.
+  google.protobuf.Timestamp created_at = 13;
+  // Last update timestamp.
+  google.protobuf.Timestamp updated_at = 14;
+  // The health status of the node.
+  Status status = 15;
+  // List of agents related to this node.
+  repeated Agent agents = 16;
+  // List of services running on this node.
+  repeated Service services = 17;
+}
+
+message ListNodesRequest {
+  // Node type to be filtered out.
+  inventory.v1.NodeType node_type = 1;
+}
+
+message ListNodesResponse {
+  repeated UniversalNode nodes = 1;
+}
+
+message GetNodeRequest {
+  // Unique Node identifier.
+  string node_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message GetNodeResponse {
+  UniversalNode node = 1;
 }
 
 // ManagementService provides public methods for managing and querying Services.
@@ -86,13 +176,28 @@ service ManagementService {
   }
   // UnregisterNode unregisters a Node, pmm-agent and removes the service account and its token.
   rpc UnregisterNode(UnregisterNodeRequest) returns (UnregisterNodeResponse) {
+    option (google.api.http) = {delete: "/v1/management/nodes/{node_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Unregister a Node"
+      description: "Unregisters a Node and pmm-agent"
+    };
+  }
+  // ListNode returns a list of nodes.
+  rpc ListNodes(ListNodesRequest) returns (ListNodesResponse) {
+    option (google.api.http) = {get: "/v1/management/nodes"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Nodes"
+      description: "Returns a filtered list of Nodes."
+    };
+  }
+  // GetNode returns a single Node by ID.
+  rpc GetNode(GetNodeRequest) returns (GetNodeResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Node/Unregister"
-      body: "*"
+      get: "/v1/management/nodes/{node_id}"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Unregister Node"
-      description: "Unregisters a Node and pmm-agent"
+      summary: "Get Node"
+      description: "Returns a single Node by ID."
     };
   }
   // AddExternal adds external service and adds external exporter.

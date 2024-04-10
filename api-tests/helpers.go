@@ -144,9 +144,7 @@ func UnregisterNodes(t TestingT, nodeIDs ...string) {
 
 	for _, nodeID := range nodeIDs {
 		params := &mservice.UnregisterNodeParams{
-			Body: mservice.UnregisterNodeBody{
-				NodeID: nodeID,
-			},
+			NodeID:  nodeID,
 			Context: context.Background(),
 		}
 

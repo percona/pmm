@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // NewUnregisterNodeParams creates a new UnregisterNodeParams object,
@@ -60,8 +61,17 @@ UnregisterNodeParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type UnregisterNodeParams struct {
-	// Body.
-	Body UnregisterNodeBody
+	/* Force.
+
+	   Force delete node, related service account, even if it has more service tokens attached.
+	*/
+	Force *bool
+
+	/* NodeID.
+
+	   Node_id to be unregistered.
+	*/
+	NodeID string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -116,15 +126,26 @@ func (o *UnregisterNodeParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the unregister node params
-func (o *UnregisterNodeParams) WithBody(body UnregisterNodeBody) *UnregisterNodeParams {
-	o.SetBody(body)
+// WithForce adds the force to the unregister node params
+func (o *UnregisterNodeParams) WithForce(force *bool) *UnregisterNodeParams {
+	o.SetForce(force)
 	return o
 }
 
-// SetBody adds the body to the unregister node params
-func (o *UnregisterNodeParams) SetBody(body UnregisterNodeBody) {
-	o.Body = body
+// SetForce adds the force to the unregister node params
+func (o *UnregisterNodeParams) SetForce(force *bool) {
+	o.Force = force
+}
+
+// WithNodeID adds the nodeID to the unregister node params
+func (o *UnregisterNodeParams) WithNodeID(nodeID string) *UnregisterNodeParams {
+	o.SetNodeID(nodeID)
+	return o
+}
+
+// SetNodeID adds the nodeId to the unregister node params
+func (o *UnregisterNodeParams) SetNodeID(nodeID string) {
+	o.NodeID = nodeID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,7 +154,25 @@ func (o *UnregisterNodeParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
+
+	if o.Force != nil {
+
+		// query param force
+		var qrForce bool
+
+		if o.Force != nil {
+			qrForce = *o.Force
+		}
+		qForce := swag.FormatBool(qrForce)
+		if qForce != "" {
+			if err := r.SetQueryParam("force", qForce); err != nil {
+				return err
+			}
+		}
+	}
+
+	// path param node_id
+	if err := r.SetPathParam("node_id", o.NodeID); err != nil {
 		return err
 	}
 

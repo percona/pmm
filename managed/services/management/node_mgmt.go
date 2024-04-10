@@ -26,7 +26,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	nodev1beta1 "github.com/percona/pmm/api/management/v1/node"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
@@ -34,7 +34,7 @@ import (
 const upQuery = `up{job=~".*_hr$"}`
 
 // ListNodes returns a filtered list of Nodes.
-func (s *MgmtServiceService) ListNodes(ctx context.Context, req *nodev1beta1.ListNodesRequest) (*nodev1beta1.ListNodesResponse, error) {
+func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.ListNodesRequest) (*managementv1.ListNodesResponse, error) {
 	filters := models.NodeFilters{
 		NodeType: services.ProtoToModelNodeType(req.NodeType),
 	}
@@ -70,8 +70,8 @@ func (s *MgmtServiceService) ListNodes(ctx context.Context, req *nodev1beta1.Lis
 		return nil, errTX
 	}
 
-	convertAgentToProto := func(agent *models.Agent) *nodev1beta1.UniversalNode_Agent {
-		return &nodev1beta1.UniversalNode_Agent{
+	convertAgentToProto := func(agent *models.Agent) *managementv1.UniversalNode_Agent {
+		return &managementv1.UniversalNode_Agent{
 			AgentId:     agent.AgentID,
 			AgentType:   string(agent.AgentType),
 			Status:      agent.Status,
@@ -79,7 +79,7 @@ func (s *MgmtServiceService) ListNodes(ctx context.Context, req *nodev1beta1.Lis
 		}
 	}
 
-	aMap := make(map[string][]*nodev1beta1.UniversalNode_Agent, len(nodes))
+	aMap := make(map[string][]*managementv1.UniversalNode_Agent, len(nodes))
 	for _, a := range agents {
 		if a.NodeID != nil || a.RunsOnNodeID != nil {
 			var nodeID string
@@ -92,9 +92,9 @@ func (s *MgmtServiceService) ListNodes(ctx context.Context, req *nodev1beta1.Lis
 		}
 	}
 
-	sMap := make(map[string][]*nodev1beta1.UniversalNode_Service, len(services))
+	sMap := make(map[string][]*managementv1.UniversalNode_Service, len(services))
 	for _, s := range services {
-		sMap[s.NodeID] = append(sMap[s.NodeID], &nodev1beta1.UniversalNode_Service{
+		sMap[s.NodeID] = append(sMap[s.NodeID], &managementv1.UniversalNode_Service{
 			ServiceId:   s.ServiceID,
 			ServiceType: string(s.ServiceType),
 			ServiceName: s.ServiceName,
@@ -115,14 +115,14 @@ func (s *MgmtServiceService) ListNodes(ctx context.Context, req *nodev1beta1.Lis
 		}
 	}
 
-	res := make([]*nodev1beta1.UniversalNode, len(nodes))
+	res := make([]*managementv1.UniversalNode, len(nodes))
 	for i, node := range nodes {
 		labels, err := node.GetCustomLabels()
 		if err != nil {
 			return nil, err
 		}
 
-		uNode := &nodev1beta1.UniversalNode{
+		uNode := &managementv1.UniversalNode{
 			Address:       node.Address,
 			CustomLabels:  labels,
 			NodeId:        node.NodeID,
@@ -143,12 +143,12 @@ func (s *MgmtServiceService) ListNodes(ctx context.Context, req *nodev1beta1.Lis
 			switch metric {
 			// We assume there can only be metric values of either 1(UP) or 0(DOWN).
 			case 0:
-				uNode.Status = nodev1beta1.UniversalNode_STATUS_DOWN
+				uNode.Status = managementv1.UniversalNode_STATUS_DOWN
 			case 1:
-				uNode.Status = nodev1beta1.UniversalNode_STATUS_UP
+				uNode.Status = managementv1.UniversalNode_STATUS_UP
 			}
 		} else {
-			uNode.Status = nodev1beta1.UniversalNode_STATUS_UNKNOWN
+			uNode.Status = managementv1.UniversalNode_STATUS_UNKNOWN
 		}
 
 		if uAgents, ok := aMap[node.NodeID]; ok {
@@ -162,7 +162,7 @@ func (s *MgmtServiceService) ListNodes(ctx context.Context, req *nodev1beta1.Lis
 		res[i] = uNode
 	}
 
-	return &nodev1beta1.ListNodesResponse{
+	return &managementv1.ListNodesResponse{
 		Nodes: res,
 	}, nil
 }
@@ -170,7 +170,7 @@ func (s *MgmtServiceService) ListNodes(ctx context.Context, req *nodev1beta1.Lis
 const nodeUpQuery = `up{job=~".*_hr$",node_id=%q}`
 
 // GetNode returns a single Node by ID.
-func (s *MgmtServiceService) GetNode(ctx context.Context, req *nodev1beta1.GetNodeRequest) (*nodev1beta1.GetNodeResponse, error) {
+func (s *ManagementService) GetNode(ctx context.Context, req *managementv1.GetNodeRequest) (*managementv1.GetNodeResponse, error) {
 	node, err := models.FindNodeByID(s.db.Querier, req.NodeId)
 	if err != nil {
 		return nil, err
@@ -195,7 +195,7 @@ func (s *MgmtServiceService) GetNode(ctx context.Context, req *nodev1beta1.GetNo
 		return nil, err
 	}
 
-	uNode := &nodev1beta1.UniversalNode{
+	uNode := &managementv1.UniversalNode{
 		Address:       node.Address,
 		Az:            node.AZ,
 		CreatedAt:     timestamppb.New(node.CreatedAt),
@@ -216,15 +216,15 @@ func (s *MgmtServiceService) GetNode(ctx context.Context, req *nodev1beta1.GetNo
 		switch metric {
 		// We assume there can only be metric values of either 1(UP) or 0(DOWN).
 		case 0:
-			uNode.Status = nodev1beta1.UniversalNode_STATUS_DOWN
+			uNode.Status = managementv1.UniversalNode_STATUS_DOWN
 		case 1:
-			uNode.Status = nodev1beta1.UniversalNode_STATUS_UP
+			uNode.Status = managementv1.UniversalNode_STATUS_UP
 		}
 	} else {
-		uNode.Status = nodev1beta1.UniversalNode_STATUS_UNKNOWN
+		uNode.Status = managementv1.UniversalNode_STATUS_UNKNOWN
 	}
 
-	return &nodev1beta1.GetNodeResponse{
+	return &managementv1.GetNodeResponse{
 		Node: uNode,
 	}, nil
 }

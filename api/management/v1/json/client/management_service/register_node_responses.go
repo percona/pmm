@@ -129,7 +129,7 @@ type RegisterNodeBody struct {
 	// Enum: [NODE_TYPE_UNSPECIFIED NODE_TYPE_GENERIC_NODE NODE_TYPE_CONTAINER_NODE NODE_TYPE_REMOTE_NODE NODE_TYPE_REMOTE_RDS_NODE NODE_TYPE_REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
 
-	// Unique across all Nodes user-defined name.
+	// A user-defined name unique across all Nodes.
 	NodeName string `json:"node_name,omitempty"`
 
 	// Node address (DNS name or IP).

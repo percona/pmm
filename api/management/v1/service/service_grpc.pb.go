@@ -15,7 +15,6 @@ import (
 
 	agent "github.com/percona/pmm/api/management/v1/agent"
 	azure "github.com/percona/pmm/api/management/v1/azure"
-	node "github.com/percona/pmm/api/management/v1/node"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -25,8 +24,6 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	ManagementV1Beta1Service_ListAgents_FullMethodName            = "/service.v1beta1.ManagementV1Beta1Service/ListAgents"
-	ManagementV1Beta1Service_ListNodes_FullMethodName             = "/service.v1beta1.ManagementV1Beta1Service/ListNodes"
-	ManagementV1Beta1Service_GetNode_FullMethodName               = "/service.v1beta1.ManagementV1Beta1Service/GetNode"
 	ManagementV1Beta1Service_ListServices_FullMethodName          = "/service.v1beta1.ManagementV1Beta1Service/ListServices"
 	ManagementV1Beta1Service_DiscoverAzureDatabase_FullMethodName = "/service.v1beta1.ManagementV1Beta1Service/DiscoverAzureDatabase"
 	ManagementV1Beta1Service_AddAzureDatabase_FullMethodName      = "/service.v1beta1.ManagementV1Beta1Service/AddAzureDatabase"
@@ -38,10 +35,6 @@ const (
 type ManagementV1Beta1ServiceClient interface {
 	// ListAgents returns a list of Agents filtered by service_id.
 	ListAgents(ctx context.Context, in *agent.ListAgentsRequest, opts ...grpc.CallOption) (*agent.ListAgentsResponse, error)
-	// ListNode returns a list of nodes.
-	ListNodes(ctx context.Context, in *node.ListNodesRequest, opts ...grpc.CallOption) (*node.ListNodesResponse, error)
-	// GetNode returns a single Node by ID.
-	GetNode(ctx context.Context, in *node.GetNodeRequest, opts ...grpc.CallOption) (*node.GetNodeResponse, error)
 	// ListServices returns a list of Services with a rich set of properties.
 	ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error)
 	// DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
@@ -61,24 +54,6 @@ func NewManagementV1Beta1ServiceClient(cc grpc.ClientConnInterface) ManagementV1
 func (c *managementV1Beta1ServiceClient) ListAgents(ctx context.Context, in *agent.ListAgentsRequest, opts ...grpc.CallOption) (*agent.ListAgentsResponse, error) {
 	out := new(agent.ListAgentsResponse)
 	err := c.cc.Invoke(ctx, ManagementV1Beta1Service_ListAgents_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *managementV1Beta1ServiceClient) ListNodes(ctx context.Context, in *node.ListNodesRequest, opts ...grpc.CallOption) (*node.ListNodesResponse, error) {
-	out := new(node.ListNodesResponse)
-	err := c.cc.Invoke(ctx, ManagementV1Beta1Service_ListNodes_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *managementV1Beta1ServiceClient) GetNode(ctx context.Context, in *node.GetNodeRequest, opts ...grpc.CallOption) (*node.GetNodeResponse, error) {
-	out := new(node.GetNodeResponse)
-	err := c.cc.Invoke(ctx, ManagementV1Beta1Service_GetNode_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -118,10 +93,6 @@ func (c *managementV1Beta1ServiceClient) AddAzureDatabase(ctx context.Context, i
 type ManagementV1Beta1ServiceServer interface {
 	// ListAgents returns a list of Agents filtered by service_id.
 	ListAgents(context.Context, *agent.ListAgentsRequest) (*agent.ListAgentsResponse, error)
-	// ListNode returns a list of nodes.
-	ListNodes(context.Context, *node.ListNodesRequest) (*node.ListNodesResponse, error)
-	// GetNode returns a single Node by ID.
-	GetNode(context.Context, *node.GetNodeRequest) (*node.GetNodeResponse, error)
 	// ListServices returns a list of Services with a rich set of properties.
 	ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error)
 	// DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
@@ -136,14 +107,6 @@ type UnimplementedManagementV1Beta1ServiceServer struct{}
 
 func (UnimplementedManagementV1Beta1ServiceServer) ListAgents(context.Context, *agent.ListAgentsRequest) (*agent.ListAgentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAgents not implemented")
-}
-
-func (UnimplementedManagementV1Beta1ServiceServer) ListNodes(context.Context, *node.ListNodesRequest) (*node.ListNodesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListNodes not implemented")
-}
-
-func (UnimplementedManagementV1Beta1ServiceServer) GetNode(context.Context, *node.GetNodeRequest) (*node.GetNodeResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetNode not implemented")
 }
 
 func (UnimplementedManagementV1Beta1ServiceServer) ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error) {
@@ -186,42 +149,6 @@ func _ManagementV1Beta1Service_ListAgents_Handler(srv interface{}, ctx context.C
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ManagementV1Beta1ServiceServer).ListAgents(ctx, req.(*agent.ListAgentsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ManagementV1Beta1Service_ListNodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(node.ListNodesRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ManagementV1Beta1ServiceServer).ListNodes(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ManagementV1Beta1Service_ListNodes_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ManagementV1Beta1ServiceServer).ListNodes(ctx, req.(*node.ListNodesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ManagementV1Beta1Service_GetNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(node.GetNodeRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ManagementV1Beta1ServiceServer).GetNode(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ManagementV1Beta1Service_GetNode_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ManagementV1Beta1ServiceServer).GetNode(ctx, req.(*node.GetNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -290,14 +217,6 @@ var ManagementV1Beta1Service_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListAgents",
 			Handler:    _ManagementV1Beta1Service_ListAgents_Handler,
-		},
-		{
-			MethodName: "ListNodes",
-			Handler:    _ManagementV1Beta1Service_ListNodes_Handler,
-		},
-		{
-			MethodName: "GetNode",
-			Handler:    _ManagementV1Beta1Service_GetNode_Handler,
 		},
 		{
 			MethodName: "ListServices",

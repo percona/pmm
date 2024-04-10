@@ -161,7 +161,7 @@ type RegisterNodeRequest struct {
 
 	// Node type to be registered.
 	NodeType v1.NodeType `protobuf:"varint,1,opt,name=node_type,json=nodeType,proto3,enum=inventory.v1.NodeType" json:"node_type,omitempty"`
-	// Unique across all Nodes user-defined name.
+	// A user-defined name unique across all Nodes.
 	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
 	// Node address (DNS name or IP).
 	Address string `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`

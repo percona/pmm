@@ -34,7 +34,7 @@ message AddNodeParams {
 message RegisterNodeRequest {
   // Node type to be registered.
   inventory.v1.NodeType node_type = 1;
-  // Unique across all Nodes user-defined name.
+  // A user-defined name unique across all Nodes.
   string node_name = 2 [(validate.rules).string.min_len = 1];
   // Node address (DNS name or IP).
   string address = 3;
