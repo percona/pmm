@@ -45,7 +45,7 @@ message ParamDefinition {
   string name = 1 [(validate.rules).string.min_len = 1];
   // Short human-readable parameter summary.
   string summary = 2 [(validate.rules).string.min_len = 1];
-  // Parameter unit.
+  // Parameter unit. TODO: remove this parameter.
   ParamUnit unit = 3;
   // Parameter type.
   ParamType type = 4;

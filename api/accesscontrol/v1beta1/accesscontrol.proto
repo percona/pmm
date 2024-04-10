@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package role.v1beta1;
+package accesscontrol.v1beta1;
 
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";

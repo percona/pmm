@@ -30,7 +30,11 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	AddAnnotation(params *AddAnnotationParams, opts ...ClientOption) (*AddAnnotationOK, error)
 
+	AddAzureDatabase(params *AddAzureDatabaseParams, opts ...ClientOption) (*AddAzureDatabaseOK, error)
+
 	AddService(params *AddServiceParams, opts ...ClientOption) (*AddServiceOK, error)
+
+	DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams, opts ...ClientOption) (*DiscoverAzureDatabaseOK, error)
 
 	DiscoverRDS(params *DiscoverRDSParams, opts ...ClientOption) (*DiscoverRDSOK, error)
 
@@ -89,6 +93,45 @@ func (a *Client) AddAnnotation(params *AddAnnotationParams, opts ...ClientOption
 }
 
 /*
+AddAzureDatabase adds azure database
+
+Adds an Azure Database instance.
+*/
+func (a *Client) AddAzureDatabase(params *AddAzureDatabaseParams, opts ...ClientOption) (*AddAzureDatabaseOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddAzureDatabaseParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "AddAzureDatabase",
+		Method:             "POST",
+		PathPattern:        "/v1/management/services/azure",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddAzureDatabaseReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AddAzureDatabaseOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddAzureDatabaseDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 AddService adds a service
 
 Adds a service and starts several agents.
@@ -124,6 +167,45 @@ func (a *Client) AddService(params *AddServiceParams, opts ...ClientOption) (*Ad
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*AddServiceDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+DiscoverAzureDatabase discovers azure database
+
+Discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
+*/
+func (a *Client) DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams, opts ...ClientOption) (*DiscoverAzureDatabaseOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDiscoverAzureDatabaseParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "DiscoverAzureDatabase",
+		Method:             "POST",
+		PathPattern:        "/v1/management/services:discoverAzure",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &DiscoverAzureDatabaseReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*DiscoverAzureDatabaseOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*DiscoverAzureDatabaseDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -256,8 +338,8 @@ func (a *Client) ListServices(params *ListServicesParams, opts ...ClientOption) 
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ListServices",
-		Method:             "POST",
-		PathPattern:        "/v1/management/Service/List",
+		Method:             "GET",
+		PathPattern:        "/v1/management/services",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

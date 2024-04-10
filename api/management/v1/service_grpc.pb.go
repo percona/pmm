@@ -20,15 +20,17 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ManagementService_AddAnnotation_FullMethodName  = "/management.v1.ManagementService/AddAnnotation"
-	ManagementService_RegisterNode_FullMethodName   = "/management.v1.ManagementService/RegisterNode"
-	ManagementService_UnregisterNode_FullMethodName = "/management.v1.ManagementService/UnregisterNode"
-	ManagementService_ListNodes_FullMethodName      = "/management.v1.ManagementService/ListNodes"
-	ManagementService_GetNode_FullMethodName        = "/management.v1.ManagementService/GetNode"
-	ManagementService_AddService_FullMethodName     = "/management.v1.ManagementService/AddService"
-	ManagementService_ListServices_FullMethodName   = "/management.v1.ManagementService/ListServices"
-	ManagementService_DiscoverRDS_FullMethodName    = "/management.v1.ManagementService/DiscoverRDS"
-	ManagementService_RemoveService_FullMethodName  = "/management.v1.ManagementService/RemoveService"
+	ManagementService_AddAnnotation_FullMethodName         = "/management.v1.ManagementService/AddAnnotation"
+	ManagementService_RegisterNode_FullMethodName          = "/management.v1.ManagementService/RegisterNode"
+	ManagementService_UnregisterNode_FullMethodName        = "/management.v1.ManagementService/UnregisterNode"
+	ManagementService_ListNodes_FullMethodName             = "/management.v1.ManagementService/ListNodes"
+	ManagementService_GetNode_FullMethodName               = "/management.v1.ManagementService/GetNode"
+	ManagementService_AddService_FullMethodName            = "/management.v1.ManagementService/AddService"
+	ManagementService_ListServices_FullMethodName          = "/management.v1.ManagementService/ListServices"
+	ManagementService_DiscoverRDS_FullMethodName           = "/management.v1.ManagementService/DiscoverRDS"
+	ManagementService_DiscoverAzureDatabase_FullMethodName = "/management.v1.ManagementService/DiscoverAzureDatabase"
+	ManagementService_AddAzureDatabase_FullMethodName      = "/management.v1.ManagementService/AddAzureDatabase"
+	ManagementService_RemoveService_FullMethodName         = "/management.v1.ManagementService/RemoveService"
 )
 
 // ManagementServiceClient is the client API for ManagementService service.
@@ -51,6 +53,10 @@ type ManagementServiceClient interface {
 	ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error)
 	// DiscoverRDS discovers RDS instances.
 	DiscoverRDS(ctx context.Context, in *DiscoverRDSRequest, opts ...grpc.CallOption) (*DiscoverRDSResponse, error)
+	// DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
+	DiscoverAzureDatabase(ctx context.Context, in *DiscoverAzureDatabaseRequest, opts ...grpc.CallOption) (*DiscoverAzureDatabaseResponse, error)
+	// AddAzureDatabase adds Azure Database instance.
+	AddAzureDatabase(ctx context.Context, in *AddAzureDatabaseRequest, opts ...grpc.CallOption) (*AddAzureDatabaseResponse, error)
 	// RemoveService removes a Service along with its Agents.
 	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error)
 }
@@ -135,6 +141,24 @@ func (c *managementServiceClient) DiscoverRDS(ctx context.Context, in *DiscoverR
 	return out, nil
 }
 
+func (c *managementServiceClient) DiscoverAzureDatabase(ctx context.Context, in *DiscoverAzureDatabaseRequest, opts ...grpc.CallOption) (*DiscoverAzureDatabaseResponse, error) {
+	out := new(DiscoverAzureDatabaseResponse)
+	err := c.cc.Invoke(ctx, ManagementService_DiscoverAzureDatabase_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managementServiceClient) AddAzureDatabase(ctx context.Context, in *AddAzureDatabaseRequest, opts ...grpc.CallOption) (*AddAzureDatabaseResponse, error) {
+	out := new(AddAzureDatabaseResponse)
+	err := c.cc.Invoke(ctx, ManagementService_AddAzureDatabase_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *managementServiceClient) RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error) {
 	out := new(RemoveServiceResponse)
 	err := c.cc.Invoke(ctx, ManagementService_RemoveService_FullMethodName, in, out, opts...)
@@ -164,6 +188,10 @@ type ManagementServiceServer interface {
 	ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error)
 	// DiscoverRDS discovers RDS instances.
 	DiscoverRDS(context.Context, *DiscoverRDSRequest) (*DiscoverRDSResponse, error)
+	// DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
+	DiscoverAzureDatabase(context.Context, *DiscoverAzureDatabaseRequest) (*DiscoverAzureDatabaseResponse, error)
+	// AddAzureDatabase adds Azure Database instance.
+	AddAzureDatabase(context.Context, *AddAzureDatabaseRequest) (*AddAzureDatabaseResponse, error)
 	// RemoveService removes a Service along with its Agents.
 	RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error)
 	mustEmbedUnimplementedManagementServiceServer()
@@ -202,6 +230,14 @@ func (UnimplementedManagementServiceServer) ListServices(context.Context, *ListS
 
 func (UnimplementedManagementServiceServer) DiscoverRDS(context.Context, *DiscoverRDSRequest) (*DiscoverRDSResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DiscoverRDS not implemented")
+}
+
+func (UnimplementedManagementServiceServer) DiscoverAzureDatabase(context.Context, *DiscoverAzureDatabaseRequest) (*DiscoverAzureDatabaseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DiscoverAzureDatabase not implemented")
+}
+
+func (UnimplementedManagementServiceServer) AddAzureDatabase(context.Context, *AddAzureDatabaseRequest) (*AddAzureDatabaseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddAzureDatabase not implemented")
 }
 
 func (UnimplementedManagementServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error) {
@@ -364,6 +400,42 @@ func _ManagementService_DiscoverRDS_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ManagementService_DiscoverAzureDatabase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DiscoverAzureDatabaseRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagementServiceServer).DiscoverAzureDatabase(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ManagementService_DiscoverAzureDatabase_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagementServiceServer).DiscoverAzureDatabase(ctx, req.(*DiscoverAzureDatabaseRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ManagementService_AddAzureDatabase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddAzureDatabaseRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagementServiceServer).AddAzureDatabase(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ManagementService_AddAzureDatabase_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagementServiceServer).AddAzureDatabase(ctx, req.(*AddAzureDatabaseRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ManagementService_RemoveService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveServiceRequest)
 	if err := dec(in); err != nil {
@@ -420,6 +492,14 @@ var ManagementService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DiscoverRDS",
 			Handler:    _ManagementService_DiscoverRDS_Handler,
+		},
+		{
+			MethodName: "DiscoverAzureDatabase",
+			Handler:    _ManagementService_DiscoverAzureDatabase_Handler,
+		},
+		{
+			MethodName: "AddAzureDatabase",
+			Handler:    _ManagementService_AddAzureDatabase_Handler,
 		},
 		{
 			MethodName: "RemoveService",

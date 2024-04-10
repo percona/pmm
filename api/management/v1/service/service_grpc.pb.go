@@ -14,7 +14,6 @@ import (
 	status "google.golang.org/grpc/status"
 
 	v1 "github.com/percona/pmm/api/management/v1"
-	azure "github.com/percona/pmm/api/management/v1/azure"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -23,9 +22,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ManagementV1Beta1Service_ListAgents_FullMethodName            = "/service.v1beta1.ManagementV1Beta1Service/ListAgents"
-	ManagementV1Beta1Service_DiscoverAzureDatabase_FullMethodName = "/service.v1beta1.ManagementV1Beta1Service/DiscoverAzureDatabase"
-	ManagementV1Beta1Service_AddAzureDatabase_FullMethodName      = "/service.v1beta1.ManagementV1Beta1Service/AddAzureDatabase"
+	ManagementV1Beta1Service_ListAgents_FullMethodName = "/service.v1beta1.ManagementV1Beta1Service/ListAgents"
 )
 
 // ManagementV1Beta1ServiceClient is the client API for ManagementV1Beta1Service service.
@@ -34,10 +31,6 @@ const (
 type ManagementV1Beta1ServiceClient interface {
 	// ListAgents returns a list of Agents filtered by service_id.
 	ListAgents(ctx context.Context, in *v1.ListAgentsRequest, opts ...grpc.CallOption) (*v1.ListAgentsResponse, error)
-	// DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
-	DiscoverAzureDatabase(ctx context.Context, in *azure.DiscoverAzureDatabaseRequest, opts ...grpc.CallOption) (*azure.DiscoverAzureDatabaseResponse, error)
-	// AddAzureDatabase adds Azure Database instance.
-	AddAzureDatabase(ctx context.Context, in *azure.AddAzureDatabaseRequest, opts ...grpc.CallOption) (*azure.AddAzureDatabaseResponse, error)
 }
 
 type managementV1Beta1ServiceClient struct {
@@ -57,34 +50,12 @@ func (c *managementV1Beta1ServiceClient) ListAgents(ctx context.Context, in *v1.
 	return out, nil
 }
 
-func (c *managementV1Beta1ServiceClient) DiscoverAzureDatabase(ctx context.Context, in *azure.DiscoverAzureDatabaseRequest, opts ...grpc.CallOption) (*azure.DiscoverAzureDatabaseResponse, error) {
-	out := new(azure.DiscoverAzureDatabaseResponse)
-	err := c.cc.Invoke(ctx, ManagementV1Beta1Service_DiscoverAzureDatabase_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *managementV1Beta1ServiceClient) AddAzureDatabase(ctx context.Context, in *azure.AddAzureDatabaseRequest, opts ...grpc.CallOption) (*azure.AddAzureDatabaseResponse, error) {
-	out := new(azure.AddAzureDatabaseResponse)
-	err := c.cc.Invoke(ctx, ManagementV1Beta1Service_AddAzureDatabase_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // ManagementV1Beta1ServiceServer is the server API for ManagementV1Beta1Service service.
 // All implementations must embed UnimplementedManagementV1Beta1ServiceServer
 // for forward compatibility
 type ManagementV1Beta1ServiceServer interface {
 	// ListAgents returns a list of Agents filtered by service_id.
 	ListAgents(context.Context, *v1.ListAgentsRequest) (*v1.ListAgentsResponse, error)
-	// DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
-	DiscoverAzureDatabase(context.Context, *azure.DiscoverAzureDatabaseRequest) (*azure.DiscoverAzureDatabaseResponse, error)
-	// AddAzureDatabase adds Azure Database instance.
-	AddAzureDatabase(context.Context, *azure.AddAzureDatabaseRequest) (*azure.AddAzureDatabaseResponse, error)
 	mustEmbedUnimplementedManagementV1Beta1ServiceServer()
 }
 
@@ -93,14 +64,6 @@ type UnimplementedManagementV1Beta1ServiceServer struct{}
 
 func (UnimplementedManagementV1Beta1ServiceServer) ListAgents(context.Context, *v1.ListAgentsRequest) (*v1.ListAgentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAgents not implemented")
-}
-
-func (UnimplementedManagementV1Beta1ServiceServer) DiscoverAzureDatabase(context.Context, *azure.DiscoverAzureDatabaseRequest) (*azure.DiscoverAzureDatabaseResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DiscoverAzureDatabase not implemented")
-}
-
-func (UnimplementedManagementV1Beta1ServiceServer) AddAzureDatabase(context.Context, *azure.AddAzureDatabaseRequest) (*azure.AddAzureDatabaseResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddAzureDatabase not implemented")
 }
 
 func (UnimplementedManagementV1Beta1ServiceServer) mustEmbedUnimplementedManagementV1Beta1ServiceServer() {
@@ -135,42 +98,6 @@ func _ManagementV1Beta1Service_ListAgents_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ManagementV1Beta1Service_DiscoverAzureDatabase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(azure.DiscoverAzureDatabaseRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ManagementV1Beta1ServiceServer).DiscoverAzureDatabase(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ManagementV1Beta1Service_DiscoverAzureDatabase_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ManagementV1Beta1ServiceServer).DiscoverAzureDatabase(ctx, req.(*azure.DiscoverAzureDatabaseRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ManagementV1Beta1Service_AddAzureDatabase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(azure.AddAzureDatabaseRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ManagementV1Beta1ServiceServer).AddAzureDatabase(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ManagementV1Beta1Service_AddAzureDatabase_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ManagementV1Beta1ServiceServer).AddAzureDatabase(ctx, req.(*azure.AddAzureDatabaseRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // ManagementV1Beta1Service_ServiceDesc is the grpc.ServiceDesc for ManagementV1Beta1Service service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -181,14 +108,6 @@ var ManagementV1Beta1Service_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListAgents",
 			Handler:    _ManagementV1Beta1Service_ListAgents_Handler,
-		},
-		{
-			MethodName: "DiscoverAzureDatabase",
-			Handler:    _ManagementV1Beta1Service_DiscoverAzureDatabase_Handler,
-		},
-		{
-			MethodName: "AddAzureDatabase",
-			Handler:    _ManagementV1Beta1Service_AddAzureDatabase_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

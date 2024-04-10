@@ -59,6 +59,8 @@ POST /v1/management/MySQL/Add                       POST /v1/management/services
 POST /v1/management/PostgreSQL/Add                  POST /v1/management/services                     ✅
 POST /v1/management/ProxySQL/Add                    POST /v1/management/services                     ✅
 POST /v1/management/RDS/Add                         POST /v1/management/services                     ✅
+POST /v1/management/AzureDatabase/Add               POST /v1/management/services/azure               ✅ Moved from MgmtService
+POST /v1/management/AzureDatabase/Discover          POST /v1/management/services:discoverAzure       ✅ Moved from MgmtService
 POST /v1/management/RDS/Discover                    POST /v1/management/services:discoverRDS         ✅
 POST /v1/management/Service/Remove                  DELETE /v1/management/services/{service_id}      ✅ NOTE: in addition, it accepts ?service_type=
 
@@ -66,8 +68,8 @@ POST /v1/management/Service/Remove                  DELETE /v1/management/servic
 POST /v1/management/Agent/List                      GET /v1/management/agents                        
 POST /v1/management/Node/Get                        GET /v1/management/nodes/{node_id}               ✅
 POST /v1/management/Node/List                       GET /v1/management/nodes                         ✅ 
-POST /v1/management/AzureDatabase/Add               POST /v1/management/services/azure
-POST /v1/management/AzureDatabase/Discover          POST /v1/management/services/azure:discover
+POST /v1/management/AzureDatabase/Add               POST /v1/management/services                     ✅
+POST /v1/management/AzureDatabase/Discover          POST /v1/management/services:discoverAzure       ✅
 POST /v1/management/Service/List                    GET /v1/management/services                      ✅
 
 **ActionsService**                                  **ActionService**
@@ -167,7 +169,7 @@ POST /v1/platform/ServerInfo                        GET /v1/platform/server
 POST /v1/platform/UserInfo                          GET /v1/platform/user
 
 // TODO: rename `period_start_from` to `start_from` and `period_start_to` to `start_to`
-
+// TODO: refactor the primitive types in alerting.proto
 
 ## The use of custom methods in RESTful API
 

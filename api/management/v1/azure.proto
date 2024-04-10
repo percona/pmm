@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package azure.v1beta1;
+package management.v1;
 
 import "validate/validate.proto";
 

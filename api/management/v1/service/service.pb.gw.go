@@ -23,7 +23,6 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	managementv1 "github.com/percona/pmm/api/management/v1"
-	azurev1beta1 "github.com/percona/pmm/api/management/v1/azure"
 )
 
 // Suppress "imported and not used" errors
@@ -60,54 +59,6 @@ func local_request_ManagementV1Beta1Service_ListAgents_0(ctx context.Context, ma
 	return msg, metadata, err
 }
 
-func request_ManagementV1Beta1Service_DiscoverAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementV1Beta1ServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq azurev1beta1.DiscoverAzureDatabaseRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := client.DiscoverAzureDatabase(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_ManagementV1Beta1Service_DiscoverAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementV1Beta1ServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq azurev1beta1.DiscoverAzureDatabaseRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := server.DiscoverAzureDatabase(ctx, &protoReq)
-	return msg, metadata, err
-}
-
-func request_ManagementV1Beta1Service_AddAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementV1Beta1ServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq azurev1beta1.AddAzureDatabaseRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := client.AddAzureDatabase(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_ManagementV1Beta1Service_AddAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementV1Beta1ServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq azurev1beta1.AddAzureDatabaseRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := server.AddAzureDatabase(ctx, &protoReq)
-	return msg, metadata, err
-}
-
 // RegisterManagementV1Beta1ServiceHandlerServer registers the http handlers for service ManagementV1Beta1Service to "mux".
 // UnaryRPC     :call ManagementV1Beta1ServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -135,54 +86,6 @@ func RegisterManagementV1Beta1ServiceHandlerServer(ctx context.Context, mux *run
 		}
 
 		forward_ManagementV1Beta1Service_ListAgents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
-	mux.Handle("POST", pattern_ManagementV1Beta1Service_DiscoverAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/service.v1beta1.ManagementV1Beta1Service/DiscoverAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/AzureDatabase/Discover"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_ManagementV1Beta1Service_DiscoverAzureDatabase_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_ManagementV1Beta1Service_DiscoverAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
-	mux.Handle("POST", pattern_ManagementV1Beta1Service_AddAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/service.v1beta1.ManagementV1Beta1Service/AddAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/AzureDatabase/Add"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_ManagementV1Beta1Service_AddAzureDatabase_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_ManagementV1Beta1Service_AddAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
@@ -246,63 +149,9 @@ func RegisterManagementV1Beta1ServiceHandlerClient(ctx context.Context, mux *run
 		forward_ManagementV1Beta1Service_ListAgents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_ManagementV1Beta1Service_DiscoverAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/service.v1beta1.ManagementV1Beta1Service/DiscoverAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/AzureDatabase/Discover"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_ManagementV1Beta1Service_DiscoverAzureDatabase_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_ManagementV1Beta1Service_DiscoverAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
-	mux.Handle("POST", pattern_ManagementV1Beta1Service_AddAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/service.v1beta1.ManagementV1Beta1Service/AddAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/AzureDatabase/Add"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_ManagementV1Beta1Service_AddAzureDatabase_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_ManagementV1Beta1Service_AddAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
 	return nil
 }
 
-var (
-	pattern_ManagementV1Beta1Service_ListAgents_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Agent", "List"}, ""))
+var pattern_ManagementV1Beta1Service_ListAgents_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Agent", "List"}, ""))
 
-	pattern_ManagementV1Beta1Service_DiscoverAzureDatabase_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "AzureDatabase", "Discover"}, ""))
-
-	pattern_ManagementV1Beta1Service_AddAzureDatabase_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "AzureDatabase", "Add"}, ""))
-)
-
-var (
-	forward_ManagementV1Beta1Service_ListAgents_0 = runtime.ForwardResponseMessage
-
-	forward_ManagementV1Beta1Service_DiscoverAzureDatabase_0 = runtime.ForwardResponseMessage
-
-	forward_ManagementV1Beta1Service_AddAzureDatabase_0 = runtime.ForwardResponseMessage
-)
+var forward_ManagementV1Beta1Service_ListAgents_0 = runtime.ForwardResponseMessage

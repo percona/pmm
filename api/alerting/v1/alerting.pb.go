@@ -347,7 +347,7 @@ type ParamDefinition struct {
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// Short human-readable parameter summary.
 	Summary string `protobuf:"bytes,2,opt,name=summary,proto3" json:"summary,omitempty"`
-	// Parameter unit.
+	// Parameter unit. TODO: remove this parameter.
 	Unit ParamUnit `protobuf:"varint,3,opt,name=unit,proto3,enum=alerting.v1.ParamUnit" json:"unit,omitempty"`
 	// Parameter type.
 	Type ParamType `protobuf:"varint,4,opt,name=type,proto3,enum=alerting.v1.ParamType" json:"type,omitempty"`

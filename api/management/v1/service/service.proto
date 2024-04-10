@@ -4,7 +4,6 @@ package service.v1beta1;
 
 import "google/api/annotations.proto";
 import "management/v1/agent.proto";
-import "management/v1/azure/azure.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 // NOTE: the GA version of /agents will be integrated into management/v1/agent.proto.
@@ -20,28 +19,6 @@ service ManagementV1Beta1Service {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Agents"
       description: "Returns a filtered list of Agents."
-    };
-  }
-  // DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
-  rpc DiscoverAzureDatabase(azure.v1beta1.DiscoverAzureDatabaseRequest) returns (azure.v1beta1.DiscoverAzureDatabaseResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/AzureDatabase/Discover"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Discover Azure Database"
-      description: "Discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances."
-    };
-  }
-  // AddAzureDatabase adds Azure Database instance.
-  rpc AddAzureDatabase(azure.v1beta1.AddAzureDatabaseRequest) returns (azure.v1beta1.AddAzureDatabaseResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/AzureDatabase/Add"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add Azure Database"
-      description: "Adds an Azure Database instance."
     };
   }
 }

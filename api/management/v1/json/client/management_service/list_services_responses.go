@@ -60,7 +60,7 @@ type ListServicesOK struct {
 }
 
 func (o *ListServicesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Service/List][%d] listServicesOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/management/services][%d] listServicesOk  %+v", 200, o.Payload)
 }
 
 func (o *ListServicesOK) GetPayload() *ListServicesOKBody {
@@ -102,7 +102,7 @@ func (o *ListServicesDefault) Code() int {
 }
 
 func (o *ListServicesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Service/List][%d] ListServices default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/management/services][%d] ListServices default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ListServicesDefault) GetPayload() *ListServicesDefaultBody {
@@ -117,116 +117,6 @@ func (o *ListServicesDefault) readResponse(response runtime.ClientResponse, cons
 		return err
 	}
 
-	return nil
-}
-
-/*
-ListServicesBody list services body
-swagger:model ListServicesBody
-*/
-type ListServicesBody struct {
-	// Return only Services running on that Node.
-	NodeID string `json:"node_id,omitempty"`
-
-	// ServiceType describes supported Service types.
-	// Enum: [SERVICE_TYPE_UNSPECIFIED SERVICE_TYPE_MYSQL_SERVICE SERVICE_TYPE_MONGODB_SERVICE SERVICE_TYPE_POSTGRESQL_SERVICE SERVICE_TYPE_PROXYSQL_SERVICE SERVICE_TYPE_HAPROXY_SERVICE SERVICE_TYPE_EXTERNAL_SERVICE]
-	ServiceType *string `json:"service_type,omitempty"`
-
-	// Return only services in this external group.
-	ExternalGroup string `json:"external_group,omitempty"`
-}
-
-// Validate validates this list services body
-func (o *ListServicesBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateServiceType(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var listServicesBodyTypeServiceTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_UNSPECIFIED","SERVICE_TYPE_MYSQL_SERVICE","SERVICE_TYPE_MONGODB_SERVICE","SERVICE_TYPE_POSTGRESQL_SERVICE","SERVICE_TYPE_PROXYSQL_SERVICE","SERVICE_TYPE_HAPROXY_SERVICE","SERVICE_TYPE_EXTERNAL_SERVICE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		listServicesBodyTypeServiceTypePropEnum = append(listServicesBodyTypeServiceTypePropEnum, v)
-	}
-}
-
-const (
-
-	// ListServicesBodyServiceTypeSERVICETYPEUNSPECIFIED captures enum value "SERVICE_TYPE_UNSPECIFIED"
-	ListServicesBodyServiceTypeSERVICETYPEUNSPECIFIED string = "SERVICE_TYPE_UNSPECIFIED"
-
-	// ListServicesBodyServiceTypeSERVICETYPEMYSQLSERVICE captures enum value "SERVICE_TYPE_MYSQL_SERVICE"
-	ListServicesBodyServiceTypeSERVICETYPEMYSQLSERVICE string = "SERVICE_TYPE_MYSQL_SERVICE"
-
-	// ListServicesBodyServiceTypeSERVICETYPEMONGODBSERVICE captures enum value "SERVICE_TYPE_MONGODB_SERVICE"
-	ListServicesBodyServiceTypeSERVICETYPEMONGODBSERVICE string = "SERVICE_TYPE_MONGODB_SERVICE"
-
-	// ListServicesBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE captures enum value "SERVICE_TYPE_POSTGRESQL_SERVICE"
-	ListServicesBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE string = "SERVICE_TYPE_POSTGRESQL_SERVICE"
-
-	// ListServicesBodyServiceTypeSERVICETYPEPROXYSQLSERVICE captures enum value "SERVICE_TYPE_PROXYSQL_SERVICE"
-	ListServicesBodyServiceTypeSERVICETYPEPROXYSQLSERVICE string = "SERVICE_TYPE_PROXYSQL_SERVICE"
-
-	// ListServicesBodyServiceTypeSERVICETYPEHAPROXYSERVICE captures enum value "SERVICE_TYPE_HAPROXY_SERVICE"
-	ListServicesBodyServiceTypeSERVICETYPEHAPROXYSERVICE string = "SERVICE_TYPE_HAPROXY_SERVICE"
-
-	// ListServicesBodyServiceTypeSERVICETYPEEXTERNALSERVICE captures enum value "SERVICE_TYPE_EXTERNAL_SERVICE"
-	ListServicesBodyServiceTypeSERVICETYPEEXTERNALSERVICE string = "SERVICE_TYPE_EXTERNAL_SERVICE"
-)
-
-// prop value enum
-func (o *ListServicesBody) validateServiceTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, listServicesBodyTypeServiceTypePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ListServicesBody) validateServiceType(formats strfmt.Registry) error {
-	if swag.IsZero(o.ServiceType) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateServiceTypeEnum("body"+"."+"service_type", "body", *o.ServiceType); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// ContextValidate validates this list services body based on context it is used
-func (o *ListServicesBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListServicesBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListServicesBody) UnmarshalBinary(b []byte) error {
-	var res ListServicesBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

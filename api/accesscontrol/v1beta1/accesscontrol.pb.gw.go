@@ -2,11 +2,11 @@
 // source: accesscontrol/v1beta1/accesscontrol.proto
 
 /*
-Package rolev1beta1 is a reverse proxy.
+Package accesscontrolv1beta1 is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package rolev1beta1
+package accesscontrolv1beta1
 
 import (
 	"context"
@@ -308,7 +308,7 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.AccessControlService/CreateRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/CreateRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -332,7 +332,7 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.AccessControlService/UpdateRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/UpdateRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -356,7 +356,7 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.AccessControlService/DeleteRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/DeleteRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -380,7 +380,7 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.AccessControlService/GetRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/GetRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -404,7 +404,7 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.AccessControlService/ListRoles", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/ListRoles", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -428,7 +428,7 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.AccessControlService/AssignRoles", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles:assign"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/AssignRoles", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles:assign"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -452,7 +452,7 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/role.v1beta1.AccessControlService/SetDefaultRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles:setDefault"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/SetDefaultRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles:setDefault"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -514,7 +514,7 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.AccessControlService/CreateRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/CreateRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -535,7 +535,7 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.AccessControlService/UpdateRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/UpdateRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -556,7 +556,7 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.AccessControlService/DeleteRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/DeleteRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -577,7 +577,7 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.AccessControlService/GetRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/GetRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -598,7 +598,7 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.AccessControlService/ListRoles", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/ListRoles", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -619,7 +619,7 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.AccessControlService/AssignRoles", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles:assign"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/AssignRoles", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles:assign"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -640,7 +640,7 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/role.v1beta1.AccessControlService/SetDefaultRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles:setDefault"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/SetDefaultRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles:setDefault"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

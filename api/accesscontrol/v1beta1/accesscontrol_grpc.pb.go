@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: accesscontrol/v1beta1/accesscontrol.proto
 
-package rolev1beta1
+package accesscontrolv1beta1
 
 import (
 	context "context"
@@ -20,13 +20,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AccessControlService_CreateRole_FullMethodName     = "/role.v1beta1.AccessControlService/CreateRole"
-	AccessControlService_UpdateRole_FullMethodName     = "/role.v1beta1.AccessControlService/UpdateRole"
-	AccessControlService_DeleteRole_FullMethodName     = "/role.v1beta1.AccessControlService/DeleteRole"
-	AccessControlService_GetRole_FullMethodName        = "/role.v1beta1.AccessControlService/GetRole"
-	AccessControlService_ListRoles_FullMethodName      = "/role.v1beta1.AccessControlService/ListRoles"
-	AccessControlService_AssignRoles_FullMethodName    = "/role.v1beta1.AccessControlService/AssignRoles"
-	AccessControlService_SetDefaultRole_FullMethodName = "/role.v1beta1.AccessControlService/SetDefaultRole"
+	AccessControlService_CreateRole_FullMethodName     = "/accesscontrol.v1beta1.AccessControlService/CreateRole"
+	AccessControlService_UpdateRole_FullMethodName     = "/accesscontrol.v1beta1.AccessControlService/UpdateRole"
+	AccessControlService_DeleteRole_FullMethodName     = "/accesscontrol.v1beta1.AccessControlService/DeleteRole"
+	AccessControlService_GetRole_FullMethodName        = "/accesscontrol.v1beta1.AccessControlService/GetRole"
+	AccessControlService_ListRoles_FullMethodName      = "/accesscontrol.v1beta1.AccessControlService/ListRoles"
+	AccessControlService_AssignRoles_FullMethodName    = "/accesscontrol.v1beta1.AccessControlService/AssignRoles"
+	AccessControlService_SetDefaultRole_FullMethodName = "/accesscontrol.v1beta1.AccessControlService/SetDefaultRole"
 )
 
 // AccessControlServiceClient is the client API for AccessControlService service.
@@ -314,7 +314,7 @@ func _AccessControlService_SetDefaultRole_Handler(srv interface{}, ctx context.C
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AccessControlService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "role.v1beta1.AccessControlService",
+	ServiceName: "accesscontrol.v1beta1.AccessControlService",
 	HandlerType: (*AccessControlServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

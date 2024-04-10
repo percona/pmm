@@ -54,9 +54,7 @@ gen-api:            ## Generate PMM API
 		api/user/v1 \
 		api/inventory/v1 \
 		api/management/v1 \
-		api/management/v1/agent \
 		api/management/v1/service \
-		api/management/v1/azure \
 		api/actions/v1 \
 		api/advisors/v1 \
 		api/alerting/v1 \
@@ -109,7 +107,6 @@ gen-api:            ## Generate PMM API
 		api/inventory/v1/json/v1.json \
 		api/management/v1/json/v1.json \
 		api/management/v1/service/json/service.json \
-		api/management/v1/azure/json/azure.json \
 		api/actions/v1/json/v1.json \
 		api/alerting/v1/json/v1.json \
 		api/advisors/v1/json/v1.json \
@@ -151,7 +148,6 @@ clean: clean_swagger  ## Remove generated files
 		api/user/v1 \
 		api/inventory/v1 \
 		api/management/v1 \
-		api/management/v1/azure \
 		api/management/v1/service \
 		api/actions/v1 \
 		api/alerting/v1 \
