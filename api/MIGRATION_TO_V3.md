@@ -47,6 +47,7 @@ POST /v1/inventory/Services/CustomLabels/Remove     PUT /v1/inventory/services/{
 
 **ManagementService**                               **ManagementService**
 POST /v1/management/Annotations/Add                 POST /v1/management/annotations                  ✅
+POST /v1/management/Agent/List                      GET /v1/management/agents                        ✅ Moved from MgmtService
 POST /v1/management/Node/Register                   POST /v1/management/nodes                        ✅
 POST /v1/management/Node/Unregister                 DELETE /v1/management/nodes/{node_id}            ✅ ?force=true
 POST /v1/management/Node/Get                        GET /v1/management/nodes/{node_id}               ✅ Moved from MgmtService
@@ -64,13 +65,13 @@ POST /v1/management/AzureDatabase/Discover          POST /v1/management/services
 POST /v1/management/RDS/Discover                    POST /v1/management/services:discoverRDS         ✅
 POST /v1/management/Service/Remove                  DELETE /v1/management/services/{service_id}      ✅ NOTE: in addition, it accepts ?service_type=
 
-**MgmtService**                                     **ManagementV1Beta1Service**                     NOTE: promote to v1 from v1beta1
-POST /v1/management/Agent/List                      GET /v1/management/agents                        
-POST /v1/management/Node/Get                        GET /v1/management/nodes/{node_id}               ✅
-POST /v1/management/Node/List                       GET /v1/management/nodes                         ✅ 
-POST /v1/management/AzureDatabase/Add               POST /v1/management/services                     ✅
-POST /v1/management/AzureDatabase/Discover          POST /v1/management/services:discoverAzure       ✅
-POST /v1/management/Service/List                    GET /v1/management/services                      ✅
+**MgmtService**                                     **MgmtService**                                  NOTE: promoted to v1 from v1beta1
+POST /v1/management/Agent/List                      GET /v1/management/agents                        ✅ Moved to ManagementService
+POST /v1/management/Node/Get                        GET /v1/management/nodes/{node_id}               ✅ Moved to ManagementService
+POST /v1/management/Node/List                       GET /v1/management/nodes                         ✅ Moved to ManagementService
+POST /v1/management/AzureDatabase/Add               POST /v1/management/services                     ✅ Moved to ManagementService
+POST /v1/management/AzureDatabase/Discover          POST /v1/management/services:discoverAzure       ✅ Moved to ManagementService
+POST /v1/management/Service/List                    GET /v1/management/services                      ✅ Moved to ManagementService
 
 **ActionsService**                                  **ActionService**
 POST /v1/actions/Cancel                             POST /v1/actions:cancelAction                    ✅

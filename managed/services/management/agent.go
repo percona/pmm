@@ -29,7 +29,7 @@ import (
 )
 
 // ListAgents returns a filtered list of Agents.
-func (s *MgmtServiceService) ListAgents(ctx context.Context, req *managementv1.ListAgentsRequest) (*managementv1.ListAgentsResponse, error) {
+func (s *ManagementService) ListAgents(ctx context.Context, req *managementv1.ListAgentsRequest) (*managementv1.ListAgentsResponse, error) {
 	var err error
 	err = s.validateListAgentRequest(req)
 	if err != nil {
@@ -51,7 +51,7 @@ func (s *MgmtServiceService) ListAgents(ctx context.Context, req *managementv1.L
 }
 
 // listAgentsByServiceID returns a list of Agents filtered by ServiceID.
-func (s *MgmtServiceService) listAgentsByServiceID(ctx context.Context, serviceID string) ([]*managementv1.UniversalAgent, error) {
+func (s *ManagementService) listAgentsByServiceID(ctx context.Context, serviceID string) ([]*managementv1.UniversalAgent, error) {
 	var agents []*models.Agent
 	var service *models.Service
 
@@ -91,7 +91,7 @@ func (s *MgmtServiceService) listAgentsByServiceID(ctx context.Context, serviceI
 }
 
 // listAgentsByNodeID returns a list of Agents filtered by NodeID.
-func (s *MgmtServiceService) listAgentsByNodeID(nodeID string) ([]*managementv1.UniversalAgent, error) {
+func (s *ManagementService) listAgentsByNodeID(nodeID string) ([]*managementv1.UniversalAgent, error) {
 	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{})
 	if err != nil {
 		return nil, err
@@ -112,7 +112,7 @@ func (s *MgmtServiceService) listAgentsByNodeID(nodeID string) ([]*managementv1.
 	return res, nil
 }
 
-func (s *MgmtServiceService) agentToAPI(agent *models.Agent) (*managementv1.UniversalAgent, error) {
+func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.UniversalAgent, error) {
 	labels, err := agent.GetCustomLabels()
 	if err != nil {
 		return nil, err
@@ -196,7 +196,7 @@ func (s *MgmtServiceService) agentToAPI(agent *models.Agent) (*managementv1.Univ
 	return ua, nil
 }
 
-func (s *MgmtServiceService) validateListAgentRequest(req *managementv1.ListAgentsRequest) error {
+func (s *ManagementService) validateListAgentRequest(req *managementv1.ListAgentsRequest) error {
 	if req.ServiceId == "" && req.NodeId == "" {
 		return status.Error(codes.InvalidArgument, "Either service_id or node_id is expected.")
 	}

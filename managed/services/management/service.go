@@ -48,6 +48,11 @@ type ManagementService struct { //nolint:revive
 	managementv1.UnimplementedManagementServiceServer
 }
 
+type statusMetrics struct {
+	status      int
+	serviceType string
+}
+
 // NewManagementService creates a ManagementService instance.
 func NewManagementService(
 	db *reform.DB,

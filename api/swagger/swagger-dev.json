@@ -16336,36 +16336,26 @@
         }
       }
     },
-    "/v1/management/Agent/List": {
-      "post": {
-        "description": "Returns a filtered list of Agents.",
+    "/v1/management/agents": {
+      "get": {
+        "description": "Lists Agents with filter.",
         "tags": [
-          "ManagementV1Beta1Service"
+          "ManagementService"
         ],
         "summary": "List Agents",
-        "operationId": "ListAgentsMixin4",
+        "operationId": "ListAgentsMixin3",
         "parameters": [
           {
-            "description": "Only one of the parameters below must be set.",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "Only one of the parameters below must be set.",
-              "type": "object",
-              "properties": {
-                "service_id": {
-                  "description": "Return only Agents that relate to a specific ServiceID.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "node_id": {
-                  "description": "Return only Agents that relate to a specific NodeID.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
+            "type": "string",
+            "description": "Return only Agents that relate to a specific ServiceID.",
+            "name": "service_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Return only Agents that relate to a specific NodeID.",
+            "name": "node_id",
+            "in": "query"
           }
         ],
         "responses": {
@@ -16815,7 +16805,7 @@
     },
     "/v1/management/nodes": {
       "get": {
-        "description": "Returns a filtered list of Nodes.",
+        "description": "Lists Nodes with filter.",
         "tags": [
           "ManagementService"
         ],
@@ -17357,7 +17347,7 @@
     },
     "/v1/management/nodes/{node_id}": {
       "get": {
-        "description": "Returns a single Node by ID.",
+        "description": "Gets a single Node by ID.",
         "tags": [
           "ManagementService"
         ],
@@ -26825,9 +26815,6 @@
     },
     {
       "name": "ManagementService"
-    },
-    {
-      "name": "ManagementV1Beta1Service"
     },
     {
       "name": "ActionsService"

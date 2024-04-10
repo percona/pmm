@@ -134,6 +134,14 @@ service ManagementService {
       description: "Adds an annotation."
     };
   }
+  // ListAgents returns a list of Agents filtered by service_id or node_id.
+  rpc ListAgents(ListAgentsRequest) returns (ListAgentsResponse) {
+    option (google.api.http) = {get: "/v1/management/agents"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Agents"
+      description: "Lists Agents with filter."
+    };
+  }
   // RegisterNode registers a new Node and a pmm-agent.
   rpc RegisterNode(RegisterNodeRequest) returns (RegisterNodeResponse) {
     option (google.api.http) = {
@@ -158,7 +166,7 @@ service ManagementService {
     option (google.api.http) = {get: "/v1/management/nodes"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Nodes"
-      description: "Returns a filtered list of Nodes."
+      description: "Lists Nodes with filter."
     };
   }
   // GetNode returns a single Node by ID.
@@ -166,7 +174,7 @@ service ManagementService {
     option (google.api.http) = {get: "/v1/management/nodes/{node_id}"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Node"
-      description: "Returns a single Node by ID."
+      description: "Gets a single Node by ID."
     };
   }
   // AddExternal adds external service and adds external exporter.

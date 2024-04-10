@@ -40,6 +40,8 @@ type ClientService interface {
 
 	GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeOK, error)
 
+	ListAgents(params *ListAgentsParams, opts ...ClientOption) (*ListAgentsOK, error)
+
 	ListNodes(params *ListNodesParams, opts ...ClientOption) (*ListNodesOK, error)
 
 	ListServices(params *ListServicesParams, opts ...ClientOption) (*ListServicesOK, error)
@@ -251,7 +253,7 @@ func (a *Client) DiscoverRDS(params *DiscoverRDSParams, opts ...ClientOption) (*
 /*
 GetNode gets node
 
-Returns a single Node by ID.
+Gets a single Node by ID.
 */
 func (a *Client) GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeOK, error) {
 	// TODO: Validate the params before sending
@@ -288,9 +290,48 @@ func (a *Client) GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeO
 }
 
 /*
+ListAgents lists agents
+
+Lists Agents with filter.
+*/
+func (a *Client) ListAgents(params *ListAgentsParams, opts ...ClientOption) (*ListAgentsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListAgentsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListAgents",
+		Method:             "GET",
+		PathPattern:        "/v1/management/agents",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListAgentsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListAgentsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListAgentsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 ListNodes lists nodes
 
-Returns a filtered list of Nodes.
+Lists Nodes with filter.
 */
 func (a *Client) ListNodes(params *ListNodesParams, opts ...ClientOption) (*ListNodesOK, error) {
 	// TODO: Validate the params before sending

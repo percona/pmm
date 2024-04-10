@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	ManagementService_AddAnnotation_FullMethodName         = "/management.v1.ManagementService/AddAnnotation"
+	ManagementService_ListAgents_FullMethodName            = "/management.v1.ManagementService/ListAgents"
 	ManagementService_RegisterNode_FullMethodName          = "/management.v1.ManagementService/RegisterNode"
 	ManagementService_UnregisterNode_FullMethodName        = "/management.v1.ManagementService/UnregisterNode"
 	ManagementService_ListNodes_FullMethodName             = "/management.v1.ManagementService/ListNodes"
@@ -39,6 +40,8 @@ const (
 type ManagementServiceClient interface {
 	// AddAnnotation adds an annotation.
 	AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*AddAnnotationResponse, error)
+	// ListAgents returns a list of Agents filtered by service_id or node_id.
+	ListAgents(ctx context.Context, in *ListAgentsRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error)
 	// RegisterNode registers a new Node and a pmm-agent.
 	RegisterNode(ctx context.Context, in *RegisterNodeRequest, opts ...grpc.CallOption) (*RegisterNodeResponse, error)
 	// UnregisterNode unregisters a Node, pmm-agent and removes the service account and its token.
@@ -72,6 +75,15 @@ func NewManagementServiceClient(cc grpc.ClientConnInterface) ManagementServiceCl
 func (c *managementServiceClient) AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*AddAnnotationResponse, error) {
 	out := new(AddAnnotationResponse)
 	err := c.cc.Invoke(ctx, ManagementService_AddAnnotation_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managementServiceClient) ListAgents(ctx context.Context, in *ListAgentsRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error) {
+	out := new(ListAgentsResponse)
+	err := c.cc.Invoke(ctx, ManagementService_ListAgents_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -174,6 +186,8 @@ func (c *managementServiceClient) RemoveService(ctx context.Context, in *RemoveS
 type ManagementServiceServer interface {
 	// AddAnnotation adds an annotation.
 	AddAnnotation(context.Context, *AddAnnotationRequest) (*AddAnnotationResponse, error)
+	// ListAgents returns a list of Agents filtered by service_id or node_id.
+	ListAgents(context.Context, *ListAgentsRequest) (*ListAgentsResponse, error)
 	// RegisterNode registers a new Node and a pmm-agent.
 	RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error)
 	// UnregisterNode unregisters a Node, pmm-agent and removes the service account and its token.
@@ -202,6 +216,10 @@ type UnimplementedManagementServiceServer struct{}
 
 func (UnimplementedManagementServiceServer) AddAnnotation(context.Context, *AddAnnotationRequest) (*AddAnnotationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddAnnotation not implemented")
+}
+
+func (UnimplementedManagementServiceServer) ListAgents(context.Context, *ListAgentsRequest) (*ListAgentsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListAgents not implemented")
 }
 
 func (UnimplementedManagementServiceServer) RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error) {
@@ -270,6 +288,24 @@ func _ManagementService_AddAnnotation_Handler(srv interface{}, ctx context.Conte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ManagementServiceServer).AddAnnotation(ctx, req.(*AddAnnotationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ManagementService_ListAgents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAgentsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagementServiceServer).ListAgents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ManagementService_ListAgents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagementServiceServer).ListAgents(ctx, req.(*ListAgentsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -464,6 +500,10 @@ var ManagementService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddAnnotation",
 			Handler:    _ManagementService_AddAnnotation_Handler,
+		},
+		{
+			MethodName: "ListAgents",
+			Handler:    _ManagementService_ListAgents_Handler,
 		},
 		{
 			MethodName: "RegisterNode",

@@ -50,7 +50,7 @@ var rules = map[string]role{
 
 	"/inventory.":                               admin,
 	"/management.":                              admin,
-	"/actions/":                                 viewer,
+	"/actions.":                                 viewer,
 	"/server.v1.ServerService/CheckUpdates":     viewer,
 	"/server.v1.ServerService/UpdateStatus":     none,  // special token-based auth
 	"/server.v1.ServerService/AWSInstanceCheck": none,  // special case - used before Grafana can be accessed
@@ -61,10 +61,12 @@ var rules = map[string]role{
 
 	"/v1/alerting":                                viewer,
 	"/v1/actions/":                                viewer,
-	"/v1/backup":                                  admin, // TODO: remove once we finish refactoring the whole backup API
+	"/v1/actions:startServiceAction":              viewer,
+	"/v1/actions:startNodeAction":                 viewer,
+	"/v1/actions:cancelAction":                    viewer,
 	"/v1/backups":                                 admin,
 	"/v1/dump":                                    admin,
-	"/v1/role":                                    admin,
+	"/v1/accesscontrol":                           admin,
 	"/v1/inventory/":                              admin,
 	"/v1/inventory/services:getTypes":             viewer,
 	"/v1/management/":                             admin,
