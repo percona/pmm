@@ -6,6 +6,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "inventory/v1/nodes.proto";
 import "inventory/v1/services.proto";
+import "management/v1/agent.proto";
 import "management/v1/annotation.proto";
 import "management/v1/external.proto";
 import "management/v1/haproxy.proto";
@@ -51,103 +52,74 @@ message RemoveServiceRequest {
 
 message RemoveServiceResponse {}
 
-message UnregisterNodeRequest {
-  // Node_id to be unregistered.
-  string node_id = 1 [(validate.rules).string.min_len = 1];
-  // Force delete node, related service account, even if it has more service tokens attached.
-  bool force = 2;
-}
-
-message UnregisterNodeResponse {
-  // Warning message if there are more service tokens attached to service account.
-  string warning = 1;
-}
-
-message UniversalNode {
-  // Node status.
+message UniversalService {
+  // Service status.
   enum Status {
-    // Invalid status.
+    // In case we don't support the db vendor yet.
     STATUS_UNSPECIFIED = 0;
-    // The node is up.
+    // The service is up.
     STATUS_UP = 1;
-    // The node is down.
+    // The service is down.
     STATUS_DOWN = 2;
-    // The node's status cannot be known (e.g. there are no metrics yet).
+    // The service's status cannot be known (e.g. there are no metrics yet).
     STATUS_UNKNOWN = 3;
   }
-  // Service represents a service running on a node.
-  message Service {
-    // Unique Service identifier.
-    string service_id = 1;
-    // Service type.
-    string service_type = 2;
-    // Service name.
-    string service_name = 3;
-  }
 
-  message Agent {
-    // Unique Agent identifier.
-    string agent_id = 1;
-    // Agent type.
-    string agent_type = 2;
-    // Actual Agent status.
-    string status = 3;
-    // True if Agent is running and connected to pmm-managed.
-    bool is_connected = 4;
-  }
-
-  // Unique Node identifier.
-  string node_id = 1;
-  // Node type.
-  string node_type = 2;
-  // User-defined node name.
-  string node_name = 3;
-  // Linux machine-id.
-  string machine_id = 4;
-  // Linux distribution name and version.
-  string distro = 5;
-  // Node model.
-  string node_model = 6;
-  // A node's unique docker container identifier.
-  string container_id = 7;
-  // Container name.
-  string container_name = 8;
-  // Node address (DNS name or IP).
-  string address = 9;
-  // Node region.
-  string region = 10;
-  // Node availability zone.
-  string az = 11;
-  // Custom user-assigned labels for Node.
-  map<string, string> custom_labels = 12;
+  // Unique service identifier.
+  string service_id = 1;
+  // Service type.
+  string service_type = 2;
+  // User-defined name unique across all Services.
+  string service_name = 3;
+  // Database name.
+  string database_name = 4;
+  // Node identifier where this instance runs.
+  string node_id = 5;
+  // Node name where this instance runs.
+  string node_name = 6;
+  // Environment name.
+  string environment = 7;
+  // Cluster name.
+  string cluster = 8;
+  // Replication set name.
+  string replication_set = 9;
+  // Custom user-assigned labels for Service.
+  map<string, string> custom_labels = 10;
+  // External group name.
+  string external_group = 11;
+  // Access address (DNS name or IP).
+  // Address (and port) or socket is required.
+  string address = 12;
+  // Access port.
+  // Port is required when the address present.
+  uint32 port = 13;
+  // Access unix socket.
+  // Address (and port) or socket is required.
+  string socket = 14;
   // Creation timestamp.
-  google.protobuf.Timestamp created_at = 13;
+  google.protobuf.Timestamp created_at = 15;
   // Last update timestamp.
-  google.protobuf.Timestamp updated_at = 14;
-  // The health status of the node.
-  Status status = 15;
-  // List of agents related to this node.
-  repeated Agent agents = 16;
-  // List of services running on this node.
-  repeated Service services = 17;
+  google.protobuf.Timestamp updated_at = 16;
+  // List of agents related to this service.
+  repeated UniversalAgent agents = 17;
+  // The health status of the service.
+  Status status = 18;
+  // The service/database version.
+  string version = 19;
 }
 
-message ListNodesRequest {
-  // Node type to be filtered out.
-  inventory.v1.NodeType node_type = 1;
+message ListServicesRequest {
+  // Return only Services running on that Node.
+  string node_id = 1;
+  // Return only services filtered by service type.
+  inventory.v1.ServiceType service_type = 2;
+  // Return only services in this external group.
+  string external_group = 3;
 }
 
-message ListNodesResponse {
-  repeated UniversalNode nodes = 1;
-}
-
-message GetNodeRequest {
-  // Unique Node identifier.
-  string node_id = 1 [(validate.rules).string.min_len = 1];
-}
-
-message GetNodeResponse {
-  UniversalNode node = 1;
+message ListServicesResponse {
+  // List of Services.
+  repeated UniversalService services = 1;
 }
 
 // ManagementService provides public methods for managing and querying Services.
@@ -192,9 +164,7 @@ service ManagementService {
   }
   // GetNode returns a single Node by ID.
   rpc GetNode(GetNodeRequest) returns (GetNodeResponse) {
-    option (google.api.http) = {
-      get: "/v1/management/nodes/{node_id}"
-    };
+    option (google.api.http) = {get: "/v1/management/nodes/{node_id}"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Node"
       description: "Returns a single Node by ID."
@@ -235,6 +205,17 @@ service ManagementService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add a Service"
       description: "Adds a service and starts several agents."
+    };
+  }
+  // ListServices returns a list of Services with a rich set of properties.
+  rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Service/List"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Services"
+      description: "Returns a filtered list of Services."
     };
   }
   // DiscoverRDS discovers RDS instances.

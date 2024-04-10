@@ -60,7 +60,7 @@ type GetNodeOK struct {
 }
 
 func (o *GetNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Node/Get][%d] getNodeOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/management/nodes/{node_id}][%d] getNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *GetNodeOK) GetPayload() *GetNodeOKBody {
@@ -102,7 +102,7 @@ func (o *GetNodeDefault) Code() int {
 }
 
 func (o *GetNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Node/Get][%d] GetNode default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/management/nodes/{node_id}][%d] GetNode default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetNodeDefault) GetPayload() *GetNodeDefaultBody {
@@ -117,43 +117,6 @@ func (o *GetNodeDefault) readResponse(response runtime.ClientResponse, consumer 
 		return err
 	}
 
-	return nil
-}
-
-/*
-GetNodeBody get node body
-swagger:model GetNodeBody
-*/
-type GetNodeBody struct {
-	// Unique Node identifier.
-	NodeID string `json:"node_id,omitempty"`
-}
-
-// Validate validates this get node body
-func (o *GetNodeBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this get node body based on context it is used
-func (o *GetNodeBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetNodeBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetNodeBody) UnmarshalBinary(b []byte) error {
-	var res GetNodeBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

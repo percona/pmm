@@ -38,6 +38,8 @@ type ClientService interface {
 
 	ListNodes(params *ListNodesParams, opts ...ClientOption) (*ListNodesOK, error)
 
+	ListServices(params *ListServicesParams, opts ...ClientOption) (*ListServicesOK, error)
+
 	RegisterNode(params *RegisterNodeParams, opts ...ClientOption) (*RegisterNodeOK, error)
 
 	RemoveService(params *RemoveServiceParams, opts ...ClientOption) (*RemoveServiceOK, error)
@@ -176,8 +178,8 @@ func (a *Client) GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeO
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "GetNode",
-		Method:             "POST",
-		PathPattern:        "/v1/management/Node/Get",
+		Method:             "GET",
+		PathPattern:        "/v1/management/nodes/{node_id}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -239,6 +241,45 @@ func (a *Client) ListNodes(params *ListNodesParams, opts ...ClientOption) (*List
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ListNodesDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListServices lists services
+
+Returns a filtered list of Services.
+*/
+func (a *Client) ListServices(params *ListServicesParams, opts ...ClientOption) (*ListServicesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListServicesParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListServices",
+		Method:             "POST",
+		PathPattern:        "/v1/management/Service/List",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListServicesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListServicesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListServicesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

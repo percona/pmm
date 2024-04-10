@@ -51,6 +51,7 @@ POST /v1/management/Node/Register                   POST /v1/management/nodes   
 POST /v1/management/Node/Unregister                 DELETE /v1/management/nodes/{node_id}            ✅ ?force=true
 POST /v1/management/Node/Get                        GET /v1/management/nodes/{node_id}               ✅ Moved from MgmtService
 POST /v1/management/Node/List                       GET /v1/management/nodes                         ✅ Moved from MgmtService
+POST /v1/management/Service/List                    GET /v1/management/services                      ✅ Moved from MgmtService
 POST /v1/management/External/Add                    POST /v1/management/services                     ✅ NOTE: several endpoints merged into one
 POST /v1/management/HAProxy/Add                     POST /v1/management/services                     ✅
 POST /v1/management/MongoDB/Add                     POST /v1/management/services                     ✅
@@ -62,12 +63,12 @@ POST /v1/management/RDS/Discover                    POST /v1/management/services
 POST /v1/management/Service/Remove                  DELETE /v1/management/services/{service_id}      ✅ NOTE: in addition, it accepts ?service_type=
 
 **MgmtService**                                     **ManagementV1Beta1Service**                     NOTE: promote to v1 from v1beta1
-POST /v1/management/Agent/List                      GET /v1/management/agents
-POST /v1/management/Node/Get                        GET /v1/management/nodes/{node_id}
-POST /v1/management/Node/List                       GET /v1/management/nodes
+POST /v1/management/Agent/List                      GET /v1/management/agents                        
+POST /v1/management/Node/Get                        GET /v1/management/nodes/{node_id}               ✅
+POST /v1/management/Node/List                       GET /v1/management/nodes                         ✅ 
 POST /v1/management/AzureDatabase/Add               POST /v1/management/services/azure
 POST /v1/management/AzureDatabase/Discover          POST /v1/management/services/azure:discover
-POST /v1/management/Service/List                    GET /v1/management/services
+POST /v1/management/Service/List                    GET /v1/management/services                      ✅
 
 **ActionsService**                                  **ActionService**
 POST /v1/actions/Cancel                             POST /v1/actions:cancelAction                    ✅

@@ -26,6 +26,7 @@ const (
 	ManagementService_ListNodes_FullMethodName      = "/management.v1.ManagementService/ListNodes"
 	ManagementService_GetNode_FullMethodName        = "/management.v1.ManagementService/GetNode"
 	ManagementService_AddService_FullMethodName     = "/management.v1.ManagementService/AddService"
+	ManagementService_ListServices_FullMethodName   = "/management.v1.ManagementService/ListServices"
 	ManagementService_DiscoverRDS_FullMethodName    = "/management.v1.ManagementService/DiscoverRDS"
 	ManagementService_RemoveService_FullMethodName  = "/management.v1.ManagementService/RemoveService"
 )
@@ -46,6 +47,8 @@ type ManagementServiceClient interface {
 	GetNode(ctx context.Context, in *GetNodeRequest, opts ...grpc.CallOption) (*GetNodeResponse, error)
 	// AddService adds a Service and starts several Agents.
 	AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error)
+	// ListServices returns a list of Services with a rich set of properties.
+	ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error)
 	// DiscoverRDS discovers RDS instances.
 	DiscoverRDS(ctx context.Context, in *DiscoverRDSRequest, opts ...grpc.CallOption) (*DiscoverRDSResponse, error)
 	// RemoveService removes a Service along with its Agents.
@@ -114,6 +117,15 @@ func (c *managementServiceClient) AddService(ctx context.Context, in *AddService
 	return out, nil
 }
 
+func (c *managementServiceClient) ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error) {
+	out := new(ListServicesResponse)
+	err := c.cc.Invoke(ctx, ManagementService_ListServices_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *managementServiceClient) DiscoverRDS(ctx context.Context, in *DiscoverRDSRequest, opts ...grpc.CallOption) (*DiscoverRDSResponse, error) {
 	out := new(DiscoverRDSResponse)
 	err := c.cc.Invoke(ctx, ManagementService_DiscoverRDS_FullMethodName, in, out, opts...)
@@ -148,6 +160,8 @@ type ManagementServiceServer interface {
 	GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error)
 	// AddService adds a Service and starts several Agents.
 	AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error)
+	// ListServices returns a list of Services with a rich set of properties.
+	ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error)
 	// DiscoverRDS discovers RDS instances.
 	DiscoverRDS(context.Context, *DiscoverRDSRequest) (*DiscoverRDSResponse, error)
 	// RemoveService removes a Service along with its Agents.
@@ -180,6 +194,10 @@ func (UnimplementedManagementServiceServer) GetNode(context.Context, *GetNodeReq
 
 func (UnimplementedManagementServiceServer) AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddService not implemented")
+}
+
+func (UnimplementedManagementServiceServer) ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListServices not implemented")
 }
 
 func (UnimplementedManagementServiceServer) DiscoverRDS(context.Context, *DiscoverRDSRequest) (*DiscoverRDSResponse, error) {
@@ -310,6 +328,24 @@ func _ManagementService_AddService_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ManagementService_ListServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListServicesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagementServiceServer).ListServices(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ManagementService_ListServices_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagementServiceServer).ListServices(ctx, req.(*ListServicesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ManagementService_DiscoverRDS_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DiscoverRDSRequest)
 	if err := dec(in); err != nil {
@@ -376,6 +412,10 @@ var ManagementService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddService",
 			Handler:    _ManagementService_AddService_Handler,
+		},
+		{
+			MethodName: "ListServices",
+			Handler:    _ManagementService_ListServices_Handler,
 		},
 		{
 			MethodName: "DiscoverRDS",

@@ -67,5 +67,5 @@ curl -X GET http://admin:admin@127.0.0.1:8080/v1/backups/artifacts/bcc83096-b006
 # POST /v1/role/List -> GET /v1/accesscontrol/roles
 curl -X GET http://admin:admin@127.0.0.1:8080/v1/accesscontrol/roles
 
-# POST /v1/role/List -> GET /v1/management/nodes
+# POST /v1/management/Node/List -> GET /v1/management/nodes
 curl -X GET http://admin:admin@127.0.0.1:8080/v1/management/nodes

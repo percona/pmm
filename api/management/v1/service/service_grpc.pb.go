@@ -13,7 +13,7 @@ import (
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 
-	agent "github.com/percona/pmm/api/management/v1/agent"
+	v1 "github.com/percona/pmm/api/management/v1"
 	azure "github.com/percona/pmm/api/management/v1/azure"
 )
 
@@ -24,7 +24,6 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	ManagementV1Beta1Service_ListAgents_FullMethodName            = "/service.v1beta1.ManagementV1Beta1Service/ListAgents"
-	ManagementV1Beta1Service_ListServices_FullMethodName          = "/service.v1beta1.ManagementV1Beta1Service/ListServices"
 	ManagementV1Beta1Service_DiscoverAzureDatabase_FullMethodName = "/service.v1beta1.ManagementV1Beta1Service/DiscoverAzureDatabase"
 	ManagementV1Beta1Service_AddAzureDatabase_FullMethodName      = "/service.v1beta1.ManagementV1Beta1Service/AddAzureDatabase"
 )
@@ -34,9 +33,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ManagementV1Beta1ServiceClient interface {
 	// ListAgents returns a list of Agents filtered by service_id.
-	ListAgents(ctx context.Context, in *agent.ListAgentsRequest, opts ...grpc.CallOption) (*agent.ListAgentsResponse, error)
-	// ListServices returns a list of Services with a rich set of properties.
-	ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error)
+	ListAgents(ctx context.Context, in *v1.ListAgentsRequest, opts ...grpc.CallOption) (*v1.ListAgentsResponse, error)
 	// DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
 	DiscoverAzureDatabase(ctx context.Context, in *azure.DiscoverAzureDatabaseRequest, opts ...grpc.CallOption) (*azure.DiscoverAzureDatabaseResponse, error)
 	// AddAzureDatabase adds Azure Database instance.
@@ -51,18 +48,9 @@ func NewManagementV1Beta1ServiceClient(cc grpc.ClientConnInterface) ManagementV1
 	return &managementV1Beta1ServiceClient{cc}
 }
 
-func (c *managementV1Beta1ServiceClient) ListAgents(ctx context.Context, in *agent.ListAgentsRequest, opts ...grpc.CallOption) (*agent.ListAgentsResponse, error) {
-	out := new(agent.ListAgentsResponse)
+func (c *managementV1Beta1ServiceClient) ListAgents(ctx context.Context, in *v1.ListAgentsRequest, opts ...grpc.CallOption) (*v1.ListAgentsResponse, error) {
+	out := new(v1.ListAgentsResponse)
 	err := c.cc.Invoke(ctx, ManagementV1Beta1Service_ListAgents_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *managementV1Beta1ServiceClient) ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error) {
-	out := new(ListServicesResponse)
-	err := c.cc.Invoke(ctx, ManagementV1Beta1Service_ListServices_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -92,9 +80,7 @@ func (c *managementV1Beta1ServiceClient) AddAzureDatabase(ctx context.Context, i
 // for forward compatibility
 type ManagementV1Beta1ServiceServer interface {
 	// ListAgents returns a list of Agents filtered by service_id.
-	ListAgents(context.Context, *agent.ListAgentsRequest) (*agent.ListAgentsResponse, error)
-	// ListServices returns a list of Services with a rich set of properties.
-	ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error)
+	ListAgents(context.Context, *v1.ListAgentsRequest) (*v1.ListAgentsResponse, error)
 	// DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
 	DiscoverAzureDatabase(context.Context, *azure.DiscoverAzureDatabaseRequest) (*azure.DiscoverAzureDatabaseResponse, error)
 	// AddAzureDatabase adds Azure Database instance.
@@ -105,12 +91,8 @@ type ManagementV1Beta1ServiceServer interface {
 // UnimplementedManagementV1Beta1ServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedManagementV1Beta1ServiceServer struct{}
 
-func (UnimplementedManagementV1Beta1ServiceServer) ListAgents(context.Context, *agent.ListAgentsRequest) (*agent.ListAgentsResponse, error) {
+func (UnimplementedManagementV1Beta1ServiceServer) ListAgents(context.Context, *v1.ListAgentsRequest) (*v1.ListAgentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAgents not implemented")
-}
-
-func (UnimplementedManagementV1Beta1ServiceServer) ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListServices not implemented")
 }
 
 func (UnimplementedManagementV1Beta1ServiceServer) DiscoverAzureDatabase(context.Context, *azure.DiscoverAzureDatabaseRequest) (*azure.DiscoverAzureDatabaseResponse, error) {
@@ -136,7 +118,7 @@ func RegisterManagementV1Beta1ServiceServer(s grpc.ServiceRegistrar, srv Managem
 }
 
 func _ManagementV1Beta1Service_ListAgents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(agent.ListAgentsRequest)
+	in := new(v1.ListAgentsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -148,25 +130,7 @@ func _ManagementV1Beta1Service_ListAgents_Handler(srv interface{}, ctx context.C
 		FullMethod: ManagementV1Beta1Service_ListAgents_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ManagementV1Beta1ServiceServer).ListAgents(ctx, req.(*agent.ListAgentsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ManagementV1Beta1Service_ListServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListServicesRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ManagementV1Beta1ServiceServer).ListServices(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ManagementV1Beta1Service_ListServices_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ManagementV1Beta1ServiceServer).ListServices(ctx, req.(*ListServicesRequest))
+		return srv.(ManagementV1Beta1ServiceServer).ListAgents(ctx, req.(*v1.ListAgentsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -217,10 +181,6 @@ var ManagementV1Beta1Service_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListAgents",
 			Handler:    _ManagementV1Beta1Service_ListAgents_Handler,
-		},
-		{
-			MethodName: "ListServices",
-			Handler:    _ManagementV1Beta1Service_ListServices_Handler,
 		},
 		{
 			MethodName: "DiscoverAzureDatabase",

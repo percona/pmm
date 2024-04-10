@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package agent.v1beta1;
+package management.v1;
 
 import "google/protobuf/timestamp.proto";
 

@@ -28,7 +28,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	servicev1beta1 "github.com/percona/pmm/api/management/v1/service"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -37,7 +37,7 @@ import (
 
 func TestMgmtServiceService(t *testing.T) {
 	t.Run("List", func(t *testing.T) {
-		setup := func(t *testing.T) (context.Context, *MgmtServiceService, func(t *testing.T), *mockPrometheusService) { //nolint:unparam
+		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T), *mockPrometheusService) { //nolint:unparam
 			t.Helper()
 
 			ctx := logger.Set(context.Background(), t.Name())
@@ -55,20 +55,38 @@ func TestMgmtServiceService(t *testing.T) {
 			ar := &mockAgentsRegistry{}
 			ar.Test(t)
 
+			cc := &mockConnectionChecker{}
+			cc.Test(t)
+
+			sib := &mockServiceInfoBroker{}
+			sib.Test(t)
+
 			vmClient := &mockVictoriaMetricsClient{}
 			vmClient.Test(t)
+
+			vc := &mockVersionCache{}
+			vc.Test(t)
+
+			grafanaClient := &mockGrafanaClient{}
+			grafanaClient.Test(t)
 
 			teardown := func(t *testing.T) {
 				t.Helper()
 				uuid.SetRand(nil)
 
 				require.NoError(t, sqlDB.Close())
-				vmdb.AssertExpectations(t)
-				state.AssertExpectations(t)
+
 				ar.AssertExpectations(t)
+				state.AssertExpectations(t)
+				cc.AssertExpectations(t)
+				sib.AssertExpectations(t)
+				vmdb.AssertExpectations(t)
+				vc.AssertExpectations(t)
+				grafanaClient.AssertExpectations(t)
 				vmClient.AssertExpectations(t)
 			}
-			s := NewMgmtServiceService(db, ar, state, vmdb, vmClient)
+
+			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
 
 			return ctx, s, teardown, vmdb
 		}
@@ -87,7 +105,7 @@ func TestMgmtServiceService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once() // PMM Server Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()           // PMM Server PostgreSQL exporter
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgStatStatementID).Return(false).Once()      // PMM Server PG Stat Statements agent
-			response, err := s.ListServices(ctx, &servicev1beta1.ListServicesRequest{})
+			response, err := s.ListServices(ctx, &managementv1.ListServicesRequest{})
 
 			require.NoError(t, err)
 			assert.Len(t, response.Services, 1) // PMM Server PostgreSQL service
@@ -139,7 +157,7 @@ func TestMgmtServiceService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", mysqldExporter.AgentID).Return(false).Once() // MySQLd exporter
 			s.r.(*mockAgentsRegistry).On("IsConnected", rdsExporter.AgentID).Return(false).Once()    // RDS exporter
 
-			response, err := s.ListServices(ctx, &servicev1beta1.ListServicesRequest{})
+			response, err := s.ListServices(ctx, &managementv1.ListServicesRequest{})
 
 			require.NoError(t, err)
 			assert.Len(t, response.Services, 2) // PMM Server PostgreSQL service, MySQL service
@@ -192,7 +210,7 @@ func TestMgmtServiceService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", mysqldExporter.AgentID).Return(false).Once() // MySQLd exporter
 			s.r.(*mockAgentsRegistry).On("IsConnected", azureExporter.AgentID).Return(false).Once()  // Azure exporter
 
-			response, err := s.ListServices(ctx, &servicev1beta1.ListServicesRequest{})
+			response, err := s.ListServices(ctx, &managementv1.ListServicesRequest{})
 
 			require.NoError(t, err)
 			assert.Len(t, response.Services, 2) // PMM Server PostgreSQL service, MySQL service

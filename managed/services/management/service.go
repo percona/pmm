@@ -17,11 +17,14 @@ package management
 
 import (
 	"context"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
+	"github.com/prometheus/common/model"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -70,6 +73,18 @@ func NewManagementService(
 	}
 }
 
+// A map to check if the service is supported.
+// NOTE: known external services appear to match the vendor names,
+// (e.g. "mysql", "mongodb", "postgresql", "proxysql", "haproxy"),
+// which is why ServiceType_EXTERNAL_SERVICE is not part of this map.
+var supportedServices = map[string]inventoryv1.ServiceType{
+	string(models.MySQLServiceType):      inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
+	string(models.MongoDBServiceType):    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
+	string(models.PostgreSQLServiceType): inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
+	string(models.ProxySQLServiceType):   inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
+	string(models.HAProxyServiceType):    inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
+}
+
 // AddService add a Service and its Agents.
 func (s *ManagementService) AddService(ctx context.Context, req *managementv1.AddServiceRequest) (*managementv1.AddServiceResponse, error) {
 	switch req.Service.(type) {
@@ -90,6 +105,140 @@ func (s *ManagementService) AddService(ctx context.Context, req *managementv1.Ad
 	default:
 		return nil, errors.Errorf("invalid request %v", req.GetService())
 	}
+}
+
+// ListServices returns a filtered list of Services with some attributes from Agents and Nodes.
+func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.ListServicesRequest) (*managementv1.ListServicesResponse, error) {
+	filters := models.ServiceFilters{
+		NodeID:        req.NodeId,
+		ServiceType:   services.ProtoToModelServiceType(req.ServiceType),
+		ExternalGroup: req.ExternalGroup,
+	}
+
+	agentToAPI := func(agent *models.Agent) *managementv1.UniversalAgent {
+		return &managementv1.UniversalAgent{
+			AgentId:     agent.AgentID,
+			AgentType:   string(agent.AgentType),
+			Status:      agent.Status,
+			IsConnected: s.r.IsConnected(agent.AgentID),
+		}
+	}
+
+	query := `pg_up{collector="exporter",job=~".*_hr$"}
+		or mysql_up{job=~".*_hr$"}
+		or mongodb_up{job=~".*_hr$"}
+		or proxysql_up{job=~".*_hr$"}
+		or haproxy_backend_status{state="UP"}
+	`
+	result, _, err := s.vmClient.Query(ctx, query, time.Now())
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to execute an instant VM query")
+	}
+
+	metrics := make(map[string]statusMetrics, len(result.(model.Vector))) //nolint:forcetypeassert
+	for _, v := range result.(model.Vector) {                             //nolint:forcetypeassert
+		serviceID := string(v.Metric[model.LabelName("service_id")])
+		serviceType := string(v.Metric[model.LabelName("service_type")])
+		metrics[serviceID] = statusMetrics{status: int(v.Value), serviceType: serviceType}
+	}
+
+	var (
+		services []*models.Service
+		agents   []*models.Agent
+		nodes    []*models.Node
+	)
+
+	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		var err error
+		services, err = models.FindServices(tx.Querier, filters)
+		if err != nil {
+			return err
+		}
+
+		agents, err = models.FindAgents(tx.Querier, models.AgentFilters{})
+		if err != nil {
+			return err
+		}
+
+		nodes, err = models.FindNodes(tx.Querier, models.NodeFilters{})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if errTX != nil {
+		return nil, errTX
+	}
+
+	nodeMap := make(map[string]string, len(nodes))
+	for _, node := range nodes {
+		nodeMap[node.NodeID] = node.NodeName
+	}
+
+	resultSvc := make([]*managementv1.UniversalService, len(services))
+	for i, service := range services {
+		labels, err := service.GetCustomLabels()
+		if err != nil {
+			return nil, err
+		}
+
+		svc := &managementv1.UniversalService{
+			Address:        pointer.GetString(service.Address),
+			Agents:         []*managementv1.UniversalAgent{},
+			Cluster:        service.Cluster,
+			CreatedAt:      timestamppb.New(service.CreatedAt),
+			CustomLabels:   labels,
+			DatabaseName:   service.DatabaseName,
+			Environment:    service.Environment,
+			ExternalGroup:  service.ExternalGroup,
+			NodeId:         service.NodeID,
+			Port:           uint32(pointer.GetUint16(service.Port)),
+			ReplicationSet: service.ReplicationSet,
+			ServiceId:      service.ServiceID,
+			ServiceType:    string(service.ServiceType),
+			ServiceName:    service.ServiceName,
+			Socket:         pointer.GetString(service.Socket),
+			UpdatedAt:      timestamppb.New(service.UpdatedAt),
+			Version:        pointer.GetString(service.Version),
+		}
+
+		if metric, ok := metrics[service.ServiceID]; ok {
+			switch metric.status {
+			// We assume there can only be values of either 1(UP) or 0(DOWN).
+			case 0:
+				svc.Status = managementv1.UniversalService_STATUS_DOWN
+			case 1:
+				svc.Status = managementv1.UniversalService_STATUS_UP
+			}
+		} else {
+			// In case there is no metric, we need to assign different values for supported and unsupported service types.
+			if _, ok := supportedServices[metric.serviceType]; ok {
+				svc.Status = managementv1.UniversalService_STATUS_UNKNOWN
+			} else {
+				svc.Status = managementv1.UniversalService_STATUS_UNSPECIFIED
+			}
+		}
+
+		nodeName, ok := nodeMap[service.NodeID]
+		if ok {
+			svc.NodeName = nodeName
+		}
+
+		var uAgents []*managementv1.UniversalAgent
+
+		for _, agent := range agents {
+			if IsNodeAgent(agent, service) || IsVMAgent(agent, service) || IsServiceAgent(agent, service) {
+				uAgents = append(uAgents, agentToAPI(agent))
+			}
+		}
+
+		svc.Agents = uAgents
+		resultSvc[i] = svc
+	}
+
+	return &managementv1.ListServicesResponse{Services: resultSvc}, nil
 }
 
 // RemoveService removes a Service along with its Agents.
