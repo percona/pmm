@@ -9,6 +9,8 @@ NO_SERVER_RPM=0
 NO_SERVER_DOCKER=0
 START_TIME=$(date +%s)
 LOG_FILE="/tmp/build.log"
+BASE_NAME=$(basename $0)
+USAGE="Usage: $BASE_NAME [--no-update | --update-only] [--no-client] [--no-client-docker] [--no-server-rpm] [--log-file <path>] [--help | -h]"
 
 while test "$#" -gt 0; do
   case "$1" in
@@ -46,9 +48,15 @@ while test "$#" -gt 0; do
       fi
       LOG_FILE="$1"
       ;;
+    --help | -h)
+      shift
+      echo "$USAGE"
+      echo
+      exit 0
+      ;;
     *)
       echo "Unknown argument: $1"
-      echo "Usage: $0 [--no-update | --update-only] [--no-client] [--no-client-docker] [--no-server-rpm] [--log-file <path>]"
+      echo "$USAGE"
       echo
       exit 1
       ;;
@@ -236,12 +244,7 @@ init() {
   PATH_TO_SCRIPTS="sources/pmm/src/github.com/percona/pmm/build/scripts"
   export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:3
 
-  # We use a special docker image to build various PMM artifacts - `perconalab/rpmbuild:3`.
-  # Important: the docker container's user needs to be able to write to these directories.
-  # The docker container's user is `builder` with uid 1000 and gid 1000. You need to make sure
-  # that the directories we create on the host are owned by a user with the same uid and gid.
-
-  # Create cache directories.
+  # Create cache directories. Read more in the section about `rpmbuild`.
   test -d "${root_dir}/go-path" || mkdir -p "go-path"
   test -d "${root_dir}/go-build" || mkdir -p "go-build"
   test -d "${root_dir}/yarn-cache" || mkdir -p "yarn-cache"
