@@ -148,7 +148,7 @@ POST /v1/role/SetDefault                            POST /v1/accesscontrol/roles
 POST /v1/role/Update                                PUT /v1/accesscontrol/roles/{role_id}            ✅
 
 **QANService**                                      **QANService**
-POST /v1/qan/Filters/Get                            POST /v1/qan/metrics:getFilters                  accepts a bunch of params, incl. an array
+POST /v1/qan/Filters/Get                            POST /v1/qan/metrics:getFilters                  
 POST /v1/qan/GetMetricsNames                        POST /v1/qan/metrics:getNames                    Note: it accepts no params, but hard to make it a GET
 POST /v1/qan/GetReport                              POST /v1/qan/metrics:getReport
 POST /v1/qan/ObjectDetails/ExplainFingerprintByQueryId POST /v1/qan:explainFingerprint
@@ -161,13 +161,13 @@ POST /v1/qan/ObjectDetails/QueryExists              GET /v1/qan/query/{query_id}
 POST /v1/qan/ObjectDetails/SchemaByQueryId          POST /v1/qan/query:getSchema
 
 **PlatformService**                                 **PlatformService**
-POST /v1/platform/Connect                           POST /v1/platform:connect
-POST /v1/platform/Disconnect                        POST /v1/platform:disconnect
-POST /v1/platform/GetContactInformation             GET /v1/platform/contact
-POST /v1/platform/SearchOganizationEntitlemenets    GET /v1/platform/organization/entitlements
-POST /v1/platform/SearchOganizationTickets          GET /v1/platform/organization/tickets
-POST /v1/platform/ServerInfo                        GET /v1/platform/server
-POST /v1/platform/UserInfo                          GET /v1/platform/user
+POST /v1/platform/Connect                           POST /v1/platform:connect                        ✅
+POST /v1/platform/Disconnect                        POST /v1/platform:disconnect                     ✅
+POST /v1/platform/GetContactInformation             GET /v1/platform/contact                         ✅
+POST /v1/platform/SearchOganizationEntitlemenets    GET /v1/platform/organization/entitlements       ✅
+POST /v1/platform/SearchOganizationTickets          GET /v1/platform/organization/tickets            ✅
+POST /v1/platform/ServerInfo                        GET /v1/platform/server                          ✅
+POST /v1/platform/UserInfo                          GET /v1/platform/user                            ✅
 
 // TODO: rename `period_start_from` to `start_from` and `period_start_to` to `start_to`
 // TODO: refactor the primitive types in alerting.proto

@@ -58,7 +58,7 @@ type ConnectOK struct {
 }
 
 func (o *ConnectOK) Error() string {
-	return fmt.Sprintf("[POST /v1/platform/Connect][%d] connectOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/platform:connect][%d] connectOk  %+v", 200, o.Payload)
 }
 
 func (o *ConnectOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *ConnectDefault) Code() int {
 }
 
 func (o *ConnectDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/platform/Connect][%d] Connect default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/platform:connect][%d] Connect default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ConnectDefault) GetPayload() *ConnectDefaultBody {

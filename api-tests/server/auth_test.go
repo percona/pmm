@@ -299,11 +299,11 @@ func TestBasicAuthPermissions(t *testing.T) {
 			{userType: "editor", login: editor, apiKey: editorAPIKey, statusCode: 401},
 			{userType: "admin", login: admin, apiKey: adminAPIKey, statusCode: 200},
 		}},
-		{name: "platform-connect", url: "/v1/platform/Connect", method: "POST", userCase: []userCase{
+		{name: "platform-connect", url: "/v1/platform:connect", method: "POST", userCase: []userCase{
 			{userType: "default", login: none, statusCode: 401},
 			{userType: "viewer", login: viewer, apiKey: viewerAPIKey, statusCode: 401},
 			{userType: "editor", login: editor, apiKey: editorAPIKey, statusCode: 401},
-			{userType: "admin", login: admin, apiKey: adminAPIKey, statusCode: 400}, // We send bad request, but have access to endpoint
+			{userType: "admin", login: admin, apiKey: adminAPIKey, statusCode: 400}, // We send a bad request, but have access to endpoint
 		}},
 	}
 

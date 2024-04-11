@@ -22586,161 +22586,14 @@
         }
       }
     },
-    "/v1/platform/Connect": {
-      "post": {
-        "description": "Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.",
+    "/v1/platform/contact": {
+      "get": {
+        "description": "Fetch the contact details of the customer success employee handling the Percona customer account.",
         "tags": [
           "PlatformService"
         ],
-        "summary": "Connect",
-        "operationId": "Connect",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "server_name": {
-                  "description": "User defined human readable PMM Server Name.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "personal_access_token": {
-                  "description": "Personal Access Token that the user obtains from Percona Portal.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/platform/Disconnect": {
-      "post": {
-        "description": "Disconnect a PMM server from the organization created on Percona Portal.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "Disconnect",
-        "operationId": "Disconnect",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "force": {
-                  "type": "boolean",
-                  "title": "Forces the cleanup process for connected PMM instances regardless of the Portal API response",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/platform/GetContactInformation": {
-      "post": {
-        "description": "GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "GetContactInformation",
+        "summary": "Get Contact Information",
         "operationId": "GetContactInformation",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -22804,24 +22657,14 @@
         }
       }
     },
-    "/v1/platform/SearchOrganizationEntitlements": {
-      "post": {
-        "description": "SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.",
+    "/v1/platform/organization/entitlements": {
+      "get": {
+        "description": "Fetch entitlements available to the Portal organization that the PMM server is connected to.",
         "tags": [
           "PlatformService"
         ],
-        "summary": "SearchOrganizationEntitlements",
+        "summary": "Search Organization Entitlements",
         "operationId": "SearchOrganizationEntitlements",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -22953,24 +22796,14 @@
         }
       }
     },
-    "/v1/platform/SearchOrganizationTickets": {
-      "post": {
-        "description": "SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.",
+    "/v1/platform/organization/tickets": {
+      "get": {
+        "description": "Fetch support tickets belonging to the Percona Portal Organization that the PMM server is connected to.",
         "tags": [
           "PlatformService"
         ],
-        "summary": "SearchOrganizationTickets",
+        "summary": "Search Organization Tickets",
         "operationId": "SearchOrganizationTickets",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -23071,24 +22904,14 @@
         }
       }
     },
-    "/v1/platform/ServerInfo": {
-      "post": {
-        "description": "ServerInfo returns PMM server ID and name.",
+    "/v1/platform/server": {
+      "get": {
+        "description": "Return PMM server ID and name.",
         "tags": [
           "PlatformService"
         ],
-        "summary": "ServerInfo",
+        "summary": "Get Server Info",
         "operationId": "ServerInfo",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -23148,24 +22971,14 @@
         }
       }
     },
-    "/v1/platform/UserStatus": {
-      "post": {
-        "description": "UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.",
+    "/v1/platform/user": {
+      "get": {
+        "description": "Check if the current user is logged in with their Percona Account.",
         "tags": [
           "PlatformService"
         ],
-        "summary": "UserStatus",
+        "summary": "Get User Status",
         "operationId": "UserStatus",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -23177,6 +22990,143 @@
                   "x-order": 0
                 }
               }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/platform:connect": {
+      "post": {
+        "description": "Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.",
+        "tags": [
+          "PlatformService"
+        ],
+        "summary": "Connect PMM Server",
+        "operationId": "Connect",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "server_name": {
+                  "description": "User defined human readable PMM Server Name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "personal_access_token": {
+                  "description": "Personal Access Token that the user obtains from Percona Portal.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/platform:disconnect": {
+      "post": {
+        "description": "Disconnect a PMM server from the organization created on Percona Portal.",
+        "tags": [
+          "PlatformService"
+        ],
+        "summary": "Disconnect PMM Server",
+        "operationId": "Disconnect",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "force": {
+                  "type": "boolean",
+                  "title": "Forces the cleanup process for connected PMM instances regardless of the Portal API response",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
             }
           },
           "default": {

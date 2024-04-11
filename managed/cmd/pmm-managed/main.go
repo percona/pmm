@@ -59,12 +59,12 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	rolev1beta1 "github.com/percona/pmm/api/accesscontrol/v1beta1"
+	accesscontrolv1 "github.com/percona/pmm/api/accesscontrol/v1beta1"
 	actionsv1 "github.com/percona/pmm/api/actions/v1"
 	advisorsv1 "github.com/percona/pmm/api/advisors/v1"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
-	alertingpb "github.com/percona/pmm/api/alerting/v1"
-	backuppb "github.com/percona/pmm/api/backup/v1"
+	alertingv1 "github.com/percona/pmm/api/alerting/v1"
+	backupv1 "github.com/percona/pmm/api/backup/v1"
 	dumpv1beta1 "github.com/percona/pmm/api/dump/v1beta1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
@@ -267,14 +267,14 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	actionsv1.RegisterActionsServiceServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
 	advisorsv1.RegisterAdvisorServiceServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
 
-	rolev1beta1.RegisterAccessControlServiceServer(gRPCServer, management.NewAccessControlService(deps.db))
+	accesscontrolv1.RegisterAccessControlServiceServer(gRPCServer, management.NewAccessControlService(deps.db))
 
-	alertingpb.RegisterAlertingServiceServer(gRPCServer, deps.templatesService)
+	alertingv1.RegisterAlertingServiceServer(gRPCServer, deps.templatesService)
 
-	backuppb.RegisterBackupServiceServer(gRPCServer, mgmtBackupService)
-	backuppb.RegisterLocationsServiceServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
-	backuppb.RegisterArtifactsServiceServer(gRPCServer, mgmtArtifactsService)
-	backuppb.RegisterRestoreServiceServer(gRPCServer, mgmtRestoreService)
+	backupv1.RegisterBackupServiceServer(gRPCServer, mgmtBackupService)
+	backupv1.RegisterLocationsServiceServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
+	backupv1.RegisterArtifactsServiceServer(gRPCServer, mgmtArtifactsService)
+	backupv1.RegisterRestoreServiceServer(gRPCServer, mgmtRestoreService)
 
 	dumpv1beta1.RegisterDumpServiceServer(gRPCServer, managementdump.New(deps.db, deps.grafanaClient, deps.dumpService))
 
@@ -358,14 +358,14 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		managementv1.RegisterManagementServiceHandlerFromEndpoint,
 		actionsv1.RegisterActionsServiceHandlerFromEndpoint,
 		advisorsv1.RegisterAdvisorServiceHandlerFromEndpoint,
-		rolev1beta1.RegisterAccessControlServiceHandlerFromEndpoint,
+		accesscontrolv1.RegisterAccessControlServiceHandlerFromEndpoint,
 
-		alertingpb.RegisterAlertingServiceHandlerFromEndpoint,
+		alertingv1.RegisterAlertingServiceHandlerFromEndpoint,
 
-		backuppb.RegisterBackupServiceHandlerFromEndpoint,
-		backuppb.RegisterLocationsServiceHandlerFromEndpoint,
-		backuppb.RegisterArtifactsServiceHandlerFromEndpoint,
-		backuppb.RegisterRestoreServiceHandlerFromEndpoint,
+		backupv1.RegisterBackupServiceHandlerFromEndpoint,
+		backupv1.RegisterLocationsServiceHandlerFromEndpoint,
+		backupv1.RegisterArtifactsServiceHandlerFromEndpoint,
+		backupv1.RegisterRestoreServiceHandlerFromEndpoint,
 
 		dumpv1beta1.RegisterDumpServiceHandlerFromEndpoint,
 

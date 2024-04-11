@@ -59,7 +59,7 @@ type SearchOrganizationTicketsOK struct {
 }
 
 func (o *SearchOrganizationTicketsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/platform/SearchOrganizationTickets][%d] searchOrganizationTicketsOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/platform/organization/tickets][%d] searchOrganizationTicketsOk  %+v", 200, o.Payload)
 }
 
 func (o *SearchOrganizationTicketsOK) GetPayload() *SearchOrganizationTicketsOKBody {
@@ -101,7 +101,7 @@ func (o *SearchOrganizationTicketsDefault) Code() int {
 }
 
 func (o *SearchOrganizationTicketsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/platform/SearchOrganizationTickets][%d] SearchOrganizationTickets default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/platform/organization/tickets][%d] SearchOrganizationTickets default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *SearchOrganizationTicketsDefault) GetPayload() *SearchOrganizationTicketsDefaultBody {
