@@ -6,37 +6,28 @@ import "alerting/v1/params.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
-import "management/v1/boolean_flag.proto";
 import "management/v1/severity.proto";
 import "validate/validate.proto";
 
 // BoolParamDefinition represents boolean parameter's default value.
 message BoolParamDefinition {
-  management.v1.BooleanFlag default = 1;
+  optional bool default = 1;
 }
 
 // FloatParamDefinition represents float parameter's default value and valid range.
 message FloatParamDefinition {
-  // True if default value is set.
-  bool has_default = 1;
-  // Default value if has_default is true.
-  double default = 2;
-  // True if minimal valid value is set.
-  bool has_min = 3;
-  // Minimal valid value (inclusive) if has_min is true.
-  double min = 4;
-  // True if maximal valid value is set.
-  bool has_max = 5;
-  // Maximal valid value (inclusive) if has_max is true.
-  double max = 6;
+  // Default value.
+  optional double default = 1;
+  // Minimum valid value (inclusive).
+  optional double min = 2;
+  // Maximum valid value (inclusive).
+  optional double max = 3;
 }
 
 // StringParamDefinition represents string parameter's default value.
 message StringParamDefinition {
-  // True if default value is set.
-  bool has_default = 1;
-  // Default value if has_default is true.
-  string default = 2;
+  // Default value.
+  optional string default = 1;
 }
 
 // ParamDefinition represents a single query parameter.

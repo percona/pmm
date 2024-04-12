@@ -170,4 +170,3 @@ POST /v1/platform/ServerInfo                        GET /v1/platform/server     
 POST /v1/platform/UserInfo                          GET /v1/platform/user                            ✅
 
 // TODO: rename `period_start_from` to `start_from` and `period_start_to` to `start_to`
-// TODO: refactor the primitive types in alerting.proto

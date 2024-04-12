@@ -650,18 +650,15 @@ func convertParamDefinitions(l *logrus.Entry, params models.AlertExprParamsDefin
 			var fp alerting.FloatParamDefinition
 			if p.FloatParam != nil {
 				if p.FloatParam.Default != nil {
-					fp.Default = *p.FloatParam.Default
-					fp.HasDefault = true
+					fp.Default = p.FloatParam.Default
 				}
 
 				if p.FloatParam.Min != nil {
-					fp.Min = *p.FloatParam.Min
-					fp.HasMin = true
+					fp.Min = p.FloatParam.Min
 				}
 
 				if p.FloatParam.Max != nil {
-					fp.Max = *p.FloatParam.Max
-					fp.HasMax = true
+					fp.Max = p.FloatParam.Max
 				}
 			}
 

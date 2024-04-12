@@ -2301,14 +2301,8 @@
                               "type": "object",
                               "properties": {
                                 "default": {
-                                  "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - BOOLEAN_FLAG_UNSPECIFIED: Do not change boolean property. Default value.\n - BOOLEAN_FLAG_TRUE: True.\n - BOOLEAN_FLAG_FALSE: False.",
-                                  "type": "string",
-                                  "default": "BOOLEAN_FLAG_UNSPECIFIED",
-                                  "enum": [
-                                    "BOOLEAN_FLAG_UNSPECIFIED",
-                                    "BOOLEAN_FLAG_TRUE",
-                                    "BOOLEAN_FLAG_FALSE"
-                                  ],
+                                  "type": "boolean",
+                                  "x-nullable": true,
                                   "x-order": 0
                                 }
                               },
@@ -2318,38 +2312,26 @@
                               "description": "FloatParamDefinition represents float parameter's default value and valid range.",
                               "type": "object",
                               "properties": {
-                                "has_default": {
-                                  "description": "True if default value is set.",
-                                  "type": "boolean",
+                                "default": {
+                                  "description": "Default value.",
+                                  "type": "number",
+                                  "format": "double",
+                                  "x-nullable": true,
                                   "x-order": 0
                                 },
-                                "default": {
-                                  "description": "Default value if has_default is true.",
+                                "min": {
+                                  "description": "Minimum valid value (inclusive).",
                                   "type": "number",
                                   "format": "double",
+                                  "x-nullable": true,
                                   "x-order": 1
                                 },
-                                "has_min": {
-                                  "description": "True if minimal valid value is set.",
-                                  "type": "boolean",
-                                  "x-order": 2
-                                },
-                                "min": {
-                                  "description": "Minimal valid value (inclusive) if has_min is true.",
-                                  "type": "number",
-                                  "format": "double",
-                                  "x-order": 3
-                                },
-                                "has_max": {
-                                  "description": "True if maximal valid value is set.",
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
                                 "max": {
-                                  "description": "Maximal valid value (inclusive) if has_max is true.",
+                                  "description": "Maximum valid value (inclusive).",
                                   "type": "number",
                                   "format": "double",
-                                  "x-order": 5
+                                  "x-nullable": true,
+                                  "x-order": 2
                                 }
                               },
                               "x-order": 5
@@ -2358,15 +2340,11 @@
                               "description": "StringParamDefinition represents string parameter's default value.",
                               "type": "object",
                               "properties": {
-                                "has_default": {
-                                  "description": "True if default value is set.",
-                                  "type": "boolean",
-                                  "x-order": 0
-                                },
                                 "default": {
-                                  "description": "Default value if has_default is true.",
+                                  "description": "Default value.",
                                   "type": "string",
-                                  "x-order": 1
+                                  "x-nullable": true,
+                                  "x-order": 0
                                 }
                               },
                               "x-order": 6

@@ -942,72 +942,12 @@ ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool BoolParamDefinition represent
 swagger:model ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool
 */
 type ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool struct {
-	// BooleanFlag represent a command to set some boolean property to true,
-	// to false, or avoid changing that property.
-	//
-	//  - BOOLEAN_FLAG_UNSPECIFIED: Do not change boolean property. Default value.
-	//  - BOOLEAN_FLAG_TRUE: True.
-	//  - BOOLEAN_FLAG_FALSE: False.
-	// Enum: [BOOLEAN_FLAG_UNSPECIFIED BOOLEAN_FLAG_TRUE BOOLEAN_FLAG_FALSE]
-	Default *string `json:"default,omitempty"`
+	// default
+	Default *bool `json:"default,omitempty"`
 }
 
 // Validate validates this list templates OK body templates items0 params items0 bool
 func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateDefault(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var listTemplatesOkBodyTemplatesItems0ParamsItems0BoolTypeDefaultPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["BOOLEAN_FLAG_UNSPECIFIED","BOOLEAN_FLAG_TRUE","BOOLEAN_FLAG_FALSE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		listTemplatesOkBodyTemplatesItems0ParamsItems0BoolTypeDefaultPropEnum = append(listTemplatesOkBodyTemplatesItems0ParamsItems0BoolTypeDefaultPropEnum, v)
-	}
-}
-
-const (
-
-	// ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultBOOLEANFLAGUNSPECIFIED captures enum value "BOOLEAN_FLAG_UNSPECIFIED"
-	ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultBOOLEANFLAGUNSPECIFIED string = "BOOLEAN_FLAG_UNSPECIFIED"
-
-	// ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultBOOLEANFLAGTRUE captures enum value "BOOLEAN_FLAG_TRUE"
-	ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultBOOLEANFLAGTRUE string = "BOOLEAN_FLAG_TRUE"
-
-	// ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultBOOLEANFLAGFALSE captures enum value "BOOLEAN_FLAG_FALSE"
-	ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultBOOLEANFLAGFALSE string = "BOOLEAN_FLAG_FALSE"
-)
-
-// prop value enum
-func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool) validateDefaultEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, listTemplatesOkBodyTemplatesItems0ParamsItems0BoolTypeDefaultPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool) validateDefault(formats strfmt.Registry) error {
-	if swag.IsZero(o.Default) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateDefaultEnum("bool"+"."+"default", "body", *o.Default); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -1039,23 +979,14 @@ ListTemplatesOKBodyTemplatesItems0ParamsItems0Float FloatParamDefinition represe
 swagger:model ListTemplatesOKBodyTemplatesItems0ParamsItems0Float
 */
 type ListTemplatesOKBodyTemplatesItems0ParamsItems0Float struct {
-	// True if default value is set.
-	HasDefault bool `json:"has_default,omitempty"`
+	// Default value.
+	Default *float64 `json:"default,omitempty"`
 
-	// Default value if has_default is true.
-	Default float64 `json:"default,omitempty"`
+	// Minimum valid value (inclusive).
+	Min *float64 `json:"min,omitempty"`
 
-	// True if minimal valid value is set.
-	HasMin bool `json:"has_min,omitempty"`
-
-	// Minimal valid value (inclusive) if has_min is true.
-	Min float64 `json:"min,omitempty"`
-
-	// True if maximal valid value is set.
-	HasMax bool `json:"has_max,omitempty"`
-
-	// Maximal valid value (inclusive) if has_max is true.
-	Max float64 `json:"max,omitempty"`
+	// Maximum valid value (inclusive).
+	Max *float64 `json:"max,omitempty"`
 }
 
 // Validate validates this list templates OK body templates items0 params items0 float
@@ -1091,11 +1022,8 @@ ListTemplatesOKBodyTemplatesItems0ParamsItems0String StringParamDefinition repre
 swagger:model ListTemplatesOKBodyTemplatesItems0ParamsItems0String
 */
 type ListTemplatesOKBodyTemplatesItems0ParamsItems0String struct {
-	// True if default value is set.
-	HasDefault bool `json:"has_default,omitempty"`
-
-	// Default value if has_default is true.
-	Default string `json:"default,omitempty"`
+	// Default value.
+	Default *string `json:"default,omitempty"`
 }
 
 // Validate validates this list templates OK body templates items0 params items0 string

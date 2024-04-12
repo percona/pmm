@@ -36,7 +36,7 @@ var (
 	_ = anypb.Any{}
 	_ = sort.Sort
 
-	_ = managementv1.BooleanFlag(0)
+	_ = managementv1.Severity(0)
 )
 
 // Validate checks the field values on BoolParamDefinition with the rules
@@ -61,7 +61,9 @@ func (m *BoolParamDefinition) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Default
+	if m.Default != nil {
+		// no validation rules for Default
+	}
 
 	if len(errors) > 0 {
 		return BoolParamDefinitionMultiError(errors)
@@ -165,17 +167,17 @@ func (m *FloatParamDefinition) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for HasDefault
+	if m.Default != nil {
+		// no validation rules for Default
+	}
 
-	// no validation rules for Default
+	if m.Min != nil {
+		// no validation rules for Min
+	}
 
-	// no validation rules for HasMin
-
-	// no validation rules for Min
-
-	// no validation rules for HasMax
-
-	// no validation rules for Max
+	if m.Max != nil {
+		// no validation rules for Max
+	}
 
 	if len(errors) > 0 {
 		return FloatParamDefinitionMultiError(errors)
@@ -279,9 +281,9 @@ func (m *StringParamDefinition) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for HasDefault
-
-	// no validation rules for Default
+	if m.Default != nil {
+		// no validation rules for Default
+	}
 
 	if len(errors) > 0 {
 		return StringParamDefinitionMultiError(errors)
