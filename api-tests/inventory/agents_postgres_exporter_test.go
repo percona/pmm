@@ -108,7 +108,7 @@ func TestPostgresExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				PostgresExporter: &agents.ChangeAgentOKBodyPostgresExporter{
@@ -141,7 +141,7 @@ func TestPostgresExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				PostgresExporter: &agents.ChangeAgentOKBodyPostgresExporter{
@@ -363,7 +363,7 @@ func TestPostgresExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				PostgresExporter: &agents.ChangeAgentOKBodyPostgresExporter{
@@ -391,7 +391,7 @@ func TestPostgresExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				PostgresExporter: &agents.ChangeAgentOKBodyPostgresExporter{

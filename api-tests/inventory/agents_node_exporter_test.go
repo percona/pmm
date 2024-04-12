@@ -80,7 +80,7 @@ func TestNodeExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				NodeExporter: &agents.ChangeAgentOKBodyNodeExporter{
@@ -110,7 +110,7 @@ func TestNodeExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				NodeExporter: &agents.ChangeAgentOKBodyNodeExporter{
@@ -186,7 +186,7 @@ func TestNodeExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, res)
 		require.NotNil(t, res.Payload.NodeExporter)
 		require.Equal(t, pmmAgentID, res.Payload.NodeExporter.PMMAgentID)
@@ -223,7 +223,7 @@ func TestNodeExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				NodeExporter: &agents.ChangeAgentOKBodyNodeExporter{
@@ -248,7 +248,7 @@ func TestNodeExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				NodeExporter: &agents.ChangeAgentOKBodyNodeExporter{

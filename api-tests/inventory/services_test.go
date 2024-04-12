@@ -1314,11 +1314,11 @@ func TestExternalService(t *testing.T) {
 		})
 		require.NoError(t, err)
 		assert.NotNil(t, emptyServicesList)
-		assert.Len(t, emptyServicesList.Payload.Mysql, 0)
-		assert.Len(t, emptyServicesList.Payload.Mongodb, 0)
-		assert.Len(t, emptyServicesList.Payload.Postgresql, 0)
-		assert.Len(t, emptyServicesList.Payload.Proxysql, 0)
-		assert.Len(t, emptyServicesList.Payload.External, 0)
+		assert.Empty(t, emptyServicesList.Payload.Mysql)
+		assert.Empty(t, emptyServicesList.Payload.Mongodb)
+		assert.Empty(t, emptyServicesList.Payload.Postgresql)
+		assert.Empty(t, emptyServicesList.Payload.Proxysql)
+		assert.Empty(t, emptyServicesList.Payload.External)
 
 		//  List services with out filter by external group.
 		noFilterServicesList, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{

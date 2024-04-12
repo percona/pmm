@@ -34,8 +34,6 @@ import (
 
 func TestNodes(t *testing.T) {
 	t.Run("List", func(t *testing.T) {
-		t.Parallel()
-
 		remoteNode := pmmapitests.AddNode(t, &nodes.AddNodeBody{
 			Remote: &nodes.AddNodeParamsBodyRemote{
 				NodeName: pmmapitests.TestString(t, "Test Remote Node for List"),
@@ -103,8 +101,6 @@ func TestNodes(t *testing.T) {
 
 func TestGetNode(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
-		t.Parallel()
-
 		nodeName := pmmapitests.TestString(t, "TestGenericNode")
 		nodeID := pmmapitests.AddGenericNode(t, nodeName).NodeID
 		require.NotEmpty(t, nodeID)
@@ -126,13 +122,11 @@ func TestGetNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.NodesService.GetNode(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, expectedResponse.Payload, res.Payload)
 	})
 
 	t.Run("NotFound", func(t *testing.T) {
-		t.Parallel()
-
 		params := &nodes.GetNodeParams{
 			NodeID:  "pmm-not-found",
 			Context: pmmapitests.Context,
@@ -143,8 +137,6 @@ func TestGetNode(t *testing.T) {
 	})
 
 	t.Run("EmptyNodeID", func(t *testing.T) {
-		t.Parallel()
-
 		params := &nodes.GetNodeParams{
 			Context: pmmapitests.Context,
 		}
@@ -156,8 +148,6 @@ func TestGetNode(t *testing.T) {
 
 func TestGenericNode(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
-		t.Parallel()
-
 		nodeName := pmmapitests.TestString(t, "Test Generic Node")
 		params := &nodes.AddNodeParams{
 			Body: nodes.AddNodeBody{
@@ -169,7 +159,7 @@ func TestGenericNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.NodesService.AddNode(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, res)
 		require.NotNil(t, res.Payload.Generic)
 		nodeID := res.Payload.Generic.NodeID
@@ -202,8 +192,6 @@ func TestGenericNode(t *testing.T) {
 	})
 
 	t.Run("AddNameEmpty", func(t *testing.T) {
-		t.Parallel()
-
 		params := &nodes.AddNodeParams{
 			Body: nodes.AddNodeBody{
 				Generic: &nodes.AddNodeParamsBodyGeneric{NodeName: ""},
@@ -220,8 +208,6 @@ func TestGenericNode(t *testing.T) {
 
 func TestContainerNode(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
-		t.Parallel()
-
 		nodeName := pmmapitests.TestString(t, "Test Container Node")
 		params := &nodes.AddNodeParams{
 			Body: nodes.AddNodeBody{
@@ -271,8 +257,6 @@ func TestContainerNode(t *testing.T) {
 	})
 
 	t.Run("AddNameEmpty", func(t *testing.T) {
-		t.Parallel()
-
 		params := &nodes.AddNodeParams{
 			Body: nodes.AddNodeBody{
 				Container: &nodes.AddNodeParamsBodyContainer{NodeName: ""},
@@ -289,8 +273,6 @@ func TestContainerNode(t *testing.T) {
 
 func TestRemoteNode(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
-		t.Parallel()
-
 		nodeName := pmmapitests.TestString(t, "Test Remote Node")
 		params := &nodes.AddNodeParams{
 			Body: nodes.AddNodeBody{
@@ -339,8 +321,6 @@ func TestRemoteNode(t *testing.T) {
 	})
 
 	t.Run("AddNameEmpty", func(t *testing.T) {
-		t.Parallel()
-
 		params := &nodes.AddNodeParams{
 			Body: nodes.AddNodeBody{
 				Remote: &nodes.AddNodeParamsBodyRemote{NodeName: ""},
@@ -357,8 +337,6 @@ func TestRemoteNode(t *testing.T) {
 
 func TestRemoveNode(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
-		t.Parallel()
-
 		nodeName := pmmapitests.TestString(t, "Generic Node for basic remove test")
 		node := pmmapitests.AddNode(t,
 			&nodes.AddNodeBody{
@@ -373,13 +351,11 @@ func TestRemoveNode(t *testing.T) {
 			NodeID:  nodeID,
 			Context: context.Background(),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, removeResp)
 	})
 
 	t.Run("With service", func(t *testing.T) {
-		t.Parallel()
-
 		nodeName := pmmapitests.TestString(t, "Generic Node for remove test")
 		node := pmmapitests.AddNode(t,
 			&nodes.AddNodeBody{
@@ -414,13 +390,13 @@ func TestRemoveNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		assert.NotNil(t, getServiceResp)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		listAgentsOK, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
 			NodeID:  pointer.ToString(node.Generic.NodeID),
 			Context: pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*services.ListServicesOKBodyMysqlItems0{
 			{
 				NodeID:       node.Generic.NodeID,
@@ -439,7 +415,7 @@ func TestRemoveNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.NodesService.RemoveNode(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, res)
 
 		// Check that the node and agents are removed.
@@ -454,7 +430,7 @@ func TestRemoveNode(t *testing.T) {
 			NodeID:  pointer.ToString(node.Generic.NodeID),
 			Context: pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &services.ListServicesOKBody{
 			Mysql:      make([]*services.ListServicesOKBodyMysqlItems0, 0),
 			Mongodb:    make([]*services.ListServicesOKBodyMongodbItems0, 0),
@@ -466,8 +442,6 @@ func TestRemoveNode(t *testing.T) {
 	})
 
 	t.Run("With pmm-agent", func(t *testing.T) {
-		t.Parallel()
-
 		nodeName := pmmapitests.TestString(t, "Generic Node for remove test")
 		node := pmmapitests.AddNode(t,
 			&nodes.AddNodeBody{
@@ -494,7 +468,7 @@ func TestRemoveNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.NodesService.RemoveNode(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, res)
 
 		// Check that the node and agents are removed.
@@ -514,7 +488,6 @@ func TestRemoveNode(t *testing.T) {
 	})
 
 	t.Run("Not-exist node", func(t *testing.T) {
-		t.Parallel()
 		nodeID := "not-exist-node-id"
 		removeResp, err := client.Default.NodesService.RemoveNode(&nodes.RemoveNodeParams{
 			NodeID:  nodeID,
@@ -525,7 +498,6 @@ func TestRemoveNode(t *testing.T) {
 	})
 
 	t.Run("Empty params", func(t *testing.T) {
-		t.Parallel()
 		removeResp, err := client.Default.NodesService.RemoveNode(&nodes.RemoveNodeParams{
 			Context: context.Background(),
 		})
@@ -534,8 +506,6 @@ func TestRemoveNode(t *testing.T) {
 	})
 
 	t.Run("PMM Server", func(t *testing.T) {
-		t.Parallel()
-
 		removeResp, err := client.Default.NodesService.RemoveNode(&nodes.RemoveNodeParams{
 			NodeID:  "pmm-server",
 			Force:   pointer.ToBool(true),

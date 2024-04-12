@@ -107,7 +107,7 @@ func TestProxySQLExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				ProxysqlExporter: &agents.ChangeAgentOKBodyProxysqlExporter{
@@ -139,7 +139,7 @@ func TestProxySQLExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				ProxysqlExporter: &agents.ChangeAgentOKBodyProxysqlExporter{
@@ -354,7 +354,7 @@ func TestProxySQLExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				ProxysqlExporter: &agents.ChangeAgentOKBodyProxysqlExporter{
@@ -383,7 +383,7 @@ func TestProxySQLExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				ProxysqlExporter: &agents.ChangeAgentOKBodyProxysqlExporter{

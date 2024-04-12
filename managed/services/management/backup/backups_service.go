@@ -393,8 +393,8 @@ func (s *BackupService) ChangeScheduledBackup(ctx context.Context, req *backuppb
 
 // RemoveScheduledBackup stops and removes existing scheduled backup task.
 func (s *BackupService) RemoveScheduledBackup(ctx context.Context, req *backuppb.RemoveScheduledBackupRequest) (*backuppb.RemoveScheduledBackupResponse, error) {
-	scheduledBackupId := models.NormalizeScheduledTaskID(req.ScheduledBackupId)
-	task, err := models.FindScheduledTaskByID(s.db.Querier, scheduledBackupId)
+	scheduledBackupID := models.NormalizeScheduledTaskID(req.ScheduledBackupId)
+	task, err := models.FindScheduledTaskByID(s.db.Querier, scheduledBackupID)
 	if err != nil {
 		return nil, err
 	}
@@ -412,7 +412,7 @@ func (s *BackupService) RemoveScheduledBackup(ctx context.Context, req *backuppb
 
 	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		artifacts, err := models.FindArtifacts(tx.Querier, models.ArtifactFilters{
-			ScheduleID: scheduledBackupId,
+			ScheduleID: scheduledBackupID,
 		})
 		if err != nil {
 			return err
@@ -427,7 +427,7 @@ func (s *BackupService) RemoveScheduledBackup(ctx context.Context, req *backuppb
 			}
 		}
 
-		return s.scheduleService.Remove(scheduledBackupId)
+		return s.scheduleService.Remove(scheduledBackupID)
 	})
 	if errTx != nil {
 		return nil, errTx

@@ -108,7 +108,7 @@ func TestMongoDBExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				MongodbExporter: &agents.ChangeAgentOKBodyMongodbExporter{
@@ -141,7 +141,7 @@ func TestMongoDBExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				MongodbExporter: &agents.ChangeAgentOKBodyMongodbExporter{
@@ -365,7 +365,7 @@ func TestMongoDBExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				MongodbExporter: &agents.ChangeAgentOKBodyMongodbExporter{
@@ -394,7 +394,7 @@ func TestMongoDBExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				MongodbExporter: &agents.ChangeAgentOKBodyMongodbExporter{

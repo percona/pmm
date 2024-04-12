@@ -93,7 +93,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				AzureDatabaseExporter: &agents.ChangeAgentOKBodyAzureDatabaseExporter{
@@ -124,7 +124,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				AzureDatabaseExporter: &agents.ChangeAgentOKBodyAzureDatabaseExporter{
@@ -279,7 +279,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				AzureDatabaseExporter: &agents.ChangeAgentOKBodyAzureDatabaseExporter{
@@ -306,7 +306,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				AzureDatabaseExporter: &agents.ChangeAgentOKBodyAzureDatabaseExporter{

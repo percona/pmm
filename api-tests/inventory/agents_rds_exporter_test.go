@@ -93,7 +93,7 @@ func TestRDSExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				RDSExporter: &agents.ChangeAgentOKBodyRDSExporter{
@@ -125,7 +125,7 @@ func TestRDSExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				RDSExporter: &agents.ChangeAgentOKBodyRDSExporter{
@@ -281,7 +281,7 @@ func TestRDSExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				RDSExporter: &agents.ChangeAgentOKBodyRDSExporter{
@@ -310,7 +310,7 @@ func TestRDSExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				RDSExporter: &agents.ChangeAgentOKBodyRDSExporter{

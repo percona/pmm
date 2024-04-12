@@ -136,7 +136,7 @@ func TestAgents(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, nodeExporter)
 		nodeExporterID := nodeExporter.Payload.NodeExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, nodeExporterID)
@@ -272,7 +272,7 @@ func TestPMMAgent(t *testing.T) {
 				AgentID: agentID,
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.GetAgentOK{
 			Payload: &agents.GetAgentOKBody{
 				PMMAgent: &agents.GetAgentOKBodyPMMAgent{
@@ -288,7 +288,7 @@ func TestPMMAgent(t *testing.T) {
 			Context: context.Background(),
 		}
 		removeAgentOK, err := client.Default.AgentsService.RemoveAgent(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, removeAgentOK)
 	})
 
@@ -364,7 +364,7 @@ func TestPMMAgent(t *testing.T) {
 				AgentID: pmmAgentID,
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.GetAgentOK{
 			Payload: &agents.GetAgentOKBody{
 				PMMAgent: &agents.GetAgentOKBodyPMMAgent{
@@ -380,7 +380,7 @@ func TestPMMAgent(t *testing.T) {
 				PMMAgentID: pointer.ToString(pmmAgentID),
 				Context:    pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyNodeExporterItems0{
 			{
 				PMMAgentID:         pmmAgentID,
@@ -414,7 +414,7 @@ func TestPMMAgent(t *testing.T) {
 			Context: context.Background(),
 		}
 		res, err = client.Default.AgentsService.RemoveAgent(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, res)
 
 		// Check that agents are removed.
@@ -548,7 +548,7 @@ func TestQanAgentExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				QANMysqlPerfschemaAgent: &agents.ChangeAgentOKBodyQANMysqlPerfschemaAgent{
@@ -579,7 +579,7 @@ func TestQanAgentExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				QANMysqlPerfschemaAgent: &agents.ChangeAgentOKBodyQANMysqlPerfschemaAgent{
@@ -807,7 +807,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				QANPostgresqlPgstatementsAgent: &agents.ChangeAgentOKBodyQANPostgresqlPgstatementsAgent{
@@ -838,7 +838,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				QANPostgresqlPgstatementsAgent: &agents.ChangeAgentOKBodyQANPostgresqlPgstatementsAgent{
@@ -1066,7 +1066,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentOKBodyQANPostgresqlPgstatmonitorAgent{
@@ -1097,7 +1097,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentOKBodyQANPostgresqlPgstatmonitorAgent{

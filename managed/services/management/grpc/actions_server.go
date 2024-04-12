@@ -107,7 +107,7 @@ func (s *actionsServer) StartMySQLExplainAction(ctx context.Context, req *action
 		return nil, err
 	}
 
-	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointerToAgentType(models.MySQLdExporterType)})
+	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointerToAgentType(models.MySQLdExporterType)}) //nolint:lll
 	if err != nil {
 		return nil, err
 	}
@@ -544,8 +544,6 @@ func (s *actionsServer) StartPTMongoDBSummaryAction(ctx context.Context, req *ac
 }
 
 // StartPTMySQLSummaryAction starts pt-mysql-summary action and returns the pointer to the response message.
-//
-//nolint:lll
 func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *actionsv1.StartPTMySQLSummaryActionParams) (*actionsv1.StartServiceActionResponse, error) {
 	service, err := models.FindServiceByID(s.db.Querier, req.ServiceId)
 	if err != nil {
