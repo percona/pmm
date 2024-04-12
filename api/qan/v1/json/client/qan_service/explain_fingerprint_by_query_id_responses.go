@@ -58,7 +58,7 @@ type ExplainFingerprintByQueryIDOK struct {
 }
 
 func (o *ExplainFingerprintByQueryIDOK) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/ObjectDetails/ExplainFingerprintByQueryID][%d] explainFingerprintByQueryIdOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/qan:explainFingerprint][%d] explainFingerprintByQueryIdOk  %+v", 200, o.Payload)
 }
 
 func (o *ExplainFingerprintByQueryIDOK) GetPayload() *ExplainFingerprintByQueryIDOKBody {
@@ -100,7 +100,7 @@ func (o *ExplainFingerprintByQueryIDDefault) Code() int {
 }
 
 func (o *ExplainFingerprintByQueryIDDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/ObjectDetails/ExplainFingerprintByQueryID][%d] ExplainFingerprintByQueryID default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/qan:explainFingerprint][%d] ExplainFingerprintByQueryID default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ExplainFingerprintByQueryIDDefault) GetPayload() *ExplainFingerprintByQueryIDDefaultBody {

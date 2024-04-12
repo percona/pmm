@@ -66,7 +66,7 @@ func (a *Client) ExplainFingerprintByQueryID(params *ExplainFingerprintByQueryID
 	op := &runtime.ClientOperation{
 		ID:                 "ExplainFingerprintByQueryID",
 		Method:             "POST",
-		PathPattern:        "/v1/qan/ObjectDetails/ExplainFingerprintByQueryID",
+		PathPattern:        "/v1/qan:explainFingerprint",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -105,7 +105,7 @@ func (a *Client) GetFilteredMetricsNames(params *GetFilteredMetricsNamesParams, 
 	op := &runtime.ClientOperation{
 		ID:                 "GetFilteredMetricsNames",
 		Method:             "POST",
-		PathPattern:        "/v1/qan/Filters/Get",
+		PathPattern:        "/v1/qan/metrics:getFilters",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -144,7 +144,7 @@ func (a *Client) GetHistogram(params *GetHistogramParams, opts ...ClientOption) 
 	op := &runtime.ClientOperation{
 		ID:                 "GetHistogram",
 		Method:             "POST",
-		PathPattern:        "/v1/qan/ObjectDetails/GetHistogram",
+		PathPattern:        "/v1/qan:getHistogram",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -183,7 +183,7 @@ func (a *Client) GetLabels(params *GetLabelsParams, opts ...ClientOption) (*GetL
 	op := &runtime.ClientOperation{
 		ID:                 "GetLabels",
 		Method:             "POST",
-		PathPattern:        "/v1/qan/ObjectDetails/GetLabels",
+		PathPattern:        "/v1/qan:getLabels",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -222,7 +222,7 @@ func (a *Client) GetMetrics(params *GetMetricsParams, opts ...ClientOption) (*Ge
 	op := &runtime.ClientOperation{
 		ID:                 "GetMetrics",
 		Method:             "POST",
-		PathPattern:        "/v1/qan/ObjectDetails/GetMetrics",
+		PathPattern:        "/v1/qan:getMetrics",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -261,7 +261,7 @@ func (a *Client) GetMetricsNames(params *GetMetricsNamesParams, opts ...ClientOp
 	op := &runtime.ClientOperation{
 		ID:                 "GetMetricsNames",
 		Method:             "POST",
-		PathPattern:        "/v1/qan/GetMetricsNames",
+		PathPattern:        "/v1/qan/metrics:getNames",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -300,7 +300,7 @@ func (a *Client) GetQueryExample(params *GetQueryExampleParams, opts ...ClientOp
 	op := &runtime.ClientOperation{
 		ID:                 "GetQueryExample",
 		Method:             "POST",
-		PathPattern:        "/v1/qan/ObjectDetails/GetQueryExample",
+		PathPattern:        "/v1/qan/query:getExample ",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -338,8 +338,8 @@ func (a *Client) GetQueryPlan(params *GetQueryPlanParams, opts ...ClientOption) 
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "GetQueryPlan",
-		Method:             "POST",
-		PathPattern:        "/v1/qan/ObjectDetails/GetQueryPlan",
+		Method:             "GET",
+		PathPattern:        "/v1/qan/query/{queryid}/plan",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -378,7 +378,7 @@ func (a *Client) GetReport(params *GetReportParams, opts ...ClientOption) (*GetR
 	op := &runtime.ClientOperation{
 		ID:                 "GetReport",
 		Method:             "POST",
-		PathPattern:        "/v1/qan/GetReport",
+		PathPattern:        "/v1/qan/metrics:getReport",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -417,7 +417,7 @@ func (a *Client) QueryExists(params *QueryExistsParams, opts ...ClientOption) (*
 	op := &runtime.ClientOperation{
 		ID:                 "QueryExists",
 		Method:             "POST",
-		PathPattern:        "/v1/qan/ObjectDetails/QueryExists",
+		PathPattern:        "/v1/qan/query:exists ",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -456,7 +456,7 @@ func (a *Client) SchemaByQueryID(params *SchemaByQueryIDParams, opts ...ClientOp
 	op := &runtime.ClientOperation{
 		ID:                 "SchemaByQueryID",
 		Method:             "POST",
-		PathPattern:        "/v1/qan/ObjectDetails/SchemaByQueryID",
+		PathPattern:        "/v1/qan/query:getSchema",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

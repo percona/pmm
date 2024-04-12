@@ -94,7 +94,7 @@ var rules = map[string]role{
 	"/v1/version":        viewer, // TODO: remove before v3 GA
 	"/v1/server/version": viewer,
 
-	"/v1/qan/": viewer,
+	"/v1/qan": viewer,
 
 	// mustSetupRules group
 	"/prometheus":      admin,

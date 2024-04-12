@@ -23163,7 +23163,7 @@
         }
       }
     },
-    "/v1/qan/Filters/Get": {
+    "/v1/qan/metrics:getFilters": {
       "post": {
         "description": "Provides a filtered map of metrics names.",
         "tags": [
@@ -23298,7 +23298,7 @@
         }
       }
     },
-    "/v1/qan/GetMetricsNames": {
+    "/v1/qan/metrics:getNames": {
       "post": {
         "description": "Provides a map of all metrics names.",
         "tags": [
@@ -23369,7 +23369,7 @@
         }
       }
     },
-    "/v1/qan/GetReport": {
+    "/v1/qan/metrics:getReport": {
       "post": {
         "description": "Returns a list of metrics grouped by queryid or other dimensions.",
         "tags": [
@@ -23994,7 +23994,411 @@
         }
       }
     },
-    "/v1/qan/ObjectDetails/ExplainFingerprintByQueryID": {
+    "/v1/qan/query/{queryid}/plan": {
+      "get": {
+        "description": "Provides a query plan and plan id for specific filtering.",
+        "tags": [
+          "QANService"
+        ],
+        "summary": "Get Query Plan",
+        "operationId": "GetQueryPlan",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "queryid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "GetQueryPlanResponse contains planid and query_plan.",
+              "type": "object",
+              "properties": {
+                "planid": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "query_plan": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/qan/query:exists ": {
+      "post": {
+        "description": "Checks if query exists in clickhouse.",
+        "tags": [
+          "QANService"
+        ],
+        "summary": "Check Query Existence",
+        "operationId": "QueryExists",
+        "parameters": [
+          {
+            "description": "QueryExistsRequest check if provided query exists or not.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "QueryExistsRequest check if provided query exists or not.",
+              "type": "object",
+              "properties": {
+                "serviceid": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "query": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "QueryExistsResponse returns true if query exists.",
+              "type": "object",
+              "properties": {
+                "exists": {
+                  "type": "boolean",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/qan/query:getExample ": {
+      "post": {
+        "description": "Provides a list of query examples.",
+        "tags": [
+          "QANService"
+        ],
+        "summary": "Get Query Example",
+        "operationId": "GetQueryExample",
+        "parameters": [
+          {
+            "description": "GetQueryExampleRequest defines filtering of query examples for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "GetQueryExampleRequest defines filtering of query examples for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
+              "type": "object",
+              "properties": {
+                "period_start_from": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 0
+                },
+                "period_start_to": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 1
+                },
+                "filter_by": {
+                  "description": "dimension value: ex: queryid - 1D410B4BE5060972.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "group_by": {
+                  "description": "one of dimension: queryid | host ...",
+                  "type": "string",
+                  "x-order": 3
+                },
+                "labels": {
+                  "type": "array",
+                  "items": {
+                    "description": "MapFieldEntry allows to pass labels/dimensions in form like {\"server\": [\"db1\", \"db2\"...]}.",
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 4
+                },
+                "limit": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 5
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "GetQueryExampleResponse list of query examples.",
+              "type": "object",
+              "properties": {
+                "query_examples": {
+                  "type": "array",
+                  "items": {
+                    "description": "QueryExample shows query examples and their metrics.",
+                    "type": "object",
+                    "properties": {
+                      "example": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "example_type": {
+                        "description": "ExampleType is a type of query example selected for this query class in given period of time.",
+                        "type": "string",
+                        "default": "EXAMPLE_TYPE_UNSPECIFIED",
+                        "enum": [
+                          "EXAMPLE_TYPE_UNSPECIFIED",
+                          "EXAMPLE_TYPE_RANDOM",
+                          "EXAMPLE_TYPE_SLOWEST",
+                          "EXAMPLE_TYPE_FASTEST",
+                          "EXAMPLE_TYPE_WITH_ERROR"
+                        ],
+                        "x-order": 1
+                      },
+                      "is_truncated": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 2
+                      },
+                      "placeholders_count": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 3
+                      },
+                      "explain_fingerprint": {
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "query_id": {
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "example_metrics": {
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "service_id": {
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "service_type": {
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "schema": {
+                        "type": "string",
+                        "x-order": 9
+                      },
+                      "tables": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 10
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/qan/query:getSchema": {
+      "post": {
+        "description": "Provides the schema for a given queryID and serviceID.",
+        "tags": [
+          "QANService"
+        ],
+        "summary": "Get Schema",
+        "operationId": "SchemaByQueryID",
+        "parameters": [
+          {
+            "description": "SchemaByQueryIDRequest returns schema for given query ID and service ID.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "SchemaByQueryIDRequest returns schema for given query ID and service ID.",
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "query_id": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "SchemaByQueryIDResponse is schema for given query ID and service ID.",
+              "type": "object",
+              "properties": {
+                "schema": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/qan:explainFingerprint": {
       "post": {
         "description": "Provides an explain fingerprint for given query ID.",
         "tags": [
@@ -24077,7 +24481,7 @@
         }
       }
     },
-    "/v1/qan/ObjectDetails/GetHistogram": {
+    "/v1/qan:getHistogram": {
       "post": {
         "description": "Provides histogram items for specific filtering.",
         "tags": [
@@ -24197,7 +24601,7 @@
         }
       }
     },
-    "/v1/qan/ObjectDetails/GetLabels": {
+    "/v1/qan:getLabels": {
       "post": {
         "description": "Provides a list of labels for object details.",
         "tags": [
@@ -24300,7 +24704,7 @@
         }
       }
     },
-    "/v1/qan/ObjectDetails/GetMetrics": {
+    "/v1/qan:getMetrics": {
       "post": {
         "description": "Provides a map of metrics for specific filtering.",
         "tags": [
@@ -24928,420 +25332,6 @@
                     }
                   },
                   "x-order": 5
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/qan/ObjectDetails/GetQueryExample": {
-      "post": {
-        "description": "Provides a list of query examples.",
-        "tags": [
-          "QANService"
-        ],
-        "summary": "Get Query Example",
-        "operationId": "GetQueryExample",
-        "parameters": [
-          {
-            "description": "GetQueryExampleRequest defines filtering of query examples for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "GetQueryExampleRequest defines filtering of query examples for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
-              "type": "object",
-              "properties": {
-                "period_start_from": {
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 0
-                },
-                "period_start_to": {
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 1
-                },
-                "filter_by": {
-                  "description": "dimension value: ex: queryid - 1D410B4BE5060972.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "group_by": {
-                  "description": "one of dimension: queryid | host ...",
-                  "type": "string",
-                  "x-order": 3
-                },
-                "labels": {
-                  "type": "array",
-                  "items": {
-                    "description": "MapFieldEntry allows to pass labels/dimensions in form like {\"server\": [\"db1\", \"db2\"...]}.",
-                    "type": "object",
-                    "properties": {
-                      "key": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        },
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 4
-                },
-                "limit": {
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 5
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "description": "GetQueryExampleResponse list of query examples.",
-              "type": "object",
-              "properties": {
-                "query_examples": {
-                  "type": "array",
-                  "items": {
-                    "description": "QueryExample shows query examples and their metrics.",
-                    "type": "object",
-                    "properties": {
-                      "example": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "example_type": {
-                        "description": "ExampleType is a type of query example selected for this query class in given period of time.",
-                        "type": "string",
-                        "default": "EXAMPLE_TYPE_UNSPECIFIED",
-                        "enum": [
-                          "EXAMPLE_TYPE_UNSPECIFIED",
-                          "EXAMPLE_TYPE_RANDOM",
-                          "EXAMPLE_TYPE_SLOWEST",
-                          "EXAMPLE_TYPE_FASTEST",
-                          "EXAMPLE_TYPE_WITH_ERROR"
-                        ],
-                        "x-order": 1
-                      },
-                      "is_truncated": {
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 2
-                      },
-                      "placeholders_count": {
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 3
-                      },
-                      "explain_fingerprint": {
-                        "type": "string",
-                        "x-order": 4
-                      },
-                      "query_id": {
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "example_metrics": {
-                        "type": "string",
-                        "x-order": 6
-                      },
-                      "service_id": {
-                        "type": "string",
-                        "x-order": 7
-                      },
-                      "service_type": {
-                        "type": "string",
-                        "x-order": 8
-                      },
-                      "schema": {
-                        "type": "string",
-                        "x-order": 9
-                      },
-                      "tables": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        },
-                        "x-order": 10
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/qan/ObjectDetails/GetQueryPlan": {
-      "post": {
-        "description": "Provides a query plan and plan id for specific filtering.",
-        "tags": [
-          "QANService"
-        ],
-        "summary": "Get Query Plan",
-        "operationId": "GetQueryPlan",
-        "parameters": [
-          {
-            "description": "GetQueryPlanRequest defines filtering by queryid.",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "GetQueryPlanRequest defines filtering by queryid.",
-              "type": "object",
-              "properties": {
-                "queryid": {
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "description": "GetQueryPlanResponse contains planid and query_plan.",
-              "type": "object",
-              "properties": {
-                "planid": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "query_plan": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/qan/ObjectDetails/QueryExists": {
-      "post": {
-        "description": "Checks if query exists in clickhouse.",
-        "tags": [
-          "QANService"
-        ],
-        "summary": "Check Query Existence",
-        "operationId": "QueryExists",
-        "parameters": [
-          {
-            "description": "QueryExistsRequest check if provided query exists or not.",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "QueryExistsRequest check if provided query exists or not.",
-              "type": "object",
-              "properties": {
-                "serviceid": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "query": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "description": "QueryExistsResponse returns true if query exists.",
-              "type": "object",
-              "properties": {
-                "exists": {
-                  "type": "boolean",
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/qan/ObjectDetails/SchemaByQueryID": {
-      "post": {
-        "description": "Provides the schema for a given queryID and serviceID.",
-        "tags": [
-          "QANService"
-        ],
-        "summary": "Get Schema",
-        "operationId": "SchemaByQueryID",
-        "parameters": [
-          {
-            "description": "SchemaByQueryIDRequest returns schema for given query ID and service ID.",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "SchemaByQueryIDRequest returns schema for given query ID and service ID.",
-              "type": "object",
-              "properties": {
-                "service_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "query_id": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "description": "SchemaByQueryIDResponse is schema for given query ID and service ID.",
-              "type": "object",
-              "properties": {
-                "schema": {
-                  "type": "string",
-                  "x-order": 0
                 }
               }
             }

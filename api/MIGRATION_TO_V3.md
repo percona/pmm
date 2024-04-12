@@ -148,17 +148,17 @@ POST /v1/role/SetDefault                            POST /v1/accesscontrol/roles
 POST /v1/role/Update                                PUT /v1/accesscontrol/roles/{role_id}            ✅
 
 **QANService**                                      **QANService**
-POST /v1/qan/Filters/Get                            POST /v1/qan/metrics:getFilters                  
-POST /v1/qan/GetMetricsNames                        POST /v1/qan/metrics:getNames                    Note: it accepts no params, but hard to make it a GET
-POST /v1/qan/GetReport                              POST /v1/qan/metrics:getReport
-POST /v1/qan/ObjectDetails/ExplainFingerprintByQueryId POST /v1/qan:explainFingerprint
-POST /v1/qan/ObjectDetails/GetHistogram             POST /v1/qan:getHistogram
-POST /v1/qan/ObjectDetails/GetLables                POST /v1/qan:getLabels
-POST /v1/qan/ObjectDetails/GetMetrics               POST /v1/qan:getMetrics
-POST /v1/qan/ObjectDetails/GetQueryExample          POST /v1/qan/query:getExample                   !!! Need to revisit the endpoint design
-POST /v1/qan/ObjectDetails/GetQueryPlan             GET /v1/qan/query/{query_id}/plan
-POST /v1/qan/ObjectDetails/QueryExists              GET /v1/qan/query/{query_id}                    !!! Return query_id, fingerptint
-POST /v1/qan/ObjectDetails/SchemaByQueryId          POST /v1/qan/query:getSchema
+POST /v1/qan/Filters/Get                            POST /v1/qan/metrics:getFilters                  ✅
+POST /v1/qan/GetMetricsNames                        POST /v1/qan/metrics:getNames                    ✅
+POST /v1/qan/GetReport                              POST /v1/qan/metrics:getReport                   ✅
+POST /v1/qan/ObjectDetails/ExplainFingerprintByQueryId POST /v1/qan:explainFingerprint               ✅
+POST /v1/qan/ObjectDetails/GetHistogram             POST /v1/qan:getHistogram                        ✅
+POST /v1/qan/ObjectDetails/GetLables                POST /v1/qan:getLabels                           ✅
+POST /v1/qan/ObjectDetails/GetMetrics               POST /v1/qan:getMetrics                          ✅
+POST /v1/qan/ObjectDetails/GetQueryPlan             GET /v1/qan/query/{queryid}/plan                 ✅
+POST /v1/qan/ObjectDetails/QueryExists              POST /v1/qan/query:exists                        ✅ 
+POST /v1/qan/ObjectDetails/GetQueryExample          POST /v1/qan/query:getExample                    ✅
+POST /v1/qan/ObjectDetails/SchemaByQueryId          POST /v1/qan/query:getSchema                     ✅
 
 **PlatformService**                                 **PlatformService**
 POST /v1/platform/Connect                           POST /v1/platform:connect                        ✅
@@ -171,24 +171,3 @@ POST /v1/platform/UserInfo                          GET /v1/platform/user       
 
 // TODO: rename `period_start_from` to `start_from` and `period_start_to` to `start_to`
 // TODO: refactor the primitive types in alerting.proto
-
-## The use of custom methods in RESTful API
-
-We have a few custom methods in our RESTful API.
-
-Custom methods refer to API methods besides the 5 standard methods. They should only be used for functionality that cannot be easily expressed via standard methods. In general, API designers should choose standard methods over custom methods whenever feasible. Standard Methods have simpler and well-defined semantics that most developers are familiar with, so they are easier to use and less error prone. Another advantage of standard methods is the API platform has better understanding and support for standard methods, such as billing, error handling, logging, monitoring.
-
-A custom method can be associated with a resource, a collection, or a service. It may take an arbitrary request and return an arbitrary response, and also supports streaming request and response.
-
-A custom method is always a POST request. The URL path must end with a suffix consisting of a colon followed by the custom verb, like in the following example:
-
-```
-https://service.name/v1/some/resource/name:customVerb
-```
-
-The custom method should be used in the following cases:
-
-1. When the action cannot be performed by the standard RESTful methods. 
-2. When the action performed is not idempotent.
-3. When the action performed manipulates data, but does not fit into the standard CRUD operations.
-4. When the action performed contains sensitive data, that cannot be passed via URL query params.
