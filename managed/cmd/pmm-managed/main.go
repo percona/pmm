@@ -1084,6 +1084,12 @@ func main() { //nolint:cyclop,maintidx
 	}()
 
 	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		updater.Run(ctx)
+	}()
+
+	wg.Add(1)
 	haService.AddLeaderService(ha.NewContextService("telemetry", func(ctx context.Context) error {
 		defer wg.Done()
 		telemetry.Run(ctx)

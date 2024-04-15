@@ -241,7 +241,14 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 	s.envRW.RUnlock()
 
 	if req.OnlyInstalledVersion {
-		return s.updater.onlyInstalledVersionResponse(), nil
+		installedPMMVersion := s.updater.InstalledPMMVersion()
+		return &serverpb.CheckUpdatesResponse{
+			Installed: &serverpb.VersionInfo{
+				Version:     installedPMMVersion.Version,
+				FullVersion: installedPMMVersion.FullVersion,
+				Timestamp:   timestamppb.New(*installedPMMVersion.BuildTime),
+			},
+		}, nil
 	}
 
 	if req.Force {
@@ -259,12 +266,13 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 		Installed: &serverpb.VersionInfo{
 			Version:     v.Installed.Version,
 			FullVersion: v.Installed.FullVersion,
+			Timestamp:   timestamppb.New(*v.Installed.BuildTime),
 		},
-		Latest: &serverpb.VersionInfo{
-			Version:     v.Latest.Version,
-			FullVersion: v.Latest.FullVersion,
+		Latest: &serverpb.DockerVersionInfo{
+			Version: v.Latest.Version.String(),
+			Tag:     v.Latest.DockerImage,
 		},
-		UpdateAvailable: true,
+		UpdateAvailable: v.Latest.DockerImage != "",
 		LatestNewsUrl:   v.LatestNewsURL,
 	}
 
@@ -279,7 +287,7 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 		res.Installed.Timestamp = timestamppb.New(t)
 	}
 
-	if v.Latest.BuildTime != nil {
+	if v.Latest.DockerImage != "" {
 		t := v.Latest.BuildTime.UTC().Truncate(24 * time.Hour) // return only date
 		res.Latest.Timestamp = timestamppb.New(t)
 	}
@@ -304,7 +312,7 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 			s.l.WithError(err).Error("Failed to get latest version")
 			newImage = defaultLatestPMMImage
 		} else {
-			newImage = fmt.Sprintf("%s:%s", latest.Repo, latest.Version)
+			newImage = latest.DockerImage
 		}
 	}
 	err := s.updater.StartUpdate(ctx, newImage)
@@ -346,7 +354,7 @@ func (s *Server) UpdateStatus(ctx context.Context, req *serverpb.UpdateStatusReq
 			time.Sleep(time.Second)
 		}
 
-		lines, newOffset, err = s.updater.UpdateLog(req.LogOffset)
+		lines, newOffset, err = s.updater.UpdateLog(req.GetLogOffset())
 		if err != nil {
 			s.l.Warn(err)
 		}

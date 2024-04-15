@@ -73,14 +73,6 @@ type vmAlertExternalRules interface {
 // supervisordService is a subset of methods of supervisord.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type supervisordService interface {
-	//InstalledPMMVersion(ctx context.Context) *version.PackageInfo
-	//LastCheckUpdatesResult(ctx context.Context) (*version.UpdateCheckResult, time.Time)
-	//ForceCheckUpdates(ctx context.Context) error
-	//
-	//StartUpdate() (uint32, error)
-	//UpdateRunning() bool
-	//UpdateLog(offset uint32) ([]string, uint32, error)
-
 	UpdateConfiguration(settings *models.Settings, ssoDetails *models.PerconaSSODetails) error
 }
 

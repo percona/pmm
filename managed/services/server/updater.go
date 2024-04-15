@@ -19,6 +19,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -30,15 +31,19 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/version"
 )
 
 // defaultLatestPMMImage is the default image name to use when the latest version cannot be determined.
 const (
-	defaultLatestPMMImage = "perconalab/pmm-server:3-dev-latest"
-	pmmUpdatePerformLog   = "/srv/logs/pmm-update-perform-init.log"
+	defaultLatestPMMImage  = "perconalab/pmm-server:3-dev-latest"
+	pmmUpdatePerformLog    = "/srv/logs/pmm-update-perform-init.log"
+	updateCheckInterval    = 24 * time.Hour
+	updateCheckResultFresh = updateCheckInterval + 10*time.Minute
+	updateDefaultTimeout   = 30 * time.Second
 )
+
+var fileName = "/etc/pmm-server-update-version.json"
 
 // Updater is a service to check for updates and trigger the update process.
 type Updater struct {
@@ -50,21 +55,22 @@ type Updater struct {
 	running  bool
 
 	checkRW         sync.RWMutex
-	lastCheckResult *version.PackageInfo
+	lastCheckResult *version.DockerVersionInfo
 	lastCheckTime   time.Time
 }
 
 // NewUpdater creates a new Updater service.
 func NewUpdater(watchtowerHost *url.URL, gRPCMessageMaxSize uint32) *Updater {
-	return &Updater{
+	u := &Updater{
 		l:                  logrus.WithField("service", "updater"),
 		watchtowerHost:     watchtowerHost,
 		gRPCMessageMaxSize: gRPCMessageMaxSize,
 	}
+	return u
 }
 
-// run runs check for updates loop until ctx is canceled.
-func (up *Updater) run(ctx context.Context) {
+// Run runs check for updates loop until ctx is canceled.
+func (up *Updater) Run(ctx context.Context) {
 	up.l.Info("Starting...")
 	ticker := time.NewTicker(updateCheckInterval)
 	defer ticker.Stop()
@@ -126,8 +132,8 @@ func (up *Updater) sendRequestToWatchtower(ctx context.Context, newImageName str
 	return nil
 }
 
-func (up *Updater) currentVersion() string {
-	return version.Version
+func (up *Updater) currentVersion() *version.Parsed {
+	return version.MustParse(version.Version)
 }
 
 // StartUpdate triggers the update process.
@@ -150,27 +156,61 @@ func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 	return nil
 }
 
-func (up *Updater) onlyInstalledVersionResponse() *serverpb.CheckUpdatesResponse {
-	return &serverpb.CheckUpdatesResponse{
-		Installed: &serverpb.VersionInfo{
-			Version: up.currentVersion(),
-		},
-	}
+// ForceCheckUpdates forces an update check.
+func (up *Updater) ForceCheckUpdates(ctx context.Context) error {
+	return up.check(ctx)
 }
 
-// ForceCheckUpdates forces an update check.
-func (up *Updater) ForceCheckUpdates(_ context.Context) error {
-	// TODO: PMM-11261 Implement this method
-	return nil
+// LastCheckUpdatesResult returns the result of the last update check.
+func (up *Updater) LastCheckUpdatesResult(ctx context.Context) (*version.UpdateCheckResult, time.Time) {
+	installed := up.InstalledPMMVersion()
+	latest, lastCheckTime := up.checkResult(ctx)
+	return &version.UpdateCheckResult{
+		Installed:       installed,
+		Latest:          *latest,
+		UpdateAvailable: latest.DockerImage != "",
+		LatestNewsURL:   "https://per.co.na/pmm/" + latest.Version.String(),
+	}, lastCheckTime
+}
+
+func (up *Updater) latest(ctx context.Context) (*version.DockerVersionInfo, error) {
+	info, err := up.readFromFile()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to read from file")
+	}
+	if info != nil {
+		return info, nil
+	}
+	if os.Getenv("PMM_DEV_UPDATE_DOCKER_IMAGE") != "" {
+		return up.parseDockerTag(os.Getenv("PMM_DEV_UPDATE_DOCKER_IMAGE"))
+	}
+
+	// File does not exist, ENV variable isn't provided, get the latest tag from DockerHub
+	return up.latestAvailableFromDockerHub(ctx)
+}
+
+func (up *Updater) readFromFile() (*version.DockerVersionInfo, error) {
+	// Read from file, if it's not exist read from ENV variable, if it's not exist get the latest tag from DockerHub.
+	content, err := os.ReadFile(fileName)
+	if err != nil && !os.IsNotExist(err) {
+		up.l.WithError(err).Error("Failed to read file")
+		return nil, errors.Wrap(err, "failed to read file")
+	}
+	if os.IsNotExist(err) {
+		return nil, nil //nolint:nilnil
+	}
+	info := version.DockerVersionInfo{}
+	err = json.Unmarshal(content, &info)
+	if err != nil {
+		up.l.WithError(err).Error("Failed to unmarshal file")
+		return nil, errors.Wrap(err, "failed to unmarshal file")
+	}
+	return &info, nil
 }
 
 type result struct {
-	Name string `json:"name"`
-}
-
-type versionInfo struct {
-	Version     version.Parsed `json:"version"`
-	DockerImage string         `json:"docker_image"`
+	Name          string    `json:"name"`
+	TagLastPushed time.Time `json:"tag_last_pushed"`
 }
 
 // TagsResponse is a response from DockerHub.
@@ -178,58 +218,16 @@ type TagsResponse struct {
 	Results []result `json:"results"`
 }
 
-// LastCheckUpdatesResult returns the result of the last update check.
-func (up *Updater) LastCheckUpdatesResult(ctx context.Context) (*version.UpdateCheckResult, time.Time) {
-	buildTime, err := version.Time()
-	if err != nil {
-		up.l.WithError(err).Error("Failed to get build time")
-		return nil, time.Now()
-	}
-	latest, lastCheckTime := up.checkResult(ctx)
-	return &version.UpdateCheckResult{
-		Installed: version.PackageInfo{
-			Version:     up.currentVersion(),
-			FullVersion: version.PMMVersion,
-			BuildTime:   &buildTime,
-			Repo:        "local",
-		},
-		Latest:          *latest,
-		UpdateAvailable: true,
-		LatestNewsURL:   "",
-	}, lastCheckTime
-}
-
-func (up *Updater) latest(ctx context.Context) (*version.PackageInfo, error) {
-	// Read from file, if it's not exist read from ENV variable, if it's not exist get the latest tag from DockerHub.
-	fileName := "/etc/pmm-server-update-version.json"
-	content, err := os.ReadFile(fileName)
-	if err != nil && !os.IsNotExist(err) {
-		up.l.WithError(err).Error("Failed to read file")
-		return nil, errors.Wrap(err, "failed to read file")
-	}
-	if err == nil {
-		info := version.PackageInfo{}
-		err = json.Unmarshal(content, &info)
-		if err != nil {
-			up.l.WithError(err).Error("Failed to unmarshal file")
-			return nil, errors.Wrap(err, "failed to unmarshal file")
-		}
-		return &info, nil
-	}
-	if os.Getenv("PMM_SERVER_UPDATE_VERSION") != "" {
-		return up.parseDockerTag(os.Getenv("PMM_SERVER_UPDATE_VERSION")), nil
-	}
-
-	// File does not exist, ENV variable doesn't provided, get the latest tag from DockerHub
-	return up.latestAvailableFromDockerHub(ctx, err)
-}
-
 // latestAvailableFromDockerHub returns the latest available version from DockerHub.
 // It returns the latest minor version for the current major version.
 // If the current version is the latest minor version, it returns the next major version.
 // If the current version is the latest version, it returns the current version.
-func (up *Updater) latestAvailableFromDockerHub(ctx context.Context, err error) (*version.PackageInfo, error) {
-	u := "https://registry.hub.docker.com/v2/repositories/percona/pmm-server/tags/"
+func (up *Updater) latestAvailableFromDockerHub(ctx context.Context) (*version.DockerVersionInfo, error) {
+	repo := os.Getenv("PMM_DEV_UPDATE_DOCKER_REPO")
+	if repo == "" {
+		repo = "percona/pmm-server"
+	}
+	u := "https://registry.hub.docker.com/v2/repositories/" + repo + "/tags/?page_size=100"
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		up.l.WithError(err).Error("Failed to create request")
@@ -249,79 +247,88 @@ func (up *Updater) latestAvailableFromDockerHub(ctx context.Context, err error) 
 	}
 
 	if len(tagsResponse.Results) != 0 {
-		currentVersion, err := version.Parse(up.currentVersion())
-		if err != nil {
-			up.l.WithError(err).Error("Failed to parse current version")
-			return nil, errors.Wrap(err, "failed to parse current version")
+		up.l.Infof("Found %d tags", len(tagsResponse.Results))
+		next := up.next(*up.currentVersion(), tagsResponse.Results)
+		if next.DockerImage != "" {
+			next.DockerImage = repo + ":" + next.DockerImage
 		}
-
-		update, err := up.next(*currentVersion, tagsResponse.Results)
-		if err != nil {
-			up.l.WithError(err).Error("Failed to get latest minor version")
-			return nil, errors.Wrap(err, "failed to get latest minor version")
-		}
-		return up.parseDockerTag(update.DockerImage), nil
+		return next, err
 	}
 	return nil, errors.New("no tags found")
 }
 
-func (up *Updater) parseDockerTag(tag string) *version.PackageInfo {
+func (up *Updater) parseDockerTag(tag string) (*version.DockerVersionInfo, error) {
 	splitTag := strings.Split(tag, ":")
 	if len(splitTag) != 2 {
-		return nil
+		return nil, fmt.Errorf("invalid tag: %s", tag)
 	}
-	return &version.PackageInfo{
-		Version:     splitTag[1],
-		FullVersion: tag,
-		Repo:        splitTag[0],
+	parsed, err := version.Parse(splitTag[1])
+	if err != nil {
+		up.l.Debugf("Failed to parse version: %s", splitTag[1])
+		return &version.DockerVersionInfo{
+			DockerImage: tag,
+		}, nil
 	}
+	return &version.DockerVersionInfo{
+		Version:     *parsed,
+		DockerImage: tag,
+	}, nil
 }
 
-func (up *Updater) next(currentVersion version.Parsed, results []result) (*versionInfo, error) {
-	latest := versionInfo{
+func (up *Updater) next(currentVersion version.Parsed, results []result) *version.DockerVersionInfo {
+	nextMinor := &version.DockerVersionInfo{
 		Version: currentVersion,
 	}
+	var nextMajor *version.DockerVersionInfo
 	for _, result := range results {
-		splitTag := strings.Split(result.Name, ":")
-		if len(splitTag) != 2 {
-			continue
-		}
-		v, err := version.Parse(splitTag[1])
+		v, err := version.Parse(result.Name)
 		if err != nil {
-			up.l.Debugf("Failed to parse version: %s", splitTag[1])
+			up.l.Debugf("Failed to parse version: %s", result.Name)
 			continue
 		}
-		if v.Major == currentVersion.Major && v.Minor > currentVersion.Minor {
-			latest = versionInfo{
+		if !currentVersion.Less(v) {
+			continue
+		}
+		if v.Major == currentVersion.Major && nextMinor.Version.Less(v) { // next major
+			nextMinor = &version.DockerVersionInfo{
 				Version:     *v,
 				DockerImage: result.Name,
+				BuildTime:   result.TagLastPushed,
 			}
-		} else if v.Major > currentVersion.Major && v.Major < latest.Version.Major {
-			latest = versionInfo{
+		}
+		if v.Major > currentVersion.Major &&
+			(nextMajor == nil || (nextMajor.Version.Less(v) && nextMajor.Version.Major == v.Major) || v.Major < nextMajor.Version.Major) {
+			nextMajor = &version.DockerVersionInfo{
 				Version:     *v,
 				DockerImage: result.Name,
+				BuildTime:   result.TagLastPushed,
 			}
 		}
 	}
-	return &latest, nil
+	if nextMinor.Version == currentVersion && nextMajor != nil {
+		return nextMajor
+	}
+	return nextMinor
 }
 
+// InstalledPMMVersion returns the currently installed PMM version.
 func (up *Updater) InstalledPMMVersion() version.PackageInfo {
 	t, _ := version.Time()
 	return version.PackageInfo{
-		Version:     up.currentVersion(),
+		Version:     version.Version,
 		FullVersion: version.PMMVersion,
 		BuildTime:   &t,
-		Repo:        "local",
 	}
 }
 
+// IsRunning returns true if the update process is running.
 func (up *Updater) IsRunning() bool {
 	up.performM.Lock()
 	defer up.performM.Unlock()
 	return up.running
 }
 
+// UpdateLog returns the log of the update process.
 func (up *Updater) UpdateLog(offset uint32) ([]string, uint32, error) {
 	up.performM.Lock()
 	defer up.performM.Unlock()
@@ -356,9 +363,9 @@ func (up *Updater) UpdateLog(offset uint32) ([]string, uint32, error) {
 	}
 }
 
-// checkResult returns last `pmm-update -check` result and check time.
+// checkResult returns the result of the last update check.
 // It may force re-check if last result is empty or too old.
-func (up *Updater) checkResult(ctx context.Context) (*version.PackageInfo, time.Time) {
+func (up *Updater) checkResult(ctx context.Context) (*version.DockerVersionInfo, time.Time) {
 	up.checkRW.RLock()
 	defer up.checkRW.RUnlock()
 
@@ -371,7 +378,7 @@ func (up *Updater) checkResult(ctx context.Context) (*version.PackageInfo, time.
 	return up.lastCheckResult, up.lastCheckTime
 }
 
-// check calls `pmm-update -check` and fills lastInstalledPackageInfo/lastCheckResult/lastCheckTime on success.
+// check performs update check.
 func (up *Updater) check(ctx context.Context) error {
 	up.checkRW.Lock()
 	defer up.checkRW.Unlock()

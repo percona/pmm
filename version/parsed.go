@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -99,4 +100,15 @@ func (p *Parsed) Less(right *Parsed) bool {
 	}
 
 	return p.Rest < right.Rest
+}
+
+func (p *Parsed) UnmarshalJSON(b []byte) error {
+	s := string(b)
+	s = strings.Trim(s, `"`)
+	parsed, err := Parse(s)
+	if err != nil {
+		return err
+	}
+	*p = *parsed
+	return nil
 }
