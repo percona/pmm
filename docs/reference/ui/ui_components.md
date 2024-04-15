@@ -1,6 +1,7 @@
 # UI components
 
-![!image](../../_images/PMM_Home_Dashboard_Numbered.png)    
+![!image](../../_images/PMM_Home_Dashboard_Numbered.png)
+
 
 !!! note alert alert-light "Key"
     1. [Main menu](#main-menu) (also *Grafana menu*, *side menu*)
