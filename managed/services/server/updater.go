@@ -265,9 +265,7 @@ func (up *Updater) parseDockerTag(tag string) (*version.DockerVersionInfo, error
 	parsed, err := version.Parse(splitTag[1])
 	if err != nil {
 		up.l.Debugf("Failed to parse version: %s", splitTag[1])
-		return &version.DockerVersionInfo{
-			DockerImage: tag,
-		}, nil
+		return &version.DockerVersionInfo{DockerImage: tag}, nil //nolint:nilerr
 	}
 	return &version.DockerVersionInfo{
 		Version:     *parsed,

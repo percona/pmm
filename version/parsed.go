@@ -102,6 +102,7 @@ func (p *Parsed) Less(right *Parsed) bool {
 	return p.Rest < right.Rest
 }
 
+// UnmarshalJSON implements json.Unmarshaler interface and allows to unmarshal version information from JSON.
 func (p *Parsed) UnmarshalJSON(b []byte) error {
 	s := string(b)
 	s = strings.Trim(s, `"`)
