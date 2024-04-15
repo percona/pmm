@@ -101,10 +101,6 @@ func New(configDir string, params *models.Params) *Service {
 
 // Run reads supervisord's log (maintail) and sends events to subscribers.
 func (s *Service) Run(ctx context.Context) {
-	var wg sync.WaitGroup
-	wg.Add(1)
-	defer wg.Wait()
-
 	if s.supervisorctlPath == "" {
 		s.l.Errorf("supervisorctl not found, updates are disabled.")
 		return
