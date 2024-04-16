@@ -247,7 +247,7 @@ services:
       - GF_DATABASE_URL=postgres://grafana:grafana@pg:5432/grafana
       # - GF_DATABASE_SSL_MODE=require
       # - PMM_DEBUG=1
-      - GO_VERSION=1.20
+      - GO_VERSION=1.22
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
       - PMM_TEST_HA_ENABLE=1
       - PMM_TEST_HA_BOOTSTRAP=1
