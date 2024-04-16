@@ -1,7 +1,7 @@
-%global commit          f283b87d773da4ad61ca65660e72c084ac8f8716
+%global commit          f2a6d70344f94674f731e6e9b031a6f147de46cc
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define release         105
-%define grafana_version 10.4.0
+%define grafana_version 10.4.2
 %define full_pmm_version 2.0.0
 %define full_version    v%{grafana_version}-%{full_pmm_version}
 %define rpm_release     %{release}.%{shortcommit}%{?dist}
@@ -78,7 +78,10 @@ getent passwd pmm >/dev/null || echo "User pmm does not exist. Please create it 
 
 
 %changelog
-* Wed Mar 20 2024 Alex Demidoff <alexander.demidoff@percona.com> - 10.4.0-105
+* Tue Apr 16 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 10.4.2-1
+- PMM-13059 Grafana 10.4.2
+
+* Wed Mar 20 2024 Alex Demidoff <alexander.demidoff@percona.com> - 10.4.0-2
 - PMM-12899 Use module and build cache
 
 * Tue Mar 12 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 10.4.0-1
