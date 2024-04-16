@@ -185,7 +185,7 @@ func (s *Updater) latest(ctx context.Context) (*version.PackageInfo, error) {
 		return s.parseDockerTag(os.Getenv("PMM_SERVER_UPDATE_VERSION")), nil
 	}
 
-	// File does not exist, ENV variable doesn't provided, get the latest tag from DockerHub
+	// If file does not exist, and ENV variable is not set, go get the latest tag from DockerHub
 	u := "https://registry.hub.docker.com/v2/repositories/percona/pmm-server/tags/"
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
