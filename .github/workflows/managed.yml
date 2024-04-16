@@ -120,8 +120,8 @@ jobs:
           env | sort
           go env | sort
           git status
-          docker exec pmm-server supervisorctl status
           docker exec pmm-server env
           docker exec pmm-server go env
           docker exec pmm-server tail /srv/logs/*.log
+          docker exec pmm-server supervisorctl status
           docker exec pmm-server supervisorctl tail all
