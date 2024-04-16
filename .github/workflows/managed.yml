@@ -122,7 +122,7 @@ jobs:
           git status
           docker exec pmm-server env
           docker exec pmm-server go env
-          docker exec pmm-server supervisorctl status
+          docker exec pmm-server supervisorctl status || true
           services=$(docker exec pmm-server supervisorctl status | awk '{print $1}')
           lines=()
           while IFS= read -r service; do
