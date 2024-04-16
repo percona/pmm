@@ -185,7 +185,7 @@ func (up *Updater) latest(ctx context.Context) (*version.DockerVersionInfo, erro
 		return up.parseDockerTag(os.Getenv("PMM_DEV_UPDATE_DOCKER_IMAGE"))
 	}
 
-	// File does not exist, ENV variable isn't provided, get the latest tag from DockerHub
+	// If file does not exist, and ENV variable is not set, go get the latest tag from DockerHub
 	return up.latestAvailableFromDockerHub(ctx)
 }
 
