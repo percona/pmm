@@ -122,6 +122,10 @@ jobs:
           git status
           docker exec pmm-server env
           docker exec pmm-server go env
-          docker exec pmm-server tail /srv/logs/*
           docker exec pmm-server supervisorctl status
-          docker exec pmm-server supervisorctl tail all
+          services=$(docker exec pmm-server supervisorctl status | awk '{print $1}')
+          lines=()
+          while IFS= read -r service; do
+            echo "Logs for $service:"
+            docker exec pmm-server supervisorctl tail $service
+          done <<< "$services"
