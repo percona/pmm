@@ -14,8 +14,6 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package grafana provides facilities for working with Grafana.
-//
-
 package grafana
 
 import (
@@ -132,7 +130,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -201,7 +199,6 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 
 	var m map[string]interface{}
 	err = c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
-
 	if err != nil {
 		return 0, err
 	}
@@ -219,7 +216,7 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 // Ctx is used only for cancelation.
 func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error) {
 	// Check if it's API Key
-	if c.isAPIKeyAuth(authHeaders.Get("Authorization")) {
+	if c.IsAPIKeyAuth(authHeaders) {
 		role, err := c.getRoleForAPIKey(ctx, authHeaders)
 		return authUser{
 			role:   role,
@@ -277,7 +274,9 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 	}, nil
 }
 
-func (c *Client) isAPIKeyAuth(authHeader string) bool {
+// IsAPIKeyAuth checks if the request is made using an API Key.
+func (c *Client) IsAPIKeyAuth(headers http.Header) bool {
+	authHeader := headers.Get("Authorization")
 	switch {
 	case strings.HasPrefix(authHeader, "Bearer"):
 		return true

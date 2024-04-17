@@ -114,6 +114,12 @@ message AddRDSRequest {
   string agent_password = 29;
   // Database name.
   string database = 30;
+  // Limit of databases for auto-discovery.
+  int32 auto_discovery_limit = 31;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 32;
+  // Maximum number of exporter connections to PostgreSQL instance.
+  int32 max_postgresql_exporter_connections = 33;
 }
 
 message AddRDSResponse {

@@ -29,7 +29,7 @@ import (
 
 type dataSourceVictoriaMetrics struct {
 	l      *logrus.Entry
-	config DataSourceVictoriaMetrics
+	config DSConfigVM
 	vm     v1.API
 }
 
@@ -43,7 +43,7 @@ func (d *dataSourceVictoriaMetrics) Enabled() bool {
 }
 
 // NewDataSourceVictoriaMetrics makes new data source for victoria metrics.
-func NewDataSourceVictoriaMetrics(config DataSourceVictoriaMetrics, l *logrus.Entry) (DataSource, error) { //nolint:ireturn
+func NewDataSourceVictoriaMetrics(config DSConfigVM, l *logrus.Entry) (DataSource, error) { //nolint:ireturn,nolintlint
 	if !config.Enabled {
 		return &dataSourceVictoriaMetrics{
 			l:      l,
@@ -99,10 +99,10 @@ func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Con
 	return metrics, nil
 }
 
-func (d *dataSourceVictoriaMetrics) Init(ctx context.Context) error {
+func (d *dataSourceVictoriaMetrics) Init(ctx context.Context) error { //nolint:revive
 	return nil
 }
 
-func (d *dataSourceVictoriaMetrics) Dispose(ctx context.Context) error {
+func (d *dataSourceVictoriaMetrics) Dispose(ctx context.Context) error { //nolint:revive
 	return nil
 }

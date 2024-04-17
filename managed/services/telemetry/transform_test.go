@@ -16,18 +16,18 @@
 package telemetry
 
 import (
-	"fmt"
 	"testing"
 
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_transformToJSON(t *testing.T) {
+func TestTransformToJSON(t *testing.T) {
 	type args struct {
 		config  *Config
 		metrics []*pmmv1.ServerMetric_Metric
 	}
+
 	noMetrics := []*pmmv1.ServerMetric_Metric{}
 
 	tests := []struct {
@@ -39,7 +39,7 @@ func Test_transformToJSON(t *testing.T) {
 		{
 			name: "nil metrics",
 			args: args{
-				config:  config(),
+				config:  configJSON(),
 				metrics: nil,
 			},
 			want:    nil,
@@ -48,7 +48,7 @@ func Test_transformToJSON(t *testing.T) {
 		{
 			name: "empty metrics",
 			args: args{
-				config:  config(),
+				config:  configJSON(),
 				metrics: noMetrics,
 			},
 			want:    noMetrics,
@@ -57,7 +57,7 @@ func Test_transformToJSON(t *testing.T) {
 		{
 			name: "no Transform in config",
 			args: args{
-				config:  config().noTransform(),
+				config:  configJSON().noTransform(),
 				metrics: noMetrics,
 			},
 			want:    noMetrics,
@@ -66,7 +66,7 @@ func Test_transformToJSON(t *testing.T) {
 		{
 			name: "no Metrics config",
 			args: args{
-				config:  config().noFirstMetricConfig(),
+				config:  configJSON().noFirstMetricConfig(),
 				metrics: noMetrics,
 			},
 			want:    noMetrics,
@@ -75,7 +75,7 @@ func Test_transformToJSON(t *testing.T) {
 		{
 			name: "no Metric Name config",
 			args: args{
-				config:  config().noFirstMetricNameConfig(),
+				config:  configJSON().noFirstMetricNameConfig(),
 				metrics: noMetrics,
 			},
 			want:    noMetrics,
@@ -84,7 +84,7 @@ func Test_transformToJSON(t *testing.T) {
 		{
 			name: "invalid seq",
 			args: args{
-				config: config(),
+				config: configJSON(),
 				metrics: []*pmmv1.ServerMetric_Metric{
 					{Key: "my-metric", Value: "v1"},
 					{Key: "b", Value: "v1"},
@@ -98,7 +98,7 @@ func Test_transformToJSON(t *testing.T) {
 		{
 			name: "correct seq",
 			args: args{
-				config: config(),
+				config: configJSON(),
 				metrics: []*pmmv1.ServerMetric_Metric{
 					{Key: "my-metric", Value: "v1"},
 					{Key: "b", Value: "v1"},
@@ -107,29 +107,32 @@ func Test_transformToJSON(t *testing.T) {
 				},
 			},
 			want: []*pmmv1.ServerMetric_Metric{
-				{Key: config().Transform.Metric, Value: `{"v":[{"b":"v1","my-metric":"v1"},{"b":"v1","my-metric":"v1"}]}`},
+				{Key: configJSON().Transform.Metric, Value: `{"v":[{"b":"v1","my-metric":"v1"},{"b":"v1","my-metric":"v1"}]}`},
 			},
 			wantErr: assert.NoError,
 		},
 		{
 			name: "happy path",
 			args: args{
-				config: config(),
+				config: configJSON(),
 				metrics: []*pmmv1.ServerMetric_Metric{
-					{Key: config().Data[0].MetricName, Value: "v1"},
-					{Key: config().Data[0].MetricName, Value: "v2"},
+					{Key: configJSON().Data[0].MetricName, Value: "v1"},
+					{Key: configJSON().Data[0].MetricName, Value: "v2"},
 				},
 			},
 			want: []*pmmv1.ServerMetric_Metric{
-				{Key: config().Transform.Metric, Value: `{"v":[{"my-metric":"v1"},{"my-metric":"v2"}]}`},
+				{Key: configJSON().Transform.Metric, Value: `{"v":[{"my-metric":"v1"},{"my-metric":"v2"}]}`},
 			},
 			wantErr: assert.NoError,
 		},
 	}
+
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := transformToJSON(tt.args.config, tt.args.metrics)
-			if !tt.wantErr(t, err, fmt.Sprintf("transformToJSON(%v, %v)", tt.args.config, tt.args.metrics)) {
+			if !tt.wantErr(t, err) {
+				t.Logf("config: %v", tt.args.config)
 				return
 			}
 			assert.Equalf(t, tt.want, got, "transformToJSON(%v, %v)", tt.args.config, tt.args.metrics)
@@ -137,14 +140,115 @@ func Test_transformToJSON(t *testing.T) {
 	}
 }
 
-func config() *Config {
+func TestTransformExportValues(t *testing.T) {
+	type args struct {
+		config  *Config
+		metrics []*pmmv1.ServerMetric_Metric
+	}
+
+	noMetrics := []*pmmv1.ServerMetric_Metric{}
+
+	tests := []struct {
+		name    string
+		args    args
+		want    []*pmmv1.ServerMetric_Metric
+		wantErr assert.ErrorAssertionFunc
+	}{
+		{
+			name: "nil metrics",
+			args: args{
+				config:  configEnvVars(),
+				metrics: nil,
+			},
+			want:    nil,
+			wantErr: assert.NoError,
+		},
+		{
+			name: "empty metrics",
+			args: args{
+				config:  configEnvVars(),
+				metrics: noMetrics,
+			},
+			want:    noMetrics,
+			wantErr: assert.NoError,
+		},
+		{
+			name: "no Transform in config",
+			args: args{
+				config:  configEnvVars().noTransform(),
+				metrics: noMetrics,
+			},
+			want:    noMetrics,
+			wantErr: assert.NoError,
+		},
+		{
+			name: "no Metrics config",
+			args: args{
+				config:  configEnvVars().noFirstMetricConfig(),
+				metrics: noMetrics,
+			},
+			want:    noMetrics,
+			wantErr: assert.NoError,
+		},
+		{
+			name: "invalid data source",
+			args: args{
+				config: configEnvVars().changeDataSource(dsPMMDBSelect),
+				metrics: []*pmmv1.ServerMetric_Metric{
+					{Key: "metric-a", Value: "v1"},
+					{Key: "metric-b", Value: "v2"},
+				},
+			},
+			want:    nil,
+			wantErr: assert.Error,
+		},
+		{
+			name: "happy path",
+			args: args{
+				config: configEnvVars(),
+				metrics: []*pmmv1.ServerMetric_Metric{
+					{Key: "metric-a", Value: "v1"},
+					{Key: "metric-b", Value: "v2"},
+				},
+			},
+			want: []*pmmv1.ServerMetric_Metric{
+				{Key: "metric-a", Value: "1"},
+				{Key: "metric-b", Value: "1"},
+			},
+			wantErr: assert.NoError,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := transformExportValues(tt.args.config, tt.args.metrics)
+			if !tt.wantErr(t, err) {
+				t.Logf("config: %v", tt.args.config)
+				return
+			}
+			assert.Equalf(t, tt.want, got, "transformExportValues(%v, %v)", tt.args.config, tt.args.metrics)
+		})
+	}
+}
+
+func configJSON() *Config {
 	return &Config{
 		Transform: &ConfigTransform{
 			Metric: "metric",
-			Type:   JSONTransformType,
+			Type:   JSONTransform,
 		},
 		Data: []ConfigData{
 			{MetricName: "my-metric", Label: "label"},
+		},
+	}
+}
+
+func configEnvVars() *Config {
+	return &Config{
+		Source: "ENV_VARS",
+		Transform: &ConfigTransform{
+			Type: StripValuesTransform,
 		},
 	}
 }
@@ -164,7 +268,12 @@ func (c *Config) noFirstMetricNameConfig() *Config {
 	return c
 }
 
-func Test_removeEmpty(t *testing.T) {
+func (c *Config) changeDataSource(s DataSourceName) *Config {
+	c.Source = string(s)
+	return c
+}
+
+func TestRemoveEmpty(t *testing.T) {
 	type args struct {
 		metrics []*pmmv1.ServerMetric_Metric
 	}

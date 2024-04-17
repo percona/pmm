@@ -31,11 +31,11 @@ install-race:                   ## Install qan-api2 binary with race detector
 	go install -v -race ./...
 
 test-env-up:					## Start docker containers used for testing
-	docker run -d --platform=linux/amd64 --name pmm-clickhouse-test -p19000:9000 yandex/clickhouse-server:21.3.20
+	docker run -d --platform=linux/amd64 --name pmm-clickhouse-test -p19000:9000 -p18123:8123 clickhouse/clickhouse-server:23.8.2.7
 	make test-env
 
 test-env-up-applem1:				## Start docker containers used for testing on Apple M1 and higher chips.
-	docker run -d --platform=linux/amd64 --name pmm-clickhouse-test -p19000:9000 clickhouse/clickhouse-server:head-alpine
+	docker run -d --platform=linux/arm64 --name pmm-clickhouse-test -p19000:9000 -p18123:8123 clickhouse/clickhouse-server:23.8.2.7
 	make test-env
 
 test-env:
@@ -74,17 +74,17 @@ _run:
 
 env-up:                         ## Run ClickHouse, MySQL Server and sysbench containers. Create pmm DB in ClickHouse
 	mkdir -p logs
-	docker-compose up -d $(DCFLAGS) --force-recreate --renew-anon-volumes --remove-orphans ch sysbench-ps
-	#docker-compose up $(DCFLAGS) ch sysbench-pstpcc
+	docker compose up -d $(DCFLAGS) --force-recreate --renew-anon-volumes --remove-orphans ch sysbench-ps
+	# docker compose up $(DCFLAGS) ch sysbench-pstpcc
 	sleep 60
 	docker exec ch-server clickhouse client -h 127.0.0.1 --query="CREATE DATABASE IF NOT EXISTS pmm;"
 
 env-down:                       ## Remove docker containers
-	docker-compose down --volumes
+	docker compose down --volumes
 	rm -rf logs
 
 pmm-env-up:                     ## Run PMM server, MySQL Server and sysbench containers
-	docker-compose up -d --force-recreate --renew-anon-volumes --remove-orphans $(PMM_CONTAINER)
+	docker compose up -d --force-recreate --renew-anon-volumes --remove-orphans $(PMM_CONTAINER)
 	docker exec $(PMM_CONTAINER) sed -i 's|<!-- <listen_host>0.0.0.0</listen_host> -->|<listen_host>0.0.0.0</listen_host>|g' /etc/clickhouse-server/config.xml
 	docker exec $(PMM_CONTAINER) supervisorctl restart clickhouse
 	docker exec $(PMM_CONTAINER) supervisorctl stop qan-api2

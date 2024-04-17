@@ -259,7 +259,7 @@ func (c *Client) makeRequest(ctx context.Context, accessToken, method, path stri
 		return nil, err
 	}
 
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -282,64 +282,71 @@ func (c *Client) makeRequest(ctx context.Context, accessToken, method, path stri
 	return bodyBytes, nil
 }
 
+// SsoDetails represents the Single Sign-On details containing information.
 type SsoDetails struct {
-	GrafanaClientID        string `json:"grafana_client_id"`         //nolint:tagliatelle
-	PMMManagedClientID     string `json:"pmm_managed_client_id"`     //nolint:tagliatelle
-	PMMManagedClientSecret string `json:"pmm_managed_client_secret"` //nolint:tagliatelle
+	GrafanaClientID        string `json:"grafana_client_id"`
+	PMMManagedClientID     string `json:"pmm_managed_client_id"`
+	PMMManagedClientSecret string `json:"pmm_managed_client_secret"`
 	Scope                  string `json:"scope"`
-	IssuerURL              string `json:"issuer_url"` //nolint:tagliatelle
+	IssuerURL              string `json:"issuer_url"`
 }
 
+// ConnectPMMResponse represents the response structure for the ConnectPMM API.
 type ConnectPMMResponse struct {
 	SSODetails     *SsoDetails `json:"sso_details"`
 	OrganizationID string      `json:"org_id"`
 }
 
+// SearchOrganizationEntitlementsResponse represents the response structure.
 type SearchOrganizationEntitlementsResponse struct {
 	Entitlement []*EntitlementResponse `json:"entitlements"`
 }
 
+// EntitlementResponse represents the response structure for entitlement-related APIs.
 type EntitlementResponse struct {
 	Number           string   `json:"number"`
 	Name             string   `json:"name"`
 	Summary          string   `json:"summary"`
 	Tier             string   `json:"tier"`
-	TotalUnits       string   `json:"total_units"`       //nolint:tagliatelle
-	UnlimitedUnits   bool     `json:"unlimited_units"`   //nolint:tagliatelle
-	SupportLevel     string   `json:"support_level"`     //nolint:tagliatelle
-	SoftwareFamilies []string `json:"software_families"` //nolint:tagliatelle
-	StartDate        string   `json:"start_date"`        //nolint:tagliatelle
-	EndDate          string   `json:"end_date"`          //nolint:tagliatelle
+	TotalUnits       string   `json:"total_units"`
+	UnlimitedUnits   bool     `json:"unlimited_units"`
+	SupportLevel     string   `json:"support_level"`
+	SoftwareFamilies []string `json:"software_families"`
+	StartDate        string   `json:"start_date"`
+	EndDate          string   `json:"end_date"`
 	Platform         Response `json:"platform"`
 }
 
+// Response represents a generic API response structure.
 type Response struct {
-	SecurityAdvisor string `json:"security_advisor"` //nolint:tagliatelle
-	ConfigAdvisor   string `json:"config_advisor"`   //nolint:tagliatelle
+	SecurityAdvisor string `json:"security_advisor"`
+	ConfigAdvisor   string `json:"config_advisor"`
 }
 
 type SearchOrganizationTicketsResponse struct {
 	Tickets []*TicketResponse `json:"tickets"`
 }
 
+// TicketResponse represents the response structure for ticket-related APIs.
 type TicketResponse struct {
 	Number           string `json:"number"`
-	ShortDescription string `json:"short_description"` //nolint:tagliatelle
+	ShortDescription string `json:"short_description"`
 	Priority         string `json:"priority"`
 	State            string `json:"state"`
-	CreateTime       string `json:"create_time"` //nolint:tagliatelle
+	CreateTime       string `json:"create_time"`
 	Department       string `json:"department"`
 	Requester        string `json:"requestor"`
-	TaskType         string `json:"task_type"` //nolint:tagliatelle
+	TaskType         string `json:"task_type"`
 	URL              string `json:"url"`
 }
 
+// ContactInformation represents information about a contact.
 type ContactInformation struct {
 	Contacts struct {
 		CustomerSuccess struct {
 			Name  string `json:"name"`
 			Email string `json:"email"`
-		} `json:"customer_success"` //nolint:tagliatelle
-		NewTicketURL string `json:"new_ticket_url"` //nolint:tagliatelle
+		} `json:"customer_success"`
+		NewTicketURL string `json:"new_ticket_url"`
 	} `json:"contacts"`
 }

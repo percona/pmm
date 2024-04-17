@@ -55,13 +55,15 @@ func TestRDSService(t *testing.T) {
 
 	cc := &mockConnectionChecker{}
 	cc.Test(t)
+	sib := &mockServiceInfoBroker{}
+	sib.Test(t)
 	state := &mockAgentsStateUpdater{}
 	state.Test(t)
 	defer func() {
 		cc.AssertExpectations(t)
 		state.AssertExpectations(t)
 	}()
-	s := NewRDSService(db, state, cc)
+	s := NewRDSService(db, state, cc, sib)
 
 	t.Run("DiscoverRDS", func(t *testing.T) {
 		t.Run("ListRegions", func(t *testing.T) {
@@ -78,6 +80,7 @@ func TestRDSService(t *testing.T) {
 				"ap-southeast-3",
 				"ap-southeast-4",
 				"ca-central-1",
+				"ca-west-1",
 				"cn-north-1",
 				"cn-northwest-1",
 				"eu-central-1",
@@ -342,11 +345,13 @@ func TestRDSService(t *testing.T) {
 			CustomLabels: map[string]string{
 				"foo": "bar",
 			},
-			SkipConnectionCheck:       true,
-			Tls:                       false,
-			TlsSkipVerify:             false,
-			DisableQueryExamples:      true,
-			TablestatsGroupTableLimit: 0,
+			SkipConnectionCheck:              true,
+			Tls:                              false,
+			TlsSkipVerify:                    false,
+			DisableQueryExamples:             true,
+			TablestatsGroupTableLimit:        0,
+			AutoDiscoveryLimit:               10,
+			MaxPostgresqlExporterConnections: 15,
 		}
 
 		state.On("RequestStateUpdate", ctx, "pmm-server")
@@ -387,11 +392,13 @@ func TestRDSService(t *testing.T) {
 				},
 			},
 			PostgresqlExporter: &inventorypb.PostgresExporter{
-				AgentId:    "/agent_id/00000000-0000-4000-8000-00000000000d",
-				PmmAgentId: "pmm-server",
-				ServiceId:  "/service_id/00000000-0000-4000-8000-00000000000c",
-				Username:   "username",
-				Status:     inventorypb.AgentStatus_UNKNOWN,
+				AgentId:                "/agent_id/00000000-0000-4000-8000-00000000000d",
+				PmmAgentId:             "pmm-server",
+				ServiceId:              "/service_id/00000000-0000-4000-8000-00000000000c",
+				Username:               "username",
+				Status:                 inventorypb.AgentStatus_UNKNOWN,
+				AutoDiscoveryLimit:     10,
+				MaxExporterConnections: 15,
 			},
 			QanPostgresqlPgstatements: &inventorypb.QANPostgreSQLPgStatementsAgent{
 				AgentId:    "/agent_id/00000000-0000-4000-8000-00000000000e",

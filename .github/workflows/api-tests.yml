@@ -1,0 +1,156 @@
+name: 'API'
+
+on:
+  # NOTE: no action on `push` and `pull_request` since the API tests need to be run
+  # against a container that has the latest changes from your code. Therefore, the
+  # PMM_SERVER_IMAGE should either be the one from your feature build or the local
+  # devcontainer. One more scenario is when we want to run the API tests on dev-latest
+  # to see if the tests are in a good shape.
+  # That said, this workflow is mostly a convenience if you prefer Github to Jenkins.
+  # https://github.com/Percona-Lab/jenkins-pipelines/blob/master/pmm/pmm2-api-tests.groovy
+
+  workflow_dispatch:
+    inputs:
+      MYSQL_IMAGE:
+        description: "MYSQL image version"
+        default: "percona:5.7"
+        required: true
+        type: string
+      POSTGRESQL_IMAGE:
+        description: "POSTGRESQL image version"
+        default: "postgres:12"
+        required: true
+        type: string
+      MONGODB_IMAGE:
+        description: "MONGODB image version"
+        default: "percona/percona-server-mongodb:4.4"
+        required: true
+        type: string
+      PMM_SERVER_IMAGE:
+        description: "PMM Server image version"
+        default: "perconalab/pmm-server:dev-latest"
+        required: true
+        type: string
+
+  workflow_call:
+    inputs:
+      BRANCH:
+        description: "The branch to source API tests from"
+        default: "main"
+        required: true
+        type: string      
+      MYSQL_IMAGE:
+        description: "MYSQL image version"
+        default: "percona:5.7"
+        required: true
+        type: string
+      POSTGRESQL_IMAGE:
+        description: "POSTGRESQL image version"
+        default: "postgres:12"
+        required: true
+        type: string
+      MONGODB_IMAGE:
+        description: "MONGODB image version"
+        default: "percona/percona-server-mongodb:4.4"
+        required: true
+        type: string
+      PMM_SERVER_IMAGE:
+        description: "PMM Server image version"
+        default: "perconalab/pmm-server:dev-latest"
+        required: true
+        type: string
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-22.04
+    env:
+      PMM_URL: http://admin:admin@127.0.0.1
+      BRANCH: ${{ github.event.inputs.BRANCH || 'main' }}
+      MYSQL_IMAGE: ${{ github.event.inputs.MYSQL_IMAGE || 'percona:5.7' }}
+      POSTGRESQL_IMAGE: ${{ github.event.inputs.POSTGRESQL_IMAGE || 'postgres:12' }}
+      MONGODB_IMAGE: ${{ github.event.inputs.MONGODB_IMAGE || 'percona/percona-server-mongodb:4.4' }}
+      PMM_SERVER_IMAGE: ${{ github.event.inputs.PMM_SERVER_IMAGE || 'perconalab/pmm-server:dev-latest' }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH }}        
+
+      - name: Login to docker.io registry
+        uses: docker/login-action@v3
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Run PMM Server
+        run: |
+          cat <<-EOF > compose.pmm-server-test.yml
+          services:
+            pmm-server:
+              image: ${{ env.PMM_SERVER_IMAGE }}
+              container_name: pmm-agent_pmm-server
+              environment:
+                - PMM_DEBUG=1
+                - PERCONA_TEST_CHECKS_INTERVAL=10s
+                - PERCONA_TEST_PLATFORM_ADDRESS=https://check-dev.percona.com
+                - PERCONA_TEST_PLATFORM_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX
+              ports:
+                - 80:80
+                - 443:443
+              volumes:
+                - ./managed/testdata/checks:/srv/checks
+          EOF
+
+          # Run it and wait until it's healthy
+          docker compose -f compose.pmm-server-test.yml up -d --wait --wait-timeout=100
+
+      - name: Build the test image
+        shell: bash
+        run: |
+          docker build -t percona/pmm-api-tests .
+
+      - name: Run DB containers
+        shell: bash
+        run: |
+          pushd api-tests
+          docker compose up test_db # no daemon mode
+          # TODO: review the provisions below (copied from the Jenkins pipeline)
+          # MYSQL_IMAGE=${{env.MYSQL_IMAGE}} docker compose up -d mysql
+          # MONGO_IMAGE=${{env.MONGODB_IMAGE}} docker compose up -d mongo
+          # POSTGRES_IMAGE=${{env.POSTGRESQL_IMAGE}} docker compose up -d postgres
+          # docker compose up -d sysbench
+          popd
+
+      - name: Check connectivity to PMM Server
+        shell: bash
+        run: curl -f ${{env.PMM_URL}}/ping
+
+      - name: Run API tests
+        shell: bash
+        run: |
+          docker run -e PMM_SERVER_URL=${{env.PMM_URL}} \
+            -e PMM_RUN_UPDATE_TEST=0 \
+            -e PMM_RUN_STT_TESTS=0 \
+            --name pmm-api-tests \
+            --network host \
+            percona/pmm-api-tests
+
+      - name: Get PMM logs
+        if: ${{ failure() }}
+        run: curl --insecure ${{env.PMM_URL}}/logs.zip --output ${{ github.workspace }}/logs.zip || true
+
+      - name: Upload the logs on failure
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: "logs.zip"
+          path: ${{ github.workspace }}/logs.zip
+
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        run: |
+          echo "----- ENVIRONMENT VARIABLES -----"
+          env | sort

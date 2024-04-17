@@ -153,6 +153,7 @@ func (c *Client) StopMonitoring(ctx context.Context, in *controllerv1beta1.StopM
 	return c.kubernetesClient.StopMonitoring(ctx, in, opts...)
 }
 
+// GetKubeConfig returns Kubernetes config.
 func (c *Client) GetKubeConfig(ctx context.Context, _ *controllerv1beta1.GetKubeconfigRequest, _ ...grpc.CallOption) (*controllerv1beta1.GetKubeconfigResponse, error) {
 	c.connM.RLock()
 	defer c.connM.RUnlock()

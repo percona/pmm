@@ -64,6 +64,7 @@ type Server struct {
 	rulesService         rulesService
 	dbaasInitializer     dbaasInitializer
 	emailer              emailer
+	haService            haService
 
 	l *logrus.Entry
 
@@ -104,6 +105,7 @@ type Params struct {
 	RulesService         rulesService
 	DBaaSInitializer     dbaasInitializer
 	Emailer              emailer
+	HAService            haService
 }
 
 // NewServer returns new server for Server service.
@@ -130,6 +132,7 @@ func NewServer(params *Params) (*Server, error) {
 		rulesService:         params.RulesService,
 		dbaasInitializer:     params.DBaaSInitializer,
 		emailer:              params.Emailer,
+		haService:            params.HAService,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
 		envSettings:          &models.ChangeSettingsParams{},
@@ -219,7 +222,7 @@ func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 
 // Readiness returns an error when some PMM Server component is not ready yet or is being restarted.
 // It can be used as for Docker health check or Kubernetes readiness probe.
-func (s *Server) Readiness(ctx context.Context, req *serverpb.ReadinessRequest) (*serverpb.ReadinessResponse, error) {
+func (s *Server) Readiness(ctx context.Context, req *serverpb.ReadinessRequest) (*serverpb.ReadinessResponse, error) { //nolint:revive
 	var notReady bool
 	for n, svc := range map[string]healthChecker{
 		"alertmanager":    s.alertmanager,
@@ -238,6 +241,16 @@ func (s *Server) Readiness(ctx context.Context, req *serverpb.ReadinessRequest) 
 	}
 
 	return &serverpb.ReadinessResponse{}, nil
+}
+
+// LeaderHealthCheck checks if the instance is the leader in a cluster.
+// Returns an error if the instance isn't the leader.
+// It's used for HA purpose.
+func (s *Server) LeaderHealthCheck(ctx context.Context, req *serverpb.LeaderHealthCheckRequest) (*serverpb.LeaderHealthCheckResponse, error) { //nolint:revive
+	if s.haService.IsLeader() {
+		return &serverpb.LeaderHealthCheckResponse{}, nil
+	}
+	return nil, status.Error(codes.FailedPrecondition, "this PMM Server isn't the leader")
 }
 
 func (s *Server) onlyInstalledVersionResponse(ctx context.Context) *serverpb.CheckUpdatesResponse {
@@ -313,7 +326,7 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 }
 
 // StartUpdate starts PMM Server update.
-func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateRequest) (*serverpb.StartUpdateResponse, error) {
+func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateRequest) (*serverpb.StartUpdateResponse, error) { //nolint:revive
 	s.envRW.RLock()
 	updatesDisabled := s.envSettings.DisableUpdates
 	s.envRW.RUnlock()
@@ -488,7 +501,7 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 }
 
 // GetSettings returns current PMM Server settings.
-func (s *Server) GetSettings(ctx context.Context, req *serverpb.GetSettingsRequest) (*serverpb.GetSettingsResponse, error) {
+func (s *Server) GetSettings(ctx context.Context, req *serverpb.GetSettingsRequest) (*serverpb.GetSettingsResponse, error) { //nolint:revive
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
 
@@ -864,7 +877,7 @@ func (s *Server) writeSSHKey(sshKey string) error {
 }
 
 // AWSInstanceCheck checks AWS EC2 instance ID.
-func (s *Server) AWSInstanceCheck(ctx context.Context, req *serverpb.AWSInstanceCheckRequest) (*serverpb.AWSInstanceCheckResponse, error) {
+func (s *Server) AWSInstanceCheck(ctx context.Context, req *serverpb.AWSInstanceCheckRequest) (*serverpb.AWSInstanceCheckResponse, error) { //nolint:revive
 	if err := s.awsInstanceChecker.check(req.InstanceId); err != nil {
 		return nil, err
 	}

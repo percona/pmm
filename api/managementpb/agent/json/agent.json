@@ -137,6 +137,11 @@
                         },
                         "x-order": 9
                       },
+                      "expose_exporter": {
+                        "description": "True if an exporter agent is exposed on all host addresses.",
+                        "type": "boolean",
+                        "x-order": 39
+                      },
                       "is_agent_password_set": {
                         "description": "True if the agent password is set.",
                         "type": "boolean",
@@ -196,23 +201,23 @@
                           "authentication_database": {
                             "description": "MongoDB auth database.",
                             "type": "string",
-                            "x-order": 4
+                            "x-order": 3
                           },
                           "authentication_mechanism": {
                             "description": "MongoDB auth mechanism.",
                             "type": "string",
-                            "x-order": 3
+                            "x-order": 2
                           },
                           "collections_limit": {
                             "description": "MongoDB collections limit.",
                             "type": "integer",
                             "format": "int32",
-                            "x-order": 6
+                            "x-order": 5
                           },
                           "enable_all_collectors": {
                             "description": "True if all collectors are enabled.",
                             "type": "boolean",
-                            "x-order": 7
+                            "x-order": 6
                           },
                           "is_tls_certificate_key_file_password_set": {
                             "description": "True if TLS certificate file password is set.",
@@ -230,12 +235,7 @@
                             "items": {
                               "type": "string"
                             },
-                            "x-order": 5
-                          },
-                          "tls_ca": {
-                            "description": "TLS CA certificate.",
-                            "type": "string",
-                            "x-order": 2
+                            "x-order": 4
                           }
                         },
                         "x-order": 16
@@ -246,17 +246,7 @@
                           "is_tls_key_set": {
                             "description": "True if TLS key is set.",
                             "type": "boolean",
-                            "x-order": 2
-                          },
-                          "tls_ca": {
-                            "description": "TLS CA certificate.",
-                            "type": "string",
                             "x-order": 0
-                          },
-                          "tls_cert": {
-                            "description": "TLS certificate.",
-                            "type": "string",
-                            "x-order": 1
                           }
                         },
                         "x-order": 17
@@ -274,20 +264,22 @@
                       "postgresql_options": {
                         "type": "object",
                         "properties": {
+                          "auto_discovery_limit": {
+                            "description": "Limit of databases for auto-discovery.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 1
+                          },
                           "is_ssl_key_set": {
                             "description": "True if TLS key is set.",
                             "type": "boolean",
-                            "x-order": 2
-                          },
-                          "ssl_ca": {
-                            "description": "TLS CA certificate.",
-                            "type": "string",
                             "x-order": 0
                           },
-                          "ssl_cert": {
-                            "description": "TLS certificate.",
-                            "type": "string",
-                            "x-order": 1
+                          "max_exporter_connections": {
+                            "description": "Maximum number of connections from exporter to PostgreSQL instance.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 2
                           }
                         },
                         "x-order": 21

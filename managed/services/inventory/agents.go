@@ -38,10 +38,11 @@ type AgentsService struct {
 	vmdb  prometheusService
 	db    *reform.DB
 	cc    connectionChecker
+	sib   serviceInfoBroker
 }
 
 // NewAgentsService creates new AgentsService.
-func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService, cc connectionChecker, a agentService) *AgentsService {
+func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService, cc connectionChecker, sib serviceInfoBroker, a agentService) *AgentsService { //nolint:lll
 	return &AgentsService{
 		r:     r,
 		a:     a,
@@ -49,6 +50,7 @@ func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater,
 		vmdb:  vmdb,
 		db:    db,
 		cc:    cc,
+		sib:   sib,
 	}
 }
 
@@ -111,7 +113,7 @@ func (as *AgentsService) changeAgent(agentID string, common *inventorypb.ChangeC
 // List selects all Agents in a stable order for a given service.
 //
 //nolint:unparam
-func (as *AgentsService) List(ctx context.Context, filters models.AgentFilters) ([]inventorypb.Agent, error) {
+func (as *AgentsService) List(_ context.Context, filters models.AgentFilters) ([]inventorypb.Agent, error) {
 	var res []inventorypb.Agent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		got := 0
@@ -147,7 +149,7 @@ func (as *AgentsService) List(ctx context.Context, filters models.AgentFilters) 
 }
 
 // Get selects a single Agent by ID.
-func (as *AgentsService) Get(ctx context.Context, id string) (inventorypb.Agent, error) { //nolint:ireturn,unparam
+func (as *AgentsService) Get(_ context.Context, id string) (inventorypb.Agent, error) { //nolint:ireturn
 	var res inventorypb.Agent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		row, err := models.FindAgentByID(tx.Querier, id)
@@ -179,7 +181,7 @@ func (as *AgentsService) Logs(ctx context.Context, id string, limit uint32) ([]s
 // AddPMMAgent inserts pmm-agent Agent with given parameters.
 //
 //nolint:unparam
-func (as *AgentsService) AddPMMAgent(ctx context.Context, req *inventorypb.AddPMMAgentRequest) (*inventorypb.PMMAgent, error) {
+func (as *AgentsService) AddPMMAgent(_ context.Context, req *inventorypb.AddPMMAgentRequest) (*inventorypb.PMMAgent, error) {
 	var res *inventorypb.PMMAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		row, err := models.CreatePMMAgent(tx.Querier, req.RunsOnNodeId, req.CustomLabels)
@@ -201,8 +203,8 @@ func (as *AgentsService) AddPMMAgent(ctx context.Context, req *inventorypb.AddPM
 func (as *AgentsService) AddNodeExporter(ctx context.Context, req *inventorypb.AddNodeExporterRequest) (*inventorypb.NodeExporter, error) {
 	var res *inventorypb.NodeExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
-		row, err := models.CreateNodeExporter(tx.Querier, req.PmmAgentId, req.CustomLabels, req.PushMetrics, req.DisableCollectors,
-			nil, services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_error))
+		row, err := models.CreateNodeExporter(tx.Querier, req.PmmAgentId, req.CustomLabels, req.PushMetrics, req.ExposeExporter,
+			req.DisableCollectors, nil, services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_error))
 		if err != nil {
 			return err
 		}
@@ -259,6 +261,7 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, req *inventorypb
 		if err != nil {
 			return err
 		}
+
 		if !req.SkipConnectionCheck {
 			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
 			if err != nil {
@@ -266,6 +269,10 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, req *inventorypb
 			}
 
 			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
+
+			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
 		}
@@ -319,6 +326,7 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, req *inventoryp
 		if err != nil {
 			return err
 		}
+
 		if !req.SkipConnectionCheck {
 			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
 			if err != nil {
@@ -326,6 +334,10 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, req *inventoryp
 			}
 
 			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
+
+			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
 		}
@@ -508,6 +520,7 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, req *inventory
 		if err != nil {
 			return err
 		}
+
 		if !req.SkipConnectionCheck {
 			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
 			if err != nil {
@@ -515,6 +528,10 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, req *inventory
 			}
 
 			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
+
+			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
 		}
@@ -631,6 +648,7 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, req *inventory
 		if err != nil {
 			return err
 		}
+
 		if !req.SkipConnectionCheck {
 			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
 			if err != nil {
@@ -638,6 +656,10 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, req *inventory
 			}
 
 			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
+
+			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
 		}

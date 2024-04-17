@@ -30,10 +30,14 @@ var addPostgreSQLResultT = commands.ParseTemplate(`
 PostgreSQL Service added.
 Service ID  : {{ .Service.ServiceID }}
 Service name: {{ .Service.ServiceName }}
+{{ if .Warning }}
+Warning: {{ .Warning }}
+{{- end -}}
 `)
 
 type addPostgreSQLResult struct {
 	Service *postgresql.AddPostgreSQLOKBodyService `json:"service"`
+	Warning string                                 `json:"warning"`
 }
 
 func (res *addPostgreSQLResult) Result() {}
@@ -57,43 +61,51 @@ type AddPostgreSQLCommand struct {
 	NodeID            string `help:"Node ID (default is autodetected)"`
 	PMMAgentID        string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
 	// TODO add "auto"
-	QuerySource          string            `default:"pgstatmonitor" help:"Source of SQL queries, one of: pgstatements, pgstatmonitor, none (default: pgstatmonitor)"`
-	Environment          string            `help:"Environment name"`
-	Cluster              string            `help:"Cluster name"`
-	ReplicationSet       string            `help:"Replication set name"`
-	CustomLabels         map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-	SkipConnectionCheck  bool              `help:"Skip connection check"`
-	CommentsParsing      string            `enum:"on,off" default:"off" help:"Enable/disable parsing comments from queries. One of: [on, off]"`
-	TLS                  bool              `help:"Use TLS to connect to the database"`
-	TLSCAFile            string            `name:"tls-ca-file" help:"TLS CA certificate file"`
-	TLSCertFile          string            `help:"TLS certificate file"`
-	TLSKeyFile           string            `help:"TLS certificate key file"`
-	TLSSkipVerify        bool              `help:"Skip TLS certificates validation"`
-	MaxQueryLength       int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
-	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
-	MetricsMode          string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
-	DisableCollectors    []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	QuerySource            string            `default:"pgstatmonitor" help:"Source of SQL queries, one of: pgstatements, pgstatmonitor, none (default: pgstatmonitor)"`
+	Environment            string            `help:"Environment name"`
+	Cluster                string            `help:"Cluster name"`
+	ReplicationSet         string            `help:"Replication set name"`
+	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+	SkipConnectionCheck    bool              `help:"Skip connection check"`
+	CommentsParsing        string            `enum:"on,off" default:"off" help:"Enable/disable parsing comments from queries. One of: [on, off]"`
+	TLS                    bool              `help:"Use TLS to connect to the database"`
+	TLSCAFile              string            `name:"tls-ca-file" help:"TLS CA certificate file"`
+	TLSCertFile            string            `help:"TLS certificate file"`
+	TLSKeyFile             string            `help:"TLS certificate key file"`
+	TLSSkipVerify          bool              `help:"Skip TLS certificates validation"`
+	MaxQueryLength         int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
+	DisableQueryExamples   bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
+	MetricsMode            string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
+	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	ExposeExporter         bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
+	AutoDiscoveryLimit     int32             `placeholder:"NUMBER" help:"Auto-discovery will be disabled if there are more than that number of databases (default: server-defined, -1: always disabled)"`
+	MaxExporterConnections int32             `placeholder:"NUMBER" help:"Maximum number of connections to PostgreSQL instance that exporter can use (default: server-defined)"`
 
 	AddCommonFlags
 	AddLogLevelNoFatalFlags
 }
 
+// GetServiceName returns the service name for AddPostgreSQLCommand.
 func (cmd *AddPostgreSQLCommand) GetServiceName() string {
 	return cmd.ServiceName
 }
 
+// GetAddress returns the address for AddPostgreSQLCommand.
 func (cmd *AddPostgreSQLCommand) GetAddress() string {
 	return cmd.Address
 }
 
+// GetDefaultAddress returns the default address for AddPostgreSQLCommand.
 func (cmd *AddPostgreSQLCommand) GetDefaultAddress() string {
 	return "127.0.0.1:5432"
 }
 
+// GetSocket returns the socket for AddPostgreSQLCommand.
 func (cmd *AddPostgreSQLCommand) GetSocket() string {
 	return cmd.Socket
 }
 
+// GetCredentials returns the credentials for AddPostgreSQLCommand.
 func (cmd *AddPostgreSQLCommand) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
@@ -107,6 +119,7 @@ func (cmd *AddPostgreSQLCommand) GetCredentials() error {
 	return nil
 }
 
+// RunCmd runs the command for AddPostgreSQLCommand.
 func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
@@ -171,16 +184,16 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 
 	params := &postgresql.AddPostgreSQLParams{
 		Body: postgresql.AddPostgreSQLBody{
-			NodeID:      cmd.NodeID,
-			ServiceName: serviceName,
-
+			NodeID:                 cmd.NodeID,
+			ServiceName:            serviceName,
 			Address:                host,
+			Socket:                 socket,
 			Port:                   int64(port),
+			ExposeExporter:         cmd.ExposeExporter,
 			Username:               cmd.Username,
 			Password:               cmd.Password,
 			Database:               cmd.Database,
 			AgentPassword:          cmd.AgentPassword,
-			Socket:                 socket,
 			SkipConnectionCheck:    cmd.SkipConnectionCheck,
 			DisableCommentsParsing: disableCommentsParsing,
 
@@ -199,11 +212,13 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 			TLSKey:        tlsKey,
 			TLSSkipVerify: cmd.TLSSkipVerify,
 
-			MaxQueryLength:       cmd.MaxQueryLength,
-			DisableQueryExamples: cmd.DisableQueryExamples,
-			MetricsMode:          pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
-			DisableCollectors:    commands.ParseDisableCollectors(cmd.DisableCollectors),
-			LogLevel:             &cmd.AddLogLevel,
+			MaxQueryLength:         cmd.MaxQueryLength,
+			DisableQueryExamples:   cmd.DisableQueryExamples,
+			MetricsMode:            pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
+			DisableCollectors:      commands.ParseDisableCollectors(cmd.DisableCollectors),
+			AutoDiscoveryLimit:     cmd.AutoDiscoveryLimit,
+			MaxExporterConnections: cmd.MaxExporterConnections,
+			LogLevel:               &cmd.AddLogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -214,5 +229,6 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 
 	return &addPostgreSQLResult{
 		Service: resp.Payload.Service,
+		Warning: resp.Payload.Warning,
 	}, nil
 }

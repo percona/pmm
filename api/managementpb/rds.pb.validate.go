@@ -522,6 +522,12 @@ func (m *AddRDSRequest) validate(all bool) error {
 
 	// no validation rules for Database
 
+	// no validation rules for AutoDiscoveryLimit
+
+	// no validation rules for DisableCommentsParsing
+
+	// no validation rules for MaxPostgresqlExporterConnections
+
 	if len(errors) > 0 {
 		return AddRDSRequestMultiError(errors)
 	}

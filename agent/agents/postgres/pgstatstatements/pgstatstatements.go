@@ -53,7 +53,7 @@ var pgStatVer18 = semver.MustParse("1.8.0")
 type statementsMap map[int64]*pgStatStatementsExtended
 
 // PGStatStatementsQAN QAN services connects to PostgreSQL and extracts stats.
-type PGStatStatementsQAN struct {
+type PGStatStatementsQAN struct { //nolint:revive
 	q                      *reform.Querier
 	dbCloser               io.Closer
 	agentID                string
@@ -236,10 +236,9 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	databases := queryDatabases(q)
 	usernames := queryUsernames(q)
 
-	rows, e := rowsByVersion(q, "WHERE queryid IS NOT NULL AND query IS NOT NULL")
-	if e != nil {
-		err = e
-		return nil, nil, err
+	rows, err := rowsByVersion(q, "WHERE queryid IS NOT NULL AND query IS NOT NULL")
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "couldn't get rows from pg_stat_statements")
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -410,7 +409,7 @@ func (m *PGStatStatementsQAN) Changes() <-chan agents.Change {
 }
 
 // Describe implements prometheus.Collector.
-func (m *PGStatStatementsQAN) Describe(ch chan<- *prometheus.Desc) {
+func (m *PGStatStatementsQAN) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
 	// This method is needed to satisfy interface.
 }
 

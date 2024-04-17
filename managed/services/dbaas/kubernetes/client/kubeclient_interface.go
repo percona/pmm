@@ -43,6 +43,7 @@ type KubeClientConnector interface {
 	ListSecrets(ctx context.Context) (*corev1.SecretList, error)
 	// DeleteObject deletes object from the k8s cluster.
 	DeleteObject(obj runtime.Object) error
+	// ApplyObject update new values on object.
 	ApplyObject(obj runtime.Object) error
 	// GetPersistentVolumes returns Persistent Volumes available in the cluster.
 	GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error)
@@ -52,6 +53,7 @@ type KubeClientConnector interface {
 	GetNodes(ctx context.Context) (*corev1.NodeList, error)
 	// GetLogs returns logs for pod.
 	GetLogs(ctx context.Context, pod, container string) (string, error)
+	// GetEvents return events.
 	GetEvents(ctx context.Context, name string) (string, error)
 	// ApplyFile accepts manifest file contents, parses into []runtime.Object
 	// and applies them against the cluster.

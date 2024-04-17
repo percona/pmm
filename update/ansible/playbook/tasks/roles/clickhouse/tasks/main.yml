@@ -33,6 +33,12 @@
       - percona-clickhouse-server
       - percona-clickhouse-common-static
       - percona-clickhouse-server-common
+      - clickhouse-client
+      - clickhouse-server
+      - clickhouse-client-21.3.14.1-2
+      - clickhouse-server-21.3.14.1-2
+      - clickhouse-client-21.3.20.1-2
+      - clickhouse-server-21.3.20.1-2
 
 - name: Disable clickhouse-server in systemd
   when: not is_docker
@@ -41,13 +47,6 @@
     state: stopped
     enabled: no
   ignore_errors: true
-
-- name: Create clickhouse data directory
-  file:
-    path: "/srv/clickhouse"
-    state: directory
-    owner: root
-    group: pmm
 
 - name: Add ClickHouse repository
   yum_repository:

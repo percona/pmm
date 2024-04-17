@@ -67,6 +67,7 @@ func NewJobsService(db *reform.DB, registry *Registry, retention retentionServic
 	}
 }
 
+// RestartJob restarts a job with the given jobID.
 func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 	var job *models.Job
 	var artifact *models.Artifact
@@ -375,7 +376,7 @@ func (s *JobsService) handleJobProgress(_ context.Context, progress *agentpb.Job
 
 // StartMySQLBackupJob starts mysql backup job on the pmm-agent.
 func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig, folder string) error { //nolint:lll
-	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+	if err := models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 		"mysql backup", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
 		return err
 	}
@@ -438,10 +439,10 @@ func (s *JobsService) StartMongoDBBackupJob(
 	var err error
 	switch dataModel {
 	case models.PhysicalDataModel:
-		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+		err = models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb physical backup", pmmAgentMinVersionForMongoPhysicalBackupAndRestore)
 	case models.LogicalDataModel:
-		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+		err = models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb logical backup", pmmAgentMinVersionForMongoLogicalBackupAndRestore)
 	default:
 		err = errors.Errorf("unknown data model: %s", dataModel)
@@ -485,7 +486,7 @@ func (s *JobsService) StartMongoDBBackupJob(
 			S3Config: convertS3ConfigModel(locationConfig.S3Config),
 		}
 	case locationConfig.FilesystemConfig != nil:
-		if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+		if err := models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb backup to client local storage",
 			pmmAgentMinVersionForMongoDBUseFilesystemStorage); err != nil {
 			return err
@@ -530,7 +531,7 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 	locationConfig *models.BackupLocationConfig,
 	folder string,
 ) error {
-	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+	if err := models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 		"mysql restore", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
 		return err
 	}
@@ -587,10 +588,10 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	var err error
 	switch dataModel {
 	case models.PhysicalDataModel:
-		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+		err = models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb physical restore", pmmAgentMinVersionForMongoPhysicalBackupAndRestore)
 	case models.LogicalDataModel:
-		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+		err = models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb logical restore", pmmAgentMinVersionForMongoLogicalBackupAndRestore)
 	default:
 		err = errors.Errorf("unknown data model: %s", dataModel)
@@ -602,7 +603,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	if pitrTimestamp.Unix() != 0 {
 		// TODO refactor pmm agent version checking. First detect minimum required version needed for operations and
 		// then invoke PMMAgentSupported
-		if err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+		if err = models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb pitr restore", pmmAgentMinVersionForMongoPITRRestore); err != nil {
 			return err
 		}
@@ -641,7 +642,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 			S3Config: convertS3ConfigModel(locationConfig.S3Config),
 		}
 	case locationConfig.FilesystemConfig != nil:
-		if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+		if err := models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb restore from client local storage",
 			pmmAgentMinVersionForMongoDBUseFilesystemStorage); err != nil {
 			return err

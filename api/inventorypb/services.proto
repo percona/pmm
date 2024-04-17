@@ -44,6 +44,8 @@ message MySQLService {
   string replication_set = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 9;
+  // MySQL version.
+  string version = 11;
 }
 
 // MongoDBService represents a generic MongoDB instance.
@@ -71,6 +73,8 @@ message MongoDBService {
   string replication_set = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 9;
+  // MongoDB version.
+  string version = 11;
 }
 
 // PostgreSQLService represents a generic PostgreSQL instance.
@@ -100,6 +104,10 @@ message PostgreSQLService {
   string replication_set = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 9;
+  // PostgreSQL version.
+  string version = 12;
+  // Limit of databases for auto-discovery.
+  int32 auto_discovery_limit = 13;
 }
 
 // ProxySQLService represents a generic ProxySQL instance.
@@ -127,6 +135,8 @@ message ProxySQLService {
   string replication_set = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 9;
+  // ProxySQL version.
+  string version = 11;
 }
 
 // HAProxyService represents a generic HAProxy service instance.
@@ -295,6 +305,8 @@ message AddPostgreSQLServiceRequest {
   string replication_set = 7;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
+  // Limit of databases for auto-discovery.
+  int32 auto_discovery_limit = 10;
 }
 
 message AddPostgreSQLServiceResponse {

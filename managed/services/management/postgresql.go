@@ -19,6 +19,7 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/inventorypb"
@@ -32,14 +33,18 @@ type PostgreSQLService struct {
 	db    *reform.DB
 	state agentsStateUpdater
 	cc    connectionChecker
+	sib   serviceInfoBroker
+	l     *logrus.Entry
 }
 
 // NewPostgreSQLService creates new PostgreSQL Management Service.
-func NewPostgreSQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker) *PostgreSQLService {
+func NewPostgreSQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, sib serviceInfoBroker) *PostgreSQLService {
 	return &PostgreSQLService{
 		db:    db,
 		state: state,
 		cc:    cc,
+		sib:   sib,
+		l:     logrus.WithField("component", "postgresql"),
 	}
 }
 
@@ -80,6 +85,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 			return err
 		}
 
+		options := models.PostgreSQLOptionsFromRequest(req)
 		row, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, &models.CreateAgentParams{
 			PMMAgentID:        req.PmmAgentId,
 			ServiceID:         service.ServiceID,
@@ -89,8 +95,9 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 			TLS:               req.Tls,
 			TLSSkipVerify:     req.TlsSkipVerify,
 			PushMetrics:       isPushMode(req.MetricsMode),
+			ExposeExporter:    req.ExposeExporter,
 			DisableCollectors: req.DisableCollectors,
-			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
+			PostgreSQLOptions: options,
 			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_error),
 		})
 		if err != nil {
@@ -100,6 +107,17 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 		if !req.SkipConnectionCheck {
 			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
+			}
+
+			if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
+
+			// In case of not available PGSM extension it is switch to PGSS.
+			if req.QanPostgresqlPgstatmonitorAgent && row.PostgreSQLOptions.PGSMVersion != nil && *row.PostgreSQLOptions.PGSMVersion == "" {
+				res.Warning = "Could not to detect the pg_stat_monitor extension on your system. Falling back to the pg_stat_statements."
+				req.QanPostgresqlPgstatementsAgent = true
+				req.QanPostgresqlPgstatmonitorAgent = false
 			}
 		}
 
@@ -120,7 +138,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 				CommentsParsingDisabled: req.DisableCommentsParsing,
 				TLS:                     req.Tls,
 				TLSSkipVerify:           req.TlsSkipVerify,
-				PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(req),
+				PostgreSQLOptions:       options,
 				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
 			})
 			if err != nil {
@@ -145,7 +163,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 				CommentsParsingDisabled: req.DisableCommentsParsing,
 				TLS:                     req.Tls,
 				TLSSkipVerify:           req.TlsSkipVerify,
-				PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(req),
+				PostgreSQLOptions:       options,
 				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
 			})
 			if err != nil {

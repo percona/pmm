@@ -31,7 +31,8 @@ import (
 )
 
 var (
-	perconaSSOMtx           sync.Mutex
+	perconaSSOMtx sync.Mutex
+	// ErrNotConnectedToPortal is an error indicating that PMM Server is not connected to the Portal.
 	ErrNotConnectedToPortal = errors.New("PMM Server is not connected to Portal")
 )
 
@@ -87,7 +88,7 @@ func (s *PerconaSSODetails) refreshAndGetAccessToken(ctx context.Context, q *ref
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close() //nolint:gosec
+	defer res.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {

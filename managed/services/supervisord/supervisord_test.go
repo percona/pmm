@@ -30,18 +30,30 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
+const gRPCMessageMaxSize = uint32(100 * 1024 * 1024)
+
 func TestConfig(t *testing.T) {
 	t.Parallel()
-	gRPCMessageMaxSize := uint32(100 * 1024 * 1024)
 
 	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
 	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	require.NoError(t, err)
-	s := New(configDir, pmmUpdateCheck, vmParams, models.PGParams{}, gRPCMessageMaxSize)
+	pgParams := &models.PGParams{
+		Addr:        "127.0.0.1:5432",
+		DBName:      "postgres",
+		DBUsername:  "db_username",
+		DBPassword:  "db_password",
+		SSLMode:     "verify",
+		SSLCAPath:   "path-to-CA-cert",
+		SSLKeyPath:  "path-to-key",
+		SSLCertPath: "path-to-cert",
+	}
+	s := New(configDir, pmmUpdateCheck, &models.Params{VMParams: vmParams, PGParams: pgParams, HAParams: &models.HAParams{}}, gRPCMessageMaxSize)
 	settings := &models.Settings{
-		DataRetention:   30 * 24 * time.Hour,
-		AlertManagerURL: "https://external-user:passw!,ord@external-alertmanager:6443/alerts",
+		DataRetention:    30 * 24 * time.Hour,
+		AlertManagerURL:  "https://external-user:passw!,ord@external-alertmanager:6443/alerts",
+		PMMPublicAddress: "192.168.0.42:8443",
 	}
 	settings.VictoriaMetrics.CacheEnabled = false
 
@@ -63,15 +75,63 @@ func TestConfig(t *testing.T) {
 	}
 }
 
+func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
+	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
+	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
+	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	require.NoError(t, err)
+	pgParams := &models.PGParams{
+		Addr:        "127.0.0.1:5432",
+		DBName:      "postgres",
+		DBUsername:  "db_username",
+		DBPassword:  "db_password",
+		SSLMode:     "verify",
+		SSLCAPath:   "path-to-CA-cert",
+		SSLKeyPath:  "path-to-key",
+		SSLCertPath: "path-to-cert",
+	}
+	s := New(configDir, pmmUpdateCheck, &models.Params{VMParams: vmParams, PGParams: pgParams, HAParams: &models.HAParams{}}, gRPCMessageMaxSize)
+	settings := &models.Settings{
+		DataRetention:   30 * 24 * time.Hour,
+		AlertManagerURL: "https://external-user:passw!,ord@external-alertmanager:6443/alerts",
+	}
+	settings.VictoriaMetrics.CacheEnabled = false
+
+	// Test environment variables being passed to VictoriaMetrics.
+	t.Setenv("VM_search_maxQueryLen", "2MB")
+	t.Setenv("VM_search_latencyOffset", "10s")
+	t.Setenv("VM_search_maxUniqueTimeseries", "500000000")
+	t.Setenv("VM_search_maxSamplesPerQuery", "1600000000")
+	t.Setenv("VM_search_maxQueueDuration", "100s")
+	t.Setenv("VM_search_logSlowQueryDuration", "300s")
+	t.Setenv("VM_search_maxQueryDuration", "9s")
+	t.Setenv("VM_promscrape_streamParse", "false")
+
+	for _, tmpl := range templates.Templates() {
+		n := tmpl.Name()
+		if n != "victoriametrics" { // just test the VM template
+			continue
+		}
+
+		tmpl := tmpl
+		t.Run(tmpl.Name(), func(t *testing.T) {
+			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+"_envvars.ini")) //nolint:gosec
+			require.NoError(t, err)
+			actual, err := s.marshalConfig(tmpl, settings, nil)
+			require.NoError(t, err)
+			assert.Equal(t, string(expected), string(actual))
+		})
+	}
+}
+
 func TestDBaaSController(t *testing.T) {
 	t.Parallel()
-	gRPCMessageMaxSize := uint32(100 * 1024 * 1024)
 
 	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
 	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	require.NoError(t, err)
-	s := New(configDir, pmmUpdateCheck, vmParams, models.PGParams{}, gRPCMessageMaxSize)
+	s := New(configDir, pmmUpdateCheck, &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{}}, gRPCMessageMaxSize)
 
 	var tp *template.Template
 	for _, tmpl := range templates.Templates() {
@@ -160,36 +220,4 @@ func TestAddAlertManagerParam(t *testing.T) {
 		require.EqualError(t, err, `cannot parse AlertManagerURL: parse "*:9095": first path segment in URL cannot contain colon`)
 		require.Equal(t, "http://127.0.0.1:9093/alertmanager", params["AlertmanagerURL"])
 	})
-}
-
-func TestSavePMMConfig(t *testing.T) {
-	t.Parallel()
-	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
-	tests := []struct {
-		description string
-		params      map[string]any
-		file        string
-	}{
-		{
-			description: "disable internal postgresql db",
-			params:      map[string]any{"DisableInternalDB": true, "DisableSupervisor": false},
-			file:        "pmm-db_disabled",
-		},
-		{
-			description: "enable internal postgresql db",
-			params:      map[string]any{"DisableInternalDB": false, "DisableSupervisor": false},
-			file:        "pmm-db_enabled",
-		},
-	}
-	for _, test := range tests {
-		test := test
-		t.Run(test.description, func(t *testing.T) {
-			t.Parallel()
-			expected, err := os.ReadFile(filepath.Join(configDir, test.file+".ini")) //nolint:gosec
-			require.NoError(t, err)
-			actual, err := marshalConfig(test.params)
-			require.NoError(t, err)
-			assert.Equal(t, string(expected), string(actual))
-		})
-	}
 }

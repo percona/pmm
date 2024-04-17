@@ -438,7 +438,7 @@ message CheckConnectionRequest {
   bool tls_skip_verify = 5;
 }
 
-// CheckConnectionResponse is an AgentMessage containing a result of connection check.
+// CheckConnectionResponse is an AgentMessage containing the result of a connection check.
 message CheckConnectionResponse {
   // Stats contains various Service statistics.
   message Stats {
@@ -447,7 +447,35 @@ message CheckConnectionResponse {
   }
   // Error message if connection check failed.
   string error = 1;
-  Stats stats = 2;
+  Stats stats = 2 [deprecated = true];
+}
+
+// ServiceInfoRequest is a ServerMessage that queries pmm-agent for database information.
+message ServiceInfoRequest {
+  // Service type.
+  inventory.ServiceType type = 1;
+  // DSN for the service. May contain connection (dial) timeout.
+  string dsn = 2;
+  // Timeout for the whole request.
+  google.protobuf.Duration timeout = 3;
+  // Contains files and their contents which can be used in DSN.
+  TextFiles text_files = 4;
+  // TLS certificate wont be verified.
+  bool tls_skip_verify = 5;
+}
+
+// ServiceInfoResponse is an AgentMessage containing information gathered from a service.
+message ServiceInfoResponse {
+  // Error message if the request failed.
+  string error = 1;
+  // A number of MySQL tables, 0 if unknown.
+  int32 table_count = 2;
+  // Database server version.
+  string version = 3;
+  // A list of PostgreSQL databases.
+  repeated string database_list = 4;
+  // A version of pg_stat_monitor, empty if unavailable.
+  optional string pgsm_version = 5;
 }
 
 // JobStatusRequest is a ServerMessage asking pmm-agent for job status.
@@ -710,8 +738,6 @@ message GetVersionsResponse {
 }
 
 message AgentMessage {
-  // TODO https://jira.percona.com/browse/PMM-3449
-
   uint32 id = 1;
   // The responder sets the status field in two situations:
   // 1. When it received a request with the payload field not set.
@@ -739,12 +765,11 @@ message AgentMessage {
     GetVersionsResponse get_versions = 18;
     PBMSwitchPITRResponse pbm_switch_pitr = 19;
     AgentLogsResponse agent_logs = 21;
+    ServiceInfoResponse service_info = 22;
   }
 }
 
 message ServerMessage {
-  // TODO https://jira.percona.com/browse/PMM-3449
-
   uint32 id = 1;
   // The responder sets the status field in two situations:
   // 1. When it received a request with the payload field not set.
@@ -770,6 +795,7 @@ message ServerMessage {
     GetVersionsRequest get_versions = 16;
     PBMSwitchPITRRequest pbm_switch_pitr = 17;
     AgentLogsRequest agent_logs = 19;
+    ServiceInfoRequest service_info = 20;
   }
 }
 

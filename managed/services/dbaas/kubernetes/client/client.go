@@ -89,11 +89,11 @@ const (
 //
 //nolint:stylecheck
 const (
-	LEVEL_0 = iota
-	LEVEL_1
-	LEVEL_2
-	LEVEL_3
-	LEVEL_4
+	LEVEL_0 = iota //nolint:revive
+	LEVEL_1        //nolint:revive
+	LEVEL_2        //nolint:revive
+	LEVEL_3        //nolint:revive
+	LEVEL_4        //nolint:revive
 )
 
 // Client is the internal client for Kubernetes.
@@ -101,7 +101,7 @@ type Client struct {
 	clientset        kubernetes.Interface
 	apiextClientset  apiextv1clientset.Interface
 	dynamicClientset dynamic.Interface
-	dbClusterClient  *database.DatabaseClusterClient
+	dbClusterClient  *database.ClusterClient
 	rcLock           *sync.Mutex
 	restConfig       *rest.Config
 	namespace        string
@@ -230,7 +230,7 @@ func (c *Client) setup() error {
 	}
 	// Set PATH variable to make aws-iam-authenticator executable
 	path := fmt.Sprintf("%s:%s", os.Getenv("PATH"), dbaasToolPath)
-	os.Setenv("PATH", path)
+	os.Setenv("PATH", path) //nolint:errcheck
 	c.namespace = namespace
 	return c.initOperatorClients()
 }
@@ -377,6 +377,7 @@ func deleteObject(helper *resource.Helper, namespace, name string) error {
 	return nil
 }
 
+// ApplyObject update new values on object.
 func (c *Client) ApplyObject(obj runtime.Object) error {
 	groupResources, err := restmapper.GetAPIGroupResources(c.clientset.Discovery())
 	if err != nil {
@@ -504,6 +505,7 @@ func (c *Client) GetLogs(ctx context.Context, pod, container string) (string, er
 	return buf.String(), nil
 }
 
+// GetEvents return events.
 func (c *Client) GetEvents(ctx context.Context, name string) (string, error) {
 	pod, err := c.clientset.CoreV1().Pods(c.namespace).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
@@ -567,11 +569,12 @@ func tabbedString(f func(io.Writer) error) (string, error) {
 		return "", err
 	}
 
-	out.Flush()
+	out.Flush() //nolint:errcheck
 	str := buf.String()
 	return str, nil
 }
 
+// DescribeEvents show more detailed info.
 func DescribeEvents(el *corev1.EventList, w PrefixWriter) {
 	if len(el.Items) == 0 {
 		w.Writef(LEVEL_0, "Events:\t<none>\n")
@@ -725,7 +728,7 @@ func (c Client) DoCSVWait(ctx context.Context, key types.NamespacedName) error {
 	}
 
 	csv := v1alpha1.ClusterServiceVersion{}
-	csvPhaseSucceeded := func() (bool, error) {
+	csvPhaseSucceeded := func(ctx context.Context) (bool, error) {
 		err := kubeclient.Get(ctx, key, &csv)
 		if err != nil {
 			if apierrors.IsNotFound(err) {
@@ -748,7 +751,7 @@ func (c Client) DoCSVWait(ctx context.Context, key types.NamespacedName) error {
 		}
 	}
 
-	err = wait.PollImmediateUntil(time.Second, csvPhaseSucceeded, ctx.Done())
+	err = wait.PollUntilContextCancel(ctx, time.Second, true, csvPhaseSucceeded)
 	if err != nil && errors.Is(err, context.DeadlineExceeded) {
 		depCheckErr := c.checkDeploymentErrors(ctx, key, csv)
 		if depCheckErr != nil {
@@ -767,7 +770,7 @@ func (c Client) GetSubscriptionCSV(ctx context.Context, subKey types.NamespacedN
 		return csvKey, err
 	}
 
-	subscriptionInstalledCSV := func() (bool, error) {
+	subscriptionInstalledCSV := func(ctx context.Context) (bool, error) {
 		sub := v1alpha1.Subscription{}
 		err := kubeclient.Get(ctx, subKey, &sub)
 		if err != nil {
@@ -784,7 +787,7 @@ func (c Client) GetSubscriptionCSV(ctx context.Context, subKey types.NamespacedN
 		log.Printf("  Found installed CSV %q", installedCSV)
 		return true, nil
 	}
-	return csvKey, wait.PollImmediateUntil(time.Second, subscriptionInstalledCSV, ctx.Done())
+	return csvKey, wait.PollUntilContextCancel(ctx, time.Second, true, subscriptionInstalledCSV)
 }
 
 func (c *Client) getKubeclient() (client.Client, error) { //nolint:ireturn
@@ -895,7 +898,7 @@ func (c Client) DoRolloutWait(ctx context.Context, key types.NamespacedName) err
 		return err
 	}
 
-	rolloutComplete := func() (bool, error) {
+	rolloutComplete := func(ctx context.Context) (bool, error) {
 		deployment := appsv1.Deployment{}
 		err := kubeclient.Get(ctx, key, &deployment)
 		if err != nil {
@@ -928,7 +931,7 @@ func (c Client) DoRolloutWait(ctx context.Context, key types.NamespacedName) err
 		// Waiting for Deployment to rollout: waiting for deployment spec update to be observed
 		return false, nil
 	}
-	return wait.PollImmediateUntil(time.Second, rolloutComplete, ctx.Done())
+	return wait.PollUntilContextCancel(ctx, time.Second, true, rolloutComplete)
 }
 
 // GetOperatorGroup retrieves an operator group details by namespace and name.

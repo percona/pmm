@@ -17,6 +17,7 @@
 package channel
 
 import (
+	"context"
 	"sync"
 	"sync/atomic"
 
@@ -66,13 +67,18 @@ type Response struct {
 	Error   error
 }
 
+type Stream interface { //nolint:revive
+	Send(*agentpb.ServerMessage) error
+	Recv() (*agentpb.AgentMessage, error)
+}
+
 // Channel encapsulates two-way communication channel between pmm-managed and pmm-agent.
 //
 // All exported methods are thread-safe.
 //
 //nolint:maligned
 type Channel struct {
-	s agentpb.Agent_ConnectServer
+	s Stream
 
 	mSent, mRecv uint32
 
@@ -94,7 +100,7 @@ type Channel struct {
 // New creates new two-way communication channel with given stream.
 //
 // Stream should not be used by the caller after channel is created.
-func New(stream agentpb.Agent_ConnectServer) *Channel {
+func New(ctx context.Context, stream Stream) *Channel {
 	s := &Channel{
 		s: stream,
 
@@ -103,7 +109,7 @@ func New(stream agentpb.Agent_ConnectServer) *Channel {
 
 		closeWait: make(chan struct{}),
 
-		l: logger.Get(stream.Context()),
+		l: logger.Get(ctx),
 	}
 
 	go s.runReceiver()
@@ -201,7 +207,7 @@ func (c *Channel) send(msg *agentpb.ServerMessage) {
 	atomic.AddUint32(&c.mSent, 1)
 }
 
-// runReader receives messages from server.
+// runReceiver receives messages from server.
 func (c *Channel) runReceiver() {
 	defer func() {
 		close(c.requests)
@@ -285,6 +291,8 @@ func (c *Channel) runReceiver() {
 			c.publish(msg.Id, msg.Status, p.PbmSwitchPitr)
 		case *agentpb.AgentMessage_AgentLogs:
 			c.publish(msg.Id, msg.Status, p.AgentLogs)
+		case *agentpb.AgentMessage_ServiceInfo:
+			c.publish(msg.Id, msg.Status, p.ServiceInfo)
 
 		case nil:
 			c.cancel(msg.Id, errors.Errorf("unimplemented: failed to handle received message %s", msg))
@@ -296,7 +304,7 @@ func (c *Channel) runReceiver() {
 			}
 			c.Send(&ServerResponse{
 				ID:     msg.Id,
-				Status: grpcstatus.New(codes.Unimplemented, "can't handle message type send, it is not implemented"),
+				Status: grpcstatus.New(codes.Unimplemented, "can't handle message type sent, it is not implemented"),
 			})
 		}
 	}

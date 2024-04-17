@@ -36,10 +36,10 @@ func TestCleaner(t *testing.T) {
 		require.NoError(t, sqlDB.Close())
 	}()
 
-	setup := func(t *testing.T) (db *reform.DB, q *reform.Querier, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (*reform.DB, *reform.Querier, func(t *testing.T)) {
 		t.Helper()
-		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		q = db.Querier
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		q := db.Querier
 		now, origNowF := models.Now(), models.Now
 		models.Now = func() time.Time {
 			// fake "old" rows
@@ -71,11 +71,11 @@ func TestCleaner(t *testing.T) {
 		}
 		require.NoError(t, q.Insert(str))
 
-		teardown = func(t *testing.T) {
+		teardown := func(t *testing.T) {
 			t.Helper()
 			assert.NoError(t, models.CleanupOldActionResults(db.Querier, models.Now()))
 		}
-		return
+		return db, q, teardown
 	}
 
 	t.Run("CheckActionResultByID", func(t *testing.T) {

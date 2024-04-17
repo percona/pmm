@@ -67,7 +67,7 @@ type kubernetesServer struct {
 }
 
 // NewKubernetesServer creates Kubernetes Server.
-func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, versionService versionService, //nolint:ireturn
+func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, versionService versionService, //nolint:ireturn,nolintlint
 	grafanaClient grafanaClient,
 ) dbaasv1beta1.KubernetesServer {
 	l := logrus.WithField("component", "kubernetes_server")
@@ -529,7 +529,6 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 				Kubeconfig: kubernetesCluster.KubeConfig,
 			},
 		})
-
 		if err != nil {
 			k.l.Warnf("cannot stop monitoring: %s", err)
 		}

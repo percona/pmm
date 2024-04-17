@@ -57,8 +57,10 @@ func TestAddPostgreSQL(t *testing.T) {
 				Port:        5432,
 				Username:    "username",
 
-				SkipConnectionCheck: true,
-				DisableCollectors:   []string{"custom_query.ml", "custom_query.mr.directory"},
+				SkipConnectionCheck:    true,
+				DisableCollectors:      []string{"custom_query.ml", "custom_query.mr.directory"},
+				AutoDiscoveryLimit:     0,
+				MaxExporterConnections: 0,
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
@@ -99,13 +101,15 @@ func TestAddPostgreSQL(t *testing.T) {
 		assert.Equal(t, agents.ListAgentsOKBody{
 			PostgresExporter: []*agents.ListAgentsOKBodyPostgresExporterItems0{
 				{
-					AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
-					ServiceID:          serviceID,
-					PMMAgentID:         pmmAgentID,
-					Username:           "username",
-					DisabledCollectors: []string{"custom_query.ml", "custom_query.mr.directory"},
-					PushMetricsEnabled: true,
-					Status:             &AgentStatusUnknown,
+					AgentID:                listAgents.Payload.PostgresExporter[0].AgentID,
+					ServiceID:              serviceID,
+					PMMAgentID:             pmmAgentID,
+					Username:               "username",
+					DisabledCollectors:     []string{"custom_query.ml", "custom_query.mr.directory"},
+					PushMetricsEnabled:     true,
+					Status:                 &AgentStatusUnknown,
+					AutoDiscoveryLimit:     0,
+					MaxExporterConnections: 0,
 				},
 			},
 		}, *listAgents.Payload)
@@ -137,7 +141,9 @@ func TestAddPostgreSQL(t *testing.T) {
 				QANPostgresqlPgstatmonitorAgent: true,
 				DisableQueryExamples:            true,
 
-				SkipConnectionCheck: true,
+				SkipConnectionCheck:    true,
+				AutoDiscoveryLimit:     15,
+				MaxExporterConnections: 10,
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
@@ -183,12 +189,14 @@ func TestAddPostgreSQL(t *testing.T) {
 		assert.Equal(t, agents.ListAgentsOKBody{
 			PostgresExporter: []*agents.ListAgentsOKBodyPostgresExporterItems0{
 				{
-					AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
-					ServiceID:          serviceID,
-					PMMAgentID:         pmmAgentID,
-					Username:           "username",
-					PushMetricsEnabled: true,
-					Status:             &AgentStatusUnknown,
+					AgentID:                listAgents.Payload.PostgresExporter[0].AgentID,
+					ServiceID:              serviceID,
+					PMMAgentID:             pmmAgentID,
+					Username:               "username",
+					PushMetricsEnabled:     true,
+					Status:                 &AgentStatusUnknown,
+					AutoDiscoveryLimit:     15,
+					MaxExporterConnections: 10,
 				},
 			},
 			QANPostgresqlPgstatementsAgent: []*agents.ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0{
@@ -292,6 +300,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				Port:        5432,
 
 				SkipConnectionCheck: true,
+				AutoDiscoveryLimit:  -2,
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
@@ -344,6 +353,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				Username:    "username",
 
 				SkipConnectionCheck: true,
+				AutoDiscoveryLimit:  -1,
 			},
 		}
 		_, err := client.Default.PostgreSQL.AddPostgreSQL(params)
@@ -382,6 +392,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				Username:    "username",
 
 				SkipConnectionCheck: true,
+				AutoDiscoveryLimit:  5,
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
@@ -433,6 +444,7 @@ func TestAddPostgreSQL(t *testing.T) {
 					Username:           "username",
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
+					AutoDiscoveryLimit: 5,
 				},
 			},
 		}, *listAgents.Payload)
@@ -659,6 +671,7 @@ func TestAddPostgreSQL(t *testing.T) {
 					Username:           "username",
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
+					AutoDiscoveryLimit: 0,
 				},
 			},
 		}, *listAgents.Payload)
@@ -728,11 +741,12 @@ func TestAddPostgreSQL(t *testing.T) {
 		assert.Equal(t, agents.ListAgentsOKBody{
 			PostgresExporter: []*agents.ListAgentsOKBodyPostgresExporterItems0{
 				{
-					AgentID:    listAgents.Payload.PostgresExporter[0].AgentID,
-					ServiceID:  serviceID,
-					PMMAgentID: pmmAgentID,
-					Username:   "username",
-					Status:     &AgentStatusUnknown,
+					AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
+					ServiceID:          serviceID,
+					PMMAgentID:         pmmAgentID,
+					Username:           "username",
+					Status:             &AgentStatusUnknown,
+					AutoDiscoveryLimit: 0,
 				},
 			},
 		}, *listAgents.Payload)
@@ -808,6 +822,7 @@ func TestAddPostgreSQL(t *testing.T) {
 					Username:           "username",
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
+					AutoDiscoveryLimit: 0,
 				},
 			},
 		}, *listAgents.Payload)

@@ -55,14 +55,14 @@ func newProcessLogger(l *logrus.Entry, lines int, redactWords []string) *process
 
 // Write implements io.Writer.
 // This method is thread-safe.
-func (pl *processLogger) Write(p []byte) (n int, err error) { //nolint:nonamedreturns
+func (pl *processLogger) Write(p []byte) (int, error) {
 	pl.m.Lock()
 	defer pl.m.Unlock()
 
 	b := bytes.NewBuffer(pl.buf)
-	n, err = b.Write(p)
+	n, err := b.Write(p)
 	if err != nil {
-		return
+		return n, err
 	}
 
 	var line string
@@ -70,8 +70,7 @@ func (pl *processLogger) Write(p []byte) (n int, err error) { //nolint:nonamedre
 		line, err = b.ReadString('\n')
 		if err != nil {
 			pl.buf = []byte(line)
-			err = nil
-			return
+			return n, nil //nolint:nilerr
 		}
 		line = strings.TrimSuffix(line, "\n")
 		if pl.replacer != nil {

@@ -37,7 +37,6 @@ import (
 	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/services/agents"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/scheduler"
 )
@@ -266,7 +265,7 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 }
 
 // ListScheduledBackups lists all tasks related to a backup.
-func (s *BackupsService) ListScheduledBackups(ctx context.Context, req *backuppb.ListScheduledBackupsRequest) (*backuppb.ListScheduledBackupsResponse, error) {
+func (s *BackupsService) ListScheduledBackups(ctx context.Context, req *backuppb.ListScheduledBackupsRequest) (*backuppb.ListScheduledBackupsResponse, error) { //nolint:revive,lll
 	tasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{
 		Types: []models.ScheduledTaskType{
 			models.ScheduledMySQLBackupTask,
@@ -447,7 +446,7 @@ func (s *BackupsService) RemoveScheduledBackup(ctx context.Context, req *backupp
 }
 
 // GetLogs returns logs from the underlying tools for a backup/restore job.
-func (s *BackupsService) GetLogs(ctx context.Context, req *backuppb.GetLogsRequest) (*backuppb.GetLogsResponse, error) {
+func (s *BackupsService) GetLogs(_ context.Context, req *backuppb.GetLogsRequest) (*backuppb.GetLogsResponse, error) {
 	jobsFilter := models.JobsFilter{
 		Types: []models.JobType{
 			models.MySQLBackupJob,
@@ -653,7 +652,7 @@ func convertError(e error) error {
 		return nil
 	}
 
-	var unsupportedAgentErr *agents.AgentNotSupportedError
+	var unsupportedAgentErr models.AgentNotSupportedError
 	if errors.As(e, &unsupportedAgentErr) {
 		return status.Error(codes.FailedPrecondition, e.Error())
 	}
@@ -718,7 +717,7 @@ func isFolderSafe(path string) error {
 		return status.Error(codes.InvalidArgument, "Specified folder refers to a parent directory.")
 	}
 
-	if !folderRe.Match([]byte(path)) {
+	if !folderRe.MatchString(path) {
 		return status.Error(codes.InvalidArgument, "Folder name can contain only dots, colons, slashes, letters, digits, underscores and dashes.")
 	}
 
@@ -726,7 +725,7 @@ func isFolderSafe(path string) error {
 }
 
 func isNameSafe(name string) error {
-	if !nameRe.Match([]byte(name)) {
+	if !nameRe.MatchString(name) {
 		return status.Error(codes.InvalidArgument, "Backup name can contain only dots, colons, letters, digits, underscores and dashes.")
 	}
 	return nil

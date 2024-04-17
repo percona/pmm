@@ -24,14 +24,6 @@ import (
 	"github.com/percona/pmm/managed/services/minio"
 )
 
-//go:generate ../../../bin/mockery --name=jobsService --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=agentService --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=versioner --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=compatibilityService --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=pbmPITRService --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=Storage --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=removalService --case=snake --inpackage --testonly
-
 // jobsService is a subset of methods of agents.JobsService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type jobsService interface {
@@ -116,6 +108,7 @@ type pbmPITRService interface {
 	GetPITRFiles(ctx context.Context, locationClient Storage, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) ([]*oplogChunk, error)
 }
 
+// Storage represents the interface for interacting with storage.
 type Storage interface {
 	// FileStat returns file info. It returns error if file is empty or not exists.
 	FileStat(ctx context.Context, endpoint, accessKey, secretKey, bucketName, name string) (minio.FileInfo, error)

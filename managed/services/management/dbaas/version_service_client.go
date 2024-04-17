@@ -62,6 +62,7 @@ type matrix struct {
 	PSMDBOperator map[string]componentVersion `json:"psmdbOperator,omitempty"`
 }
 
+// Version contains versions info.
 type Version struct {
 	Product        string `json:"product"`
 	ProductVersion string `json:"operator"`
@@ -158,7 +159,7 @@ func (c *VersionServiceClient) Matrix(ctx context.Context, params componentsPara
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
@@ -309,7 +310,7 @@ func (c *VersionServiceClient) GetNextDatabaseImage(ctx context.Context, operato
 	return versions[nextVersion.String()].ImagePath, nil
 }
 
-// GetVersionServiceURL returns base URL for version service currently used
+// GetVersionServiceURL returns base URL for version service currently used.
 func (c *VersionServiceClient) GetVersionServiceURL() string {
 	url, err := url.Parse(c.url)
 	if err != nil {

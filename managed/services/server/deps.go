@@ -24,18 +24,6 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-//go:generate ../../../bin/mockery --name=grafanaClient --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=prometheusService --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=alertmanagerService --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=checksService --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=vmAlertExternalRules --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=supervisordService --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=telemetryService --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=agentsStateUpdater --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=rulesService --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=emailer --case=snake --inpackage --testonly
-//go:generate ../../../bin/mockery --name=templatesService --case=snake --inpackage --testonly
-
 // healthChecker interface wraps all services that implements the IsReady method to report the
 // service health for the Readiness check.
 type healthChecker interface {
@@ -127,8 +115,14 @@ type emailer interface {
 	Send(ctx context.Context, settings *models.EmailAlertingSettings, emailTo string) error
 }
 
-// rulesService is a subset of methods of ia.TemplatesService used by this package.
+// templatesService is a subset of methods of ia.TemplatesService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type templatesService interface {
 	CollectTemplates(ctx context.Context)
+}
+
+// haService is a subset of methods of ha.Service used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type haService interface {
+	IsLeader() bool
 }

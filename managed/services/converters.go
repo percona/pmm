@@ -237,6 +237,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			DisabledCollectors: agent.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
 			LogLevel:           inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			ExposeExporter:     agent.ExposeExporter,
 		}, nil
 
 	case models.MySQLdExporterType:
@@ -257,6 +258,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			DisabledCollectors:        agent.DisabledCollectors,
 			ProcessExecPath:           processExecPath,
 			LogLevel:                  inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			ExposeExporter:            agent.ExposeExporter,
 		}, nil
 
 	case models.MongoDBExporterType:
@@ -275,6 +277,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			DisabledCollectors: agent.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
 			LogLevel:           inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			ExposeExporter:     agent.ExposeExporter,
 		}
 		if agent.MongoDBOptions != nil {
 			exporter.StatsCollections = agent.MongoDBOptions.StatsCollections
@@ -284,7 +287,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 		return exporter, nil
 
 	case models.PostgresExporterType:
-		return &inventorypb.PostgresExporter{
+		exporter := &inventorypb.PostgresExporter{
 			AgentId:            agent.AgentID,
 			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
 			ServiceId:          serviceID,
@@ -299,8 +302,13 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			DisabledCollectors: agent.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
 			LogLevel:           inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-		}, nil
-
+			ExposeExporter:     agent.ExposeExporter,
+		}
+		if agent.PostgreSQLOptions != nil {
+			exporter.AutoDiscoveryLimit = agent.PostgreSQLOptions.AutoDiscoveryLimit
+			exporter.MaxExporterConnections = agent.PostgreSQLOptions.MaxExporterConnections
+		}
+		return exporter, nil
 	case models.QANMySQLPerfSchemaAgentType:
 		return &inventorypb.QANMySQLPerfSchemaAgent{
 			AgentId:                agent.AgentID,
@@ -370,6 +378,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			DisabledCollectors: agent.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
 			LogLevel:           inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			ExposeExporter:     agent.ExposeExporter,
 		}, nil
 
 	case models.QANPostgreSQLPgStatementsAgentType:

@@ -52,8 +52,8 @@ func convertParamUnit(u alert.Unit) alerting.ParamUnit {
 	return alerting.ParamUnit_PARAM_UNIT_INVALID
 }
 
-func convertRule(l *logrus.Entry, rule *models.Rule, channels []*models.Channel) (*iav1beta1.Rule, error) {
-	r := &iav1beta1.Rule{
+func convertRule(l *logrus.Entry, rule *models.Rule, channels []*models.Channel) (*iav1beta1.Rule, error) { //nolint:staticcheck
+	r := &iav1beta1.Rule{ //nolint:staticcheck
 		RuleId:          rule.ID,
 		TemplateName:    rule.TemplateName,
 		Disabled:        rule.Disabled,
@@ -102,9 +102,9 @@ func convertRule(l *logrus.Entry, rule *models.Rule, channels []*models.Channel)
 		return nil, errors.Wrap(err, "failed to load rule annotations")
 	}
 
-	r.Filters = make([]*iav1beta1.Filter, len(rule.Filters))
+	r.Filters = make([]*iav1beta1.Filter, len(rule.Filters)) //nolint:staticcheck
 	for i, filter := range rule.Filters {
-		r.Filters[i] = &iav1beta1.Filter{
+		r.Filters[i] = &iav1beta1.Filter{ //nolint:staticcheck
 			Type:  convertModelToFilterType(filter.Type),
 			Key:   filter.Key,
 			Value: filter.Val,
