@@ -26762,9 +26762,6 @@
       "name": "AccessControlService"
     },
     {
-      "name": "CollectorService"
-    },
-    {
       "name": "QANService"
     },
     {

@@ -14402,9 +14402,6 @@
       "name": "DumpService"
     },
     {
-      "name": "CollectorService"
-    },
-    {
       "name": "QANService"
     }
   ],

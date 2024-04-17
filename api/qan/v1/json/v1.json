@@ -12,7 +12,7 @@
   "swagger": "2.0",
   "info": {
     "title": "PMM QAN API",
-    "version": "v0"
+    "version": "v1"
   },
   "paths": {
     "/v1/qan/metrics:getFilters": {
@@ -2224,9 +2224,6 @@
     }
   },
   "tags": [
-    {
-      "name": "CollectorService"
-    },
     {
       "name": "QANService"
     }
