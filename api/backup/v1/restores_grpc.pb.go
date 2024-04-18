@@ -32,7 +32,7 @@ type RestoreServiceClient interface {
 	// ListRestores returns a list of all backup restore history items.
 	ListRestores(ctx context.Context, in *ListRestoresRequest, opts ...grpc.CallOption) (*ListRestoresResponse, error)
 	// GetLogs returns logs from the underlying tools for a restore job.
-	GetLogs(ctx context.Context, in *RestoreGetLogsRequest, opts ...grpc.CallOption) (*RestoreGetLogsResponse, error)
+	GetLogs(ctx context.Context, in *RestoreServiceGetLogsRequest, opts ...grpc.CallOption) (*RestoreServiceGetLogsResponse, error)
 	// RestoreBackup requests the backup restore.
 	RestoreBackup(ctx context.Context, in *RestoreBackupRequest, opts ...grpc.CallOption) (*RestoreBackupResponse, error)
 }
@@ -54,8 +54,8 @@ func (c *restoreServiceClient) ListRestores(ctx context.Context, in *ListRestore
 	return out, nil
 }
 
-func (c *restoreServiceClient) GetLogs(ctx context.Context, in *RestoreGetLogsRequest, opts ...grpc.CallOption) (*RestoreGetLogsResponse, error) {
-	out := new(RestoreGetLogsResponse)
+func (c *restoreServiceClient) GetLogs(ctx context.Context, in *RestoreServiceGetLogsRequest, opts ...grpc.CallOption) (*RestoreServiceGetLogsResponse, error) {
+	out := new(RestoreServiceGetLogsResponse)
 	err := c.cc.Invoke(ctx, RestoreService_GetLogs_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -79,7 +79,7 @@ type RestoreServiceServer interface {
 	// ListRestores returns a list of all backup restore history items.
 	ListRestores(context.Context, *ListRestoresRequest) (*ListRestoresResponse, error)
 	// GetLogs returns logs from the underlying tools for a restore job.
-	GetLogs(context.Context, *RestoreGetLogsRequest) (*RestoreGetLogsResponse, error)
+	GetLogs(context.Context, *RestoreServiceGetLogsRequest) (*RestoreServiceGetLogsResponse, error)
 	// RestoreBackup requests the backup restore.
 	RestoreBackup(context.Context, *RestoreBackupRequest) (*RestoreBackupResponse, error)
 	mustEmbedUnimplementedRestoreServiceServer()
@@ -92,7 +92,7 @@ func (UnimplementedRestoreServiceServer) ListRestores(context.Context, *ListRest
 	return nil, status.Errorf(codes.Unimplemented, "method ListRestores not implemented")
 }
 
-func (UnimplementedRestoreServiceServer) GetLogs(context.Context, *RestoreGetLogsRequest) (*RestoreGetLogsResponse, error) {
+func (UnimplementedRestoreServiceServer) GetLogs(context.Context, *RestoreServiceGetLogsRequest) (*RestoreServiceGetLogsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLogs not implemented")
 }
 
@@ -131,7 +131,7 @@ func _RestoreService_ListRestores_Handler(srv interface{}, ctx context.Context, 
 }
 
 func _RestoreService_GetLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RestoreGetLogsRequest)
+	in := new(RestoreServiceGetLogsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -143,7 +143,7 @@ func _RestoreService_GetLogs_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: RestoreService_GetLogs_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RestoreServiceServer).GetLogs(ctx, req.(*RestoreGetLogsRequest))
+		return srv.(RestoreServiceServer).GetLogs(ctx, req.(*RestoreServiceGetLogsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -52,7 +52,7 @@ func local_request_RestoreService_ListRestores_0(ctx context.Context, marshaler 
 var filter_RestoreService_GetLogs_0 = &utilities.DoubleArray{Encoding: map[string]int{"restore_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_RestoreService_GetLogs_0(ctx context.Context, marshaler runtime.Marshaler, client RestoreServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RestoreGetLogsRequest
+	var protoReq RestoreServiceGetLogsRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -84,7 +84,7 @@ func request_RestoreService_GetLogs_0(ctx context.Context, marshaler runtime.Mar
 }
 
 func local_request_RestoreService_GetLogs_0(ctx context.Context, marshaler runtime.Marshaler, server RestoreServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RestoreGetLogsRequest
+	var protoReq RestoreServiceGetLogsRequest
 	var metadata runtime.ServerMetadata
 
 	var (

@@ -33,7 +33,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	backuppb "github.com/percona/pmm/api/backup/v1"
+	backupv1 "github.com/percona/pmm/api/backup/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/scheduler"
@@ -88,22 +88,22 @@ func TestStartBackup(t *testing.T) {
 		for _, tc := range []struct {
 			testName    string
 			backupError error
-			code        backuppb.ErrorCode
+			code        backupv1.ErrorCode
 		}{
 			{
 				testName:    "xtrabackup not installed",
 				backupError: backup.ErrXtrabackupNotInstalled,
-				code:        backuppb.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED,
+				code:        backupv1.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED,
 			},
 			{
 				testName:    "invalid xtrabackup",
 				backupError: backup.ErrInvalidXtrabackup,
-				code:        backuppb.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP,
+				code:        backupv1.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP,
 			},
 			{
 				testName:    "incompatible xtrabackup",
 				backupError: backup.ErrIncompatibleXtrabackup,
-				code:        backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP,
+				code:        backupv1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP,
 			},
 		} {
 			t.Run(tc.testName, func(t *testing.T) {
@@ -111,12 +111,12 @@ func TestStartBackup(t *testing.T) {
 				backupService.On("PerformBackup", mock.Anything, mock.Anything).
 					Return("", backupError).Once()
 				ctx := context.Background()
-				resp, err := backupSvc.StartBackup(ctx, &backuppb.StartBackupRequest{
+				resp, err := backupSvc.StartBackup(ctx, &backupv1.StartBackupRequest{
 					ServiceId:     *agent.ServiceID,
 					LocationId:    "locationID",
 					Name:          "name",
 					Description:   "description",
-					DataModel:     backuppb.DataModel_DATA_MODEL_PHYSICAL,
+					DataModel:     backupv1.DataModel_DATA_MODEL_PHYSICAL,
 					RetryInterval: nil,
 					Retries:       0,
 				})
@@ -126,7 +126,7 @@ func TestStartBackup(t *testing.T) {
 				assert.Equal(t, codes.FailedPrecondition, st.Code())
 				assert.Equal(t, backupError.Error(), st.Message())
 				require.Len(t, st.Details(), 1)
-				detailedError, ok := st.Details()[0].(*backuppb.Error)
+				detailedError, ok := st.Details()[0].(*backupv1.Error)
 				require.True(t, ok)
 				assert.Equal(t, tc.code, detailedError.Code)
 			})
@@ -158,14 +158,14 @@ func TestStartBackup(t *testing.T) {
 			backupService := &mockBackupService{}
 			backupSvc := NewBackupsService(db, backupService, nil, nil)
 			backupService.On("PerformBackup", mock.Anything, mock.Anything).Return("", nil)
-			_, err := backupSvc.StartBackup(ctx, &backuppb.StartBackupRequest{
+			_, err := backupSvc.StartBackup(ctx, &backupv1.StartBackupRequest{
 				ServiceId:     *agent.ServiceID,
 				LocationId:    locationRes.ID,
 				Name:          "name",
 				Description:   "description",
 				RetryInterval: nil,
 				Retries:       0,
-				DataModel:     backuppb.DataModel_DATA_MODEL_PHYSICAL,
+				DataModel:     backupv1.DataModel_DATA_MODEL_PHYSICAL,
 			})
 			require.NoError(t, err)
 		})
@@ -224,11 +224,11 @@ func TestStartBackup(t *testing.T) {
 					if test.ErrString == "" {
 						backupService.On("PerformBackup", mock.Anything, mock.Anything).Return("", nil).Once()
 					}
-					res, err := backupSvc.StartBackup(ctx, &backuppb.StartBackupRequest{
+					res, err := backupSvc.StartBackup(ctx, &backupv1.StartBackupRequest{
 						Name:      test.BackupName,
 						Folder:    test.Folder,
 						ServiceId: *agent.ServiceID,
-						DataModel: backuppb.DataModel_DATA_MODEL_LOGICAL,
+						DataModel: backupv1.DataModel_DATA_MODEL_LOGICAL,
 					})
 					if test.ErrString != "" {
 						assert.Nil(t, res)
@@ -254,32 +254,32 @@ func TestRestoreBackupErrors(t *testing.T) {
 	for _, tc := range []struct {
 		testName    string
 		backupError error
-		code        backuppb.ErrorCode
+		code        backupv1.ErrorCode
 	}{
 		{
 			testName:    "xtrabackup not installed",
 			backupError: backup.ErrXtrabackupNotInstalled,
-			code:        backuppb.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED,
+			code:        backupv1.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED,
 		},
 		{
 			testName:    "invalid xtrabackup",
 			backupError: backup.ErrInvalidXtrabackup,
-			code:        backuppb.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP,
+			code:        backupv1.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP,
 		},
 		{
 			testName:    "incompatible xtrabackup",
 			backupError: backup.ErrIncompatibleXtrabackup,
-			code:        backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP,
+			code:        backupv1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP,
 		},
 		{
 			testName:    "target MySQL is not compatible",
 			backupError: backup.ErrIncompatibleTargetMySQL,
-			code:        backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL,
+			code:        backupv1.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL,
 		},
 		{
 			testName:    "target MongoDB is not compatible",
 			backupError: backup.ErrIncompatibleTargetMongoDB,
-			code:        backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MONGODB,
+			code:        backupv1.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MONGODB,
 		},
 	} {
 		t.Run(tc.testName, func(t *testing.T) {
@@ -287,7 +287,7 @@ func TestRestoreBackupErrors(t *testing.T) {
 			backupService.On("RestoreBackup", mock.Anything, "serviceID1", "artifactID1", mock.Anything).
 				Return("", backupError).Once()
 			ctx := context.Background()
-			resp, err := backupSvc.RestoreBackup(ctx, &backuppb.RestoreBackupRequest{
+			resp, err := backupSvc.RestoreBackup(ctx, &backupv1.RestoreBackupRequest{
 				ServiceId:  "serviceID1",
 				ArtifactId: "artifactID1",
 			})
@@ -297,7 +297,7 @@ func TestRestoreBackupErrors(t *testing.T) {
 			assert.Equal(t, codes.FailedPrecondition, st.Code())
 			assert.Equal(t, backupError.Error(), st.Message())
 			require.Len(t, st.Details(), 1)
-			detailedError, ok := st.Details()[0].(*backuppb.Error)
+			detailedError, ok := st.Details()[0].(*backupv1.Error)
 			require.True(t, ok)
 			assert.Equal(t, tc.code, detailedError.Code)
 		})
@@ -334,7 +334,7 @@ func TestScheduledBackups(t *testing.T) {
 		agent := setup(t, db.Querier, models.MySQLServiceType, t.Name(), "cluster")
 
 		t.Run("schedule/change", func(t *testing.T) {
-			req := &backuppb.ScheduleBackupRequest{
+			req := &backupv1.ScheduleBackupRequest{
 				ServiceId:      pointer.GetString(agent.ServiceID),
 				LocationId:     locationRes.ID,
 				CronExpression: "1 * * * *",
@@ -342,8 +342,8 @@ func TestScheduledBackups(t *testing.T) {
 				Name:           "schedule_change",
 				Description:    t.Name(),
 				Enabled:        true,
-				Mode:           backuppb.BackupMode_BACKUP_MODE_SNAPSHOT,
-				DataModel:      backuppb.DataModel_DATA_MODEL_PHYSICAL,
+				Mode:           backupv1.BackupMode_BACKUP_MODE_SNAPSHOT,
+				DataModel:      backupv1.DataModel_DATA_MODEL_PHYSICAL,
 				Retries:        maxRetriesAttempts - 1,
 				RetryInterval:  durationpb.New(maxRetryInterval),
 			}
@@ -364,7 +364,7 @@ func TestScheduledBackups(t *testing.T) {
 			assert.Equal(t, req.Retries, data.Retries)
 			assert.Equal(t, req.RetryInterval.AsDuration(), data.RetryInterval)
 
-			changeReq := &backuppb.ChangeScheduledBackupRequest{
+			changeReq := &backupv1.ChangeScheduledBackupRequest{
 				ScheduledBackupId: task.ID,
 				Enabled:           pointer.ToBool(false),
 				CronExpression:    pointer.ToString("2 * * * *"),
@@ -389,7 +389,7 @@ func TestScheduledBackups(t *testing.T) {
 		})
 
 		t.Run("list", func(t *testing.T) {
-			res, err := backupSvc.ListScheduledBackups(ctx, &backuppb.ListScheduledBackupsRequest{})
+			res, err := backupSvc.ListScheduledBackups(ctx, &backupv1.ListScheduledBackupsRequest{})
 
 			assert.NoError(t, err)
 			assert.Len(t, res.ScheduledBackups, 1)
@@ -417,7 +417,7 @@ func TestScheduledBackups(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			_, err = backupSvc.RemoveScheduledBackup(ctx, &backuppb.RemoveScheduledBackupRequest{
+			_, err = backupSvc.RemoveScheduledBackup(ctx, &backupv1.RemoveScheduledBackupRequest{
 				ScheduledBackupId: task.ID,
 			})
 			assert.NoError(t, err)
@@ -444,15 +444,15 @@ func TestScheduledBackups(t *testing.T) {
 			backupSvc := NewBackupsService(db, nil, nil, schedulerService)
 
 			schedulerService.On("Add", mock.Anything, mock.Anything).Return("", nil)
-			_, err := backupSvc.ScheduleBackup(ctx, &backuppb.ScheduleBackupRequest{
+			_, err := backupSvc.ScheduleBackup(ctx, &backupv1.ScheduleBackupRequest{
 				ServiceId:     *agent.ServiceID,
 				LocationId:    locationRes.ID,
 				Name:          "name",
 				Description:   "description",
 				RetryInterval: durationpb.New(maxRetryInterval),
 				Retries:       maxRetriesAttempts,
-				DataModel:     backuppb.DataModel_DATA_MODEL_PHYSICAL,
-				Mode:          backuppb.BackupMode_BACKUP_MODE_PITR,
+				DataModel:     backupv1.DataModel_DATA_MODEL_PHYSICAL,
+				Mode:          backupv1.BackupMode_BACKUP_MODE_PITR,
 			})
 			require.Error(t, err)
 			tests.AssertGRPCErrorRE(t, codes.InvalidArgument, "PITR is only supported for logical backups", err)
@@ -463,15 +463,15 @@ func TestScheduledBackups(t *testing.T) {
 			schedulerService := &mockScheduleService{}
 			backupSvc := NewBackupsService(db, nil, nil, schedulerService)
 			schedulerService.On("Add", mock.Anything, mock.Anything).Return(&models.ScheduledTask{}, nil)
-			_, err := backupSvc.ScheduleBackup(ctx, &backuppb.ScheduleBackupRequest{
+			_, err := backupSvc.ScheduleBackup(ctx, &backupv1.ScheduleBackupRequest{
 				ServiceId:     *agent.ServiceID,
 				LocationId:    locationRes.ID,
 				Name:          "name",
 				Description:   "description",
 				RetryInterval: durationpb.New(maxRetryInterval),
 				Retries:       maxRetriesAttempts,
-				DataModel:     backuppb.DataModel_DATA_MODEL_PHYSICAL,
-				Mode:          backuppb.BackupMode_BACKUP_MODE_SNAPSHOT,
+				DataModel:     backupv1.DataModel_DATA_MODEL_PHYSICAL,
+				Mode:          backupv1.BackupMode_BACKUP_MODE_SNAPSHOT,
 			})
 			require.NoError(t, err)
 		})
@@ -540,85 +540,10 @@ func TestGetLogs(t *testing.T) {
 		}
 
 		for _, tc := range testCases {
-			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
+			logs, err := backupSvc.GetLogs(ctx, &backupv1.GetLogsRequest{
 				ArtifactId: artifactID,
 				Offset:     tc.offset,
 				Limit:      tc.limit,
-			})
-			assert.NoError(t, err)
-			chunkIDs := make([]uint32, 0, len(logs.Logs))
-			for _, log := range logs.Logs {
-				chunkIDs = append(chunkIDs, log.ChunkId)
-			}
-			assert.Equal(t, tc.expect, chunkIDs)
-		}
-	})
-
-	t.Run("get physical restore logs", func(t *testing.T) {
-		restoreID := models.NormalizeRestoreID(uuid.New().String())
-		job, err := models.CreateJob(db.Querier, models.CreateJobParams{
-			PMMAgentID: "agent",
-			Type:       models.MongoDBBackupJob,
-			Data: &models.JobData{
-				MongoDBRestoreBackup: &models.MongoDBRestoreBackupJobData{
-					ServiceID: "svc",
-					RestoreID: restoreID,
-					DataModel: models.PhysicalDataModel,
-				},
-			},
-		})
-		require.NoError(t, err)
-		for chunkID := 0; chunkID < 5; chunkID++ {
-			_, err = models.CreateJobLog(db.Querier, models.CreateJobLogParams{
-				JobID:   job.ID,
-				ChunkID: chunkID,
-				Data:    "not important",
-			})
-			assert.NoError(t, err)
-		}
-		for _, tc := range testCases {
-			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
-				RestoreId: restoreID,
-				Offset:    tc.offset,
-				Limit:     tc.limit,
-			})
-			assert.NoError(t, err)
-			chunkIDs := make([]uint32, 0, len(logs.Logs))
-			for _, log := range logs.Logs {
-				chunkIDs = append(chunkIDs, log.ChunkId)
-			}
-			assert.Equal(t, tc.expect, chunkIDs)
-		}
-	})
-
-	t.Run("get logical restore logs", func(t *testing.T) {
-		restoreID := models.NormalizeRestoreID(uuid.New().String())
-		logicalRestore, err := models.CreateJob(db.Querier, models.CreateJobParams{
-			PMMAgentID: "agent",
-			Type:       models.MongoDBBackupJob,
-			Data: &models.JobData{
-				MongoDBRestoreBackup: &models.MongoDBRestoreBackupJobData{
-					ServiceID: "svc",
-					RestoreID: restoreID,
-					DataModel: models.LogicalDataModel,
-				},
-			},
-		})
-		require.NoError(t, err)
-		for chunkID := 0; chunkID < 5; chunkID++ {
-			_, err = models.CreateJobLog(db.Querier, models.CreateJobLogParams{
-				JobID:   logicalRestore.ID,
-				ChunkID: chunkID,
-				Data:    "not important",
-			})
-			assert.NoError(t, err)
-		}
-
-		for _, tc := range testCases {
-			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
-				RestoreId: restoreID,
-				Offset:    tc.offset,
-				Limit:     tc.limit,
 			})
 			assert.NoError(t, err)
 			chunkIDs := make([]uint32, 0, len(logs.Logs))

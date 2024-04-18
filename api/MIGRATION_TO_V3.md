@@ -130,6 +130,7 @@ POST /v1/backup/Locations/TestConfig                POST /v1/backups/locations:t
 **RestoreHistoryService**                           **RestoreService**
 POST /v1/backup/RestoreHistory/List                 GET /v1/backups/restores                         ✅
 POST /v1/backup/Backups/Restore                     POST /v1/backups/restores:start                  ✅
+                                                    GET /v1/backups/restores/{restore_id}/logs       ✅ new, copied from /v1/backups/{artifact_id}/logs
 
 **DumpsService**                                    **DumpService**                                  NOTE: renamed to DumpService
 POST /v1/dump/List                                  GET /v1/dumps                                    ✅

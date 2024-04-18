@@ -52,13 +52,13 @@ message ListRestoresResponse {
   repeated RestoreHistoryItem items = 1;
 }
 
-message RestoreGetLogsRequest {
+message RestoreServiceGetLogsRequest {
   string restore_id = 1 [(validate.rules).string.min_len = 1];
   uint32 offset = 2;
   uint32 limit = 3;
 }
 
-message RestoreGetLogsResponse {
+message RestoreServiceGetLogsResponse {
   repeated LogChunk logs = 1;
   bool end = 2;
 }
@@ -88,7 +88,7 @@ service RestoreService {
     };
   }
   // GetLogs returns logs from the underlying tools for a restore job.
-  rpc GetLogs(RestoreGetLogsRequest) returns (RestoreGetLogsResponse) {
+  rpc GetLogs(RestoreServiceGetLogsRequest) returns (RestoreServiceGetLogsResponse) {
     option (google.api.http) = {get: "/v1/backups/restores/{restore_id}/logs"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Logs"

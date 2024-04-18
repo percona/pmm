@@ -119,7 +119,7 @@ func (s *RestoreService) ListRestores(ctx context.Context, _ *backupv1.ListResto
 }
 
 // GetLogs returns logs from the underlying tools for a backup/restore job.
-func (s *RestoreService) GetLogs(_ context.Context, req *backupv1.RestoreGetLogsRequest) (*backupv1.RestoreGetLogsResponse, error) {
+func (s *RestoreService) GetLogs(_ context.Context, req *backupv1.RestoreServiceGetLogsRequest) (*backupv1.RestoreServiceGetLogsResponse, error) {
 	jobsFilter := models.JobsFilter{
 		Types: []models.JobType{
 			models.MySQLBackupJob,
@@ -135,7 +135,7 @@ func (s *RestoreService) GetLogs(_ context.Context, req *backupv1.RestoreGetLogs
 		return nil, err
 	}
 	if len(jobs) == 0 {
-		return nil, status.Error(codes.NotFound, "Job related to artifact was not found.")
+		return nil, status.Error(codes.NotFound, "No jobs related to such restore were found.")
 	}
 	if len(jobs) > 1 {
 		s.l.Warn("provided ID appears in more than one job")
@@ -154,7 +154,7 @@ func (s *RestoreService) GetLogs(_ context.Context, req *backupv1.RestoreGetLogs
 		return nil, err
 	}
 
-	res := &backupv1.RestoreGetLogsResponse{
+	res := &backupv1.RestoreServiceGetLogsResponse{
 		Logs: make([]*backupv1.LogChunk, 0, len(jobLogs)),
 	}
 	for _, log := range jobLogs {

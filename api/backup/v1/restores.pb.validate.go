@@ -482,22 +482,22 @@ var _ interface {
 	ErrorName() string
 } = ListRestoresResponseValidationError{}
 
-// Validate checks the field values on RestoreGetLogsRequest with the rules
-// defined in the proto definition for this message. If any rules are
+// Validate checks the field values on RestoreServiceGetLogsRequest with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *RestoreGetLogsRequest) Validate() error {
+func (m *RestoreServiceGetLogsRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on RestoreGetLogsRequest with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on RestoreServiceGetLogsRequest with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// RestoreGetLogsRequestMultiError, or nil if none found.
-func (m *RestoreGetLogsRequest) ValidateAll() error {
+// RestoreServiceGetLogsRequestMultiError, or nil if none found.
+func (m *RestoreServiceGetLogsRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *RestoreGetLogsRequest) validate(all bool) error {
+func (m *RestoreServiceGetLogsRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -505,7 +505,7 @@ func (m *RestoreGetLogsRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetRestoreId()) < 1 {
-		err := RestoreGetLogsRequestValidationError{
+		err := RestoreServiceGetLogsRequestValidationError{
 			field:  "RestoreId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -520,19 +520,19 @@ func (m *RestoreGetLogsRequest) validate(all bool) error {
 	// no validation rules for Limit
 
 	if len(errors) > 0 {
-		return RestoreGetLogsRequestMultiError(errors)
+		return RestoreServiceGetLogsRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// RestoreGetLogsRequestMultiError is an error wrapping multiple validation
-// errors returned by RestoreGetLogsRequest.ValidateAll() if the designated
-// constraints aren't met.
-type RestoreGetLogsRequestMultiError []error
+// RestoreServiceGetLogsRequestMultiError is an error wrapping multiple
+// validation errors returned by RestoreServiceGetLogsRequest.ValidateAll() if
+// the designated constraints aren't met.
+type RestoreServiceGetLogsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m RestoreGetLogsRequestMultiError) Error() string {
+func (m RestoreServiceGetLogsRequestMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -541,11 +541,12 @@ func (m RestoreGetLogsRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m RestoreGetLogsRequestMultiError) AllErrors() []error { return m }
+func (m RestoreServiceGetLogsRequestMultiError) AllErrors() []error { return m }
 
-// RestoreGetLogsRequestValidationError is the validation error returned by
-// RestoreGetLogsRequest.Validate if the designated constraints aren't met.
-type RestoreGetLogsRequestValidationError struct {
+// RestoreServiceGetLogsRequestValidationError is the validation error returned
+// by RestoreServiceGetLogsRequest.Validate if the designated constraints
+// aren't met.
+type RestoreServiceGetLogsRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -553,24 +554,24 @@ type RestoreGetLogsRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e RestoreGetLogsRequestValidationError) Field() string { return e.field }
+func (e RestoreServiceGetLogsRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RestoreGetLogsRequestValidationError) Reason() string { return e.reason }
+func (e RestoreServiceGetLogsRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RestoreGetLogsRequestValidationError) Cause() error { return e.cause }
+func (e RestoreServiceGetLogsRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RestoreGetLogsRequestValidationError) Key() bool { return e.key }
+func (e RestoreServiceGetLogsRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RestoreGetLogsRequestValidationError) ErrorName() string {
-	return "RestoreGetLogsRequestValidationError"
+func (e RestoreServiceGetLogsRequestValidationError) ErrorName() string {
+	return "RestoreServiceGetLogsRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e RestoreGetLogsRequestValidationError) Error() string {
+func (e RestoreServiceGetLogsRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -582,14 +583,14 @@ func (e RestoreGetLogsRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRestoreGetLogsRequest.%s: %s%s",
+		"invalid %sRestoreServiceGetLogsRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = RestoreGetLogsRequestValidationError{}
+var _ error = RestoreServiceGetLogsRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -597,24 +598,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RestoreGetLogsRequestValidationError{}
+} = RestoreServiceGetLogsRequestValidationError{}
 
-// Validate checks the field values on RestoreGetLogsResponse with the rules
-// defined in the proto definition for this message. If any rules are
+// Validate checks the field values on RestoreServiceGetLogsResponse with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *RestoreGetLogsResponse) Validate() error {
+func (m *RestoreServiceGetLogsResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on RestoreGetLogsResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// RestoreGetLogsResponseMultiError, or nil if none found.
-func (m *RestoreGetLogsResponse) ValidateAll() error {
+// ValidateAll checks the field values on RestoreServiceGetLogsResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// RestoreServiceGetLogsResponseMultiError, or nil if none found.
+func (m *RestoreServiceGetLogsResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *RestoreGetLogsResponse) validate(all bool) error {
+func (m *RestoreServiceGetLogsResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -628,7 +629,7 @@ func (m *RestoreGetLogsResponse) validate(all bool) error {
 			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, RestoreGetLogsResponseValidationError{
+					errors = append(errors, RestoreServiceGetLogsResponseValidationError{
 						field:  fmt.Sprintf("Logs[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -636,7 +637,7 @@ func (m *RestoreGetLogsResponse) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, RestoreGetLogsResponseValidationError{
+					errors = append(errors, RestoreServiceGetLogsResponseValidationError{
 						field:  fmt.Sprintf("Logs[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -645,7 +646,7 @@ func (m *RestoreGetLogsResponse) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return RestoreGetLogsResponseValidationError{
+				return RestoreServiceGetLogsResponseValidationError{
 					field:  fmt.Sprintf("Logs[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -658,19 +659,19 @@ func (m *RestoreGetLogsResponse) validate(all bool) error {
 	// no validation rules for End
 
 	if len(errors) > 0 {
-		return RestoreGetLogsResponseMultiError(errors)
+		return RestoreServiceGetLogsResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// RestoreGetLogsResponseMultiError is an error wrapping multiple validation
-// errors returned by RestoreGetLogsResponse.ValidateAll() if the designated
-// constraints aren't met.
-type RestoreGetLogsResponseMultiError []error
+// RestoreServiceGetLogsResponseMultiError is an error wrapping multiple
+// validation errors returned by RestoreServiceGetLogsResponse.ValidateAll()
+// if the designated constraints aren't met.
+type RestoreServiceGetLogsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m RestoreGetLogsResponseMultiError) Error() string {
+func (m RestoreServiceGetLogsResponseMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -679,11 +680,12 @@ func (m RestoreGetLogsResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m RestoreGetLogsResponseMultiError) AllErrors() []error { return m }
+func (m RestoreServiceGetLogsResponseMultiError) AllErrors() []error { return m }
 
-// RestoreGetLogsResponseValidationError is the validation error returned by
-// RestoreGetLogsResponse.Validate if the designated constraints aren't met.
-type RestoreGetLogsResponseValidationError struct {
+// RestoreServiceGetLogsResponseValidationError is the validation error
+// returned by RestoreServiceGetLogsResponse.Validate if the designated
+// constraints aren't met.
+type RestoreServiceGetLogsResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -691,24 +693,24 @@ type RestoreGetLogsResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e RestoreGetLogsResponseValidationError) Field() string { return e.field }
+func (e RestoreServiceGetLogsResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RestoreGetLogsResponseValidationError) Reason() string { return e.reason }
+func (e RestoreServiceGetLogsResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RestoreGetLogsResponseValidationError) Cause() error { return e.cause }
+func (e RestoreServiceGetLogsResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RestoreGetLogsResponseValidationError) Key() bool { return e.key }
+func (e RestoreServiceGetLogsResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RestoreGetLogsResponseValidationError) ErrorName() string {
-	return "RestoreGetLogsResponseValidationError"
+func (e RestoreServiceGetLogsResponseValidationError) ErrorName() string {
+	return "RestoreServiceGetLogsResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e RestoreGetLogsResponseValidationError) Error() string {
+func (e RestoreServiceGetLogsResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -720,14 +722,14 @@ func (e RestoreGetLogsResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRestoreGetLogsResponse.%s: %s%s",
+		"invalid %sRestoreServiceGetLogsResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = RestoreGetLogsResponseValidationError{}
+var _ error = RestoreServiceGetLogsResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -735,7 +737,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RestoreGetLogsResponseValidationError{}
+} = RestoreServiceGetLogsResponseValidationError{}
 
 // Validate checks the field values on RestoreBackupRequest with the rules
 // defined in the proto definition for this message. If any rules are

@@ -69,3 +69,9 @@ curl -X GET http://admin:admin@127.0.0.1:8080/v1/accesscontrol/roles
 
 # POST /v1/management/Node/List -> GET /v1/management/nodes
 curl -X GET http://admin:admin@127.0.0.1:8080/v1/management/nodes
+
+# POST POST /v1/backup/Backups/GetLogs -> GET /v1/backups/{artifact_id}/logs
+curl -X GET http://admin:admin@127.0.0.1:8080/v1/backups/bcc83096-b006-4d2e-ac17-365a57c3e37a/logs
+
+# POST POST /v1/backup/Backups/GetLogs -> GET /v1/backups/restores/{restore_id}/logs (this is a second endpoint, that accepts artifact_id)
+curl -X GET http://admin:admin@127.0.0.1:8080/v1/backups/restores/bcc83096-b006-4d2e-ac17-365a57c3e37a/logs
