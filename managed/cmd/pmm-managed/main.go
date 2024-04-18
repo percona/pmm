@@ -723,6 +723,8 @@ func main() { //nolint:cyclop,maintidx
 	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE").String()
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PERCONA_TEST_PMM_CLICKHOUSE_ADDR").String()
 
+	watchtowerHostF := kingpin.Flag("watchtower-host", "Watchtower host").Default("http://watchtower:8080").Envar("PMM_WATCHTOWER_HOST").URL()
+
 	kingpin.Parse()
 
 	logger.SetupGlobalLogger()
@@ -969,6 +971,8 @@ func main() { //nolint:cyclop,maintidx
 
 	dumpService := dump.New(db)
 
+	updater := server.NewUpdater(supervisord, *watchtowerHostF)
+
 	serverParams := &server.Params{
 		DB:                   db,
 		VMDB:                 vmdb,
@@ -981,6 +985,7 @@ func main() { //nolint:cyclop,maintidx
 		AwsInstanceChecker:   awsInstanceChecker,
 		GrafanaClient:        grafanaClient,
 		VMAlertExternalRules: externalRules,
+		Updater:              updater,
 	}
 
 	server, err := server.NewServer(serverParams)
