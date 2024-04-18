@@ -58,7 +58,7 @@ type GetLogsOK struct {
 }
 
 func (o *GetLogsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/backups/{artifact_id}/logs][%d] getLogsOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/backups/{artifact_id}/logs][%d] getLogsOk  %+v", 200, o.Payload)
 }
 
 func (o *GetLogsOK) GetPayload() *GetLogsOKBody {
@@ -100,7 +100,7 @@ func (o *GetLogsDefault) Code() int {
 }
 
 func (o *GetLogsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/backups/{artifact_id}/logs][%d] GetLogs default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/backups/{artifact_id}/logs][%d] GetLogs default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetLogsDefault) GetPayload() *GetLogsDefaultBody {
@@ -115,49 +115,6 @@ func (o *GetLogsDefault) readResponse(response runtime.ClientResponse, consumer 
 		return err
 	}
 
-	return nil
-}
-
-/*
-GetLogsBody get logs body
-swagger:model GetLogsBody
-*/
-type GetLogsBody struct {
-	// offset
-	Offset int64 `json:"offset,omitempty"`
-
-	// limit
-	Limit int64 `json:"limit,omitempty"`
-
-	// restore id
-	RestoreID string `json:"restore_id,omitempty"`
-}
-
-// Validate validates this get logs body
-func (o *GetLogsBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this get logs body based on context it is used
-func (o *GetLogsBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetLogsBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetLogsBody) UnmarshalBinary(b []byte) error {
-	var res GetLogsBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

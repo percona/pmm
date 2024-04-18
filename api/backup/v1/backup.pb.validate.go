@@ -1929,13 +1929,20 @@ func (m *GetLogsRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ArtifactId
+	if utf8.RuneCountInString(m.GetArtifactId()) < 1 {
+		err := GetLogsRequestValidationError{
+			field:  "ArtifactId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	// no validation rules for Offset
 
 	// no validation rules for Limit
-
-	// no validation rules for RestoreId
 
 	if len(errors) > 0 {
 		return GetLogsRequestMultiError(errors)
@@ -2150,106 +2157,3 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetLogsResponseValidationError{}
-
-// Validate checks the field values on LogChunk with the rules defined in the
-// proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *LogChunk) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on LogChunk with the rules defined in
-// the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in LogChunkMultiError, or nil
-// if none found.
-func (m *LogChunk) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *LogChunk) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for ChunkId
-
-	// no validation rules for Data
-
-	if len(errors) > 0 {
-		return LogChunkMultiError(errors)
-	}
-
-	return nil
-}
-
-// LogChunkMultiError is an error wrapping multiple validation errors returned
-// by LogChunk.ValidateAll() if the designated constraints aren't met.
-type LogChunkMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m LogChunkMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m LogChunkMultiError) AllErrors() []error { return m }
-
-// LogChunkValidationError is the validation error returned by
-// LogChunk.Validate if the designated constraints aren't met.
-type LogChunkValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e LogChunkValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e LogChunkValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e LogChunkValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e LogChunkValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e LogChunkValidationError) ErrorName() string { return "LogChunkValidationError" }
-
-// Error satisfies the builtin error interface
-func (e LogChunkValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sLogChunk.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = LogChunkValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = LogChunkValidationError{}

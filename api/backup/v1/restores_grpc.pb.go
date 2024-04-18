@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	RestoreService_ListRestores_FullMethodName  = "/backup.v1.RestoreService/ListRestores"
+	RestoreService_GetLogs_FullMethodName       = "/backup.v1.RestoreService/GetLogs"
 	RestoreService_RestoreBackup_FullMethodName = "/backup.v1.RestoreService/RestoreBackup"
 )
 
@@ -30,6 +31,8 @@ const (
 type RestoreServiceClient interface {
 	// ListRestores returns a list of all backup restore history items.
 	ListRestores(ctx context.Context, in *ListRestoresRequest, opts ...grpc.CallOption) (*ListRestoresResponse, error)
+	// GetLogs returns logs from the underlying tools for a restore job.
+	GetLogs(ctx context.Context, in *RestoreGetLogsRequest, opts ...grpc.CallOption) (*RestoreGetLogsResponse, error)
 	// RestoreBackup requests the backup restore.
 	RestoreBackup(ctx context.Context, in *RestoreBackupRequest, opts ...grpc.CallOption) (*RestoreBackupResponse, error)
 }
@@ -51,6 +54,15 @@ func (c *restoreServiceClient) ListRestores(ctx context.Context, in *ListRestore
 	return out, nil
 }
 
+func (c *restoreServiceClient) GetLogs(ctx context.Context, in *RestoreGetLogsRequest, opts ...grpc.CallOption) (*RestoreGetLogsResponse, error) {
+	out := new(RestoreGetLogsResponse)
+	err := c.cc.Invoke(ctx, RestoreService_GetLogs_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *restoreServiceClient) RestoreBackup(ctx context.Context, in *RestoreBackupRequest, opts ...grpc.CallOption) (*RestoreBackupResponse, error) {
 	out := new(RestoreBackupResponse)
 	err := c.cc.Invoke(ctx, RestoreService_RestoreBackup_FullMethodName, in, out, opts...)
@@ -66,6 +78,8 @@ func (c *restoreServiceClient) RestoreBackup(ctx context.Context, in *RestoreBac
 type RestoreServiceServer interface {
 	// ListRestores returns a list of all backup restore history items.
 	ListRestores(context.Context, *ListRestoresRequest) (*ListRestoresResponse, error)
+	// GetLogs returns logs from the underlying tools for a restore job.
+	GetLogs(context.Context, *RestoreGetLogsRequest) (*RestoreGetLogsResponse, error)
 	// RestoreBackup requests the backup restore.
 	RestoreBackup(context.Context, *RestoreBackupRequest) (*RestoreBackupResponse, error)
 	mustEmbedUnimplementedRestoreServiceServer()
@@ -76,6 +90,10 @@ type UnimplementedRestoreServiceServer struct{}
 
 func (UnimplementedRestoreServiceServer) ListRestores(context.Context, *ListRestoresRequest) (*ListRestoresResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRestores not implemented")
+}
+
+func (UnimplementedRestoreServiceServer) GetLogs(context.Context, *RestoreGetLogsRequest) (*RestoreGetLogsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLogs not implemented")
 }
 
 func (UnimplementedRestoreServiceServer) RestoreBackup(context.Context, *RestoreBackupRequest) (*RestoreBackupResponse, error) {
@@ -112,6 +130,24 @@ func _RestoreService_ListRestores_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RestoreService_GetLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RestoreGetLogsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RestoreServiceServer).GetLogs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RestoreService_GetLogs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RestoreServiceServer).GetLogs(ctx, req.(*RestoreGetLogsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _RestoreService_RestoreBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RestoreBackupRequest)
 	if err := dec(in); err != nil {
@@ -140,6 +176,10 @@ var RestoreService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListRestores",
 			Handler:    _RestoreService_ListRestores_Handler,
+		},
+		{
+			MethodName: "GetLogs",
+			Handler:    _RestoreService_GetLogs_Handler,
 		},
 		{
 			MethodName: "RestoreBackup",

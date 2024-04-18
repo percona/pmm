@@ -52,6 +52,17 @@ message ListRestoresResponse {
   repeated RestoreHistoryItem items = 1;
 }
 
+message RestoreGetLogsRequest {
+  string restore_id = 1 [(validate.rules).string.min_len = 1];
+  uint32 offset = 2;
+  uint32 limit = 3;
+}
+
+message RestoreGetLogsResponse {
+  repeated LogChunk logs = 1;
+  bool end = 2;
+}
+
 message RestoreBackupRequest {
   // Service identifier where backup should be restored.
   string service_id = 1 [(validate.rules).string.min_len = 1];
@@ -74,6 +85,14 @@ service RestoreService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Restore History"
       description: "List all backup restore history items"
+    };
+  }
+  // GetLogs returns logs from the underlying tools for a restore job.
+  rpc GetLogs(RestoreGetLogsRequest) returns (RestoreGetLogsResponse) {
+    option (google.api.http) = {get: "/v1/backups/restores/{restore_id}/logs"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Logs"
+      description: "Get logs from the underlying tools for a restore job"
     };
   }
   // RestoreBackup requests the backup restore.

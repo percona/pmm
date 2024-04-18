@@ -153,21 +153,14 @@ message RemoveScheduledBackupRequest {
 message RemoveScheduledBackupResponse {}
 
 message GetLogsRequest {
-  string artifact_id = 1;
+  string artifact_id = 1 [(validate.rules).string.min_len = 1];
   uint32 offset = 2;
   uint32 limit = 3;
-  string restore_id = 4;
 }
 
 message GetLogsResponse {
   repeated LogChunk logs = 1;
   bool end = 2;
-}
-
-// LogChunk represent one chunk of logs.
-message LogChunk {
-  uint32 chunk_id = 1;
-  string data = 2;
 }
 
 // Backups service handles backup operations to DB.
@@ -231,10 +224,7 @@ service BackupService {
   }
   // GetLogs returns logs from the underlying tools for a backup/restore job.
   rpc GetLogs(GetLogsRequest) returns (GetLogsResponse) {
-    option (google.api.http) = {
-      post: "/v1/backups/{artifact_id}/logs"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/backups/{artifact_id}/logs"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Logs"
       description: "Get logs from the underlying tools for a backup/restore job."

@@ -96,7 +96,7 @@ func (a *Client) GetLogs(params *GetLogsParams, opts ...ClientOption) (*GetLogsO
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "GetLogs",
-		Method:             "POST",
+		Method:             "GET",
 		PathPattern:        "/v1/backups/{artifact_id}/logs",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},

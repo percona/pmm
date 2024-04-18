@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // NewGetLogsParams creates a new GetLogsParams object,
@@ -63,8 +64,15 @@ type GetLogsParams struct {
 	// ArtifactID.
 	ArtifactID string
 
-	// Body.
-	Body GetLogsBody
+	// Limit.
+	//
+	// Format: int64
+	Limit *int64
+
+	// Offset.
+	//
+	// Format: int64
+	Offset *int64
 
 	timeout    time.Duration
 	Context    context.Context
@@ -130,15 +138,26 @@ func (o *GetLogsParams) SetArtifactID(artifactID string) {
 	o.ArtifactID = artifactID
 }
 
-// WithBody adds the body to the get logs params
-func (o *GetLogsParams) WithBody(body GetLogsBody) *GetLogsParams {
-	o.SetBody(body)
+// WithLimit adds the limit to the get logs params
+func (o *GetLogsParams) WithLimit(limit *int64) *GetLogsParams {
+	o.SetLimit(limit)
 	return o
 }
 
-// SetBody adds the body to the get logs params
-func (o *GetLogsParams) SetBody(body GetLogsBody) {
-	o.Body = body
+// SetLimit adds the limit to the get logs params
+func (o *GetLogsParams) SetLimit(limit *int64) {
+	o.Limit = limit
+}
+
+// WithOffset adds the offset to the get logs params
+func (o *GetLogsParams) WithOffset(offset *int64) *GetLogsParams {
+	o.SetOffset(offset)
+	return o
+}
+
+// SetOffset adds the offset to the get logs params
+func (o *GetLogsParams) SetOffset(offset *int64) {
+	o.Offset = offset
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -152,8 +171,37 @@ func (o *GetLogsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regis
 	if err := r.SetPathParam("artifact_id", o.ArtifactID); err != nil {
 		return err
 	}
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+
+	if o.Limit != nil {
+
+		// query param limit
+		var qrLimit int64
+
+		if o.Limit != nil {
+			qrLimit = *o.Limit
+		}
+		qLimit := swag.FormatInt64(qrLimit)
+		if qLimit != "" {
+			if err := r.SetQueryParam("limit", qLimit); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.Offset != nil {
+
+		// query param offset
+		var qrOffset int64
+
+		if o.Offset != nil {
+			qrOffset = *o.Offset
+		}
+		qOffset := swag.FormatInt64(qrOffset)
+		if qOffset != "" {
+			if err := r.SetQueryParam("offset", qOffset); err != nil {
+				return err
+			}
+		}
 	}
 
 	if len(res) > 0 {

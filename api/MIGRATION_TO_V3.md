@@ -112,7 +112,7 @@ POST /v1/backup/Artifacts/PITRTimeranges            GET /v1/backups/artifacts/{a
 
 **BackupsService**                                  **BackupService**                                NOTE: BackupsService renamed to BackupService
 POST /v1/backup/Backups/ChangeScheduled             PUT /v1/backups:changeScheduled                  ✅
-POST /v1/backup/Backups/GetLogs                     GET /v1/backups/{artifact_id}/logs
+POST /v1/backup/Backups/GetLogs                     GET /v1/backups/{artifact_id}/logs               ✅
 POST /v1/backup/Backups/ListArtifactCompatibleServices GET /v1/backups/{artifact_id}/compatible-services
 POST /v1/backup/Backups/ListScheduled               GET /v1/backups/scheduled                        ✅
 POST /v1/backup/Backups/RemoveScheduled             DELETE /v1/backups/scheduled/{scheduled_backup_id} ✅

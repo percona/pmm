@@ -28,11 +28,52 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	GetLogsMixin5(params *GetLogsMixin5Params, opts ...ClientOption) (*GetLogsMixin5OK, error)
+
 	ListRestores(params *ListRestoresParams, opts ...ClientOption) (*ListRestoresOK, error)
 
 	RestoreBackup(params *RestoreBackupParams, opts ...ClientOption) (*RestoreBackupOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+GetLogsMixin5 gets logs
+
+Get logs from the underlying tools for a restore job
+*/
+func (a *Client) GetLogsMixin5(params *GetLogsMixin5Params, opts ...ClientOption) (*GetLogsMixin5OK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetLogsMixin5Params()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetLogsMixin5",
+		Method:             "GET",
+		PathPattern:        "/v1/backups/restores/{restore_id}/logs",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetLogsMixin5Reader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetLogsMixin5OK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetLogsMixin5Default)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*

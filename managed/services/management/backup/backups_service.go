@@ -451,18 +451,8 @@ func (s *BackupService) GetLogs(_ context.Context, req *backuppb.GetLogsRequest)
 			models.MongoDBRestoreBackupJob,
 		},
 	}
-	if req.ArtifactId != "" && req.RestoreId != "" {
-		return nil, status.Error(codes.InvalidArgument, "Only one of artifact ID or restore ID is required")
-	}
 
-	switch {
-	case req.ArtifactId != "":
-		jobsFilter.ArtifactID = models.NormalizeArtifactID(req.ArtifactId)
-	case req.RestoreId != "":
-		jobsFilter.RestoreID = models.NormalizeRestoreID(req.RestoreId)
-	default:
-		return nil, status.Error(codes.InvalidArgument, "One of artifact ID or restore ID is required")
-	}
+	jobsFilter.ArtifactID = models.NormalizeArtifactID(req.ArtifactId)
 
 	jobs, err := models.FindJobs(s.db.Querier, jobsFilter)
 	if err != nil {
@@ -472,7 +462,7 @@ func (s *BackupService) GetLogs(_ context.Context, req *backuppb.GetLogsRequest)
 		return nil, status.Error(codes.NotFound, "Job related to artifact was not found.")
 	}
 	if len(jobs) > 1 {
-		s.l.Warn("provided ID appear in more than one job")
+		s.l.Warn("provided ID appears in more than one job")
 	}
 
 	filter := models.JobLogsFilter{
