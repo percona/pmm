@@ -17,7 +17,6 @@ package management
 
 import (
 	"context"
-	"net/http"
 	"time"
 
 	"github.com/percona-platform/saas/pkg/check"
@@ -99,7 +98,7 @@ type victoriaMetricsClient interface {
 	Query(ctx context.Context, query string, ts time.Time, opts ...v1.Option) (model.Value, v1.Warnings, error)
 }
 
-type apiKeyProvider interface {
-	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
-	IsAPIKeyAuth(headers http.Header) bool
+type authProvider interface {
+	CreateServiceAccount(ctx context.Context, noneName string, reregister bool) (int, string, error)
+	DeleteServiceAccount(ctx context.Context, noneName string, force bool) (string, error)
 }
