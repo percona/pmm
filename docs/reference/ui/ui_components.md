@@ -16,17 +16,11 @@ The main menu is part of the Grafana framework and is visible on every page.
 
 | Item (Top)                         | Name                 | Description
 |:----------------------------------:|----------------------|-------------------------------
-| {{icon.percona}}                   | Home                 | Link to home dashboard.
-| <i class="uil uil-search"></i>     | Search               | Search dashboards by name.
 | <i class="uil uil-star"></i>       | Starred              | Mark your favorite dashboards.
 | <i class="uil uil-apps"></i>       | Dashboards           | Create dashboards or [folders][Folders], manage dashboards, import dashboards, create playlists, manage snapshots.
 | ![!image](../../_images/os-dashboard.png)      | Operating System (OS)    | Operating System dashboard
-| ![!image](../../_images/mysql-dashboard.png)    | MySQL      | MySQL dashboard
-| ![!image](../../_images/mongo-dashboard.png)    | MongoDB      | MongoDB dashboard
-| ![!image](../../_images/postresql-dashboard.png)    | PostgreSQL     | PostgreSQL dashboard
-| ![!image](../../_images/proxysql-dashboard.png)    | ProxySQL     | ProxySQL dashboard
-| ![!image](../../_images/haproxy-dashboard.png)    | HAproxy     | HAproxy dashboard
-| ![!image](../../_images/qan-dashboard.png)| Query Analytics (QAN) | Query Analytics
+| ![!image](../../_images/mysql-dashboard.png) ![!image](../../_images/mongo-dashboard.png) ![!image](../../_images/haproxy-dashboard.png)  ![!image](../../_images/postresql-dashboard.png)  ![!image](../../_images/qan-dashboard.png)| Service Type dashboards |   Navigate to the dasboards available for the [services added for monitoring](../../install-pmm/install-pmm-client/connect-database/index.md) (MySQL, MongoDB, PostgreSQL, HAproxy or ProxySQL). |
+ Query Analytics (QAN) | Query Analytics| Navigate to the Query Analytics dashboard where you can analyze database queries over time, optimize database performance, and identify the source of problems.|
 | <i class="uil uil-compass"></i>    | Explore              | Run queries with [PromQL].
 | <i class="uil uil-bell"></i>       | Percona Alerting             | [Alerting](../../alert/index.md), Create new alerts and manage your alert rules and alert templates.
 | <i class="uil uil-cog"></i>        | Configuration        |
