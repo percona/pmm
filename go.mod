@@ -62,7 +62,7 @@ require (
 	github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c
 	github.com/percona/percona-toolkit v3.2.1+incompatible
 	github.com/percona/promconfig v0.2.5
-	github.com/pganalyze/pg_query_go/v2 v2.2.0
+	github.com/pganalyze/pg_query_go/v5 v5.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.6
 	github.com/pmezard/go-difflib v1.0.0
