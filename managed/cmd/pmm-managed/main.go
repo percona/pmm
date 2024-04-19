@@ -969,8 +969,6 @@ func main() { //nolint:cyclop,maintidx
 
 	dumpService := dump.New(db)
 
-	updater := server.NewUpdater(supervisord, *watchtowerHostF)
-
 	serverParams := &server.Params{
 		DB:                   db,
 		VMDB:                 vmdb,
