@@ -128,16 +128,6 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	engineVersion := tests.PostgreSQLVersion(t, sqlDB)
 	var digests map[string]string // digest_text/fingerprint to digest/query_id
 	switch engineVersion {
-	case "9.4":
-		digests = map[string]string{
-			selectAllCities:     "3239586867",
-			selectAllCitiesLong: "2745128652",
-		}
-	case "9.5", "9.6":
-		digests = map[string]string{
-			selectAllCities:     "3994135135",
-			selectAllCitiesLong: "2677760328",
-		}
 	case "10":
 		digests = map[string]string{
 			selectAllCities:     "2229807896",
@@ -159,6 +149,16 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			selectAllCitiesLong: "-4813789842463369261",
 		}
 	case "14":
+		digests = map[string]string{
+			selectAllCities:     "5991662752016701281",
+			selectAllCitiesLong: "-3564720362103294944",
+		}
+	case "15":
+		digests = map[string]string{
+			selectAllCities:     "5991662752016701281",
+			selectAllCitiesLong: "-3564720362103294944",
+		}
+	case "16":
 		digests = map[string]string{
 			selectAllCities:     "5991662752016701281",
 			selectAllCitiesLong: "-3564720362103294944",
@@ -397,14 +397,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		t.Logf("Actual:\n%s", tests.FormatBuckets(buckets))
 		require.Len(t, buckets, 1)
 
-		var fingerprint string
-		switch engineVersion {
-		case "9.4", "9.5", "9.6":
-			fingerprint = fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (?, ?, ?, ?)`, tableName)
+		fingerprint := fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)`, tableName)
 
-		default:
-			fingerprint = fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)`, tableName)
-		}
 		actual := buckets[0]
 		assert.NotZero(t, actual.Postgresql.MBlkReadTimeSum)
 		expected := &agentpb.MetricsBucket{
