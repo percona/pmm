@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -160,8 +161,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		}
 	case "16":
 		digests = map[string]string{
-			selectAllCities:     "5991662752016701281",
-			selectAllCitiesLong: "-3564720362103294944",
+			selectAllCities:     "9094455616937907056",
+			selectAllCitiesLong: "-8264367755446145090",
 		}
 	default:
 		t.Log("Unhandled version, assuming dummy digests.")
@@ -282,9 +283,16 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		t.Logf("Actual:\n%s", tests.FormatBuckets(buckets))
 		require.Len(t, buckets, 1)
 
+		expectedSharedBlksHitSum := float32(1007)
+		engineVersionInt, err := strconv.Atoi(engineVersion)
+		assert.NoError(t, err)
+		if engineVersionInt >= 14 {
+			expectedSharedBlksHitSum = 32
+		}
+
 		actual := buckets[0]
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
-		assert.InDelta(t, 1010, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 3)
+		assert.InDelta(t, expectedSharedBlksHitSum+3, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 3)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
@@ -329,7 +337,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		actual = buckets[0]
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
 		assert.InDelta(t, 0, actual.Postgresql.MBlkReadTimeCnt, 1)
-		assert.InDelta(t, 1007, actual.Postgresql.MSharedBlksHitSum, 2)
+		assert.InDelta(t, expectedSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum, 2)
 		expected = &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCitiesLong,
@@ -349,7 +357,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
 				MBlkReadTimeCnt:   actual.Postgresql.MBlkReadTimeCnt,
 				MBlkReadTimeSum:   actual.Postgresql.MBlkReadTimeSum,
-				MSharedBlksHitCnt: 1,
+				MSharedBlksHitCnt: actual.Postgresql.MSharedBlksHitCnt,
 				MSharedBlksHitSum: actual.Postgresql.MSharedBlksHitSum,
 				MRowsCnt:          1,
 				MRowsSum:          499,
