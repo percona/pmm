@@ -426,8 +426,9 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
-				MBlkReadTimeCnt:       float32(n),
+				MBlkReadTimeCnt:       actual.Postgresql.MBlkReadTimeCnt,
 				MBlkReadTimeSum:       actual.Postgresql.MBlkReadTimeSum,
+				MBlkWriteTimeCnt:      actual.Postgresql.MBlkWriteTimeCnt,
 				MSharedBlksReadCnt:    actual.Postgresql.MSharedBlksReadCnt,
 				MSharedBlksReadSum:    actual.Postgresql.MSharedBlksReadSum,
 				MSharedBlksWrittenCnt: actual.Postgresql.MSharedBlksWrittenCnt,
@@ -440,6 +441,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MRowsSum:              float32(n),
 			},
 		}
+		assert.InDelta(t, n, actual.Postgresql.MBlkWriteTimeCnt+actual.Postgresql.MBlkReadTimeCnt, 1)
 		tests.AssertBucketsEqual(t, expected, actual)
 		assert.LessOrEqual(t, actual.Postgresql.MBlkReadTimeSum, actual.Common.MQueryTimeSum)
 	})
