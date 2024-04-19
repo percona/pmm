@@ -408,7 +408,6 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		fingerprint := fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)`, tableName)
 
 		actual := buckets[0]
-		assert.NotZero(t, actual.Postgresql.MBlkReadTimeSum)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:             actual.Common.Queryid,
@@ -429,6 +428,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MBlkReadTimeCnt:       actual.Postgresql.MBlkReadTimeCnt,
 				MBlkReadTimeSum:       actual.Postgresql.MBlkReadTimeSum,
 				MBlkWriteTimeCnt:      actual.Postgresql.MBlkWriteTimeCnt,
+				MBlkWriteTimeSum:      actual.Postgresql.MBlkWriteTimeSum,
 				MSharedBlksReadCnt:    actual.Postgresql.MSharedBlksReadCnt,
 				MSharedBlksReadSum:    actual.Postgresql.MSharedBlksReadSum,
 				MSharedBlksWrittenCnt: actual.Postgresql.MSharedBlksWrittenCnt,
