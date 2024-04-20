@@ -124,7 +124,6 @@ jobs:
           docker exec pmm-server go env
           docker exec pmm-server supervisorctl status || true
           services=$(docker exec pmm-server supervisorctl status | awk '{print $1}')
-          lines=()
           while IFS= read -r service; do
             echo "Logs for $service:"
             docker exec pmm-server supervisorctl tail $service
