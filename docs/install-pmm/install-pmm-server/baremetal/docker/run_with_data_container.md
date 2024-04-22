@@ -21,8 +21,8 @@ To run Docker with data container:
         docker inspect pmm-data | grep Destination && \
         docker inspect pmm-server | grep Destination
         ```
-
-2. Run the image.
+2 create Docker 
+1. Run the image.
 
     ```sh
     docker run --detach --restart always \
@@ -32,7 +32,7 @@ To run Docker with data container:
     percona/pmm-server:2
     ```
 
-3. Change the password for the default `admin` user.
+2. Change the password for the default `admin` user.
 
     * For PMM versions 2.27.0 and later:
 
@@ -42,8 +42,11 @@ To run Docker with data container:
 
     * For PMM versions prior to 2.27.0:
 
-        ```sh
-        docker exec -t pmm-server bash -c 'grafana-cli --homepath /usr/share/grafana --configOverrides cfg:default.paths.data=/srv/grafana admin reset-admin-password newpass'
-        ```
-        
+    ```sh
+    docker exec -t pmm-server bash -c 'grafana-cli --homepath /usr/share/grafana --configOverrides cfg:default.paths.data=/srv/grafana admin reset-admin-password newpass'
+    ```
+3. Pass the following command to Docker Socket to start [Watchtower](https://containrrr.dev/watchtower/):
+    ```sh
+    docker run -v /var/run/docker.sock:/var/run/docker.sock -e WATCHTOWER_HTTP_API_UPDATE=1 -e WATCHTOWER_HTTP_API_TOKEN=123 --hostname=watchtower --network=pmm_default docker.io/perconalab/watchtower
+    ```
 4. Visit `https://localhost:443` to see the PMM user interface in a web browser. (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)

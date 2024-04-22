@@ -11,7 +11,13 @@ This section provides instructions for running PMM Server with Docker based on o
 **Prerequisites**
 
 - Install [Docker](https://docs.docker.com/get-docker/) 1.12.6 or higher.
-- For PMM 2.38.0 or greater, ensure your CPU (and any virtualization layer you may be using) supports `x86-64-v2`
+- For PMM 2.38.0 or greater, ensure your CPU (and any virtualization layer you may be using) supports `x86-64-v2`.
+- Install [Watchtower](https://containrrr.dev/watchtower/)
+   - WatchTower shouldn't be accessible outside the Docker network or localhost.
+- Set up a PMM Server  container the a WatchTower container running next to thw first one, maiking sure that  WatchTower and PMM Server run on the same network.
+ - Only PMM Server  container will be exposed to external network so users can connect to PMM Server, but WatchTower will not (Only PMM Server will have access to WatchTower). 
+ - Make sure that Watcower has access to Docker socket to be able to send requests to Docker.
+
 
 
 ## Run docker container
@@ -36,7 +42,7 @@ You can store data from PMM in:
 
 ??? info "Key points"
 
-    - To Disable the Home Dashboard *PMM Upgrade* panel you can either add `-e DISABLE_UPDATES=true` to the `docker run` command (for the life of the container) or navigate to _PMM --> PMM Settings --> Advanced Settings_ and disable "Check for Updates" (can be turned back on by any admin in the UI).
+    - To disable the Home Dashboard *PMM Upgrade* panel you can either add `-e DISABLE_UPDATES=true` to the `docker run` command (for the life of the container) or navigate to _PMM --> PMM Settings --> Advanced Settings_ and disable "Check for Updates" (can be turned back on by any admin in the UI).
 
     - Eliminate browser certificate warnings by configuring a [trusted certificate](https://docs.percona.com/percona-monitoring-and-management/how-to/secure.html#ssl-encryption).
 
