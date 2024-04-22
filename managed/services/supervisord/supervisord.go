@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Percona LLC
+// Copyright (C) 2024 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -561,8 +561,8 @@ func (s *Service) addClusterParams(templateParams map[string]interface{}) {
 		}
 		templateParams["HANodes"] = strings.Join(nodes, ",")
 	}
-	//- GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS=172.20.0.5:9095
-	//- GF_UNIFIED_ALERTING_HA_PEERS=pmm-server-active:9095,pmm-server-passive:9095
+	// - GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS=172.20.0.5:9095
+	// - GF_UNIFIED_ALERTING_HA_PEERS=pmm-server-active:9095,pmm-server-passive:9095
 }
 
 // saveConfigAndReload saves given supervisord program configuration to file and reloads it.

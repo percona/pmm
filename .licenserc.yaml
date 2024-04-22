@@ -19,7 +19,7 @@ header:
     license:
       spdx-id: AGPL-3.0-or-later
       copyright-owner: Percona LLC
-      copyright-year: 2023
+      copyright-year: 2024
 
   - paths:
       - "agent/**/*.go"
@@ -31,4 +31,4 @@ header:
     license:
       spdx-id: Apache-2.0
       copyright-owner: Percona LLC
-      copyright-year: 2023
+      copyright-year: 2024
