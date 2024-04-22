@@ -120,8 +120,8 @@ jobs:
           env | sort
           go env | sort
           git status
-          docker exec pmm-server env
-          docker exec pmm-server go env
+          docker exec pmm-server env | sort
+          docker exec pmm-server go env | sort
           docker exec pmm-server supervisorctl status || true
           services=$(docker exec pmm-server supervisorctl status | awk '{print $1}')
           while IFS= read -r service; do
