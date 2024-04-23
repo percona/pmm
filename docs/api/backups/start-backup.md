@@ -23,7 +23,7 @@ curl --insecure -X POST -H 'Authorization: Bearer XXXXX' \
      --data '
 {
      "service_id": "XXXXX",
-     "location_id": "/location_id/XXXXX",
+     "location_id": "XXXXX",
      "name": "Test Backup",
      "description": "Test Backup",
      "retry_interval": "60s",

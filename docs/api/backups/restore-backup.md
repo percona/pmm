@@ -23,7 +23,7 @@ curl --insecure -X POST -H 'Authorization: Bearer XXXXX' \
      --data '
 {
      "service_id": "XXXXX",
-     "artifact_id": "/location_id/XXXXX",
+     "artifact_id": "XXXXX",
      "pitr_timestamp": "2023-09-09T10:02:25.998"
 }
 '
