@@ -14,11 +14,11 @@ This section provides instructions for running PMM Server with Docker based on o
 - For PMM 2.38.0 or later, ensure your CPU (and any virtualization layer you may be using) supports `x86-64-v2`.
 - Install Watchtower to automatically update your containers with the following considerations:
 
-  - Ensure Watchtower is only accessible from within the Docker network or local host to prevent unauthorized access and enhance container security.
-  - Run PMM Server and Watchtower containers side by side within the same Docker network for seamless communication.
-  - Configure network settings to expose only the PMM Server container to the external network, keeping Watchtower isolated within the Docker network.
-  - Grant Watchtower access to the Docker socket to monitor and manage containers effectively, ensuring proper security measures are in place to protect the Docker socket.
-  - Verify that both Watchtower and PMM Server are on the same network, or ensure PMM Server can connect to Watchtower for communication. This network setup is essential for PMM Server to initiate updates through Watchtower.
+      - Ensure Watchtower is only accessible from within the Docker network or local host to prevent unauthorized access and enhance container security.
+      - Run PMM Server and Watchtower containers side by side within the same Docker network for seamless communication.
+      - Configure network settings to expose only the PMM Server container to the external network, keeping Watchtower isolated within the Docker network.
+      - Grant Watchtower access to the Docker socket to monitor and manage containers effectively, ensuring proper security measures are in place to protect the Docker socket.
+      - Verify that both Watchtower and PMM Server are on the same network, or ensure PMM Server can connect to Watchtower for communication. This network setup is essential for PMM Server to initiate updates through Watchtower.
 
 ## Run Docker container
 
