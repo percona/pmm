@@ -101,7 +101,7 @@ func TestListPitrTimeranges(t *testing.T) {
 	})
 
 	t.Run("fails for invalid artifact ID", func(t *testing.T) {
-		unknownID := "artifact_id/" + uuid.New().String()
+		unknownID := uuid.New().String()
 		response, err := artifactsService.ListPitrTimeranges(ctx, &backuppb.ListPitrTimerangesRequest{
 			ArtifactId: unknownID,
 		})

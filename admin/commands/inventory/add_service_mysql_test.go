@@ -28,7 +28,7 @@ func TestAddServiceMySQL(t *testing.T) {
 			Service: &services.AddServiceOKBodyMysql{
 				ServiceID:      "/service_id/1",
 				ServiceName:    "MySQL Service",
-				NodeID:         "/node_id/1",
+				NodeID:         "1",
 				Address:        "127.0.0.1",
 				Port:           3306,
 				Environment:    "environment",
@@ -40,7 +40,7 @@ func TestAddServiceMySQL(t *testing.T) {
 		expected := `MySQL Service added.
 Service ID     : /service_id/1
 Service name   : MySQL Service
-Node ID        : /node_id/1
+Node ID        : 1
 Address        : 127.0.0.1
 Port           : 3306
 Environment    : environment
@@ -56,7 +56,7 @@ Custom labels  : map[foo:bar key:value]
 			Service: &services.AddServiceOKBodyMysql{
 				ServiceID:      "/service_id/1",
 				ServiceName:    "MySQL Socket Service",
-				NodeID:         "/node_id/1",
+				NodeID:         "1",
 				Socket:         "/path/to/socket",
 				Environment:    "environment",
 				Cluster:        "mysql-cluster",
@@ -67,7 +67,7 @@ Custom labels  : map[foo:bar key:value]
 		expected := `MySQL Service added.
 Service ID     : /service_id/1
 Service name   : MySQL Socket Service
-Node ID        : /node_id/1
+Node ID        : 1
 Socket         : /path/to/socket
 Environment    : environment
 Cluster name   : mysql-cluster

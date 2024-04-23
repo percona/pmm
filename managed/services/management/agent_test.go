@@ -104,8 +104,8 @@ func TestAgentService(t *testing.T) {
 
 	t.Run("ListAgents", func(t *testing.T) {
 		const (
-			pgExporterID      = "/agent_id/00000000-0000-4000-8000-000000000003"
-			pgStatStatementID = "/agent_id/00000000-0000-4000-8000-000000000004"
+			pgExporterID      = "00000000-0000-4000-8000-000000000003"
+			pgStatStatementID = "00000000-0000-4000-8000-000000000004"
 		)
 
 		t.Run("should output a list of agents provisioned by default", func(t *testing.T) {
@@ -213,7 +213,7 @@ func TestAgentService(t *testing.T) {
 				{
 					AgentId:     rdsExporter.AgentID,
 					AgentType:   "rds_exporter",
-					PmmAgentId:  "/agent_id/00000000-0000-4000-8000-000000000007",
+					PmmAgentId:  "00000000-0000-4000-8000-000000000007",
 					IsConnected: false,
 					CreatedAt:   timestamppb.New(now),
 					UpdatedAt:   timestamppb.New(now),
@@ -263,7 +263,7 @@ func TestAgentService(t *testing.T) {
 				{
 					AgentId:     azureExporter.AgentID,
 					AgentType:   "azure_database_exporter",
-					PmmAgentId:  "/agent_id/00000000-0000-4000-8000-000000000007",
+					PmmAgentId:  "00000000-0000-4000-8000-000000000007",
 					IsConnected: false,
 					CreatedAt:   timestamppb.New(now),
 					UpdatedAt:   timestamppb.New(now),

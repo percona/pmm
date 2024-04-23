@@ -159,13 +159,11 @@ func (s *Supervisor) AgentsLogs() map[string][]string {
 	res := make(map[string][]string, len(s.agentProcesses)+len(s.builtinAgents))
 
 	for id, agent := range s.agentProcesses {
-		newID := strings.ReplaceAll(id, "/agent_id/", "")
-		res[fmt.Sprintf("%s %s", agent.requestedState.Type.String(), newID)], _ = agent.logStore.GetLogs()
+		res[fmt.Sprintf("%s %s", agent.requestedState.Type.String(), id)], _ = agent.logStore.GetLogs()
 	}
 
 	for id, agent := range s.builtinAgents {
-		newID := strings.ReplaceAll(id, "/agent_id/", "")
-		res[fmt.Sprintf("%s %s", agent.requestedState.Type.String(), newID)], _ = agent.logStore.GetLogs()
+		res[fmt.Sprintf("%s %s", agent.requestedState.Type.String(), id)], _ = agent.logStore.GetLogs()
 	}
 	return res
 }

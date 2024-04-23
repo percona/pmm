@@ -345,7 +345,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_CONFIG_FILE").PlaceHolder("</path/to/pmm-agent.yaml>").String()
 
 	app.Flag("id", "ID of this pmm-agent [PMM_AGENT_ID]").
-		Envar("PMM_AGENT_ID").PlaceHolder("</agent_id/...>").StringVar(&cfg.ID)
+		Envar("PMM_AGENT_ID").StringVar(&cfg.ID)
 	app.Flag("listen-address", "Agent local API address [PMM_AGENT_LISTEN_ADDRESS]").
 		Envar("PMM_AGENT_LISTEN_ADDRESS").StringVar(&cfg.ListenAddress)
 	app.Flag("listen-port", "Agent local API port [PMM_AGENT_LISTEN_PORT]").

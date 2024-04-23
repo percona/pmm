@@ -579,7 +579,7 @@ func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabe
 
 // CreatePMMAgent creates PMMAgent.
 func CreatePMMAgent(q *reform.Querier, runsOnNodeID string, customLabels map[string]string) (*Agent, error) {
-	id := "/agent_id/" + uuid.New().String()
+	id := uuid.New().String()
 	return createPMMAgentWithID(q, id, runsOnNodeID, customLabels)
 }
 
@@ -595,7 +595,7 @@ func CreateNodeExporter(q *reform.Querier,
 ) (*Agent, error) {
 	// TODO merge into CreateAgent
 
-	id := "/agent_id/" + uuid.New().String()
+	id := uuid.New().String()
 	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
 	}
@@ -649,7 +649,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 	}
 	var pmmAgentID *string
 	runsOnNodeID := pointer.ToString(params.RunsOnNodeID)
-	id := "/agent_id/" + uuid.New().String()
+	id := uuid.New().String()
 	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
 	}
@@ -823,7 +823,7 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 
 // CreateAgent creates Agent with given type.
 func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentParams) (*Agent, error) { //nolint:unparam
-	id := "/agent_id/" + uuid.New().String()
+	id := uuid.New().String()
 	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
 	}

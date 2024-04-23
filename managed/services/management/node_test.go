@@ -105,15 +105,15 @@ func TestNodeService(t *testing.T) {
 			})
 			expected := &managementv1.RegisterNodeResponse{
 				GenericNode: &inventoryv1.GenericNode{
-					NodeId:   "/node_id/00000000-0000-4000-8000-000000000005",
+					NodeId:   "00000000-0000-4000-8000-000000000005",
 					NodeName: "test-node",
 					Address:  "some.address.org",
 					Region:   "region",
 				},
 				ContainerNode: (*inventoryv1.ContainerNode)(nil),
 				PmmAgent: &inventoryv1.PMMAgent{
-					AgentId:      "/agent_id/00000000-0000-4000-8000-000000000006",
-					RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000005",
+					AgentId:      "00000000-0000-4000-8000-000000000006",
+					RunsOnNodeId: "00000000-0000-4000-8000-000000000005",
 				},
 				Token: "test-token",
 			}
@@ -148,15 +148,15 @@ func TestNodeService(t *testing.T) {
 				})
 				expected := &managementv1.RegisterNodeResponse{
 					GenericNode: &inventoryv1.GenericNode{
-						NodeId:   "/node_id/00000000-0000-4000-8000-000000000008",
+						NodeId:   "00000000-0000-4000-8000-000000000008",
 						NodeName: "test-node",
 						Address:  "some.address.org",
 						Region:   "region",
 					},
 					ContainerNode: (*inventoryv1.ContainerNode)(nil),
 					PmmAgent: &inventoryv1.PMMAgent{
-						AgentId:      "/agent_id/00000000-0000-4000-8000-000000000009",
-						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000008",
+						AgentId:      "00000000-0000-4000-8000-000000000009",
+						RunsOnNodeId: "00000000-0000-4000-8000-000000000008",
 					},
 					Token: "test-token",
 				}
@@ -183,15 +183,15 @@ func TestNodeService(t *testing.T) {
 				})
 				expected := &managementv1.RegisterNodeResponse{
 					GenericNode: &inventoryv1.GenericNode{
-						NodeId:   "/node_id/00000000-0000-4000-8000-00000000000b",
+						NodeId:   "00000000-0000-4000-8000-00000000000b",
 						NodeName: "test-node-new",
 						Address:  "some.address.org",
 						Region:   "region",
 					},
 					ContainerNode: (*inventoryv1.ContainerNode)(nil),
 					PmmAgent: &inventoryv1.PMMAgent{
-						AgentId:      "/agent_id/00000000-0000-4000-8000-00000000000c",
-						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-00000000000b",
+						AgentId:      "00000000-0000-4000-8000-00000000000c",
+						RunsOnNodeId: "00000000-0000-4000-8000-00000000000b",
 					},
 					Token: "test-token",
 				}
@@ -222,15 +222,15 @@ func TestNodeService(t *testing.T) {
 
 				expected := &managementv1.RegisterNodeResponse{
 					GenericNode: &inventoryv1.GenericNode{
-						NodeId:   "/node_id/00000000-0000-4000-8000-00000000000e",
+						NodeId:   "00000000-0000-4000-8000-00000000000e",
 						NodeName: "test-node",
 						Address:  "some.address.org",
 						Region:   "region",
 					},
 					ContainerNode: (*inventoryv1.ContainerNode)(nil),
 					PmmAgent: &inventoryv1.PMMAgent{
-						AgentId:      "/agent_id/00000000-0000-4000-8000-00000000000f",
-						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-00000000000e",
+						AgentId:      "00000000-0000-4000-8000-00000000000f",
+						RunsOnNodeId: "00000000-0000-4000-8000-00000000000e",
 					},
 					Token: "test-token",
 				}

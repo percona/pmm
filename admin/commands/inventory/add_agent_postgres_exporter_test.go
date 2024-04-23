@@ -28,8 +28,8 @@ func TestAddAgentPostgresExporter(t *testing.T) {
 	t.Run("TablestatEnabled", func(t *testing.T) {
 		res := &addAgentPostgresExporterResult{
 			Agent: &agents.AddAgentOKBodyPostgresExporter{
-				AgentID:    "/agent_id/1",
-				PMMAgentID: "/agent_id/2",
+				AgentID:    "1",
+				PMMAgentID: "2",
 				Username:   "username",
 				ServiceID:  "/service_id/1",
 				ListenPort: 42001,
@@ -38,8 +38,8 @@ func TestAddAgentPostgresExporter(t *testing.T) {
 		}
 		expected := strings.TrimSpace(`
 Postgres Exporter added.
-Agent ID              : /agent_id/1
-PMM-Agent ID          : /agent_id/2
+Agent ID              : 1
+PMM-Agent ID          : 2
 Service ID            : /service_id/1
 Username              : username
 Listen port           : 42001

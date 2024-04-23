@@ -34,7 +34,7 @@ func TestRegistry(t *testing.T) {
 				CheckName: "name",
 				Interval:  check.Standard,
 				Target: services.Target{
-					AgentID:   "/agent_id/123",
+					AgentID:   "123",
 					ServiceID: "/service_id/123",
 					Labels: map[string]string{
 						"foo": "bar",
@@ -53,7 +53,7 @@ func TestRegistry(t *testing.T) {
 			{
 				CheckName: "name2",
 				Target: services.Target{
-					AgentID:   "/agent_id/321",
+					AgentID:   "321",
 					ServiceID: "/service_id/321",
 					Labels: map[string]string{
 						"bar": "foo",
@@ -87,7 +87,7 @@ func TestRegistry(t *testing.T) {
 				CheckName: "name",
 				Interval:  check.Standard,
 				Target: services.Target{
-					AgentID:   "/agent_id/123",
+					AgentID:   "123",
 					ServiceID: "/service_id/123",
 					Labels: map[string]string{
 						"foo": "bar",
@@ -107,7 +107,7 @@ func TestRegistry(t *testing.T) {
 				CheckName: "name2",
 				Interval:  check.Frequent,
 				Target: services.Target{
-					AgentID:   "/agent_id/321",
+					AgentID:   "321",
 					ServiceID: "/service_id/321",
 					Labels: map[string]string{
 						"bar": "foo",
@@ -140,7 +140,7 @@ func TestRegistry(t *testing.T) {
 				CheckName: "name1",
 				Interval:  check.Standard,
 				Target: services.Target{
-					AgentID:   "/agent_id/123",
+					AgentID:   "123",
 					ServiceID: "/service_id/123",
 					Labels: map[string]string{
 						"foo": "bar",
@@ -160,7 +160,7 @@ func TestRegistry(t *testing.T) {
 				CheckName: "name2",
 				Interval:  check.Standard,
 				Target: services.Target{
-					AgentID:   "/agent_id/321",
+					AgentID:   "321",
 					ServiceID: "/service_id/321",
 					Labels: map[string]string{
 						"bar": "foo",
@@ -193,7 +193,7 @@ func TestRegistry(t *testing.T) {
 				CheckName: "name",
 				Interval:  check.Standard,
 				Target: services.Target{
-					AgentID:   "/agent_id/123",
+					AgentID:   "123",
 					ServiceID: "/service_id/123",
 					Labels: map[string]string{
 						"foo": "bar",
@@ -212,7 +212,7 @@ func TestRegistry(t *testing.T) {
 			{
 				CheckName: "name2",
 				Target: services.Target{
-					AgentID:   "/agent_id/321",
+					AgentID:   "321",
 					ServiceID: "/service_id/321",
 					Labels: map[string]string{
 						"bar": "foo",

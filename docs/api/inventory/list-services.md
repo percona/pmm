@@ -16,7 +16,7 @@ curl --insecure -X POST \
 	--url https://127.0.0.1/v1/inventory/Services/List \
   --data '
 {
-  "node_id": "/node_id/XXXXX",
+  "node_id": "XXXXX",
   "service_type": "MYSQL_SERVICE"
 }'
 ```

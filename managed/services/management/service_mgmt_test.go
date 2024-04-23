@@ -74,9 +74,9 @@ func TestMgmtServiceService(t *testing.T) {
 		}
 
 		const (
-			pgExporterID      = "/agent_id/00000000-0000-4000-8000-000000000003"
-			pgStatStatementID = "/agent_id/00000000-0000-4000-8000-000000000004"
-			PMMAgentID        = "/agent_id/00000000-0000-4000-8000-000000000007"
+			pgExporterID      = "00000000-0000-4000-8000-000000000003"
+			pgStatStatementID = "00000000-0000-4000-8000-000000000004"
+			PMMAgentID        = "00000000-0000-4000-8000-000000000007"
 		)
 
 		t.Run("Basic", func(t *testing.T) {

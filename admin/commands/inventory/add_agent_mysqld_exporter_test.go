@@ -28,8 +28,8 @@ func TestAddAgentMysqldExporter(t *testing.T) {
 	t.Run("TablestatEnabled", func(t *testing.T) {
 		res := &addAgentMysqldExporterResult{
 			Agent: &agents.AddAgentOKBodyMysqldExporter{
-				AgentID:    "/agent_id/1",
-				PMMAgentID: "/agent_id/2",
+				AgentID:    "1",
+				PMMAgentID: "2",
 				Username:   "username",
 				ServiceID:  "/service_id/1",
 				ListenPort: 42001,
@@ -42,8 +42,8 @@ func TestAddAgentMysqldExporter(t *testing.T) {
 		}
 		expected := strings.TrimSpace(`
 Mysqld Exporter added.
-Agent ID              : /agent_id/1
-PMM-Agent ID          : /agent_id/2
+Agent ID              : 1
+PMM-Agent ID          : 2
 Service ID            : /service_id/1
 Username              : username
 Listen port           : 42001
@@ -62,8 +62,8 @@ Tablestat collectors  : enabled (the limit is 1000, the actual table count is 50
 	t.Run("TablestatEnabledNoLimit", func(t *testing.T) {
 		res := &addAgentMysqldExporterResult{
 			Agent: &agents.AddAgentOKBodyMysqldExporter{
-				AgentID:    "/agent_id/1",
-				PMMAgentID: "/agent_id/2",
+				AgentID:    "1",
+				PMMAgentID: "2",
 				Username:   "username",
 				ServiceID:  "/service_id/1",
 				ListenPort: 42001,
@@ -76,8 +76,8 @@ Tablestat collectors  : enabled (the limit is 1000, the actual table count is 50
 		}
 		expected := strings.TrimSpace(`
 Mysqld Exporter added.
-Agent ID              : /agent_id/1
-PMM-Agent ID          : /agent_id/2
+Agent ID              : 1
+PMM-Agent ID          : 2
 Service ID            : /service_id/1
 Username              : username
 Listen port           : 42001
@@ -96,8 +96,8 @@ Tablestat collectors  : enabled (the table count limit is not set).
 	t.Run("TablestatEnabledUnknown", func(t *testing.T) {
 		res := &addAgentMysqldExporterResult{
 			Agent: &agents.AddAgentOKBodyMysqldExporter{
-				AgentID:    "/agent_id/1",
-				PMMAgentID: "/agent_id/2",
+				AgentID:    "1",
+				PMMAgentID: "2",
 				Username:   "username",
 				ServiceID:  "/service_id/1",
 				ListenPort: 42001,
@@ -110,8 +110,8 @@ Tablestat collectors  : enabled (the table count limit is not set).
 		}
 		expected := strings.TrimSpace(`
 Mysqld Exporter added.
-Agent ID              : /agent_id/1
-PMM-Agent ID          : /agent_id/2
+Agent ID              : 1
+PMM-Agent ID          : 2
 Service ID            : /service_id/1
 Username              : username
 Listen port           : 42001
@@ -130,8 +130,8 @@ Tablestat collectors  : enabled (the limit is 1000, the actual table count is un
 	t.Run("TablestatDisabled", func(t *testing.T) {
 		res := &addAgentMysqldExporterResult{
 			Agent: &agents.AddAgentOKBodyMysqldExporter{
-				AgentID:    "/agent_id/1",
-				PMMAgentID: "/agent_id/2",
+				AgentID:    "1",
+				PMMAgentID: "2",
 				Username:   "username",
 				ServiceID:  "/service_id/1",
 				ListenPort: 42001,
@@ -144,8 +144,8 @@ Tablestat collectors  : enabled (the limit is 1000, the actual table count is un
 		}
 		expected := strings.TrimSpace(`
 Mysqld Exporter added.
-Agent ID              : /agent_id/1
-PMM-Agent ID          : /agent_id/2
+Agent ID              : 1
+PMM-Agent ID          : 2
 Service ID            : /service_id/1
 Username              : username
 Listen port           : 42001
@@ -164,8 +164,8 @@ Tablestat collectors  : disabled (the limit is 1000, the actual table count is 2
 	t.Run("TablestatDisabledAlways", func(t *testing.T) {
 		res := &addAgentMysqldExporterResult{
 			Agent: &agents.AddAgentOKBodyMysqldExporter{
-				AgentID:    "/agent_id/1",
-				PMMAgentID: "/agent_id/2",
+				AgentID:    "1",
+				PMMAgentID: "2",
 				Username:   "username",
 				ServiceID:  "/service_id/1",
 				ListenPort: 42001,
@@ -178,8 +178,8 @@ Tablestat collectors  : disabled (the limit is 1000, the actual table count is 2
 		}
 		expected := strings.TrimSpace(`
 Mysqld Exporter added.
-Agent ID              : /agent_id/1
-PMM-Agent ID          : /agent_id/2
+Agent ID              : 1
+PMM-Agent ID          : 2
 Service ID            : /service_id/1
 Username              : username
 Listen port           : 42001

@@ -28,7 +28,7 @@ func TestAddServiceMongoDB(t *testing.T) {
 			Service: &services.AddServiceOKBodyMongodb{
 				ServiceID:      "/service_id/1",
 				ServiceName:    "MongoDB Service",
-				NodeID:         "/node_id/1",
+				NodeID:         "1",
 				Address:        "127.0.0.1",
 				Port:           27017,
 				Environment:    "environment",
@@ -40,7 +40,7 @@ func TestAddServiceMongoDB(t *testing.T) {
 		expected := `MongoDB Service added.
 Service ID     : /service_id/1
 Service name   : MongoDB Service
-Node ID        : /node_id/1
+Node ID        : 1
 Address        : 127.0.0.1
 Port           : 27017
 Environment    : environment
@@ -56,7 +56,7 @@ Custom labels  : map[foo:bar key:value]
 			Service: &services.AddServiceOKBodyMongodb{
 				ServiceID:      "/service_id/1",
 				ServiceName:    "MongoDB Socket Service",
-				NodeID:         "/node_id/1",
+				NodeID:         "1",
 				Socket:         "/tmp/mongodb-27017.sock",
 				Environment:    "environment",
 				Cluster:        "mongodb-cluster",
@@ -67,7 +67,7 @@ Custom labels  : map[foo:bar key:value]
 		expected := `MongoDB Service added.
 Service ID     : /service_id/1
 Service name   : MongoDB Socket Service
-Node ID        : /node_id/1
+Node ID        : 1
 Socket         : /tmp/mongodb-27017.sock
 Environment    : environment
 Cluster name   : mongodb-cluster

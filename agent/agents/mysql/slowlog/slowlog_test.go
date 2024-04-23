@@ -47,7 +47,7 @@ func getDataFromFile(t *testing.T, filePath string, data interface{}) {
 }
 
 func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
-	const agentID = "/agent_id/73ee2f92-d5aa-45f0-8b09-6d3df605fd44"
+	const agentID = "5aa-45f0-8b09-6d3df605fd44"
 	periodStart := time.Unix(1557137220, 0)
 
 	parsingResult := event.Result{
@@ -89,7 +89,7 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 func TestSlowLogMakeBuckets(t *testing.T) {
 	t.Parallel()
 
-	const agentID = "/agent_id/73ee2f92-d5aa-45f0-8b09-6d3df605fd44"
+	const agentID = "73ee2f92-d5aa-45f0-8b09-6d3df605fd44"
 	periodStart := time.Unix(1557137220, 0)
 
 	parsingResult := event.Result{}
