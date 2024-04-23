@@ -19,8 +19,10 @@ Use the following Docker container environment variables (with `-e var=value`) t
 | `PMM_DEBUG`                                                     | Enables a more verbose log level.
 | `PMM_TRACE`                                                     | Enables a more verbose log level including trace-back information.
 | `PMM_PUBLIC_ADDRESS`                                            | External IP address or the DNS name on which PMM server is running.
-| `PMM_WATCHTOWER_HOST=${PMM_WATCHTOWER_HOST:-http://watchtower:8080}` | Specifies the connection URL for the WatchTower container, including the schema (http), host (watchtower), and port (8080). The default value assumes that the WatchTower container is running on the same network as the PMM Server container and is accessible via the hostname watchtower.
-| `PMM_WATCHTOWER_TOKEN=${PMM_WATCHTOWER_TOKEN:-123}`             | Defines the authentication token used for secure communication between the PMM Server container and the WatchTower container. It should match the value of the WATCHTOWER_HTTP_API_TOKEN environment variable set in the WatchTower container. Replace 123 with a strong, unique token to ensure secure communication between the containers. Keep this token confidential and avoid using easily guessable or default values.
+| `PMM_WATCHTOWER_HOST=${PMM_WATCHTOWER_HOST:-http://watchtower:8080}` | Specifies the connection URL for the WatchTower container, including the schema (http), host (watchtower), and port (8080). 
+
+The default value assumes that the WatchTower container is running on the same network as the PMM Server container and is accessible via the hostname watchtower.
+| `PMM_WATCHTOWER_TOKEN=${PMM_WATCHTOWER_TOKEN:-123}`             | Defines the authentication token used for secure communication between the PMM Server container and the WatchTower container. Make sure this matches the value of the `WATCHTOWER_HTTP_API_TOKEN` environment variable set in the WatchTower container.
 
 ## Other variables
 
