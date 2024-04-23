@@ -21,7 +21,7 @@ Property names are shared between API calls, database columns, and label values 
 
 - `node_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `node_name` (required, label). User-defined name, unique across all Nodes, can be changed.
-- `machine_id` (optional, label). Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified. Value format: "/machine_id/<machine-id>".
+- `machine_id` (optional, label). Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified. Value format: "<machine-id>".
 - `distro` (optional). Linux distribution (if any). Can be changed.
 - `node_model` (optional). String containing an extra description for the node type, like "db.t2.medium".
 - `region` (optional). Node's AWS region.
@@ -33,7 +33,7 @@ Property names are shared between API calls, database columns, and label values 
 - `node_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `node_name` (required, label). User-defined name, unique across all Nodes, can be changed.
 - `address` (required) DNS hostname or IP address.
-- `machine_id` (optional, label). Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed. Value format: "/machine_id/<machine-id>".
+- `machine_id` (optional, label). Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed. Value format: "<machine-id>".
 - `container_id` (optional, label). Container identifier. If specified, must be a unique Docker container identifier. Can't be changed. Value format: "/docker/<containerID>" (compatible with cAdvisor).
 - `container_name` (optional, label). Container name. Can be changed.
 - `node_model` (optional). String containing an extra description for the node type, like "db.t2.medium"

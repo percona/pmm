@@ -453,7 +453,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 
 	var defaultMachineID string
 	if nodeinfo.MachineID != "" {
-		defaultMachineID = "/machine_id/" + nodeinfo.MachineID
+		defaultMachineID = nodeinfo.MachineID
 	}
 	setupCmd.Flag("machine-id", "Node machine-id (default is autodetected) [PMM_AGENT_SETUP_MACHINE_ID]").Default(defaultMachineID).
 		Envar("PMM_AGENT_SETUP_MACHINE_ID").StringVar(&cfg.Setup.MachineID)
