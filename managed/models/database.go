@@ -1051,7 +1051,6 @@ var databaseSchema = [][]string{
 		`ALTER TABLE restore_history ADD CONSTRAINT restore_history_artifact_id_fkey FOREIGN KEY (artifact_id) REFERENCES artifacts (id);`,
 		`ALTER TABLE restore_history ADD CONSTRAINT restore_history_service_id_fkey FOREIGN KEY (service_id) REFERENCES services (service_id);`,
 		`ALTER TABLE service_software_versions ADD CONSTRAINT service_software_versions_service_id_fkey FOREIGN KEY (service_id) REFERENCES services (service_id) ON DELETE CASCADE;`,
-
 		`ALTER TABLE services ADD CONSTRAINT services_node_id_fkey FOREIGN KEY (node_id) REFERENCES nodes (node_id);`,
 	},
 }

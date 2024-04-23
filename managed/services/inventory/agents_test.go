@@ -118,7 +118,7 @@ func TestAgents(t *testing.T) {
 			}
 			assert.Equal(t, expectedNodeExporter, actualNodeExporter.GetNodeExporter())
 
-			actualAgent, err := as.Get(ctx, "000-4000-8000-000000000006")
+			actualAgent, err := as.Get(ctx, "00000000-0000-4000-8000-000000000006")
 			require.NoError(t, err)
 			assert.Equal(t, expectedNodeExporter, actualAgent.(*inventoryv1.NodeExporter))
 		})
@@ -149,7 +149,7 @@ func TestAgents(t *testing.T) {
 			}
 			assert.Equal(t, expectedMySQLdExporter, actualAgent.GetMysqldExporter())
 
-			exporter, err := as.Get(ctx, "000-4000-8000-000000000008")
+			exporter, err := as.Get(ctx, "00000000-0000-4000-8000-000000000008")
 			require.NoError(t, err)
 			assert.Equal(t, expectedMySQLdExporter, exporter.(*inventoryv1.MySQLdExporter))
 		})
@@ -317,7 +317,7 @@ func TestAgents(t *testing.T) {
 
 		t.Run("RemovePMMAgent", func(t *testing.T) {
 			as.r.(*mockAgentsRegistry).On("Kick", ctx, "00000000-0000-4000-8000-000000000005").Return(true)
-			err := as.Remove(ctx, "000-4000-8000-000000000005", true)
+			err := as.Remove(ctx, "00000000-0000-4000-8000-000000000005", true)
 			require.NoError(t, err)
 			actualAgent, err := as.Get(ctx, "00000000-0000-4000-8000-000000000005")
 			tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "00000000-0000-4000-8000-000000000005" not found.`), err)

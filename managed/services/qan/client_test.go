@@ -58,7 +58,7 @@ func TestClient(t *testing.T) {
 			NodeModel:    "test-node-model",
 		},
 		&models.Agent{
-			AgentID:      "34d-4e2e-aa84-a1b765d49853",
+			AgentID:      "217907dc-d34d-4e2e-aa84-a1b765d49853",
 			AgentType:    models.PMMAgentType,
 			RunsOnNodeID: pointer.ToString("cc663f36-18ca-40a1-aea9-c6310bb4738d"),
 		},
@@ -74,7 +74,7 @@ func TestClient(t *testing.T) {
 		},
 
 		&models.Agent{
-			AgentID:      "f4a-4147-97a8-621a996611dd",
+			AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
 			AgentType:    models.QANMySQLPerfSchemaAgentType,
 			PMMAgentID:   pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
 			ServiceID:    pointer.ToString("014647c3-b2f5-44eb-94f4-d943260a968c"),

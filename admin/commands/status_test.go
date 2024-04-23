@@ -34,7 +34,7 @@ func TestStatus(t *testing.T) {
 		ServerVersion: "2.4.0",
 		AgentVersion:  "2.5.1",
 		Agents: []agentlocal.AgentStatus{{
-			AgentID:   "319-4645-be6c-a1e05d4a545b",
+			AgentID:   "1afe233f-b319-4645-be6c-a1e05d4a545b",
 			AgentType: "AGENT_TYPE_NODE_EXPORTER",
 			Status:    "RUNNING",
 			Port:      3310,
