@@ -46,7 +46,7 @@ func TestAzureExporterConfig(t *testing.T) {
 	require.NoError(t, err)
 
 	service1 := &models.Service{
-		ServiceID:   "/service_id/service1",
+		ServiceID:   "service1",
 		NodeID:      node1.NodeID,
 		Address:     pointer.ToString("pmm-dev-mysql-db1.mysql.database.azure.com"),
 		Port:        pointer.ToUint16(3306),

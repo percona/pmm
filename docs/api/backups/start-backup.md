@@ -22,7 +22,7 @@ curl --insecure -X POST -H 'Authorization: Bearer XXXXX' \
      --header 'Content-Type: application/json' \
      --data '
 {
-     "service_id": "/service_id/XXXXX",
+     "service_id": "XXXXX",
      "location_id": "/location_id/XXXXX",
      "name": "Test Backup",
      "description": "Test Backup",

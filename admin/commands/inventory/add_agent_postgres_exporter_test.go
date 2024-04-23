@@ -31,7 +31,7 @@ func TestAddAgentPostgresExporter(t *testing.T) {
 				AgentID:    "1",
 				PMMAgentID: "2",
 				Username:   "username",
-				ServiceID:  "/service_id/1",
+				ServiceID:  "1",
 				ListenPort: 42001,
 				Status:     pointer.ToString("RUNNING"),
 			},
@@ -40,7 +40,7 @@ func TestAddAgentPostgresExporter(t *testing.T) {
 Postgres Exporter added.
 Agent ID              : 1
 PMM-Agent ID          : 2
-Service ID            : /service_id/1
+Service ID            : 1
 Username              : username
 Listen port           : 42001
 TLS enabled           : false

@@ -140,7 +140,7 @@ func TestAgentService(t *testing.T) {
 					PostgresqlOptions: &agentv1beta1.UniversalAgent_PostgreSQLOptions{
 						IsSslKeySet: false,
 					},
-					ServiceId:               "/service_id/00000000-0000-4000-8000-000000000002",
+					ServiceId:               "00000000-0000-4000-8000-000000000002",
 					Status:                  "AGENT_STATUS_UNKNOWN",
 					Tls:                     true,
 					CommentsParsingDisabled: true,
@@ -156,7 +156,7 @@ func TestAgentService(t *testing.T) {
 					PostgresqlOptions: &agentv1beta1.UniversalAgent_PostgreSQLOptions{
 						IsSslKeySet: false,
 					},
-					ServiceId:               "/service_id/00000000-0000-4000-8000-000000000002",
+					ServiceId:               "00000000-0000-4000-8000-000000000002",
 					Status:                  "AGENT_STATUS_UNKNOWN",
 					Tls:                     true,
 					CommentsParsingDisabled: true,
@@ -217,7 +217,7 @@ func TestAgentService(t *testing.T) {
 					IsConnected: false,
 					CreatedAt:   timestamppb.New(now),
 					UpdatedAt:   timestamppb.New(now),
-					ServiceId:   "/service_id/00000000-0000-4000-8000-000000000006",
+					ServiceId:   "00000000-0000-4000-8000-000000000006",
 					Status:      "AGENT_STATUS_UNKNOWN",
 				},
 			}
@@ -267,7 +267,7 @@ func TestAgentService(t *testing.T) {
 					IsConnected: false,
 					CreatedAt:   timestamppb.New(now),
 					UpdatedAt:   timestamppb.New(now),
-					ServiceId:   "/service_id/00000000-0000-4000-8000-000000000006",
+					ServiceId:   "00000000-0000-4000-8000-000000000006",
 					Status:      "AGENT_STATUS_UNKNOWN",
 				},
 			}

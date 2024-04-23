@@ -22,7 +22,7 @@ curl --insecure -X POST -H 'Authorization: Bearer XXXXX' \
      --header 'Content-Type: application/json' \
      --data '
 {
-     "service_id": "/service_id/XXXXX",
+     "service_id": "XXXXX",
      "artifact_id": "/location_id/XXXXX",
      "pitr_timestamp": "2023-09-09T10:02:25.998"
 }

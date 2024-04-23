@@ -31,7 +31,7 @@ func TestAddAgentMysqldExporter(t *testing.T) {
 				AgentID:    "1",
 				PMMAgentID: "2",
 				Username:   "username",
-				ServiceID:  "/service_id/1",
+				ServiceID:  "1",
 				ListenPort: 42001,
 				Status:     pointer.ToString("RUNNING"),
 
@@ -44,7 +44,7 @@ func TestAddAgentMysqldExporter(t *testing.T) {
 Mysqld Exporter added.
 Agent ID              : 1
 PMM-Agent ID          : 2
-Service ID            : /service_id/1
+Service ID            : 1
 Username              : username
 Listen port           : 42001
 TLS enabled           : false
@@ -65,7 +65,7 @@ Tablestat collectors  : enabled (the limit is 1000, the actual table count is 50
 				AgentID:    "1",
 				PMMAgentID: "2",
 				Username:   "username",
-				ServiceID:  "/service_id/1",
+				ServiceID:  "1",
 				ListenPort: 42001,
 				Status:     pointer.ToString("RUNNING"),
 
@@ -78,7 +78,7 @@ Tablestat collectors  : enabled (the limit is 1000, the actual table count is 50
 Mysqld Exporter added.
 Agent ID              : 1
 PMM-Agent ID          : 2
-Service ID            : /service_id/1
+Service ID            : 1
 Username              : username
 Listen port           : 42001
 TLS enabled           : false
@@ -99,7 +99,7 @@ Tablestat collectors  : enabled (the table count limit is not set).
 				AgentID:    "1",
 				PMMAgentID: "2",
 				Username:   "username",
-				ServiceID:  "/service_id/1",
+				ServiceID:  "1",
 				ListenPort: 42001,
 				Status:     pointer.ToString("RUNNING"),
 
@@ -112,7 +112,7 @@ Tablestat collectors  : enabled (the table count limit is not set).
 Mysqld Exporter added.
 Agent ID              : 1
 PMM-Agent ID          : 2
-Service ID            : /service_id/1
+Service ID            : 1
 Username              : username
 Listen port           : 42001
 TLS enabled           : false
@@ -133,7 +133,7 @@ Tablestat collectors  : enabled (the limit is 1000, the actual table count is un
 				AgentID:    "1",
 				PMMAgentID: "2",
 				Username:   "username",
-				ServiceID:  "/service_id/1",
+				ServiceID:  "1",
 				ListenPort: 42001,
 				Status:     pointer.ToString("RUNNING"),
 
@@ -146,7 +146,7 @@ Tablestat collectors  : enabled (the limit is 1000, the actual table count is un
 Mysqld Exporter added.
 Agent ID              : 1
 PMM-Agent ID          : 2
-Service ID            : /service_id/1
+Service ID            : 1
 Username              : username
 Listen port           : 42001
 TLS enabled           : false
@@ -167,7 +167,7 @@ Tablestat collectors  : disabled (the limit is 1000, the actual table count is 2
 				AgentID:    "1",
 				PMMAgentID: "2",
 				Username:   "username",
-				ServiceID:  "/service_id/1",
+				ServiceID:  "1",
 				ListenPort: 42001,
 				Status:     pointer.ToString("RUNNING"),
 
@@ -180,7 +180,7 @@ Tablestat collectors  : disabled (the limit is 1000, the actual table count is 2
 Mysqld Exporter added.
 Agent ID              : 1
 PMM-Agent ID          : 2
-Service ID            : /service_id/1
+Service ID            : 1
 Username              : username
 Listen port           : 42001
 TLS enabled           : false

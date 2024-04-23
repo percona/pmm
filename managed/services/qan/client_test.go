@@ -64,7 +64,7 @@ func TestClient(t *testing.T) {
 		},
 
 		&models.Service{
-			ServiceID:    "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+			ServiceID:    "014647c3-b2f5-44eb-94f4-d943260a968c",
 			ServiceType:  models.MySQLServiceType,
 			ServiceName:  "test-mysql",
 			NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
@@ -77,13 +77,13 @@ func TestClient(t *testing.T) {
 			AgentID:      "f4a-4147-97a8-621a996611dd",
 			AgentType:    models.QANMySQLPerfSchemaAgentType,
 			PMMAgentID:   pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
-			ServiceID:    pointer.ToString("/service_id/014647c3-b2f5-44eb-94f4-d943260a968c"),
+			ServiceID:    pointer.ToString("014647c3-b2f5-44eb-94f4-d943260a968c"),
 			CustomLabels: []byte(`{"_agent_label": "baz"}`),
 			ListenPort:   pointer.ToUint16(12345),
 		},
 
 		&models.Service{
-			ServiceID:    "/service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1",
+			ServiceID:    "9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1",
 			ServiceType:  models.PostgreSQLServiceType,
 			ServiceName:  "test-postgresql",
 			NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
@@ -96,13 +96,13 @@ func TestClient(t *testing.T) {
 			AgentID:      "29e14468-d479-4b4d-bfb7-4ac2fb865bac",
 			AgentType:    models.QANPostgreSQLPgStatementsAgentType,
 			PMMAgentID:   pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
-			ServiceID:    pointer.ToString("/service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1"),
+			ServiceID:    pointer.ToString("9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1"),
 			CustomLabels: []byte(`{"_agent_label": "postgres-baz"}`),
 			ListenPort:   pointer.ToUint16(12345),
 		},
 
 		&models.Service{
-			ServiceID:    "/service_id/1fce2502-ecc7-46d4-968b-18d7907f2543",
+			ServiceID:    "1fce2502-ecc7-46d4-968b-18d7907f2543",
 			ServiceType:  models.MongoDBServiceType,
 			ServiceName:  "test-mongodb",
 			NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
@@ -115,7 +115,7 @@ func TestClient(t *testing.T) {
 			AgentID:      "b153f0d8-34e4-4635-9184-499161b4d12c",
 			AgentType:    models.QANMongoDBProfilerAgentType,
 			PMMAgentID:   pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
-			ServiceID:    pointer.ToString("/service_id/1fce2502-ecc7-46d4-968b-18d7907f2543"),
+			ServiceID:    pointer.ToString("1fce2502-ecc7-46d4-968b-18d7907f2543"),
 			CustomLabels: []byte(`{"_agent_label": "mongodb-baz"}`),
 			ListenPort:   pointer.ToUint16(12345),
 		},
@@ -181,7 +181,7 @@ func TestClient(t *testing.T) {
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
 				MQueryTimeSum:       1234,
-				ServiceId:           "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+				ServiceId:           "014647c3-b2f5-44eb-94f4-d943260a968c",
 				ServiceName:         "test-mysql",
 				ServiceType:         "mysql",
 				NodeId:              "cc663f36-18ca-40a1-aea9-c6310bb4738d",
@@ -250,7 +250,7 @@ func TestClient(t *testing.T) {
 				AgentId:     "b153f0d8-34e4-4635-9184-499161b4d12c",
 				AgentType:   inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 				NumQueries:  1,
-				ServiceId:   "/service_id/1fce2502-ecc7-46d4-968b-18d7907f2543",
+				ServiceId:   "1fce2502-ecc7-46d4-968b-18d7907f2543",
 				ServiceName: "test-mongodb",
 				ServiceType: "mongodb",
 				NodeId:      "cc663f36-18ca-40a1-aea9-c6310bb4738d",
@@ -351,7 +351,7 @@ func TestClient(t *testing.T) {
 				MQueryTimeSum:       55,
 				ServiceName:         "test-postgresql",
 				ServiceType:         "postgresql",
-				ServiceId:           "/service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1",
+				ServiceId:           "9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1",
 				NodeId:              "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:            "test-generic-node",
 				NodeType:            "generic",
@@ -434,7 +434,7 @@ func TestClientPerformance(t *testing.T) {
 
 	for _, str := range []reform.Struct{
 		&models.Service{
-			ServiceID:    "/service_id/0d350868-4d85-4884-b972-dff130129c23",
+			ServiceID:    "0d350868-4d85-4884-b972-dff130129c23",
 			ServiceType:  models.MySQLServiceType,
 			ServiceName:  "test-mysql",
 			NodeID:       "pmm-server",
@@ -446,7 +446,7 @@ func TestClientPerformance(t *testing.T) {
 		&models.Agent{
 			AgentID:      "6b74c6bf-642d-43f0-bee1-0faddd1a2e28",
 			AgentType:    models.QANMySQLPerfSchemaAgentType,
-			ServiceID:    pointer.ToString("/service_id/0d350868-4d85-4884-b972-dff130129c23"),
+			ServiceID:    pointer.ToString("0d350868-4d85-4884-b972-dff130129c23"),
 			PMMAgentID:   pointer.ToString("pmm-server"),
 			CustomLabels: []byte(`{"_agent_label": "baz"}`),
 			ListenPort:   pointer.ToUint16(12345),
@@ -493,7 +493,7 @@ func TestClientPerformance(t *testing.T) {
 			NodeId:      "pmm-server",
 			NodeName:    "pmm-server",
 			NodeType:    "generic",
-			ServiceId:   "/service_id/0d350868-4d85-4884-b972-dff130129c23",
+			ServiceId:   "0d350868-4d85-4884-b972-dff130129c23",
 			ServiceType: "mysql",
 			AgentId:     "6b74c6bf-642d-43f0-bee1-0faddd1a2e28",
 			Labels: map[string]string{

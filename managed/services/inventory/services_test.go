@@ -106,7 +106,7 @@ func TestServices(t *testing.T) {
 		})
 		require.NoError(t, err)
 		expectedService := &inventoryv1.MySQLService{
-			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
+			ServiceId:   "00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-mysql",
 			NodeId:      models.PMMServerNodeID,
 			Address:     "127.0.0.1",
@@ -114,7 +114,7 @@ func TestServices(t *testing.T) {
 		}
 		assert.Equal(t, expectedService, actualMySQLService)
 
-		actualService, err := ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
+		actualService, err := ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
 		require.NoError(t, err)
 		assert.Equal(t, expectedService, actualService)
 
@@ -123,10 +123,10 @@ func TestServices(t *testing.T) {
 		require.Len(t, actualServices, 2)
 		assert.Equal(t, expectedService, actualServices[1])
 
-		err = ss.Remove(ctx, "/service_id/00000000-0000-4000-8000-000000000005", false)
+		err = ss.Remove(ctx, "00000000-0000-4000-8000-000000000005", false)
 		require.NoError(t, err)
-		actualService, err = ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000005" not found.`), err)
+		actualService, err = ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "00000000-0000-4000-8000-000000000005" not found.`), err)
 		assert.Nil(t, actualService)
 	})
 
@@ -269,14 +269,14 @@ func TestServices(t *testing.T) {
 		})
 		require.NoError(t, err)
 		expectedService := &inventoryv1.MySQLService{
-			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
+			ServiceId:   "00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-mysql-socket",
 			NodeId:      models.PMMServerNodeID,
 			Socket:      "/var/run/mysqld/mysqld.sock",
 		}
 		assert.Equal(t, expectedService, actualMySQLService)
 
-		actualService, err := ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
+		actualService, err := ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
 		require.NoError(t, err)
 		assert.Equal(t, expectedService, actualService)
 
@@ -285,10 +285,10 @@ func TestServices(t *testing.T) {
 		require.Len(t, actualServices, 2)
 		assert.Equal(t, expectedService, actualServices[1])
 
-		err = ss.Remove(ctx, "/service_id/00000000-0000-4000-8000-000000000005", false)
+		err = ss.Remove(ctx, "00000000-0000-4000-8000-000000000005", false)
 		require.NoError(t, err)
-		actualService, err = ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000005" not found.`), err)
+		actualService, err = ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "00000000-0000-4000-8000-000000000005" not found.`), err)
 		assert.Nil(t, actualService)
 	})
 
@@ -343,7 +343,7 @@ func TestServices(t *testing.T) {
 		assert.NoError(t, err)
 
 		expectedMongoDBService := &inventoryv1.MongoDBService{
-			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
+			ServiceId:   "00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-mongo",
 			NodeId:      models.PMMServerNodeID,
 			Address:     "127.0.0.1",
@@ -351,7 +351,7 @@ func TestServices(t *testing.T) {
 		}
 		assert.Equal(t, expectedMongoDBService, actualMongoDBService)
 
-		actualService, err := ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
+		actualService, err := ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
 		require.NoError(t, err)
 		assert.Equal(t, expectedMongoDBService, actualService)
 
@@ -360,10 +360,10 @@ func TestServices(t *testing.T) {
 		require.Len(t, actualServices, 2)
 		assert.Equal(t, expectedMongoDBService, actualServices[1])
 
-		err = ss.Remove(ctx, "/service_id/00000000-0000-4000-8000-000000000005", false)
+		err = ss.Remove(ctx, "00000000-0000-4000-8000-000000000005", false)
 		require.NoError(t, err)
-		actualService, err = ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000005" not found.`), err)
+		actualService, err = ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "00000000-0000-4000-8000-000000000005" not found.`), err)
 		assert.Nil(t, actualService)
 	})
 
@@ -384,7 +384,7 @@ func TestServices(t *testing.T) {
 			})
 			require.NoError(t, err)
 			expectedPostgreSQLService := &inventoryv1.PostgreSQLService{
-				ServiceId:    "/service_id/00000000-0000-4000-8000-000000000005",
+				ServiceId:    "00000000-0000-4000-8000-000000000005",
 				ServiceName:  "test-postgres",
 				DatabaseName: "postgres",
 				NodeId:       models.PMMServerNodeID,
@@ -393,7 +393,7 @@ func TestServices(t *testing.T) {
 			}
 			assert.Equal(t, expectedPostgreSQLService, actualPostgreSQLService)
 
-			actualService, err := ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
+			actualService, err := ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
 			require.NoError(t, err)
 			assert.Equal(t, expectedPostgreSQLService, actualService)
 
@@ -402,10 +402,10 @@ func TestServices(t *testing.T) {
 			require.Len(t, actualServices, 2)
 			assert.Equal(t, expectedPostgreSQLService, actualServices[1])
 
-			err = ss.Remove(ctx, "/service_id/00000000-0000-4000-8000-000000000005", false)
+			err = ss.Remove(ctx, "00000000-0000-4000-8000-000000000005", false)
 			require.NoError(t, err)
-			actualService, err = ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
-			tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000005" not found.`), err)
+			actualService, err = ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
+			tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "00000000-0000-4000-8000-000000000005" not found.`), err)
 			assert.Nil(t, actualService)
 		})
 
@@ -424,7 +424,7 @@ func TestServices(t *testing.T) {
 			})
 			require.NoError(t, err)
 			expectedPostgreSQLService := &inventoryv1.PostgreSQLService{
-				ServiceId:    "/service_id/00000000-0000-4000-8000-000000000005",
+				ServiceId:    "00000000-0000-4000-8000-000000000005",
 				ServiceName:  "test-postgres",
 				DatabaseName: "postgres",
 				NodeId:       models.PMMServerNodeID,
@@ -432,7 +432,7 @@ func TestServices(t *testing.T) {
 			}
 			assert.Equal(t, expectedPostgreSQLService, actualPostgreSQLService)
 
-			actualService, err := ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
+			actualService, err := ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
 			require.NoError(t, err)
 			assert.Equal(t, expectedPostgreSQLService, actualService)
 
@@ -441,10 +441,10 @@ func TestServices(t *testing.T) {
 			require.Len(t, actualServices, 2)
 			assert.Equal(t, expectedPostgreSQLService, actualServices[1])
 
-			err = ss.Remove(ctx, "/service_id/00000000-0000-4000-8000-000000000005", false)
+			err = ss.Remove(ctx, "00000000-0000-4000-8000-000000000005", false)
 			require.NoError(t, err)
-			actualService, err = ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
-			tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000005" not found.`), err)
+			actualService, err = ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
+			tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "00000000-0000-4000-8000-000000000005" not found.`), err)
 			assert.Nil(t, actualService)
 		})
 
@@ -502,7 +502,7 @@ func TestServices(t *testing.T) {
 		})
 		require.NoError(t, err)
 		expectedProxySQLService := &inventoryv1.ProxySQLService{
-			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
+			ServiceId:   "00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-proxysql",
 			NodeId:      models.PMMServerNodeID,
 			Address:     "127.0.0.1",
@@ -510,7 +510,7 @@ func TestServices(t *testing.T) {
 		}
 		assert.Equal(t, expectedProxySQLService, actualProxySQLService)
 
-		actualService, err := ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
+		actualService, err := ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
 		require.NoError(t, err)
 		assert.Equal(t, expectedProxySQLService, actualService)
 
@@ -519,10 +519,10 @@ func TestServices(t *testing.T) {
 		require.Len(t, actualServices, 2)
 		assert.Equal(t, expectedProxySQLService, actualServices[1])
 
-		err = ss.Remove(ctx, "/service_id/00000000-0000-4000-8000-000000000005", false)
+		err = ss.Remove(ctx, "00000000-0000-4000-8000-000000000005", false)
 		require.NoError(t, err)
-		actualService, err = ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000005" not found.`), err)
+		actualService, err = ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "00000000-0000-4000-8000-000000000005" not found.`), err)
 		assert.Nil(t, actualService)
 	})
 
@@ -541,14 +541,14 @@ func TestServices(t *testing.T) {
 		})
 		require.NoError(t, err)
 		expectedService := &inventoryv1.ProxySQLService{
-			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
+			ServiceId:   "00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-proxysql-socket",
 			NodeId:      models.PMMServerNodeID,
 			Socket:      "/tmp/proxysql.sock",
 		}
 		assert.Equal(t, expectedService, actualProxySQLService)
 
-		actualService, err := ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
+		actualService, err := ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
 		require.NoError(t, err)
 		assert.Equal(t, expectedService, actualService)
 
@@ -557,10 +557,10 @@ func TestServices(t *testing.T) {
 		require.Len(t, actualServices, 2)
 		assert.Equal(t, expectedService, actualServices[1])
 
-		err = ss.Remove(ctx, "/service_id/00000000-0000-4000-8000-000000000005", false)
+		err = ss.Remove(ctx, "00000000-0000-4000-8000-000000000005", false)
 		require.NoError(t, err)
-		actualService, err = ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000005" not found.`), err)
+		actualService, err = ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "00000000-0000-4000-8000-000000000005" not found.`), err)
 		assert.Nil(t, actualService)
 	})
 
@@ -612,13 +612,13 @@ func TestServices(t *testing.T) {
 		})
 		require.NoError(t, err)
 		expectedHAProxyService := &inventoryv1.HAProxyService{
-			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
+			ServiceId:   "00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-haproxy-service",
 			NodeId:      models.PMMServerNodeID,
 		}
 		assert.Equal(t, expectedHAProxyService, actualHAProxyService)
 
-		actualService, err := ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
+		actualService, err := ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
 		require.NoError(t, err)
 		assert.Equal(t, expectedHAProxyService, actualService)
 
@@ -627,10 +627,10 @@ func TestServices(t *testing.T) {
 		require.Len(t, actualServices, 2)
 		assert.Equal(t, expectedHAProxyService, actualServices[1])
 
-		err = ss.Remove(ctx, "/service_id/00000000-0000-4000-8000-000000000005", false)
+		err = ss.Remove(ctx, "00000000-0000-4000-8000-000000000005", false)
 		require.NoError(t, err)
-		actualService, err = ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000005" not found.`), err)
+		actualService, err = ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "00000000-0000-4000-8000-000000000005" not found.`), err)
 		assert.Nil(t, actualService)
 	})
 
@@ -649,14 +649,14 @@ func TestServices(t *testing.T) {
 		})
 		require.NoError(t, err)
 		expectedExternalService := &inventoryv1.ExternalService{
-			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
+			ServiceId:   "00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-external-service",
 			NodeId:      models.PMMServerNodeID,
 			Group:       "external",
 		}
 		assert.Equal(t, expectedExternalService, actualExternalService)
 
-		actualService, err := ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
+		actualService, err := ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
 		require.NoError(t, err)
 		assert.Equal(t, expectedExternalService, actualService)
 
@@ -665,10 +665,10 @@ func TestServices(t *testing.T) {
 		require.Len(t, actualServices, 2)
 		assert.Equal(t, expectedExternalService, actualServices[1])
 
-		err = ss.Remove(ctx, "/service_id/00000000-0000-4000-8000-000000000005", false)
+		err = ss.Remove(ctx, "00000000-0000-4000-8000-000000000005", false)
 		require.NoError(t, err)
-		actualService, err = ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000005" not found.`), err)
+		actualService, err = ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "00000000-0000-4000-8000-000000000005" not found.`), err)
 		assert.Nil(t, actualService)
 	})
 
@@ -740,14 +740,14 @@ func TestServices(t *testing.T) {
 			})
 			require.NoError(t, err)
 			expectedService := &inventoryv1.MongoDBService{
-				ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
+				ServiceId:   "00000000-0000-4000-8000-000000000005",
 				ServiceName: "test-mongodb-socket",
 				NodeId:      models.PMMServerNodeID,
 				Socket:      "/tmp/mongodb-27017.sock",
 			}
 			assert.Equal(t, expectedService, actualMongoDBService)
 
-			actualService, err := ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
+			actualService, err := ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
 			require.NoError(t, err)
 			assert.Equal(t, expectedService, actualService)
 
@@ -756,10 +756,10 @@ func TestServices(t *testing.T) {
 			require.Len(t, actualServices, 2)
 			assert.Equal(t, expectedService, actualServices[1])
 
-			err = ss.Remove(ctx, "/service_id/00000000-0000-4000-8000-000000000005", false)
+			err = ss.Remove(ctx, "00000000-0000-4000-8000-000000000005", false)
 			require.NoError(t, err)
-			actualService, err = ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
-			tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000005" not found.`), err)
+			actualService, err = ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
+			tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "00000000-0000-4000-8000-000000000005" not found.`), err)
 			assert.Nil(t, actualService)
 		})
 

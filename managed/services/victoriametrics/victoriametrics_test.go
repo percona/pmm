@@ -118,7 +118,7 @@ func TestVictoriaMetrics(t *testing.T) {
 			},
 
 			&models.Service{
-				ServiceID:    "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+				ServiceID:    "014647c3-b2f5-44eb-94f4-d943260a968c",
 				ServiceType:  models.MySQLServiceType,
 				ServiceName:  "test-mysql",
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
@@ -128,7 +128,7 @@ func TestVictoriaMetrics(t *testing.T) {
 			},
 
 			&models.Service{
-				ServiceID:    "/service_id/4f1508fd-12c4-4ecf-b0a4-7ab19c996f61",
+				ServiceID:    "4f1508fd-12c4-4ecf-b0a4-7ab19c996f61",
 				ServiceType:  models.MySQLServiceType,
 				ServiceName:  "test-remote-mysql",
 				NodeID:       "4e2e07dc-40a1-18ca-aea9-d943260a9653",
@@ -138,7 +138,7 @@ func TestVictoriaMetrics(t *testing.T) {
 			},
 
 			&models.Service{
-				ServiceID:    "/service_id/acds89846-3cd2-47f8-a5f9-ac789513cde4",
+				ServiceID:    "acds89846-3cd2-47f8-a5f9-ac789513cde4",
 				ServiceType:  models.MongoDBServiceType,
 				ServiceName:  "test-mongodb",
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
@@ -151,7 +151,7 @@ func TestVictoriaMetrics(t *testing.T) {
 				AgentID:        "ecd8995a-d479-4b4d-bfb7-865bac4ac2fb",
 				AgentType:      models.MongoDBExporterType,
 				PMMAgentID:     pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
-				ServiceID:      pointer.ToString("/service_id/acds89846-3cd2-47f8-a5f9-ac789513cde4"),
+				ServiceID:      pointer.ToString("acds89846-3cd2-47f8-a5f9-ac789513cde4"),
 				CustomLabels:   []byte(`{"_agent_label": "mongodb-baz"}`),
 				ListenPort:     pointer.ToUint16(12346),
 				MongoDBOptions: &models.MongoDBOptions{EnableAllCollectors: true},
@@ -161,7 +161,7 @@ func TestVictoriaMetrics(t *testing.T) {
 				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.MySQLdExporterType,
 				PMMAgentID:   pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
-				ServiceID:    pointer.ToString("/service_id/014647c3-b2f5-44eb-94f4-d943260a968c"),
+				ServiceID:    pointer.ToString("014647c3-b2f5-44eb-94f4-d943260a968c"),
 				CustomLabels: []byte(`{"_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
 			},
@@ -170,13 +170,13 @@ func TestVictoriaMetrics(t *testing.T) {
 				AgentID:      "f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a",
 				AgentType:    models.MySQLdExporterType,
 				PMMAgentID:   pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
-				ServiceID:    pointer.ToString("/service_id/4f1508fd-12c4-4ecf-b0a4-7ab19c996f61"),
+				ServiceID:    pointer.ToString("4f1508fd-12c4-4ecf-b0a4-7ab19c996f61"),
 				CustomLabels: []byte(`{"_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
 			},
 
 			&models.Service{
-				ServiceID:    "/service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1",
+				ServiceID:    "9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1",
 				ServiceType:  models.PostgreSQLServiceType,
 				ServiceName:  "test-postgresql",
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
@@ -189,7 +189,7 @@ func TestVictoriaMetrics(t *testing.T) {
 				AgentID:      "29e14468-d479-4b4d-bfb7-4ac2fb865bac",
 				AgentType:    models.PostgresExporterType,
 				PMMAgentID:   pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
-				ServiceID:    pointer.ToString("/service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1"),
+				ServiceID:    pointer.ToString("9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1"),
 				CustomLabels: []byte(`{"_agent_label": "postgres-baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
 			},
@@ -212,7 +212,7 @@ func TestVictoriaMetrics(t *testing.T) {
 			},
 
 			&models.Service{
-				ServiceID:    "/service_id/1eae647b-f1e2-4e15-bc58-dfdbc3c37cbf",
+				ServiceID:    "1eae647b-f1e2-4e15-bc58-dfdbc3c37cbf",
 				ServiceType:  models.MongoDBServiceType,
 				ServiceName:  "test-mongodb-noversion",
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
@@ -226,7 +226,7 @@ func TestVictoriaMetrics(t *testing.T) {
 				AgentID:        "386c4ce6-7cd2-4bc9-9d6f-b4691c6e7eb7",
 				AgentType:      models.MongoDBExporterType,
 				PMMAgentID:     pointer.ToString("892b3d86-12e5-4765-aa32-e5092ecd78e1"),
-				ServiceID:      pointer.ToString("/service_id/1eae647b-f1e2-4e15-bc58-dfdbc3c37cbf"),
+				ServiceID:      pointer.ToString("1eae647b-f1e2-4e15-bc58-dfdbc3c37cbf"),
 				CustomLabels:   []byte(`{"_agent_label": "mongodb-baz-push"}`),
 				ListenPort:     pointer.ToUint16(12346),
 				MongoDBOptions: &models.MongoDBOptions{EnableAllCollectors: true},
@@ -238,7 +238,7 @@ func TestVictoriaMetrics(t *testing.T) {
 				AgentID:        "cfec996c-4fe6-41d9-83cb-e1a3b1fe10a8",
 				AgentType:      models.MongoDBExporterType,
 				PMMAgentID:     pointer.ToString("892b3d86-12e5-4765-aa32-e5092ecd78e1"),
-				ServiceID:      pointer.ToString("/service_id/1eae647b-f1e2-4e15-bc58-dfdbc3c37cbf"),
+				ServiceID:      pointer.ToString("1eae647b-f1e2-4e15-bc58-dfdbc3c37cbf"),
 				CustomLabels:   []byte(`{"_agent_label": "mongodb-baz-pull"}`),
 				ListenPort:     pointer.ToUint16(12346),
 				MongoDBOptions: &models.MongoDBOptions{EnableAllCollectors: true},
@@ -330,7 +330,7 @@ scrape_configs:
             node_id: cc663f36-18ca-40a1-aea9-c6310bb4738d
             node_name: test-generic-node
             node_type: generic
-            service_id: /service_id/1eae647b-f1e2-4e15-bc58-dfdbc3c37cbf
+            service_id: 1eae647b-f1e2-4e15-bc58-dfdbc3c37cbf
             service_name: test-mongodb-noversion
             service_type: mongodb
       basic_auth:
@@ -360,7 +360,7 @@ scrape_configs:
             node_id: cc663f36-18ca-40a1-aea9-c6310bb4738d
             node_name: test-generic-node
             node_type: generic
-            service_id: /service_id/acds89846-3cd2-47f8-a5f9-ac789513cde4
+            service_id: acds89846-3cd2-47f8-a5f9-ac789513cde4
             service_name: test-mongodb
             service_type: mongodb
       basic_auth:
@@ -390,7 +390,7 @@ scrape_configs:
             node_id: cc663f36-18ca-40a1-aea9-c6310bb4738d
             node_name: test-generic-node
             node_type: generic
-            service_id: /service_id/acds89846-3cd2-47f8-a5f9-ac789513cde4
+            service_id: acds89846-3cd2-47f8-a5f9-ac789513cde4
             service_name: test-mongodb
             service_type: mongodb
       basic_auth:
@@ -422,7 +422,7 @@ scrape_configs:
             node_id: cc663f36-18ca-40a1-aea9-c6310bb4738d
             node_name: test-generic-node
             node_type: generic
-            service_id: /service_id/014647c3-b2f5-44eb-94f4-d943260a968c
+            service_id: 014647c3-b2f5-44eb-94f4-d943260a968c
             service_name: test-mysql
             service_type: mysql
       basic_auth:
@@ -459,7 +459,7 @@ scrape_configs:
             node_id: cc663f36-18ca-40a1-aea9-c6310bb4738d
             node_name: test-generic-node
             node_type: generic
-            service_id: /service_id/014647c3-b2f5-44eb-94f4-d943260a968c
+            service_id: 014647c3-b2f5-44eb-94f4-d943260a968c
             service_name: test-mysql
             service_type: mysql
       basic_auth:
@@ -502,7 +502,7 @@ scrape_configs:
             node_id: cc663f36-18ca-40a1-aea9-c6310bb4738d
             node_name: test-generic-node
             node_type: generic
-            service_id: /service_id/014647c3-b2f5-44eb-94f4-d943260a968c
+            service_id: 014647c3-b2f5-44eb-94f4-d943260a968c
             service_name: test-mysql
             service_type: mysql
       basic_auth:
@@ -534,7 +534,7 @@ scrape_configs:
             node_id: 4e2e07dc-40a1-18ca-aea9-d943260a9653
             node_name: test-remote-node
             node_type: remote
-            service_id: /service_id/4f1508fd-12c4-4ecf-b0a4-7ab19c996f61
+            service_id: 4f1508fd-12c4-4ecf-b0a4-7ab19c996f61
             service_name: test-remote-mysql
             service_type: mysql
       basic_auth:
@@ -571,7 +571,7 @@ scrape_configs:
             node_id: 4e2e07dc-40a1-18ca-aea9-d943260a9653
             node_name: test-remote-node
             node_type: remote
-            service_id: /service_id/4f1508fd-12c4-4ecf-b0a4-7ab19c996f61
+            service_id: 4f1508fd-12c4-4ecf-b0a4-7ab19c996f61
             service_name: test-remote-mysql
             service_type: mysql
       basic_auth:
@@ -614,7 +614,7 @@ scrape_configs:
             node_id: 4e2e07dc-40a1-18ca-aea9-d943260a9653
             node_name: test-remote-node
             node_type: remote
-            service_id: /service_id/4f1508fd-12c4-4ecf-b0a4-7ab19c996f61
+            service_id: 4f1508fd-12c4-4ecf-b0a4-7ab19c996f61
             service_name: test-remote-mysql
             service_type: mysql
       basic_auth:
@@ -646,7 +646,7 @@ scrape_configs:
             node_id: cc663f36-18ca-40a1-aea9-c6310bb4738d
             node_name: test-generic-node
             node_type: generic
-            service_id: /service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1
+            service_id: 9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1
             service_name: test-postgresql
             service_type: postgresql
       basic_auth:
@@ -675,7 +675,7 @@ scrape_configs:
             node_id: cc663f36-18ca-40a1-aea9-c6310bb4738d
             node_name: test-generic-node
             node_type: generic
-            service_id: /service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1
+            service_id: 9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1
             service_name: test-postgresql
             service_type: postgresql
       basic_auth:
@@ -704,7 +704,7 @@ scrape_configs:
             node_id: cc663f36-18ca-40a1-aea9-c6310bb4738d
             node_name: test-generic-node
             node_type: generic
-            service_id: /service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1
+            service_id: 9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1
             service_name: test-postgresql
             service_type: postgresql
       basic_auth:

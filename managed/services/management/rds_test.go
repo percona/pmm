@@ -303,7 +303,7 @@ func TestRDSService(t *testing.T) {
 				Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 			},
 			Mysql: &inventoryv1.MySQLService{
-				ServiceId:      "/service_id/00000000-0000-4000-8000-000000000007",
+				ServiceId:      "00000000-0000-4000-8000-000000000007",
 				NodeId:         "00000000-0000-4000-8000-000000000005",
 				Address:        "rds-mysql57-renaming.xyzzy.us-east-1.rds.amazonaws.com",
 				Port:           3306,
@@ -318,7 +318,7 @@ func TestRDSService(t *testing.T) {
 			MysqldExporter: &inventoryv1.MySQLdExporter{
 				AgentId:                   "00000000-0000-4000-8000-000000000008",
 				PmmAgentId:                "pmm-server",
-				ServiceId:                 "/service_id/00000000-0000-4000-8000-000000000007",
+				ServiceId:                 "00000000-0000-4000-8000-000000000007",
 				Username:                  "username",
 				TablestatsGroupTableLimit: 1000,
 				Status:                    inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
@@ -326,7 +326,7 @@ func TestRDSService(t *testing.T) {
 			QanMysqlPerfschema: &inventoryv1.QANMySQLPerfSchemaAgent{
 				AgentId:               "00000000-0000-4000-8000-000000000009",
 				PmmAgentId:            "pmm-server",
-				ServiceId:             "/service_id/00000000-0000-4000-8000-000000000007",
+				ServiceId:             "00000000-0000-4000-8000-000000000007",
 				Username:              "username",
 				QueryExamplesDisabled: true,
 				Status:                inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
@@ -392,7 +392,7 @@ func TestRDSService(t *testing.T) {
 				Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 			},
 			Postgresql: &inventoryv1.PostgreSQLService{
-				ServiceId:      "/service_id/00000000-0000-4000-8000-00000000000c",
+				ServiceId:      "00000000-0000-4000-8000-00000000000c",
 				NodeId:         "00000000-0000-4000-8000-00000000000a",
 				Address:        "rds-postgresql-renaming.xyzzy.us-east-1.rds.amazonaws.com",
 				Port:           3306,
@@ -408,7 +408,7 @@ func TestRDSService(t *testing.T) {
 			PostgresqlExporter: &inventoryv1.PostgresExporter{
 				AgentId:                "00000000-0000-4000-8000-00000000000d",
 				PmmAgentId:             "pmm-server",
-				ServiceId:              "/service_id/00000000-0000-4000-8000-00000000000c",
+				ServiceId:              "00000000-0000-4000-8000-00000000000c",
 				Username:               "username",
 				Status:                 inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 				AutoDiscoveryLimit:     10,
@@ -417,7 +417,7 @@ func TestRDSService(t *testing.T) {
 			QanPostgresqlPgstatements: &inventoryv1.QANPostgreSQLPgStatementsAgent{
 				AgentId:    "00000000-0000-4000-8000-00000000000e",
 				PmmAgentId: "pmm-server",
-				ServiceId:  "/service_id/00000000-0000-4000-8000-00000000000c",
+				ServiceId:  "00000000-0000-4000-8000-00000000000c",
 				Username:   "username",
 				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 			},

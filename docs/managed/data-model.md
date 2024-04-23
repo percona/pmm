@@ -65,7 +65,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **MySQLService** represents a generic MySQL instance. Always runs on a single Generic, Container, or Remote Node. Properties:
 
-- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "/service_id/<uuid>".
+- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `service_name` (required, label). Unique across all Services user-defined name, can be changed.
 - `node_id` (required, label). Node identifier where this instance runs. Can be changed – service can be moved to another Node.
 - `address` (optional). Access address (DNS name or IP). Required if unix_socket is absent. Can be changed.
@@ -78,7 +78,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **MongoDBService** represents a generic MongoDB instance. Properties:
 
-- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "/service_id/<uuid>".
+- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `service_name` (required, label). Unique across all Services user-defined name, can be changed.
 - `node_id` (required, label). Node identifier where this instance runs. Can be changed – service can be moved to another Node.
 - `address` (required). Access address (DNS name or IP). Required if unix_socket is absent. Can be changed.
@@ -90,7 +90,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **PostgreSQLService** represents a generic PostgreSQL instance. Properties:
 
-- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "/service_id/<uuid>".
+- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `service_name` (required, label). Unique across all Services user-defined name, can be changed.
 - `node_id` (required, label). Node identifier where this instance runs. Can be changed – service can be moved to another Node.
 - `address` (required). Access address (DNS name or IP). Required if unix_socket is absent. Can be changed.
@@ -102,7 +102,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **ProxySQLService** represents a generic ProxySQL instance. Properties:
 
-- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "/service_id/<uuid>".
+- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `service_name` (required, label). Unique across all Services user-defined name, can be changed.
 - `node_id` (required, label). Node identifier where this instance runs. Can be changed – service can be moved to another Node.
 - `address` (required). Access address (DNS name or IP). Required if unix_socket is absent. Can be changed.
@@ -114,7 +114,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **ExternalService** represents a generic External service instance. It's a service which are not supported by PMM as first class citizen. It can be any service. Properties:
 
-- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "/service_id/<uuid>".
+- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `service_name` (required, label). Unique across all Services user-defined name.
 - `node_id` (required, label). Node identifier where this instance runs.
 - `environment` (optional) Environment name

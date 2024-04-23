@@ -26,7 +26,7 @@ func TestAddServiceMongoDB(t *testing.T) {
 	t.Run("Address and port", func(t *testing.T) {
 		res := &addServiceMongoDBResult{
 			Service: &services.AddServiceOKBodyMongodb{
-				ServiceID:      "/service_id/1",
+				ServiceID:      "1",
 				ServiceName:    "MongoDB Service",
 				NodeID:         "1",
 				Address:        "127.0.0.1",
@@ -38,7 +38,7 @@ func TestAddServiceMongoDB(t *testing.T) {
 			},
 		}
 		expected := `MongoDB Service added.
-Service ID     : /service_id/1
+Service ID     : 1
 Service name   : MongoDB Service
 Node ID        : 1
 Address        : 127.0.0.1
@@ -54,7 +54,7 @@ Custom labels  : map[foo:bar key:value]
 	t.Run("Socket", func(t *testing.T) {
 		res := &addServiceMongoDBResult{
 			Service: &services.AddServiceOKBodyMongodb{
-				ServiceID:      "/service_id/1",
+				ServiceID:      "1",
 				ServiceName:    "MongoDB Socket Service",
 				NodeID:         "1",
 				Socket:         "/tmp/mongodb-27017.sock",
@@ -65,7 +65,7 @@ Custom labels  : map[foo:bar key:value]
 			},
 		}
 		expected := `MongoDB Service added.
-Service ID     : /service_id/1
+Service ID     : 1
 Service name   : MongoDB Socket Service
 Node ID        : 1
 Socket         : /tmp/mongodb-27017.sock

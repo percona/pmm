@@ -26,7 +26,7 @@ func TestAddServiceMySQL(t *testing.T) {
 	t.Run("Address and port", func(t *testing.T) {
 		res := &addServiceMySQLResult{
 			Service: &services.AddServiceOKBodyMysql{
-				ServiceID:      "/service_id/1",
+				ServiceID:      "1",
 				ServiceName:    "MySQL Service",
 				NodeID:         "1",
 				Address:        "127.0.0.1",
@@ -38,7 +38,7 @@ func TestAddServiceMySQL(t *testing.T) {
 			},
 		}
 		expected := `MySQL Service added.
-Service ID     : /service_id/1
+Service ID     : 1
 Service name   : MySQL Service
 Node ID        : 1
 Address        : 127.0.0.1
@@ -54,7 +54,7 @@ Custom labels  : map[foo:bar key:value]
 	t.Run("Socket", func(t *testing.T) {
 		res := &addServiceMySQLResult{
 			Service: &services.AddServiceOKBodyMysql{
-				ServiceID:      "/service_id/1",
+				ServiceID:      "1",
 				ServiceName:    "MySQL Socket Service",
 				NodeID:         "1",
 				Socket:         "/path/to/socket",
@@ -65,7 +65,7 @@ Custom labels  : map[foo:bar key:value]
 			},
 		}
 		expected := `MySQL Service added.
-Service ID     : /service_id/1
+Service ID     : 1
 Service name   : MySQL Socket Service
 Node ID        : 1
 Socket         : /path/to/socket

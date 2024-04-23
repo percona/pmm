@@ -26,7 +26,7 @@ func TestAddServiceProxySQL(t *testing.T) {
 	t.Run("Address and port", func(t *testing.T) {
 		res := &addServiceProxySQLResult{
 			Service: &services.AddServiceOKBodyProxysql{
-				ServiceID:      "/service_id/1",
+				ServiceID:      "1",
 				ServiceName:    "ProxySQL Service",
 				NodeID:         "1",
 				Address:        "127.0.0.1",
@@ -38,7 +38,7 @@ func TestAddServiceProxySQL(t *testing.T) {
 			},
 		}
 		expected := `ProxySQL Service added.
-Service ID     : /service_id/1
+Service ID     : 1
 Service name   : ProxySQL Service
 Node ID        : 1
 Address        : 127.0.0.1
@@ -54,7 +54,7 @@ Custom labels  : map[foo:bar key:value]
 	t.Run("Socket", func(t *testing.T) {
 		res := &addServiceProxySQLResult{
 			Service: &services.AddServiceOKBodyProxysql{
-				ServiceID:      "/service_id/1",
+				ServiceID:      "1",
 				ServiceName:    "ProxySQL Socket Service",
 				NodeID:         "1",
 				Socket:         "/tmp/proxysql_admin.sock",
@@ -65,7 +65,7 @@ Custom labels  : map[foo:bar key:value]
 			},
 		}
 		expected := `ProxySQL Service added.
-Service ID     : /service_id/1
+Service ID     : 1
 Service name   : ProxySQL Socket Service
 Node ID        : 1
 Socket         : /tmp/proxysql_admin.sock

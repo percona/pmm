@@ -166,7 +166,7 @@ func TestServiceService(t *testing.T) {
 
 			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
 			assert.Nil(t, service)
-			tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000005" not found.`), err)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "00000000-0000-4000-8000-000000000005" not found.`), err)
 		})
 
 		t.Run("RDS", func(t *testing.T) {

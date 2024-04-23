@@ -35,7 +35,7 @@ func TestRegistry(t *testing.T) {
 				Interval:  check.Standard,
 				Target: services.Target{
 					AgentID:   "123",
-					ServiceID: "/service_id/123",
+					ServiceID: "123",
 					Labels: map[string]string{
 						"foo": "bar",
 					},
@@ -54,7 +54,7 @@ func TestRegistry(t *testing.T) {
 				CheckName: "name2",
 				Target: services.Target{
 					AgentID:   "321",
-					ServiceID: "/service_id/321",
+					ServiceID: "321",
 					Labels: map[string]string{
 						"bar": "foo",
 					},
@@ -88,7 +88,7 @@ func TestRegistry(t *testing.T) {
 				Interval:  check.Standard,
 				Target: services.Target{
 					AgentID:   "123",
-					ServiceID: "/service_id/123",
+					ServiceID: "123",
 					Labels: map[string]string{
 						"foo": "bar",
 					},
@@ -108,7 +108,7 @@ func TestRegistry(t *testing.T) {
 				Interval:  check.Frequent,
 				Target: services.Target{
 					AgentID:   "321",
-					ServiceID: "/service_id/321",
+					ServiceID: "321",
 					Labels: map[string]string{
 						"bar": "foo",
 					},
@@ -141,7 +141,7 @@ func TestRegistry(t *testing.T) {
 				Interval:  check.Standard,
 				Target: services.Target{
 					AgentID:   "123",
-					ServiceID: "/service_id/123",
+					ServiceID: "123",
 					Labels: map[string]string{
 						"foo": "bar",
 					},
@@ -161,7 +161,7 @@ func TestRegistry(t *testing.T) {
 				Interval:  check.Standard,
 				Target: services.Target{
 					AgentID:   "321",
-					ServiceID: "/service_id/321",
+					ServiceID: "321",
 					Labels: map[string]string{
 						"bar": "foo",
 					},
@@ -194,7 +194,7 @@ func TestRegistry(t *testing.T) {
 				Interval:  check.Standard,
 				Target: services.Target{
 					AgentID:   "123",
-					ServiceID: "/service_id/123",
+					ServiceID: "123",
 					Labels: map[string]string{
 						"foo": "bar",
 					},
@@ -213,7 +213,7 @@ func TestRegistry(t *testing.T) {
 				CheckName: "name2",
 				Target: services.Target{
 					AgentID:   "321",
-					ServiceID: "/service_id/321",
+					ServiceID: "321",
 					Labels: map[string]string{
 						"bar": "foo",
 					},
