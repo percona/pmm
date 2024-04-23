@@ -19,7 +19,14 @@ Percona recommends running PMM as a non-privileged user and running it as part o
 ## Before you start
 
 - Install [Podman](https://podman.io/getting-started/installation).
-- Configure [rootless](https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md)  Podman.
+- Configure [rootless](https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md) Podman.
+- Install Watchtower to automatically update your containers with the following considerations:
+
+  - Ensure Watchtower is only accessible from within the Docker network or local host to prevent unauthorized access and enhance container security.
+  - Run PMM Server and Watchtower containers side by side within the same Docker network for seamless communication.
+  - Configure network settings to expose only the PMM Server container to the external network, keeping Watchtower isolated within the Docker network.
+  - Grant Watchtower access to the Docker socket to monitor and manage containers effectively, ensuring proper security measures are in place to protect the Docker socket.
+  - Verify that both Watchtower and PMM Server are on the same network, or ensure PMM Server can connect to Watchtower for communication. This network setup is essential for PMM Server to initiate updates through Watchtower.
 
 ## Run as non-privileged user to start PMM
 
@@ -130,6 +137,10 @@ To run Podman as a non-privileged user:
 
     ```sh
     systemctl --user enable --now pmm-server
+    ```
+4. Pass the following command to Docker Socket to start [Watchtower](https://containrrr.dev/watchtower/):
+    ```sh
+    docker run -v /var/run/docker.sock:/var/run/docker.sock -e WATCHTOWER_HTTP_API_UPDATE=1 -e WATCHTOWER_HTTP_API_TOKEN=123 --hostname=watchtower --network=pmm_default docker.io/perconalab/watchtower
     ```
 
 4. Visit `https://localhost:8443` to see the PMM user interface in a web browser. (If you are accessing host remotely, replace `localhost` with the IP or server name of the host.)

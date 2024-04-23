@@ -10,17 +10,17 @@ This section provides instructions for running PMM Server with Docker based on o
 
 **Prerequisites**
 
-- Install [Docker](https://docs.docker.com/get-docker/) 1.12.6 or higher.
-- For PMM 2.38.0 or greater, ensure your CPU (and any virtualization layer you may be using) supports `x86-64-v2`.
-- Install [Watchtower](https://containrrr.dev/watchtower/)
-   - WatchTower shouldn't be accessible outside the Docker network or localhost.
-- Set up a PMM Server  container the a WatchTower container running next to thw first one, maiking sure that  WatchTower and PMM Server run on the same network.
- - Only PMM Server  container will be exposed to external network so users can connect to PMM Server, but WatchTower will not (Only PMM Server will have access to WatchTower). 
- - Make sure that Watcower has access to Docker socket to be able to send requests to Docker.
+- Install [Docker](https://docs.docker.com/get-docker/) version 1.12.6 or higher.
+- For PMM 2.38.0 or later, ensure your CPU (and any virtualization layer you may be using) supports `x86-64-v2`.
+- Install Watchtower to automatically update your containers with the following considerations:
 
+  - Ensure Watchtower is only accessible from within the Docker network or local host to prevent unauthorized access and enhance container security.
+  - Run PMM Server and Watchtower containers side by side within the same Docker network for seamless communication.
+  - Configure network settings to expose only the PMM Server container to the external network, keeping Watchtower isolated within the Docker network.
+  - Grant Watchtower access to the Docker socket to monitor and manage containers effectively, ensuring proper security measures are in place to protect the Docker socket.
+  - Verify that both Watchtower and PMM Server are on the same network, or ensure PMM Server can connect to Watchtower for communication. This network setup is essential for PMM Server to initiate updates through Watchtower.
 
-
-## Run docker container
+## Run Docker container
 
 ??? info "Summary"
 
