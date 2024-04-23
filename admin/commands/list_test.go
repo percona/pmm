@@ -47,8 +47,8 @@ func TestListResultString(t *testing.T) {
 Service type        Service name         Address and port        Service ID
 MySQL               mysql-service                                4ff49c41-80a1-4030-bc02-cd76e3b0b84a
 
-Agent type             Status         Metrics Mode        Agent ID                                              Service ID                                              Port
-mysqld_exporter        Running        pull                8b732ac3-8256-40b0-a98b-0fd5fa9a1140                  4ff49c41-80a1-4030-bc02-cd76e3b0b84a        3306
+Agent type             Status         Metrics Mode        Agent ID                                    Service ID                                              Port
+mysqld_exporter        Running        pull                8b732ac3-8256-40b0-a98b-0fd5fa9a1140        4ff49c41-80a1-4030-bc02-cd76e3b0b84a        3306
 `),
 		},
 		{
