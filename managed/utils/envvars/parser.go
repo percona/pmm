@@ -37,7 +37,7 @@ const (
 	envPlatformPublicKey      = "PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY"
 	evnInterfaceToBind        = "PMM_INTERFACE_TO_BIND"
 	envEnableAccessControl    = "PMM_ENABLE_ACCESS_CONTROL"
-	envPlatformAPITimeout     = "PMM_PERCONA_PLATFORM_API_TIMEOUT"
+	envPlatformAPITimeout     = "PMM_DEV_PERCONA_PLATFORM_API_TIMEOUT"
 	defaultPlatformAPITimeout = 30 * time.Second
 	// ENVvmAgentPrefix is the prefix for environment variables related to the VM agent.
 	ENVvmAgentPrefix = "VMAGENT_"

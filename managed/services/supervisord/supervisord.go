@@ -774,7 +774,7 @@ environment =
     PMM_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
     PMM_POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
     PMM_CLICKHOUSE_DATASOURCE_ADDR="{{ .ClickhouseDataSourceAddr }}",
-    PERCONA_DEV_PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
+    PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
     PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
     {{- if .PerconaSSODetails}}
     GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"

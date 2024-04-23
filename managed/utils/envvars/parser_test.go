@@ -58,6 +58,22 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotWarns)
 	})
 
+	t.Run("Unknown env variables", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{"UNKNOWN_VAR=VAL", "ANOTHER_UNKNOWN_VAR=VAL"}
+		expectedEnvVars := &models.ChangeSettingsParams{}
+		expectedWarns := []string{
+			`unknown environment variable "UNKNOWN_VAR=VAL"`,
+			`unknown environment variable "ANOTHER_UNKNOWN_VAR=VAL"`,
+		}
+
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Equal(t, gotEnvVars, expectedEnvVars)
+		assert.Nil(t, gotErrs)
+		assert.Equal(t, expectedWarns, gotWarns)
+	})
+
 	t.Run("Default env vars", func(t *testing.T) {
 		t.Parallel()
 
@@ -129,6 +145,33 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotWarns)
 	})
 
+	t.Run("v2 valid env vars with 'PERCONA_*' prefix show warnings", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"PERCONA_TEST_PLATFORM_ADDRESS=https://host:333",
+			"PERCONA_TEST_CHECKS_PUBLIC_KEY=some key",
+			"PERCONA_TEST_AUTH_HOST=host:333",
+			"PERCONA_TEST_CHECKS_HOST=host:333",
+			"PERCONA_TEST_TELEMETRY_HOST=host:333",
+			"PERCONA_TEST_SAAS_HOST=host:333",
+		}
+		expectedEnvVars := &models.ChangeSettingsParams{}
+		expectedWarns := []string{
+			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+		}
+
+		gotEnvVars, _, gotWarns := ParseEnvVars(envs)
+		// assert.Nil(t, gotErrs)
+		assert.Equal(t, expectedEnvVars, gotEnvVars)
+		assert.Equal(t, expectedWarns, gotWarns)
+	})
+
 	t.Run("Parse Platform API Timeout", func(t *testing.T) {
 		t.Parallel()
 
@@ -139,7 +182,7 @@ func TestEnvVarValidator(t *testing.T) {
 		}{
 			{
 				value: "", respVal: time.Second * 30,
-				msg: "Environment variable \"PMM_PERCONA_PLATFORM_API_TIMEOUT\" is not set, using \"30s\" as a default timeout for platform API.",
+				msg: "Environment variable \"PMM_DEV_PERCONA_PLATFORM_API_TIMEOUT\" is not set, using \"30s\" as a default timeout for platform API.",
 			},
 			{
 				value: "10s", respVal: time.Second * 10,
