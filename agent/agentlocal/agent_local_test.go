@@ -75,7 +75,7 @@ func TestServerStatus(t *testing.T) {
 		actual, err := s.Status(context.Background(), &agentlocal.StatusRequest{GetNetworkInfo: false})
 		require.NoError(t, err)
 		expected := &agentlocal.StatusResponse{
-			AgentId:      "000-4000-8000-000000000001",
+			AgentId:      "00000000-0000-4000-8000-000000000001",
 			RunsOnNodeId: "00000000-0000-4000-8000-000000000003",
 			ServerInfo: &agentlocal.ServerInfo{
 				Url:       "https://username:password@127.0.0.1:8443/",
