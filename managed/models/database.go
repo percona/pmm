@@ -1030,16 +1030,12 @@ var databaseSchema = [][]string{
 		`UPDATE restore_history SET artifact_id = SUBSTRING(artifact_id, 14) WHERE artifact_id LIKE '/artifact_id/%';`,
 		`UPDATE restore_history SET service_id = SUBSTRING(service_id, 13) WHERE service_id LIKE '/service_id/%';`,
 
-		`UPDATE roles SET id = SUBSTRING(id, 10) WHERE id LIKE '/role_id/%';`,
-
 		`UPDATE scheduled_tasks SET id = SUBSTRING(id, 20) WHERE id LIKE '/scheduled_task_id/%';`,
 
 		`UPDATE service_software_versions SET service_id = SUBSTRING(service_id, 13) WHERE service_id LIKE '/service_id/%';`,
 
 		`UPDATE services SET service_id = SUBSTRING(service_id, 13) WHERE service_id LIKE '/service_id/%';`,
 		`UPDATE services SET node_id = SUBSTRING(node_id, 10) WHERE node_id LIKE '/node_id/%';`,
-
-		`UPDATE user_roles SET role_id = SUBSTRING(role_id, 10) WHERE node_id LIKE '/role_id/%';`,
 
 		`ALTER TABLE agents ADD CONSTRAINT agents_node_id_fkey FOREIGN KEY (node_id) REFERENCES nodes (node_id);`,
 		`ALTER TABLE agents ADD CONSTRAINT agents_pmm_agent_id_fkey FOREIGN KEY (pmm_agent_id) REFERENCES agents (agent_id);`,
