@@ -74,7 +74,7 @@ Agent type        Status        Metrics Mode        Agent ID        Service ID  
 Service type          Service name        Address and port        Service ID
 External:redis        myhost-redis                                8ff49c41-80a1-4030-bc02-cd76e3b0b84a
 
-Agent type               Status         Metrics Mode        Agent ID                                              Service ID                                              Port
+Agent type               Status         Metrics Mode        Agent ID                                    Service ID                                              Port
 external-exporter        Running                            8b732ac3-8256-40b0-a98b-0fd5fa9a1149        8ff49c41-80a1-4030-bc02-cd76e3b0b84a        8080
 `),
 		},
