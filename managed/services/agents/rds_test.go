@@ -99,7 +99,7 @@ instances:
       disable_basic_metrics: true
       disable_enhanced_metrics: false
       labels:
-        agent_id: 
+        agent_id: agent1
         agent_type: rds_exporter
         az: us-east-1c
         foo: bar
