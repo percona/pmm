@@ -21,6 +21,7 @@ To run Docker with data container:
         docker inspect pmm-data | grep Destination && \
         docker inspect pmm-server | grep Destination
         ```
+
 2. Run the image:
 
     ```sh
@@ -38,8 +39,11 @@ To run Docker with data container:
     ```sh
     docker exec -t pmm-server change-admin-password <new_password>
     ```
+
 4. Check the [WatchTower prerequisites](../docker/index.md|#prerequisites) and pass the following command to Docker Socket to start [Watchtower](https://containrrr.dev/watchtower/):
+
     ```sh
     docker run -v /var/run/docker.sock:/var/run/docker.sock -e WATCHTOWER_HTTP_API_UPDATE=1 -e WATCHTOWER_HTTP_API_TOKEN=123 --hostname=watchtower --network=pmm_default docker.io/perconalab/watchtower
     ```
+
 5. Visit `https://localhost:443` to see the PMM user interface in a web browser. (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)

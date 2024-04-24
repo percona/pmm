@@ -140,7 +140,7 @@ To run Podman as a non-privileged user:
 
 4. Activate the podman socket using the [Podman socket activation instructions](https://github.com/containers/podman/blob/main/docs/tutorials/socket_activation.md).
 
-5. Pass the following command to Docker Socket to start [Watchtower](https://containrrr.dev/watchtower/),modified to use your Podman socket path:
+5. Pass the following command to Docker Socket to start [Watchtower](https://containrrr.dev/watchtower/). Make sure to modify the command to use your Podman socket path:
 
     ```sh
     docker  run -v $XDG_RUNTIME_DIR/podman/podman.sock:/var/run/docker.sock -e WATCHTOWER_HTTP_API_UPDATE=1 -e WATCHTOWER_HTTP_API_TOKEN=123 --hostname=watchtower --network=pmm_default docker.io/perconalab/watchtower
