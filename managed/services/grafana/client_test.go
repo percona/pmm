@@ -154,7 +154,7 @@ func TestClient(t *testing.T) {
 			t.Run(fmt.Sprintf("Service token auth %s", role.String()), func(t *testing.T) {
 				t.Parallel()
 
-				nodeName := fmt.Sprintf("test-node-%s", role)
+				nodeName := fmt.Sprintf("test-%s", role)
 				serviceAccountID, err := c.createServiceAccount(ctx, role, nodeName, true, authHeaders)
 				require.NoError(t, err)
 				defer func() {
