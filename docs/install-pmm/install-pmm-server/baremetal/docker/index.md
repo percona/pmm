@@ -11,7 +11,7 @@ This section provides instructions for running PMM Server with Docker based on o
 **Prerequisites**
 
 - Install [Docker](https://docs.docker.com/get-docker/) version 1.12.6 or higher.
-- For PMM 2.38.0 or later, ensure your CPU (and any virtualization layer you may be using) supports `x86-64-v2`.
+- Ensure your CPU (and any virtualization layer you may be using) supports `x86-64-v2`.
 - Install Watchtower to automatically update your containers with the following considerations:
 
       - Ensure Watchtower is only accessible from within the Docker network or local host to prevent unauthorized access and enhance container security.
