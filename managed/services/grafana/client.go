@@ -47,8 +47,8 @@ var ErrFailedToGetToken = errors.New("failed to get token")
 
 const (
 	defaultEvaluationInterval = time.Minute
-	pmmServiceTokenName       = "pmm-agent-service-token"   //nolint:gosec
-	pmmServiceAccountName     = "pmm-agent-service-account" //nolint:gosec
+	pmmServiceTokenName       = "pmm-agent-st" //nolint:gosec
+	pmmServiceAccountName     = "pmm-agent-sa" //nolint:gosec
 )
 
 // Client represents a client for Grafana API.
