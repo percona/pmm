@@ -4,7 +4,7 @@
 To run Docker with data container:
 {.power-number}
 
-1. Create a persistent data container.
+1. Create a persistent data container:
 
     ```sh
     docker create --volume /srv \
@@ -34,7 +34,7 @@ To run Docker with data container:
     perconalab/pmm-server:3.0.0-rc
     ```
 
-3. Change the password for the default `admin` user. This command is only compatible with PMM 2.27.0 and later. If you are using an earlier version of PMM, upgrade to a supported version before running this command.
+3. Change the password for the default `admin` user. This command is only compatible with PMM 2.27.0 and later. If you are using an earlier version of PMM, upgrade to a supported version before running this command:
 
     ```sh
     docker exec -t pmm-server change-admin-password <new_password>

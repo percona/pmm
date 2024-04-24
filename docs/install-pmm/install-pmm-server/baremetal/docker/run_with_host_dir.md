@@ -7,13 +7,13 @@
 To run Docker with the host directory:
 {.power-number}
 
-1. Pull the image.
+1. Pull the image:
 
     ```sh
     docker pull percona/pmm-server:2
     ```
 
-2. Run the image.
+2. Run the image:
 
     ```sh
     export DATA_DIR=$HOME/srv
