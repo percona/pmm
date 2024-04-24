@@ -413,12 +413,10 @@ func (up *Updater) checkWatchtowerHost() error {
 func isHostAvailable(host string, port string, timeout time.Duration) bool {
 	conn, err := net.DialTimeout("tcp", net.JoinHostPort(host, port), timeout)
 	if err != nil {
-		fmt.Println("Connecting error:", err)
 		return false
 	}
 	if conn != nil {
-		defer conn.Close()
-		fmt.Println("Opened", net.JoinHostPort(host, port))
+		defer conn.Close() //nolint:errcheck
 		return true
 	}
 	return false
