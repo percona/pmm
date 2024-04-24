@@ -23,7 +23,6 @@ Percona recommends running PMM as a non-privileged user and running it as part o
 - Install Watchtower to automatically update your containers with the following considerations:
 
       - Ensure Watchtower is only accessible from within the Docker network or local host to prevent unauthorized access and enhance container security.
-      - Run PMM Server and Watchtower containers side by side within the same Docker network for seamless communication.
       - Configure network settings to expose only the PMM Server container to the external network, keeping Watchtower isolated within the Docker network.
       - Grant Watchtower access to the Docker socket to monitor and manage containers effectively, ensuring proper security measures are in place to protect the Docker socket.
       - Verify that both Watchtower and PMM Server are on the same network, or ensure PMM Server can connect to Watchtower for communication. This network setup is essential for PMM Server to initiate updates through Watchtower.
@@ -45,7 +44,7 @@ Percona recommends running PMM as a non-privileged user and running it as part o
 To run Podman as a non-privileged user:
 {.power-number}
 
-1. Install.
+1. Install:
 
     Create `~/.config/systemd/user/pmm-server.service` file:
 
@@ -102,7 +101,7 @@ To run Podman as a non-privileged user:
     EOF
     ```
 
-2. Configure.
+2. Configure:
 
     There are 2 configuration files:
     1.  `~/.config/pmm-server/pmm-server.env` defines environment variables for PMM Server (PMM parameters like DBaaS feature and etc)
@@ -133,17 +132,23 @@ To run Podman as a non-privileged user:
     !!! caution alert alert-warning "Important"
         Ensure that you modify PMM_TAG in `~/.config/pmm-server/env` and update it regularly as Percona cannot update it. It needs to be done by you.
 
-3. Enable and Start.
+3. Enable and start:
 
     ```sh
     systemctl --user enable --now pmm-server
     ```
-4. Pass the following command to Docker Socket to start [Watchtower](https://containrrr.dev/watchtower/):
+
+4. Activate the podman socket using the [Podman socket activation instructions](https://github.com/containers/podman/blob/main/docs/tutorials/socket_activation.md).
+
+5. Pass the following command to Docker Socket to start [Watchtower](https://containrrr.dev/watchtower/),modified to use your Podman socket path:
+
     ```sh
-    docker run -v /var/run/docker.sock:/var/run/docker.sock -e WATCHTOWER_HTTP_API_UPDATE=1 -e WATCHTOWER_HTTP_API_TOKEN=123 --hostname=watchtower --network=pmm_default docker.io/perconalab/watchtower
+    docker  run -v $XDG_RUNTIME_DIR/podman/podman.sock:/var/run/docker.sock -e WATCHTOWER_HTTP_API_UPDATE=1 -e WATCHTOWER_HTTP_API_TOKEN=123 --hostname=watchtower --network=pmm_default docker.io/perconalab/watchtower
+    -v $XDG_RUNTIME_DIR/podman/podman.sock:/var/run/docker.sock
     ```
 
-4. Visit `https://localhost:8443` to see the PMM user interface in a web browser. (If you are accessing host remotely, replace `localhost` with the IP or server name of the host.)
+
+6. Visit `https://localhost:8443` to see the PMM user interface in a web browser. (If you are accessing host remotely, replace `localhost` with the IP or server name of the host.)
 
 <div hidden>
 ```sh
@@ -152,7 +157,3 @@ sleep 80
 timeout 60 podman wait --condition=running pmm-server
 ```
 </div>
-
-
-
-
