@@ -146,7 +146,6 @@ To run Podman as a non-privileged user:
     docker  run -v $XDG_RUNTIME_DIR/podman/podman.sock:/var/run/docker.sock -e WATCHTOWER_HTTP_API_UPDATE=1 -e WATCHTOWER_HTTP_API_TOKEN=123 --hostname=watchtower --network=pmm_default docker.io/perconalab/watchtower
     ```
 
-
 6. Visit `https://localhost:8443` to see the PMM user interface in a web browser. (If you are accessing host remotely, replace `localhost` with the IP or server name of the host.)
 
 <div hidden>

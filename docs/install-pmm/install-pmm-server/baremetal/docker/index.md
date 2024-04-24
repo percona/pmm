@@ -1,12 +1,21 @@
 # Install PMM server with Docker container
 
-This section provides instructions for running PMM Server with Docker based on our [Docker image](https://hub.docker.com/r/percona/pmm-server).
 
-!!! note alert alert-primary ""
-    The tags used here are for the current release. Other [tags](https://hub.docker.com/r/percona/pmm-server/tags) are available.
+This section provides instructions for running PMM Server with Docker based on the [PMM Docker image](https://hub.docker.com/r/percona/pmm-server).
 
-!!! seealso alert alert-info "See also"
-    [Easy-install script](../easy-install.md)
+
+## Running PMM Server with Watchtower
+To ensure that your PMM Server is automatically updated when a new version is available, you need to set up Watchtower alongside PMM Server during installation.
+
+Watchtower is a container monitoring tool that automatically updates running Docker containers to the latest available version. This ensures that  the **Upgrade Now** button on the PMM Home dashboard will trigger Watchtower to seamlessly update your PMM Server container to the latest available version.
+
+Starting with the PMM 3 Beta release, the Watchtower commands will be integrated into the [Easy-install script](../easy-install.md), simplifying the setup process. However, until then, you can manually test the PMM installation via Watchtower using the instructions provided below.
+
+Check out the installation prerequisites below, then choose one of the following methods to run PMM Server with Docker, depending on how you want to store data from PMM in:
+
+- [Running Docker with Data container](../docker/run_with_data_container.md)
+- [Running Docker with host directory](../docker/run_with_host_dir.md)
+- [Running Docker with volume](../docker/run_with_vol.md)
 
 **Prerequisites**
 
@@ -30,18 +39,9 @@ This section provides instructions for running PMM Server with Docker based on o
         - Open the PMM UI in a browser.
 
     ---
-
-You can store data from PMM in:
-{.power-number}
-
-1. [Docker volume](run_with_vol.md) (Preffered method)
-2. [Data container](run_with_data_container.md)
-3. [Host directory](run_with_host_dir.md)
-
-
 ??? info "Key points"
 
-    - To disable the Home Dashboard *PMM Upgrade* panel you can either add `-e DISABLE_UPDATES=true` to the `docker run` command (for the life of the container) or navigate to _PMM --> PMM Settings --> Advanced Settings_ and disable "Check for Updates" (can be turned back on by any admin in the UI).
+    - To disable the Home Dashboard **PMM Upgrade** panel you can either add `-e DISABLE_UPDATES=true` to the `docker run` command (for the life of the container) or navigate to _PMM --> PMM Settings --> Advanced Settings_ and disable "Check for Updates" (can be turned back on by any admin in the UI).
 
     - Eliminate browser certificate warnings by configuring a [trusted certificate](https://docs.percona.com/percona-monitoring-and-management/how-to/secure.html#ssl-encryption).
 
