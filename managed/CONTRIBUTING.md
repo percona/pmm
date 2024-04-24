@@ -53,25 +53,21 @@ go test -timeout=30s -p 1 ./...
 
 ## Available test environment variables:
 
-| Variable                                   | Description                                                                                                         | Default                                  |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| PERCONA_TEST_PMM_CLICKHOUSE_ADDR           | Sets Clickhouse address                                                                                             | 127.0.0.1:9000                           |
-| PERCONA_TEST_PMM_CLICKHOUSE_DATABASE       | Sets Clickhouse database                                                                                            | pmm                                      |
-| PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE      | Sets Clickhouse connections pool size                                                                               | none                                     |
-| PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE     | Sets Clickhouse block size                                                                                          | none                                     |
-| PERCONA_TEST_STARLARK_ALLOW_RECURSION      | Allows recursive functions in checks scripts                                                                        | false                                    |
-| PERCONA_TEST_NICER_API                     | Enables nicer API with default/zero values in response.                                                             | false                                    |
-| PERCONA_TEST_VERSION_SERVICE_URL           | Sets versions service URL                                                                                           | https://check.percona.com/versions/v1    |
-| PERCONA_TEST_CHECKS_FILE                   | Specifies path to local checks file and disables downlading checks files from Percona Platform                      | none                                     |
-| PERCONA_TEST_CHECKS_DISABLE_START_DELAY    | Disables checks service startup delay                                                                               | false                                    |
-| PERCONA_TEST_TELEMETRY_INTERVAL            | Sets telemetry reporting interval                                                                                   | 24h                                      |
-| PERCONA_TEST_TELEMETRY_DISABLE_SEND        | Disables sending of telemetry data to SaaS. This param doesn't affect telemetry data gathering from the datasources | false                                    |
-| PERCONA_TEST_TELEMETRY_FILE                | Sets path for telemetry config file                                                                                 |                                          |
-| PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY | Disable the default telemetry execution start delay, so that telemetry gathering is run immediately upon system     | false                                    |
-| PERCONA_TEST_TELEMETRY_RETRY_BACKOFF       | Sets telemetry reporting retry backoff time                                                                         | 1h                                       |
-| PERCONA_TEST_PLATFORM_ADDRESS              | Sets Percona Platform address                                                                                       | https://check.percona.com                |
-| PERCONA_TEST_PLATFORM_INSECURE             | Allows insecure TLS connections to Percona Platform                                                                 | false                                    |
-| PERCONA_TEST_PLATFORM_PUBLIC_KEY           | Sets Percona Platform public key (Minisign)                                                                         | set of keys embedded into managed binary |
+| Variable                                 | Description                                                                                                         | Default                                  |
+|------------------------------------------|---------------------------------------------------------------------------------------------------------------------|------------------------------------------|
+| PMM_DEV_ADVISOR_STARLARK_ALLOW_RECURSION | Allows recursive functions in checks scripts                                                                        | false                                    |
+| PMM_NICER_API                            | Enables nicer API with default/zero values in response.                                                             | false                                    |
+| PMM_DEV_VERSION_SERVICE_URL              | Sets versions service URL                                                                                           | https://check.percona.com/versions/v1    |
+| PMM_DEV_ADVISOR_CHECKS_FILE              | Specifies path to local checks file and disables downlading checks files from Percona Platform                      | none                                     |
+| PMM_ADVISORS_CHECKS_DISABLE_START_DELAY  | Disables checks service startup delay                                                                               | false                                    |
+| PMM_DEV_TELEMETRY_INTERVAL               | Sets telemetry reporting interval                                                                                   | 24h                                      |
+| PMM_DEV_TELEMETRY_DISABLE_SEND           | Disables sending of telemetry data to SaaS. This param doesn't affect telemetry data gathering from the datasources | false                                    |
+| PMM_DEV_TELEMETRY_FILE                   | Sets path for telemetry config file                                                                                 |                                          |
+| PMM_DEV_TELEMETRY_DISABLE_START_DELAY    | Disable the default telemetry execution start delay, so that telemetry gathering is run immediately upon system     | false                                    |
+| PMM_DEV_TELEMETRY_RETRY_BACKOFF          | Sets telemetry reporting retry backoff time                                                                         | 1h                                       |
+| PMM_DEV_PERCONA_PLATFORM_ADDRESS         | Sets Percona Platform address                                                                                       | https://check.percona.com                |
+| PMM_DEV_PERCONA_PLATFORM_INSECURE        | Allows insecure TLS connections to Percona Platform                                                                 | false                                    |
+| PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY      | Sets Percona Platform public key (Minisign)                                                                         | set of keys embedded into managed binary |
 
 ## Add instances for monitoring
 
