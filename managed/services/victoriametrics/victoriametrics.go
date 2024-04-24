@@ -87,7 +87,7 @@ func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, params *models.V
 // Run runs VictoriaMetrics configuration update loop until ctx is canceled.
 func (svc *Service) Run(ctx context.Context) {
 	// If you change this and related methods,
-	// please do similar changes in alertmanager and vmalert packages.
+	// please do similar changes in vmalert package.
 
 	svc.l.Info("Starting...")
 	defer svc.l.Info("Done.")
@@ -338,7 +338,7 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForInternalVMAgent(s.HR, svc.baseURL.Host))
 		}
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(s.HR))
-		AddInternalServicesToScrape(cfg, s, settings.DBaaS.Enabled)
+		AddInternalServicesToScrape(cfg, s)
 		return AddScrapeConfigs(svc.l, cfg, tx.Querier, &s, nil, false)
 	})
 }

@@ -65,16 +65,13 @@ func TestClient(t *testing.T) {
 			body := clientError.Body
 			body = strings.ReplaceAll(body, "\n", "") // different grafana versions format response differently
 			body = strings.ReplaceAll(body, " ", "")  // so we cleanup response from spaces and newlines to get unified result
-			assert.Equal(t, "{\"message\":\"Unauthorized\"}", body)
+			assert.Equal(t, "{\"extra\":null,\"message\":\"Unauthorized\",\"messageId\":\"auth.unauthorized\",\"statusCode\":401,\"traceID\":\"\"}", body)
 			assert.Equal(t, `Unauthorized`, clientError.ErrorMessage)
 			assert.Equal(t, none, role)
 			assert.Equal(t, "None", role.String())
 		})
 
 		t.Run("NewUserViewerByDefault", func(t *testing.T) {
-			// do not run this test in parallel - they lock Grafana's sqlite3 database
-			// t.Parallel()
-
 			// See [users] in grafana.ini.
 
 			login := fmt.Sprintf("%s-%d", none, time.Now().Nanosecond())
@@ -104,8 +101,7 @@ func TestClient(t *testing.T) {
 			role := role
 
 			t.Run(fmt.Sprintf("Basic auth %s", role.String()), func(t *testing.T) {
-				// do not run this test in parallel - they lock Grafana's sqlite3 database
-				// t.Parallel()
+				t.Parallel()
 
 				login := fmt.Sprintf("basic-%s-%d", role, time.Now().Nanosecond())
 				userID, err := c.testCreateUser(ctx, login, role, authHeaders)
@@ -131,8 +127,7 @@ func TestClient(t *testing.T) {
 			})
 
 			t.Run(fmt.Sprintf("API Key auth %s", role.String()), func(t *testing.T) {
-				// do not run this test in parallel - they lock Grafana's sqlite3 database
-				// t.Parallel()
+				t.Parallel()
 
 				login := fmt.Sprintf("api-%s-%d", role, time.Now().Nanosecond())
 				apiKeyID, apiKey, err := c.createAPIKey(ctx, login, role, authHeaders)
@@ -152,6 +147,35 @@ func TestClient(t *testing.T) {
 				u, err := c.getAuthUser(ctx, apiKeyAuthHeaders)
 				actualRole := u.role
 				assert.NoError(t, err)
+				assert.Equal(t, role, actualRole)
+				assert.Equal(t, role.String(), actualRole.String())
+			})
+
+			t.Run(fmt.Sprintf("Service token auth %s", role.String()), func(t *testing.T) {
+				t.Parallel()
+
+				nodeName := fmt.Sprintf("test-node-%s", role)
+				serviceAccountID, err := c.createServiceAccount(ctx, role, nodeName, true, authHeaders)
+				require.NoError(t, err)
+				defer func() {
+					err := c.deleteServiceAccount(ctx, serviceAccountID, authHeaders)
+					require.NoError(t, err)
+				}()
+
+				serviceTokenID, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, nodeName, true, authHeaders)
+				require.NoError(t, err)
+				require.NotZero(t, serviceTokenID)
+				require.NotEmpty(t, serviceToken)
+				defer func() {
+					err := c.deletePMMAgentServiceToken(ctx, serviceAccountID, nodeName, authHeaders)
+					require.NoError(t, err)
+				}()
+
+				serviceTokenAuthHeaders := http.Header{}
+				serviceTokenAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", serviceToken))
+				u, err := c.getAuthUser(ctx, serviceTokenAuthHeaders)
+				assert.NoError(t, err)
+				actualRole := u.role
 				assert.Equal(t, role, actualRole)
 				assert.Equal(t, role.String(), actualRole.String())
 			})
@@ -211,7 +235,7 @@ func TestClient(t *testing.T) {
 			authorization := req.Header.Get("Authorization")
 			_, err = c.CreateAnnotation(ctx, nil, time.Now(), "", authorization)
 			require.ErrorContains(t, err, "failed to create annotation: clientError: POST http://127.0.0.1:3000/api/annotations -> 401")
-			require.ErrorContains(t, err, "invalid username or password")
+			require.ErrorContains(t, err, "Invalid username or password")
 		})
 	})
 

@@ -92,7 +92,7 @@ func DetectDistributionType(ctx context.Context, tarballInstallPath string) (Dis
 	}
 
 	if isTarball {
-		logrus.Debug("Found pmm2-client installed via tarball")
+		logrus.Debug("Found pmm-client installed via tarball")
 		return Tarball, nil
 	}
 
@@ -103,7 +103,7 @@ func DetectDistributionType(ctx context.Context, tarballInstallPath string) (Dis
 	}
 
 	if isPm {
-		logrus.Debug("Found pmm2-client installed via a package manager")
+		logrus.Debug("Found pmm-client installed via a package manager")
 		return PackageManager, nil
 	}
 
@@ -131,7 +131,7 @@ func checkPackageManager(ctx context.Context) (bool, error) {
 }
 
 func detectTarballDistribution(tarballInstallPath string) (bool, error) {
-	p := "/usr/local/percona/pmm2"
+	p := "/usr/local/percona/pmm"
 	if tarballInstallPath != "" {
 		p = tarballInstallPath
 	}
@@ -158,11 +158,11 @@ func detectPackageManagerInstallation(ctx context.Context, pm common.PackageMana
 	switch pm {
 	case common.Dnf:
 		cmds = [][]string{
-			{"dnf", "list", "installed", "pmm2-client"},
+			{"dnf", "list", "installed", "pmm-client"},
 		}
 	case common.Yum:
 		cmds = [][]string{
-			{"yum", "list", "installed", "pmm2-client"},
+			{"yum", "list", "installed", "pmm-client"},
 		}
 	case common.Apt:
 		return queryDpkg(ctx)
@@ -199,7 +199,7 @@ func queryDpkg(ctx context.Context) (bool, error) {
 		"dpkg-query",
 		"--show",
 		"-f=${Package}\t${db:Status-Status}\n",
-		"pmm2-client")
+		"pmm-client")
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {

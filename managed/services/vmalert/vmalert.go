@@ -84,7 +84,7 @@ func NewVMAlert(externalRules *ExternalRules, baseURL string) (*Service, error) 
 // Run runs VMAlert configuration update loop until ctx is canceled.
 func (svc *Service) Run(ctx context.Context) {
 	// If you change this and related methods,
-	// please do similar changes in alertmanager and victoriametrics packages.
+	// please do similar changes in victoriametrics packages.
 
 	svc.l.Info("Starting...")
 	defer svc.l.Info("Done.")

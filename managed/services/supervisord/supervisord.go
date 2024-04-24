@@ -422,11 +422,11 @@ func getValueFromENV(envName string, defaultValue string) string {
 
 // marshalConfig marshals supervisord program configuration.
 func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings, ssoDetails *models.PerconaSSODetails) ([]byte, error) {
-	clickhouseDatabase := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
-	clickhouseAddr := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
-	clickhouseDataSourceAddr := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR", defaultClickhouseDataSourceAddr)
-	clickhousePoolSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE", "")
-	clickhouseBlockSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "")
+	clickhouseDatabase := getValueFromENV("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
+	clickhouseAddr := getValueFromENV("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
+	clickhouseDataSourceAddr := getValueFromENV("PMM_CLICKHOUSE_DATASOURCE_ADDR", defaultClickhouseDataSourceAddr)
+	clickhousePoolSize := getValueFromENV("PMM_CLICKHOUSE_POOL_SIZE", "")
+	clickhouseBlockSize := getValueFromENV("PMM_CLICKHOUSE_BLOCK_SIZE", "")
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2)
 	vmSearchDisableCache := getValueFromENV("VM_search_disableCache", strconv.FormatBool(!settings.VictoriaMetrics.CacheEnabled))
 	vmSearchMaxQueryLen := getValueFromENV("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
@@ -453,7 +453,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"VMPromscrapeStreamParse":      vmPromscrapeStreamParse,
 		"VMURL":                        s.vmParams.URL(),
 		"ExternalVM":                   s.vmParams.ExternalVM(),
-		"PerconaTestDbaas":             settings.DBaaS.Enabled,
 		"InterfaceToBind":              envvars.GetInterfaceToBind(),
 		"ClickhouseAddr":               clickhouseAddr,
 		"ClickhouseDataSourceAddr":     clickhouseDataSourceAddr,
@@ -492,47 +491,12 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		templateParams["PerconaSSODetails"] = nil
 	}
 
-	if err := addAlertManagerParams(settings.AlertManagerURL, templateParams); err != nil {
-		return nil, errors.Wrap(err, "cannot add AlertManagerParams to supervisor template")
-	}
-
 	var buf bytes.Buffer
 	if err := tmpl.Execute(&buf, templateParams); err != nil {
 		return nil, errors.Wrapf(err, "failed to render template %q", tmpl.Name())
 	}
 	b := append([]byte("; Managed by pmm-managed. DO NOT EDIT.\n"), buf.Bytes()...)
 	return b, nil
-}
-
-// addAlertManagerParams parses alertManagerURL
-// and extracts url, username and password from it to templateParams.
-func addAlertManagerParams(alertManagerURL string, templateParams map[string]interface{}) error {
-	templateParams["AlertmanagerURL"] = "http://127.0.0.1:9093/alertmanager"
-	templateParams["AlertManagerUser"] = ""
-	templateParams["AlertManagerPassword"] = ""
-	if alertManagerURL == "" {
-		return nil
-	}
-	u, err := url.Parse(alertManagerURL)
-	if err != nil {
-		return errors.Wrap(err, "cannot parse AlertManagerURL")
-	}
-	if u.Opaque != "" || u.Host == "" {
-		return errors.Errorf("AlertmanagerURL parsed incorrectly as %#v", u)
-	}
-	password, _ := u.User.Password()
-	n := url.URL{
-		Scheme:   u.Scheme,
-		Host:     u.Host,
-		Path:     u.Path,
-		RawQuery: u.RawQuery,
-		Fragment: u.Fragment,
-	}
-	templateParams["AlertManagerUser"] = fmt.Sprintf(",%s", u.User.Username())
-	templateParams["AlertManagerPassword"] = fmt.Sprintf(",%s", strconv.Quote(password))
-	templateParams["AlertmanagerURL"] = fmt.Sprintf("http://127.0.0.1:9093/alertmanager,%s", n.String())
-
-	return nil
 }
 
 // addPostgresParams adds pmm-server postgres database params to template config for grafana.
@@ -610,7 +574,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	return true, nil
 }
 
-// UpdateConfiguration updates Prometheus, Alertmanager, Grafana and qan-api2 configurations, restarting them if needed.
+// UpdateConfiguration updates VictoriaMetrics, Grafana and qan-api2 configurations, restarting them if needed.
 func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *models.PerconaSSODetails) error {
 	if s.supervisorctlPath == "" {
 		s.l.Errorf("supervisorctl not found, configuration updates are disabled.")
@@ -667,38 +631,6 @@ func (s *Service) StopSupervisedService(serviceName string) error {
 
 //nolint:lll
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
-{{define "dbaas-controller"}}
-[program:dbaas-controller]
-priority = 6
-command = /usr/sbin/dbaas-controller
-user = pmm
-autorestart = {{ .PerconaTestDbaas }}
-autostart = {{ .PerconaTestDbaas }}
-startretries = 10
-startsecs = 1
-stopsignal = TERM
-stopwaitsecs = 300
-stdout_logfile = /srv/logs/dbaas-controller.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
-
-{{define "prometheus"}}
-[program:prometheus]
-command = /bin/echo Prometheus is substituted by VictoriaMetrics
-user = pmm
-autorestart = false
-autostart = false
-startretries = 10
-startsecs = 1
-stopsignal = TERM
-stopwaitsecs = 300
-stdout_logfile = /srv/logs/prometheus.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
 
 {{define "victoriametrics"}}
 {{- if not .ExternalVM }}
@@ -719,7 +651,6 @@ command =
 		--search.logSlowQueryDuration={{ .VMSearchLogSlowQueryDuration }}
 		--search.maxQueryDuration={{ .VMSearchMaxQueryDuration }}
 		--promscrape.streamParse={{ .VMPromscrapeStreamParse }}
-		--prometheusDataPath=/srv/prometheus/data
 		--http.pathPrefix=/prometheus
 		--envflag.enable
 		--envflag.prefix=VM_
@@ -742,16 +673,12 @@ redirect_stderr = true
 priority = 7
 command =
 	/usr/sbin/vmalert
-		--notifier.url="{{ .AlertmanagerURL }}"
-		--notifier.basicAuth.password='{{ .AlertManagerPassword }}'
-		--notifier.basicAuth.username="{{ .AlertManagerUser }}"
 		--external.url={{ .VMURL }}
 		--datasource.url={{ .VMURL }}
 		--remoteRead.url={{ .VMURL }}
 		--remoteRead.ignoreRestoreErrors=false
 		--remoteWrite.url={{ .VMURL }}
 		--rule=/srv/prometheus/rules/*.yml
-		--rule=/etc/ia/rules/*.yml
 		--httpListenAddr={{ .InterfaceToBind }}:8880
 {{- range $index, $param := .VMAlertFlags }}
 		{{ $param }}
@@ -791,30 +718,6 @@ stdout_logfile_backups = 3
 redirect_stderr = true
 {{end}}
 
-{{define "alertmanager"}}
-[program:alertmanager]
-priority = 8
-command =
-	/usr/sbin/alertmanager
-		--config.file=/etc/alertmanager.yml
-		--storage.path=/srv/alertmanager/data
-		--data.retention={{ .DataRetentionHours }}h
-		--web.external-url=http://localhost:9093/alertmanager/
-		--web.listen-address={{ .InterfaceToBind }}:9093
-		--cluster.listen-address=""
-user = pmm
-autorestart = true
-autostart = true
-startretries = 1000
-startsecs = 1
-stopsignal = TERM
-stopwaitsecs = 10
-stdout_logfile = /srv/logs/alertmanager.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
-
 {{define "qan-api2"}}
 [program:qan-api2]
 priority = 13
@@ -822,10 +725,10 @@ command =
 	/usr/sbin/percona-qan-api2
 		--data-retention={{ .DataRetentionDays }}
 environment =
-	PERCONA_TEST_PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
-	PERCONA_TEST_PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
-{{ if .ClickhousePoolSize }}	PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE={{ .ClickhousePoolSize }},{{- end}}
-{{ if .ClickhouseBlockSize }}	PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE={{ .ClickhouseBlockSize }}{{- end}}
+	PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
+	PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
+{{ if .ClickhousePoolSize }}	PMM_CLICKHOUSE_POOL_SIZE={{ .ClickhousePoolSize }},{{- end}}
+{{ if .ClickhouseBlockSize }}	PMM_CLICKHOUSE_BLOCK_SIZE={{ .ClickhouseBlockSize }}{{- end}}
 user = pmm
 autorestart = true
 autostart = true
@@ -862,17 +765,17 @@ command =
         cfg:default.auth.oauth_allow_insecure_email_lookup="true"
         {{- end}}
 environment =
-    PERCONA_TEST_POSTGRES_ADDR="{{ .PostgresAddr }}",
-    PERCONA_TEST_POSTGRES_DBNAME="{{ .PostgresDBName }}",
-    PERCONA_TEST_POSTGRES_USERNAME="{{ .PostgresDBUsername }}",
-    PERCONA_TEST_POSTGRES_DBPASSWORD="{{ .PostgresDBPassword }}",
-    PERCONA_TEST_POSTGRES_SSL_MODE="{{ .PostgresSSLMode }}",
-    PERCONA_TEST_POSTGRES_SSL_CA_PATH="{{ .PostgresSSLCAPath }}",
-    PERCONA_TEST_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
-    PERCONA_TEST_POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
-    PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR="{{ .ClickhouseDataSourceAddr }}",
-    PERCONA_TEST_PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
-    PERCONA_TEST_PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
+    PMM_POSTGRES_ADDR="{{ .PostgresAddr }}",
+    PMM_POSTGRES_DBNAME="{{ .PostgresDBName }}",
+    PMM_POSTGRES_USERNAME="{{ .PostgresDBUsername }}",
+    PMM_POSTGRES_DBPASSWORD="{{ .PostgresDBPassword }}",
+    PMM_POSTGRES_SSL_MODE="{{ .PostgresSSLMode }}",
+    PMM_POSTGRES_SSL_CA_PATH="{{ .PostgresSSLCAPath }}",
+    PMM_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
+    PMM_POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
+    PMM_CLICKHOUSE_DATASOURCE_ADDR="{{ .ClickhouseDataSourceAddr }}",
+    PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
+    PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
     {{- if .PerconaSSODetails}}
     GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
     {{- end}}
@@ -881,7 +784,7 @@ environment =
     GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS="{{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}",
     GF_UNIFIED_ALERTING_HA_PEERS="{{ .HANodes }}"
     {{- end}}
-user = grafana
+user = pmm
 directory = /usr/share/grafana
 autorestart = true
 autostart = true

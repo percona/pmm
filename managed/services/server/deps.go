@@ -45,13 +45,6 @@ type prometheusService interface {
 	healthChecker
 }
 
-// alertmanagerService is a subset of methods of alertmanager.Service used by this package.
-// We use it instead of real type for testing and to avoid dependency cycle.
-type alertmanagerService interface {
-	RequestConfigurationUpdate()
-	healthChecker
-}
-
 // checksService is a subset of methods of checks.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type checksService interface {
@@ -104,18 +97,7 @@ type agentsStateUpdater interface {
 	UpdateAgentsState(ctx context.Context) error
 }
 
-// rulesService is a subset of methods of ia.RulesService used by this package.
-// We use it instead of real type for testing and to avoid dependency cycle.
-type rulesService interface {
-	WriteVMAlertRulesFiles()
-	RemoveVMAlertRulesFiles() error
-}
-
-type emailer interface {
-	Send(ctx context.Context, settings *models.EmailAlertingSettings, emailTo string) error
-}
-
-// templatesService is a subset of methods of ia.TemplatesService used by this package.
+// templatesService is a subset of methods of alerting.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type templatesService interface {
 	CollectTemplates(ctx context.Context)

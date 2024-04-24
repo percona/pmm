@@ -21,12 +21,6 @@ packages:
   github.com/percona/pmm/managed/services/checks:
     interfaces:
       agentsRegistry:
-  github.com/percona/pmm/managed/services/dbaas/kubernetes/client:
-    interfaces:
-      KubeClientConnector:
-        config:
-          mockname: "Mock{{ .InterfaceName | camelcase }}"
-          filename: "mock_{{ .InterfaceName | snakecase }}.go"          
   github.com/percona/pmm/managed/services/grafana:
     interfaces:
       awsInstanceChecker:
@@ -44,7 +38,7 @@ packages:
     interfaces:
       agentsRegistry:
       agentsStateUpdater:
-      apiKeyProvider:
+      authProvider:
       checksService:
       connectionChecker:
       grafanaClient:
@@ -56,22 +50,6 @@ packages:
   github.com/percona/pmm/managed/services/management/alerting:
     interfaces:
       grafanaClient:
-  github.com/percona/pmm/managed/services/management/dbaas:
-    interfaces:
-      dbaasClient:
-      versionService:
-      grafanaClient:
-      componentsService:
-      kubernetesClient:
-      kubeStorageManager:
-  github.com/percona/pmm/managed/services/management/dump:
-    interfaces:
-      dumpService:
-  github.com/percona/pmm/managed/services/management/ia:
-    interfaces:
-      alertManager:
-      vmAlert:
-      templatesService:
   github.com/percona/pmm/managed/services/management/backup:
     interfaces:
       awsS3:
@@ -79,6 +57,9 @@ packages:
       scheduleService:
       removalService:
       pbmPITRService:
+  github.com/percona/pmm/managed/services/management/dump:
+    interfaces:
+      dumpService:
   github.com/percona/pmm/managed/services/qan:
     interfaces:
       qanCollectorClient:
@@ -88,7 +69,6 @@ packages:
   github.com/percona/pmm/managed/services/server:
     interfaces:
       agentsStateUpdater:
-      alertmanagerService:
       checksService:
       emailer:
       grafanaClient:

@@ -40,7 +40,7 @@ const defaultGrafanaAdminPassword = "admin"
 // InstallCommand is used by Kong for CLI flags and commands.
 type InstallCommand struct {
 	AdminPassword      string `default:"admin" help:"Password to be configured for the PMM server's \"admin\" user"`
-	DockerImage        string `default:"percona/pmm-server:2" help:"Docker image to use to install PMM Server. Defaults to latest version"`
+	DockerImage        string `default:"percona/pmm-server:3" help:"Docker image to use to install PMM Server. Defaults to latest version"`
 	HTTPSListenPort    uint16 `default:"443" help:"HTTPS port to listen on"`
 	HTTPListenPort     uint16 `default:"80" help:"HTTP port to listen on"`
 	ContainerName      string `default:"pmm-server" help:"Name of the PMM Server container"`
@@ -129,8 +129,8 @@ func (c *InstallCommand) runContainer(ctx context.Context, volume *volume.Volume
 	logrus.Info("Starting PMM Server")
 
 	ports := nat.PortMap{
-		"443/tcp": []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: strconv.Itoa(int(c.HTTPSListenPort))}},
-		"80/tcp":  []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: strconv.Itoa(int(c.HTTPListenPort))}},
+		"8443/tcp": []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: strconv.Itoa(int(c.HTTPSListenPort))}},
+		"8080/tcp": []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: strconv.Itoa(int(c.HTTPListenPort))}},
 	}
 
 	containerID, err := startPMMServer(ctx, volume, "", dockerImage, c.dockerFn, ports, c.ContainerName)

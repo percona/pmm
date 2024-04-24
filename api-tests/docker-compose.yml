@@ -3,19 +3,18 @@ version: '3.7'
 
 services:
   pmm-server:
-    image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:dev-latest}
+    image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:3-dev-latest}
     container_name: pmm-agent_pmm-server
     ports:
-      - 127.0.0.1:80:80
-      - 127.0.0.1:443:443
+      - 127.0.0.1:80:8080
+      - 127.0.0.1:443:8443
     environment:
       - PMM_DEBUG=1
-      - PERCONA_TEST_CHECKS_INTERVAL=10s
       # for local development
-      # - PERCONA_TEST_CHECKS_FILE=/srv/checks/custom-checks.yml
+      # - PMM_DEV_ADVISOR_CHECKS_FILE=/srv/checks/custom-checks.yml
       # for check-dev
-      - PERCONA_TEST_SAAS_HOST=check-dev.percona.com
-      - PERCONA_TEST_CHECKS_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX
+      - PMM_DEV_PERCONA_PLATFORM_ADDRESS=check-dev.percona.com
+      - PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX
     volumes:
       - ./testdata/checks:/srv/checks
 

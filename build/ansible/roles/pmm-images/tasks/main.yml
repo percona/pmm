@@ -1,0 +1,146 @@
+---
+# We use percona-release package to install the gpg keys and ppg-14
+# To workaround the package's incompatibility with RHEL9, we have to disable the gpg verification :(
+- name: Add percona-release package
+  yum:
+    name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+    state: installed
+    disable_gpg_check: yes
+
+- name: List installed gpg keys
+  command: ls -la /etc/pki/rpm-gpg
+
+# Local yum repo for building pmm server docker image in autobuild jobs
+- name: Add a local YUM repository
+  yum_repository:
+    name: local
+    description: Local YUM repository - x86_64
+    baseurl: file:///tmp/RPMS
+    gpgcheck: no
+    enabled: no
+
+- name: Update OS packages
+  yum:
+    name: "*"
+    state: latest
+    disablerepo: percona-release-x86_64
+
+- name: Install OS tools
+  yum:
+    name:
+      - python3-pip
+      - python3.11-pip
+      - python3.11-psycopg2
+      - rsync
+
+- name: Create groups
+  group:
+    name: "{{ item.name }}"
+    gid: "{{ item.gid }}"
+  loop:
+    - { name: pmm, gid: 1000 }
+    - { name: nginx, gid: 1001 }
+    - { name: clickhouse, gid: 1002 }
+
+# Note: nginx and clickhouse users will get removed in post-build.
+- name: Create users
+  user:
+    name: "{{ item.name }}"
+    uid: "{{ item.uid }}"
+    home: "{{ item.home }}"
+    comment: "{{ item.comment }}"
+    shell: "{{ item.shell }}"
+    group: "{{ item.group }}"
+  loop:
+    - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/usr/bin/bash", home: "/home/pmm", group: pmm, }
+    - { name: nginx, uid: 1001, comment: "Nginx user", shell: "/sbin/nologin", home: "/dev/null", group: nginx, }
+    - { name: clickhouse, uid: 1002, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/dev/null", group: clickhouse, }
+
+- name: Create directories (mask 022)
+  file: 
+    path: "{{ item }}"
+    state: directory
+    owner: pmm
+    group: pmm
+  loop:
+    - /srv # otherwise it's owned by root
+    - /srv/prometheus/rules
+    - /etc/grafana
+    - /srv/clickhouse
+
+# Note a special mode required mainly by nginx
+- name: Create a directory for logs
+  file:
+    path: /srv/logs
+    state: directory
+    owner: pmm
+    group: pmm
+    mode: 0775
+
+- name: Create dirs
+  file: 
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - /var/lib/cloud/scripts/per-once
+    - /var/lib/cloud/scripts/per-boot
+
+- name: Install PMM Server components
+  yum:
+    name:
+      - percona-grafana
+      - percona-victoriametrics
+      - percona-qan-api2
+      - percona-dashboards
+      - pmm-managed
+      - pmm-update
+      - pmm-dump
+      - vmproxy
+    state: installed
+    enablerepo: local
+
+- name: Create grafana config
+  include_role:
+    name: grafana
+
+- name: Install clickhouse
+  include_role:
+    name: clickhouse
+
+- name: Install nginx
+  include_role:
+    name: nginx
+
+- name: Install postgres
+  include_role:
+    name: postgres
+
+- name: Install supervisord
+  include_role:
+    name: supervisord
+
+- name: Install pmm-client
+  include_role:
+    name: pmm-client
+
+- name: Create a backup directory
+  file:
+    path: /srv/backup
+    state: directory
+    owner: pmm
+    group: pmm
+    mode: 0775
+
+- name: Create a working directory for VictoriaMetrics
+  file:
+    path: /srv/victoriametrics/data
+    state: directory
+    owner: pmm
+    group: pmm
+
+- name: Create an empty configuration file for VictoriaMetrics
+  file:
+    path: /etc/victoriametrics-promscrape.yml
+    state: touch
+    owner: pmm
+    group: pmm

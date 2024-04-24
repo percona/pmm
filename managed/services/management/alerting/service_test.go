@@ -35,17 +35,17 @@ import (
 const (
 	devPlatformAddress   = "https://check-dev.percona.com"
 	devPlatformPublicKey = "RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX"
-	testBadTemplates     = "../../../testdata/ia/bad"
-	testTemplates        = "../../../testdata/ia/user2"
-	testTemplates2       = "../../../testdata/ia/user"
+	testBadTemplates     = "../../../testdata/alerting/bad"
+	testTemplates        = "../../../testdata/alerting/user2"
+	testTemplates2       = "../../../testdata/alerting/user"
 	issuerURL            = "https://id-dev.percona.com/oauth2/aus15pi5rjdtfrcH51d7/v1"
 )
 
 func TestCollect(t *testing.T) {
 	t.Parallel()
-	clientID, clientSecret := os.Getenv("OAUTH_PMM_CLIENT_ID"), os.Getenv("OAUTH_PMM_CLIENT_SECRET")
+	clientID, clientSecret := os.Getenv("PMM_DEV_OAUTH_CLIENT_ID"), os.Getenv("PMM_DEV_OAUTH_CLIENT_SECRET")
 	if clientID == "" || clientSecret == "" {
-		t.Skip("Environment variables OAUTH_PMM_CLIENT_ID / OAUTH_PMM_CLIENT_SECRET are not defined, skipping test")
+		t.Skip("Environment variables PMM_DEV_OAUTH_CLIENT_ID / PMM_DEV_OAUTH_CLIENT_SECRET are not defined, skipping test")
 	}
 
 	ctx := context.Background()
@@ -110,9 +110,9 @@ func TestCollect(t *testing.T) {
 }
 
 func TestDownloadTemplates(t *testing.T) {
-	clientID, clientSecret := os.Getenv("OAUTH_PMM_CLIENT_ID"), os.Getenv("OAUTH_PMM_CLIENT_SECRET")
+	clientID, clientSecret := os.Getenv("PMM_DEV_OAUTH_CLIENT_ID"), os.Getenv("PMM_DEV_OAUTH_CLIENT_SECRET")
 	if clientID == "" || clientSecret == "" {
-		t.Skip("Environment variables OAUTH_PMM_CLIENT_ID / OAUTH_PMM_CLIENT_SECRET are not defined, skipping test")
+		t.Skip("Environment variables PMM_DEV_OAUTH_CLIENT_ID / PMM_DEV_OAUTH_CLIENT_SECRET are not defined, skipping test")
 	}
 
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
@@ -166,13 +166,6 @@ func TestTemplateValidation(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	platformClient, err := platform.NewClient(db, devPlatformAddress)
-	require.NoError(t, err)
-
-	// Enable IA
-	settings, err := models.GetSettings(db)
-	require.NoError(t, err)
-	settings.Alerting.Disabled = true
-	err = models.SaveSettings(db, settings)
 	require.NoError(t, err)
 
 	t.Run("create a template with missing param", func(t *testing.T) {

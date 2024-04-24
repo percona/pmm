@@ -1,9 +1,9 @@
 %global debug_package   %{nil}
-%global commit          7ff49f34a3998067fa1ea480c07e0c74939ea306
+%global commit          f2a6d70344f94674f731e6e9b031a6f147de46cc
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         100
-%define grafana_version 9.2.20
+%define release         105
+%define grafana_version 10.4.2
 %define full_pmm_version 2.0.0
 %define full_version    v%{grafana_version}-%{full_pmm_version}
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
@@ -65,25 +65,35 @@ mv conf/ldap.toml %{buildroot}%{_sysconfdir}/grafana/
 install -d -p %{buildroot}%{_sharedstatedir}/grafana
 
 %files
-%defattr(-, grafana, grafana, -)
+%defattr(-, pmm, pmm, -)
 %{_datadir}/grafana
 %doc CHANGELOG.md README.md
 %license LICENSE
-%attr(0755, root, root) %{_sbindir}/grafana
-%attr(0755, root, root) %{_sbindir}/grafana-server
-%attr(0755, root, root) %{_bindir}/grafana-cli
+%attr(0755, pmm, pmm) %{_sbindir}/grafana
+%attr(0755, pmm, pmm) %{_sbindir}/grafana-server
+%attr(0755, pmm, pmm) %{_bindir}/grafana-cli
 %{_sysconfdir}/grafana/grafana.ini
 %{_sysconfdir}/grafana/ldap.toml
 %dir %{_sharedstatedir}/grafana
 
 %pre
-getent group grafana >/dev/null || groupadd -r grafana
-getent passwd grafana >/dev/null || \
-    useradd -r -g grafana -d /etc/grafana -s /sbin/nologin \
-    -c "Grafana Server" grafana
+getent group pmm >/dev/null || echo "Group pmm does not exist. Please create it manually."
+getent passwd pmm >/dev/null || echo "User pmm does not exist. Please create it manually."
 exit 0
 
 %changelog
+* Tue Apr 16 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 10.4.2-1
+- PMM-13059 Grafana 10.4.2
+
+* Tue Mar 12 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 10.4.0-1
+- PMM-12991 Grafana 10.4.0
+
+* Tue Jan 16 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 10.2.3-1
+- PMM-12314 Grafana 10.2.3
+
+* Mon Nov 27 2023 Alex Demidoff <alexander.demidoff@percona.com> - 9.2.20-2
+- PMM-12693 Run Grafana as non-root user
+
 * Tue Jun 27 2023 Matej Kubinec <matej.kubinec@ext.percona.com> - 9.2.20-1
 - PMM-12254 Grafana 9.2.20
 

@@ -34,7 +34,6 @@ import (
 func TestVersion(t *testing.T) {
 	t.Parallel()
 	paths := []string{
-		"managed/v1/version",
 		"v1/version",
 	}
 	for _, path := range paths {
@@ -61,12 +60,12 @@ func TestVersion(t *testing.T) {
 			err = json.Unmarshal(b, &res)
 			require.NoError(t, err)
 
-			require.True(t, strings.HasPrefix(res.Version, "2."),
-				"version = %q must have '2.' prefix for PMM 1.x's pmm-client compatibility checking", res.Version)
+			require.True(t, strings.HasPrefix(res.Version, "3."),
+				"version = %q must have '3.' prefix for PMM 1.x's and 2.x's pmm-client compatibility checking", res.Version)
 
 			require.NotEmpty(t, res.Managed)
-			assert.True(t, strings.HasPrefix(res.Managed.Version, "2."),
-				"managed.version = %q must have '2.' prefix ", res.Managed.Version)
+			assert.True(t, strings.HasPrefix(res.Managed.Version, "3."),
+				"managed.version = %q must have '3.' prefix ", res.Managed.Version)
 			assert.NotEmpty(t, res.Managed.FullVersion)
 
 			// check that timestamp is not XX:00:00
