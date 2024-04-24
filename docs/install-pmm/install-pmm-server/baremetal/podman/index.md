@@ -144,7 +144,6 @@ To run Podman as a non-privileged user:
 
     ```sh
     docker  run -v $XDG_RUNTIME_DIR/podman/podman.sock:/var/run/docker.sock -e WATCHTOWER_HTTP_API_UPDATE=1 -e WATCHTOWER_HTTP_API_TOKEN=123 --hostname=watchtower --network=pmm_default docker.io/perconalab/watchtower
-    -v $XDG_RUNTIME_DIR/podman/podman.sock:/var/run/docker.sock
     ```
 
 
