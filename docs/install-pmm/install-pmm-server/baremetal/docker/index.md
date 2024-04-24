@@ -3,15 +3,13 @@
 
 This section provides instructions for running PMM Server with Docker based on the [PMM Docker image](https://hub.docker.com/r/percona/pmm-server).
 
-
 ## Running PMM Server with Watchtower
-To ensure that your PMM Server is automatically updated when a new version is available, you need to set up Watchtower alongside PMM Server during installation.
 
-Watchtower is a container monitoring tool that automatically updates running Docker containers to the latest available version. This ensures that  the **Upgrade Now** button on the PMM Home dashboard will trigger Watchtower to seamlessly update your PMM Server container to the latest available version.
+To enable PMM Server upgrades via the **Upgrade Now** button on the PMM Home dashboard, you need to set up Watchtower alongside PMM Server during installation. Watchtower is a container monitoring tool that updates Docker containers to the latest version when triggered.
 
-Starting with the PMM 3 Beta release, the Watchtower commands will be integrated into the [Easy-install script](../easy-install.md), simplifying the setup process. However, until then, you can manually test the PMM installation via Watchtower using the instructions provided below.
+The PMM 3 Beta release will integrate Watchtower commands into the [Easy-install script](../easy-install.md), for a simpler setup. Until then, you can manually test the PMM installation via Watchtower using the instructions provided below.
 
-Check out the installation prerequisites below, then choose one of the following methods to run PMM Server with Docker, depending on how you want to store data from PMM in:
+Before proceeding, review the installation prerequisites and choose a method to run PMM Server with Docker based on your preferred data storage option:
 
 - [Running Docker with Data container](../docker/run_with_data_container.md)
 - [Running Docker with host directory](../docker/run_with_host_dir.md)
