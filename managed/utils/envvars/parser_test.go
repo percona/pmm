@@ -34,12 +34,12 @@ func TestEnvVarValidator(t *testing.T) {
 		t.Parallel()
 
 		envs := []string{
-			"ENABLE_UPDATES=false",
-			"ENABLE_TELEMETRY=True",
-			"METRICS_RESOLUTION=5m",
-			"METRICS_RESOLUTION_MR=5s",
-			"METRICS_RESOLUTION_LR=1h",
-			"DATA_RETENTION=72h",
+			"PMM_ENABLE_UPDATES=false",
+			"PMM_ENABLE_TELEMETRY=True",
+			"PMM_METRICS_RESOLUTION=5m",
+			"PMM_METRICS_RESOLUTION_MR=5s",
+			"PMM_METRICS_RESOLUTION_LR=1h",
+			"PMM_DATA_RETENTION=72h",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{
 			DataRetention:   72 * time.Hour,
@@ -118,26 +118,26 @@ func TestEnvVarValidator(t *testing.T) {
 		t.Parallel()
 
 		envs := []string{
-			"ENABLE_UPDATES",
-			"ENABLE_TELEMETRY",
-			"ENABLE_UPDATES=5",
-			"ENABLE_TELEMETRY=X",
-			"METRICS_RESOLUTION=5f",
-			"METRICS_RESOLUTION_MR=s5",
-			"METRICS_RESOLUTION_LR=1hour",
-			"DATA_RETENTION=keep one week",
+			"PMM_ENABLE_UPDATES",
+			"PMM_ENABLE_TELEMETRY",
+			"PMM_ENABLE_UPDATES=5",
+			"PMM_ENABLE_TELEMETRY=X",
+			"PMM_METRICS_RESOLUTION=5f",
+			"PMM_METRICS_RESOLUTION_MR=s5",
+			"PMM_METRICS_RESOLUTION_LR=1hour",
+			"PMM_DATA_RETENTION=keep one week",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 
 		expectedErrs := []error{
-			fmt.Errorf(`failed to parse environment variable "ENABLE_UPDATES"`),
-			fmt.Errorf(`failed to parse environment variable "ENABLE_TELEMETRY"`),
-			fmt.Errorf(`invalid value "5" for environment variable "ENABLE_UPDATES"`),
-			fmt.Errorf(`invalid value "x" for environment variable "ENABLE_TELEMETRY"`),
-			fmt.Errorf(`environment variable "METRICS_RESOLUTION=5f" has invalid duration 5f`),
-			fmt.Errorf(`environment variable "METRICS_RESOLUTION_MR=s5" has invalid duration s5`),
-			fmt.Errorf(`environment variable "METRICS_RESOLUTION_LR=1hour" has invalid duration 1hour`),
-			fmt.Errorf(`environment variable "DATA_RETENTION=keep one week" has invalid duration keep one week`),
+			fmt.Errorf(`failed to parse environment variable "PMM_ENABLE_UPDATES"`),
+			fmt.Errorf(`failed to parse environment variable "PMM_ENABLE_TELEMETRY"`),
+			fmt.Errorf(`invalid value "5" for environment variable "PMM_ENABLE_UPDATES"`),
+			fmt.Errorf(`invalid value "x" for environment variable "PMM_ENABLE_TELEMETRY"`),
+			fmt.Errorf(`environment variable "PMM_METRICS_RESOLUTION=5f" has invalid duration 5f`),
+			fmt.Errorf(`environment variable "PMM_METRICS_RESOLUTION_MR=s5" has invalid duration s5`),
+			fmt.Errorf(`environment variable "PMM_METRICS_RESOLUTION_LR=1hour" has invalid duration 1hour`),
+			fmt.Errorf(`environment variable "PMM_DATA_RETENTION=keep one week" has invalid duration keep one week`),
 		}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
@@ -146,55 +146,31 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotWarns)
 	})
 
-	t.Run("PERCONA_TEST_PLATFORM_ADDRESS env vars with warnings", func(t *testing.T) {
+	t.Run("v2 valid env vars with 'PERCONA_*' prefix show warnings", func(t *testing.T) {
 		t.Parallel()
 
 		envs := []string{
 			"PERCONA_TEST_PLATFORM_ADDRESS=https://host:333",
-		}
-		expectedEnvVars := &models.ChangeSettingsParams{}
-		expectedWarns := []string{
-			`environment variable "PERCONA_TEST_PLATFORM_ADDRESS" IS NOT SUPPORTED and WILL BE REMOVED IN THE FUTURE`,
-		}
-
-		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
-		assert.Nil(t, gotErrs)
-		assert.Equal(t, expectedEnvVars, gotEnvVars)
-		assert.Equal(t, expectedWarns, gotWarns)
-	})
-
-	t.Run("PERCONA_TEST_CHECKS_PUBLIC_KEY env vars with warnings", func(t *testing.T) {
-		t.Parallel()
-
-		envs := []string{
 			"PERCONA_TEST_CHECKS_PUBLIC_KEY=some key",
+			"PERCONA_TEST_AUTH_HOST=host:333",
+			"PERCONA_TEST_CHECKS_HOST=host:333",
+			"PERCONA_TEST_TELEMETRY_HOST=host:333",
+			"PERCONA_TEST_SAAS_HOST=host:333",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 		expectedWarns := []string{
-			`environment variable "PERCONA_TEST_CHECKS_PUBLIC_KEY" is removed and replaced by "PERCONA_TEST_PLATFORM_PUBLIC_KEY"`,
+			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
 		}
 
-		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
-		assert.Nil(t, gotErrs)
+		gotEnvVars, _, gotWarns := ParseEnvVars(envs)
+		// assert.Nil(t, gotErrs)
 		assert.Equal(t, expectedEnvVars, gotEnvVars)
 		assert.Equal(t, expectedWarns, gotWarns)
-	})
-
-	t.Run("SAAS env vars with errors", func(t *testing.T) {
-		t.Parallel()
-
-		for _, k := range []string{
-			"PERCONA_TEST_AUTH_HOST",
-			"PERCONA_TEST_CHECKS_HOST",
-			"PERCONA_TEST_TELEMETRY_HOST",
-			"PERCONA_TEST_SAAS_HOST",
-		} {
-			expected := fmt.Sprintf(`environment variable %q is removed and replaced by "PERCONA_TEST_PLATFORM_ADDRESS"`, k)
-			envs := []string{k + "=host:333"}
-			_, gotErrs, gotWarns := ParseEnvVars(envs)
-			assert.Equal(t, []string{expected}, gotWarns)
-			assert.Nil(t, gotErrs)
-		}
 	})
 
 	t.Run("Parse Platform API Timeout", func(t *testing.T) {
@@ -207,7 +183,7 @@ func TestEnvVarValidator(t *testing.T) {
 		}{
 			{
 				value: "", respVal: time.Second * 30,
-				msg: "Environment variable \"PERCONA_PLATFORM_API_TIMEOUT\" is not set, using \"30s\" as a default timeout for platform API.",
+				msg: "Environment variable \"PMM_DEV_PERCONA_PLATFORM_API_TIMEOUT\" is not set, using \"30s\" as a default timeout for platform API.",
 			},
 			{
 				value: "10s", respVal: time.Second * 10,

@@ -23,6 +23,7 @@ This example uses the tag `:3` to pull the latest PMM 3.x version, but other, [m
 
 You can use these environment variables (-e VAR) when running the Docker image.
 
+<<<<<<< HEAD
 | Variable                 | Description                                                                                                                 |
 |--------------------------|-----------------------------------------------------------------------------------------------------------------------------|
 | ENABLE_UPDATES           | Enable/disable automatic updates                                                                                            |
@@ -39,6 +40,40 @@ You can use these environment variables (-e VAR) when running the Docker image.
 | PMM_PUBLIC_ADDRESS       | External IP address or the DNS name on which PMM server is running.                                                         |
 | PMM_DEBUG                | Enables a more verbose log level                                                                                            |
 | PMM_TRACE                | Enables a more verbose log level including traceback information                                                            |
+||||||| parent of 3aed8f33b (PMM-12619: Make PMM environment variables more consistent (#2857))
+| Variable                 | Description                                                                                                                 |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| DISABLE_UPDATES          | Disable automatic updates                                                                                                   |
+| DISABLE_TELEMETRY        | Disable built-in telemetry and disable STT if telemetry is disabled                                                         |
+| DISABLE_ALERTING         | Disable percona alerting                                                                                                    |
+| METRICS_RESOLUTION       | High metrics resolution in seconds                                                                                          |
+| METRICS_RESOLUTION_HR    | High metrics resolution (same as above)                                                                                     |
+| METRICS_RESOLUTION_MR    | Medium metrics resolution in seconds                                                                                        |
+| METRICS_RESOLUTION_LR    | Low metrics resolution in seconds                                                                                           |
+| DATA_RETENTION           | How long to keep time-series data in ClickHouse. This variable accepts golang style duration format, example: 24h, 30m, 10s |
+| ENABLE_VM_CACHE          | Enable cache in VM                                                                                                          |
+| ENABLE_AZUREDISCOVER     | Enable support for discovery of Azure databases                                                                             |
+| ENABLE_BACKUP_MANAGEMENT | Enable integrated backup tools                                                                                              |
+| PMM_PUBLIC_ADDRESS       | External IP address or the DNS name on which PMM server is running.                                                         |
+| PMM_DEBUG                | Enables a more verbose log level                                                                                            |
+| PMM_TRACE                | Enables a more verbose log level including traceback information                                                            |
+=======
+| Variable                     | Description                                                                                                                 |
+|------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| PMM_ENABLE_UPDATES          | Disable automatic updates                                                                                                   |
+| PMM_ENABLE_TELEMETRY        | Disable built-in telemetry and disable STT if telemetry is disabled                                                         |
+| PMM_ENABLE_ALERTING         | Disable Percona alerting                                                                                                    |
+| PMM_METRICS_RESOLUTION       | High metrics resolution in seconds                                                                                          |
+| PMM_METRICS_RESOLUTION_HR    | High metrics resolution (same as above)                                                                                     |
+| PMM_METRICS_RESOLUTION_MR    | Medium metrics resolution in seconds                                                                                        |
+| PMM_METRICS_RESOLUTION_LR    | Low metrics resolution in seconds                                                                                           |
+| PMM_DATA_RETENTION           | How long to keep time-series data in ClickHouse. This variable accepts golang style duration format, example: 24h, 30m, 10s |
+| PMM_ENABLE_VM_CACHE          | Enable cache in VM                                                                                                          |
+| PMM_ENABLE_AZURE_DISCOVER     | Enable support for discovery of Azure databases                                                                             |
+| PMM_PUBLIC_ADDRESS           | External IP address or the DNS name on which PMM server is running.                                                         |
+| PMM_DEBUG                    | Enables a more verbose log level                                                                                            |
+| PMM_TRACE                    | Enables a more verbose log level including traceback information                                                            |
+>>>>>>> 3aed8f33b (PMM-12619: Make PMM environment variables more consistent (#2857))
 
 ## For more information please visit:
 

@@ -33,12 +33,12 @@ import (
 
 const (
 	defaultPlatformAddress    = "https://check.percona.com"
-	envPlatformAddress        = "PERCONA_TEST_PLATFORM_ADDRESS"
-	envPlatformInsecure       = "PERCONA_TEST_PLATFORM_INSECURE"
-	envPlatformPublicKey      = "PERCONA_TEST_PLATFORM_PUBLIC_KEY"
-	evnInterfaceToBind        = "PERCONA_TEST_INTERFACE_TO_BIND"
-	envEnableAccessControl    = "ENABLE_RBAC"
-	envPlatformAPITimeout     = "PERCONA_PLATFORM_API_TIMEOUT"
+	envPlatformAddress        = "PMM_DEV_PERCONA_PLATFORM_ADDRESS"
+	envPlatformInsecure       = "PMM_DEV_PERCONA_PLATFORM_INSECURE"
+	envPlatformPublicKey      = "PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY"
+	evnInterfaceToBind        = "PMM_INTERFACE_TO_BIND"
+	envEnableAccessControl    = "PMM_ENABLE_ACCESS_CONTROL"
+	envPlatformAPITimeout     = "PMM_DEV_PERCONA_PLATFORM_API_TIMEOUT"
 	defaultPlatformAPITimeout = 30 * time.Second
 	// ENVvmAgentPrefix is the prefix for environment variables related to the VM agent.
 	ENVvmAgentPrefix = "VMAGENT_"
@@ -57,13 +57,13 @@ func (e InvalidDurationError) Error() string { return string(e) }
 // In case of error, the docker run terminates.
 // Short description of environment variables:
 //   - PATH, HOSTNAME, TERM, HOME are default environment variables that will be ignored;
-//   - ENABLE_UPDATES is a boolean flag to enable or disable pmm-server update;
-//   - ENABLE_TELEMETRY is a boolean flag to enable or disable pmm telemetry (and disable Advisors if telemetry is disabled);
-//   - ENABLE_ALERTING disables Percona Alerting;
-//   - METRICS_RESOLUTION, METRICS_RESOLUTION_MR, METRICS_RESOLUTION_HR, METRICS_RESOLUTION_LR are durations of metrics resolution;
-//   - DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
-//   - ENABLE_AZUREDISCOVER enables Azure Discover;
-//   - ENABLE_RBAC enables Access control;
+//   - PMM_ENABLE_UPDATES is a boolean flag to enable or disable pmm-server update;
+//   - PMM_ENABLE_TELEMETRY is a boolean flag to enable or disable pmm telemetry (and disable Advisors if telemetry is disabled);
+//   - PMM_ENABLE_ALERTING disables Percona Alerting;
+//   - PMM_METRICS_RESOLUTION, PMM_METRICS_RESOLUTION_MR, PMM_METRICS_RESOLUTION_HR, PMM_METRICS_RESOLUTION_LR are durations of metrics resolution;
+//   - PMM_DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
+//   - PMM_ENABLE_AZURE_DISCOVER enables Azure Discover;
+//   - PMM_ENABLE_ACCESS_CONTROL enables Access control;
 //   - the environment variables prefixed with GF_ passed as related to Grafana.
 //   - the environment variables relating to proxies
 //   - the environment variable set by podman
@@ -88,57 +88,62 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "_", "HOME", "HOSTNAME", "LANG", "PATH", "PWD", "SHLVL", "TERM", "LC_ALL", "SHELL", "LOGNAME", "USER", "PS1":
 			// skip default environment variables
 			continue
+		case "NO_PROXY", "HTTP_PROXY", "HTTPS_PROXY":
+			continue
+
+		case "CONTAINER":
+			continue
 		case "PMM_DEBUG", "PMM_TRACE":
 			// skip cross-component environment variables that are already handled by kingpin
 			continue
-		case "PERCONA_TEST_VERSION_SERVICE_URL":
+		case "PMM_DEV_VERSION_SERVICE_URL":
 			// skip pmm-managed environment variables that are already handled by kingpin
 			continue
-		case "PERCONA_TEST_PMM_CLICKHOUSE_DATABASE", "PERCONA_TEST_PMM_CLICKHOUSE_ADDR", "PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE": //nolint:lll
+		case "PMM_CLICKHOUSE_DATABASE", "PMM_CLICKHOUSE_ADDR", "PMM_CLICKHOUSE_BLOCK_SIZE", "PMM_CLICKHOUSE_POOL_SIZE":
 			// skip env variables for external clickhouse
 			continue
-		case "ENABLE_UPDATES":
+		case "PMM_ENABLE_UPDATES":
 			b, err := strconv.ParseBool(v)
 			if err != nil {
 				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
 				continue
 			}
 			envSettings.EnableUpdates = &b
-		case "ENABLE_TELEMETRY":
+		case "PMM_ENABLE_TELEMETRY":
 			b, err := strconv.ParseBool(v)
 			if err != nil {
 				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
 				continue
 			}
 			envSettings.EnableTelemetry = &b
-		case "METRICS_RESOLUTION", "METRICS_RESOLUTION_HR":
+		case "PMM_METRICS_RESOLUTION", "PMM_METRICS_RESOLUTION_HR":
 			if envSettings.MetricsResolutions.HR, err = parseStringDuration(v); err != nil {
 				errs = append(errs, formatEnvVariableError(err, env, v))
 				continue
 			}
-		case "METRICS_RESOLUTION_MR":
+		case "PMM_METRICS_RESOLUTION_MR":
 			if envSettings.MetricsResolutions.MR, err = parseStringDuration(v); err != nil {
 				errs = append(errs, formatEnvVariableError(err, env, v))
 				continue
 			}
-		case "METRICS_RESOLUTION_LR":
+		case "PMM_METRICS_RESOLUTION_LR":
 			if envSettings.MetricsResolutions.LR, err = parseStringDuration(v); err != nil {
 				errs = append(errs, formatEnvVariableError(err, env, v))
 				continue
 			}
-		case "DATA_RETENTION":
+		case "PMM_DATA_RETENTION":
 			if envSettings.DataRetention, err = parseStringDuration(v); err != nil {
 				errs = append(errs, formatEnvVariableError(err, env, v))
 				continue
 			}
-		case "ENABLE_VM_CACHE":
+		case "PMM_ENABLE_VM_CACHE":
 			b, err := strconv.ParseBool(v)
 			if err != nil {
 				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
 				continue
 			}
 			envSettings.EnableVMCache = &b
-		case "ENABLE_ALERTING":
+		case "PMM_ENABLE_ALERTING":
 			b, err := strconv.ParseBool(v)
 			if err != nil {
 				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
@@ -146,7 +151,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			}
 			envSettings.EnableAlerting = &b
 
-		case "ENABLE_AZUREDISCOVER":
+		case "PMM_ENABLE_AZURE_DISCOVER":
 			b, err := strconv.ParseBool(v)
 			if err != nil {
 				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
@@ -162,12 +167,6 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			}
 			envSettings.EnableBackupManagement = &b
 
-		case "PERCONA_TEST_AUTH_HOST", "PERCONA_TEST_CHECKS_HOST", "PERCONA_TEST_TELEMETRY_HOST", "PERCONA_TEST_SAAS_HOST":
-			warns = append(warns, fmt.Sprintf("environment variable %q is removed and replaced by %q", k, envPlatformAddress))
-
-		case "PERCONA_TEST_CHECKS_PUBLIC_KEY":
-			warns = append(warns, fmt.Sprintf("environment variable %q is removed and replaced by %q", k, envPlatformPublicKey))
-
 		case "PMM_PUBLIC_ADDRESS":
 			envSettings.PMMPublicAddress = pointer.ToString(v)
 
@@ -176,12 +175,6 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			if err != nil {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 			}
-
-		case "NO_PROXY", "HTTP_PROXY", "HTTPS_PROXY":
-			continue
-
-		case "CONTAINER":
-			continue
 
 		case "PMM_INSTALL_METHOD":
 			continue
@@ -233,12 +226,23 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 
-			if !strings.HasPrefix(k, "PERCONA_TEST_") {
-				warns = append(warns, fmt.Sprintf("unknown environment variable %q", env))
+			// skip PMM development environment variables
+			if strings.HasPrefix(k, "PMM_DEV_") {
 				continue
 			}
 
-			warns = append(warns, fmt.Sprintf("environment variable %q IS NOT SUPPORTED and WILL BE REMOVED IN THE FUTURE", k))
+			// skip PMM test environment variables
+			if strings.HasPrefix(k, "PMM_TEST_") {
+				warns = append(warns, fmt.Sprintf("environment variable %q may be removed or replaced in the future", env))
+				continue
+			}
+
+			if strings.HasPrefix(k, "PERCONA_") {
+				warns = append(warns, "PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation")
+				continue
+			}
+
+			warns = append(warns, fmt.Sprintf("unknown environment variable %q", env))
 		}
 	}
 
