@@ -94,6 +94,7 @@ jobs:
           flags: managed
           env_vars: PMM_SERVER_IMAGE
           fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Cache
         if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}

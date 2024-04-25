@@ -70,6 +70,7 @@ jobs:
           file: cover.out
           flags: admin
           fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Run debug commands on failure
         if: ${{ failure() }}
