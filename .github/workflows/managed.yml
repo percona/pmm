@@ -88,7 +88,7 @@ jobs:
         run: docker exec -i pmm-server make -C managed test-update
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: managed/cover.out
           flags: managed

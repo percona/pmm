@@ -102,7 +102,7 @@ jobs:
         run: make test-cover
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: cover.out
           flags: agent
