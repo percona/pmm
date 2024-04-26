@@ -68,3 +68,5 @@ jobs:
           file: cover.out
           flags: update
           fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
