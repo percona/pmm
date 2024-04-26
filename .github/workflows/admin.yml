@@ -164,3 +164,5 @@ jobs:
           go env | sort
           git status
           node --version
+          npx --version
+          npx playwright --version
