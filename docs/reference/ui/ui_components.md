@@ -18,120 +18,18 @@ The main menu is part of the Grafana framework and is visible on every page.
 |:----------------------------------:|----------------------|-------------------------------
 | <i class="uil uil-star"></i>       | Starred              | Mark your favorite dashboards.
 | <i class="uil uil-apps"></i>       | Dashboards           | Create dashboards or [folders][Folders], manage dashboards, import dashboards, create playlists, manage snapshots.
+| <i class="uil uil-compass"></i>    | Explore              | Run queries with [PromQL].
 | ![!image](../../_images/os-dashboard.png)      | Operating System (OS)    | Operating System dashboard
 | ![!image](../../_images/mysql-dashboard.png) ![!image](../../_images/mongo-dashboard.png) ![!image](../../_images/haproxy-dashboard.png)  ![!image](../../_images/postresql-dashboard.png)  ![!image](../../_images/qan-dashboard.png)| Service Type dashboards |   Navigate to the dasboards available for the [services added for monitoring](../../install-pmm/install-pmm-client/connect-database/index.md) (MySQL, MongoDB, PostgreSQL, HAproxy or ProxySQL). |
  Query Analytics (QAN) | Query Analytics| Navigate to the Query Analytics dashboard where you can analyze database queries over time, optimize database performance, and identify the source of problems.|
-| <i class="uil uil-compass"></i>    | Explore              | Run queries with [PromQL].
-| <i class="uil uil-bell"></i>       | Percona Alerting             | [Alerting](../../alert/index.md), Create new alerts and manage your alert rules and alert templates.
-| <i class="uil uil-cog"></i>        | Configuration        |
+| <i class="uil uil-bell"></i>       | Alerting             | [Alerting](../../alert/index.md), Create new alerts and manage your alert rules and alert templates.
+| {{icon.checks}}                    |  Advisors  | Run health assessment checks against your connected databases and check any failed checks. 
+| <i class="uil uil-history"></i>    | Backup     | [Backup management and storage location configuration][BACKUP]. The Backup icon appears when **Backup Management** is activated in <i class="uil uil-cog"></i> **PMM Configuration > <i class="uil uil-setting"></i> Settings > Advanced Settings**.
+| <i class="uil uil-cog"></i>        | Connections        | Access Grafana's built-in data sources within PMM to seamlessly integrate and visualize data from various systems like Prometheus, MySQL, PostgreSQL, InfluxDB, and Elasticsearch.
+| <i class="uil uil-cog"></i>        | PMM Configuration||  Hosts all PMM-related configuration and inventory options.      | 
+| <i class="uil uil-shield"></i>     | Administration        |Hosts all Grafana-related configuration and inventory options.
 | ![!image](../../_images/entitlements-white.png)       | Entitlements        |This tab is displayed after connecting PMM to Percona Portal, and shows all your Percona Platform account information. 
-| ![!image](../../_images/support_tickets_white.png)       | Support Tickets        | Shows the list of tickets opened across your organization. This tab is only available after you connect PMM to Percona Platform.
-| ![!image](../../_images/environment_overview.png)       | Environment Overview        | This tab is displayed after connecting PMM to Percona Portal. Shows the name and email of the Customer Success Manager assigned to your organization, who can help with any PMM queries. This tab will soon be populated with more useful information about your PMM environment. 
-| <i class="uil uil-shield"></i>     | Server Admin         |
-| <i class="uil uil-history"></i>    | Backup Management    | [Backup management and storage location configuration][BACKUP].
-| {{icon.checks}}                    | PMM Advisor Checks  | Run health assessment checks against your connected databases and check any failed checks. 
-| <i class="uil uil-database"></i>   | DBaaS                |
-
-!!! tip "Tip"
-    The DBaaS icon appears only if a server feature flag has been set.
-
-    The Backup Management icon appears when *Backup Management* is activated in <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
-
-| Icon (Bottom)                            | Description |
-|:----------------------------------------:|-------------|
-| (Profile icon)                           | User menu   |
-| <i class="uil uil-question-circle"></i>  | Help        |
-
-## Navigation bar
-
-![!Common page elements top row](../../_images/PMM_Home_Dashboard_Menus_Top_Navigation_Bar.jpg)
-
-| Item (left)                       | Description
-|-----------------------------------|-------------------------
-| <i class="uil uil-apps"></i>      | (Display only.)
-| (Name) /                          | (Optional) Folder name.
-| (Name)                            | Dashboard name.
-| <i class="uil uil-star"></i>      | Mark as favorite.
-| <i class="uil uil-share-alt"></i> | Share dashboard.
-
-## View controls
-
-| Item (right)                                    | Description
-|-------------------------------------------------| --------------------
-| <i class="uil uil-cog"></i>                     | Dashboard settings.
-| <i class="uil uil-monitor"></i>                 | Cycle view mode.
-| <i class="uil uil-clock-nine"></i> (time range) | Time range selector.
-| <i class="uil uil-search-minus"></i>            | Time range zoom out.
-| <i class="uil uil-sync"></i>                    | Refresh dashboard.
-| (Time interval)                                 | Refresh period.
-
-## View selectors
-
-This menu bar is context-sensitive; it changes according to the page you are on. (With wide menus on small screens, items may wrap to the next row.)
-
-![!](../../_images/PMM_Home_Dashboard_Menus_Submenu_Bar.jpg)
-
-| Item                          | Description
-|-------------------------------|-------------------------------------------
-| Interval                      | Data interval.
-| Region                        | Filter by region.
-| Environment                   | Filter by environment.
-| Cluster                       | Filter by cluster.
-| Replication Set               | Filter by replication set.
-| Node Name                     | Filter by node name.
-| Service Name                  | Filter by service name.
-| PMM Annotations               | View [annotations](dashboards-panels/annotate/annotate.md).
-
-## Shortcut menu
-
-This menu contains shortcuts to other dashboards. The list changes according to the page you're on.
-
-!!! note alert alert-primary ""
-    This menu will be removed in future releases. Its function will be replaced by the {{icon.dashboards}} *PMM Dashboards* main menu entry.
-
-| Item                                         | Description
-|----------------------------------------------| ------------------------------
-| <i class="uil uil-file-alt"></i> Home        | Home dashboard.
-| <i class="uil uil-apps"></i> Query Analytics | Query Analytics.
-| <i class="uil uil-bolt"></i> Compare         | Nodes compare.
-| (Service Type)                               | Service type menu (see [Services menu](#services-menu)).
-| <i class="uil uil-bars"></i> HA              | HA dashboards.
-| <i class="uil uil-bars"></i> Services        | Services menu.
-| <i class="uil uil-bars"></i> PMM             | PMM menu.
-
-!!! tip "Tip"
-    The **Compare** menu links to the Instances Overview dashboard for the current service type.
+| ![!image](../../_images/support_tickets_white.png)       | List of tickets opened by Customer Support      | Shows the list of tickets opened across your organization. This tab is only available after you connect PMM to Percona Platform.
+| ![!image](../../_images/environment_overview.png)       | Environment Overview        | This tab is displayed after connecting PMM to Percona Portal. Shows the name and email of the Customer Success Manager assigned to your organization, who can help with any PMM queries. This tab will soon be populated with more useful information about your PMM environment.
 
 
-### Services menu
-
-The **Services** menu choice determines the Service Type menu.
-
-| Menu      | Item                           | Service type menu                       | Description
-|-----------|--------------------------------|-----------------------------------------|-----------------------
-| Services  |                                |                                         |
-|           | MongoDB Instances Overview     | <i class="uil uil-bars"></i> MongoDB    | MongoDB dashboards.
-|           | MySQL Instances Overview       | <i class="uil uil-bars"></i> MySQL      | MySQL dashboards.
-|           | Nodes Overview                 | <i class="uil uil-bars"></i> OS         | OS dashboards.
-|           | PostgreSQL Instances Overview  | <i class="uil uil-bars"></i> PostgreSQL | PostgreSQL dashboards.
-
-
-!!! tip "Tip"
-    - You can easily access all dashboards for monitored services from the **Main menu** via **Other Dashboards** in the **Services** sub menu.
-    - Only the services being monitored by PMM will appear on the main menu.
-
-### PMM menu
-
-This item lists shortcuts to utility pages.
-
-| Menu | Item
-|------|---------------------
-| PMM  |
-|      | PMM Add Instance
-|      | PMM Database Checks
-|      | PMM Inventory
-|      | PMM Settings
-
-[Folders]: https://grafana.com/docs/grafana/latest/dashboards/dashboard_folders/
-[PromQL]: https://grafana.com/blog/2020/02/04/introduction-to-promql-the-prometheus-query-language/
-[BACKUP]: ../../backup/index.md
