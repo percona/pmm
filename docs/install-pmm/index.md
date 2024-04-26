@@ -15,11 +15,11 @@ Choose from:
 
 | Use | <i class="uil uil-thumbs-up"></i> **Benefits** | <i class="uil uil-thumbs-down"></i> **Drawbacks**|
 |---|---|---
-| [Docker] | 1. Quick.<br>2. Simple. | 1. Docker installation required.<br>2. Additional network configuration required.
-| [Podman] | 1. Quick.<br>2. Simple.<br>3. Rootless. | 1. Podman installation required.
-| [Helm] (Technical Preview) | 1. Quick.<br>2. Simple.<br>3. Cloud. | 1. Requires running Kubernetes cluster.
-| [Virtual appliance]  | 1. Easily import into Hypervisor of your choice | 1. More system resources compared to Docker footprint.
-| [Amazon AWS] | 1. Wizard-driven install. | 1. Non-free solution (infrastructure costs).
+| [Docker] | 1. Quick<br>2. Simple<br> 3. Rootless |  Additional network configuration required.
+| [Podman] | 1. Quick<br>2. Simple<br>3. Rootless |Podman installation required.
+| [Helm] (Technical Preview) | 1. Quick<br>2. Simple<br>3. Cloud <br> 4. Rootless| Requires running Kubernetes cluster.
+| [Virtual appliance]  | 1. Easily import into Hypervisor of your choice <br> 2. Rootless| More system resources compared to Docker footprint.
+| [Amazon AWS] | 1. Wizard-driven install. <br>  2. Rootless| Non-free solution (infrastructure costs).
 
 ## Install PMM Client
 
