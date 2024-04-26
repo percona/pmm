@@ -148,7 +148,6 @@ Use HTML for icons:
 | <i class="uil uil-compass"></i>              | Compass                            | PMM UI - Explore                     |
 | <i class="uil uil-copy"></i>                 | Copy                               | PMM UI - Copy (e.g. backup schedule) |
 | <i class="uil uil-cube"></i>                 | Cube                               | PMM UI                               |
-| <i class="uil uil-database"></i>             | Database                           | PMM UI DBaaS symbol                  |
 | <i class="uil uil-ellipsis-v"></i>           | Vertical ellipsis                  | PMM UI column menus                  |
 | <i class="uil uil-exclamation-triangle"></i> | Exclamation mark in triangle       | PMM UI - Warnings                    |
 | <i class="uil uil-eye-slash"></i>            | Eye with slash                     | PMM UI Password hide                 |

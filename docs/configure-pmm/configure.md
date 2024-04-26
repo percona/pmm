@@ -18,7 +18,6 @@ On the left are the selector tabs:
     * [Check for updates](advanced_settings.md#check-for-updates)
     * [Advisors](advanced_settings.md#advisors)
 * [Public address](public-address.md)
-    * [DBaaS](public-address.md#dbaas)
     * [Alerting](public-address.md#alerting)
     * [Microsoft Azure Monitoring](public-address.md#microsoft-azure-monitoring)
     * [Public Address {: #public-address-1 }](public-address.md#public-address--public-address-1-)

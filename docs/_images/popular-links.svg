@@ -38,11 +38,6 @@
       Using Percona Alerting
     </text>
   </a>
-  <path d="M447.6667 93.0391h40" fill="none" stroke="#a80036"/>
-  <a target="_blank" xlink:actuate="onRequest" xlink:href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/dbaas.html" xlink:show="new" xlink:title="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/dbaas.html" xlink:type="simple">
-    <text fill="#00F" font-family="Chivo" font-size="14" text-decoration="underline" textLength="89" x="490.6667" y="116.1826">
-      Using DBaaS
-    </text>
   </a>
   <path d="M447.6667 93.0391h10c15 0 5 18.2968 20 18.2968h10" fill="none" stroke="#a80036"/>
   <a target="_blank" xlink:actuate="onRequest" xlink:href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/" xlink:show="new" xlink:title="https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/" xlink:type="simple">

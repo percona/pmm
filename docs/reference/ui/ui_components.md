@@ -35,11 +35,8 @@ The main menu is part of the Grafana framework and is visible on every page.
 | <i class="uil uil-shield"></i>     | Server Admin         |
 | <i class="uil uil-history"></i>    | Backup Management    | [Backup management and storage location configuration][BACKUP].
 | {{icon.checks}}                    | PMM Advisor Checks  | Run health assessment checks against your connected databases and check any failed checks. 
-| <i class="uil uil-database"></i>   | DBaaS                |
 
 !!! tip "Tip"
-    The DBaaS icon appears only if a server feature flag has been set.
-
     The Backup Management icon appears when *Backup Management* is activated in <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
 
 | Icon (Bottom)                            | Description |

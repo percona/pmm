@@ -89,16 +89,13 @@ To run Podman as a non-privileged user:
     # keep updates disabled
     # do image replacement instead (update the tag and restart the service)
     DISABLE_UPDATES=1
-
-    # Enable DBaaS feature
-    #ENABLE_DBAAS=1
     EOF
     ```
 
 2. Configure.
 
     There are 2 configuration files:
-    1.  `~/.config/pmm-server/pmm-server.env` defines environment variables for PMM Server (PMM parameters like DBaaS feature and etc)
+    1.  `~/.config/pmm-server/pmm-server.env` defines environment variables for PMM Server (PMM parameters like RBAC feature and etc)
     2.  `~/.config/pmm-server/env` defines environment variables for SystemD service (image tags, repo and etc)
 
     SystemD service passes the environment parameters from the `pmm-server.env `file (in `~/.config/pmm-server/pmm-server.env`) to PMM. For more information about container environment variables, check [Docker Environment].

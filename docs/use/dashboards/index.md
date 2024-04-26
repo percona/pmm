@@ -11,7 +11,6 @@
 | PMM               | [PMM Inventory]                                                                          | 3
 | PMM               | [Environment Overview]                                                                   | 0
 | PMM               | [Environment Summary]                                                                    | 0
-| DBaaS             | [DB Cluster Summary]                                                                     | 0
 | OS                | [CPU Utilization Details]                                                                | 21
 | OS                | [Disk Details]                                                                           | 34
 | OS                | [Network Details]                                                                        | 70

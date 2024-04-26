@@ -75,12 +75,7 @@
       script
     </text>
   </a>
-  <path stroke="#a80036" stroke-width="1.5" d="M90 286.6406h10"/>
-  <a target="_blank" xlink:actuate="onRequest" xlink:href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/server/dbaas.html" xlink:show="new" xlink:title="https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/server/dbaas.html" xlink:type="simple">
-    <text fill="#00F" font-family="Chivo" font-size="12" text-decoration="underline" textLength="41" x="46" y="290.7949">
-      DBaaS
-    </text>
-  </a>
+
   <path stroke="#a80036" stroke-width="1.5" d="M100 126.9063v159.7343M142 114.9219h10"/>
   <rect fill="#ADD8E6" filter="url(#a)" height="23.9688" rx="7.5" ry="7.5" width="59" x="152" y="102.9375" stroke="#a80036" stroke-width="1.5"/>
   <path d="M159.34 110.9063a.5.5 0 00-.34.5v3.5h-1v1.5c0 .28.22.5.5.5h7.01c.28 0 .5-.22.5-.5v-1.5h-1v-3.5a.5.5 0 00-.5-.5h-5a.5.5 0 00-.09 0 .5.5 0 00-.06 0m.66 1h4v3h-1v1h-2v-1h-1v-3"/>
@@ -225,12 +220,6 @@
   <a target="_blank" xlink:actuate="onRequest" xlink:href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/advisors.html" xlink:show="new" xlink:title="https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/advisors.html" xlink:type="simple">
     <text fill="#00F" font-family="Chivo" font-size="12" text-decoration="underline" textLength="71" x="393" y="268.7949">
       Threat Tool
-    </text>
-  </a>
-  <path stroke="#a80036" stroke-width="1.5" d="M383 285.6094h10"/>
-  <a target="_blank" xlink:actuate="onRequest" xlink:href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/dbaas.html" xlink:show="new" xlink:title="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/dbaas.html" xlink:type="simple">
-    <text fill="#00F" font-family="Chivo" font-size="12" text-decoration="underline" textLength="41" x="393" y="289.7637">
-      DBaaS
     </text>
   </a>
   <path stroke="#a80036" stroke-width="1.5" d="M383 97.9375v187.6719M523.5 53.9688v20"/>

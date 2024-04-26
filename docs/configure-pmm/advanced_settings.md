@@ -65,16 +65,6 @@ Enables [Backup Management](../backup/index.md) option and reveals the **Backup*
 
 The address or hostname PMM Server will be accessible at. Click **Get from browser** to have your browser detect and populate this field automatically.
 
-## Database as a Service (DBaaS)
-
-!!! caution alert alert-warning "Caution"
-    DBaaS functionality is a technical preview that must be turned on with a server feature flag. See [DBaaS](../dbaas/index.md).
-
-Enables/disables [DBaaS features](../dbaas/get-started.md) on this server.
-
-!!! caution alert alert-warning "Important"
-    Deactivating DBaaS ***does not*** suspend or remove running DB clusters.
-
 ## Microsoft Azure monitoring
 
 !!! caution alert alert-warning "Caution"

@@ -110,13 +110,12 @@ Specify each parameter using the `--set key=value[,key=value]` or `--set-string 
 ```sh
 helm install pmm \
 --set secret.create=false --set secret.name=pmm-secret \
---set-string pmmEnv.ENABLE_DBAAS="1" \
 --set service.type="NodePort" \
 --set storage.storageClassName="linode-block-storage-retain" \
     percona/pmm
 ```
 
-The above command installs PMM with the enabled PMM DBaaS feature. Additionally, it sets the Service network type to `NodePort` and storage class to `linode-block-storage-retain` for persistence storage on LKE.
+The above command installs PMM and sets the Service network type to `NodePort` and storage class to `linode-block-storage-retain` for persistence storage on LKE.
 
 <div hidden>
 ```sh
@@ -145,7 +144,6 @@ In case you want to add extra environment variables (useful for advanced operati
 ```yaml
 pmmEnv:
   DISABLE_UPDATES: "1"
-  ENABLE_DBAAS: "1"
 ```
 
 ### PMM SSL certificates
