@@ -24,6 +24,7 @@ import (
 )
 
 func main() {
+	// test change
 	// empty version breaks much of pmm-managed logic
 	if version.Version == "" {
 		panic("pmm-agent version is not set during build.")
