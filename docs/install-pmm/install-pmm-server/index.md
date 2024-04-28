@@ -1,6 +1,6 @@
-# About PMM server installation
+# About PMM Server installation
 
-Before installing PMM server, read the [Prerequisites to install PMM server](prerequisites.md).
+Before installing PMM Server, read the [Prerequisites to install PMM Server](prerequisites.md).
 
 Install and run at least one PMM Server using one of the following ways:
 

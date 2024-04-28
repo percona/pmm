@@ -42,7 +42,7 @@ docker exec -it pmm-server chown root.root /srv/nginx/*
 
 ### Use trusted SSL when connecting PMM Client to PMM Server
 
-For the new trusted certificates to take effect, you'll just need to restart the PMM server (or advanced users can restart just nginx from a shell: supervisorctl restart nginx). 
+For the new trusted certificates to take effect, you'll just need to restart the PMM Server (or advanced users can restart just nginx from a shell: supervisorctl restart nginx). 
 
 You can now register clients to the PMM Server using the following:
 ```sh
@@ -52,7 +52,7 @@ pmm-admin config --server-url=https://<user>:<password>@<server IP>
 !!! hint alert alert-success "Remember"
     Your client machine(s) must trust the issuer of the certificate, or you will still see "untrusted connections" messages when accessing the web interface. Thus, your client will need the `--server-insecure-tls` parameter when running the `pmm-admin config` command. Follow the instructions on your operating system to install the issuer certificate (ca-certs.pem). 
 
-In case of pmm-client running in the container, mount certificates to `/etc/pki/tls/certs`:
+In case of PMM Client running in the container, mount certificates to `/etc/pki/tls/certs`:
 
 ```sh
 PMM_SERVER=X.X.X.X:443

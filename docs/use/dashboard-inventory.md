@@ -47,7 +47,7 @@ Each binary (exporter, agent) running on a client will get an `agent_type` value
 
 Example
 
-- `pmm-agent` is at the top of the tree, assigned to PMM Agent itself
+- `pmm-agent` is at the top of the tree, assigned to pmm-agent itself
 - `node_exporter` is assigned to an agent that extracts the node metrics
 - `mysqld_exporter` and `qan-mysql-perfschema-agent` are assigned to agents that extract metrics from mysql and its performance schema respectively.
 

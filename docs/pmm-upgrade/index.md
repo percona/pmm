@@ -1,4 +1,4 @@
-# About PMM server upgrade
+# About PMM Server upgrade
 
 !!! caution alert alert-warning "Important"
     Upgrade the PMM Server before you upgrade the PMM Client.
@@ -8,10 +8,10 @@
 
 Find the detailed information on how to upgrade PMM in the following sections:
 
-* [Upgrade PMM server using the UI](ui_upgrade.md)
+* [Upgrade PMM Server using the UI](ui_upgrade.md)
 
 * [Upgrade PMM agent](upgrade_agent.md)
 
-* [Upgrade PMM server using Docker](upgrade_docker.md)
+* [Upgrade PMM Server using Docker](upgrade_docker.md)
 
 * [Upgrade from PMM 1](upgrade_from_pmm_1.md)

@@ -11,7 +11,7 @@ You can collect metrics from [HAProxy](https://www.haproxy.com/) on a node when:
   2. After HAProxy is running (default address <http://localhost:8404/metrics>) you can add it to PMM.
   3. Use the `haproxy` alias to enable HAProxy metrics monitoring.
 
-- There is already a PMM Agent instance running.
+- There is already a pmm-agent instance running.
 
 - This node has been configured using the `pmm-admin config` command.
 

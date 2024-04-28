@@ -79,7 +79,7 @@ This section covers how to configure a MySQL-based database server to use the *s
 | Percona Server for MySQL | 5.7.10+, 8.0.12+ |
 | Percona XtraDB Cluster   | 5.6, 5.7, 8.0    |
 
-The *slow query log* records the details of queries that take more than a certain amount of time to complete. With the database server configured to write this information to a file rather than a table, PMM Client parses the file and sends aggregated data to PMM Server via the Query Analytics part of PMM Agent.
+The *slow query log* records the details of queries that take more than a certain amount of time to complete. With the database server configured to write this information to a file rather than a table, PMM Client parses the file and sends aggregated data to PMM Server via the Query Analytics part of pmm-agent.
 
 ### Settings
 

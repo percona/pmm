@@ -1,6 +1,6 @@
 # Remove PMM Server
 
-To remove PMM server:
+To remove PMM Server:
 {.power-number}
 
 1. Find the instance in the EC2 Console.

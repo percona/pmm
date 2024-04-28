@@ -3,7 +3,7 @@
 
 Percona Platform brings together database distributions, support expertise, services, management, and automated insights.
 
-Connect your PMM servers to Percona Platform to boost the monitoring capabilities of your PMM installations and manage database deployments easier. In addition, you get access to PMM updates, automated insights, advanced advisor checks and more alert rule templates.
+Connect your PMM Servers to Percona Platform to boost the monitoring capabilities of your PMM installations and manage database deployments easier. In addition, you get access to PMM updates, automated insights, advanced advisor checks and more alert rule templates.
 
 ### Connect PMM to Percona Platform
 You can connect to Percona Platform with a Percona Account or via Google or GitHub authentication. If [Percona Support](https://www.percona.com/about-percona/contact) has enabled a custom identity provider for your account, you can also log in using your company's credentials.
@@ -14,7 +14,7 @@ We recommend that you connect with a Percona Account, as this gives you access t
 To ensure that PMM can establish a connection to Percona Platform:
 
 ### Upgrade to PMM 2.27.0 or later
- Before connecting your PMM server to Percona Platform, make sure you are using PMM version 2.27 or newer. Otherwise, upgrade your PMM installation beforehand.
+ Before connecting your PMM Server to Percona Platform, make sure you are using PMM version 2.27 or newer. Otherwise, upgrade your PMM installation beforehand.
 
  This is required because, starting with PMM 2.27, Percona Platform has replaced username/password authentication with access token authentication. Access-token authentication increases security and enables federated identity.
 
@@ -33,7 +33,7 @@ To check whether you are a member of an existing Platform organization:
 
 Contact your account administrator or create a new organization for your Percona Account if this is the case.
 
-### Set the public address of your PMM server
-PMM automatically detects and populates the public address of the PMM server when this is not set up. 
+### Set the public address of your PMM Server
+PMM automatically detects and populates the public address of the PMM Server when this is not set up. 
 If you need to set it differently, go to **Settings > Advanced Settings** and edit the 
 **Public Address** field.

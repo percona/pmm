@@ -1,4 +1,4 @@
-# Install PMM server on AWS Marketplace
+# Install PMM Server on AWS Marketplace
 
 You can run an instance of PMM Server hosted at AWS Marketplace.
 
@@ -15,7 +15,7 @@ Percona Monitoring and Management Server is provided at no cost, but you may nee
 
     For more information, see our blog post [How much disk space should I allocate for Percona Monitoring and Management?](https://www.percona.com/blog/2017/05/04/how-much-disk-space-should-i-allocate-for-percona-monitoring-and-management/).
 
-To install PMM server on AWS:
+To install PMM Server on AWS:
 {.power-number}
 
 1. Click **Continue to Subscribe**.

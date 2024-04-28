@@ -5,7 +5,7 @@
 ??? info "Summary"
 
     !!! summary alert alert-info ""
-        - Stop PMM server.
+        - Stop PMM Server.
         - Backup the data.
 
     ---
@@ -17,7 +17,7 @@
 To back up your container:
 {.power-number}
 
-1. Stop PMM server.
+1. Stop PMM Server.
 
     ```sh
     systemctl --user stop pmm-server

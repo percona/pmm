@@ -4,7 +4,7 @@
 ??? info "Summary"
 
     !!! summary alert alert-info ""
-        - Stop PMM server.
+        - Stop PMM Server.
         - Remove (delete) volume.
         - Remove (delete) images.
 
@@ -16,7 +16,7 @@
 To remove your contiainer:
 {.power-number}
 
-1. Stop PMM server.
+1. Stop PMM Server.
 
     ```sh
     systemctl --user stop pmm-server

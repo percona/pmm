@@ -162,7 +162,7 @@ nav:
       - install-pmm/plan-pmm-installation/hardware_and_system.md
       - install-pmm/plan-pmm-installation/network_and_firewall.md
     - Install PMM in HA mode: install-pmm/HA.md  
-    - Install PMM server:
+    - Install PMM Server:
       - install-pmm/install-pmm-server/index.md
       - install-pmm/install-pmm-server/prerequisites.md
       - Bare metal:
@@ -227,7 +227,7 @@ nav:
         - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md
 
   - Upgrade: 
-    - Upgrade PMM server: 
+    - Upgrade PMM Server: 
       - pmm-upgrade/index.md
       - pmm-upgrade/ui_upgrade.md
       - Manual upgrade:     

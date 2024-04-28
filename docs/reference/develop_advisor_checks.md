@@ -271,7 +271,7 @@ If debug logging is enabled, you can disable it with the following environment v
 - If this still doesn't display the **Development** tab, probably PMM could not load your file due to formatting issues. Check pmm-managed logs for details.
 - There are to ways to reload the check file:
    - Click `Run check` button (but it’s unavailable if you don’t have any tabs on advisors page and most likely that is the case during development)
-   - Reload managed: `supervisorctl restart pmm-managed` (execute inside PMM server)
+   - Reload managed: `supervisorctl restart pmm-managed` (execute inside PMM Server)
 
 
 ## Submit feedback

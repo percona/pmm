@@ -17,7 +17,7 @@ Use the following Docker container environment variables (with `-e var=value`) t
 | `DISABLE_BACKUP_MANAGEMENT`                                     | Disables Backup Management, which is enabled by default.
 | `PMM_DEBUG`                                                     | Enables a more verbose log level.
 | `PMM_TRACE`                                                     | Enables a more verbose log level including trace-back information.
-| `PMM_PUBLIC_ADDRESS`                                            | External IP address or the DNS name on which PMM server is running.
+| `PMM_PUBLIC_ADDRESS`                                            | External IP address or the DNS name on which PMM Server is running.
 
 The following variables are also supported but values passed are not verified by PMM. If any other variable is found, it will be considered invalid and the server won't start.
 

@@ -1,4 +1,4 @@
-# Install PMM server on the virtual machine
+# Install PMM Server on the virtual machine
 
 How to run PMM Server as a virtual machine.
 

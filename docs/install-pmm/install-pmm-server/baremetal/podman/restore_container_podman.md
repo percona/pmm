@@ -4,7 +4,7 @@
 ??? info "Summary"
 
     !!! summary alert alert-info ""
-        - Stop PMM server.
+        - Stop PMM Server.
         - Run PMM on the previous image.
         - Restore the volume.
         - Start PMM Server.
@@ -18,7 +18,7 @@
 To restore your container:
 {.power-number}
 
-1. Stop PMM server.
+1. Stop PMM Server.
 
     ```sh
     systemctl --user stop pmm-server

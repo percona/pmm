@@ -1,4 +1,4 @@
-# Install PMM server with Docker container
+# Install PMM Server with Docker container
 
 This section provides instructions for running PMM Server with Docker based on our [Docker image](https://hub.docker.com/r/percona/pmm-server).
 

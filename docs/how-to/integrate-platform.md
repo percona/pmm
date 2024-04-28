@@ -1,7 +1,7 @@
 # Integrate PMM with Percona Platform
 Percona Platform brings together database distributions, support expertise, services, management, and automated insights.
 
-Connect your PMM servers to Percona Platform to boost the monitoring capabilities of your PMM installations and manage database deployments easier. In addition, you get access to PMM updates, automated insights, advanced advisor checks and more alert rule templates.
+Connect your PMM Servers to Percona Platform to boost the monitoring capabilities of your PMM installations and manage database deployments easier. In addition, you get access to PMM updates, automated insights, advanced advisor checks and more alert rule templates.
 
 ### Connect PMM to Percona Platform
 You can connect to Percona Platform with a Percona Account or via Google or GitHub authentication. If [Percona Support](https://www.percona.com/about-percona/contact) has enabled a custom identity provider for your account, you can also log in using your company's credentials.
@@ -12,7 +12,7 @@ We recommend that you connect with a Percona Account, as this gives you access t
 To ensure that PMM can establish a connection to Percona Platform:
 
 ### Upgrade to PMM 2.27.0 or later
- Before connecting your PMM server to Percona Platform, make sure you are using PMM version 2.27 or newer. Otherwise, upgrade your PMM installation beforehand.
+ Before connecting your PMM Server to Percona Platform, make sure you are using PMM version 2.27 or newer. Otherwise, upgrade your PMM installation beforehand.
 
  This is required because, starting with PMM 2.27, Percona Platform has replaced username/password authentication with access token authentication. Access-token authentication increases security and enables federated identity.
 
@@ -27,20 +27,20 @@ To ensure that PMM can establish a connection to Percona Platform:
 
 Contact your account administrator or create a new organization for your Percona Account if this is the case.
 
-### Set the public address of your PMM server
-PMM automatically detects and populates the public address of the PMM server when this is not set up. 
+### Set the public address of your PMM Server
+PMM automatically detects and populates the public address of the PMM Server when this is not set up. 
 If you need to set it differently, go to **Settings > Advanced Settings** and edit the 
 **Public Address** field.
 
 ## Connect PMM to Percona Platform
-To connect your PMM server to Percona Platform, copy your personal access token from Platform Portal and paste it into PMM. You will find your access token in Platform Portal as part of your user profile page.
+To connect your PMM Server to Percona Platform, copy your personal access token from Platform Portal and paste it into PMM. You will find your access token in Platform Portal as part of your user profile page.
 #### Token validity
 For security reasons, access tokens expire after 30 minutes. Make sure to paste the code before that, or generate a new one if it expires.
 
-To connect your PMM server to Percona Platform:
+To connect your PMM Server to Percona Platform:
 1. In PMM, go to **Settings > Percona Platform** tab to fill in the **Connect PMM to Percona Portal** form: ![!image](../_images/PMM_Settings_Percona_Platform_Login.png)
 
-2. The **PMM server ID** field is automatically populated with the ID identified for your PMM instance. Enter the name of your PMM instance and click **Get token** to go to Percona Platform Portal and generate your access token.
+2. The **PMM Server ID** field is automatically populated with the ID identified for your PMM instance. Enter the name of your PMM instance and click **Get token** to go to Percona Platform Portal and generate your access token.
 3. Log into Percona Platform using your Percona Account (if you don't have an active current session).
 4. On the **Profile Settings page**, copy the code from the **Percona Platform Access Token** field.
 5. Back into PMM, paste the Access Token into the **Percona Platform Access Token** field, and click  **Connect**.
@@ -53,7 +53,7 @@ After connecting to the Percona Platform, PMM has access to additional alert tem
 ### Disconnect a PMM instance
 Disconnect a PMM instance when you want to unlink it from your Percona Platform organization or stop monitoring it there.
 
-To disconnect a PMM server, go to > <i class="uil uil-cog"></i> **Configuration > Settings > Percona Platform** and click **Disconnect**.
+To disconnect a PMM Server, go to > <i class="uil uil-cog"></i> **Configuration > Settings > Percona Platform** and click **Disconnect**.
 
 #### Disconnecting instances as an Admin
 

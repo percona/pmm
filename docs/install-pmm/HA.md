@@ -15,8 +15,8 @@ PMM Server is deployed in a high-availability setup where three PMM Server insta
 
 Having high availability increases the reliability of the PMM service, as the leader server handles all client requests, and subsequent servers take over if the leader fails.
 
-- Gossip Protocol: This protocol facilitates PMM servers to discover and share information about their states with each other. It is used for managing the PMM server list and failure detection.
-- Raft Protocol: This is a consensus algorithm that allows PMM servers to agree on a leader and ensures that logs are replicated among all machines.
+- Gossip Protocol: This protocol facilitates PMM Servers to discover and share information about their states with each other. It is used for managing the PMM Server list and failure detection.
+- Raft Protocol: This is a consensus algorithm that allows PMM Servers to agree on a leader and ensures that logs are replicated among all machines.
 
 ## Prerequisites
 
@@ -48,12 +48,12 @@ For all IP addresses, use the format `17.10.1.x`, and for all usernames and pass
 | `PG_PASSWORD`                                   | The password for your PostgreSQL server. </br></br>Example: `pgpassword`
 | `GF_USERNAME`                                   | The username for your Grafana database user.</br></br>Example: `gfuser`
 | `GF_PASSWORD`                                   | The password for your Grafana database user.</br></br>Example: `gfpassword`
-| `PMM_ACTIVE_IP`                                 | The IP address of the instance where the active PMM server is running or the desired IP address for your active PMM server container within the Docker network, depending on your setup.</br></br>Example: `17.10.1.5`
-| `PMM_ACTIVE_NODE_ID`                            | The unique ID for your active PMM server node.</br></br>Example: `pmm-server-active`
-| `PMM_PASSIVE_IP`                                   | The IP address of the instance where the first passive PMM server is running or the desired IP address for your first passive PMM server container within the Docker network, depending on your setup. </br></br>Example: `17.10.1.6`
-| `PMM_PASSIVE_NODE_ID`                                  | The unique ID for your first passive PMM server node.</br></br>Example: `pmm-server-passive`
-| `PMM_PASSIVE2_IP`                                         | The IP address of the instance where the second passive PMM server is running or the desired IP address for your second passive PMM server container within the Docker network, depending on your setup.</br></br>Example: `17.10.1.7`
-| `PMM_PASSIVE2_NODE_ID`                                    | The unique ID for your second passive PMM server node.</br></br>Example: `pmm-server-passive2`
+| `PMM_ACTIVE_IP`                                 | The IP address of the instance where the active PMM Server is running or the desired IP address for your active PMM Server container within the Docker network, depending on your setup.</br></br>Example: `17.10.1.5`
+| `PMM_ACTIVE_NODE_ID`                            | The unique ID for your active PMM Server node.</br></br>Example: `pmm-server-active`
+| `PMM_PASSIVE_IP`                                   | The IP address of the instance where the first passive PMM Server is running or the desired IP address for your first passive PMM Server container within the Docker network, depending on your setup. </br></br>Example: `17.10.1.6`
+| `PMM_PASSIVE_NODE_ID`                                  | The unique ID for your first passive PMM Server node.</br></br>Example: `pmm-server-passive`
+| `PMM_PASSIVE2_IP`                                         | The IP address of the instance where the second passive PMM Server is running or the desired IP address for your second passive PMM Server container within the Docker network, depending on your setup.</br></br>Example: `17.10.1.7`
+| `PMM_PASSIVE2_NODE_ID`                                    | The unique ID for your second passive PMM Server node.</br></br>Example: `pmm-server-passive2`
 | `PMM_DOCKER_IMAGE` &nbsp; &nbsp; &nbsp; &nbsp;                                      | The specific PMM Server Docker image for this guide.</br></br>Example: `percona/pmm-server:2`
 
 
@@ -308,7 +308,7 @@ To set up PostgreSQL:
 
 ### **Step 6: Running PMM Services**
 
-The PMM server orchestrates the collection, storage, and visualization of metrics. In our high-availability setup, we'll have one active PMM server and two passive PMM servers.
+The PMM Server orchestrates the collection, storage, and visualization of metrics. In our high-availability setup, we'll have one active PMM Server and two passive PMM Servers.
 {.power-number}
 
 1. Pull the PMM Server Docker image:
@@ -595,7 +595,7 @@ HAProxy provides high availability for your PMM setup by directing traffic to th
     
     Replace `/path/to/haproxy-config` with the path where you want to store your HAProxy configuration.
     
-7. Create an HAProxy configuration file named `haproxy.cfg.template` in that directory. This configuration tells HAProxy to use the `/v1/leaderHealthCheck` endpoint of each PMM server to identify the leader.
+7. Create an HAProxy configuration file named `haproxy.cfg.template` in that directory. This configuration tells HAProxy to use the `/v1/leaderHealthCheck` endpoint of each PMM Server to identify the leader.
     
     ```
     global
@@ -677,7 +677,7 @@ You can access the PMM web interface via HAProxy once all the components are set
 2. You should now see the PMM login screen. Log in using the default credentials, unless you changed them during setup.
 3. You can use the PMM web interface to monitor your database infrastructure, analyze metrics, and perform various database management tasks.
 
-When you register PMM Clients, you must use the HAProxy IP address (or hostname) rather than the PMM Server address once your PMM environment has been set up in high-availability (HA) mode. Even if one PMM server becomes unavailable, clients will still be able to communicate with the servers.
+When you register PMM Clients, you must use the HAProxy IP address (or hostname) rather than the PMM Server address once your PMM environment has been set up in high-availability (HA) mode. Even if one PMM Server becomes unavailable, clients will still be able to communicate with the servers.
 
 You have now successfully set up PMM in HA mode using Docker containers. Your PMM environment is more resilient to failures and can continue providing monitoring services if any of the instances fail.
 

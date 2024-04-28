@@ -1,4 +1,4 @@
-# Upgrade PMM server using the UI
+# Upgrade PMM Server using the UI
 
 !!! caution alert alert-warning "Caution"
     - While upgrading PMM to version 2.32.0, it fails. This issue has been resolved for PMM version 2.33.0. However, the issue persists on all the versions prior to 2.33.0. For solution, see the [troubleshooting](../troubleshoot/upgrade_issues.md) section.

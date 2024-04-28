@@ -1,4 +1,4 @@
-# Register client node on PMM server
+# Register client node on PMM Server
 
 Register your client node with PMM Server.
 

@@ -3,7 +3,7 @@
 To log in to PMM:
 {.power-number}
 
-1. Start a web browser and in the address bar enter the server name or IP address of the PMM server host.
+1. Start a web browser and in the address bar enter the server name or IP address of the PMM Server host.
 
 2. The page loads showing the PMM login screen.
 

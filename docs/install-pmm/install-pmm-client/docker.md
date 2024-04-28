@@ -19,7 +19,7 @@ The [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/)
     percona/pmm-client:2 /bin/true
     ```
 
-3. Run the container to start [PMM Agent](../../use/commands/pmm-agent.md) in setup mode. Set `X.X.X.X` to the IP address of your PMM Server. (Do not use the `docker --detach` option as PMM agent only logs to the console.)
+3. Run the container to start [pmm-agent](../../use/commands/pmm-agent.md) in setup mode. Set `X.X.X.X` to the IP address of your PMM Server. (Do not use the `docker --detach` option as PMM agent only logs to the console.)
 
     ```sh
     PMM_SERVER=X.X.X.X:443

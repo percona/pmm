@@ -163,9 +163,9 @@ PMM can use 3 exporters to collect metrics:
 
 - `mysql_exporter` or `postgres_exporter` – to collect database related metrics.
 
-- PMM Agent to collect queries related metrics using [`pg_stat_statements`](postgresql.md#pg_stat_statements) for PostgreSQL or Performance Schema for MySQL (MariaDB)
+- pmm-agent to collect queries related metrics using [`pg_stat_statements`](postgresql.md#pg_stat_statements) for PostgreSQL or Performance Schema for MySQL (MariaDB)
 
-### Adding an Azure Instance on pmm-client side
+### Adding an Azure Instance on PMM Client side
 
 TLS/SSL is enforced on the server by default. So please download the certificate needed to communicate over SSL with your Azure Database.
 It can be done on Networking tab for your Azure Database instance.

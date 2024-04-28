@@ -1,4 +1,4 @@
-# Upgrade PMM server using Docker
+# Upgrade PMM Server using Docker
 
 ??? info "Summary"
 
@@ -23,7 +23,7 @@
 
     (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)
 
-To upgrade PMM server using Docker:
+To upgrade PMM Server using Docker:
 {.power-number}
 
 

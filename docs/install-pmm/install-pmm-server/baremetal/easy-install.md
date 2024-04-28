@@ -5,7 +5,7 @@
 
 ## Linux or macOS
 
-Download and install PMM server using `cURL` or `wget`:
+Download and install PMM Server using `cURL` or `wget`:
 
 === "cURL"
 

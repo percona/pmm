@@ -1,11 +1,11 @@
 # Restore Helm chart
 
-The version of the PMM server should be greater than or equal to the version in a snapshot. To restore from the snapshot, delete the old deployment first:
+The version of the PMM Server should be greater than or equal to the version in a snapshot. To restore from the snapshot, delete the old deployment first:
 ```sh
 helm uninstall pmm
 ```
 
-And then use snapshot configuration to start the PMM server again with the correct version and correct storage configuration:
+And then use snapshot configuration to start the PMM Server again with the correct version and correct storage configuration:
 ```sh
 helm install pmm \
 --set image.tag="2.34.0" \
