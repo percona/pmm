@@ -21,7 +21,7 @@ main() {
 
         apt-get update
         case "\$OS_VERSION" in
-            11 | 12 | 22.04) apt-get -y install git lsb-release devscripts dh-make;;
+            11 | 12 | 22.04 | 24.04) apt-get -y install git lsb-release devscripts dh-make;;
             *) apt-get -y install git lsb-release devscripts dh-make dh-systemd;;
         esac
         mkdir -p /tmp/pmm
