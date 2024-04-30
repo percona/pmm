@@ -292,16 +292,17 @@ func TestServerClientConnection(t *testing.T) {
 		assert.Nil(t, authError)
 	})
 
-	// t.Run("Basic auth - fail", func(t *testing.T) {
-	// 	t.Parallel()
+	// Beware: Five or more wrong tries will lock user with error message: "Invalid user or password".
+	t.Run("Basic auth - fail", func(t *testing.T) {
+		t.Parallel()
 
-	// 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, connectionEndpoint, nil)
-	// 	require.NoError(t, err)
-	// 	req.SetBasicAuth("admin", "wrong")
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, connectionEndpoint, nil)
+		require.NoError(t, err)
+		req.SetBasicAuth("admin", "wrong")
 
-	// 	_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
-	// 	assert.Equal(t, codes.Unauthenticated, authError.code)
-	// })
+		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		assert.Equal(t, codes.Unauthenticated, authError.code)
+	})
 
 	t.Run("Token auth - success", func(t *testing.T) {
 		t.Parallel()
@@ -327,16 +328,16 @@ func TestServerClientConnection(t *testing.T) {
 		assert.Nil(t, authError)
 	})
 
-	// t.Run("Token auth - fail", func(t *testing.T) {
-	// 	t.Parallel()
+	t.Run("Token auth - fail", func(t *testing.T) {
+		t.Parallel()
 
-	// 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, connectionEndpoint, nil)
-	// 	require.NoError(t, err)
-	// 	req.Header.Set("Authorization", "Bearer wrong")
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, connectionEndpoint, nil)
+		require.NoError(t, err)
+		req.Header.Set("Authorization", "Bearer wrong")
 
-	// 	_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
-	// 	assert.Equal(t, codes.Unauthenticated, authError.code)
-	// })
+		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		assert.Equal(t, codes.Unauthenticated, authError.code)
+	})
 }
 
 func TestAuthServerAddVMGatewayToken(t *testing.T) {
