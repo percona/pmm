@@ -12,34 +12,35 @@ edit_uri: edit/main/docs/
 
 theme:
   name: material
-  logo: _images/percona-logo.svg
-  favicon: _images/percona-favicon.ico
-  custom_dir: overrides/
+  custom_dir: overrides
+  logo: assets/pmm-mark.svg
+  favicon: assets/pmm-fav.svg
   font:
     text: Roboto
     code: Roboto Mono
   icon:
     edit: material/file-edit-outline
     view: material/file-eye-outline
-  
+
   palette:
-    # Light mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Color theme set to Automatic. Click to change
     - media: "(prefers-color-scheme: light)"
       scheme: percona-light
       primary: custom
       accent: custom
       toggle:
-        icon: material/toggle-switch-off-outline
-        name: Switch to dark mode
-
-    # Dark mode
+        icon: material/brightness-7
+        name: Color theme set to Light Mode. Click to change
     - media: "(prefers-color-scheme: dark)"
-      scheme: slate
+      scheme: percona-dark
       primary: custom
       accent: custom
       toggle:
-        icon: material/toggle-switch
-        name: Switch to light mode
+        icon: material/brightness-4
+        name: Color theme set to Dark Mode. Click to change
 
   # Theme features
 
@@ -61,6 +62,7 @@ extra_css:
   - css/nocopy.css
   - css/design.css
   - css/osano.css
+  - css/pmm.css
 
 #Copyright
 copyright: >
@@ -145,7 +147,6 @@ plugins:
     canonical_version: null
 
 extra:
-  homepage: https://docs.percona.com
   edit_page_text: '<i class="uil uil-pen"></i> <b>Edit this page</b>'
   updated_text: '<i class="uil uil-refresh"></i> Page updated'
 
