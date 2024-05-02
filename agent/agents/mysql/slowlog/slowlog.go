@@ -17,6 +17,7 @@ package slowlog
 
 import (
 	"context"
+	"crypto/md5"
 	"database/sql"
 	"fmt"
 	"io"
@@ -370,7 +371,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 
 			s.l.Tracef("Parsed slowlog event: %+v.", e)
 			fingerprint := query.Fingerprint(e.Query)
-			digest := query.Id(fingerprint)
+			digest := HashIntoQueryID(fingerprint)
 			aggregator.AddEvent(e, digest, e.User, e.Host, e.Db, e.Server, e.Query)
 
 		case <-t.C:
@@ -389,6 +390,14 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 			s.changes <- agents.Change{MetricsBucket: buckets}
 		}
 	}
+}
+
+// HashIntoQueryID returns slowlog query ID hashed by MD5 from given fingerprint.
+func HashIntoQueryID(fingerprint string) string {
+	id := md5.New()
+	io.WriteString(id, fingerprint)
+	h := fmt.Sprintf("%x", id.Sum(nil))
+	return strings.ToUpper(h)
 }
 
 // makeBuckets is a pure function for easier testing.

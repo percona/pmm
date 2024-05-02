@@ -35,6 +35,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
+	slowlogAgent "github.com/percona/pmm/agent/agents/mysql/slowlog"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/qanpb"
 )
@@ -95,7 +96,7 @@ func main() {
 			aggregator := event.NewAggregator(true, 0, 1) // add right params
 			for e := range events {
 				fingerprint := query.Fingerprint(e.Query)
-				digest := query.Id(fingerprint)
+				digest := slowlogAgent.HashIntoQueryID(fingeprint)
 
 				e.Db = fmt.Sprintf("schema%d", r.Intn(100))      // fake 100
 				e.User = fmt.Sprintf("user%d", r.Intn(100))      // fake 100
