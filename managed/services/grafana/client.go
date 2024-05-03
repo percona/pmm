@@ -19,7 +19,6 @@ package grafana
 import (
 	"bytes"
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -39,11 +38,17 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/auth"
 	"github.com/percona/pmm/managed/utils/irt"
 )
 
 // ErrFailedToGetToken means it failed to get user's token. Most likely due to the fact user is not logged in using Percona Account.
 var ErrFailedToGetToken = errors.New("failed to get token")
+
+const (
+	pmmServiceTokenName   = "pmm-agent-st" //nolint:gosec
+	pmmServiceAccountName = "pmm-agent-sa" //nolint:gosec
+)
 
 // Client represents a client for Grafana API.
 type Client struct {
@@ -134,7 +139,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if resp.StatusCode != 200 && resp.StatusCode != 202 {
+	if resp.StatusCode < 200 || resp.StatusCode > 202 {
 		cErr := &clientError{
 			Method: req.Method,
 			URL:    req.URL.String(),
@@ -190,7 +195,7 @@ func (r role) String() string {
 
 // GetUserID returns user ID from Grafana for the current user.
 func (c *Client) GetUserID(ctx context.Context) (int, error) {
-	authHeaders, err := c.authHeadersFromContext(ctx)
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return 0, err
 	}
@@ -209,27 +214,41 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 	return int(userID), nil
 }
 
+var emptyUser = authUser{
+	role:   none,
+	userID: 0,
+}
+
 // getAuthUser returns grafanaAdmin if currently authenticated user is a Grafana (super) admin.
 // Otherwise, it returns a role in the default organization (with ID 1).
 // Ctx is used only for cancelation.
 func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error) {
-	// Check if it's API Key
-	if c.IsAPIKeyAuth(authHeaders) {
-		role, err := c.getRoleForAPIKey(ctx, authHeaders)
+	// Check if API Key or Service Token is authorized.
+	token := auth.GetTokenFromHeaders(authHeaders)
+	if token != "" {
+		role, err := c.getRoleForServiceToken(ctx, token)
+		if err != nil {
+			if strings.Contains(err.Error(), "Auth method is not service account token") {
+				role, err := c.getRoleForAPIKey(ctx, authHeaders)
+				return authUser{
+					role:   role,
+					userID: 0,
+				}, err
+			}
+
+			return emptyUser, err
+		}
 		return authUser{
 			role:   role,
 			userID: 0,
-		}, err
+		}, nil
 	}
 
 	// https://grafana.com/docs/http_api/user/#actual-user - works only with Basic Auth
 	var m map[string]interface{}
 	err := c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
 	if err != nil {
-		return authUser{
-			role:   none,
-			userID: 0,
-		}, err
+		return emptyUser, err
 	}
 
 	id, _ := m["id"].(float64)
@@ -272,21 +291,18 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 	}, nil
 }
 
-// IsAPIKeyAuth checks if the request is made using an API Key.
-func (c *Client) IsAPIKeyAuth(headers http.Header) bool {
-	authHeader := headers.Get("Authorization")
-	switch {
-	case strings.HasPrefix(authHeader, "Bearer"):
-		return true
-	case strings.HasPrefix(authHeader, "Basic"):
-		h := strings.TrimPrefix(authHeader, "Basic")
-		d, err := base64.StdEncoding.DecodeString(strings.TrimSpace(h))
-		if err != nil {
-			return false
-		}
-		return strings.HasPrefix(string(d), "api_key:")
+func (c *Client) getRoleForAPIKey(ctx context.Context, authHeaders http.Header) (role, error) {
+	var k map[string]interface{}
+	if err := c.do(ctx, http.MethodGet, "/api/auth/key", "", authHeaders, nil, &k); err != nil {
+		return none, err
 	}
-	return false
+
+	if id, _ := k["orgId"].(float64); id != 1 {
+		return none, nil
+	}
+
+	role, _ := k["role"].(string)
+	return c.convertRole(role), nil
 }
 
 func (c *Client) convertRole(role string) role {
@@ -310,9 +326,12 @@ type apiKey struct {
 	Expiration *time.Time `json:"expiration,omitempty"`
 }
 
-func (c *Client) getRoleForAPIKey(ctx context.Context, authHeaders http.Header) (role, error) {
+func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role, error) {
+	header := http.Header{}
+	header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+
 	var k map[string]interface{}
-	if err := c.do(ctx, http.MethodGet, "/api/auth/key", "", authHeaders, nil, &k); err != nil {
+	if err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &k); err != nil {
 		return none, err
 	}
 
@@ -322,6 +341,54 @@ func (c *Client) getRoleForAPIKey(ctx context.Context, authHeaders http.Header) 
 
 	role, _ := k["role"].(string)
 	return c.convertRole(role), nil
+}
+
+type serviceAccountSearch struct {
+	TotalCount      int              `json:"totalCount"`
+	ServiceAccounts []serviceAccount `json:"serviceAccounts"`
+}
+
+func (c *Client) getServiceAccountIDFromName(ctx context.Context, nodeName string, authHeaders http.Header) (int, error) {
+	var res serviceAccountSearch
+	serviceAccountName := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
+	if err := c.do(ctx, http.MethodGet, "/api/serviceaccounts/search", fmt.Sprintf("query=%s", serviceAccountName), authHeaders, nil, &res); err != nil {
+		return 0, err
+	}
+	for _, serviceAccount := range res.ServiceAccounts {
+		if serviceAccount.Name != serviceAccountName {
+			continue
+		}
+		return serviceAccount.ID, nil
+	}
+
+	return 0, errors.Errorf("service account %s not found", serviceAccountName)
+}
+
+func (c *Client) getNotPMMAgentTokenCountForServiceAccount(ctx context.Context, nodeName string) (int, error) {
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	serviceAccountID, err := c.getServiceAccountIDFromName(ctx, nodeName, authHeaders)
+	if err != nil {
+		return 0, err
+	}
+
+	var tokens []serviceToken
+	if err := c.do(ctx, http.MethodGet, fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens); err != nil {
+		return 0, err
+	}
+
+	count := 0
+	for _, token := range tokens {
+		serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
+		if !strings.HasPrefix(token.Name, serviceTokenName) {
+			count++
+		}
+	}
+
+	return count, nil
 }
 
 func (c *Client) testCreateUser(ctx context.Context, login string, role role, authHeaders http.Header) (int, error) {
@@ -364,50 +431,60 @@ func (c *Client) testDeleteUser(ctx context.Context, userID int, authHeaders htt
 	return c.do(ctx, "DELETE", "/api/admin/users/"+strconv.Itoa(userID), "", authHeaders, nil, nil)
 }
 
-// CreateAdminAPIKey creates API key with Admin role and provided name.
-func (c *Client) CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error) {
-	authHeaders, err := c.authHeadersFromContext(ctx)
+// CreateServiceAccount creates service account and token with Admin role.
+func (c *Client) CreateServiceAccount(ctx context.Context, nodeName string, reregister bool) (int, string, error) {
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return 0, "", err
 	}
-	return c.createAPIKey(ctx, name, admin, authHeaders)
+
+	serviceAccountID, err := c.createServiceAccount(ctx, admin, nodeName, reregister, authHeaders)
+	if err != nil {
+		return 0, "", err
+	}
+
+	_, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, nodeName, reregister, authHeaders)
+	if err != nil {
+		return 0, "", err
+	}
+
+	return serviceAccountID, serviceToken, nil
 }
 
-// DeleteAPIKeysWithPrefix deletes all API keys with provided prefix. If there is no api key with provided prefix just ignores it.
-func (c *Client) DeleteAPIKeysWithPrefix(ctx context.Context, prefix string) error {
-	authHeaders, err := c.authHeadersFromContext(ctx)
+// DeleteServiceAccount deletes service account by current service token.
+func (c *Client) DeleteServiceAccount(ctx context.Context, nodeName string, force bool) (string, error) {
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
-		return err
-	}
-	var keys []apiKey
-	if err := c.do(ctx, http.MethodGet, "/api/auth/keys", "", authHeaders, nil, &keys); err != nil {
-		return err
+		return "", err
 	}
 
-	for _, k := range keys {
-		if strings.HasPrefix(k.Name, prefix) {
-			err := c.deleteAPIKey(ctx, k.ID, authHeaders)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
-// DeleteAPIKeyByID deletes API key by ID.
-func (c *Client) DeleteAPIKeyByID(ctx context.Context, id int64) error {
-	authHeaders, err := c.authHeadersFromContext(ctx)
+	warning := ""
+	serviceAccountID, err := c.getServiceAccountIDFromName(ctx, nodeName, authHeaders)
 	if err != nil {
-		return err
+		return warning, err
 	}
-	return c.deleteAPIKey(ctx, id, authHeaders)
+
+	customsTokensCount, err := c.getNotPMMAgentTokenCountForServiceAccount(ctx, nodeName)
+	if err != nil {
+		return warning, err
+	}
+
+	if !force && customsTokensCount > 0 {
+		warning = "Service account wont be deleted, because there are more not PMM agent related service tokens."
+		err = c.deletePMMAgentServiceToken(ctx, serviceAccountID, nodeName, authHeaders)
+	} else {
+		err = c.deleteServiceAccount(ctx, serviceAccountID, authHeaders)
+	}
+	if err != nil {
+		return warning, err
+	}
+
+	return warning, err
 }
 
 // CreateAlertRule creates Grafana alert rule.
 func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, interval string, rule *services.Rule) error {
-	authHeaders, err := c.authHeadersFromContext(ctx)
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -538,7 +615,7 @@ func (c *Client) GetFolderByUID(ctx context.Context, uid string) (*gapi.Folder, 
 }
 
 func (c *Client) createGrafanaClient(ctx context.Context) (*gapi.Client, error) {
-	authHeaders, err := c.authHeadersFromContext(ctx)
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -554,30 +631,6 @@ func (c *Client) createGrafanaClient(ctx context.Context) (*gapi.Client, error) 
 	}
 
 	return grafanaClient, nil
-}
-
-func (c *Client) authHeadersFromContext(ctx context.Context) (http.Header, error) {
-	headers, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return nil, fmt.Errorf("cannot get headers from metadata")
-	}
-	// get authorization from headers.
-	authorizationHeaders := headers.Get("Authorization")
-	cookieHeaders := headers.Get("grpcgateway-cookie")
-	if len(authorizationHeaders) == 0 && len(cookieHeaders) == 0 {
-		return nil, status.Error(codes.Unauthenticated, "Authorization error.")
-	}
-
-	authHeaders := make(http.Header)
-	if len(authorizationHeaders) != 0 {
-		authHeaders.Add("Authorization", authorizationHeaders[0])
-	}
-	if len(cookieHeaders) != 0 {
-		for _, header := range cookieHeaders {
-			authHeaders.Add("Cookie", header)
-		}
-	}
-	return authHeaders, nil
 }
 
 func (c *Client) createAPIKey(ctx context.Context, name string, role role, authHeaders http.Header) (int64, string, error) {
@@ -607,6 +660,117 @@ func (c *Client) createAPIKey(ctx context.Context, name string, role role, authH
 func (c *Client) deleteAPIKey(ctx context.Context, apiKeyID int64, authHeaders http.Header) error {
 	// https://grafana.com/docs/grafana/latest/http_api/auth/#delete-api-key
 	return c.do(ctx, "DELETE", "/api/auth/keys/"+strconv.FormatInt(apiKeyID, 10), "", authHeaders, nil, nil)
+}
+
+type serviceAccount struct {
+	ID    int    `json:"id"`
+	Name  string `json:"name"`
+	Role  string `json:"role"`
+	Force bool   `json:"force"`
+}
+type serviceToken struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+	Role string `json:"role"`
+}
+
+func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName string, reregister bool, authHeaders http.Header) (int, error) {
+	if role == none {
+		return 0, errors.New("you cannot create service account with empty role")
+	}
+
+	// Max length of service account name is 190 chars (default limit in Grafana). In reality it is 187.
+	// Some test could fail if you will have name longer than 187 chars.
+	serviceAccountName := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
+	b, err := json.Marshal(serviceAccount{Name: serviceAccountName, Role: role.String(), Force: reregister})
+	if err != nil {
+		return 0, errors.WithStack(err)
+	}
+
+	var m map[string]interface{}
+	if err = c.do(ctx, "POST", "/api/serviceaccounts", "", authHeaders, b, &m); err != nil {
+		return 0, err
+	}
+
+	serviceAccountID := int(m["id"].(float64)) //nolint:forcetypeassert
+
+	// orgId is ignored during creating service account and default is -1
+	// orgId should be set to 1
+	if err = c.do(ctx, "PATCH", fmt.Sprintf("/api/serviceaccounts/%d", serviceAccountID), "", authHeaders, []byte("{\"orgId\": 1}"), &m); err != nil {
+		return 0, err
+	}
+
+	return serviceAccountID, nil
+}
+
+func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int, nodeName string, reregister bool, authHeaders http.Header) (int, string, error) {
+	serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
+	exists, err := c.serviceTokenExists(ctx, serviceAccountID, nodeName, authHeaders)
+	if err != nil {
+		return 0, "", err
+	}
+	if exists && reregister {
+		err := c.deletePMMAgentServiceToken(ctx, serviceAccountID, nodeName, authHeaders)
+		if err != nil {
+			return 0, "", err
+		}
+	}
+
+	b, err := json.Marshal(serviceToken{Name: serviceTokenName, Role: admin.String()})
+	if err != nil {
+		return 0, "", errors.WithStack(err)
+	}
+
+	var m map[string]interface{}
+	if err = c.do(ctx, "POST", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, b, &m); err != nil {
+		return 0, "", err
+	}
+	serviceTokenID := int(m["id"].(float64)) //nolint:forcetypeassert
+	serviceTokenKey := m["key"].(string)     //nolint:forcetypeassert
+
+	return serviceTokenID, serviceTokenKey, nil
+}
+
+func (c *Client) serviceTokenExists(ctx context.Context, serviceAccountID int, nodeName string, authHeaders http.Header) (bool, error) {
+	var tokens []serviceToken
+	if err := c.do(ctx, "GET", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens); err != nil {
+		return false, err
+	}
+
+	serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
+	for _, token := range tokens {
+		if !strings.HasPrefix(token.Name, serviceTokenName) {
+			continue
+		}
+
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func (c *Client) deletePMMAgentServiceToken(ctx context.Context, serviceAccountID int, nodeName string, authHeaders http.Header) error {
+	var tokens []serviceToken
+	if err := c.do(ctx, "GET", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens); err != nil {
+		return err
+	}
+
+	serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
+	for _, token := range tokens {
+		if strings.HasPrefix(token.Name, serviceTokenName) {
+			if err := c.do(ctx, "DELETE", fmt.Sprintf("/api/serviceaccounts/%d/tokens/%d", serviceAccountID, token.ID), "", authHeaders, nil, nil); err != nil {
+				return err
+			}
+
+			return nil
+		}
+	}
+
+	return nil
+}
+
+func (c *Client) deleteServiceAccount(ctx context.Context, serviceAccountID int, authHeaders http.Header) error {
+	return c.do(ctx, "DELETE", fmt.Sprintf("/api/serviceaccounts/%d", serviceAccountID), "", authHeaders, nil, nil)
 }
 
 // Annotation contains grafana annotation response.

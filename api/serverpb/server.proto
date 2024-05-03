@@ -79,7 +79,9 @@ message CheckUpdatesResponse {
   google.protobuf.Timestamp last_check = 5;
 }
 
-message StartUpdateRequest {}
+message StartUpdateRequest {
+  string new_image = 1;
+}
 
 message StartUpdateResponse {
   // Authentication token for getting update statuses.

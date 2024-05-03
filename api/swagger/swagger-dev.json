@@ -3649,7 +3649,13 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "new_image": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           }
         ],
@@ -22302,6 +22308,84 @@
                   "description": "Warning message.",
                   "type": "string",
                   "x-order": 4
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/Node/Unregister": {
+      "post": {
+        "description": "Unregister a Node and pmm-agent",
+        "tags": [
+          "Node"
+        ],
+        "summary": "Unregister Node",
+        "operationId": "UnregisterNode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "node_id": {
+                  "description": "Node_id to be unregistered.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "force": {
+                  "description": "Force delete node, related service account, even if it has more service tokens attached.",
+                  "type": "boolean",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "warning": {
+                  "description": "Warning message if there are more service tokens attached to service account.",
+                  "type": "string",
+                  "x-order": 0
                 }
               }
             }

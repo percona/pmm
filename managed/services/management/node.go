@@ -17,14 +17,10 @@ package management
 
 import (
 	"context"
-	"fmt"
-	"math/rand"
-	"net/http"
 
 	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
@@ -32,29 +28,28 @@ import (
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/auth"
 )
 
 // NodeService represents service for working with nodes.
 type NodeService struct {
-	db  *reform.DB
-	akp apiKeyProvider
-
-	l *logrus.Entry
+	db *reform.DB
+	ap authProvider
+	l  *logrus.Entry
 }
 
 // NewNodeService creates NodeService instance.
-func NewNodeService(db *reform.DB, akp apiKeyProvider) *NodeService {
+func NewNodeService(db *reform.DB, ap authProvider) *NodeService {
 	return &NodeService{
-		db:  db,
-		akp: akp,
-		l:   logrus.WithField("component", "node"),
+		db: db,
+		ap: ap,
+		l:  logrus.WithField("component", "node"),
 	}
 }
 
 // Register do registration of the new node.
 func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNodeRequest) (*managementpb.RegisterNodeResponse, error) {
 	res := &managementpb.RegisterNodeResponse{}
-
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		node, err := models.FindNodeByName(tx.Querier, req.NodeName)
 		switch status.Code(err) { //nolint:exhaustive
@@ -136,29 +131,43 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		return nil, e
 	}
 
-	// get authorization from headers.
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		msg := "Couldn't create Admin API Key: cannot get headers from metadata"
-		s.l.Errorln(msg)
-		res.Warning = msg
-		return res, nil
-	}
-	authorizationHeaders := md.Get("Authorization")
-	if len(authorizationHeaders) == 0 {
-		return nil, status.Error(codes.Unauthenticated, "Authorization error.")
-	}
-	headers := make(http.Header)
-	headers.Set("Authorization", authorizationHeaders[0])
-	if !s.akp.IsAPIKeyAuth(headers) {
-		apiKeyName := fmt.Sprintf("pmm-agent-%s-%d", req.NodeName, rand.Int63()) //nolint:gosec
-		_, res.Token, e = s.akp.CreateAdminAPIKey(ctx, apiKeyName)
+	authHeaders, _ := auth.GetHeadersFromContext(ctx)
+	token := auth.GetTokenFromHeaders(authHeaders)
+	if token != "" {
+		res.Token = token
+	} else {
+		_, res.Token, e = s.ap.CreateServiceAccount(ctx, req.NodeName, req.Reregister)
 		if e != nil {
-			msg := fmt.Sprintf("Couldn't create Admin API Key: %s", e)
-			s.l.Errorln(msg)
-			res.Warning = msg
+			return nil, e
 		}
 	}
 
 	return res, nil
+}
+
+// Unregister do unregistration of the node.
+func (s *NodeService) Unregister(ctx context.Context, req *managementpb.UnregisterNodeRequest) (*managementpb.UnregisterNodeResponse, error) {
+	node, err := models.FindNodeByID(s.db.Querier, req.NodeId)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.db.InTransaction(func(tx *reform.TX) error {
+		return models.RemoveNode(tx.Querier, req.NodeId, models.RemoveCascade)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	warning, err := s.ap.DeleteServiceAccount(ctx, node.NodeName, req.Force)
+	if err != nil {
+		s.l.WithError(err).Error("deleting service account")
+		return &managementpb.UnregisterNodeResponse{
+			Warning: err.Error(),
+		}, nil
+	}
+
+	return &managementpb.UnregisterNodeResponse{
+		Warning: warning,
+	}, nil
 }
