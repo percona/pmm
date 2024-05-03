@@ -396,7 +396,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 // HashIntoQueryID returns slowlog query ID hashed by MD5 from given fingerprint.
 func HashIntoQueryID(fingerprint string) string {
 	// MD5 is used only to hash fingerprint into query ID, so there is no risk.
-	// It is ideal due to it's length (32 chars) and it coresponds with Perfschema query ID length.
+	// It is ideal due to it's length (32 chars) and it corresponds with Perfschema query ID length.
 	id := md5.New() //nolint:gosec
 	_, err := io.WriteString(id, fingerprint)
 	if err != nil {
