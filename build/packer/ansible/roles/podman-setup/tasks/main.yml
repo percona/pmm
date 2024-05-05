@@ -33,11 +33,6 @@
   become: true
   become_user: admin
 
-- name: Enable socket
-  command: systemctl --user start podman.socket
-  become: true
-  become_user: admin
-
 - name: Enable privileged port
   become: true
   sysctl:
@@ -82,6 +77,13 @@
 
 - name: Enable linger for the admin user
   command: loginctl enable-linger {{ admin_user_id.stdout }}
+
+- name: Enable socket
+  command: systemctl --user start podman.socket
+  become: true
+  become_user: admin
+  environment:
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ admin_user_id.stdout }}/bus"
 
 - name: Enable and start watchtower container as a user service
   command: systemctl --user enable --now watchtower
