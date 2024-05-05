@@ -79,7 +79,7 @@
   command: loginctl enable-linger {{ admin_user_id.stdout }}
 
 - name: Enable socket
-  command: systemctl --user start podman.socket
+  command: systemctl --user enable --now podman.socket
   become: true
   become_user: admin
   environment:
