@@ -33,6 +33,14 @@
     group: admin
     mode: '0755'
 
+- name: Copy environment file for service to user-specific directory
+  template:
+    src: pmm-server.env
+    dest: /home/admin/.config/systemd/user/
+    owner: admin
+    group: admin
+    mode: '0644'
+
 - name: Copy systemd service file to user-specific directory
   template:
     src: pmm-server.service
