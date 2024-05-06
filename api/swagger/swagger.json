@@ -22017,6 +22017,11 @@
                     }
                   },
                   "x-order": 8
+                },
+                "interval": {
+                  "type": "string",
+                  "title": "Evaluation Interval",
+                  "x-order": 9
                 }
               }
             }
