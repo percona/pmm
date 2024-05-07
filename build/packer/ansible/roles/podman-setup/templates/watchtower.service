@@ -1,0 +1,24 @@
+[Unit]
+Description=watchtower
+Wants=network-online.target
+After=network-online.target
+After=nss-user-lookup.target nss-lookup.target
+After=time-sync.target
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+
+Environment=WATCHTOWER_HTTP_API_UPDATE=1
+Environment=WATCHTOWER_HTTP_API_TOKEN=123
+
+ExecStart=/usr/bin/podman run --rm --name %N \
+    -v ${XDG_RUNTIME_DIR}/podman/podman.sock:/var/run/docker.sock \
+    -e WATCHTOWER_HTTP_API_UPDATE=${WATCHTOWER_HTTP_API_UPDATE} \
+    -e WATCHTOWER_HTTP_API_TOKEN=${WATCHTOWER_HTTP_API_TOKEN} \
+    -p 8080:8080/tcp docker.io/perconalab/watchtower
+
+ExecStop=/usr/bin/podman stop -t 10 %N
+
+[Install]
+WantedBy=default.target
