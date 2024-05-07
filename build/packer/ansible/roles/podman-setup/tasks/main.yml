@@ -78,3 +78,17 @@
   become_user: admin
   environment:
     DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ admin_user_id.stdout }}/bus"
+
+- name: Enable socket
+  command: systemctl --user enable --now podman.socket
+  become: true
+  become_user: admin
+  environment:
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ admin_user_id.stdout }}/bus"
+
+- name: Enable and start watchtower container as a user service
+  command: systemctl --user enable --now watchtower
+  become: true
+  become_user: admin
+  environment:
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ admin_user_id.stdout }}/bus"
