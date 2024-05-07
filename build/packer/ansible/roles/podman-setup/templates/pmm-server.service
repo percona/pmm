@@ -8,10 +8,10 @@ After=time-sync.target
 [Service]
 EnvironmentFile=/home/admin/.config/systemd/user/pmm-server.env
 
-TimeoutStartSec=0
-Restart=always
+Restart=on-failure
+RestartSec=20
 
-ExecStart=/usr/bin/podman run --volume pmm-data:/srv/ --rm --name %N \
+ExecStart=/usr/bin/podman run --volume pmm-data:/srv/ --rm --replace=true --name %N \
     -e PMM_WATCHTOWER_HOST=${PMM_WATCHTOWER_HOST} \
     -e PMM_WATCHTOWER_TOKEN=${PMM_WATCHTOWER_TOKEN} \
     -e PMM_SERVER_UPDATE_VERSION=${PMM_SERVER_UPDATE_VERSION} \

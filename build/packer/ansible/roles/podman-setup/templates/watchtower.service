@@ -6,13 +6,13 @@ After=nss-user-lookup.target nss-lookup.target
 After=time-sync.target
 
 [Service]
-TimeoutStartSec=0
-Restart=always
+Restart=on-failure
+RestartSec=20
 
 Environment=WATCHTOWER_HTTP_API_UPDATE=1
 Environment=WATCHTOWER_HTTP_API_TOKEN=123
 
-ExecStart=/usr/bin/podman run --rm --name %N \
+ExecStart=/usr/bin/podman run --rm --replace=true --name %N \
     -v ${XDG_RUNTIME_DIR}/podman/podman.sock:/var/run/docker.sock \
     -e WATCHTOWER_HTTP_API_UPDATE=${WATCHTOWER_HTTP_API_UPDATE} \
     -e WATCHTOWER_HTTP_API_TOKEN=${WATCHTOWER_HTTP_API_TOKEN} \
