@@ -4,16 +4,7 @@ How to log in, how the user interface is laid out, and what the controls do.
 
 PMM's user interface is a browser application based on [Grafana](https://grafana.com/docs/grafana/latest/).
 
-
 ![!image](../../_images/PMM_Home_Dashboard_Numbered.png)
-
-
-!!! note alert alert-light "Key"
-    1. [Main menu](#main-menu) (also *Grafana menu*, *side menu*)
-    2. [Navigation bar](#navigation-bar)
-    3. [View controls](#view-controls)
-    4. [View selectors](#view-selectors) (dynamic contents)
-    5. [Shortcut menu](#shortcut-menu) (dynamic contents)
 
 ## Main menu
 
@@ -26,7 +17,7 @@ The main menu is part of the Grafana framework and is visible on every page.
 | <i class="uil uil-compass"></i>    | Explore              | Run queries with [PromQL].
 | <i class="uil uil-compass"></i>     | Operating System (OS)    | Operating System dashboard
 | ![!image](../../_images/mysql-dashboard.png)  ![!image](../../_images/haproxy-dashboard.png)  ![!image](../../_images/postresql-dashboard.png)  ![!image](../../_images/qan-dashboard.png)| Service Type dashboards |   Navigate to the dasboards available for the [services added for monitoring](../../install-pmm/install-pmm-client/connect-database/index.md) (MySQL, MongoDB, PostgreSQL, HAproxy or ProxySQL). |
- Query Analytics (QAN) | Query Analytics| Navigate to the Query Analytics dashboard where you can analyze database queries over time, optimize database performance, and identify the source of problems.|
+ <i class="uim uim-chart"></i> | Query Analytics (QAN) | Navigate to the Query Analytics dashboard where you can analyze database queries over time, optimize database performance, and identify the source of problems.|
 | <i class="uil uil-bell"></i>       | Alerting             | [Alerting](../../alert/index.md), Create new alerts and manage your alert rules and alert templates.
 | <i class="uil uil-search-alt"></i>                 |  Advisors  | Run health assessment checks against your connected databases and check any failed checks.
 | <i class="uil uil-history"></i>    | Backup     | [Backup management and storage location configuration][BACKUP]. The Backup icon appears when **Backup Management** is activated in <i class="uil uil-cog"></i> **PMM Configuration > <i class="uil uil-setting"></i> Settings > Advanced Settings**.
@@ -38,3 +29,9 @@ The main menu is part of the Grafana framework and is visible on every page.
 | <i class="uil uil-clouds"></i>     | Environment Overview        | This tab is displayed after connecting PMM to Percona Portal. Shows the name and email of the Customer Success Manager assigned to your organization, who can help with any PMM queries. This tab will soon be populated with more useful information about your PMM environment.
 
 
+!!! info alert alert-info "See also"
+    - [How to render dashboard images](../../use/dashboards-panels/share-dashboards/share_dashboard.md#render-dashboard-image)
+    - [How to annotate special events](../../use/dashboards-panels/annotate/annotate.md)
+
+[grafana]: https://grafana.com/docs/grafana/latest/
+[promql]: https://prometheus.io/docs/prometheus/latest/querying/basics/

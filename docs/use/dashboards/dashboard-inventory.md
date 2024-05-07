@@ -53,7 +53,7 @@ To see the details of the agents running, do the following:
 
 To remove items from the inventory:
 
-1. Go to <i class="uil uil-cog"></i> **PMM Configuration** > {{icon.inventory}} **PMM Inventory**.
+1. Go to **PMM Configuration** > <i class="uil uil-server-connection"></i> **PMM Inventory**.
 
 2. In the first column, select the items to be removed.
 3. Click **Delete** and confirm the removal.

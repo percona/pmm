@@ -1,4 +1,4 @@
-# Extend Metrics
+# Extend metrics
 
 When you need a metric that’s not present in the default list of `node_exporter` metrics you may be able to use the `textfile` collector.
 The textfile collector allows exporting of statistics from batch jobs. It can also be used to export static metrics, such as what role a machine has.
@@ -34,4 +34,3 @@ $ cat /etc/cron.d/loggedin_users
 ```
 
 ![!image](../../_images/node-exporter.textfile-collector.2.png)
-

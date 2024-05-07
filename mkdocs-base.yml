@@ -249,13 +249,8 @@ nav:
     - use/using-pmm.md
     - PMM user interface:
       - reference/ui/ui_components.md  
-      - reference/ui/index.md
       - reference/ui/log_in.md
-      - reference/ui/controls.md
-      - reference/ui/nav.md
-      - reference/ui/panels.md
       - reference/ui/timezone.md
-      - reference/ui/view.md
     - PMM Inventory: use/dashboard-inventory.md
     - Metrics monitoring: 
       - use/monitor.md
@@ -271,11 +266,7 @@ nav:
         - Manage dashboards:
           - use/dashboards-panels/manage-dashboards/create-folders.md
           - use/dashboards-panels/manage-dashboards/manage-folders.md
-        - Set custom home dashboard:
-          - use/dashboards-panels/custom_dashboard/index.md
-          - use/dashboards-panels/custom_dashboard/set_custom_team.md
-          - use/dashboards-panels/custom_dashboard/set_custom_for_org.md
-          - use/dashboards-panels/custom_dashboard/set_personal_home.md
+          - use/dashboard-panels/set-custom-dashboard
         - Share dashboards and panels: use/dashboards-panels/share-dashboards/share_dashboard.md
         - Annotate: use/dashboards-panels/annotate/annotate.md              
 
