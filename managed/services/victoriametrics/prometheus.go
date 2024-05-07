@@ -70,26 +70,29 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s 
 		// find Node address where the agent runs
 		var paramsHost string
 		var paramPMMAgentVersion *version.Parsed
+		var pmmAgent *models.Agent
+		if agent.PMMAgentID != nil {
+			// extract node address through pmm-agent
+			pmmAgent, err = models.FindAgentByID(q, *agent.PMMAgentID)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			paramPMMAgentVersion, err = version.Parse(pointer.GetString(pmmAgent.Version))
+			if err != nil {
+				l.Warnf("couldn't parse pmm-agent version for pmm-agent %s: %q", pmmAgent.AgentID, err)
+			}
+		}
 		switch {
 		// special case for push metrics mode,
 		// vmagent scrapes it from localhost.
 		case pushMetrics:
 			paramsHost = "127.0.0.1"
 		case agent.PMMAgentID != nil:
-			// extract node address through pmm-agent
-			pmmAgent, err := models.FindAgentByID(q, *agent.PMMAgentID)
-			if err != nil {
-				return errors.WithStack(err)
-			}
 			pmmAgentNode := &models.Node{NodeID: pointer.GetString(pmmAgent.RunsOnNodeID)}
 			if err = q.Reload(pmmAgentNode); err != nil {
 				return errors.WithStack(err)
 			}
 			paramsHost = pmmAgentNode.Address
-			paramPMMAgentVersion, err = version.Parse(pointer.GetString(pmmAgent.Version))
-			if err != nil {
-				l.Warnf("couldn't parse pmm-agent version for pmm-agent %s: %q", pmmAgent.AgentID, err)
-			}
 		case agent.RunsOnNodeID != nil:
 			externalExporterNode := &models.Node{NodeID: pointer.GetString(agent.RunsOnNodeID)}
 			if err = q.Reload(externalExporterNode); err != nil {
