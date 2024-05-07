@@ -16,7 +16,6 @@ ExecStart=/usr/bin/podman run --volume pmm-data:/srv/ --rm --name %N \
     -e PMM_WATCHTOWER_TOKEN=${PMM_WATCHTOWER_TOKEN} \
     -e PMM_SERVER_UPDATE_VERSION=${PMM_SERVER_UPDATE_VERSION} \
     --net pmm_default \
-    --cap-add=net_admin,net_raw \
     -p 443:8443/tcp --ulimit=host ${PMM_IMAGE}
 
 ExecStop=/usr/bin/podman stop -t 10 %N

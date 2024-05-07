@@ -17,7 +17,6 @@ ExecStart=/usr/bin/podman run --rm --name %N \
     -e WATCHTOWER_HTTP_API_UPDATE=${WATCHTOWER_HTTP_API_UPDATE} \
     -e WATCHTOWER_HTTP_API_TOKEN=${WATCHTOWER_HTTP_API_TOKEN} \
     --net pmm_default \
-    --cap-add=net_admin,net_raw \
     -p 8080:8080/tcp docker.io/perconalab/watchtower
 
 ExecStop=/usr/bin/podman stop -t 10 %N
