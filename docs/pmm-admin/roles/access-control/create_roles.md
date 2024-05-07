@@ -6,12 +6,12 @@ Roles are a vital part of Access control. Roles provide users with access to spe
 To create access roles in PMM, do the following:
 {.power-number}
 
-1. From the **Main** menu, navigate to <i class="uil uil-cog"></i> **Configuration → Access Roles**. **Access Roles** tab
+1. From the [main menu](../../../reference/ui/ui_components.md), go to **PMM Configuration  > Access Roles**. **Access Roles** tab
  opens.
 
     ![!](../../../_images/PMM_access_control_create_role.png)
 
-2. Click **Create**. Create role page opens.
+1. Click **Create**. Create role page opens.
 
 
 3. Enter the Role name and Role description.

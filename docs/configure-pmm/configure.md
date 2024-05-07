@@ -1,15 +1,8 @@
 # Configure PMM
 
-!!! note alert alert-primary "Note"
-    This section provides the instructions to configure your PMM instance after you have installed PMM.
-   
-The **Settings** page is where you configure PMM.
+This section provides the instructions to configure your PMM instance after you have installed PMM.
 
-Open the **Settings** page from the [main menu](../details/interface.md#main-menu) with <i class="uil uil-cog"></i> **Configuration** → <i class="uil uil-setting"></i> **Settings**. The page opens with the **Metrics Resolution** settings tab selected.
-
-![!image](../_images/PMM_Settings_Metrics_Resolution.jpg)
-
-On the left are the selector tabs:
+The **PMM Configuration** page gives you access to PMM setup's settings and inventory options:
 
 * [Metrics resolution](metrics_res.md)
 * [Advanced Settings](advanced_settings.md)
@@ -18,7 +11,6 @@ On the left are the selector tabs:
     * [Check for updates](advanced_settings.md#check-for-updates)
     * [Advisors](advanced_settings.md#advisors)
 * [Public address](public-address.md)
-    * [DBaaS](public-address.md#dbaas)
     * [Alerting](public-address.md#alerting)
     * [Microsoft Azure Monitoring](public-address.md#microsoft-azure-monitoring)
     * [Public Address {: #public-address-1 }](public-address.md#public-address--public-address-1-)
@@ -29,6 +21,5 @@ On the left are the selector tabs:
     * [Password Reset](percona_platform.md#password-reset)
       * [Password Forgotten](percona_platform.md#password-forgotten)
       * [Change Password after Login](percona_platform.md#change-password-after-login)
-
-!!! hint alert alert-success "Tip"
-    Click **Apply changes** to save any changes made here.
+  
+You can also use the [**Administration** page](../pmm-admin/index.md) to manage Grafana-related configurations and account settings.

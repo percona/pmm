@@ -2,7 +2,7 @@
 
 ![!image](../../_images/PMM_Advanced_Data_Exploration.jpg)
 
-The *Advanced Data Exploration* dashboard provides detailed information about the progress of a single Prometheus metric across one or more hosts.
+The **Advanced Data Exploration** dashboard provides detailed information about the progress of a single Prometheus metric across one or more hosts.
 
 ## View actual metric values (Gauge)
 

@@ -26,7 +26,6 @@ You can grant or revoke admin access to a user as follows:
 
 You can change the organization role assigned to your user account.
 
-
 ![!image](../../_images/PMM-change-role.png)
 
 To change the role:
@@ -36,14 +35,14 @@ To change the role:
 
 2. In the **Organisations** section, click **Change role**.
 
-3. Select the role from the drop-down and click **save**.
+3. Select the role from the drop-down and click **Save**.
 
 The following are the privileges for the various *roles*:
 
-- Admin - Managing data sources, teams, and users within an organization.
+- **Admin** - Managing data sources, teams, and users within an organization
 
-- Editor - Creating and editing dashboards.
+- **Editor** - Creating and editing dashboards
 
-- Viewer - Viewing dashboards.
+- **Viewer** - Viewing dashboards
 
-For detailed information on the privileges for these roles and the different tasks that they can perform, refer to: [Grafana organization roles](https://grafana.com/docs/grafana/latest/permissions/organization_roles/).
+For detailed information on the privileges for these roles and the different tasks that they can perform, see [Grafana organization roles](https://grafana.com/docs/grafana/latest/permissions/organization_roles/).
