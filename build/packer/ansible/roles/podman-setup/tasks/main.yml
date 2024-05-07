@@ -20,12 +20,18 @@
 
 - name: Pull the PMM image
   command: podman pull {{ pmm_server_image_name }}
+  become: true
+  become_user: admin
 
 - name: Create a volume on the host
   command: podman volume create pmm-data
+  become: true
+  become_user: admin
 
 - name: Create a network
   command: podman network create pmm_default
+  become: true
+  become_user: admin
 
 - name: Enable privileged port
   become: true
