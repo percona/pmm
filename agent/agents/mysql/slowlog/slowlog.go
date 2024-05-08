@@ -372,7 +372,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 
 			s.l.Tracef("Parsed slowlog event: %+v.", e)
 			fingerprint := query.Fingerprint(e.Query)
-			digest := HashIntoQueryID(fingerprint)
+			digest := hashIntoQueryID(fingerprint)
 			aggregator.AddEvent(e, digest, e.User, e.Host, e.Db, e.Server, e.Query)
 
 		case <-t.C:
@@ -393,8 +393,8 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 	}
 }
 
-// HashIntoQueryID returns slowlog query ID hashed by MD5 from given fingerprint.
-func HashIntoQueryID(fingerprint string) string {
+// hashIntoQueryID returns slowlog query ID hashed by MD5 from given fingerprint.
+func hashIntoQueryID(fingerprint string) string {
 	// MD5 is used only to hash fingerprint into query ID, so there is no risk.
 	// It is ideal due to its length (32 chars) and it corresponds to Perfschema query ID length.
 	id := md5.New() //nolint:gosec
