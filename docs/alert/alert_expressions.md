@@ -12,7 +12,7 @@ For example, to validate that a MongoDB instance is down, shut down a member of 
 ## Add an alert rule
 After provisioning the resources required for creating Percona templated alerts, you are now ready to create your alert:
 
-1. Go to **Alerting > Alert Rules**, and click **New alert rule**.
+1. Go to **Alerting > Alert Rules**, and click **New alert rule** to create a new alert from sc
 2. On the **Create alert rule** page, select the **Percona templated alert** option. If you want to learn about creating Grafana alerts instead, check our [Grafana's documentation](https://grafana.com/docs/grafana/latest/alerting/).
 3. In the **Template details** section, choose the template on which you want to base the new alert rule. This automatically populates the **Name**, **Duration**, and **Severity** fields with information from the template. You can change these values if you want to override the default specifications in the template.
 4. In the **Filters** field, specify if you want the alert rule to apply only to specific services or nodes. For example: `service_name'`, Operator:`MATCH`, VALUE: `ps5.7`.
