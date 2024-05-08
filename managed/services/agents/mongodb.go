@@ -41,7 +41,6 @@ var (
 	v2_25_0                    = version.MustParse("2.25.0-0")
 	v2_26_0                    = version.MustParse("2.26.0-0")
 	v2_41_1                    = version.MustParse("2.41.1-0")
-	v2_41_3                    = version.MustParse("2.41.3-0")
 )
 
 // mongodbExporterConfig returns desired configuration of mongodb_exporter process.
