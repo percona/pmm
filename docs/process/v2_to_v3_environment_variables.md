@@ -48,6 +48,7 @@ Below is a list of affected variables and their new names.
 | `PERCONA_TEST_SAAS_HOST`                      |                                            | Removed in PMM v3, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS`    |
 | `PERCONA_TEST_POSTGRES_USERNAME`              | `PMM_POSTGRES_USERNAME`                    |                                                              |
 | `PERCONA_TEST_STARLARK_ALLOW_RECURSION`       | `PMM_DEV_ADVISOR_STARLARK_ALLOW_RECURSION` |                                                              |
+| `PMM_ADVISORS_CHECKS_DISABLE_START_DELAY`     | `PMM_ADVISOR_CHECKS_DISABLE_START_DELAY`   |                                                              |
 | `PMM_TEST_TELEMETRY_DISABLE_SEND`             | `PMM_DEV_TELEMETRY_DISABLE_SEND`           |                                                              |
 | `PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY`  | `PMM_DEV_TELEMETRY_DISABLE_START_DELAY`    |                                                              |
 | `PMM_TEST_TELEMETRY_FILE`                     | `PMM_DEV_TELEMETRY_FILE`                   |                                                              |

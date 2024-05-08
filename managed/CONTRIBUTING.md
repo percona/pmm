@@ -59,7 +59,7 @@ go test -timeout=30s -p 1 ./...
 | PMM_NICER_API                            | Enables nicer API with default/zero values in response.                                                             | false                                    |
 | PMM_DEV_VERSION_SERVICE_URL              | Sets versions service URL                                                                                           | https://check.percona.com/versions/v1    |
 | PMM_DEV_ADVISOR_CHECKS_FILE              | Specifies path to local checks file and disables downlading checks files from Percona Platform                      | none                                     |
-| PMM_ADVISORS_CHECKS_DISABLE_START_DELAY  | Disables checks service startup delay                                                                               | false                                    |
+| PMM_ADVISOR_CHECKS_DISABLE_START_DELAY   | Disables checks service startup delay                                                                               | false                                    |
 | PMM_DEV_TELEMETRY_INTERVAL               | Sets telemetry reporting interval                                                                                   | 24h                                      |
 | PMM_DEV_TELEMETRY_DISABLE_SEND           | Disables sending of telemetry data to SaaS. This param doesn't affect telemetry data gathering from the datasources | false                                    |
 | PMM_DEV_TELEMETRY_FILE                   | Sets path for telemetry config file                                                                                 |                                          |

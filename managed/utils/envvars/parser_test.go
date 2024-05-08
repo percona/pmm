@@ -159,12 +159,12 @@ func TestEnvVarValidator(t *testing.T) {
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 		expectedWarns := []string{
-			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
-			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
-			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
-			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
-			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
-			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables are NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables are NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables are NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables are NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables are NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables are NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
 		}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)

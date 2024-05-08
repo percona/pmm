@@ -238,7 +238,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			}
 
 			if strings.HasPrefix(k, "PERCONA_") {
-				warns = append(warns, "PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation")
+				warns = append(warns, "PERCONA_* env variables are NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation")
 				continue
 			}
 
