@@ -7,7 +7,3 @@ Depending on the datasources that you want to query, and the complexity of your 
 - **Percona templated alerts**: alerts based on a set of Percona-supplied templates with common events and expressions for alerting.
 If you need custom expressions on which to base your alert rules, you can also create your own templates.
 - **Grafana managed alerts**: alerts that handle complex conditions and can span multiple different data sources like SQL, Prometheus, InfluxDB, etc. These alerts are stored and executed by Grafana.
-
-The Alerting page contains are split into eight tabs: Fired Alerts, Alert Rules, Alert Rule Templates, Contact Points, Notification Policies, Silences, Alert Groups and Admin.
-
-![!](../_images/alerting-page-tabs.png)

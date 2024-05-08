@@ -57,9 +57,9 @@ After configuring the SMTP settings, specify email delivery options for an Email
 {.power-number}
 
 1. Go to **Alerting > Contact points**.
-2. Click the edit button next to the **grafana-default-email** to update PMM's default Email contact point, or click **New contact point** to create a custom one.
+2. Click the edit button next to the **grafana-default-email** to update PMM's default Email contact point, or click **Add contact point** to create a custom one.
 3. Enter a contact point name, and add the email addresses for the recipients of the email notifications.
-4. Expand **Optional settings** and fill in any other relevant settings:
+4. Expand **Optional Email settings** and fill in any other relevant settings:
     - Enable the **Single email** option to send a single email to the recipients containing alerts that are firing. For example, if an alert fires for three nodes, this would send only one email listing all three alerts.
     - Add an optional message to include with the email notifications.
     - Edit the email subject for the notifications. The default subject line uses the following format [FIRING: *number of alerts firing for the alert rule*](*Name of alert rule and instance*).
@@ -97,13 +97,13 @@ To edit the root notification policy:
 {.power-number}
 
 1. Go to <i class="uil uil-bell"></i> **Alerting > Notification policies** tab.
-2. Click **Edit** on the top right of the root policy box.
+2. Click the ellipsis botton next to the root policy box and select the **Edit** option.
 3. Choose whether to keep the default Email contact point, select a new available contact point or create a new one.
 4. In the **Group by** field, specify how alert rules should be processed into notifications. If multiple alerts are matched for this policy, they will be grouped based on the labels you specify, and a notification will be sent per group.
 5. Expand the **Timing options** section and specify how notification wait times should be processed. These are short pauses the system can take to efficiently process multiple sets of alerts for notifications:
-   - **Group wait**: The default is to wait 30 seconds to buffer alerts of the same group before sending a notification initially.
-   - **Group interval**: The default is to wait five minutes before sending a batch of new alerts after the first notification was sent.
-   - **Repeat interval**: The default is to wait four hours before resending an alert.
+      - **Group wait**: The default is to wait 30 seconds to buffer alerts of the same group before sending a notification initially.
+      - **Group interval**: The default is to wait five minutes before sending a batch of new alerts after the first notification was sent.
+      - **Repeat interval**: The default is to wait four hours before resending an alert.
 6. Click **Save** to save your changes.
 
 ### Create a new notification policy
@@ -114,7 +114,7 @@ To create a new notification policy:
 1. Go to <i class="uil uil-bell"></i> **Alerting > Notification policies** tab.
 ![!](../_images/alerting-new-notification-policy.png)
 
-2. Click **New specific policy**.
+2. Click **New nested policy**.
 3. The **Matching labels** section defines the rules for matching alert labels. The matching label is a combination of label name, operator and label value, where the label name is any valid label in your environment. For example:  `node_name`, `cluster`, etc.
 A policy will match an alert if the alert’s labels match all the matching labels specified on the policy. If there are no matchers, **the policy will handle all the alert instances**. For example, you could add a **node_name=pmm-server** matcher to send out notifications only for this node.
 4. Select an existing contact point for the policy.
@@ -124,5 +124,5 @@ This can be useful, for example, when you want to send notifications to a catch-
 7. Toggle **Override general timings** to specify how often you want to wait until the initial notification is sent for a new group. When this is disabled, PMM uses root policy group timings instead.
 8. Add a mute timing if you want to mute notifications or this policy for a specific, regular interval. For example, you can create a mute to suppress trivial notifications during weekends.  Mute timings are different from silences in the sense that they are recurring, while silences have a fixed start and end time.
    
-!!! caution alert alert-warning "Important"
-    Time specified in mute timing must be in UTC and military format i.e. 14:00 not 2:00 PM.
+    !!! caution alert alert-warning "Important"
+        Time specified in mute timing must be in UTC and military format i.e. 14:00 not 2:00 PM.
