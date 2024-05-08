@@ -3,11 +3,9 @@
 To assign access roles to users:
 {.power-number}
 
-1. From the **Main** menu, navigate to <i class="uil uil-cog"></i> **Configuration → Users**. **Users** tab opens.
+1. From [main menu](../../../reference/ui/ui_components.md), go to **PMM Configuration > Settings > Advanced Settings** and enable the **Access Roles** option.
+2. Go to **Administration > Users and access > Users**.
 
-    ![!](../../../_images/PMM_access_control_assign_role.png)
-
-
-2. Select the **Access Role** you want to assign to a user from the dropdown. You can assign several roles to a user.
+3. Select the **User** you want to assign to a role from the dropdown. You can assign several roles to a user.
 
     ![!](../../../_images/PMM_access_control_select_role.png)
