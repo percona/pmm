@@ -4,7 +4,7 @@
 To run Docker with data container:
 {.power-number}
 
-1. Create a persistent data container.
+1. Create a persistent data container:
 
     ```sh
     docker create --volume /srv \
@@ -22,28 +22,35 @@ To run Docker with data container:
         docker inspect pmm-server | grep Destination
         ```
 
-2. Run the image.
+2. Create the Docker network:
+
+    ```sh
+    docker network create pmm_default
+    ```
+
+3. Run the image:
 
     ```sh
     docker run --detach --restart always \
-    --publish 443:443 \
+    --publish 443:8443 \
+    --env PMM_WATCHTOWER_HOST=your_watchtower_host \
+    --env PMM_WATCHTOWER_TOKEN=your_watchtower_token \
     --volumes-from pmm-data \
+    --network=pmm_default \
     --name pmm-server \
-    percona/pmm-server:2
+    perconalab/pmm-server:3.0.0-rc
     ```
 
-3. Change the password for the default `admin` user.
-
-    * For PMM versions 2.27.0 and later:
+4. Change the password for the default `admin` user:
 
     ```sh
     docker exec -t pmm-server change-admin-password <new_password>
     ```
 
-    * For PMM versions prior to 2.27.0:
+5. Check the [WatchTower prerequisites](../docker/index.md|#prerequisites) and pass the following command to Docker Socket to start [Watchtower](https://containrrr.dev/watchtower/):
 
-        ```sh
-        docker exec -t pmm-server bash -c 'grafana-cli --homepath /usr/share/grafana --configOverrides cfg:default.paths.data=/srv/grafana admin reset-admin-password newpass'
-        ```
-        
-4. Visit `https://localhost:443` to see the PMM user interface in a web browser. (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)
+    ```sh
+    docker run -v /var/run/docker.sock:/var/run/docker.sock -e WATCHTOWER_HTTP_API_UPDATE=1 -e WATCHTOWER_HTTP_API_TOKEN=your_watchtower_token --hostname=your_watchtower_host --network=pmm_default docker.io/perconalab/watchtower
+    ```
+
+6. Visit `https://localhost:443` to see the PMM user interface in a web browser. (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)

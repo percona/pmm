@@ -1,4 +1,4 @@
-# Install PMM with Easy-Install script
+## Run Docker via the Easy-install script
 
 !!! caution alert alert-warning "Caution"
     You can download and check `get-pmm.sh` before running it from our [github]:
@@ -34,11 +34,10 @@ Download and install PMM Server using `cURL` or `wget`:
         ./pmm --interactive
         ```
 
-
 [github]: https://github.com/percona/pmm/blob/main/get-pmm.sh
 
 ### Next steps
 
-Start by installing PMM client: 
+Start by installing PMM client:
 
 [Install PMM client :material-arrow-right:](../../install-pmm-client/index.md){.md-button}

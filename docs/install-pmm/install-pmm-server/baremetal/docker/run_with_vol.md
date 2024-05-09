@@ -4,7 +4,7 @@
 To run Docker with volume:
 {.power-number}
 
-1. Pull the image.
+1. Pull the image:
 
     ```sh
     docker pull percona/pmm-server:2
@@ -18,28 +18,27 @@ To run Docker with volume:
 
 3. Run the image:
 
-    ```sh
+  ```sh
     docker run --detach --restart always \
-    --publish 443:443 \
-    -v pmm-data:/srv \
+    --publish 443:8443 \
+    --env PMM_WATCHTOWER_HOST=your_watchtower_host \
+    --env PMM_WATCHTOWER_TOKEN=your_watchtower_token \
+    --volumes-from pmm-data \
+    --network=pmm_default \
     --name pmm-server \
-    percona/pmm-server:2
+    perconalab/pmm-server:3.0.0-rc
     ```
     
-4. Change the password for the default `admin` user.
+4. Change the password for the default `admin` user:
 
-    * For PMM versions 2.27.0 and later:
+    ```sh
+    docker exec -t pmm-server change-admin-password <new_password>
+    ```
 
-        ```sh
-        docker exec -t pmm-server change-admin-password <new_password>
-        ```
+5. Check the [WatchTower prerequisites](../docker/index.md|#prerequisites) and pass the following command to Docker Socket to start [Watchtower](https://containrrr.dev/watchtower/):
 
-    * For PMM versions prior to 2.27.0:
+    ```sh
+    docker run -v /var/run/docker.sock:/var/run/docker.sock -e WATCHTOWER_HTTP_API_UPDATE=1 -e WATCHTOWER_HTTP_API_TOKEN=your_watchtower_token --hostname=your_watchtower_host --network=pmm_default docker.io/perconalab/watchtower
+    ```
 
-        ```sh
-        docker exec -t pmm-server bash -c 'grafana-cli --homepath /usr/share/grafana --configOverrides cfg:default.paths.data=/srv/grafana admin reset-admin-password newpass'
-        ```
-
-5. Visit `https://localhost:443` to see the PMM user interface in a web browser. (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)
-       
-
+6. Visit `https://localhost:443` to see the PMM user interface in a web browser. (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)

@@ -1,30 +1,43 @@
 
 # Run Docker with the host directory
 
-!!! note alert alert-primary "Availability"
-    This feature is available starting with PMM 2.29.0.
-
 To run Docker with the host directory:
 {.power-number}
 
-1. Pull the image.
+1. Pull the image:
 
     ```sh
     docker pull percona/pmm-server:2
     ```
 
-2. Run the image.
+2. Run the image:
 
     ```sh
-    export DATA_DIR=$HOME/srv
-    docker run -v $DATA_DIR/srv:/srv -d --restart always --publish 80:80 --publish 443:443 --name pmm-server percona/pmm-server:2
+    docker run --detach --restart always \
+    --publish 443:8443 \
+    --env PMM_WATCHTOWER_HOST=your_watchtower_host \
+    --env PMM_WATCHTOWER_TOKEN=your_watchtower_token \
+    --volumes-from pmm-data \
+    --network=pmm_default \
+    --name pmm-server \
+    perconalab/pmm-server:3.0.0-rc
     ```
-    
-    `DATA_DIR` is a directory where you want to store the state for PMM.
 
-3. Visit `https://localhost:443` to see the PMM user interface in a web browser. (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)
+3. Change the password for the default `admin` user:
 
-### Migrate from data container to host directory/volume
+    ```sh
+    docker exec -t pmm-server change-admin-password <new_password>
+    ```
+
+4. Check the [WatchTower prerequisites](../docker/index.md|#prerequisites) and pass the following command to Docker Socket to start [Watchtower](https://containrrr.dev/watchtower/):
+
+    ```sh
+    docker run -v /var/run/docker.sock:/var/run/docker.sock -e WATCHTOWER_HTTP_API_UPDATE=1 -e WATCHTOWER_HTTP_API_TOKEN=your_watchtower_token --hostname=your_watchtower_host --network=pmm_default docker.io/perconalab/watchtower
+    ```
+
+5. Visit `https://localhost:443` to see the PMM user interface in a web browser. (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)
+
+## Migrate from data container to host directory/volume
 
 To migrate your PMM from data container to host directory or volume run the following command:
 
