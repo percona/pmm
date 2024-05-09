@@ -351,64 +351,8 @@ nav:
 
   - Release notes:
     - Release notes index: release-notes/index.md
-    - "PMM 2.41.0 (Dec 12, 2023)": release-notes/2.41.0.md
-    - "PMM 2.40.1 (Oct 20, 2023)": release-notes/2.40.1.md
-    - "PMM 2.40.0 (Oct 5 2023)": release-notes/2.40.0.md
-    - "PMM 2.39.0 (Aug 14, 2023)": release-notes/2.39.0.md
-    - "PMM 2.38.1 (July 13, 2023)": release-notes/2.38.1.md
-    - "PMM 2.38.0 (July 3, 2023)": release-notes/2.38.0.md
-    - "PMM 2.37.1 (June 5, 2023)": release-notes/2.37.1.md
-    - "PMM 2.37.0 (May 2, 2023)": release-notes/2.37.0.md
-    - "PMM 2.36.0 (Mar. 23, 2023)": release-notes/2.36.0.md
-    - "PMM 2.35.0 (Feb. 23, 2023)": release-notes/2.35.0.md
-    - "PMM 2.34.0 (Jan. 30, 2023)": release-notes/2.34.0.md
-    - 2022:
-      - "PMM 2.33.0 (Dec. 13, 2022)": release-notes/2.33.0.md
-      - "PMM 2.32.0 (Nov. 8, 2022)": release-notes/2.32.0.md
-      - "PMM 2.31.0 (Sept. 26, 2022)": release-notes/2.31.0.md
-      - "PMM 2.30.0 (Aug. 8, 2022)": release-notes/2.30.0.md
-      - "PMM 2.29.1 (July 7, 2022)": release-notes/2.29.1.md
-      - "PMM 2.29.0 (July 19, 2022)": release-notes/2.29.0.md
-      - "PMM 2.28.0 (June 12, 2022)": release-notes/2.28.0.md
-      - "PMM 2.27.0 (Apr. 4, 2022)": release-notes/2.27.0.md
-      - "PMM 2.26.0 (Feb. 8, 2022)": release-notes/2.26.0.md
-    - 2021:
-      - "PMM 2.25.0 (Dec 14, 2021)": release-notes/2.25.0.md
-      - "PMM 2.24.0 (Nov 18, 2021)": release-notes/2.24.0.md
-      - "PMM 2.23.0 (Oct. 21, 2021)": release-notes/2.23.0.md
-      - "PMM 2.22.0 (Sept. 23, 2021)": release-notes/2.22.0.md
-      - "PMM 2.21.0 (Aug. 26, 2021)": release-notes/2.21.0.md
-      - "PMM 2.20.0 (Aug. 3, 2021)": release-notes/2.20.0.md
-      - "PMM 2.19.0 (June 30, 2021)": release-notes/2.19.0.md
-      - "PMM 2.18.0 (June 1, 2021)": release-notes/2.18.0.md
-      - "PMM 2.17.0 (May 11, 2021)": release-notes/2.17.0.md
-      - "PMM 2.16.0 (Apr. 15, 2021)": release-notes/2.16.0.md
-      - "PMM 2.15.1 (Mar. 18, 2021)": release-notes/2.15.1.md
-      - "PMM 2.15.0 (Mar. 01, 2021)": release-notes/2.15.0.md
-      - "PMM 2.14.0 (Jan. 28, 2021)": release-notes/2.14.0.md
-    - 2020:
-      - "PMM 2.13.0 (Dec. 29, 2020)": release-notes/2.13.0.md
-      - "PMM 2.12.0 (Dec. 1, 2020)": release-notes/2.12.0.md
-      - "PMM 2.11.1 (Oct. 19, 2020)": release-notes/2.11.1.md
-      - "PMM 2.11.0 (Oct. 14, 2020)": release-notes/2.11.0.md
-      - "PMM 2.10.1 (Sept. 22, 2020)": release-notes/2.10.1.md
-      - "PMM 2.10.0 (Sept. 15, 2020)": release-notes/2.10.0.md
-      - "PMM 2.9.1 (Aug 4, 2020)": release-notes/2.9.1.md
-      - "PMM 2.9.0 (July 14, 2020)": release-notes/2.9.0.md
-      - "PMM 2.8.0 (June 25, 2020)": release-notes/2.8.0.md
-      - "PMM 2.7.0 (June 9, 2020)": release-notes/2.7.0.md
-      - "PMM 2.6.1 (May 18, 2020)": release-notes/2.6.1.md
-      - "PMM 2.6.0 (May 11, 2020)": release-notes/2.6.0.md
-      - "PMM 2.5.0 (Apr. 14, 2020)": release-notes/2.5.0.md
-      - "PMM 2.4.0 (Mar. 18, 2020)": release-notes/2.4.0.md
-      - "PMM 2.3.0 (Mar. 18, 2020)": release-notes/2.3.0.md
-      - "PMM 2.2.2 (Feb. 4, 2020)": release-notes/2.2.2.md
-      - "PMM 2.2.1 (Jan. 23, 2020)": release-notes/2.2.1.md
-    - 2019:      
-      - "PMM 2.2.0 (Dec. 24, 2019)": release-notes/2.2.0.md
-      - "PMM 2.1.0 (Nov. 11, 2019)": release-notes/2.1.0.md
-      - "PMM 2.0.1 (Nov. 11, 2019)": release-notes/2.0.1.md
-      - "PMM 2.0.0 (Sept. 19, 2019)": release-notes/2.0.0.md
+    - "PMM 3.0.0-ALPHA (April 30, 2024)": release-notes/3.0.0_Alpha.md
+    
 
   - Reference: 
     - Architecture:
@@ -498,5 +442,5 @@ nav:
 
     -  reference/glossary.md
     -  reference/faq.md
-    - reference/trademark-policy.md
-    - reference/copyright.md
+    -  reference/trademark-policy.md
+    -  reference/copyright.md
