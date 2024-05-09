@@ -100,6 +100,7 @@ When creating custom templates, make sure to use the required template format be
     ```
 
 ### Test alert expressions
+
 If you want to create custom templates, you can test the MetricsQL expressions for your custom template in the **Explore** section of PMM. Here you can also query any PMM internal database.
 
 To test expressions for custom templates:
