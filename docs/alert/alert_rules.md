@@ -121,7 +121,7 @@ Note that to paste the query above, **Explore** must be in `Code` mode, and not 
 
 After provisioning the resources required for creating Percona templated alerts, you are now ready to create your alert rule based on a Percona template. 
 
-If you want to learn about creating Grafana alerts instead, check our [Grafana's documentation](https://grafana.com/docs/grafana/latest/alerting/):
+If you want to learn about creating Grafana alerts instead, check out [Grafana's documentation](https://grafana.com/docs/grafana/latest/alerting/):
 {.power-number}
 
 1. Go to **Alerting > Alert Rules**, and click **New alert rule from template**.
