@@ -110,7 +110,7 @@ func oldPMMAgentArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAd
 		args = []string{
 			"--mongodb.global-conn-pool",
 			"--compatible-mode",
-			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
+			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right, //nolint:goconst
 		}
 	default:
 		args = []string{
@@ -119,7 +119,7 @@ func oldPMMAgentArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAd
 			"--collect.topmetrics",
 			"--no-collect.connpoolstats",
 			"--no-collect.indexusage",
-			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
+			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right, //nolint:goconst
 		}
 	}
 	return args
