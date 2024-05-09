@@ -2,12 +2,13 @@
 To connect your PMM Server to Percona Platform, copy your personal access token from Platform Portal and paste it into PMM. You will find your access token in Platform Portal as part of your user profile page.
 
 ## Token validity
+
 For security reasons, access tokens expire after 30 minutes. Make sure to paste the code before that, or generate a new one if it expires.
 
 To connect your PMM Server to Percona Platform:
 {.power-number}
 
-1. In PMM, go to **Settings > Percona Platform** tab to fill in the **Connect PMM to Percona Portal** form: ![!image](../../_images/PMM_Settings_Percona_Platform_Login.png)
+1. In PMM, go to **PMM Configuration > Settings > Percona Platform** tab to fill in the **Connect PMM to Percona Portal** form: ![!image](../../_images/PMM_Settings_Percona_Platform_Login.png)
 
 2. The **PMM Server ID** field is automatically populated with the ID identified for your PMM instance. Enter the name of your PMM instance and click **Get token** to go to Percona Platform Portal and generate your access token.
 3. Log into Percona Platform using your Percona Account (if you don't have an active current session).
@@ -17,9 +18,11 @@ To connect your PMM Server to Percona Platform:
 To confirm that you have successfully connected the server and check the list of all servers currently connected to an organization, go to [Percona Platform](https://portal.percona.com) > **Dashboard** tab and click **View Instances** next to the **Connect your PMM** step.
 
 ## Check Percona Portal entitlements
+
 After connecting to the Percona Platform, PMM has access to additional alert templates, Advisor checks, and account information. See [Check Percona Portal account information](../how-to/account-info.md).
 
 ### Disconnect a PMM instance
+
 Disconnect a PMM instance when you want to unlink it from your Percona Platform organization or stop monitoring it there.
 
 To disconnect a PMM Server, go to <i class="uil uil-cog"></i> **Configuration > Settings > Percona Platform** and click **Disconnect**.
@@ -27,10 +30,6 @@ To disconnect a PMM Server, go to <i class="uil uil-cog"></i> **Configuration > 
 #### Disconnecting instances as an Admin
 
 In situations where you are not able to disconnect servers yourself, ask your PMM Admin to disconnect the server for you. For example, you may not be able to disconnect servers when PMM is moved to a network segment without outbound connections to public networks.
-
-
-!!! note alert alert-primary "Availability"
-    This feature is available starting with PMM 2.29.0.
 
 If you cannot disconnect servers yourself, ask your PMM Admin to disconnect the server for you. For example, you may not be able to disconnect servers when PMM is moved to a network segment without outbound connections to public networks.
 

@@ -34,9 +34,9 @@ This section focuses on creating an alert rule based on PMM templates. For infor
 Before creating PMM alert rules, configure the required alert resources:
 {.power-number}
 
-1. Go to **Configuration > PMM Settings** and ensure that the **Alerting** option is enabled. This is enabled by default starting with PMM 2.31. However, if you have disabled it, the **Alerting** page displays only Grafana-managed alert rules. This means that you will not be able to create alerts based on PMM templates.
-2. Go to **Dashboards > Browse** and check the folders available for storing alert rules. If none of the available folders are relevant for your future alert rules, click **New > New Folder** and create a custom one.
-3. Go to **Alerting > Alert Rule Templates** and check the default PMM templates. If none of the templates include a relevant expression for the type of alerts that you want to create, click **Add** to create a custom template instead.
+1. Go to **PMM Configuration > Settings > Advanced Settings** and ensure that the **Percona Alerting** option is enabled. When this is disabled, the **Alerting** page displays only Grafana-managed alert rules. This means that you will not be able to create alerts based on PMM templates.
+2. Go to **Dashboards** and check the folders available for storing alert rules. If none of the available folders are relevant for your future alert rules, click **New > New Folder** and create a custom one.
+3. Go to **Alerting > Alert rule templates** and check the default PMM templates. If none of the templates include a relevant expression for the type of alerts that you want to create, click **Add template** to create a custom template instead.
 
 ### Configure alert templates
 
@@ -100,12 +100,13 @@ When creating custom templates, make sure to use the required template format be
     ```
 
 ### Test alert expressions
+
 If you want to create custom templates, you can test the MetricsQL expressions for your custom template in the **Explore** section of PMM. Here you can also query any PMM internal database.
 
 To test expressions for custom templates:
 {.power-number}
 
-1. On the side menu in PMM, choose **Explore > Metrics**.
+1. On the main menu in PMM, choose **Explore > Metrics**.
 2. Enter your expression in the **Metrics** field and click **Run query**.
 
 For example, to check the CPU usage, Go to **Explore > Metrics** in your PMM dashboard and run the query expression below:
@@ -116,20 +117,19 @@ For example, to check the CPU usage, Go to **Explore > Metrics** in your PMM das
 
 Note that to paste the query above, **Explore** must be in `Code` mode, and not in `Builder` mode.
 
-### Add an alert rule
+### Add an alert rule based on a template
 
-After provisioning the resources required for creating Percona templated alerts, you are now ready to create your alert rule:
+After provisioning the resources required for creating Percona templated alerts, you are now ready to create your alert rule based on a Percona template. 
+
+If you want to learn about creating Grafana alerts instead, check out [Grafana's documentation](https://grafana.com/docs/grafana/latest/alerting/):
 {.power-number}
 
-1. Go to **Alerting > Alert Rules**, and click **New alert rule**.
-2. On the **Create alert rule** page, select the **Percona templated alert** option. If you want to learn about creating Grafana alerts instead, check our [Grafana's documentation](https://grafana.com/docs/grafana/latest/alerting/).
-3. In the **Template details** section, choose the template on which you want to base the new alert rule. This automatically populates the **Name**, **Duration**, and **Severity** fields with information from the template. You can change these values if you want to override the default specifications in the template.
-4. In the **Filters** field, specify if you want the alert rule to apply only to specific services or nodes. For example: `service_name=ps5.7`. When creating alert rule filters, consider the following:
+1. Go to **Alerting > Alert Rules**, and click **New alert rule from template**.
+2. On the **Create alert rule from template** page, choose the template on which you want to base the new alert rule. This automatically populates the **Name**, **Duration**, and **Severity** fields with information from the template. You can change these values if you want to override the default specifications in the template.
+3. From the **Folder** drop-down menu, select the location where you want to store the rule.
+4. In the **Filters** section, specify if you want the alert rule to apply only to specific services or nodes. For example: `service_name=ps5.7`. When creating alert rule filters, consider the following:
    
     - Filters use conjunction semantics. This means that if you add more than one filter, PMM will combine their conditions to search for matches: filter 1 AND filter 2 AND filter 3.
     - **Label** must be an exact match. You can find a complete list of labels using the <i class="uil uil-compass"></i> **Explore** menu in PMM.
 
-5. From the **Folder** drop-down menu, select the location where you want to store the rule.
-6. Click **Save and Exit** to close the page and go to the **Alert Rules** tab where you can review, edit and silence your new alert.
-
-
+5. Click **Save and Exit** to close the page and go to the **Alert Rules** tab where you can review, edit and silence your new alert.

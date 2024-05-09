@@ -11,16 +11,8 @@ You can connect to Percona Platform with a Percona Account or via Google or GitH
 We recommend that you connect with a Percona Account, as this gives you access to other Percona services, including Percona Platform, Percona Customer Portal, and Community Forum. If you don’t have a Percona Account, you can create one on the [Percona Platform homepage](https://portal.percona.com/login) using the **Don't have an account? Create one?** link.
 
 #### Prerequisites
+
 To ensure that PMM can establish a connection to Percona Platform:
-
-### Upgrade to PMM 2.27.0 or later
- Before connecting your PMM Server to Percona Platform, make sure you are using PMM version 2.27 or newer. Otherwise, upgrade your PMM installation beforehand.
-
- This is required because, starting with PMM 2.27, Percona Platform has replaced username/password authentication with access token authentication. Access-token authentication increases security and enables federated identity.
-
-  This change did not affect existing connections to PMM Platform, which were not automatically terminated.
-
- For more information, see [Install and set up PMM](../../install-pmm/index.md).
 
 ### Check that you are a member of an existing Platform organization
 

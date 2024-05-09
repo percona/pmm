@@ -2,11 +2,11 @@
 
 Metrics are collected at three intervals representing low, medium and high resolutions.
 
-The **Metrics Resolution** settings tab contains a radio button with three fixed presets (**Rare**, **Standard** and **Frequent**) and one editable custom preset (**Custom**).
+The **Metrics Resolution** settings tab contains three fixed presets (**Rare**, **Standard** and **Frequent**) and an editable custom preset (**Custom**). Each preset is a group of low, medium and high resolutions. The values are in seconds.
+
 
 ![!image](../_images/PMM_Settings_Metrics_Resolution.jpg)
 
-Each preset is a group of low, medium and high resolutions. The values are in seconds.
 
 !!! note alert alert-primary "Time intervals and resolutions"
     Short time intervals are **high** resolution metrics. Longer time intervals are *low* resolution. So:

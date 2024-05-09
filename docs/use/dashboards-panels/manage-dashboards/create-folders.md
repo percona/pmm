@@ -9,6 +9,6 @@ Folders help you organize and group PMM dashboards, which is crucial when you ha
 To create a dashboard folder:
 {.power-number}
 
-1. On the PMM dashboards page, from the side menu, go to <i class="uil uil-plus"></i> **Dashboards** > **New folder**.
+1. On the PMM dashboards page, from the side menu, go to <i class="uil uil-apps"></i> **Dashboards >  New > New folder**.
 
 2. Enter a unique name for your folder and click **Create**.

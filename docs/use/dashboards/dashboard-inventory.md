@@ -2,9 +2,7 @@
 
 The **Inventory** dashboard is a high-level overview of all objects registered in PMM.
 
-To check your inventory list, go to <i class="uil uil-cog"></i> **Configuration** > **Inventory**.
-
-![!image](../../_images/Inventory.png)
+To check your inventory list, go to <i class="uil uil-cog"></i> **PMM Configuration** > **PMM Inventory**.
 
 Inventory objects form a hierarchy with Node at the top, then Service and Agents assigned to a Node. This information is detailed in the two tabs available on this page.
 
@@ -44,23 +42,18 @@ Starting with PMM 2.38.0, you can see the number of agents running on any partic
 
 To see the details of the agents running, do the following:
 
-1. On the **Nodes** tab, under the **Monitoring** column, click **OK** or **Failed** depending on the status of the node that you have selected. A page that provides the user with crucial information regarding the total number of agents deployed on that node is displayed.
-     ![!image](../../_images/PMM_Inventory_Node_Selection.png)
+1. On the **Nodes** tab, under the **Monitoring** column, click **OK** or **Failed** depending on the status of the node that you have selected. A page that provides the user with information regarding the total number of agents deployed on that node is displayed.
 
 2. Click on the <image src="../../_images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon under the **Options** column to view the properties of a specific agent.
 
-3.  On the **Nodes** tab, under the **Options** column, click on the <image src="../../_images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon for the selected node to check the properties and the current health status of an agent.       
+3.  On the **Nodes** tab, under the **Options** column, click on the <image src="../../_images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon for the selected node to check the properties and the current health status of an agent.
      ![!image](../../_images/PMM_Inventory_Node_Agent_Properties.png)
-
 
 ## Removing items from the inventory
 
 To remove items from the inventory:
 
-1. Go to <i class="uil uil-cog"></i> **Configuration** > {{icon.inventory}} **Inventory**.
+1. Go to **PMM Configuration** > <i class="uil uil-server-connection"></i> **PMM Inventory**.
 
 2. In the first column, select the items to be removed.
-        ![!image](../../_images/PMM_Inventory_Item_Selection.png)
 3. Click **Delete** and confirm the removal.
-
-

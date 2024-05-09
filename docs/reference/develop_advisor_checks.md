@@ -243,19 +243,19 @@ To develop custom checks for PMM:
     perconalab/pmm-server:dev-latest
     ```
 
-3.  Log in to Grafana with credentials **admin/admin**.
+3.  Log into Grafana with credentials **admin/admin**.
 
-4. Go to **Configuration > Settings > Advanced Settings** and make sure the **Advisors** option is enabled.
+4. Go to **PMM Configuration > Settings > Advanced Settings** and make sure the **Advisors** option is enabled.
 
 5.  Create `/srv/custom-checks.yml` inside the `pmm-server` container with the content of your check. Specify **dev** advisor in your check.
 
 6.  The checks will run according to the time interval defined on the UI. You can see the result of running the check on the home dashboard:
 
-    ![!](../../_images/HomeDashboard.png)
+    ![!](../_images/HomeDashboard.png)
 
 7.  Click on the number of failed checks to open the Failed Checks dashboard:
 
-    ![!](../../_images/FailedChecks.png)
+    ![!](../_images/FailedChecks.png)
 
 8.  Check out pmm-managed logs:
     ```sh

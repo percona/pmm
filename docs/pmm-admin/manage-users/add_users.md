@@ -1,7 +1,7 @@
 
 # Add users
 
-You can add a user in PMM from **User → New user** tab.
+You can add a user in PMM from **Administration > Users and access > Users** tab.
 
 ![!](../../_images/PMM-manage-users.png)
 
@@ -15,4 +15,4 @@ To add a new user in PMM:
     - Username
     - Password
 
-3. Click **create user**.
+3. Click **Create user**.

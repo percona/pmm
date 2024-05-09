@@ -5,7 +5,7 @@
 Percona Alerting option isn't active.
 {.power-number}
 
-1. Go to <i class="uil uil-cog"></i> **Configuration** → <i class="uil uil-setting"></i> **Settings* → *Advanced Settings**.
+1. Go to **PMM Configuration > Settings > Advanced Settings**.
 2. Enable **Alerting**.
 
 ## Custom alert rule templates not migrated to Percona Alerting

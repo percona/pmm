@@ -1,6 +1,6 @@
-# Improve PMM Performance
+# Improve PMM performance
 
-You can improve PMM perfromance with the Table Statistics Options as follows:
+You can improve PMM performance with the Table Statistics Options as follows:
 
 If a MySQL instance has a lot of schemas or tables, there are two options to help improve the performance of PMM when adding instances with `pmm-admin add`:
 

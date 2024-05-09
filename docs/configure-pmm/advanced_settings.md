@@ -1,8 +1,8 @@
-# Advanced Settings
+# Advanced PMM settings
 
 ![!](../_images/PMM_Settings_Advanced_Settings.jpg)
 
-## Data Retention
+## Data retention
 
 **Data retention** specifies how long data is stored by PMM Server. By default, time-series data is stored for 30 days. You can adjust the data retention time to balance your system's available disk space with your metrics history requirements.
 
@@ -16,7 +16,7 @@ PMM Telemetry is based on data collected by various PMM components and stored in
 -!!! note alert alert-primary ""
     When PMM is installed, telemetry is not sent immediately. Before the first telemetry report is generated, PMM provides users with a 24-hour grace period to disable telemetry.
 
-To see the metrics being collected by telemetry, from the [main menu](../details/interface.md#main-menu) navigate to <i class="uil uil-cog"></i> **Configuration** → <i class="uil uil-setting"></i> **Settings** → **Advanced Settings** → **Telemetry** and hover over the exclamation mark.
+To see the metrics being collected by telemetry, from the [main menu](../reference/ui/ui_components.md#main-menu) navigate to **PMM Configuration** > <i class="uil uil-setting"></i> **Settings** > **Advanced Settings** > **Telemetry** and hover over the exclamation mark.
 
 ![!image](../_images/PMM_Settings_Advanced_Settings_Telemetry.png)
 
@@ -71,4 +71,3 @@ The address or hostname PMM Server will be accessible at. Click **Get from brows
     This is a technical preview feature.
 
 Activates Microsoft Azure monitoring.
-

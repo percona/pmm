@@ -1,8 +1,5 @@
 # Home Dashboard
 
-!!! note alert alert-primary "Availability"
-    The new Home dashboard is available starting with PMM 2.32.0.
-
 The Home Dashboard provides a high-level overview of your environment, such as the services, infrastructure, and critical issues (if any). It is the starting page of PMM from which you can open the tools of PMM and browse online resources.
 
 This Home Dashboard displays data that is organized in panels as given below.

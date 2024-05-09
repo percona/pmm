@@ -19,17 +19,16 @@ PMM supports standard as well as custom labels. PMM automatically assigns standa
 |          | Service|service_type   |   - mysql, mongodb, postgresql etc.                                     
 | **Custom**| Node, Service, Agent| Any string matching regular expression: <br /> [a-zA-Z_][a-zA-Z0-9_]*. <br /> Also, it cannot start with two underscores.| owner="joe"<br/> _rack="12345"|
 
-
 ## Adding labels
 
-You can add custom or standard labels in PMM while adding a service for monitoring in PMM. 
+You can add custom or standard labels in PMM while adding a service for monitoring in PMM.
 
-**Using PMM UI**
+### Using PMM UI
 
-You can set the labels using User interface as follows:
+To set the labels using the user interface:
 {.power-number}
 
-1. From the **Main** menu, navigate to <i class="uil uil-cog"></i> **Configuration → Add Service**.
+1. From the **Main** menu, go to **PMM Configuration > PMM Services > Add Service**.
 
 2. Select the service you want to add to PMM for monitoring. The page to add the service opens.
 
@@ -37,9 +36,6 @@ You can set the labels using User interface as follows:
 
  ![!](../../../_images/PMM_access_control_add_labels_services.png)
 
- **Using pmm-admin**
+### Using pmm-admin
 
  You can also assign labels using [pmm-admin](../../../use/commands/pmm-admin.md).
-
-
-
