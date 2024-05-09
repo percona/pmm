@@ -119,7 +119,7 @@ func oldPMMAgentArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAd
 			"--collect.topmetrics",
 			"--no-collect.connpoolstats",
 			"--no-collect.indexusage",
-			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right, //nolint:goconst
+			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
 		}
 	}
 	return args
