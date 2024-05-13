@@ -6,3 +6,7 @@ export const api = applyCaseMiddleware(
     baseURL: '/v1/',
   })
 );
+
+export const grafanaApi = axios.create({
+  baseURL: '/graph/api/',
+});

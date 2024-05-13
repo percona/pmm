@@ -7,6 +7,7 @@ import { ThemeContextProvider } from '@percona/design';
 import { NotistackMuiSnackbar } from '@percona/ui-lib';
 import { SnackbarProvider } from 'notistack';
 import pmmThemeOptions from 'themes/PmmTheme';
+import { AuthProvider } from 'contexts/auth';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,7 +36,9 @@ const App = () => (
         }}
       >
         <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
+          <AuthProvider>
+            <RouterProvider router={router} />
+          </AuthProvider>
         </QueryClientProvider>
       </SnackbarProvider>
     </LocalizationProvider>
