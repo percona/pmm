@@ -46,6 +46,13 @@
 - name: Enable linger for the admin user
   command: loginctl enable-linger {{ admin_user_id.stdout }}
 
+- name: Enable and start podman-restart user service
+  command: systemctl --user enable --now podman-restart
+  become: true
+  become_user: admin
+  environment:
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ admin_user_id.stdout }}/bus"
+
 - name: Run PMM via Podman in rootless mode
   command: >
     podman run -d --volume pmm-data:/srv/ --name pmm-server
