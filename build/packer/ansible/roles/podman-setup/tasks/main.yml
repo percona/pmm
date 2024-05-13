@@ -70,7 +70,8 @@
 
 - name: Run watchtower via Podman in rootless mode
   command: >
-    podman run -d -v ${XDG_RUNTIME_DIR}/podman/podman.sock:/var/run/docker.sock --name watchtower
+    podman run -d -v {{ ansible_env.XDG_RUNTIME_DIR }}/podman/podman.sock:/var/run/docker.sock 
+               --name watchtower
                -e WATCHTOWER_HTTP_API_UPDATE="1"
                -e WATCHTOWER_HTTP_API_TOKEN="123"
                --net pmm_default
