@@ -48,7 +48,7 @@
 
 - name: Run PMM via Podman in rootless mode
   command: >
-    podman run --volume pmm-data:/srv/ --name pmm-server
+    podman run -d --rm --volume pmm-data:/srv/ --name pmm-server
                -e PMM_WATCHTOWER_HOST="http://watchtower:8080"
                -e PMM_WATCHTOWER_TOKEN="123"
                -e PMM_SERVER_UPDATE_VERSION={{ pmm_server_image_name }}
@@ -70,7 +70,7 @@
 
 - name: Run watchtower via Podman in rootless mode
   command: >
-    podman run -v ${XDG_RUNTIME_DIR}/podman/podman.sock:/var/run/docker.sock --name watchtower
+    podman run -d --rm -v ${XDG_RUNTIME_DIR}/podman/podman.sock:/var/run/docker.sock --name watchtower
                -e WATCHTOWER_HTTP_API_UPDATE="1"
                -e WATCHTOWER_HTTP_API_TOKEN="123"
                --net pmm_default
