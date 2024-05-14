@@ -64,9 +64,13 @@
                -p 443:8443/tcp
                --ulimit=host
                --restart=always
-               {{ pmm_server_image_name }}
+               docker.io/perconalab/pmm-server-fb:PR-3562-3809b3c
   become: true
   become_user: admin
+
+- name: Pause for 1 minute
+  pause:
+    seconds: 120
 
 - name: Enable socket
   command: systemctl --user enable --now podman.socket
