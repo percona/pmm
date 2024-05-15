@@ -26,7 +26,7 @@ require (
 	golang.org/x/perf v0.0.0-20230717203022-1ba3a21238c9
 	golang.org/x/tools v0.21.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
-	google.golang.org/protobuf v1.32.0
+	google.golang.org/protobuf v1.34.1
 	gopkg.in/reform.v1 v1.5.1
 	mvdan.cc/gofumpt v0.6.0
 )
