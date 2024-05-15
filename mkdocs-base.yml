@@ -156,7 +156,7 @@ nav:
   - Discover:
     - discover-pmm/why-pmm.md
     - discover-pmm/features.md
-  - Quickstart Guide: quickstart.md
+  - Quickstart guide: quickstart.md
   - Install:
     - install-pmm/index.md
     - Plan your PMM installation: 
@@ -351,7 +351,7 @@ nav:
 
   - Release notes:
     - Release notes index: release-notes/index.md
-    - "PMM 3.0.0-ALPHA (April 30, 2024)": release-notes/3.0.0_Alpha.md
+    - "PMM 3.0.0-ALPHA (2024-04-16)": release-notes/3.0.0_Alpha.md
     
 
   - Reference: 
