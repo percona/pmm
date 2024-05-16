@@ -23,18 +23,18 @@
   become: true
   become_user: admin
 
-# - name: Create a volume on the host
-#   command: podman volume create pmm-data
-#   become: true
-#   become_user: admin
+- name: Create a volume on the host
+  command: podman volume create pmm-data
+  become: true
+  become_user: admin
 
-- name: Create user-specific /srv directory
-  file:
-    path: /home/admin/srv
-    state: directory
-    owner: admin
-    group: admin
-    mode: '0755'
+# - name: Create user-specific /srv directory
+#   file:
+#     path: /home/admin/srv
+#     state: directory
+#     owner: admin
+#     group: admin
+#     mode: '0755'
 
 - name: Create a network
   command: podman network create pmm_default
@@ -63,7 +63,7 @@
 
 - name: Run PMM via Podman in rootless mode
   command: >
-    podman run -d --volume /home/admin/srv/:/srv/ --name pmm-server
+    podman run -d --volume pmm-data:/srv/ --name pmm-server
                -e PMM_WATCHTOWER_HOST="http://watchtower:8080"
                -e PMM_WATCHTOWER_TOKEN="123"
                -e PMM_SERVER_UPDATE_VERSION={{ pmm_server_image_name }}
@@ -95,6 +95,7 @@
                -e WATCHTOWER_HTTP_API_TOKEN="123"
                --net pmm_default
                --cap-add=net_admin,net_raw
+               -p 8080:8080/tcp
                --restart=always
                docker.io/perconalab/watchtower
   become: true
