@@ -1,7 +1,7 @@
 # About PMM
 
 
-<i info>:material-information: Info:</i> This is the documentation for the latest release, **PMM {{release}}** ([Release Notes](release-notes/3.0.0_Alpha.md.md)).
+<i info>:material-information: Info:</i> This is the documentation for the latest release, **PMM {{release}}** ([Release Notes](release-notes/3.0.0_Alpha.md).
 
 Percona Monitoring and Management (PMM) is an open source database observability, monitoring, and management tool for use with MySQL, PostgreSQL, MongoDB, and the servers on which they run. It enables you to view node- to single-query performance metrics for all of your databases in a single place. 
 
