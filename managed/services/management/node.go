@@ -153,7 +153,12 @@ func (s *NodeService) Unregister(ctx context.Context, req *managementpb.Unregist
 	}
 
 	err = s.db.InTransaction(func(tx *reform.TX) error {
-		return models.RemoveNode(tx.Querier, req.NodeId, models.RemoveCascade)
+		mode := models.RemoveRestrict
+		if req.Force {
+			mode = models.RemoveCascade
+		}
+
+		return models.RemoveNode(tx.Querier, req.NodeId, mode)
 	})
 	if err != nil {
 		return nil, err
