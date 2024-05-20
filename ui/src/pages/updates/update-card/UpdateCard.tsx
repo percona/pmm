@@ -12,10 +12,10 @@ import {
 import { FC } from 'react';
 import { useQuery } from 'react-query';
 import { formatTimestamp } from 'utils/formatTimestamp';
-import CachedIcon from '@mui/icons-material/Cached';
 import { PMM_HOME_URL } from 'constants';
 import { Messages } from './UpdateCard.messages';
 import { getVersion } from './UpdateCard.utils';
+import { FetchingIcon } from 'components/fetching-icon';
 
 export const UpdateCard: FC = () => {
   const { isLoading, data, error, isRefetching, refetch } = useQuery(
@@ -82,25 +82,7 @@ export const UpdateCard: FC = () => {
       </CardContent>
       <CardActions>
         <Button
-          startIcon={
-            <CachedIcon
-              sx={
-                isRefetching
-                  ? {
-                      animation: 'spin 2s linear infinite',
-                      '@keyframes spin': {
-                        '0%': {
-                          transform: 'rotate(360deg)',
-                        },
-                        '100%': {
-                          transform: 'rotate(0deg)',
-                        },
-                      },
-                    }
-                  : {}
-              }
-            />
-          }
+          startIcon={<FetchingIcon isFetching={isRefetching} />}
           variant="contained"
           onClick={() => refetch()}
         >
