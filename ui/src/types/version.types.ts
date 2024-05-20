@@ -5,7 +5,7 @@ export interface GetUpdatesBody {
 
 export interface GetUpdatesResponse {
   lastCheck: string;
-  latest: {
+  latest?: {
     fullVersion: string;
     timestamp: string;
     version: string;

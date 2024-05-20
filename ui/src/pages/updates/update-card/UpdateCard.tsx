@@ -9,18 +9,22 @@ import {
   Skeleton,
   Alert,
 } from '@mui/material';
-import { getCurrentVersion } from 'api/version';
 import { FC } from 'react';
 import { useQuery } from 'react-query';
 import { formatTimestamp } from 'utils/formatTimestamp';
 import CachedIcon from '@mui/icons-material/Cached';
 import { PMM_HOME_URL } from 'constants';
 import { Messages } from './UpdateCard.messages';
+import { getVersion } from './UpdateCard.utils';
+
 export const UpdateCard: FC = () => {
   const { isLoading, data, error, isRefetching, refetch } = useQuery(
     ['currentVersion'],
-    () => getCurrentVersion()
+    () => getVersion()
   );
+  const isUpToDate =
+    (data?.installed.fullVersion || data?.installed.version) ===
+    (data?.latest?.fullVersion || data?.latest?.version);
 
   if (isLoading)
     return (
@@ -47,7 +51,7 @@ export const UpdateCard: FC = () => {
   return (
     <Card sx={{ p: 1 }}>
       <CardContent>
-        {data.installed.fullVersion === data.latest.fullVersion && (
+        {isUpToDate && (
           <Alert
             severity="success"
             sx={{
@@ -62,15 +66,18 @@ export const UpdateCard: FC = () => {
             <Typography fontWeight="bold" component="strong">
               {Messages.runningVersion}
             </Typography>{' '}
-            {data?.installed.version},{' '}
-            {formatTimestamp(data?.installed.timestamp)}
+            {data?.installed?.version}
+            {data?.installed.timestamp &&
+              ', ' + formatTimestamp(data.installed.timestamp)}
           </Typography>
-          <Typography variant="body1">
-            <Typography fontWeight="bold" component="strong">
-              {Messages.lastChecked}
-            </Typography>{' '}
-            {formatTimestamp(data?.lastCheck)}
-          </Typography>
+          {data.lastCheck && (
+            <Typography variant="body1">
+              <Typography fontWeight="bold" component="strong">
+                {Messages.lastChecked}
+              </Typography>{' '}
+              {formatTimestamp(data?.lastCheck)}
+            </Typography>
+          )}
         </Stack>
       </CardContent>
       <CardActions>
