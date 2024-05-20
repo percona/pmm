@@ -39,6 +39,7 @@ import (
 const (
 	pathBaseDefault = "/usr/local/percona/pmm"
 	agentTmpPath    = "tmp" // temporary directory to keep exporters' config files, relative to pathBase
+	agentPrefix     = "/agent_id/"
 )
 
 // Server represents PMM Server configuration.
@@ -195,6 +196,10 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 		}
 
 		// set default values
+		if strings.HasPrefix(cfg.ID, agentPrefix) {
+			l.Warnf("The agent ID '%s' contains a legacy prefix '%s'. It will be used without it.", cfg.ID, agentPrefix)
+			cfg.ID, _ = strings.CutPrefix(cfg.ID, agentPrefix)
+		}
 		if cfg.ListenAddress == "" {
 			cfg.ListenAddress = "127.0.0.1"
 		}
