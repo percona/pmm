@@ -13,7 +13,7 @@
 %define full_pmm_version 2.0.0
 
 Name:		pmm-managed
-Version:	0.0.1
+Version:	%{version}
 Release:	%{rpm_release}
 Summary:	Percona Monitoring and Management management daemon
 
@@ -50,7 +50,6 @@ install -d -p %{buildroot}%{_bindir}
 install -d -p %{buildroot}%{_sbindir}
 install -d -p %{buildroot}%{_datadir}/%{name}
 install -d -p %{buildroot}%{_datadir}/pmm-ui
-install -d -p %{buildroot}%{_datadir}/pmm-ui/assets
 install -p -m 0755 bin/pmm-managed %{buildroot}%{_sbindir}/pmm-managed
 install -p -m 0755 bin/pmm-managed-init %{buildroot}%{_sbindir}/pmm-managed-init
 install -p -m 0755 bin/pmm-managed-starlark %{buildroot}%{_sbindir}/pmm-managed-starlark
@@ -67,7 +66,6 @@ cp -pa ./ui/dist/. %{buildroot}%{_datadir}/pmm-ui
 %{_sbindir}/pmm-managed-starlark
 %{_datadir}/%{name}
 %{_datadir}/pmm-ui
-%{_datadir}/pmm-ui/assets
 
 %changelog
 * Fri Mar 22 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 3.0.0-1
