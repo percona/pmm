@@ -208,5 +208,6 @@ func AddInternalServicesToScrape(cfg *config.Config, s models.MetricsResolutions
 	cfg.ScrapeConfigs = append(cfg.ScrapeConfigs,
 		scrapeConfigForGrafana(s.MR),
 		scrapeConfigForPMMManaged(s.MR),
-		scrapeConfigForQANAPI2(s.MR))
+		scrapeConfigForQANAPI2(s.MR),
+		scrapeConfigForClickhouse(s.MR))
 }
