@@ -99,6 +99,8 @@ require (
 	github.com/golang/mock v1.4.4 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/btree v1.0.0 // indirect
+	github.com/google/tink v1.7.0 // indirect
+	github.com/google/tink/go v1.7.0 // indirect
 	github.com/hashicorp/go-hclog v1.5.0 // indirect
 	github.com/hashicorp/go-msgpack/v2 v2.1.1 // indirect
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
