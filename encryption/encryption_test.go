@@ -10,14 +10,25 @@ import (
 func TestNew(t *testing.T) {
 	testPath := "/Users/jiri.ctvrtka/test.key"
 	secret := "secret"
+
 	e, err := New(testPath)
 	require.NoError(t, err)
-	assert.Equal(t, testPath, e.path)
-	assert.NotEmpty(t, e.key)
+	assert.Equal(t, testPath, e.Path)
+	assert.NotEmpty(t, e.Key)
 	cipherText, err := e.encrypt(secret)
 	require.NoError(t, err)
 	assert.NotEmpty(t, cipherText)
 	decryptedSecret, err := e.decrypt(cipherText)
 	require.NoError(t, err)
 	assert.Equal(t, secret, decryptedSecret)
+
+	// db := &DatabaseConnection{
+	// 	Host:     "127.0.0.1",
+	// 	Port:     5432,
+	// 	User:     "pmm-agent",
+	// 	Password: "pmm-agent-password",
+	// 	EncryptedItems: []EncryptedItem{
+	// 		{Database: "pmm-agent", Table: "accounts", Columns: []string{"username", "password"}},
+	// 	},
+	// }
 }

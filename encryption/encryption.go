@@ -2,6 +2,8 @@ package encryption
 
 import (
 	"bytes"
+	"context"
+	"database/sql"
 	"encoding/base64"
 	"fmt"
 	"os"
@@ -12,19 +14,18 @@ import (
 	"github.com/google/tink/go/tink"
 )
 
-type encryption struct {
-	path string
-	key  string
+type Encryption struct {
+	Path string
+	Key  string
 }
 
-func New(keyPath string) (*encryption, error) {
-	e := new(encryption)
-	e.path = keyPath
+func New(keyPath string) (*Encryption, error) {
+	e := new(Encryption)
+	e.Path = keyPath
 
-	bytes, err := os.ReadFile(e.path)
+	bytes, err := os.ReadFile(e.Path)
 	switch {
 	case os.IsNotExist(err):
-		fmt.Println("not exists")
 		err = e.generateKey()
 		if err != nil {
 			return nil, err
@@ -32,13 +33,13 @@ func New(keyPath string) (*encryption, error) {
 	case err != nil:
 		return nil, err
 	default:
-		e.key = string(bytes)
+		e.Key = string(bytes)
 	}
 
 	return e, nil
 }
 
-func (e encryption) encrypt(secret string) (string, error) {
+func (e Encryption) encrypt(secret string) (string, error) {
 	primitive, err := e.getPrimitive()
 	if err != nil {
 		return "", err
@@ -51,7 +52,7 @@ func (e encryption) encrypt(secret string) (string, error) {
 	return string(cipherText), nil
 }
 
-func (e encryption) decrypt(cipherText string) (string, error) {
+func (e Encryption) decrypt(cipherText string) (string, error) {
 	primitive, err := e.getPrimitive()
 	if err != nil {
 		return "", err
@@ -64,8 +65,8 @@ func (e encryption) decrypt(cipherText string) (string, error) {
 	return string(secret), nil
 }
 
-func (e encryption) getPrimitive() (tink.AEAD, error) {
-	serializedKeyset, err := base64.StdEncoding.DecodeString(e.key)
+func (e Encryption) getPrimitive() (tink.AEAD, error) {
+	serializedKeyset, err := base64.StdEncoding.DecodeString(e.Key)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +80,7 @@ func (e encryption) getPrimitive() (tink.AEAD, error) {
 	return aead.New(parsedHandle)
 }
 
-func (e encryption) generateKey() error {
+func (e Encryption) generateKey() error {
 	handle, err := keyset.NewHandle(aead.AES256GCMKeyTemplate())
 	if err != nil {
 		return err
@@ -91,10 +92,47 @@ func (e encryption) generateKey() error {
 		return err
 	}
 
-	e.key = base64.StdEncoding.EncodeToString(buff.Bytes())
+	e.Key = base64.StdEncoding.EncodeToString(buff.Bytes())
 	return e.saveKeyToFile()
 }
 
-func (e encryption) saveKeyToFile() error {
-	return os.WriteFile(e.path, []byte(e.key), 0644)
+func (e Encryption) saveKeyToFile() error {
+	return os.WriteFile(e.Path, []byte(e.Key), 0644)
+}
+
+func (e Encryption) Migrate(c *DatabaseConnection) error {
+	connection := fmt.Sprintf("host=%s port=%d user=%s password=%s sslmode=disable", c.Host, c.Port, c.User, c.Password)
+	db, err := sql.Open("postgres", connection)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		return err
+	}
+
+	// TODO read and update for all rows in scope of 1 transcation
+	tx, err := db.BeginTx(context.TODO(), nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	rows, err := tx.Query("")
+	if err != nil {
+		return err
+	}
+	defer rows.Close() //nolint:errcheck
+
+	for rows.Next() {
+		// TODO How to identify row
+	}
+	err = rows.Err()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
