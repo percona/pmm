@@ -41,7 +41,7 @@ import (
 )
 
 // BackupService represents backups API.
-type BackupService struct {
+type BackupService struct { //nolint:revive
 	db                   *reform.DB
 	backupService        backupService
 	compatibilityService compatibilityService
