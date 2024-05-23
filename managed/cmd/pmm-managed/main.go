@@ -618,32 +618,32 @@ func main() { //nolint:maintidx,cyclop
 
 	postgresAddrF := kingpin.Flag("postgres-addr", "PostgreSQL address").
 		Default(models.DefaultPostgreSQLAddr).
-		Envar("PERCONA_TEST_POSTGRES_ADDR").
+		Envar("PMM_POSTGRES_ADDR").
 		String()
 	postgresDBNameF := kingpin.Flag("postgres-name", "PostgreSQL database name").
 		Default("pmm-managed").
-		Envar("PERCONA_TEST_POSTGRES_DBNAME").
+		Envar("PMM_POSTGRES_DBNAME").
 		String()
 	postgresDBUsernameF := kingpin.Flag("postgres-username", "PostgreSQL database username").
 		Default("pmm-managed").
-		Envar("PERCONA_TEST_POSTGRES_USERNAME").
+		Envar("PMM_POSTGRES_USERNAME").
 		String()
 	postgresSSLModeF := kingpin.Flag("postgres-ssl-mode", "PostgreSQL SSL mode").
 		Default(models.DisableSSLMode).
-		Envar("PERCONA_TEST_POSTGRES_SSL_MODE").
+		Envar("PMM_POSTGRES_SSL_MODE").
 		Enum(models.DisableSSLMode, models.RequireSSLMode, models.VerifyCaSSLMode, models.VerifyFullSSLMode)
 	postgresSSLCAPathF := kingpin.Flag("postgres-ssl-ca-path", "PostgreSQL SSL CA root certificate path").
-		Envar("PERCONA_TEST_POSTGRES_SSL_CA_PATH").
+		Envar("PMM_POSTGRES_SSL_CA_PATH").
 		String()
 	postgresDBPasswordF := kingpin.Flag("postgres-password", "PostgreSQL database password").
 		Default("pmm-managed").
-		Envar("PERCONA_TEST_POSTGRES_DBPASSWORD").
+		Envar("PMM_POSTGRES_DBPASSWORD").
 		String()
 	postgresSSLKeyPathF := kingpin.Flag("postgres-ssl-key-path", "PostgreSQL SSL key path").
-		Envar("PERCONA_TEST_POSTGRES_SSL_KEY_PATH").
+		Envar("PMM_POSTGRES_SSL_KEY_PATH").
 		String()
 	postgresSSLCertPathF := kingpin.Flag("postgres-ssl-cert-path", "PostgreSQL SSL certificate path").
-		Envar("PERCONA_TEST_POSTGRES_SSL_CERT_PATH").
+		Envar("PMM_POSTGRES_SSL_CERT_PATH").
 		String()
 
 	haEnabled := kingpin.Flag("ha-enable", "Enable HA").
@@ -680,8 +680,8 @@ func main() { //nolint:maintidx,cyclop
 	debugF := kingpin.Flag("debug", "Enable debug logging").Envar("PMM_DEBUG").Bool()
 	traceF := kingpin.Flag("trace", "[DEPRECATED] Enable trace logging (implies debug)").Envar("PMM_TRACE").Bool()
 
-	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE").String()
-	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PERCONA_TEST_PMM_CLICKHOUSE_ADDR").String()
+	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PMM_CLICKHOUSE_DATABASE").String()
+	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
 
 	kingpin.Parse()
 
