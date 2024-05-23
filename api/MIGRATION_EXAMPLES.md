@@ -70,8 +70,19 @@ curl -X GET http://admin:admin@127.0.0.1:8080/v1/accesscontrol/roles
 # POST /v1/management/Node/List -> GET /v1/management/nodes
 curl -X GET http://admin:admin@127.0.0.1:8080/v1/management/nodes
 
-# POST POST /v1/backup/Backups/GetLogs -> GET /v1/backups/{artifact_id}/logs
+# POST /v1/backup/Backups/GetLogs -> GET /v1/backups/{artifact_id}/logs
 curl -X GET http://admin:admin@127.0.0.1:8080/v1/backups/bcc83096-b006-4d2e-ac17-365a57c3e37a/logs
 
-# POST POST /v1/backup/Backups/GetLogs -> GET /v1/backups/restores/{restore_id}/logs (this is a second endpoint, that accepts artifact_id)
+# POST /v1/backup/Backups/GetLogs -> GET /v1/backups/restores/{restore_id}/logs (this is a second endpoint, that accepts artifact_id)
 curl -X GET http://admin:admin@127.0.0.1:8080/v1/backups/restores/bcc83096-b006-4d2e-ac17-365a57c3e37a/logs
+
+# POST 
+curl -X POST -d '{"period_start_from": "2024-05-21T06:50:00Z", "period_start_to": "2024-05-21T06:56:00Z"}' http://admin:admin@127.0.0.1:8080/v1/qan/metrics:getFilters
+
+curl -X POST -d '{"period_start_from": "2024-05-21T06:50:00Z"}' http://admin:admin@127.0.0.1:8080/v1/qan/metrics:getFilters
+
+# POST /v0/qan/Filters/Get -> POST /v1/qan/metrics:getFilters
+curl -X POST -d '{"custom_labels": {},"filters":[],"for":"60s","severity":"SEVERITY_CRITICAL","template_name":"mongodb_down","name":"mongodb_down Alerting Rule","params":[],"group":"dfsdf","folder_uid":"bdj3rloj7r0u8f"}' http://admin:admin@127.0.0.1:8080/v1/alerting/rules
+
+# POST /v1/alerting/Rules/Create -> POST /v1/alerting/rules
+curl -X POST -d '{"severity":"SEVERITY_CRITICAL","template_name":"mongodb_down","folder_uid":"fdjhiflcwnytcc","name":"MongoDB Down Alerting Rule","group":"MongoDB"}' http://admin:admin@127.0.0.1:8080/v1/alerting/rules

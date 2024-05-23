@@ -149,17 +149,17 @@ POST /v1/role/SetDefault                            POST /v1/accesscontrol/roles
 POST /v1/role/Update                                PUT /v1/accesscontrol/roles/{role_id}            ✅
 
 **QANService**                                      **QANService**
-POST /v1/qan/Filters/Get                            POST /v1/qan/metrics:getFilters                  ✅
-POST /v1/qan/GetMetricsNames                        POST /v1/qan/metrics:getNames                    ✅
-POST /v1/qan/GetReport                              POST /v1/qan/metrics:getReport                   ✅
-POST /v1/qan/ObjectDetails/ExplainFingerprintByQueryId POST /v1/qan:explainFingerprint               ✅
-POST /v1/qan/ObjectDetails/GetHistogram             POST /v1/qan:getHistogram                        ✅
-POST /v1/qan/ObjectDetails/GetLables                POST /v1/qan:getLabels                           ✅
-POST /v1/qan/ObjectDetails/GetMetrics               POST /v1/qan:getMetrics                          ✅
-POST /v1/qan/ObjectDetails/GetQueryPlan             GET /v1/qan/query/{queryid}/plan                 ✅
-POST /v1/qan/ObjectDetails/QueryExists              POST /v1/qan/query:exists                        ✅ 
-POST /v1/qan/ObjectDetails/GetQueryExample          POST /v1/qan/query:getExample                    ✅
-POST /v1/qan/ObjectDetails/SchemaByQueryId          POST /v1/qan/query:getSchema                     ✅
+POST /v0/qan/Filters/Get                            POST /v1/qan/metrics:getFilters                  ✅
+POST /v0/qan/GetMetricsNames                        POST /v1/qan/metrics:getNames                    ✅
+POST /v0/qan/GetReport                              POST /v1/qan/metrics:getReport                   ✅
+POST /v0/qan/ObjectDetails/ExplainFingerprintByQueryId POST /v1/qan:explainFingerprint               ✅
+POST /v0/qan/ObjectDetails/GetHistogram             POST /v1/qan:getHistogram                        ✅
+POST /v0/qan/ObjectDetails/GetLables                POST /v1/qan:getLabels                           ✅
+POST /v0/qan/ObjectDetails/GetMetrics               POST /v1/qan:getMetrics                          ✅
+POST /v0/qan/ObjectDetails/GetQueryPlan             GET /v1/qan/query/{queryid}/plan                 ✅
+POST /v0/qan/ObjectDetails/QueryExists              POST /v1/qan/query:exists                        ✅ 
+POST /v0/qan/ObjectDetails/GetQueryExample          POST /v1/qan/query:getExample                    ✅
+POST /v0/qan/ObjectDetails/SchemaByQueryId          POST /v1/qan/query:getSchema                     ✅
 
 **PlatformService**                                 **PlatformService**
 POST /v1/platform/Connect                           POST /v1/platform:connect                        ✅
