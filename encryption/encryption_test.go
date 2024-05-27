@@ -22,13 +22,18 @@ func TestNew(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, secret, decryptedSecret)
 
-	// db := &DatabaseConnection{
-	// 	Host:     "127.0.0.1",
-	// 	Port:     5432,
-	// 	User:     "pmm-agent",
-	// 	Password: "pmm-agent-password",
-	// 	EncryptedItems: []EncryptedItem{
-	// 		{Database: "pmm-agent", Table: "accounts", Columns: []string{"username", "password"}},
-	// 	},
-	// }
+	c := &DatabaseConnection{
+		Host:     "127.0.0.1",
+		Port:     5432,
+		User:     "pmm-agent",
+		Password: "pmm-agent-password",
+		EncryptedItems: []EncryptedItem{{
+			Database:       "pmm-agent",
+			Table:          "acc",
+			Identificators: []string{"ID"},
+			Columns:        []string{"username", "password"}},
+		},
+	}
+
+	assert.NoError(t, e.Migrate(c))
 }

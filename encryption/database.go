@@ -15,6 +15,7 @@ type DatabaseConnection struct {
 
 type EncryptedItem struct {
 	Database, Table string
+	Identificators  []string // TODO way to identify row to update once read (SQL part?)
 	Columns         []string
 }
 

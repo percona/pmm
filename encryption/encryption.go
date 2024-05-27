@@ -5,8 +5,10 @@ import (
 	"context"
 	"database/sql"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/google/tink/go/aead"
 	"github.com/google/tink/go/insecurecleartextkeyset"
@@ -113,25 +115,94 @@ func (e Encryption) Migrate(c *DatabaseConnection) error {
 		return err
 	}
 
-	// TODO read and update for all rows in scope of 1 transcation
-	tx, err := db.BeginTx(context.TODO(), nil)
-	if err != nil {
-		return err
+	if len(c.EncryptedItems) == 0 {
+		return errors.New("Migration: Database with target tables/columns not defined")
 	}
-	defer tx.Rollback()
 
-	rows, err := tx.Query("")
-	if err != nil {
-		return err
-	}
-	defer rows.Close() //nolint:errcheck
+	for _, item := range c.EncryptedItems {
+		// TODO read and update for all rows in scope of 1 transcation
+		tx, err := db.BeginTx(context.TODO(), nil)
+		if err != nil {
+			return err
+		}
+		defer tx.Rollback()
 
-	for rows.Next() {
-		// TODO How to identify row
-	}
-	err = rows.Err()
-	if err != nil {
-		return err
+		// TODO injection?
+		what := append(item.Identificators, item.Columns...)
+		query := fmt.Sprintf("SELECT %s FROM %s", strings.Join(what, ","), item.Table)
+		rows, err := tx.Query(query)
+		if err != nil {
+			return err
+		}
+
+		columnTypes, err := rows.ColumnTypes()
+		if err != nil {
+			return err
+		}
+		columns := make(map[string]string)
+		for _, columnType := range columnTypes {
+			columns[columnType.Name()] = columnType.DatabaseTypeName()
+		}
+
+		encryptedRows := []string{}
+		for rows.Next() {
+			row := make([]any, len(what))
+			i := 0
+			for _, t := range columns {
+				switch t {
+				case "VARCHAR":
+					row[i] = new(string)
+				default:
+					return fmt.Errorf("unsupported identificator type %s", t)
+				}
+
+				i++
+			}
+
+			err = rows.Scan(
+				row...,
+			)
+			if err != nil {
+				return err
+			}
+
+			where := []string{}
+			for k, id := range item.Identificators {
+				where = append(where, fmt.Sprintf("%s = '%s'", id, *row[k].(*string)))
+			}
+			whereSQL := fmt.Sprintf("WHERE %s", strings.Join(where, " AND "))
+
+			encryptedValues := []string{}
+			i = 0
+			for _, v := range row[len(item.Identificators):] {
+				s, err := e.encrypt(*v.(*string))
+				if err != nil {
+					return err
+				}
+				encryptedValues = append(encryptedValues, fmt.Sprintf("%s = '%s'", item.Columns[i], base64.StdEncoding.EncodeToString([]byte(s))))
+				i++
+			}
+			setSQL := fmt.Sprintf("SET %s", strings.Join(encryptedValues, ", "))
+
+			sql := fmt.Sprintf("UPDATE %s %s %s", item.Table, setSQL, whereSQL)
+			encryptedRows = append(encryptedRows, sql)
+		}
+		err = rows.Close()
+		if err != nil {
+			return err
+		}
+
+		for _, r := range encryptedRows {
+			_, err := tx.Exec(r)
+			if err != nil {
+				return err
+			}
+		}
+
+		err = tx.Commit()
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
