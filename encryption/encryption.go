@@ -99,7 +99,7 @@ func (e Encryption) generateKey() error {
 }
 
 func (e Encryption) saveKeyToFile() error {
-	return os.WriteFile(e.Path, []byte(e.Key), 0644)
+	return os.WriteFile(e.Path, []byte(e.Key), 0o644)
 }
 
 func (e Encryption) Migrate(c *DatabaseConnection) error {

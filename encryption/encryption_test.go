@@ -27,11 +27,13 @@ func TestNew(t *testing.T) {
 		Port:     5432,
 		User:     "pmm-agent",
 		Password: "pmm-agent-password",
-		EncryptedItems: []EncryptedItem{{
-			Database:       "pmm-agent",
-			Table:          "acc",
-			Identificators: []string{"ID"},
-			Columns:        []string{"username", "password"}},
+		EncryptedItems: []EncryptedItem{
+			{
+				Database:       "pmm-agent",
+				Table:          "acc",
+				Identificators: []string{"ID"},
+				Columns:        []string{"username", "password"},
+			},
 		},
 	}
 
