@@ -222,7 +222,9 @@ func testProfiler(t *testing.T, url string) {
 			Query: findBucket.Common.Example,
 		}
 
-		ex := actions.NewMongoDBExplainAction(id, 5*time.Second, params, os.TempDir())
+		ex, err := actions.NewMongoDBExplainAction(id, 5*time.Second, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), ex.Timeout())
 		defer cancel()
 		res, err := ex.Run(ctx)

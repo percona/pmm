@@ -299,6 +299,7 @@ func TestServerClientConnection(t *testing.T) {
 		assert.Nil(t, authError)
 	})
 
+	// Beware: Five or more wrong tries will lock user with error message: "Invalid user or password".
 	t.Run("Basic auth - fail", func(t *testing.T) {
 		t.Parallel()
 

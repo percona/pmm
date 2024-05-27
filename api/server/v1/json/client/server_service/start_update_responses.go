@@ -119,6 +119,43 @@ func (o *StartUpdateDefault) readResponse(response runtime.ClientResponse, consu
 }
 
 /*
+StartUpdateBody start update body
+swagger:model StartUpdateBody
+*/
+type StartUpdateBody struct {
+	// new image
+	NewImage string `json:"new_image,omitempty"`
+}
+
+// Validate validates this start update body
+func (o *StartUpdateBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start update body based on context it is used
+func (o *StartUpdateBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StartUpdateBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StartUpdateBody) UnmarshalBinary(b []byte) error {
+	var res StartUpdateBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
 StartUpdateDefaultBody start update default body
 swagger:model StartUpdateDefaultBody
 */

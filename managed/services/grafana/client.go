@@ -46,9 +46,8 @@ import (
 var ErrFailedToGetToken = errors.New("failed to get token")
 
 const (
-	defaultEvaluationInterval = time.Minute
-	pmmServiceTokenName       = "pmm-agent-service-token"   //nolint:gosec
-	pmmServiceAccountName     = "pmm-agent-service-account" //nolint:gosec
+	pmmServiceTokenName   = "pmm-agent-st" //nolint:gosec
+	pmmServiceAccountName = "pmm-agent-sa" //nolint:gosec
 )
 
 // Client represents a client for Grafana API.
@@ -484,7 +483,7 @@ func (c *Client) DeleteServiceAccount(ctx context.Context, nodeName string, forc
 }
 
 // CreateAlertRule creates Grafana alert rule.
-func (c *Client) CreateAlertRule(ctx context.Context, folderName, groupName string, rule *services.Rule) error {
+func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, interval string, rule *services.Rule) error {
 	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return err
@@ -497,7 +496,7 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderName, groupName stri
 	}
 
 	var group AlertRuleGroup
-	if err := c.do(ctx, http.MethodGet, fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s/%s", folderName, groupName), "", authHeaders, nil, &group); err != nil {
+	if err := c.do(ctx, http.MethodGet, fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s/%s", folderUID, groupName), "", authHeaders, nil, &group); err != nil {
 		return err
 	}
 
@@ -509,8 +508,7 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderName, groupName stri
 	group.Rules = append(group.Rules, b)
 
 	if group.Interval == "" {
-		// TODO: align it with grafanas default value: https://grafana.com/docs/grafana/v9.0/setup-grafana/configure-grafana/#min_interval
-		group.Interval = defaultEvaluationInterval.String()
+		group.Interval = interval
 	}
 
 	if err = validateDurations(group.Interval, rule.For); err != nil {
@@ -522,9 +520,12 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderName, groupName stri
 		return err
 	}
 
-	if err := c.do(ctx, "POST", fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s", folderName), "", authHeaders, body, nil); err != nil {
-		if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
-			return status.Error(codes.InvalidArgument, cErr.ErrorMessage)
+	if err := c.do(ctx, "POST", fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s", folderUID), "", authHeaders, body, nil); err != nil {
+		if err != nil {
+			if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
+				return status.Error(codes.InvalidArgument, cErr.ErrorMessage)
+			}
+			return err
 		}
 		return err
 	}

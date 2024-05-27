@@ -40,7 +40,9 @@ func TestPostgreSQLQueryShow(t *testing.T) {
 		params := &agentv1.StartActionRequest_PostgreSQLQueryShowParams{
 			Dsn: dsn,
 		}
-		a := NewPostgreSQLQueryShowAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLQueryShowAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 

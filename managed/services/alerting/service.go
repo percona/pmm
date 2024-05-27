@@ -52,8 +52,9 @@ import (
 )
 
 const (
-	templatesDir         = "/srv/alerting/templates"
-	portalRequestTimeout = 2 * time.Minute // time limit to get templates list from the portal
+	templatesDir              = "/srv/alerting/templates"
+	portalRequestTimeout      = 2 * time.Minute // time limit to get templates list from the portal
+	defaultEvaluationInterval = time.Minute
 
 	dirPerm = os.FileMode(0o775)
 )
@@ -698,11 +699,6 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, status.Error(codes.InvalidArgument, "Rule group name should be specified.")
 	}
 
-	folder, err := s.grafanaClient.GetFolderByUID(ctx, req.FolderUid)
-	if err != nil {
-		return nil, err
-	}
-
 	metricsDatasourceUID, err := s.grafanaClient.GetDatasourceUIDByID(ctx, 1) // 1 - it's id of Metrics datasource in PMM
 	if err != nil {
 		return nil, err
@@ -800,7 +796,13 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		Labels:      labels,
 	}
 
-	err = s.grafanaClient.CreateAlertRule(ctx, folder.Title, req.Group, &rule)
+	// TODO: align it with grafanas default value: https://grafana.com/docs/grafana/v9.0/setup-grafana/configure-grafana/#min_interval
+	interval := defaultEvaluationInterval.String()
+	if req.Interval != nil {
+		interval = req.Interval.AsDuration().String()
+	}
+
+	err = s.grafanaClient.CreateAlertRule(ctx, req.FolderUid, req.Group, interval, &rule)
 	if err != nil {
 		return nil, err
 	}

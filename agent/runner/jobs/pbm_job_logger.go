@@ -34,13 +34,13 @@ const (
 )
 
 type pbmJobLogger struct {
-	dbURL      *string
+	dbURL      string
 	jobID      string
 	jobType    pbmJob
 	logChunkID uint32
 }
 
-func newPbmJobLogger(jobID string, jobType pbmJob, mongoURL *string) *pbmJobLogger {
+func newPbmJobLogger(jobID string, jobType pbmJob, mongoURL string) *pbmJobLogger {
 	return &pbmJobLogger{
 		jobID:      jobID,
 		jobType:    jobType,

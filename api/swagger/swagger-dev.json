@@ -2141,6 +2141,11 @@
                     }
                   },
                   "x-order": 8
+                },
+                "interval": {
+                  "type": "string",
+                  "title": "Evaluation Interval",
+                  "x-order": 9
                 }
               }
             }
@@ -26370,7 +26375,13 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "new_image": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           }
         ],

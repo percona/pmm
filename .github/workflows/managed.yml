@@ -95,12 +95,13 @@ jobs:
           # docker exec -i pmm-server make -C managed test-update
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: managed/cover.out
           flags: managed
           env_vars: PMM_SERVER_IMAGE
           fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Cache
         if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
