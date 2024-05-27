@@ -52,37 +52,32 @@ curl -X PUT -d '{"replication_set":"","custom_labels":{}}' http://admin:admin@12
 ### POST /v1/inventory/Services/ListTypes -> POST /v1/inventory/services:getTypes
 curl -X POST http://admin:admin@127.0.0.1:8080/v1/inventory/services:getTypes
 
-### /v1/management/Service/Remove -> DELETE /v1/management/services/{service_id}
+### POST /v1/management/Service/Remove -> DELETE /v1/management/services/{service_id}
 curl -X DELETE http://admin:admin@127.0.0.1:8080/v1/management/services/b7d3b87a-d366-4cb4-b101-03d68f73a7c0
 ### pmm-admin remove mongodb mongo-svc
 ### pmm-admin remove mongodb mongo-svc --service-id=/service_id/ed322782-e6fd-4ad9-8ee6-a7d47b62de41
 ### pmm-admin remove mongodb --service-id=/service_id/ed322782-e6fd-4ad9-8ee6-a7d47b62de41
 
-# POST /v1/advisors/FailedChecks -> GET /v1/advisors/checks/failed
+### POST /v1/advisors/FailedChecks -> GET /v1/advisors/checks/failed
 curl -X GET "http://admin:admin@127.0.0.1:8080/v1/advisors/checks/failed?service_id=bcc83096-b006-4d2e-ac17-365a57c3e37a&page_size=100"
 
-# POST /v1/backup/Artifacts/PITRTimeranges -> GET /v1/backups/artifacts/{artifact_id}/pitr-timeranges
+### POST /v1/backup/Artifacts/PITRTimeranges -> GET /v1/backups/artifacts/{artifact_id}/pitr-timeranges
 curl -X GET http://admin:admin@127.0.0.1:8080/v1/backups/artifacts/bcc83096-b006-4d2e-ac17-365a57c3e37a/pitr-timeranges
 
-# POST /v1/role/List -> GET /v1/accesscontrol/roles
+### POST /v1/role/List -> GET /v1/accesscontrol/roles
 curl -X GET http://admin:admin@127.0.0.1:8080/v1/accesscontrol/roles
 
-# POST /v1/management/Node/List -> GET /v1/management/nodes
+### POST /v1/management/Node/List -> GET /v1/management/nodes
 curl -X GET http://admin:admin@127.0.0.1:8080/v1/management/nodes
 
-# POST /v1/backup/Backups/GetLogs -> GET /v1/backups/{artifact_id}/logs
+### POST /v1/backup/Backups/GetLogs -> GET /v1/backups/{artifact_id}/log
 curl -X GET http://admin:admin@127.0.0.1:8080/v1/backups/bcc83096-b006-4d2e-ac17-365a57c3e37a/logs
 
-# POST /v1/backup/Backups/GetLogs -> GET /v1/backups/restores/{restore_id}/logs (this is a second endpoint, that accepts artifact_id)
+### POST /v1/backup/Backups/GetLogs -> GET /v1/backups/restores/{restore_id}/logs (this is a second endpoint, that accepts artifact_id)
 curl -X GET http://admin:admin@127.0.0.1:8080/v1/backups/restores/bcc83096-b006-4d2e-ac17-365a57c3e37a/logs
 
-# POST 
-curl -X POST -d '{"period_start_from": "2024-05-21T06:50:00Z", "period_start_to": "2024-05-21T06:56:00Z"}' http://admin:admin@127.0.0.1:8080/v1/qan/metrics:getFilters
-
-curl -X POST -d '{"period_start_from": "2024-05-21T06:50:00Z"}' http://admin:admin@127.0.0.1:8080/v1/qan/metrics:getFilters
-
-# POST /v0/qan/Filters/Get -> POST /v1/qan/metrics:getFilters
+### POST /v0/qan/Filters/Get -> POST /v1/qan/metrics:getFilters
 curl -X POST -d '{"custom_labels": {},"filters":[],"for":"60s","severity":"SEVERITY_CRITICAL","template_name":"mongodb_down","name":"mongodb_down Alerting Rule","params":[],"group":"dfsdf","folder_uid":"bdj3rloj7r0u8f"}' http://admin:admin@127.0.0.1:8080/v1/alerting/rules
 
-# POST /v1/alerting/Rules/Create -> POST /v1/alerting/rules
+### POST /v1/alerting/Rules/Create -> POST /v1/alerting/rules
 curl -X POST -d '{"severity":"SEVERITY_CRITICAL","template_name":"mongodb_down","folder_uid":"fdjhiflcwnytcc","name":"MongoDB Down Alerting Rule","group":"MongoDB"}' http://admin:admin@127.0.0.1:8080/v1/alerting/rules
