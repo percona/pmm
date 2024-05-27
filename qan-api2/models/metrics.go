@@ -53,7 +53,7 @@ func NewMetrics(db *sqlx.DB) Metrics {
 }
 
 // Get select metrics for specific queryid, hostname, etc.
-// If totals = true, the function will retuen only totals and it will skip filters
+// If totals = true, the function will return only totals and it will skip filters
 // to differentiate it from empty filters.
 func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec int64, filter, group string,
 	dimensions, labels map[string][]string, totals bool,
@@ -1009,7 +1009,7 @@ func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string
 	defer rows.Close() //nolint:errcheck
 
 	res := &qanv1.SchemaByQueryIDResponse{}
-	if rows.Next() {
+	for rows.Next() {
 		err = rows.Scan(&res.Schema)
 		if err != nil {
 			return res, errors.Wrap(err, "failed to scan query")
