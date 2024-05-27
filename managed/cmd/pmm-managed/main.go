@@ -337,6 +337,12 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		},
 	}
 
+	// FIXME make that a default behavior: https://jira.percona.com/browse/PMM-6722
+	if nicer, _ := strconv.ParseBool(os.Getenv("PMM_NICER_API")); nicer {
+		l.Warn("Enabling nicer API with default/zero values in response.")
+		marshaller.EmitUnpopulated = true
+	}
+
 	proxyMux := grpc_gateway.NewServeMux(
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
 		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler))
@@ -686,6 +692,8 @@ func main() { //nolint:maintidx,cyclop
 	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PMM_CLICKHOUSE_DATABASE").String()
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
 
+	watchtowerHostF := kingpin.Flag("watchtower-host", "Watchtower host").Default("http://watchtower:8080").Envar("PMM_WATCHTOWER_HOST").URL()
+
 	kingpin.Parse()
 
 	logger.SetupGlobalLogger()
@@ -932,6 +940,8 @@ func main() { //nolint:maintidx,cyclop
 
 	dumpService := dump.New(db)
 
+	updater := server.NewUpdater(supervisord, *watchtowerHostF)
+
 	serverParams := &server.Params{
 		DB:                   db,
 		VMDB:                 vmdb,
@@ -944,6 +954,7 @@ func main() { //nolint:maintidx,cyclop
 		AwsInstanceChecker:   awsInstanceChecker,
 		GrafanaClient:        grafanaClient,
 		VMAlertExternalRules: externalRules,
+		Updater:              updater,
 	}
 
 	server, err := server.NewServer(serverParams)

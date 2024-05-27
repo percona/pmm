@@ -47,6 +47,21 @@ func scrapeTimeout(interval time.Duration) config.Duration {
 	}
 }
 
+func scrapeConfigForClickhouse(mr time.Duration) *config.ScrapeConfig {
+	return &config.ScrapeConfig{
+		JobName:        "clickhouse",
+		ScrapeInterval: config.Duration(mr),
+		ScrapeTimeout:  scrapeTimeout(mr),
+		MetricsPath:    "/metrics",
+		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+			StaticConfigs: []*config.Group{{
+				Targets: []string{"127.0.0.1:9363"},
+				Labels:  map[string]string{"instance": "pmm-server"},
+			}},
+		},
+	}
+}
+
 func scrapeConfigForGrafana(interval time.Duration) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "grafana",

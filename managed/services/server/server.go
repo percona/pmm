@@ -61,6 +61,7 @@ type Server struct {
 	awsInstanceChecker   *AWSInstanceChecker
 	grafanaClient        grafanaClient
 	haService            haService
+	updater              *Updater
 
 	l *logrus.Entry
 
@@ -92,6 +93,7 @@ type Params struct {
 	TelemetryService     telemetryService
 	AwsInstanceChecker   *AWSInstanceChecker
 	GrafanaClient        grafanaClient
+	Updater              *Updater
 }
 
 // NewServer returns new server for Server service.
@@ -114,6 +116,7 @@ func NewServer(params *Params) (*Server, error) {
 		telemetryService:     params.TelemetryService,
 		awsInstanceChecker:   params.AwsInstanceChecker,
 		grafanaClient:        params.GrafanaClient,
+		updater:              params.Updater,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
 		envSettings:          &models.ChangeSettingsParams{},
@@ -259,16 +262,16 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 	s.envRW.RUnlock()
 
 	if req.OnlyInstalledVersion {
-		return s.onlyInstalledVersionResponse(ctx), nil
+		return s.updater.onlyInstalledVersionResponse(), nil
 	}
 
 	if req.Force {
-		if err := s.supervisord.ForceCheckUpdates(ctx); err != nil {
+		if err := s.updater.ForceCheckUpdates(ctx); err != nil {
 			return nil, err
 		}
 	}
 
-	v, lastCheck := s.supervisord.LastCheckUpdatesResult(ctx)
+	v, lastCheck := s.updater.LastCheckUpdatesResult(ctx)
 	if v == nil {
 		return nil, status.Error(codes.Unavailable, "failed to check for updates")
 	}
@@ -282,7 +285,7 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 			Version:     v.Latest.Version,
 			FullVersion: v.Latest.FullVersion,
 		},
-		UpdateAvailable: v.UpdateAvailable,
+		UpdateAvailable: true,
 		LatestNewsUrl:   v.LatestNewsURL,
 	}
 
@@ -315,19 +318,19 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateReque
 		return nil, status.Error(codes.FailedPrecondition, "Updates are disabled via PMM_ENABLE_UPDATES environment variable.")
 	}
 
-	offset, err := s.supervisord.StartUpdate()
+	err := s.updater.StartUpdate(ctx, req.GetNewImage())
 	if err != nil {
 		return nil, err
 	}
 
 	authToken := uuid.New().String()
-	if err = s.writeUpdateAuthToken(authToken); err != nil {
+	if err := s.writeUpdateAuthToken(authToken); err != nil {
 		return nil, err
 	}
 
 	return &serverv1.StartUpdateResponse{
 		AuthToken: authToken,
-		LogOffset: offset,
+		LogOffset: 0,
 	}, nil
 }
 

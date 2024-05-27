@@ -44,7 +44,7 @@ type MongoDBBackupJob struct {
 	timeout        time.Duration
 	l              logrus.FieldLogger
 	name           string
-	dbURL          *string
+	dsn            string
 	locationConfig BackupLocationConfig
 	pitr           bool
 	dataModel      backuppb.DataModel
@@ -57,7 +57,7 @@ func NewMongoDBBackupJob(
 	id string,
 	timeout time.Duration,
 	name string,
-	dbConfig *string,
+	dsn string,
 	locationConfig BackupLocationConfig,
 	pitr bool,
 	dataModel backuppb.DataModel,
@@ -75,11 +75,11 @@ func NewMongoDBBackupJob(
 		timeout:        timeout,
 		l:              logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_backup", "name": name}),
 		name:           name,
-		dbURL:          dbConfig,
+		dsn:            dsn,
 		locationConfig: locationConfig,
 		pitr:           pitr,
 		dataModel:      dataModel,
-		jobLogger:      newPbmJobLogger(id, pbmBackupJob, dbConfig),
+		jobLogger:      newPbmJobLogger(id, pbmBackupJob, dsn),
 		folder:         folder,
 	}, nil
 }
@@ -97,6 +97,11 @@ func (j *MongoDBBackupJob) Type() JobType {
 // Timeout returns Job timeout.
 func (j *MongoDBBackupJob) Timeout() time.Duration {
 	return j.timeout
+}
+
+// DSN returns DSN for the Job.
+func (j *MongoDBBackupJob) DSN() string {
+	return j.dsn
 }
 
 // Run starts Job execution.
@@ -121,14 +126,14 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 	configParams := pbmConfigParams{
 		configFilePath: confFile,
 		forceResync:    false,
-		dbURL:          j.dbURL,
+		dsn:            j.dsn,
 	}
 	if err := pbmConfigure(ctx, j.l, configParams); err != nil {
 		return errors.Wrap(err, "failed to configure pbm")
 	}
 
 	rCtx, cancel := context.WithTimeout(ctx, resyncTimeout)
-	if err := waitForPBMNoRunningOperations(rCtx, j.l, j.dbURL); err != nil {
+	if err := waitForPBMNoRunningOperations(rCtx, j.l, j.dsn); err != nil {
 		cancel()
 		return errors.Wrap(err, "failed to wait configuration completion")
 	}
@@ -148,17 +153,17 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		}
 	}()
 
-	if err := waitForPBMBackup(ctx, j.l, j.dbURL, pbmBackupOut.Name); err != nil {
+	if err := waitForPBMBackup(ctx, j.l, j.dsn, pbmBackupOut.Name); err != nil {
 		j.jobLogger.sendLog(send, err.Error(), false)
 		return errors.Wrap(err, "failed to wait backup completion")
 	}
 
-	sharded, err := isShardedCluster(ctx, j.dbURL)
+	sharded, err := isShardedCluster(ctx, j.dsn)
 	if err != nil {
 		return err
 	}
 
-	backupTimestamp, err := pbmGetSnapshotTimestamp(ctx, j.l, j.dbURL, pbmBackupOut.Name)
+	backupTimestamp, err := pbmGetSnapshotTimestamp(ctx, j.l, j.dsn, pbmBackupOut.Name)
 	if err != nil {
 		return err
 	}
@@ -211,7 +216,7 @@ func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) 
 		return nil, errors.Errorf("'%s' is not a supported data model for backups", j.dataModel)
 	}
 
-	if err := execPBMCommand(ctx, j.dbURL, &result, pbmArgs...); err != nil {
+	if err := execPBMCommand(ctx, j.dsn, &result, pbmArgs...); err != nil {
 		return nil, err
 	}
 

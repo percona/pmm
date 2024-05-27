@@ -185,6 +185,8 @@ message CreateRuleRequest {
   map<string, string> custom_labels = 8;
   // Filters.
   repeated Filter filters = 9;
+  // Evaluation Interval
+  google.protobuf.Duration interval = 10;
 }
 
 message CreateRuleResponse {}

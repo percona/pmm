@@ -44,6 +44,8 @@ type Job interface {
 	Type() JobType
 	// Timeout returns Job timeout.
 	Timeout() time.Duration
+	// DSN returns Data Source Name required for the Action.
+	DSN() string
 	// Run starts Job execution.
 	Run(ctx context.Context, send Send) error
 }

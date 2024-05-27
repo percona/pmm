@@ -96,6 +96,22 @@ services:
     #     /opt/entrypoint.sh
     #   "
 
+# docker run -v /var/run/docker.sock:/var/run/docker.sock -e WATCHTOWER_HTTP_API_UPDATE=1 -e WATCHTOWER_HTTP_API_TOKEN=123 --hostname=watchtower --network=pmm_default docker.io/bupychuk/watchtower
+  watchtower:
+    profiles:
+      - pmm
+    image: ${WATCHTOWER_IMAGE:-perconalab/watchtower}
+    container_name: watchtower
+    environment:
+        - WATCHTOWER_HTTP_LISTEN_PORT=8080
+        - WATCHTOWER_HTTP_API_UPDATE=1
+        - WATCHTOWER_HTTP_API_TOKEN=${PMM_WATCHTOWER_TOKEN:-INSECURE_TOKEN}
+    hostname: watchtower
+    networks:
+      - ${NETWORK:-default}
+    volumes:
+        - /var/run/docker.sock:${DOCKER_PATH:-/var/run/docker.sock}
+
   # PMM with external DBs
   ch:
     profiles:
