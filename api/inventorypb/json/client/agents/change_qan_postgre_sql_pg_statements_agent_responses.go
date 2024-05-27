@@ -673,15 +673,70 @@ type ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommon struct {
 
 	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
 	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommonMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change QAN postgre SQL pg statements agent params body common
 func (o *ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change QAN postgre SQL pg statements agent params body common based on context it is used
+func (o *ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommon) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change QAN postgre SQL pg statements agent params body common based on the context it is used
 func (o *ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommon) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -696,6 +751,49 @@ func (o *ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommon) MarshalBinary() (
 // UnmarshalBinary interface implementation
 func (o *ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommon) UnmarshalBinary(b []byte) error {
 	var res ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommonMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommonMetricsResolutions
+*/
+type ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommonMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change QAN postgre SQL pg statements agent params body common metrics resolutions
+func (o *ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommonMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change QAN postgre SQL pg statements agent params body common metrics resolutions based on context it is used
+func (o *ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommonMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommonMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommonMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommonMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
