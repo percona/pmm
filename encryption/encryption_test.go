@@ -1,24 +1,25 @@
 package encryption
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestNew(t *testing.T) {
-	testPath := "/Users/jiri.ctvrtka/test.key"
-	secret := "secret"
+func TestEncryption(t *testing.T) {
+	testPath := "/srv/pmm-encryption.key"
+	secret := "password1"
 
 	e, err := New(testPath)
 	require.NoError(t, err)
 	assert.Equal(t, testPath, e.Path)
 	assert.NotEmpty(t, e.Key)
-	cipherText, err := e.encrypt(secret)
+	cipherText, err := e.Encrypt(secret)
 	require.NoError(t, err)
 	assert.NotEmpty(t, cipherText)
-	decryptedSecret, err := e.decrypt(cipherText)
+	decryptedSecret, err := e.Decrypt(cipherText)
 	require.NoError(t, err)
 	assert.Equal(t, secret, decryptedSecret)
 
@@ -37,5 +38,7 @@ func TestNew(t *testing.T) {
 		},
 	}
 
-	assert.NoError(t, e.Migrate(c))
+	ctx := context.Background()
+	assert.NoError(t, e.EncryptDB(ctx, c))
+	assert.NoError(t, e.DecryptDB(ctx, c))
 }

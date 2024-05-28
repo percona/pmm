@@ -3,23 +3,15 @@ package encryption
 import (
 	"bytes"
 	"context"
-	"database/sql"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"os"
-	"strings"
 
 	"github.com/google/tink/go/aead"
 	"github.com/google/tink/go/insecurecleartextkeyset"
 	"github.com/google/tink/go/keyset"
 	"github.com/google/tink/go/tink"
 )
-
-type Encryption struct {
-	Path string
-	Key  string
-}
 
 func New(keyPath string) (*Encryption, error) {
 	e := new(Encryption)
@@ -41,7 +33,7 @@ func New(keyPath string) (*Encryption, error) {
 	return e, nil
 }
 
-func (e Encryption) encrypt(secret string) (string, error) {
+func (e Encryption) Encrypt(secret string) (string, error) {
 	primitive, err := e.getPrimitive()
 	if err != nil {
 		return "", err
@@ -51,20 +43,125 @@ func (e Encryption) encrypt(secret string) (string, error) {
 		return "", err
 	}
 
-	return string(cipherText), nil
+	return base64.StdEncoding.EncodeToString(cipherText), nil
 }
 
-func (e Encryption) decrypt(cipherText string) (string, error) {
+func (e Encryption) EncryptDB(ctx context.Context, c *DatabaseConnection) error {
+	db, err := c.Connect()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	if len(c.EncryptedItems) == 0 {
+		return errors.New("DB Connection: Database target tables/columns not defined")
+	}
+	for _, item := range c.EncryptedItems {
+		tx, err := db.BeginTx(ctx, nil)
+		if err != nil {
+			return err
+		}
+		defer tx.Rollback()
+
+		res, err := item.Read(tx)
+		if err != nil {
+			return err
+		}
+
+		for k, v := range res.SetValues {
+			for i, val := range v {
+				encrypted, err := e.Encrypt(*val.(*string))
+				if err != nil {
+					return err
+				}
+				res.SetValues[k][i] = base64.StdEncoding.EncodeToString([]byte(encrypted))
+			}
+			data := append([]any{}, v...)
+			data = append(data, res.WhereValues[k]...)
+			_, err := tx.Exec(res.Query, data...)
+			if err != nil {
+				return err
+			}
+		}
+
+		err = tx.Commit()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (e Encryption) Decrypt(cipherText string) (string, error) {
 	primitive, err := e.getPrimitive()
 	if err != nil {
 		return "", err
 	}
-	secret, err := primitive.Decrypt([]byte(cipherText), []byte(""))
+
+	decoded, err := base64.StdEncoding.DecodeString(cipherText)
+	if err != nil {
+		return "", err
+	}
+
+	secret, err := primitive.Decrypt([]byte(decoded), []byte(""))
 	if err != nil {
 		return "", err
 	}
 
 	return string(secret), nil
+}
+
+func (e Encryption) DecryptDB(ctx context.Context, c *DatabaseConnection) error {
+	db, err := c.Connect()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	if len(c.EncryptedItems) == 0 {
+		return errors.New("DB Connection: Database target tables/columns not defined")
+	}
+
+	for _, item := range c.EncryptedItems {
+		tx, err := db.BeginTx(ctx, nil)
+		if err != nil {
+			return err
+		}
+		defer tx.Rollback()
+
+		res, err := item.Read(tx)
+		if err != nil {
+			return err
+		}
+
+		for k, v := range res.SetValues {
+			for i, val := range v {
+				decoded, err := base64.StdEncoding.DecodeString(*val.(*string))
+				if err != nil {
+					return err
+				}
+				decrypted, err := e.Decrypt(string(decoded))
+				if err != nil {
+					return err
+				}
+				res.SetValues[k][i] = decrypted
+			}
+			data := append([]any{}, v...)
+			data = append(data, res.WhereValues[k]...)
+			_, err := tx.Exec(res.Query, data...)
+			if err != nil {
+				return err
+			}
+		}
+
+		err = tx.Commit()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (e Encryption) getPrimitive() (tink.AEAD, error) {
@@ -100,110 +197,4 @@ func (e Encryption) generateKey() error {
 
 func (e Encryption) saveKeyToFile() error {
 	return os.WriteFile(e.Path, []byte(e.Key), 0o644)
-}
-
-func (e Encryption) Migrate(c *DatabaseConnection) error {
-	connection := fmt.Sprintf("host=%s port=%d user=%s password=%s sslmode=disable", c.Host, c.Port, c.User, c.Password)
-	db, err := sql.Open("postgres", connection)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	err = db.Ping()
-	if err != nil {
-		return err
-	}
-
-	if len(c.EncryptedItems) == 0 {
-		return errors.New("Migration: Database with target tables/columns not defined")
-	}
-
-	for _, item := range c.EncryptedItems {
-		// TODO read and update for all rows in scope of 1 transcation
-		tx, err := db.BeginTx(context.TODO(), nil)
-		if err != nil {
-			return err
-		}
-		defer tx.Rollback()
-
-		// TODO injection?
-		what := append(item.Identificators, item.Columns...)
-		query := fmt.Sprintf("SELECT %s FROM %s", strings.Join(what, ","), item.Table)
-		rows, err := tx.Query(query)
-		if err != nil {
-			return err
-		}
-
-		columnTypes, err := rows.ColumnTypes()
-		if err != nil {
-			return err
-		}
-		columns := make(map[string]string)
-		for _, columnType := range columnTypes {
-			columns[columnType.Name()] = columnType.DatabaseTypeName()
-		}
-
-		encryptedRows := []string{}
-		for rows.Next() {
-			row := make([]any, len(what))
-			i := 0
-			for _, t := range columns {
-				switch t {
-				case "VARCHAR":
-					row[i] = new(string)
-				default:
-					return fmt.Errorf("unsupported identificator type %s", t)
-				}
-
-				i++
-			}
-
-			err = rows.Scan(
-				row...,
-			)
-			if err != nil {
-				return err
-			}
-
-			where := []string{}
-			for k, id := range item.Identificators {
-				where = append(where, fmt.Sprintf("%s = '%s'", id, *row[k].(*string)))
-			}
-			whereSQL := fmt.Sprintf("WHERE %s", strings.Join(where, " AND "))
-
-			encryptedValues := []string{}
-			i = 0
-			for _, v := range row[len(item.Identificators):] {
-				s, err := e.encrypt(*v.(*string))
-				if err != nil {
-					return err
-				}
-				encryptedValues = append(encryptedValues, fmt.Sprintf("%s = '%s'", item.Columns[i], base64.StdEncoding.EncodeToString([]byte(s))))
-				i++
-			}
-			setSQL := fmt.Sprintf("SET %s", strings.Join(encryptedValues, ", "))
-
-			sql := fmt.Sprintf("UPDATE %s %s %s", item.Table, setSQL, whereSQL)
-			encryptedRows = append(encryptedRows, sql)
-		}
-		err = rows.Close()
-		if err != nil {
-			return err
-		}
-
-		for _, r := range encryptedRows {
-			_, err := tx.Exec(r)
-			if err != nil {
-				return err
-			}
-		}
-
-		err = tx.Commit()
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
