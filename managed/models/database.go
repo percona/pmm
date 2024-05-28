@@ -966,6 +966,10 @@ var databaseSchema = [][]string{
 	102: {
 		`UPDATE settings SET settings = settings - 'alert_manager_url'`,
 	},
+	103: {
+		`ALTER TABLE user_flags
+			ADD COLUMN snoozed_pmm_version VARCHAR NOT NULL DEFAULT ''`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

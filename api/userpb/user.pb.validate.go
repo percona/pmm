@@ -165,6 +165,8 @@ func (m *UserDetailsResponse) validate(all bool) error {
 
 	// no validation rules for AlertingTourCompleted
 
+	// no validation rules for SnoozedPmmVersion
+
 	if len(errors) > 0 {
 		return UserDetailsResponseMultiError(errors)
 	}
@@ -270,6 +272,8 @@ func (m *UserUpdateRequest) validate(all bool) error {
 	// no validation rules for ProductTourCompleted
 
 	// no validation rules for AlertingTourCompleted
+
+	// no validation rules for SnoozedPmmVersion
 
 	if len(errors) > 0 {
 		return UserUpdateRequestMultiError(errors)

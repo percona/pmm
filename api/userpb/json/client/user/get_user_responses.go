@@ -272,6 +272,9 @@ type GetUserOKBody struct {
 
 	// Alerting Tour
 	AlertingTourCompleted bool `json:"alerting_tour_completed,omitempty"`
+
+	// Snoozed PMM version update
+	SnoozedPMMVersion string `json:"snoozed_pmm_version,omitempty"`
 }
 
 // Validate validates this get user OK body
