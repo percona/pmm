@@ -1,0 +1,108 @@
+name: 'PMM Encryption'
+
+on:
+  push:
+    branches:
+      - v3
+      - pmm-*
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*
+
+  pull_request:
+    paths-ignore:
+      - "admin/**"
+      - "agent/**"
+      - "api-tests/**"
+      - "cli-tests/**"
+      - "docs/**"
+      - "managed/**"
+      - "qan-api2/**"
+      - "update/**"
+      - "vmproxy/**"
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        images:
+          - { postgres: 'postgres:10', pmm_server: 'perconalab/pmm-server:3-dev-latest'  }
+          - { postgres: 'postgres:11', pmm_server: 'perconalab/pmm-server:3-dev-latest'  }
+          - { postgres: 'postgres:12', pmm_server: 'perconalab/pmm-server:3-dev-latest'  }
+          - { postgres: 'postgres:13', pmm_server: 'perconalab/pmm-server:3-dev-latest'  }
+
+          # Percona + latest PMM Server release
+          - { postgres: 'perconalab/percona-distribution-postgresql:11', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { postgres: 'perconalab/percona-distribution-postgresql:12.8-pg_stat', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { postgres: 'perconalab/percona-distribution-postgresql:13.5-pg_stat', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+
+          - { postgres: 'postgres:9.4', pmm_server: 'perconalab/pmm-server:3-dev-latest'  }
+          - { postgres: 'postgres:9.5', pmm_server: 'perconalab/pmm-server:3-dev-latest'  }
+          - { postgres: 'postgres:9.6', pmm_server: 'perconalab/pmm-server:3-dev-latest'  }
+
+    continue-on-error: true
+
+    env:
+      POSTGRES_IMAGE: ${{ matrix.images.postgres }}
+      PMM_SERVER_IMAGE: ${{ matrix.images.pmm_server }}
+      PG_PRELOADED_LIBS: ${{ matrix.images.pg_libs }}
+
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/encryption
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Go release
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: ${{ github.workspace }}/go.mod
+          cache: false
+
+      - name: Enable Go build cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/go-build
+          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
+          restore-keys: |
+            ${{ runner.os }}-go-build-${{ github.ref }}-
+            ${{ runner.os }}-go-build-
+
+      - name: Enable Go modules cache
+        uses: actions/cache@v4
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: ${{ runner.os }}-go-modules-
+
+      - name: Download Go modules
+        run: go mod download -x
+
+      - name: Build and install
+        run: make install
+
+      - name: Launch containers
+        env:
+          ENV_UP_FLAGS: "--detach"
+        run: go test ./...
+
+      - name: Upload coverage results
+        uses: codecov/codecov-action@v4
+        with:
+          file: cover.out
+          flags: encryption
+          env_vars: POSTGRES_IMAGE,PMM_SERVER_IMAGE
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        run: |
+          env
+          go version
+          go env
+          pwd
+          git status
