@@ -62,7 +62,7 @@ func (a *mysqlQueryShowAction) DSN() string {
 
 // Run runs an Action and returns output and error.
 func (a *mysqlQueryShowAction) Run(ctx context.Context) ([]byte, error) {
-	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles)
+	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles, a.params.TlsSkipVerify)
 	if err != nil {
 		return nil, err
 	}
