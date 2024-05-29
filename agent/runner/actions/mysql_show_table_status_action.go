@@ -58,6 +58,11 @@ func (a *mysqlShowTableStatusAction) Type() string {
 	return "mysql-show-table-status"
 }
 
+// DSN returns a DSN for the Action.
+func (a *mysqlShowTableStatusAction) DSN() string {
+	return a.params.Dsn
+}
+
 // Run runs an Action and returns output and error.
 func (a *mysqlShowTableStatusAction) Run(ctx context.Context) ([]byte, error) {
 	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles, a.params.TlsSkipVerify)

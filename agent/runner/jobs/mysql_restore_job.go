@@ -82,6 +82,11 @@ func (j *MySQLRestoreJob) Timeout() time.Duration {
 	return j.timeout
 }
 
+// DSN returns DSN for the Job.
+func (j *MySQLRestoreJob) DSN() string {
+	return "" // not used for MySQL restore
+}
+
 // Run executes backup restore steps.
 func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) error {
 	if j.locationConfig.S3Config == nil {

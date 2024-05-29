@@ -54,6 +54,11 @@ func (a *mysqlShowIndexAction) Type() string {
 	return "mysql-show-index"
 }
 
+// DSN returns a DSN for the Action.
+func (a *mysqlShowIndexAction) DSN() string {
+	return a.params.Dsn
+}
+
 // Run runs an Action and returns output and error.
 func (a *mysqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
 	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles, a.params.TlsSkipVerify)

@@ -71,7 +71,7 @@ func Run() {
 		supervisor := supervisor.NewSupervisor(ctx, v, configStorage)
 		connectionChecker := connectionchecker.New(configStorage)
 		serviceInfoBroker := serviceinfobroker.New(configStorage)
-		r := runner.New(cfg.RunnerCapacity)
+		r := runner.New(cfg.RunnerCapacity, cfg.RunnerMaxConnectionsPerService)
 		client := client.New(configStorage, supervisor, r, connectionChecker, v, serviceInfoBroker, prepareConnectionService(ctx, cfg), logStore)
 		localServer := agentlocal.NewServer(configStorage, supervisor, client, configFilepath, logStore)
 
