@@ -339,11 +339,13 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) s
 		cfg.DBName = dsnParams.Database
 		cfg.Params = make(map[string]string)
 		if s.TLS {
+			// It is mandatory to have "custom" as the first case.
+			// Skip verify for "custom" is handled on pmm-agent side.
 			switch {
-			case s.TLSSkipVerify:
-				cfg.Params["tls"] = skipVerify
 			case len(s.Files()) != 0:
 				cfg.Params["tls"] = "custom"
+			case s.TLSSkipVerify:
+				cfg.Params["tls"] = skipVerify
 			default:
 				cfg.Params["tls"] = trueStr
 			}
@@ -368,11 +370,13 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) s
 		cfg.DBName = dsnParams.Database
 		cfg.Params = make(map[string]string)
 		if s.TLS {
+			// It is mandatory to have "custom" as the first case.
+			// Skip verify for "custom" is handled on pmm-agent side.
 			switch {
-			case s.TLSSkipVerify:
-				cfg.Params["tls"] = "skip-verify"
 			case len(s.Files()) != 0:
 				cfg.Params["tls"] = "custom"
+			case s.TLSSkipVerify:
+				cfg.Params["tls"] = skipVerify
 			default:
 				cfg.Params["tls"] = trueStr
 			}
