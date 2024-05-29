@@ -388,7 +388,7 @@ func scrapeConfigsForMySQLdExporter(params *scrapeConfigParams) ([]*config.Scrap
 func scrapeConfigsForMongoDBExporter(params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
 	// Old pmm-agents doesn't have support of multiple resolution,
 	// so requesting mongodb_exporter metrics in two resolutions increases CPU and Memory usage.
-	if params.pmmAgentVersion == nil || params.pmmAgentVersion.Less(version.MustParse("2.25.99")) {
+	if params.pmmAgentVersion == nil || params.pmmAgentVersion.Less(version.MustParse("2.26.0-0")) {
 		hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, nil)
 		if err != nil {
 			return nil, err
@@ -419,7 +419,7 @@ func scrapeConfigsForMongoDBExporter(params *scrapeConfigParams) ([]*config.Scra
 			"indexstats",
 			"collstats",
 		}
-		if params.pmmAgentVersion != nil && !params.pmmAgentVersion.Less(version.MustParse("2.41.1-0")) {
+		if !params.pmmAgentVersion.Less(version.MustParse("2.41.1-0")) {
 			defaultCollectors = append(defaultCollectors, "shards")
 		}
 
