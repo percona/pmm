@@ -1014,6 +1014,8 @@ func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string
 		if err != nil {
 			return res, errors.Wrap(err, "failed to scan query")
 		}
+
+		return res, nil //nolint:staticcheck
 	}
 
 	return res, nil
