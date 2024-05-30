@@ -238,8 +238,6 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 			MQueryTimeP99:        m.Common.MQueryTimeP99,
 		}
 
-		logrus.Infof("ExampleType: %s, ServiceName: %s, ServiceID: %s", mb.ExampleType, mb.ServiceName, mb.ServiceId)
-
 		switch {
 		case m.Mysql != nil:
 			fillMySQL(mb, m.Mysql)

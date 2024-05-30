@@ -79,5 +79,11 @@ curl -X GET http://admin:admin@127.0.0.1:8080/v1/backups/restores/bcc83096-b006-
 ### POST /v0/qan/Filters/Get -> POST /v1/qan/metrics:getFilters
 curl -X POST -d '{"period_start_from": "2024-05-21T06:50:00Z", "period_start_to": "2025-05-28T14:00:00Z"}' http://admin:admin@127.0.0.1:8080/v1/qan/metrics:getFilters
 
+### POST /v0/qan/ObjectDetails/GetMetrics -> POST /v1/qan:getMetrics
+curl -X POST -d '{"filter_by":"-6680645881763619241","group_by":"queryid","labels":[],"period_start_from":"2024-05-29T23:32:25+03:00","period_start_to":"2024-05-30T11:32:25+03:00","tables":[],"totals":false}' http://admin:admin@127.0.0.1:8080/v1/qan:getMetrics
+
+### POST /v0/qan/GetMetricsNames -> POST /v1/qan/metrics:getNames
+curl -X POST -d '{}' http://admin:admin@127.0.0.1:8080/v1/qan/metrics:getNames
+
 ### POST /v1/alerting/Rules/Create -> POST /v1/alerting/rules
 curl -X POST -d '{"severity":"SEVERITY_CRITICAL","template_name":"mongodb_down","folder_uid":"fdjhiflcwnytcc","name":"MongoDB Down Alerting Rule","group":"MongoDB"}' http://admin:admin@127.0.0.1:8080/v1/alerting/rules
