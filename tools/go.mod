@@ -1,8 +1,6 @@
 module github.com/percona/pmm/tools
 
-go 1.22
-
-toolchain go1.22.2
+go 1.21
 
 replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.20.5-percona
 
@@ -22,7 +20,7 @@ require (
 	github.com/quasilyte/go-consistent v0.6.0
 	github.com/reviewdog/reviewdog v0.17.0
 	github.com/vburenin/ifacemaker v1.2.1
-	github.com/vektra/mockery/v2 v2.43.0
+	github.com/vektra/mockery/v2 v2.40.2
 	golang.org/x/perf v0.0.0-20230717203022-1ba3a21238c9
 	golang.org/x/tools v0.21.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
