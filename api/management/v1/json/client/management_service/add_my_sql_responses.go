@@ -873,6 +873,9 @@ type AddMySQLOKBodyMysqldExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddMySQLOKBodyMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this add my SQL OK body mysqld exporter
@@ -884,6 +887,10 @@ func (o *AddMySQLOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1004,8 +1011,51 @@ func (o *AddMySQLOKBodyMysqldExporter) validateLogLevel(formats strfmt.Registry)
 	return nil
 }
 
-// ContextValidate validates this add my SQL OK body mysqld exporter based on context it is used
+func (o *AddMySQLOKBodyMysqldExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addMySqlOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMySqlOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add my SQL OK body mysqld exporter based on the context it is used
 func (o *AddMySQLOKBodyMysqldExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddMySQLOKBodyMysqldExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addMySqlOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMySqlOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -1020,6 +1070,49 @@ func (o *AddMySQLOKBodyMysqldExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddMySQLOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 	var res AddMySQLOKBodyMysqldExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddMySQLOKBodyMysqldExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model AddMySQLOKBodyMysqldExporterMetricsResolutions
+*/
+type AddMySQLOKBodyMysqldExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this add my SQL OK body mysqld exporter metrics resolutions
+func (o *AddMySQLOKBodyMysqldExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add my SQL OK body mysqld exporter metrics resolutions based on context it is used
+func (o *AddMySQLOKBodyMysqldExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddMySQLOKBodyMysqldExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddMySQLOKBodyMysqldExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res AddMySQLOKBodyMysqldExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
