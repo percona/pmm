@@ -94,7 +94,11 @@ var rules = map[string]role{
 	"/v1/version":        viewer, // TODO: remove before v3 GA
 	"/v1/server/version": viewer,
 
-	"/v1/qan": viewer,
+	"/v1/qan":                    viewer,
+	"/v1/qan:getMetrics":         viewer,
+	"/v1/qan:getLabels":          viewer,
+	"/v1/qan:getHistogram":       viewer,
+	"/v1/qan:explainFingerprint": viewer,
 
 	// mustSetupRules group
 	"/prometheus":      admin,

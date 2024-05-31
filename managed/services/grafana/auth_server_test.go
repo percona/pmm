@@ -239,6 +239,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/ping":              none,
 
 		"/v1/qan/query:getExample": viewer,
+		"/v1/qan:getMetrics":       viewer,
 
 		"/prometheus/":        admin,
 		"/v1/server/logs.zip": admin,
