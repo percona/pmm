@@ -58,9 +58,9 @@ func jsonRows(columns []string, dataRows [][]interface{}) ([]byte, error) {
 }
 
 // mysqlOpen returns *sql.DB for given MySQL DSN.
-func mysqlOpen(dsn string, tlsFiles *agentv1.TextFiles) (*sql.DB, error) {
+func mysqlOpen(dsn string, tlsFiles *agentv1.TextFiles, tlsSkipVerify bool) (*sql.DB, error) {
 	if tlsFiles != nil {
-		err := tlshelpers.RegisterMySQLCerts(tlsFiles.Files)
+		err := tlshelpers.RegisterMySQLCerts(tlsFiles.Files, tlsSkipVerify)
 		if err != nil {
 			return nil, err
 		}

@@ -3367,6 +3367,28 @@
                           "type": "string",
                           "x-order": 6
                         },
+                        "metrics_resolutions": {
+                          "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                          "type": "object",
+                          "properties": {
+                            "hr": {
+                              "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "lr": {
+                              "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "mr": {
+                              "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 11
+                        },
                         "process_exec_path": {
                           "description": "Path to exec process.",
                           "type": "string",
@@ -3488,6 +3510,28 @@
                           "description": "Path under which metrics are exposed, used to generate URI.",
                           "type": "string",
                           "x-order": 6
+                        },
+                        "metrics_resolutions": {
+                          "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                          "type": "object",
+                          "properties": {
+                            "hr": {
+                              "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "lr": {
+                              "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "mr": {
+                              "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 11
                         },
                         "process_exec_path": {
                           "description": "Path to exec process.",
@@ -3639,6 +3683,28 @@
                             "LOG_LEVEL_DEBUG"
                           ],
                           "x-order": 16
+                        },
+                        "metrics_resolutions": {
+                          "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                          "type": "object",
+                          "properties": {
+                            "hr": {
+                              "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "lr": {
+                              "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "mr": {
+                              "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 18
                         },
                         "pmm_agent_id": {
                           "description": "The pmm-agent identifier which runs this instance.",
@@ -3919,6 +3985,28 @@
                             "LOG_LEVEL_DEBUG"
                           ],
                           "x-order": 19
+                        },
+                        "metrics_resolutions": {
+                          "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                          "type": "object",
+                          "properties": {
+                            "hr": {
+                              "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "lr": {
+                              "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "mr": {
+                              "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 21
                         },
                         "pmm_agent_id": {
                           "description": "The pmm-agent identifier which runs this instance.",
@@ -4389,6 +4477,28 @@
                           "format": "int32",
                           "x-order": 16
                         },
+                        "metrics_resolutions": {
+                          "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                          "type": "object",
+                          "properties": {
+                            "hr": {
+                              "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "lr": {
+                              "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "mr": {
+                              "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 17
+                        },
                         "pmm_agent_id": {
                           "description": "The pmm-agent identifier which runs this instance.",
                           "type": "string",
@@ -4783,6 +4893,28 @@
                           ],
                           "x-order": 13
                         },
+                        "metrics_resolutions": {
+                          "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                          "type": "object",
+                          "properties": {
+                            "hr": {
+                              "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "lr": {
+                              "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "mr": {
+                              "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 15
+                        },
                         "pmm_agent_id": {
                           "description": "The pmm-agent identifier which runs this instance.",
                           "type": "string",
@@ -5029,6 +5161,28 @@
                             "LOG_LEVEL_DEBUG"
                           ],
                           "x-order": 19
+                        },
+                        "metrics_resolutions": {
+                          "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                          "type": "object",
+                          "properties": {
+                            "hr": {
+                              "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "lr": {
+                              "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "mr": {
+                              "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 21
                         },
                         "pmm_agent_id": {
                           "description": "The pmm-agent identifier which runs this instance.",
@@ -5304,6 +5458,28 @@
                           "type": "integer",
                           "format": "int32",
                           "x-order": 16
+                        },
+                        "metrics_resolutions": {
+                          "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                          "type": "object",
+                          "properties": {
+                            "hr": {
+                              "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "lr": {
+                              "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "mr": {
+                              "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 17
                         },
                         "pmm_agent_id": {
                           "description": "The pmm-agent identifier which runs this instance.",
@@ -5633,6 +5809,28 @@
                             "LOG_LEVEL_DEBUG"
                           ],
                           "x-order": 12
+                        },
+                        "metrics_resolutions": {
+                          "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                          "type": "object",
+                          "properties": {
+                            "hr": {
+                              "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "lr": {
+                              "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "mr": {
+                              "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                              "type": "string",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 14
                         },
                         "node_id": {
                           "description": "Node identifier.",

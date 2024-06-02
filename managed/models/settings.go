@@ -16,6 +16,7 @@
 package models
 
 import (
+	"database/sql/driver"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/endpoints"
@@ -40,7 +41,13 @@ type MetricsResolutions struct {
 	LR time.Duration `json:"lr"`
 }
 
-// Advisors is a config for Advisors.
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (r MetricsResolutions) Value() (driver.Value, error) { return jsonValue(r) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (r *MetricsResolutions) Scan(src interface{}) error { return jsonScan(r, src) }
+
+// Advisors contains settings related to the Portal Advisors.
 type Advisors struct {
 	// Advisor checks disabled, false by default.
 	Enabled *bool `json:"enabled"`

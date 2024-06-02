@@ -69,7 +69,7 @@ func (sib *ServiceInfoBroker) GetInfoFromService(ctx context.Context, msg *agent
 
 	switch msg.Type {
 	case inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE:
-		return sib.getMySQLInfo(ctx, msg.Dsn, msg.TextFiles, id)
+		return sib.getMySQLInfo(ctx, msg.Dsn, msg.TextFiles, msg.TlsSkipVerify, id)
 	case inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE:
 		return sib.getMongoDBInfo(ctx, msg.Dsn, msg.TextFiles, id)
 	case inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE:
@@ -84,12 +84,12 @@ func (sib *ServiceInfoBroker) GetInfoFromService(ctx context.Context, msg *agent
 	}
 }
 
-func (sib *ServiceInfoBroker) getMySQLInfo(ctx context.Context, dsn string, files *agentv1.TextFiles, id uint32) *agentv1.ServiceInfoResponse {
+func (sib *ServiceInfoBroker) getMySQLInfo(ctx context.Context, dsn string, files *agentv1.TextFiles, tlsSkipVerify bool, id uint32) *agentv1.ServiceInfoResponse {
 	var res agentv1.ServiceInfoResponse
 	var err error
 
 	if files != nil {
-		err = tlshelpers.RegisterMySQLCerts(files.Files)
+		err = tlshelpers.RegisterMySQLCerts(files.Files, tlsSkipVerify)
 		if err != nil {
 			sib.l.Debugf("getMySQLInfo: failed to register cert: %s", err)
 			res.Error = err.Error()
