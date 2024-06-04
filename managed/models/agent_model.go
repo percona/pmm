@@ -345,7 +345,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 			// Except case for backward compatibility.
 			// Skip verify for "custom" is handled on pmm-agent side.
 			switch {
-			// backward compatibility
+			// Backward compatibility
 			case pmmAgentVersion != nil && s.TLSSkipVerify && pmmAgentVersion.Less(v2_42_0):
 				cfg.Params["tls"] = skipVerify
 			case len(s.Files()) != 0:
@@ -380,7 +380,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 			// Except case for backward compatibility.
 			// Skip verify for "custom" is handled on pmm-agent side.
 			switch {
-			// backward compatibility
+			// Backward compatibility
 			case pmmAgentVersion != nil && s.TLSSkipVerify && pmmAgentVersion.Less(v2_42_0):
 				cfg.Params["tls"] = skipVerify
 			case len(s.Files()) != 0:
@@ -398,8 +398,6 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 		// QAN code in pmm-agent uses reform which requires those fields
 		cfg.ClientFoundRows = true
 		cfg.ParseTime = true
-
-		fmt.Printf("\n\n\n\n %s \n\n\n\n", cfg.FormatDSN())
 
 		return cfg.FormatDSN()
 
