@@ -75,8 +75,9 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 			return nil, err
 		}
 		request = &agentpb.ServiceInfoRequest{
-			Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
-			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName, PostgreSQLSupportsSSLSNI: sqlSniSupported}, nil, pmmAgentVersion),
+			Type: inventorypb.ServiceType_POSTGRESQL_SERVICE,
+			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName, PostgreSQLSupportsSSLSNI: sqlSniSupported},
+				nil, pmmAgentVersion),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentpb.TextFiles{
 				Files:              agent.Files(),
