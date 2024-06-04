@@ -73,7 +73,7 @@ const (
 	VMAgentType                         AgentType = "vmagent"
 )
 
-var v2_42_0 = version.MustParse("2.42.0-0")
+var v2_42 = version.MustParse("2.41.99")
 
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.
 const PMMServerAgentID = string("pmm-server") // no /agent_id/ prefix
@@ -346,7 +346,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 			// Skip verify for "custom" is handled on pmm-agent side.
 			switch {
 			// Backward compatibility
-			case pmmAgentVersion != nil && s.TLSSkipVerify && pmmAgentVersion.Less(v2_42_0):
+			case pmmAgentVersion != nil && s.TLSSkipVerify && pmmAgentVersion.Less(v2_42):
 				cfg.Params["tls"] = skipVerify
 			case len(s.Files()) != 0:
 				cfg.Params["tls"] = "custom"
@@ -381,7 +381,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 			// Skip verify for "custom" is handled on pmm-agent side.
 			switch {
 			// Backward compatibility
-			case pmmAgentVersion != nil && s.TLSSkipVerify && pmmAgentVersion.Less(v2_42_0):
+			case pmmAgentVersion != nil && s.TLSSkipVerify && pmmAgentVersion.Less(v2_42):
 				cfg.Params["tls"] = skipVerify
 			case len(s.Files()) != 0:
 				cfg.Params["tls"] = "custom"
