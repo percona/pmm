@@ -530,17 +530,16 @@ func ExtractPmmAgentVersionFromAgent(q *reform.Querier, agent *Agent) *version.P
 	if err != nil {
 		return nil
 	}
-
-	var clientVersion *version.Parsed
 	pmmAgent, err := FindAgentByID(q, pmmAgentID)
+	if err != nil {
+		return nil
+	}
+	version, err := version.Parse(*pmmAgent.Version)
 	if err == nil {
-		version, err := version.Parse(*pmmAgent.Version)
-		if err == nil {
-			clientVersion = version
-		}
+		return nil
 	}
 
-	return clientVersion
+	return version
 }
 
 // ExtractPmmAgentID extract pmm-agent-id from Agent by type.
