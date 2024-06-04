@@ -534,8 +534,8 @@ func ExtractPmmAgentVersionFromAgent(q *reform.Querier, agent *Agent) *version.P
 	if err != nil {
 		return nil
 	}
-	version, err := version.Parse(*pmmAgent.Version)
-	if err == nil {
+	version, err := version.Parse(pointer.GetString(pmmAgent.Version))
+	if err != nil {
 		return nil
 	}
 
