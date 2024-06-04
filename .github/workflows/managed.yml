@@ -29,8 +29,8 @@ jobs:
       PMM_SERVER_IMAGE: perconalab/pmm-server:3-dev-latest
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-      OAUTH_PMM_CLIENT_ID: ${{ secrets.OAUTH_PMM_CLIENT_ID }}
-      OAUTH_PMM_CLIENT_SECRET: ${{ secrets.OAUTH_PMM_CLIENT_SECRET }}
+      PMM_DEV_OAUTH_CLIENT_ID: ${{ secrets.OAUTH_PMM_CLIENT_ID }}
+      PMM_DEV_OAUTH_CLIENT_SECRET: ${{ secrets.OAUTH_PMM_CLIENT_SECRET }}
       DEVCONTAINER_CACHE_ENABLED: false
 
     steps:
@@ -98,12 +98,13 @@ jobs:
           # docker exec -i pmm-server make -C managed test-update
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: managed/cover.out
           flags: managed
           env_vars: PMM_SERVER_IMAGE
           fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Cache
         if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}

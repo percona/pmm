@@ -100,6 +100,20 @@ func (as *AgentsService) changeAgent(agentID string, common *inventorypb.ChangeC
 			return status.Errorf(codes.InvalidArgument, "expected one of  param: enable_push_metrics or disable_push_metrics")
 		}
 
+		if common.MetricsResolutions != nil {
+			if hr := common.MetricsResolutions.GetHr(); hr != nil {
+				params.MetricsResolutions.HR = pointer.ToDuration(hr.AsDuration())
+			}
+
+			if mr := common.MetricsResolutions.GetMr(); mr != nil {
+				params.MetricsResolutions.MR = pointer.ToDuration(mr.AsDuration())
+			}
+
+			if lr := common.MetricsResolutions.GetLr(); lr != nil {
+				params.MetricsResolutions.LR = pointer.ToDuration(lr.AsDuration())
+			}
+		}
+
 		row, err := models.ChangeAgent(tx.Querier, agentID, params)
 		if err != nil {
 			return err
