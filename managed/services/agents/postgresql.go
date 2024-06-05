@@ -121,7 +121,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, dnsParams, nil)),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, dnsParams, nil, pmmAgentVersion)),
 		},
 		TextFiles: exporter.Files(),
 	}
@@ -147,7 +147,7 @@ func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models
 	}
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type:                   inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
-		Dsn:                    agent.DSN(service, dnsParams, nil),
+		Dsn:                    agent.DSN(service, dnsParams, nil, pmmAgentVersion),
 		MaxQueryLength:         agent.MaxQueryLength,
 		DisableCommentsParsing: agent.CommentsParsingDisabled,
 		TextFiles: &agentpb.TextFiles{
@@ -168,7 +168,7 @@ func qanPostgreSQLPgStatMonitorAgentConfig(service *models.Service, agent *model
 	}
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type:                   inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
-		Dsn:                    agent.DSN(service, dnsParams, nil),
+		Dsn:                    agent.DSN(service, dnsParams, nil, pmmAgentVersion),
 		DisableQueryExamples:   agent.QueryExamplesDisabled,
 		MaxQueryLength:         agent.MaxQueryLength,
 		DisableCommentsParsing: agent.CommentsParsingDisabled,
