@@ -73,7 +73,7 @@ const (
 	VMAgentType                         AgentType = "vmagent"
 )
 
-var v2_42 = version.MustParse("2.41.99")
+var v2_42 = version.MustParse("2.42.0-0")
 
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.
 const PMMServerAgentID = string("pmm-server") // no /agent_id/ prefix
