@@ -31,7 +31,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gogo/status"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
@@ -44,7 +43,6 @@ import (
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
 	channelz "google.golang.org/grpc/channelz/service"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/reflection"
@@ -56,6 +54,7 @@ import (
 	aservice "github.com/percona/pmm/qan-api2/services/analytics"
 	rservice "github.com/percona/pmm/qan-api2/services/receiver"
 	"github.com/percona/pmm/qan-api2/utils/interceptors"
+	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
@@ -150,7 +149,7 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 
 	proxyMux := grpc_gateway.NewServeMux(
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
-		grpc_gateway.WithRoutingErrorHandler(handleRoutingError),
+		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler),
 	)
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
@@ -245,23 +244,6 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 		l.Errorf("Failed to shutdown gracefully: %s", err)
 	}
 	cancel()
-}
-
-// handleRoutingError customized the http status code for routes that can't be found (i.e. 404).
-func handleRoutingError(ctx context.Context, mux *grpc_gateway.ServeMux, marshaler grpc_gateway.Marshaler, w http.ResponseWriter, r *http.Request, httpStatus int) {
-	if httpStatus != http.StatusNotFound {
-		grpc_gateway.DefaultRoutingErrorHandler(ctx, mux, marshaler, w, r, httpStatus)
-		return
-	}
-
-	// Use HTTPStatusError to customize the DefaultHTTPErrorHandler status code
-	msg := fmt.Sprintf("Endpoint not found: %s, http method: %s", r.URL.Path, r.Method)
-	err := &grpc_gateway.HTTPStatusError{
-		HTTPStatus: httpStatus,
-		Err:        status.Error(codes.NotFound, msg),
-	}
-
-	grpc_gateway.DefaultHTTPErrorHandler(ctx, mux, marshaler, w, r, err)
 }
 
 func main() {

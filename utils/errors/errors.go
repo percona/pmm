@@ -142,3 +142,20 @@ func handleForwardResponseTrailer(w http.ResponseWriter, md runtime.ServerMetada
 		}
 	}
 }
+
+// PMMRoutingErrorHandler customizes the http status code for routes that can't be found (i.e. 404).
+func PMMRoutingErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshaler runtime.Marshaler, w http.ResponseWriter, r *http.Request, httpStatus int) {
+	if httpStatus != http.StatusNotFound {
+		runtime.DefaultRoutingErrorHandler(ctx, mux, marshaler, w, r, httpStatus)
+		return
+	}
+
+	// Use HTTPStatusError to customize the DefaultHTTPErrorHandler status code
+	msg := fmt.Sprintf("Endpoint not found: %s, http method: %s", r.URL.Path, r.Method)
+	err := &runtime.HTTPStatusError{
+		HTTPStatus: httpStatus,
+		Err:        status.Error(codes.NotFound, msg),
+	}
+
+	runtime.DefaultHTTPErrorHandler(ctx, mux, marshaler, w, r, err)
+}
