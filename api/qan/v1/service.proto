@@ -108,7 +108,7 @@ service QANService {
   // QueryExists checks if query exists in clickhouse.
   rpc QueryExists(QueryExistsRequest) returns (QueryExistsResponse) {
     option (google.api.http) = {
-      post: "/v1/qan/query:exists "
+      post: "/v1/qan/query:exists"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -130,7 +130,7 @@ service QANService {
   // GetQueryExample returns a list of query examples.
   rpc GetQueryExample(GetQueryExampleRequest) returns (GetQueryExampleResponse) {
     option (google.api.http) = {
-      post: "/v1/qan/query:getExample "
+      post: "/v1/qan/query:getExample"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {

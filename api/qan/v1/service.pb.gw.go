@@ -528,7 +528,7 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/QueryExists", runtime.WithHTTPPathPattern("/v1/qan/query:exists "))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/QueryExists", runtime.WithHTTPPathPattern("/v1/qan/query:exists"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -576,7 +576,7 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/GetQueryExample", runtime.WithHTTPPathPattern("/v1/qan/query:getExample "))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/GetQueryExample", runtime.WithHTTPPathPattern("/v1/qan/query:getExample"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -806,7 +806,7 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/QueryExists", runtime.WithHTTPPathPattern("/v1/qan/query:exists "))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/QueryExists", runtime.WithHTTPPathPattern("/v1/qan/query:exists"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -848,7 +848,7 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/GetQueryExample", runtime.WithHTTPPathPattern("/v1/qan/query:getExample "))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/GetQueryExample", runtime.WithHTTPPathPattern("/v1/qan/query:getExample"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -883,11 +883,11 @@ var (
 
 	pattern_QANService_GetQueryPlan_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "qan", "query", "queryid", "plan"}, ""))
 
-	pattern_QANService_QueryExists_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "qan", "query"}, "exists "))
+	pattern_QANService_QueryExists_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "qan", "query"}, "exists"))
 
 	pattern_QANService_SchemaByQueryID_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "qan", "query"}, "getSchema"))
 
-	pattern_QANService_GetQueryExample_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "qan", "query"}, "getExample "))
+	pattern_QANService_GetQueryExample_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "qan", "query"}, "getExample"))
 )
 
 var (

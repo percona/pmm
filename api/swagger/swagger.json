@@ -11977,7 +11977,7 @@
         }
       }
     },
-    "/v1/qan/query:exists ": {
+    "/v1/qan/query:exists": {
       "post": {
         "description": "Checks if query exists in clickhouse.",
         "tags": [
@@ -12055,7 +12055,7 @@
         }
       }
     },
-    "/v1/qan/query:getExample ": {
+    "/v1/qan/query:getExample": {
       "post": {
         "description": "Provides a list of query examples.",
         "tags": [

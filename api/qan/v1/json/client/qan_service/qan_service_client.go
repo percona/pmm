@@ -300,7 +300,7 @@ func (a *Client) GetQueryExample(params *GetQueryExampleParams, opts ...ClientOp
 	op := &runtime.ClientOperation{
 		ID:                 "GetQueryExample",
 		Method:             "POST",
-		PathPattern:        "/v1/qan/query:getExample ",
+		PathPattern:        "/v1/qan/query:getExample",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -417,7 +417,7 @@ func (a *Client) QueryExists(params *QueryExistsParams, opts ...ClientOption) (*
 	op := &runtime.ClientOperation{
 		ID:                 "QueryExists",
 		Method:             "POST",
-		PathPattern:        "/v1/qan/query:exists ",
+		PathPattern:        "/v1/qan/query:exists",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
