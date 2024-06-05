@@ -24,7 +24,7 @@ Below is a list of affected variables and their new names.
 | `PERCONA_TEST_CHECKS_HOST`                    |                                            | Removed in PMM v3, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS`    |
 | `PERCONA_TEST_CHECKS_INTERVAL`                |                                            | Removed in PMM v3 as it wasn't actually used.                |
 | `PERCONA_TEST_CHECKS_PUBLIC_KEY`              |                                            | Removed in PMM v3, use `PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY` |
-| `PERCONA_TEST_NICER_API`                      | `PMM_NICER_API`                            |                                                              |
+| `PERCONA_TEST_NICER_API`                      | `PMM_NICER_API`                            | Removed in PMM v3, it has become the default                 |
 | `PERCONA_TEST_PMM_CLICKHOUSE_ADDR`            | `PMM_CLICKHOUSE_ADDR`                      |                                                              |
 | `PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE`      | `PMM_CLICKHOUSE_BLOCK_SIZE`                |                                                              |
 | `PERCONA_TEST_PMM_CLICKHOUSE_DATABASE`        | `PMM_CLICKHOUSE_DATABASE`                  |                                                              |

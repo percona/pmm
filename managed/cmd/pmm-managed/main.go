@@ -335,15 +335,10 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		},
 	}
 
-	// FIXME make that a default behavior: https://jira.percona.com/browse/PMM-6722
-	if nicer, _ := strconv.ParseBool(os.Getenv("PMM_NICER_API")); nicer {
-		l.Warn("Enabling nicer API with default/zero values in response.")
-		marshaller.EmitUnpopulated = true
-	}
-
 	proxyMux := grpc_gateway.NewServeMux(
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
-		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler))
+		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler),
+	)
 
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
