@@ -33,6 +33,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/encryption"
 	"github.com/percona/pmm/version"
 )
 
@@ -320,6 +321,16 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) s
 	username := pointer.GetString(s.Username)
 	password := pointer.GetString(s.Password)
 
+	enc, err := encryption.New("/srv/pmm-encrytion.key")
+	if err != nil {
+		return ""
+	}
+
+	decryptedPassword, err := enc.Decrypt(password)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	if tdp == nil {
 		tdp = s.TemplateDelimiters(service)
 	}
@@ -328,7 +339,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) s
 	case MySQLdExporterType:
 		cfg := mysql.NewConfig()
 		cfg.User = username
-		cfg.Passwd = password
+		cfg.Passwd = decryptedPassword
 		cfg.Net = unix
 		cfg.Addr = socket
 		if socket == "" {
@@ -359,7 +370,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) s
 	case QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
 		cfg := mysql.NewConfig()
 		cfg.User = username
-		cfg.Passwd = password
+		cfg.Passwd = decryptedPassword
 		cfg.Net = unix
 		cfg.Addr = socket
 		if socket == "" {
@@ -394,7 +405,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) s
 	case ProxySQLExporterType:
 		cfg := mysql.NewConfig()
 		cfg.User = username
-		cfg.Passwd = password
+		cfg.Passwd = decryptedPassword
 		cfg.Net = unix
 		cfg.Addr = socket
 		if socket == "" {
@@ -475,7 +486,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) s
 		}
 		switch {
 		case password != "":
-			u.User = url.UserPassword(username, password)
+			u.User = url.UserPassword(username, decryptedPassword)
 		case username != "":
 			u.User = url.User(username)
 		}
@@ -536,7 +547,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) s
 		}
 		switch {
 		case password != "":
-			u.User = url.UserPassword(username, password)
+			u.User = url.UserPassword(username, decryptedPassword)
 		case username != "":
 			u.User = url.User(username)
 		}
@@ -665,10 +676,24 @@ func (s Agent) Files() map[string]string {
 
 // TemplateDelimiters returns a pair of safe template delimiters that are not present in agent parameters.
 func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
+	enc, err := encryption.New("/srv/pmm-encrytion.key")
+	if err != nil {
+		return nil
+	}
+
+	enc, err = encryption.New("/srv/pmm-encrytion.key")
+	if err != nil {
+		return nil
+	}
+	decryptedPassword, err := enc.Decrypt(pointer.GetString(s.Password))
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	templateParams := []string{
 		pointer.GetString(svc.Address),
 		pointer.GetString(s.Username),
-		pointer.GetString(s.Password),
+		decryptedPassword,
 		pointer.GetString(s.MetricsPath),
 	}
 

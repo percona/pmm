@@ -28,6 +28,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/encryption"
 	"github.com/percona/pmm/version"
 )
 
@@ -865,6 +866,15 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		}
 	}
 
+	enc, err := encryption.New("/srv/pmm-encrytion.key")
+	if err != nil {
+		return nil, err
+	}
+	encryptedPassword, err := enc.Encrypt(params.Password)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	row := &Agent{
 		AgentID:                        id,
 		AgentType:                      agentType,
@@ -872,7 +882,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		ServiceID:                      pointer.ToStringOrNil(params.ServiceID),
 		NodeID:                         pointer.ToStringOrNil(params.NodeID),
 		Username:                       pointer.ToStringOrNil(params.Username),
-		Password:                       pointer.ToStringOrNil(params.Password),
+		Password:                       pointer.ToStringOrNil(encryptedPassword),
 		AgentPassword:                  pointer.ToStringOrNil(params.AgentPassword),
 		TLS:                            params.TLS,
 		TLSSkipVerify:                  params.TLSSkipVerify,
