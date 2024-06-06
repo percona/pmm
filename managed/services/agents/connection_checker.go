@@ -126,12 +126,14 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 
 func connectionRequest(q *reform.Querier, service *models.Service, agent *models.Agent) (*agentv1.CheckConnectionRequest, error) {
 	var request *agentv1.CheckConnectionRequest
+
+	pmmAgentVersion := models.ExtractPmmAgentVersionFromAgent(q, agent)
 	switch service.ServiceType {
 	case models.MySQLServiceType:
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentv1.CheckConnectionRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
-			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName}, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
@@ -148,8 +150,9 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 			return nil, err
 		}
 		request = &agentv1.CheckConnectionRequest{
-			Type:    inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
-			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName, PostgreSQLSupportsSSLSNI: sqlSniSupported}, nil),
+			Type: inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
+			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName, PostgreSQLSupportsSSLSNI: sqlSniSupported},
+				nil, pmmAgentVersion),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
@@ -161,7 +164,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentv1.CheckConnectionRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
-			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName}, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
@@ -172,7 +175,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 	case models.ProxySQLServiceType:
 		request = &agentv1.CheckConnectionRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
-			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName}, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
 			Timeout: durationpb.New(3 * time.Second),
 		}
 	case models.ExternalServiceType:
