@@ -36,11 +36,11 @@ func TestMongoRun(t *testing.T) {
 	for _, params := range []*Params{
 		{
 			DSN:     "mongodb://root:root-password@127.0.0.1:27017/admin",
-			AgentID: "/agent_id/test",
+			AgentID: "test",
 		},
 		{
 			DSN:     sslDSN,
-			AgentID: "/agent_id/test",
+			AgentID: "test",
 		},
 	} {
 		m, err := New(params, logrus.WithField("test", t.Name()))

@@ -26,9 +26,9 @@ func TestAddServiceHAProxy(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		res := &addServiceHAProxyResult{
 			Service: &services.AddServiceOKBodyHaproxy{
-				ServiceID:      "/service_id/1",
+				ServiceID:      "1",
 				ServiceName:    "ClickHouse Service",
-				NodeID:         "/node_id/1",
+				NodeID:         "1",
 				Environment:    "environment",
 				Cluster:        "clickhouse-cluster",
 				ReplicationSet: "clickhouse-replication-set",
@@ -36,9 +36,9 @@ func TestAddServiceHAProxy(t *testing.T) {
 			},
 		}
 		expected := `HAProxy Service added.
-Service ID     : /service_id/1
+Service ID     : 1
 Service name   : ClickHouse Service
-Node ID        : /node_id/1
+Node ID        : 1
 Environment    : environment
 Cluster name   : clickhouse-cluster
 Replication set: clickhouse-replication-set

@@ -25,7 +25,7 @@ curl --insecure -X POST \
 	--data '
 {
   "pmm_agent_id": "pmm-server",
-  "service_id": "/service_id/13519ec9-eedc-4d21-868c-582e146e1d0e",
+  "service_id": "13519ec9-eedc-4d21-868c-582e146e1d0e",
   "username":  "mysql-prod-user",
   "password":  "mysql-prod-pass",
   "listen_port": 33060,
@@ -51,7 +51,7 @@ curl --insecure -X POST \
 {
   "mysqld_exporter": {
     "pmm_agent_id": "pmm-server",
-    "service_id": "/service_id/13519ec9-eedc-4d21-868c-582e146e1d0e",
+    "service_id": "13519ec9-eedc-4d21-868c-582e146e1d0e",
     "username":  "mysql-prod-user",
     "password":  "mysql-prod-pass",
     "listen_port": 33060,

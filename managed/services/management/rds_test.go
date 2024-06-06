@@ -285,7 +285,7 @@ func TestRDSService(t *testing.T) {
 
 		expected := &managementv1.AddRDSResponse{
 			Node: &inventoryv1.RemoteRDSNode{
-				NodeId:    "/node_id/00000000-0000-4000-8000-000000000005",
+				NodeId:    "00000000-0000-4000-8000-000000000005",
 				NodeName:  "rds-mysql57",
 				Address:   "rds-mysql57",
 				NodeModel: "db.t3.micro",
@@ -296,15 +296,15 @@ func TestRDSService(t *testing.T) {
 				},
 			},
 			RdsExporter: &inventoryv1.RDSExporter{
-				AgentId:      "/agent_id/00000000-0000-4000-8000-000000000006",
+				AgentId:      "00000000-0000-4000-8000-000000000006",
 				PmmAgentId:   "pmm-server",
-				NodeId:       "/node_id/00000000-0000-4000-8000-000000000005",
+				NodeId:       "00000000-0000-4000-8000-000000000005",
 				AwsAccessKey: "EXAMPLE_ACCESS_KEY",
 				Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 			},
 			Mysql: &inventoryv1.MySQLService{
-				ServiceId:      "/service_id/00000000-0000-4000-8000-000000000007",
-				NodeId:         "/node_id/00000000-0000-4000-8000-000000000005",
+				ServiceId:      "00000000-0000-4000-8000-000000000007",
+				NodeId:         "00000000-0000-4000-8000-000000000005",
 				Address:        "rds-mysql57-renaming.xyzzy.us-east-1.rds.amazonaws.com",
 				Port:           3306,
 				Environment:    "production",
@@ -316,17 +316,17 @@ func TestRDSService(t *testing.T) {
 				},
 			},
 			MysqldExporter: &inventoryv1.MySQLdExporter{
-				AgentId:                   "/agent_id/00000000-0000-4000-8000-000000000008",
+				AgentId:                   "00000000-0000-4000-8000-000000000008",
 				PmmAgentId:                "pmm-server",
-				ServiceId:                 "/service_id/00000000-0000-4000-8000-000000000007",
+				ServiceId:                 "00000000-0000-4000-8000-000000000007",
 				Username:                  "username",
 				TablestatsGroupTableLimit: 1000,
 				Status:                    inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 			},
 			QanMysqlPerfschema: &inventoryv1.QANMySQLPerfSchemaAgent{
-				AgentId:               "/agent_id/00000000-0000-4000-8000-000000000009",
+				AgentId:               "00000000-0000-4000-8000-000000000009",
 				PmmAgentId:            "pmm-server",
-				ServiceId:             "/service_id/00000000-0000-4000-8000-000000000007",
+				ServiceId:             "00000000-0000-4000-8000-000000000007",
 				Username:              "username",
 				QueryExamplesDisabled: true,
 				Status:                inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
@@ -374,7 +374,7 @@ func TestRDSService(t *testing.T) {
 
 		expected := &managementv1.AddRDSResponse{
 			Node: &inventoryv1.RemoteRDSNode{
-				NodeId:    "/node_id/00000000-0000-4000-8000-00000000000a",
+				NodeId:    "00000000-0000-4000-8000-00000000000a",
 				NodeName:  "rds-postgresql",
 				Address:   "rds-postgresql",
 				NodeModel: "db.t3.micro",
@@ -385,15 +385,15 @@ func TestRDSService(t *testing.T) {
 				},
 			},
 			RdsExporter: &inventoryv1.RDSExporter{
-				AgentId:      "/agent_id/00000000-0000-4000-8000-00000000000b",
+				AgentId:      "00000000-0000-4000-8000-00000000000b",
 				PmmAgentId:   "pmm-server",
-				NodeId:       "/node_id/00000000-0000-4000-8000-00000000000a",
+				NodeId:       "00000000-0000-4000-8000-00000000000a",
 				AwsAccessKey: "EXAMPLE_ACCESS_KEY",
 				Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 			},
 			Postgresql: &inventoryv1.PostgreSQLService{
-				ServiceId:      "/service_id/00000000-0000-4000-8000-00000000000c",
-				NodeId:         "/node_id/00000000-0000-4000-8000-00000000000a",
+				ServiceId:      "00000000-0000-4000-8000-00000000000c",
+				NodeId:         "00000000-0000-4000-8000-00000000000a",
 				Address:        "rds-postgresql-renaming.xyzzy.us-east-1.rds.amazonaws.com",
 				Port:           3306,
 				Environment:    "production",
@@ -406,18 +406,18 @@ func TestRDSService(t *testing.T) {
 				},
 			},
 			PostgresqlExporter: &inventoryv1.PostgresExporter{
-				AgentId:                "/agent_id/00000000-0000-4000-8000-00000000000d",
+				AgentId:                "00000000-0000-4000-8000-00000000000d",
 				PmmAgentId:             "pmm-server",
-				ServiceId:              "/service_id/00000000-0000-4000-8000-00000000000c",
+				ServiceId:              "00000000-0000-4000-8000-00000000000c",
 				Username:               "username",
 				Status:                 inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 				AutoDiscoveryLimit:     10,
 				MaxExporterConnections: 15,
 			},
 			QanPostgresqlPgstatements: &inventoryv1.QANPostgreSQLPgStatementsAgent{
-				AgentId:    "/agent_id/00000000-0000-4000-8000-00000000000e",
+				AgentId:    "00000000-0000-4000-8000-00000000000e",
 				PmmAgentId: "pmm-server",
-				ServiceId:  "/service_id/00000000-0000-4000-8000-00000000000c",
+				ServiceId:  "00000000-0000-4000-8000-00000000000c",
 				Username:   "username",
 				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 			},

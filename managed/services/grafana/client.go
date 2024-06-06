@@ -680,7 +680,7 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 	}
 
 	// Max length of service account name is 190 chars (default limit in Grafana). In reality it is 187.
-	// Some test could fail if you will have name longer than 187 chars.
+	// Some tests could fail if you pass a name longer than 187 chars.
 	serviceAccountName := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
 	b, err := json.Marshal(serviceAccount{Name: serviceAccountName, Role: role.String(), Force: reregister})
 	if err != nil {

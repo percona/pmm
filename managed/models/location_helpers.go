@@ -281,7 +281,7 @@ func CreateBackupLocation(q *reform.Querier, params CreateBackupLocationParams) 
 		return nil, err
 	}
 
-	id := "/location_id/" + uuid.New().String()
+	id := uuid.New().String()
 
 	if err := checkUniqueBackupLocationID(q, id); err != nil {
 		return nil, err

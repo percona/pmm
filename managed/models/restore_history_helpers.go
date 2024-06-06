@@ -127,7 +127,7 @@ func CreateRestoreHistoryItem(q *reform.Querier, params CreateRestoreHistoryItem
 		return nil, err
 	}
 
-	id := "/restore_id/" + uuid.New().String()
+	id := uuid.New().String()
 	_, err := FindRestoreHistoryItemByID(q, id)
 	switch {
 	case err == nil:

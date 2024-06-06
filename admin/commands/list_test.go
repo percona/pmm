@@ -37,18 +37,18 @@ func TestListResultString(t *testing.T) {
 			name: "filled",
 			listResult: listResult{
 				Services: []listResultService{
-					{ServiceType: types.ServiceTypeMySQLService, ServiceID: "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a", ServiceName: "mysql-service"},
+					{ServiceType: types.ServiceTypeMySQLService, ServiceID: "4ff49c41-80a1-4030-bc02-cd76e3b0b84a", ServiceName: "mysql-service"},
 				},
 				Agents: []listResultAgent{
-					{AgentType: types.AgentTypeMySQLdExporter, AgentID: "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140", ServiceID: "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a", Status: "RUNNING", MetricsMode: "pull", Port: 3306},
+					{AgentType: types.AgentTypeMySQLdExporter, AgentID: "8b732ac3-8256-40b0-a98b-0fd5fa9a1140", ServiceID: "4ff49c41-80a1-4030-bc02-cd76e3b0b84a", Status: "RUNNING", MetricsMode: "pull", Port: 3306},
 				},
 			},
 			expected: strings.TrimSpace(`
 Service type        Service name         Address and port        Service ID
-MySQL               mysql-service                                /service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a
+MySQL               mysql-service                                4ff49c41-80a1-4030-bc02-cd76e3b0b84a
 
-Agent type             Status         Metrics Mode        Agent ID                                              Service ID                                              Port
-mysqld_exporter        Running        pull                /agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140        /service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a        3306
+Agent type             Status         Metrics Mode        Agent ID                                    Service ID                                  Port
+mysqld_exporter        Running        pull                8b732ac3-8256-40b0-a98b-0fd5fa9a1140        4ff49c41-80a1-4030-bc02-cd76e3b0b84a        3306
 `),
 		},
 		{
@@ -64,18 +64,18 @@ Agent type        Status        Metrics Mode        Agent ID        Service ID  
 			name: "external",
 			listResult: listResult{
 				Services: []listResultService{
-					{ServiceType: types.ServiceTypeExternalService, ServiceID: "/service_id/8ff49c41-80a1-4030-bc02-cd76e3b0b84a", ServiceName: "myhost-redis", Group: "redis"},
+					{ServiceType: types.ServiceTypeExternalService, ServiceID: "8ff49c41-80a1-4030-bc02-cd76e3b0b84a", ServiceName: "myhost-redis", Group: "redis"},
 				},
 				Agents: []listResultAgent{
-					{AgentType: types.AgentTypeExternalExporter, AgentID: "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1149", ServiceID: "/service_id/8ff49c41-80a1-4030-bc02-cd76e3b0b84a", Status: "RUNNING", Port: 8080},
+					{AgentType: types.AgentTypeExternalExporter, AgentID: "8b732ac3-8256-40b0-a98b-0fd5fa9a1149", ServiceID: "8ff49c41-80a1-4030-bc02-cd76e3b0b84a", Status: "RUNNING", Port: 8080},
 				},
 			},
 			expected: strings.TrimSpace(`
 Service type          Service name        Address and port        Service ID
-External:redis        myhost-redis                                /service_id/8ff49c41-80a1-4030-bc02-cd76e3b0b84a
+External:redis        myhost-redis                                8ff49c41-80a1-4030-bc02-cd76e3b0b84a
 
-Agent type               Status         Metrics Mode        Agent ID                                              Service ID                                              Port
-external-exporter        Running                            /agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1149        /service_id/8ff49c41-80a1-4030-bc02-cd76e3b0b84a        8080
+Agent type               Status         Metrics Mode        Agent ID                                    Service ID                                  Port
+external-exporter        Running                            8b732ac3-8256-40b0-a98b-0fd5fa9a1149        8ff49c41-80a1-4030-bc02-cd76e3b0b84a        8080
 `),
 		},
 	}
@@ -132,7 +132,7 @@ func TestListJSONOutput(t *testing.T) {
 			Payload: &services_service.ListServicesOKBody{
 				Mysql: []*services_service.ListServicesOKBodyMysqlItems0{
 					{
-						ServiceID:   "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a",
+						ServiceID:   "4ff49c41-80a1-4030-bc02-cd76e3b0b84a",
 						ServiceName: "mysql-service",
 						Address:     "127.0.0.1",
 						Port:        3306,
@@ -144,16 +144,16 @@ func TestListJSONOutput(t *testing.T) {
 			Payload: &agents_service.ListAgentsOKBody{
 				PMMAgent: []*agents_service.ListAgentsOKBodyPMMAgentItems0{
 					{
-						AgentID:      "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140",
-						RunsOnNodeID: "/node_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140",
+						AgentID:      "8b732ac3-8256-40b0-a98b-0fd5fa9a1140",
+						RunsOnNodeID: "8b732ac3-8256-40b0-a98b-0fd5fa9a1140",
 						Connected:    true,
 					},
 				},
 				MysqldExporter: []*agents_service.ListAgentsOKBodyMysqldExporterItems0{
 					{
-						AgentID:            "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1198",
-						PMMAgentID:         "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140",
-						ServiceID:          "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a",
+						AgentID:            "8b732ac3-8256-40b0-a98b-0fd5fa9a1198",
+						PMMAgentID:         "8b732ac3-8256-40b0-a98b-0fd5fa9a1140",
+						ServiceID:          "4ff49c41-80a1-4030-bc02-cd76e3b0b84a",
 						Status:             pointer.ToString("RUNNING"),
 						PushMetricsEnabled: false,
 						ListenPort:         3306,
@@ -163,7 +163,7 @@ func TestListJSONOutput(t *testing.T) {
 		}
 		result := listResult{
 			Services: servicesList(services),
-			Agents:   agentsList(agents, "/node_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140"),
+			Agents:   agentsList(agents, "8b732ac3-8256-40b0-a98b-0fd5fa9a1140"),
 		}
 
 		res, err := json.Marshal(result)
@@ -173,7 +173,7 @@ func TestListJSONOutput(t *testing.T) {
 			"service": [
 				{
 					"service_type": "SERVICE_TYPE_MYSQL_SERVICE",
-					"service_id": "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a",
+					"service_id": "4ff49c41-80a1-4030-bc02-cd76e3b0b84a",
 					"service_name": "mysql-service",
 					"address_port": "127.0.0.1:3306",
 					"external_group": ""
@@ -182,7 +182,7 @@ func TestListJSONOutput(t *testing.T) {
 			"agent": [
 				{
 					"agent_type": "AGENT_TYPE_PMM_AGENT",
-					"agent_id": "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140",
+					"agent_id": "8b732ac3-8256-40b0-a98b-0fd5fa9a1140",
 					"service_id": "",
 					"status": "CONNECTED",
 					"disabled": false,
@@ -190,8 +190,8 @@ func TestListJSONOutput(t *testing.T) {
 				},
 				{
 					"agent_type": "AGENT_TYPE_MYSQLD_EXPORTER",
-					"agent_id": "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1198",
-					"service_id": "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a",
+					"agent_id": "8b732ac3-8256-40b0-a98b-0fd5fa9a1198",
+					"service_id": "4ff49c41-80a1-4030-bc02-cd76e3b0b84a",
 					"status": "RUNNING",
 					"disabled": false,
 					"push_metrics_enabled": "pull",

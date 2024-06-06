@@ -47,12 +47,12 @@ func TestNodes(t *testing.T) {
 		})
 		require.NoError(t, err)
 		expectedNode := &inventoryv1.GenericNode{
-			NodeId:   "/node_id/00000000-0000-4000-8000-000000000005",
+			NodeId:   "00000000-0000-4000-8000-000000000005",
 			NodeName: "test-bm",
 		}
 		assert.Equal(t, expectedNode, addNodeResponse.GetGeneric())
 
-		getNodeResponse, err := ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: "/node_id/00000000-0000-4000-8000-000000000005"})
+		getNodeResponse, err := ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: "00000000-0000-4000-8000-000000000005"})
 		require.NoError(t, err)
 		assert.Equal(t, expectedNode, getNodeResponse)
 
@@ -61,10 +61,10 @@ func TestNodes(t *testing.T) {
 		require.Len(t, nodesResponse, 2)
 		assert.Equal(t, expectedNode, nodesResponse[0])
 
-		err = ns.Remove(ctx, "/node_id/00000000-0000-4000-8000-000000000005", false)
+		err = ns.Remove(ctx, "00000000-0000-4000-8000-000000000005", false)
 		require.NoError(t, err)
-		getNodeResponse, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: "/node_id/00000000-0000-4000-8000-000000000005"})
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "/node_id/00000000-0000-4000-8000-000000000005" not found.`), err)
+		getNodeResponse, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: "00000000-0000-4000-8000-000000000005"})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "00000000-0000-4000-8000-000000000005" not found.`), err)
 		assert.Nil(t, getNodeResponse)
 	})
 
@@ -161,7 +161,7 @@ func TestNodes(t *testing.T) {
 
 func TestAddNode(t *testing.T) {
 	t.Run("BasicGeneric", func(t *testing.T) {
-		const nodeID = "/node_id/00000000-0000-4000-8000-000000000005"
+		const nodeID = "00000000-0000-4000-8000-000000000005"
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -202,11 +202,11 @@ func TestAddNode(t *testing.T) {
 
 	t.Run("AddAllNodeTypes", func(t *testing.T) {
 		const (
-			nodeID1 = "/node_id/00000000-0000-4000-8000-000000000005"
-			nodeID2 = "/node_id/00000000-0000-4000-8000-000000000006"
-			nodeID3 = "/node_id/00000000-0000-4000-8000-000000000007"
-			nodeID4 = "/node_id/00000000-0000-4000-8000-000000000008"
-			nodeID5 = "/node_id/00000000-0000-4000-8000-000000000009"
+			nodeID1 = "00000000-0000-4000-8000-000000000005"
+			nodeID2 = "00000000-0000-4000-8000-000000000006"
+			nodeID3 = "00000000-0000-4000-8000-000000000007"
+			nodeID4 = "00000000-0000-4000-8000-000000000008"
+			nodeID5 = "00000000-0000-4000-8000-000000000009"
 		)
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
