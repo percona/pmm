@@ -49,10 +49,6 @@ type MySQLOptionsParams interface {
 	GetTlsKey() string
 }
 
-func agentID() string {
-	return "/agent_id/" + uuid.New().String()
-}
-
 // MySQLOptionsFromRequest creates MySQLOptions object from request.
 func MySQLOptionsFromRequest(params MySQLOptionsParams) *MySQLOptions {
 	if params.GetTlsCa() != "" || params.GetTlsCert() != "" || params.GetTlsKey() != "" {
@@ -595,6 +591,24 @@ func FindPmmAgentIDToRunActionOrJob(pmmAgentID string, agents []*Agent) (string,
 	return "", status.Errorf(codes.FailedPrecondition, "Couldn't find pmm-agent-id to run action")
 }
 
+// ExtractPmmAgentVersionFromAgent extract PMM agent version from Agent by pmm-agent-id.
+func ExtractPmmAgentVersionFromAgent(q *reform.Querier, agent *Agent) *version.Parsed {
+	pmmAgentID, err := ExtractPmmAgentID(agent)
+	if err != nil {
+		return nil
+	}
+	pmmAgent, err := FindAgentByID(q, pmmAgentID)
+	if err != nil {
+		return nil
+	}
+	version, err := version.Parse(pointer.GetString(pmmAgent.Version))
+	if err != nil {
+		return nil
+	}
+
+	return version
+}
+
 // ExtractPmmAgentID extract pmm-agent-id from Agent by type.
 func ExtractPmmAgentID(agent *Agent) (string, error) {
 	switch agent.AgentType {
@@ -651,7 +665,8 @@ func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabe
 
 // CreatePMMAgent creates PMMAgent.
 func CreatePMMAgent(q *reform.Querier, runsOnNodeID string, customLabels map[string]string) (*Agent, error) {
-	return createPMMAgentWithID(q, agentID(), runsOnNodeID, customLabels)
+	id := uuid.New().String()
+	return createPMMAgentWithID(q, id, runsOnNodeID, customLabels)
 }
 
 // CreateNodeExporter creates NodeExporter.
@@ -666,7 +681,7 @@ func CreateNodeExporter(q *reform.Querier,
 ) (*Agent, error) {
 	// TODO merge into CreateAgent
 
-	id := agentID()
+	id := uuid.New().String()
 	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
 	}
@@ -720,7 +735,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 	}
 	var pmmAgentID *string
 	runsOnNodeID := pointer.ToString(params.RunsOnNodeID)
-	id := agentID()
+	id := uuid.New().String()
 	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
 	}
@@ -895,7 +910,7 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 
 // CreateAgent creates Agent with given type.
 func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentParams) (*Agent, error) { //nolint:unparam
-	id := agentID()
+	id := uuid.New().String()
 	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
 	}

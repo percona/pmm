@@ -32,7 +32,7 @@ func TestAzureExporterConfig(t *testing.T) {
 	pmmAgentVersion := version.MustParse("2.28.0")
 
 	node1 := &models.Node{
-		NodeID:    "/node_id/node1",
+		NodeID:    "node1",
 		NodeType:  models.RemoteAzureDatabaseNodeType,
 		NodeName:  "prod-mysql56",
 		NodeModel: "B_Gen5_1",
@@ -46,7 +46,7 @@ func TestAzureExporterConfig(t *testing.T) {
 	require.NoError(t, err)
 
 	service1 := &models.Service{
-		ServiceID:   "/service_id/service1",
+		ServiceID:   "service1",
 		NodeID:      node1.NodeID,
 		Address:     pointer.ToString("pmm-dev-mysql-db1.mysql.database.azure.com"),
 		Port:        pointer.ToUint16(3306),
@@ -55,7 +55,7 @@ func TestAzureExporterConfig(t *testing.T) {
 	}
 
 	agent := &models.Agent{
-		AgentID:   "/agent_id/agent1",
+		AgentID:   "agent1",
 		AgentType: models.AzureDatabaseExporterType,
 		NodeID:    &node1.NodeID,
 		ServiceID: &service1.ServiceID,

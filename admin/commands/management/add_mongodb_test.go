@@ -27,13 +27,13 @@ func TestAddMongoDB(t *testing.T) {
 	t.Run("TablestatEnabled", func(t *testing.T) {
 		res := &addMongoDBResult{
 			Service: &mservice.AddServiceOKBodyMongodbService{
-				ServiceID:   "/service_id/1",
+				ServiceID:   "1",
 				ServiceName: "mysql-1",
 			},
 		}
 		expected := strings.TrimSpace(`
 MongoDB Service added.
-Service ID  : /service_id/1
+Service ID  : 1
 Service name: mysql-1
 		`)
 		assert.Equal(t, expected, strings.TrimSpace(res.String()))

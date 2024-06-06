@@ -27,7 +27,7 @@ func TestAddMySQL(t *testing.T) {
 	t.Run("TablestatEnabled", func(t *testing.T) {
 		res := &addMySQLResult{
 			Service: &mservice.AddServiceOKBodyMysqlService{
-				ServiceID:   "/service_id/1",
+				ServiceID:   "1",
 				ServiceName: "mysql-1",
 			},
 			MysqldExporter: &mservice.AddServiceOKBodyMysqlMysqldExporter{
@@ -38,7 +38,7 @@ func TestAddMySQL(t *testing.T) {
 		}
 		expected := strings.TrimSpace(`
 MySQL Service added.
-Service ID  : /service_id/1
+Service ID  : 1
 Service name: mysql-1
 
 Table statistics collection enabled (the limit is 1000, the actual table count is 500).
@@ -49,7 +49,7 @@ Table statistics collection enabled (the limit is 1000, the actual table count i
 	t.Run("TablestatEnabledNoLimit", func(t *testing.T) {
 		res := &addMySQLResult{
 			Service: &mservice.AddServiceOKBodyMysqlService{
-				ServiceID:   "/service_id/1",
+				ServiceID:   "1",
 				ServiceName: "mysql-1",
 			},
 			MysqldExporter: &mservice.AddServiceOKBodyMysqlMysqldExporter{
@@ -60,7 +60,7 @@ Table statistics collection enabled (the limit is 1000, the actual table count i
 		}
 		expected := strings.TrimSpace(`
 MySQL Service added.
-Service ID  : /service_id/1
+Service ID  : 1
 Service name: mysql-1
 
 Table statistics collection enabled (the table count limit is not set).
@@ -71,7 +71,7 @@ Table statistics collection enabled (the table count limit is not set).
 	t.Run("TablestatEnabledUnknown", func(t *testing.T) {
 		res := &addMySQLResult{
 			Service: &mservice.AddServiceOKBodyMysqlService{
-				ServiceID:   "/service_id/1",
+				ServiceID:   "1",
 				ServiceName: "mysql-1",
 			},
 			MysqldExporter: &mservice.AddServiceOKBodyMysqlMysqldExporter{
@@ -82,7 +82,7 @@ Table statistics collection enabled (the table count limit is not set).
 		}
 		expected := strings.TrimSpace(`
 MySQL Service added.
-Service ID  : /service_id/1
+Service ID  : 1
 Service name: mysql-1
 
 Table statistics collection enabled (the limit is 1000, the actual table count is unknown).
@@ -93,7 +93,7 @@ Table statistics collection enabled (the limit is 1000, the actual table count i
 	t.Run("TablestatDisabled", func(t *testing.T) {
 		res := &addMySQLResult{
 			Service: &mservice.AddServiceOKBodyMysqlService{
-				ServiceID:   "/service_id/1",
+				ServiceID:   "1",
 				ServiceName: "mysql-1",
 			},
 			MysqldExporter: &mservice.AddServiceOKBodyMysqlMysqldExporter{
@@ -108,7 +108,7 @@ Table statistics collection enabled (the limit is 1000, the actual table count i
 		}
 		expected := strings.TrimSpace(`
 MySQL Service added.
-Service ID  : /service_id/1
+Service ID  : 1
 Service name: mysql-1
 
 Table statistics collection disabled (the limit is 1000, the actual table count is 2000).
@@ -119,7 +119,7 @@ Table statistics collection disabled (the limit is 1000, the actual table count 
 	t.Run("TablestatDisabledAlways", func(t *testing.T) {
 		res := &addMySQLResult{
 			Service: &mservice.AddServiceOKBodyMysqlService{
-				ServiceID:   "/service_id/1",
+				ServiceID:   "1",
 				ServiceName: "mysql-1",
 			},
 			MysqldExporter: &mservice.AddServiceOKBodyMysqlMysqldExporter{
@@ -130,7 +130,7 @@ Table statistics collection disabled (the limit is 1000, the actual table count 
 		}
 		expected := strings.TrimSpace(`
 MySQL Service added.
-Service ID  : /service_id/1
+Service ID  : 1
 Service name: mysql-1
 
 Table statistics collection disabled (always).

@@ -39,7 +39,7 @@ func TestServerStatus(t *testing.T) {
 	setup := func(t *testing.T) ([]*agentlocal.AgentInfo, *mockSupervisor, *mockClient, configGetReloader) {
 		t.Helper()
 		agentInfo := []*agentlocal.AgentInfo{{
-			AgentId:   "/agent_id/00000000-0000-4000-8000-000000000002",
+			AgentId:   "00000000-0000-4000-8000-000000000002",
 			AgentType: inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
 			Status:    inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
 		}}
@@ -49,12 +49,12 @@ func TestServerStatus(t *testing.T) {
 		var client mockClient
 		client.Test(t)
 		client.On("GetServerConnectMetadata").Return(&agentv1.ServerConnectMetadata{
-			AgentRunsOnNodeID: "/node_id/00000000-0000-4000-8000-000000000003",
+			AgentRunsOnNodeID: "00000000-0000-4000-8000-000000000003",
 			ServerVersion:     "2.0.0-dev",
 		})
 		client.On("GetConnectionUpTime").Return(float32(100.00))
 		cfgStorage := config.NewStorage(&config.Config{
-			ID: "/agent_id/00000000-0000-4000-8000-000000000001",
+			ID: "00000000-0000-4000-8000-000000000001",
 			Server: config.Server{
 				Address:  "127.0.0.1:8443",
 				Username: "username",
@@ -75,8 +75,8 @@ func TestServerStatus(t *testing.T) {
 		actual, err := s.Status(context.Background(), &agentlocal.StatusRequest{GetNetworkInfo: false})
 		require.NoError(t, err)
 		expected := &agentlocal.StatusResponse{
-			AgentId:      "/agent_id/00000000-0000-4000-8000-000000000001",
-			RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000003",
+			AgentId:      "00000000-0000-4000-8000-000000000001",
+			RunsOnNodeId: "00000000-0000-4000-8000-000000000003",
 			ServerInfo: &agentlocal.ServerInfo{
 				Url:       "https://username:password@127.0.0.1:8443/",
 				Version:   "2.0.0-dev",
@@ -103,8 +103,8 @@ func TestServerStatus(t *testing.T) {
 		actual, err := s.Status(context.Background(), &agentlocal.StatusRequest{GetNetworkInfo: true})
 		require.NoError(t, err)
 		expected := &agentlocal.StatusResponse{
-			AgentId:      "/agent_id/00000000-0000-4000-8000-000000000001",
-			RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000003",
+			AgentId:      "00000000-0000-4000-8000-000000000001",
+			RunsOnNodeId: "00000000-0000-4000-8000-000000000003",
 			ServerInfo: &agentlocal.ServerInfo{
 				Url:        "https://username:password@127.0.0.1:8443/",
 				Version:    "2.0.0-dev",
@@ -124,7 +124,7 @@ func TestGetZipFile(t *testing.T) {
 	setup := func(t *testing.T) ([]*agentlocal.AgentInfo, *mockSupervisor, *mockClient, configGetReloader) {
 		t.Helper()
 		agentInfo := []*agentlocal.AgentInfo{{
-			AgentId:   "/agent_id/00000000-0000-4000-8000-000000000002",
+			AgentId:   "00000000-0000-4000-8000-000000000002",
 			AgentType: inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
 			Status:    inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
 		}}
@@ -140,13 +140,13 @@ func TestGetZipFile(t *testing.T) {
 		var client mockClient
 		client.Test(t)
 		client.On("GetServerConnectMetadata").Return(&agentv1.ServerConnectMetadata{
-			AgentRunsOnNodeID: "/node_id/00000000-0000-4000-8000-000000000003",
+			AgentRunsOnNodeID: "00000000-0000-4000-8000-000000000003",
 			ServerVersion:     "2.0.0-dev",
 		})
 		client.On("GetConnectionUpTime").Return(float32(100.00))
 
 		cfgStorage := config.NewStorage(&config.Config{
-			ID: "/agent_id/00000000-0000-4000-8000-000000000001",
+			ID: "00000000-0000-4000-8000-000000000001",
 			Server: config.Server{
 				Address:  "127.0.0.1:8443",
 				Username: "username",

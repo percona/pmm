@@ -29,7 +29,7 @@ import (
 func TestPTMySQLSummaryActionRun(t *testing.T) {
 	t.Parallel()
 
-	id := "/action_id/6a479303-5081-46d0-baa0-87d6248c987b"
+	id := "6a479303-5081-46d0-baa0-87d6248c987b"
 	cmd := "echo"
 	p := NewPTMySQLSummaryAction(id, 5*time.Second, cmd, nil)
 
@@ -46,7 +46,7 @@ func TestPTMySQLSummaryActionRun(t *testing.T) {
 func TestPTMySQLSummaryActionRunAndCancel(t *testing.T) {
 	t.Parallel()
 
-	p := NewPTMySQLSummaryAction("/action_id/14b2422d-32ec-44fb-9019-8b70e3cc8a3a", time.Second, "sleep", &agentv1.StartActionRequest_PTMySQLSummaryParams{})
+	p := NewPTMySQLSummaryAction("14b2422d-32ec-44fb-9019-8b70e3cc8a3a", time.Second, "sleep", &agentv1.StartActionRequest_PTMySQLSummaryParams{})
 
 	ctx, cancel := context.WithTimeout(context.Background(), p.Timeout())
 	time.AfterFunc(time.Millisecond, cancel)

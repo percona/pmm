@@ -992,10 +992,70 @@ var databaseSchema = [][]string{
 		`UPDATE settings SET settings = settings || jsonb_set(settings, '{sass,advisor_run_intervals}', settings#>'{sass,stt_check_intervals}') WHERE (settings#>'{sass,disabled_stt_checks}') IS NOT NULL`,
 		`UPDATE settings SET settings = settings #- '{sass,stt_check_intervals}';`,
 	},
+	105: {
+		`ALTER TABLE agents DROP CONSTRAINT agents_node_id_fkey;`,
+		`ALTER TABLE agents DROP CONSTRAINT agents_pmm_agent_id_fkey;`,
+		`ALTER TABLE agents DROP CONSTRAINT agents_runs_on_node_id_fkey;`,
+		`ALTER TABLE agents DROP CONSTRAINT agents_service_id_fkey;`,
+		`ALTER TABLE artifacts DROP CONSTRAINT artifacts_location_id_fkey;`,
+		`ALTER TABLE dump_logs DROP CONSTRAINT dump_logs_dump_id_fkey;`,
+		`ALTER TABLE job_logs DROP CONSTRAINT job_logs_job_id_fkey;`,
+		`ALTER TABLE restore_history DROP CONSTRAINT restore_history_artifact_id_fkey;`,
+		`ALTER TABLE restore_history DROP CONSTRAINT restore_history_service_id_fkey;`,
+		`ALTER TABLE service_software_versions DROP CONSTRAINT service_software_versions_service_id_fkey;`,
+		`ALTER TABLE services DROP CONSTRAINT services_node_id_fkey;`,
+
+		`UPDATE action_results SET id = SUBSTRING(id, 12) WHERE id LIKE '/action_id/%';`,
+		`UPDATE action_results SET pmm_agent_id = SUBSTRING(pmm_agent_id, 11) WHERE pmm_agent_id LIKE '/agent_id/%';`,
+
+		`UPDATE agents SET agent_id = SUBSTRING(agent_id, 11) WHERE agent_id LIKE '/agent_id/%';`,
+		`UPDATE agents SET pmm_agent_id = SUBSTRING(pmm_agent_id, 11) WHERE pmm_agent_id LIKE '/agent_id/%';`,
+		`UPDATE agents SET runs_on_node_id = SUBSTRING(runs_on_node_id, 10) WHERE runs_on_node_id LIKE '/node_id/%';`,
+		`UPDATE agents SET node_id = SUBSTRING(node_id, 10) WHERE node_id LIKE '/node_id/%';`,
+		`UPDATE agents SET service_id = SUBSTRING(service_id, 13) WHERE service_id LIKE '/service_id/%';`,
+
+		`UPDATE artifacts SET id = SUBSTRING(id, 14) WHERE id LIKE '/artifact_id/%';`,
+		`UPDATE artifacts SET location_id = SUBSTRING(location_id, 14) WHERE location_id LIKE '/location_id/%';`,
+		`UPDATE artifacts SET service_id = SUBSTRING(service_id, 13) WHERE service_id LIKE '/service_id/%';`,
+		`UPDATE artifacts SET schedule_id = SUBSTRING(schedule_id, 20) WHERE schedule_id LIKE '/scheduled_task_id/%';`,
+
+		`UPDATE backup_locations SET id = SUBSTRING(id, 14) WHERE id LIKE '/location_id/%';`,
+
+		`UPDATE job_logs SET job_id = SUBSTRING(job_id, 9) WHERE job_id LIKE '/job_id/%';`,
+
+		`UPDATE jobs SET id = SUBSTRING(id, 9) WHERE id LIKE '/job_id/%';`,
+		`UPDATE jobs SET pmm_agent_id = SUBSTRING(pmm_agent_id, 11) WHERE pmm_agent_id LIKE '/agent_id/%';`,
+
+		`UPDATE nodes SET node_id = SUBSTRING(node_id, 10) WHERE node_id LIKE '/node_id/%';`,
+		`UPDATE nodes SET machine_id = SUBSTRING(machine_id, 13) WHERE machine_id LIKE '/machine_id/%';`,
+
+		`UPDATE restore_history SET id = SUBSTRING(id, 13) WHERE id LIKE '/restore_id/%';`,
+		`UPDATE restore_history SET artifact_id = SUBSTRING(artifact_id, 14) WHERE artifact_id LIKE '/artifact_id/%';`,
+		`UPDATE restore_history SET service_id = SUBSTRING(service_id, 13) WHERE service_id LIKE '/service_id/%';`,
+
+		`UPDATE scheduled_tasks SET id = SUBSTRING(id, 20) WHERE id LIKE '/scheduled_task_id/%';`,
+
+		`UPDATE service_software_versions SET service_id = SUBSTRING(service_id, 13) WHERE service_id LIKE '/service_id/%';`,
+
+		`UPDATE services SET service_id = SUBSTRING(service_id, 13) WHERE service_id LIKE '/service_id/%';`,
+		`UPDATE services SET node_id = SUBSTRING(node_id, 10) WHERE node_id LIKE '/node_id/%';`,
+
+		`ALTER TABLE agents ADD CONSTRAINT agents_node_id_fkey FOREIGN KEY (node_id) REFERENCES nodes (node_id);`,
+		`ALTER TABLE agents ADD CONSTRAINT agents_pmm_agent_id_fkey FOREIGN KEY (pmm_agent_id) REFERENCES agents (agent_id);`,
+		`ALTER TABLE agents ADD CONSTRAINT agents_runs_on_node_id_fkey FOREIGN KEY (runs_on_node_id) REFERENCES nodes (node_id);`,
+		`ALTER TABLE agents ADD CONSTRAINT agents_service_id_fkey FOREIGN KEY (service_id) REFERENCES services (service_id);`,
+		`ALTER TABLE artifacts ADD CONSTRAINT artifacts_location_id_fkey FOREIGN KEY (location_id) REFERENCES backup_locations (id);`,
+		`ALTER TABLE dump_logs ADD CONSTRAINT dump_logs_dump_id_fkey FOREIGN KEY (dump_id) REFERENCES dumps (id) ON DELETE CASCADE;`,
+		`ALTER TABLE job_logs ADD CONSTRAINT job_logs_job_id_fkey FOREIGN KEY (job_id) REFERENCES jobs (id) ON DELETE CASCADE;`,
+		`ALTER TABLE restore_history ADD CONSTRAINT restore_history_artifact_id_fkey FOREIGN KEY (artifact_id) REFERENCES artifacts (id);`,
+		`ALTER TABLE restore_history ADD CONSTRAINT restore_history_service_id_fkey FOREIGN KEY (service_id) REFERENCES services (service_id);`,
+		`ALTER TABLE service_software_versions ADD CONSTRAINT service_software_versions_service_id_fkey FOREIGN KEY (service_id) REFERENCES services (service_id) ON DELETE CASCADE;`,
+		`ALTER TABLE services ADD CONSTRAINT services_node_id_fkey FOREIGN KEY (node_id) REFERENCES nodes (node_id);`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
-// aleksi: Go's zero values and non-zero default values in database do play nicely together in INSERTs and UPDATEs.
+// Go's zero values and non-zero default values in database do play nicely together in INSERTs and UPDATEs.
 
 // OpenDB returns configured connection pool for PostgreSQL.
 // OpenDB just validates its arguments without creating a connection to the database.

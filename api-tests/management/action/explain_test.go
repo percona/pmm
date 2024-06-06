@@ -31,14 +31,14 @@ import (
 func TestRunExplain(t *testing.T) {
 	t.Skip("not implemented yet")
 
-	t.Run("`ByQueryID", func(t *testing.T) {
+	t.Run("ByQueryID", func(t *testing.T) {
 		explainActionOK, err := client.Default.ActionsService.StartServiceAction(
 			&actions.StartServiceActionParams{
 				Context: pmmapitests.Context,
 				Body: actions.StartServiceActionBody{
 					MysqlExplain: &actions.StartServiceActionParamsBodyMysqlExplain{
-						// PMMAgentID: "/agent_id/f235005b-9cca-4b73-bbbd-1251067c3138",
-						ServiceID: "/service_id/5a9a7aa6-7af4-47be-817c-6d88e955bff2",
+						// PMMAgentID: "f235005b-9cca-4b73-bbbd-1251067c3138",
+						ServiceID: "5a9a7aa6-7af4-47be-817c-6d88e955bff2",
 						QueryID:   "3923dace316a86643fcf87cb45e0558a",
 					},
 				},
@@ -68,7 +68,7 @@ func TestRunMongoDBExplain(t *testing.T) {
 			Context: pmmapitests.Context,
 			Body: actions.StartServiceActionBody{
 				MongodbExplain: &actions.StartServiceActionParamsBodyMongodbExplain{
-					ServiceID: "/service_id/2402bf45-19c2-4bee-931a-307b26ed5300",
+					ServiceID: "2402bf45-19c2-4bee-931a-307b26ed5300",
 					Query:     `{"ns":"test.coll","op":"query","query":{"k":{"$lte":{"$numberInt":"1"}}}}`,
 				},
 			},

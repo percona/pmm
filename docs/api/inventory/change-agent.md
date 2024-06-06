@@ -28,7 +28,7 @@ curl --insecure -X POST \
 	--url https://127.0.0.1/v1/inventory/Agents/ChangeMySQLdExporter \
 	--data '
 {
-  "agent_id": "/agent_id/13519ec9-eedc-4d21-868c-582e146e1d0e",
+  "agent_id": "13519ec9-eedc-4d21-868c-582e146e1d0e",
   "common": {
     "enable":  true,
     "custom_labels": {
@@ -53,7 +53,7 @@ curl --insecure -X POST \
 	--data '
 {
   "mysqld_exporter": {
-    "agent_id": "/agent_id/13519ec9-eedc-4d21-868c-582e146e1d0e",
+    "agent_id": "13519ec9-eedc-4d21-868c-582e146e1d0e",
     "common": {
       "enable":  true,
       "custom_labels": {

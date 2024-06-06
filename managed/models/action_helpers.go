@@ -45,7 +45,7 @@ func FindActionResultByID(q *reform.Querier, id string) (*ActionResult, error) {
 
 // CreateActionResult stores an action result in action results storage.
 func CreateActionResult(q *reform.Querier, pmmAgentID string) (*ActionResult, error) {
-	result := &ActionResult{ID: actionIDPrefix + uuid.New().String(), PMMAgentID: pmmAgentID}
+	result := &ActionResult{ID: uuid.New().String(), PMMAgentID: pmmAgentID}
 	if err := q.Insert(result); err != nil {
 		return nil, errors.WithStack(err)
 	}

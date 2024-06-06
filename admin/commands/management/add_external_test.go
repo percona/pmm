@@ -27,14 +27,14 @@ func TestAddExternal(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		res := &addExternalResult{
 			Service: &mservice.AddServiceOKBodyExternalService{
-				ServiceID:   "/service_id/1",
+				ServiceID:   "1",
 				ServiceName: "myhost-redis",
 				Group:       "redis",
 			},
 		}
 		expected := strings.TrimSpace(`
 External Service added.
-Service ID  : /service_id/1
+Service ID  : 1
 Service name: myhost-redis
 Group       : redis
 `)

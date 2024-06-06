@@ -47,8 +47,8 @@ func TestConcurrentRunnerRun(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	go cr.Run(ctx)
-	a1 := actions.NewProcessAction("/action_id/6a479303-5081-46d0-baa0-87d6248c987b", 5*time.Second, "echo", []string{"test"})
-	a2 := actions.NewProcessAction("/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", 5*time.Second, "echo", []string{"test2"})
+	a1 := actions.NewProcessAction("6a479303-5081-46d0-baa0-87d6248c987b", 5*time.Second, "echo", []string{"test"})
+	a2 := actions.NewProcessAction("84140ab2-612d-4d93-9360-162a4bd5de14", 5*time.Second, "echo", []string{"test2"})
 
 	err := cr.StartAction(a1)
 	require.NoError(t, err)
@@ -57,8 +57,8 @@ func TestConcurrentRunnerRun(t *testing.T) {
 	require.NoError(t, err)
 
 	expected := []*agentv1.ActionResultRequest{
-		{ActionId: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte("test\n"), Done: true},
-		{ActionId: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte("test2\n"), Done: true},
+		{ActionId: "6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte("test\n"), Done: true},
+		{ActionId: "84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte("test2\n"), Done: true},
 	}
 	assertActionResults(t, cr, expected...)
 	cr.wg.Wait()
@@ -242,8 +242,8 @@ func TestConcurrentRunnerTimeout(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	go cr.Run(ctx)
-	a1 := actions.NewProcessAction("/action_id/6a479303-5081-46d0-baa0-87d6248c987b", time.Second, "sleep", []string{"20"})
-	a2 := actions.NewProcessAction("/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", time.Second, "sleep", []string{"30"})
+	a1 := actions.NewProcessAction("6a479303-5081-46d0-baa0-87d6248c987b", time.Second, "sleep", []string{"20"})
+	a2 := actions.NewProcessAction("84140ab2-612d-4d93-9360-162a4bd5de14", time.Second, "sleep", []string{"30"})
 
 	err := cr.StartAction(a1)
 	require.NoError(t, err)
@@ -253,8 +253,8 @@ func TestConcurrentRunnerTimeout(t *testing.T) {
 
 	// https://github.com/golang/go/issues/21880
 	expected := []*agentv1.ActionResultRequest{
-		{ActionId: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte{}, Error: "signal: killed", Done: true},
-		{ActionId: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte{}, Error: "signal: killed", Done: true},
+		{ActionId: "6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte{}, Error: "signal: killed", Done: true},
+		{ActionId: "84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte{}, Error: "signal: killed", Done: true},
 	}
 	assertActionResults(t, cr, expected...)
 	cr.wg.Wait()
@@ -268,8 +268,8 @@ func TestConcurrentRunnerStop(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	go cr.Run(ctx)
-	a1 := actions.NewProcessAction("/action_id/6a479303-5081-46d0-baa0-87d6248c987b", 5*time.Second, "sleep", []string{"20"})
-	a2 := actions.NewProcessAction("/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", 5*time.Second, "sleep", []string{"30"})
+	a1 := actions.NewProcessAction("6a479303-5081-46d0-baa0-87d6248c987b", 5*time.Second, "sleep", []string{"20"})
+	a2 := actions.NewProcessAction("84140ab2-612d-4d93-9360-162a4bd5de14", 5*time.Second, "sleep", []string{"30"})
 
 	err := cr.StartAction(a1)
 	require.NoError(t, err)
@@ -284,8 +284,8 @@ func TestConcurrentRunnerStop(t *testing.T) {
 
 	// https://github.com/golang/go/issues/21880
 	expected := []*agentv1.ActionResultRequest{
-		{ActionId: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte{}, Error: "signal: killed", Done: true},
-		{ActionId: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte{}, Error: "signal: killed", Done: true},
+		{ActionId: "6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte{}, Error: "signal: killed", Done: true},
+		{ActionId: "84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte{}, Error: "signal: killed", Done: true},
 	}
 	assertActionResults(t, cr, expected...)
 	cr.wg.Wait()
@@ -299,8 +299,8 @@ func TestConcurrentRunnerCancel(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	go cr.Run(ctx)
 
-	a1 := actions.NewProcessAction("/action_id/6a479303-5081-46d0-baa0-87d6248c987b", 5*time.Second, "sleep", []string{"20"})
-	a2 := actions.NewProcessAction("/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", 5*time.Second, "sleep", []string{"30"})
+	a1 := actions.NewProcessAction("6a479303-5081-46d0-baa0-87d6248c987b", 5*time.Second, "sleep", []string{"20"})
+	a2 := actions.NewProcessAction("84140ab2-612d-4d93-9360-162a4bd5de14", 5*time.Second, "sleep", []string{"30"})
 
 	err := cr.StartAction(a1)
 	require.NoError(t, err)
@@ -319,10 +319,10 @@ func TestConcurrentRunnerCancel(t *testing.T) {
 	sort.Slice(expected, func(i, j int) bool {
 		return expected[i].(*agentv1.ActionResultRequest).ActionId < expected[j].(*agentv1.ActionResultRequest).ActionId
 	})
-	assert.Equal(t, expected[0].(*agentv1.ActionResultRequest).ActionId, "/action_id/6a479303-5081-46d0-baa0-87d6248c987b")
+	assert.Equal(t, expected[0].(*agentv1.ActionResultRequest).ActionId, "6a479303-5081-46d0-baa0-87d6248c987b")
 	assert.Contains(t, []string{"signal: killed", context.Canceled.Error()}, expected[0].(*agentv1.ActionResultRequest).Error)
 	assert.True(t, expected[0].(*agentv1.ActionResultRequest).Done)
-	assert.Equal(t, expected[1].(*agentv1.ActionResultRequest).ActionId, "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14")
+	assert.Equal(t, expected[1].(*agentv1.ActionResultRequest).ActionId, "84140ab2-612d-4d93-9360-162a4bd5de14")
 	assert.Contains(t, []string{"signal: killed", context.Canceled.Error()}, expected[0].(*agentv1.ActionResultRequest).Error)
 	assert.True(t, expected[1].(*agentv1.ActionResultRequest).Done)
 	cr.wg.Wait()
