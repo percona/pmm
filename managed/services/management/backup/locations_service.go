@@ -170,8 +170,7 @@ func (s *LocationsService) ChangeLocation(ctx context.Context, req *backuppb.Cha
 	}
 
 	err := s.db.InTransaction(func(tx *reform.TX) error {
-		locationID := models.NormalizeLocationID(req.LocationId)
-		_, err := models.ChangeBackupLocation(tx.Querier, locationID, params)
+		_, err := models.ChangeBackupLocation(tx.Querier, req.LocationId, params)
 		if err != nil {
 			return err
 		}
@@ -230,8 +229,7 @@ func (s *LocationsService) RemoveLocation(ctx context.Context, req *backuppb.Rem
 	}
 
 	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		locationID := models.NormalizeLocationID(req.LocationId)
-		return models.RemoveBackupLocation(tx.Querier, locationID, mode)
+		return models.RemoveBackupLocation(tx.Querier, req.LocationId, mode)
 	})
 	if err != nil {
 		return nil, err

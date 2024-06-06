@@ -317,8 +317,8 @@ func TestNodeService(t *testing.T) {
 		}
 
 		const (
-			nodeExporterID      = "/agent_id/00000000-0000-4000-8000-000000000001"
-			postgresqlServiceID = "/service_id/00000000-0000-4000-8000-000000000002"
+			nodeExporterID      = "00000000-0000-4000-8000-000000000001"
+			postgresqlServiceID = "00000000-0000-4000-8000-000000000002"
 		)
 
 		t.Run("should output an unfiltered list of all nodes", func(t *testing.T) {

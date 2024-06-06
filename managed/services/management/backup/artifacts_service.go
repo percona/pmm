@@ -107,8 +107,7 @@ func (s *ArtifactsService) ListArtifacts(context.Context, *backuppb.ListArtifact
 
 // DeleteArtifact deletes specified artifact and its files.
 func (s *ArtifactsService) DeleteArtifact(ctx context.Context, req *backuppb.DeleteArtifactRequest) (*backuppb.DeleteArtifactResponse, error) { //nolint:revive
-	artifactID := models.NormalizeArtifactID(req.ArtifactId)
-	artifact, err := models.FindArtifactByID(s.db.Querier, artifactID)
+	artifact, err := models.FindArtifactByID(s.db.Querier, req.ArtifactId)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +119,7 @@ func (s *ArtifactsService) DeleteArtifact(ctx context.Context, req *backuppb.Del
 
 	storage := backup.GetStorageForLocation(location)
 
-	if err := s.removalSVC.DeleteArtifact(storage, artifactID, req.RemoveFiles); err != nil {
+	if err := s.removalSVC.DeleteArtifact(storage, req.ArtifactId, req.RemoveFiles); err != nil {
 		return nil, err
 	}
 	return &backuppb.DeleteArtifactResponse{}, nil
@@ -131,11 +130,10 @@ func (s *ArtifactsService) ListPitrTimeranges(ctx context.Context, req *backuppb
 	var artifact *models.Artifact
 	var err error
 
-	artifactID := models.NormalizeArtifactID(req.ArtifactId)
-	artifact, err = models.FindArtifactByID(s.db.Querier, artifactID)
+	artifact, err = models.FindArtifactByID(s.db.Querier, req.ArtifactId)
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
-			return nil, status.Errorf(codes.NotFound, "Artifact with ID '%s' not found.", artifactID)
+			return nil, status.Errorf(codes.NotFound, "Artifact with ID '%s' not found.", req.ArtifactId)
 		}
 		return nil, err
 	}

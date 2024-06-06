@@ -518,7 +518,7 @@ func TestGetLogs(t *testing.T) {
 	}
 
 	t.Run("get backup logs", func(t *testing.T) {
-		artifactID := models.NormalizeArtifactID(uuid.New().String())
+		artifactID := uuid.New().String()
 		job, err := models.CreateJob(db.Querier, models.CreateJobParams{
 			PMMAgentID: "agent",
 			Type:       models.MongoDBBackupJob,

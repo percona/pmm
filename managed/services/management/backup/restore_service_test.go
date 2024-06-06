@@ -70,7 +70,7 @@ func TestRestoreServiceGetLogs(t *testing.T) {
 	}
 
 	t.Run("get physical restore logs", func(t *testing.T) {
-		restoreID := models.NormalizeRestoreID(uuid.New().String())
+		restoreID := uuid.New().String()
 		job, err := models.CreateJob(db.Querier, models.CreateJobParams{
 			PMMAgentID: "agent",
 			Type:       models.MongoDBBackupJob,
@@ -107,7 +107,7 @@ func TestRestoreServiceGetLogs(t *testing.T) {
 	})
 
 	t.Run("get logical restore logs", func(t *testing.T) {
-		restoreID := models.NormalizeRestoreID(uuid.New().String())
+		restoreID := uuid.New().String()
 		logicalRestore, err := models.CreateJob(db.Querier, models.CreateJobParams{
 			PMMAgentID: "agent",
 			Type:       models.MongoDBBackupJob,

@@ -31,17 +31,6 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-const (
-	agentIDPrefix         = "/agent_id/"
-	serviceIDPrefix       = "/service_id/"
-	nodeIDPrefix          = "/node_id/"
-	actionIDPrefix        = "/action_id/"
-	scheduledTaskIDPrefix = "/scheduled_task_id/"
-	artifactIDPrefix      = "/artifact_id/"
-	restoreIDPrefix       = "/restore_id/"
-	locationIDPrefix      = "/location_id/"
-)
-
 // MySQLOptionsParams contains methods to create MySQLOptions object.
 type MySQLOptionsParams interface {
 	GetTlsCa() string
@@ -164,62 +153,6 @@ func AzureOptionsFromRequest(params AzureOptionsParams) *AzureOptions {
 		}
 	}
 	return nil
-}
-
-// Add a prefix since gRPC does not allow to pass an URL path segment that begins with a slash.
-// TODO: remove these Normalize functions once we drop prefixes in agent/service/node IDs.
-
-// NormalizeAgentID adds a prefix to the agent ID if it does not already contain it.
-func NormalizeAgentID(agentID string) string {
-	if agentID == "pmm-server" {
-		return agentID
-	}
-
-	return normalizeID(agentID, agentIDPrefix)
-}
-
-// NormalizeServiceID adds a prefix to the service ID if it does not already contain it.
-func NormalizeServiceID(serviceID string) string {
-	return normalizeID(serviceID, serviceIDPrefix)
-}
-
-// NormalizeNodeID adds a prefix to the node ID if it does not already contain it.
-func NormalizeNodeID(nodeID string) string {
-	return normalizeID(nodeID, nodeIDPrefix)
-}
-
-// NormalizeActionID adds a prefix to the node ID if it does not already contain it.
-func NormalizeActionID(actionID string) string {
-	return normalizeID(actionID, nodeIDPrefix)
-}
-
-// NormalizeScheduledTaskID adds a prefix to the sheduled task ID if it does not already contain it.
-func NormalizeScheduledTaskID(sTaskID string) string {
-	return normalizeID(sTaskID, scheduledTaskIDPrefix)
-}
-
-// NormalizeArtifactID adds a prefix to the artifact ID if it does not already contain it.
-func NormalizeArtifactID(artifactID string) string {
-	return normalizeID(artifactID, artifactIDPrefix)
-}
-
-// NormalizeRestoreID adds a prefix to the restore ID if it does not already contain it.
-func NormalizeRestoreID(restoreID string) string {
-	return normalizeID(restoreID, restoreIDPrefix)
-}
-
-// NormalizeLocationID adds a prefix to the location ID if it does not already contain it.
-func NormalizeLocationID(locationID string) string {
-	return normalizeID(locationID, locationIDPrefix)
-}
-
-// normalizeID adds a prefix to ID if it does not already contain it.
-func normalizeID(id, prefix string) string {
-	if id == "" || strings.HasPrefix(id, prefix) {
-		return id
-	}
-
-	return prefix + id
 }
 
 func checkUniqueAgentID(q *reform.Querier, id string) error {

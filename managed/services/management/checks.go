@@ -29,7 +29,6 @@ import (
 
 	advisorsv1 "github.com/percona/pmm/api/advisors/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
-	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
 
@@ -114,8 +113,8 @@ func (s *ChecksAPIService) ListFailedServices(ctx context.Context, _ *advisorsv1
 
 // GetFailedChecks returns details of failed checks for a given service.
 func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *advisorsv1.GetFailedChecksRequest) (*advisorsv1.GetFailedChecksResponse, error) {
-	serviceID := models.NormalizeServiceID(req.ServiceId)
-	results, err := s.checksService.GetChecksResults(ctx, serviceID)
+
+	results, err := s.checksService.GetChecksResults(ctx, req.ServiceId)
 	if err != nil {
 		if errors.Is(err, services.ErrAdvisorsDisabled) {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)

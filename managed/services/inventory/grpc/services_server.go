@@ -62,9 +62,8 @@ func serviceType(serviceType inventoryv1.ServiceType) *models.ServiceType {
 
 // ListServices returns a list of Services for a given filters.
 func (s *servicesServer) ListServices(ctx context.Context, req *inventoryv1.ListServicesRequest) (*inventoryv1.ListServicesResponse, error) {
-	nodeID := models.NormalizeNodeID(req.GetNodeId())
 	filters := models.ServiceFilters{
-		NodeID:        nodeID,
+		NodeID:        req.GetNodeId(),
 		ServiceType:   serviceType(req.GetServiceType()),
 		ExternalGroup: req.GetExternalGroup(),
 	}
@@ -114,8 +113,7 @@ func (s *servicesServer) ListActiveServiceTypes(
 
 // GetService returns a single Service by ID.
 func (s *servicesServer) GetService(ctx context.Context, req *inventoryv1.GetServiceRequest) (*inventoryv1.GetServiceResponse, error) {
-	serviceID := models.NormalizeServiceID(req.GetServiceId())
-	service, err := s.s.Get(ctx, serviceID)
+	service, err := s.s.Get(ctx, req.GetServiceId())
 	if err != nil {
 		return nil, err
 	}
@@ -302,8 +300,7 @@ func (s *servicesServer) addExternalService(ctx context.Context, params *invento
 
 // RemoveService removes Service.
 func (s *servicesServer) RemoveService(ctx context.Context, req *inventoryv1.RemoveServiceRequest) (*inventoryv1.RemoveServiceResponse, error) {
-	serviceID := models.NormalizeServiceID(req.GetServiceId())
-	if err := s.s.Remove(ctx, serviceID, req.Force); err != nil {
+	if err := s.s.Remove(ctx, req.GetServiceId(), req.GetForce()); err != nil {
 		return nil, err
 	}
 
@@ -313,7 +310,7 @@ func (s *servicesServer) RemoveService(ctx context.Context, req *inventoryv1.Rem
 // ChangeService changes service configuration.
 func (s *servicesServer) ChangeService(ctx context.Context, req *inventoryv1.ChangeServiceRequest) (*inventoryv1.ChangeServiceResponse, error) {
 	sl := &models.ChangeStandardLabelsParams{
-		ServiceID:      models.NormalizeServiceID(req.GetServiceId()),
+		ServiceID:      req.ServiceId,
 		Cluster:        req.Cluster,
 		Environment:    req.Environment,
 		ReplicationSet: req.ReplicationSet,

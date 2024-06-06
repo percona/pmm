@@ -128,7 +128,7 @@ func (s *RestoreService) GetLogs(_ context.Context, req *backupv1.RestoreService
 		},
 	}
 
-	jobsFilter.RestoreID = models.NormalizeRestoreID(req.RestoreId)
+	jobsFilter.RestoreID = req.RestoreId
 
 	jobs, err := models.FindJobs(s.db.Querier, jobsFilter)
 	if err != nil {

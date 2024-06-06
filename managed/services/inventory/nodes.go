@@ -72,8 +72,7 @@ func (s *NodesService) Get(ctx context.Context, req *inventoryv1.GetNodeRequest)
 	modelNode := &models.Node{}
 	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
-		nodeID := models.NormalizeNodeID(req.NodeId)
-		modelNode, err = models.FindNodeByID(tx.Querier, nodeID)
+		modelNode, err = models.FindNodeByID(tx.Querier, req.NodeId)
 		if err != nil {
 			return err
 		}

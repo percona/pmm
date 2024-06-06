@@ -260,7 +260,7 @@ func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1
 		var err error
 
 		if LooksLikeID(req.ServiceId) {
-			service, err = models.FindServiceByID(tx.Querier, models.NormalizeServiceID(req.ServiceId))
+			service, err = models.FindServiceByID(tx.Querier, req.ServiceId)
 		} else {
 			// if it's not a service ID, it is a service name then
 			service, err = models.FindServiceByName(tx.Querier, req.ServiceId)

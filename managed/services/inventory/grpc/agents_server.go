@@ -65,9 +65,9 @@ func agentType(req *inventoryv1.ListAgentsRequest) *models.AgentType {
 // ListAgents returns a list of Agents for a given filters.
 func (s *agentsServer) ListAgents(ctx context.Context, req *inventoryv1.ListAgentsRequest) (*inventoryv1.ListAgentsResponse, error) {
 	filters := models.AgentFilters{
-		PMMAgentID: models.NormalizeAgentID(req.GetPmmAgentId()),
-		NodeID:     models.NormalizeNodeID(req.GetNodeId()),
-		ServiceID:  models.NormalizeServiceID(req.GetServiceId()),
+		PMMAgentID: req.GetPmmAgentId(),
+		NodeID:     req.GetNodeId(),
+		ServiceID:  req.GetServiceId(),
 		AgentType:  agentType(req),
 	}
 	agents, err := s.s.List(ctx, filters)
@@ -117,9 +117,7 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventoryv1.ListAgen
 
 // GetAgent returns a single Agent by ID.
 func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRequest) (*inventoryv1.GetAgentResponse, error) {
-	agentID := models.NormalizeAgentID(req.GetAgentId())
-
-	agent, err := s.s.Get(ctx, agentID)
+	agent, err := s.s.Get(ctx, req.GetAgentId())
 	if err != nil {
 		return nil, err
 	}
@@ -164,8 +162,7 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRe
 
 // GetAgentLogs returns Agent logs by ID.
 func (s *agentsServer) GetAgentLogs(ctx context.Context, req *inventoryv1.GetAgentLogsRequest) (*inventoryv1.GetAgentLogsResponse, error) {
-	agentID := models.NormalizeAgentID(req.GetAgentId())
-	logs, agentConfigLogLinesCount, err := s.s.Logs(ctx, agentID, req.GetLimit())
+	logs, agentConfigLogLinesCount, err := s.s.Logs(ctx, req.GetAgentId(), req.GetLimit())
 	if err != nil {
 		return nil, err
 	}
@@ -214,7 +211,7 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 
 // ChangeAgent allows to change some Agent attributes.
 func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeAgentRequest) (*inventoryv1.ChangeAgentResponse, error) {
-	agentID := models.NormalizeAgentID(req.GetAgentId())
+	agentID := req.GetAgentId()
 
 	switch req.Agent.(type) {
 	case *inventoryv1.ChangeAgentRequest_NodeExporter:
@@ -250,8 +247,7 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 
 // RemoveAgent removes the Agent.
 func (s *agentsServer) RemoveAgent(ctx context.Context, req *inventoryv1.RemoveAgentRequest) (*inventoryv1.RemoveAgentResponse, error) {
-	agentID := models.NormalizeAgentID(req.GetAgentId())
-	if err := s.s.Remove(ctx, agentID, req.Force); err != nil {
+	if err := s.s.Remove(ctx, req.GetAgentId(), req.GetForce()); err != nil {
 		return nil, err
 	}
 

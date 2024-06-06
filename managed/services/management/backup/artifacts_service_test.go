@@ -105,7 +105,6 @@ func TestListPitrTimeranges(t *testing.T) {
 		response, err := artifactsService.ListPitrTimeranges(ctx, &backuppb.ListPitrTimerangesRequest{
 			ArtifactId: unknownID,
 		})
-		unknownID = models.NormalizeArtifactID(unknownID)
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Artifact with ID '%s' not found.", unknownID)), err)
 		assert.Nil(t, response)
 	})

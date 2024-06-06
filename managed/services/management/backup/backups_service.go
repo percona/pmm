@@ -393,8 +393,7 @@ func (s *BackupService) ChangeScheduledBackup(ctx context.Context, req *backuppb
 
 // RemoveScheduledBackup stops and removes existing scheduled backup task.
 func (s *BackupService) RemoveScheduledBackup(ctx context.Context, req *backuppb.RemoveScheduledBackupRequest) (*backuppb.RemoveScheduledBackupResponse, error) {
-	scheduledBackupID := models.NormalizeScheduledTaskID(req.ScheduledBackupId)
-	task, err := models.FindScheduledTaskByID(s.db.Querier, scheduledBackupID)
+	task, err := models.FindScheduledTaskByID(s.db.Querier, req.ScheduledBackupId)
 	if err != nil {
 		return nil, err
 	}
@@ -412,7 +411,7 @@ func (s *BackupService) RemoveScheduledBackup(ctx context.Context, req *backuppb
 
 	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		artifacts, err := models.FindArtifacts(tx.Querier, models.ArtifactFilters{
-			ScheduleID: scheduledBackupID,
+			ScheduleID: req.ScheduledBackupId,
 		})
 		if err != nil {
 			return err
@@ -427,7 +426,7 @@ func (s *BackupService) RemoveScheduledBackup(ctx context.Context, req *backuppb
 			}
 		}
 
-		return s.scheduleService.Remove(scheduledBackupID)
+		return s.scheduleService.Remove(req.ScheduledBackupId)
 	})
 	if errTx != nil {
 		return nil, errTx
@@ -452,7 +451,7 @@ func (s *BackupService) GetLogs(_ context.Context, req *backuppb.GetLogsRequest)
 		},
 	}
 
-	jobsFilter.ArtifactID = models.NormalizeArtifactID(req.ArtifactId)
+	jobsFilter.ArtifactID = req.ArtifactId
 
 	jobs, err := models.FindJobs(s.db.Querier, jobsFilter)
 	if err != nil {
@@ -500,8 +499,7 @@ func (s *BackupService) ListArtifactCompatibleServices(
 	ctx context.Context,
 	req *backuppb.ListArtifactCompatibleServicesRequest,
 ) (*backuppb.ListArtifactCompatibleServicesResponse, error) {
-	artifactID := models.NormalizeActionID(req.ArtifactId)
-	compatibleServices, err := s.compatibilityService.FindArtifactCompatibleServices(ctx, artifactID)
+	compatibleServices, err := s.compatibilityService.FindArtifactCompatibleServices(ctx, req.ArtifactId)
 	switch {
 	case err == nil:
 	case errors.Is(err, models.ErrNotFound):
