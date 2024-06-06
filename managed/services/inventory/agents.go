@@ -76,6 +76,20 @@ func (as *AgentsService) changeAgent(ctx context.Context, agentID string, common
 			CustomLabels:      &common.CustomLabels.Values,
 		}
 
+		if common.MetricsResolutions != nil {
+			if hr := common.MetricsResolutions.GetHr(); hr != nil {
+				params.MetricsResolutions.HR = pointer.ToDuration(hr.AsDuration())
+			}
+
+			if mr := common.MetricsResolutions.GetMr(); mr != nil {
+				params.MetricsResolutions.MR = pointer.ToDuration(mr.AsDuration())
+			}
+
+			if lr := common.MetricsResolutions.GetLr(); lr != nil {
+				params.MetricsResolutions.LR = pointer.ToDuration(lr.AsDuration())
+			}
+		}
+
 		row, err := models.ChangeAgent(tx.Querier, agentID, params)
 		if err != nil {
 			return err

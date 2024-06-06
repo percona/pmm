@@ -1570,6 +1570,9 @@ type ChangeAgentOKBodyAzureDatabaseExporter struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentOKBodyAzureDatabaseExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent OK body azure database exporter
@@ -1581,6 +1584,10 @@ func (o *ChangeAgentOKBodyAzureDatabaseExporter) Validate(formats strfmt.Registr
 	}
 
 	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1701,8 +1708,51 @@ func (o *ChangeAgentOKBodyAzureDatabaseExporter) validateLogLevel(formats strfmt
 	return nil
 }
 
-// ContextValidate validates this change agent OK body azure database exporter based on context it is used
+func (o *ChangeAgentOKBodyAzureDatabaseExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent OK body azure database exporter based on the context it is used
 func (o *ChangeAgentOKBodyAzureDatabaseExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentOKBodyAzureDatabaseExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -1717,6 +1767,49 @@ func (o *ChangeAgentOKBodyAzureDatabaseExporter) MarshalBinary() ([]byte, error)
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentOKBodyAzureDatabaseExporter) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentOKBodyAzureDatabaseExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentOKBodyAzureDatabaseExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentOKBodyAzureDatabaseExporterMetricsResolutions
+*/
+type ChangeAgentOKBodyAzureDatabaseExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent OK body azure database exporter metrics resolutions
+func (o *ChangeAgentOKBodyAzureDatabaseExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent OK body azure database exporter metrics resolutions based on context it is used
+func (o *ChangeAgentOKBodyAzureDatabaseExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentOKBodyAzureDatabaseExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentOKBodyAzureDatabaseExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentOKBodyAzureDatabaseExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1761,15 +1854,70 @@ type ChangeAgentOKBodyExternalExporter struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentOKBodyExternalExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent OK body external exporter
 func (o *ChangeAgentOKBodyExternalExporter) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change agent OK body external exporter based on context it is used
+func (o *ChangeAgentOKBodyExternalExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "external_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "external_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent OK body external exporter based on the context it is used
 func (o *ChangeAgentOKBodyExternalExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentOKBodyExternalExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "external_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "external_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -1784,6 +1932,49 @@ func (o *ChangeAgentOKBodyExternalExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentOKBodyExternalExporter) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentOKBodyExternalExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentOKBodyExternalExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentOKBodyExternalExporterMetricsResolutions
+*/
+type ChangeAgentOKBodyExternalExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent OK body external exporter metrics resolutions
+func (o *ChangeAgentOKBodyExternalExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent OK body external exporter metrics resolutions based on context it is used
+func (o *ChangeAgentOKBodyExternalExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentOKBodyExternalExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentOKBodyExternalExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentOKBodyExternalExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1861,6 +2052,9 @@ type ChangeAgentOKBodyMongodbExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentOKBodyMongodbExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent OK body mongodb exporter
@@ -1872,6 +2066,10 @@ func (o *ChangeAgentOKBodyMongodbExporter) Validate(formats strfmt.Registry) err
 	}
 
 	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1992,8 +2190,51 @@ func (o *ChangeAgentOKBodyMongodbExporter) validateLogLevel(formats strfmt.Regis
 	return nil
 }
 
-// ContextValidate validates this change agent OK body mongodb exporter based on context it is used
+func (o *ChangeAgentOKBodyMongodbExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent OK body mongodb exporter based on the context it is used
 func (o *ChangeAgentOKBodyMongodbExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentOKBodyMongodbExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -2008,6 +2249,49 @@ func (o *ChangeAgentOKBodyMongodbExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentOKBodyMongodbExporter) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentOKBodyMongodbExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentOKBodyMongodbExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentOKBodyMongodbExporterMetricsResolutions
+*/
+type ChangeAgentOKBodyMongodbExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent OK body mongodb exporter metrics resolutions
+func (o *ChangeAgentOKBodyMongodbExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent OK body mongodb exporter metrics resolutions based on context it is used
+func (o *ChangeAgentOKBodyMongodbExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentOKBodyMongodbExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentOKBodyMongodbExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentOKBodyMongodbExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -2095,6 +2379,9 @@ type ChangeAgentOKBodyMysqldExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentOKBodyMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent OK body mysqld exporter
@@ -2106,6 +2393,10 @@ func (o *ChangeAgentOKBodyMysqldExporter) Validate(formats strfmt.Registry) erro
 	}
 
 	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -2226,8 +2517,51 @@ func (o *ChangeAgentOKBodyMysqldExporter) validateLogLevel(formats strfmt.Regist
 	return nil
 }
 
-// ContextValidate validates this change agent OK body mysqld exporter based on context it is used
+func (o *ChangeAgentOKBodyMysqldExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent OK body mysqld exporter based on the context it is used
 func (o *ChangeAgentOKBodyMysqldExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentOKBodyMysqldExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -2242,6 +2576,49 @@ func (o *ChangeAgentOKBodyMysqldExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentOKBodyMysqldExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentOKBodyMysqldExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentOKBodyMysqldExporterMetricsResolutions
+*/
+type ChangeAgentOKBodyMysqldExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent OK body mysqld exporter metrics resolutions
+func (o *ChangeAgentOKBodyMysqldExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent OK body mysqld exporter metrics resolutions based on context it is used
+func (o *ChangeAgentOKBodyMysqldExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentOKBodyMysqldExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentOKBodyMysqldExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentOKBodyMysqldExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -2297,6 +2674,9 @@ type ChangeAgentOKBodyNodeExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentOKBodyNodeExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent OK body node exporter
@@ -2308,6 +2688,10 @@ func (o *ChangeAgentOKBodyNodeExporter) Validate(formats strfmt.Registry) error 
 	}
 
 	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -2428,8 +2812,51 @@ func (o *ChangeAgentOKBodyNodeExporter) validateLogLevel(formats strfmt.Registry
 	return nil
 }
 
-// ContextValidate validates this change agent OK body node exporter based on context it is used
+func (o *ChangeAgentOKBodyNodeExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "node_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "node_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent OK body node exporter based on the context it is used
 func (o *ChangeAgentOKBodyNodeExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentOKBodyNodeExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "node_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "node_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -2444,6 +2871,49 @@ func (o *ChangeAgentOKBodyNodeExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentOKBodyNodeExporter) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentOKBodyNodeExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentOKBodyNodeExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentOKBodyNodeExporterMetricsResolutions
+*/
+type ChangeAgentOKBodyNodeExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent OK body node exporter metrics resolutions
+func (o *ChangeAgentOKBodyNodeExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent OK body node exporter metrics resolutions based on context it is used
+func (o *ChangeAgentOKBodyNodeExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentOKBodyNodeExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentOKBodyNodeExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentOKBodyNodeExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -2517,6 +2987,9 @@ type ChangeAgentOKBodyPostgresExporter struct {
 
 	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentOKBodyPostgresExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent OK body postgres exporter
@@ -2528,6 +3001,10 @@ func (o *ChangeAgentOKBodyPostgresExporter) Validate(formats strfmt.Registry) er
 	}
 
 	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -2648,8 +3125,51 @@ func (o *ChangeAgentOKBodyPostgresExporter) validateLogLevel(formats strfmt.Regi
 	return nil
 }
 
-// ContextValidate validates this change agent OK body postgres exporter based on context it is used
+func (o *ChangeAgentOKBodyPostgresExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent OK body postgres exporter based on the context it is used
 func (o *ChangeAgentOKBodyPostgresExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentOKBodyPostgresExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -2664,6 +3184,49 @@ func (o *ChangeAgentOKBodyPostgresExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentOKBodyPostgresExporter) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentOKBodyPostgresExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentOKBodyPostgresExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentOKBodyPostgresExporterMetricsResolutions
+*/
+type ChangeAgentOKBodyPostgresExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent OK body postgres exporter metrics resolutions
+func (o *ChangeAgentOKBodyPostgresExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent OK body postgres exporter metrics resolutions based on context it is used
+func (o *ChangeAgentOKBodyPostgresExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentOKBodyPostgresExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentOKBodyPostgresExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentOKBodyPostgresExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -2731,6 +3294,9 @@ type ChangeAgentOKBodyProxysqlExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentOKBodyProxysqlExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent OK body proxysql exporter
@@ -2742,6 +3308,10 @@ func (o *ChangeAgentOKBodyProxysqlExporter) Validate(formats strfmt.Registry) er
 	}
 
 	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -2862,8 +3432,51 @@ func (o *ChangeAgentOKBodyProxysqlExporter) validateLogLevel(formats strfmt.Regi
 	return nil
 }
 
-// ContextValidate validates this change agent OK body proxysql exporter based on context it is used
+func (o *ChangeAgentOKBodyProxysqlExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent OK body proxysql exporter based on the context it is used
 func (o *ChangeAgentOKBodyProxysqlExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentOKBodyProxysqlExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -2878,6 +3491,49 @@ func (o *ChangeAgentOKBodyProxysqlExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentOKBodyProxysqlExporter) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentOKBodyProxysqlExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentOKBodyProxysqlExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentOKBodyProxysqlExporterMetricsResolutions
+*/
+type ChangeAgentOKBodyProxysqlExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent OK body proxysql exporter metrics resolutions
+func (o *ChangeAgentOKBodyProxysqlExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent OK body proxysql exporter metrics resolutions based on context it is used
+func (o *ChangeAgentOKBodyProxysqlExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentOKBodyProxysqlExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentOKBodyProxysqlExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentOKBodyProxysqlExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -4009,6 +4665,9 @@ type ChangeAgentOKBodyRDSExporter struct {
 
 	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentOKBodyRDSExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent OK body RDS exporter
@@ -4020,6 +4679,10 @@ func (o *ChangeAgentOKBodyRDSExporter) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -4140,8 +4803,51 @@ func (o *ChangeAgentOKBodyRDSExporter) validateLogLevel(formats strfmt.Registry)
 	return nil
 }
 
-// ContextValidate validates this change agent OK body RDS exporter based on context it is used
+func (o *ChangeAgentOKBodyRDSExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent OK body RDS exporter based on the context it is used
 func (o *ChangeAgentOKBodyRDSExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentOKBodyRDSExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -4156,6 +4862,49 @@ func (o *ChangeAgentOKBodyRDSExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentOKBodyRDSExporter) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentOKBodyRDSExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentOKBodyRDSExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentOKBodyRDSExporterMetricsResolutions
+*/
+type ChangeAgentOKBodyRDSExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent OK body RDS exporter metrics resolutions
+func (o *ChangeAgentOKBodyRDSExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent OK body RDS exporter metrics resolutions based on context it is used
+func (o *ChangeAgentOKBodyRDSExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentOKBodyRDSExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentOKBodyRDSExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentOKBodyRDSExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -4268,6 +5017,9 @@ type ChangeAgentParamsBodyAzureDatabaseExporterCommon struct {
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyAzureDatabaseExporterCommonCustomLabels `json:"custom_labels,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentParamsBodyAzureDatabaseExporterCommonMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent params body azure database exporter common
@@ -4275,6 +5027,10 @@ func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommon) Validate(formats strf
 	var res []error
 
 	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -4303,11 +5059,34 @@ func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommon) validateCustomLabels(
 	return nil
 }
 
+func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommon) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "azure_database_exporter" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "azure_database_exporter" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this change agent params body azure database exporter common based on the context it is used
 func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -4324,6 +5103,21 @@ func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommon) contextValidateCustom
 				return ve.ValidateName("body" + "." + "azure_database_exporter" + "." + "common" + "." + "custom_labels")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "azure_database_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommon) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "azure_database_exporter" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "azure_database_exporter" + "." + "common" + "." + "metrics_resolutions")
 			}
 			return err
 		}
@@ -4380,6 +5174,49 @@ func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommonCustomLabels) MarshalBi
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommonCustomLabels) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyAzureDatabaseExporterCommonCustomLabels
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyAzureDatabaseExporterCommonMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentParamsBodyAzureDatabaseExporterCommonMetricsResolutions
+*/
+type ChangeAgentParamsBodyAzureDatabaseExporterCommonMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent params body azure database exporter common metrics resolutions
+func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommonMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body azure database exporter common metrics resolutions based on context it is used
+func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommonMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommonMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyAzureDatabaseExporterCommonMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyAzureDatabaseExporterCommonMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -4492,6 +5329,9 @@ type ChangeAgentParamsBodyExternalExporterCommon struct {
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyExternalExporterCommonCustomLabels `json:"custom_labels,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentParamsBodyExternalExporterCommonMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent params body external exporter common
@@ -4499,6 +5339,10 @@ func (o *ChangeAgentParamsBodyExternalExporterCommon) Validate(formats strfmt.Re
 	var res []error
 
 	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -4527,11 +5371,34 @@ func (o *ChangeAgentParamsBodyExternalExporterCommon) validateCustomLabels(forma
 	return nil
 }
 
+func (o *ChangeAgentParamsBodyExternalExporterCommon) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "external_exporter" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "external_exporter" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this change agent params body external exporter common based on the context it is used
 func (o *ChangeAgentParamsBodyExternalExporterCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -4548,6 +5415,21 @@ func (o *ChangeAgentParamsBodyExternalExporterCommon) contextValidateCustomLabel
 				return ve.ValidateName("body" + "." + "external_exporter" + "." + "common" + "." + "custom_labels")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "external_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyExternalExporterCommon) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "external_exporter" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "external_exporter" + "." + "common" + "." + "metrics_resolutions")
 			}
 			return err
 		}
@@ -4604,6 +5486,49 @@ func (o *ChangeAgentParamsBodyExternalExporterCommonCustomLabels) MarshalBinary(
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyExternalExporterCommonCustomLabels) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyExternalExporterCommonCustomLabels
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyExternalExporterCommonMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentParamsBodyExternalExporterCommonMetricsResolutions
+*/
+type ChangeAgentParamsBodyExternalExporterCommonMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent params body external exporter common metrics resolutions
+func (o *ChangeAgentParamsBodyExternalExporterCommonMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body external exporter common metrics resolutions based on context it is used
+func (o *ChangeAgentParamsBodyExternalExporterCommonMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyExternalExporterCommonMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyExternalExporterCommonMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyExternalExporterCommonMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -4716,6 +5641,9 @@ type ChangeAgentParamsBodyMongodbExporterCommon struct {
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyMongodbExporterCommonCustomLabels `json:"custom_labels,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentParamsBodyMongodbExporterCommonMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent params body mongodb exporter common
@@ -4723,6 +5651,10 @@ func (o *ChangeAgentParamsBodyMongodbExporterCommon) Validate(formats strfmt.Reg
 	var res []error
 
 	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -4751,11 +5683,34 @@ func (o *ChangeAgentParamsBodyMongodbExporterCommon) validateCustomLabels(format
 	return nil
 }
 
+func (o *ChangeAgentParamsBodyMongodbExporterCommon) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "mongodb_exporter" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "mongodb_exporter" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this change agent params body mongodb exporter common based on the context it is used
 func (o *ChangeAgentParamsBodyMongodbExporterCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -4772,6 +5727,21 @@ func (o *ChangeAgentParamsBodyMongodbExporterCommon) contextValidateCustomLabels
 				return ve.ValidateName("body" + "." + "mongodb_exporter" + "." + "common" + "." + "custom_labels")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "mongodb_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyMongodbExporterCommon) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "mongodb_exporter" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "mongodb_exporter" + "." + "common" + "." + "metrics_resolutions")
 			}
 			return err
 		}
@@ -4828,6 +5798,49 @@ func (o *ChangeAgentParamsBodyMongodbExporterCommonCustomLabels) MarshalBinary()
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyMongodbExporterCommonCustomLabels) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyMongodbExporterCommonCustomLabels
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyMongodbExporterCommonMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentParamsBodyMongodbExporterCommonMetricsResolutions
+*/
+type ChangeAgentParamsBodyMongodbExporterCommonMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent params body mongodb exporter common metrics resolutions
+func (o *ChangeAgentParamsBodyMongodbExporterCommonMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body mongodb exporter common metrics resolutions based on context it is used
+func (o *ChangeAgentParamsBodyMongodbExporterCommonMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyMongodbExporterCommonMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyMongodbExporterCommonMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyMongodbExporterCommonMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -4940,6 +5953,9 @@ type ChangeAgentParamsBodyMysqldExporterCommon struct {
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyMysqldExporterCommonCustomLabels `json:"custom_labels,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentParamsBodyMysqldExporterCommonMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent params body mysqld exporter common
@@ -4947,6 +5963,10 @@ func (o *ChangeAgentParamsBodyMysqldExporterCommon) Validate(formats strfmt.Regi
 	var res []error
 
 	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -4975,11 +5995,34 @@ func (o *ChangeAgentParamsBodyMysqldExporterCommon) validateCustomLabels(formats
 	return nil
 }
 
+func (o *ChangeAgentParamsBodyMysqldExporterCommon) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "mysqld_exporter" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "mysqld_exporter" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this change agent params body mysqld exporter common based on the context it is used
 func (o *ChangeAgentParamsBodyMysqldExporterCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -4996,6 +6039,21 @@ func (o *ChangeAgentParamsBodyMysqldExporterCommon) contextValidateCustomLabels(
 				return ve.ValidateName("body" + "." + "mysqld_exporter" + "." + "common" + "." + "custom_labels")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "mysqld_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyMysqldExporterCommon) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "mysqld_exporter" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "mysqld_exporter" + "." + "common" + "." + "metrics_resolutions")
 			}
 			return err
 		}
@@ -5052,6 +6110,49 @@ func (o *ChangeAgentParamsBodyMysqldExporterCommonCustomLabels) MarshalBinary() 
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyMysqldExporterCommonCustomLabels) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyMysqldExporterCommonCustomLabels
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyMysqldExporterCommonMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentParamsBodyMysqldExporterCommonMetricsResolutions
+*/
+type ChangeAgentParamsBodyMysqldExporterCommonMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent params body mysqld exporter common metrics resolutions
+func (o *ChangeAgentParamsBodyMysqldExporterCommonMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body mysqld exporter common metrics resolutions based on context it is used
+func (o *ChangeAgentParamsBodyMysqldExporterCommonMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyMysqldExporterCommonMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyMysqldExporterCommonMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyMysqldExporterCommonMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -5164,6 +6265,9 @@ type ChangeAgentParamsBodyNodeExporterCommon struct {
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyNodeExporterCommonCustomLabels `json:"custom_labels,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentParamsBodyNodeExporterCommonMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent params body node exporter common
@@ -5171,6 +6275,10 @@ func (o *ChangeAgentParamsBodyNodeExporterCommon) Validate(formats strfmt.Regist
 	var res []error
 
 	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -5199,11 +6307,34 @@ func (o *ChangeAgentParamsBodyNodeExporterCommon) validateCustomLabels(formats s
 	return nil
 }
 
+func (o *ChangeAgentParamsBodyNodeExporterCommon) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "node_exporter" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "node_exporter" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this change agent params body node exporter common based on the context it is used
 func (o *ChangeAgentParamsBodyNodeExporterCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -5220,6 +6351,21 @@ func (o *ChangeAgentParamsBodyNodeExporterCommon) contextValidateCustomLabels(ct
 				return ve.ValidateName("body" + "." + "node_exporter" + "." + "common" + "." + "custom_labels")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "node_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyNodeExporterCommon) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "node_exporter" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "node_exporter" + "." + "common" + "." + "metrics_resolutions")
 			}
 			return err
 		}
@@ -5276,6 +6422,49 @@ func (o *ChangeAgentParamsBodyNodeExporterCommonCustomLabels) MarshalBinary() ([
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyNodeExporterCommonCustomLabels) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyNodeExporterCommonCustomLabels
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyNodeExporterCommonMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentParamsBodyNodeExporterCommonMetricsResolutions
+*/
+type ChangeAgentParamsBodyNodeExporterCommonMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent params body node exporter common metrics resolutions
+func (o *ChangeAgentParamsBodyNodeExporterCommonMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body node exporter common metrics resolutions based on context it is used
+func (o *ChangeAgentParamsBodyNodeExporterCommonMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyNodeExporterCommonMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyNodeExporterCommonMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyNodeExporterCommonMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -5388,6 +6577,9 @@ type ChangeAgentParamsBodyPostgresExporterCommon struct {
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyPostgresExporterCommonCustomLabels `json:"custom_labels,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentParamsBodyPostgresExporterCommonMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent params body postgres exporter common
@@ -5395,6 +6587,10 @@ func (o *ChangeAgentParamsBodyPostgresExporterCommon) Validate(formats strfmt.Re
 	var res []error
 
 	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -5423,11 +6619,34 @@ func (o *ChangeAgentParamsBodyPostgresExporterCommon) validateCustomLabels(forma
 	return nil
 }
 
+func (o *ChangeAgentParamsBodyPostgresExporterCommon) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "postgres_exporter" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "postgres_exporter" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this change agent params body postgres exporter common based on the context it is used
 func (o *ChangeAgentParamsBodyPostgresExporterCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -5444,6 +6663,21 @@ func (o *ChangeAgentParamsBodyPostgresExporterCommon) contextValidateCustomLabel
 				return ve.ValidateName("body" + "." + "postgres_exporter" + "." + "common" + "." + "custom_labels")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "postgres_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyPostgresExporterCommon) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "postgres_exporter" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "postgres_exporter" + "." + "common" + "." + "metrics_resolutions")
 			}
 			return err
 		}
@@ -5500,6 +6734,49 @@ func (o *ChangeAgentParamsBodyPostgresExporterCommonCustomLabels) MarshalBinary(
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyPostgresExporterCommonCustomLabels) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyPostgresExporterCommonCustomLabels
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyPostgresExporterCommonMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentParamsBodyPostgresExporterCommonMetricsResolutions
+*/
+type ChangeAgentParamsBodyPostgresExporterCommonMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent params body postgres exporter common metrics resolutions
+func (o *ChangeAgentParamsBodyPostgresExporterCommonMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body postgres exporter common metrics resolutions based on context it is used
+func (o *ChangeAgentParamsBodyPostgresExporterCommonMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyPostgresExporterCommonMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyPostgresExporterCommonMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyPostgresExporterCommonMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -5612,6 +6889,9 @@ type ChangeAgentParamsBodyProxysqlExporterCommon struct {
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyProxysqlExporterCommonCustomLabels `json:"custom_labels,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentParamsBodyProxysqlExporterCommonMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent params body proxysql exporter common
@@ -5619,6 +6899,10 @@ func (o *ChangeAgentParamsBodyProxysqlExporterCommon) Validate(formats strfmt.Re
 	var res []error
 
 	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -5647,11 +6931,34 @@ func (o *ChangeAgentParamsBodyProxysqlExporterCommon) validateCustomLabels(forma
 	return nil
 }
 
+func (o *ChangeAgentParamsBodyProxysqlExporterCommon) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "proxysql_exporter" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "proxysql_exporter" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this change agent params body proxysql exporter common based on the context it is used
 func (o *ChangeAgentParamsBodyProxysqlExporterCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -5668,6 +6975,21 @@ func (o *ChangeAgentParamsBodyProxysqlExporterCommon) contextValidateCustomLabel
 				return ve.ValidateName("body" + "." + "proxysql_exporter" + "." + "common" + "." + "custom_labels")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "proxysql_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyProxysqlExporterCommon) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "proxysql_exporter" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "proxysql_exporter" + "." + "common" + "." + "metrics_resolutions")
 			}
 			return err
 		}
@@ -5724,6 +7046,49 @@ func (o *ChangeAgentParamsBodyProxysqlExporterCommonCustomLabels) MarshalBinary(
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyProxysqlExporterCommonCustomLabels) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyProxysqlExporterCommonCustomLabels
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyProxysqlExporterCommonMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentParamsBodyProxysqlExporterCommonMetricsResolutions
+*/
+type ChangeAgentParamsBodyProxysqlExporterCommonMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent params body proxysql exporter common metrics resolutions
+func (o *ChangeAgentParamsBodyProxysqlExporterCommonMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body proxysql exporter common metrics resolutions based on context it is used
+func (o *ChangeAgentParamsBodyProxysqlExporterCommonMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyProxysqlExporterCommonMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyProxysqlExporterCommonMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyProxysqlExporterCommonMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -5836,6 +7201,9 @@ type ChangeAgentParamsBodyQANMongodbProfilerAgentCommon struct {
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANMongodbProfilerAgentCommonCustomLabels `json:"custom_labels,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentParamsBodyQANMongodbProfilerAgentCommonMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent params body QAN mongodb profiler agent common
@@ -5843,6 +7211,10 @@ func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommon) Validate(formats st
 	var res []error
 
 	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -5871,11 +7243,34 @@ func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommon) validateCustomLabel
 	return nil
 }
 
+func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommon) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mongodb_profiler_agent" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mongodb_profiler_agent" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this change agent params body QAN mongodb profiler agent common based on the context it is used
 func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -5892,6 +7287,21 @@ func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommon) contextValidateCust
 				return ve.ValidateName("body" + "." + "qan_mongodb_profiler_agent" + "." + "common" + "." + "custom_labels")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "qan_mongodb_profiler_agent" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommon) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mongodb_profiler_agent" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mongodb_profiler_agent" + "." + "common" + "." + "metrics_resolutions")
 			}
 			return err
 		}
@@ -5948,6 +7358,49 @@ func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommonCustomLabels) Marshal
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommonCustomLabels) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyQANMongodbProfilerAgentCommonCustomLabels
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyQANMongodbProfilerAgentCommonMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentParamsBodyQANMongodbProfilerAgentCommonMetricsResolutions
+*/
+type ChangeAgentParamsBodyQANMongodbProfilerAgentCommonMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent params body QAN mongodb profiler agent common metrics resolutions
+func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommonMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body QAN mongodb profiler agent common metrics resolutions based on context it is used
+func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommonMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommonMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentCommonMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyQANMongodbProfilerAgentCommonMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -6060,6 +7513,9 @@ type ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon struct {
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonCustomLabels `json:"custom_labels,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent params body QAN mysql perfschema agent common
@@ -6067,6 +7523,10 @@ func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon) Validate(formats st
 	var res []error
 
 	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -6095,11 +7555,34 @@ func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon) validateCustomLabel
 	return nil
 }
 
+func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mysql_perfschema_agent" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mysql_perfschema_agent" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this change agent params body QAN mysql perfschema agent common based on the context it is used
 func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -6116,6 +7599,21 @@ func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon) contextValidateCust
 				return ve.ValidateName("body" + "." + "qan_mysql_perfschema_agent" + "." + "common" + "." + "custom_labels")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "qan_mysql_perfschema_agent" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mysql_perfschema_agent" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mysql_perfschema_agent" + "." + "common" + "." + "metrics_resolutions")
 			}
 			return err
 		}
@@ -6172,6 +7670,49 @@ func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonCustomLabels) Marshal
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonCustomLabels) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonCustomLabels
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonMetricsResolutions
+*/
+type ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent params body QAN mysql perfschema agent common metrics resolutions
+func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body QAN mysql perfschema agent common metrics resolutions based on context it is used
+func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -6284,6 +7825,9 @@ type ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon struct {
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonCustomLabels `json:"custom_labels,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent params body QAN mysql slowlog agent common
@@ -6291,6 +7835,10 @@ func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon) Validate(formats strfm
 	var res []error
 
 	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -6319,11 +7867,34 @@ func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon) validateCustomLabels(f
 	return nil
 }
 
+func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mysql_slowlog_agent" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mysql_slowlog_agent" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this change agent params body QAN mysql slowlog agent common based on the context it is used
 func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -6340,6 +7911,21 @@ func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon) contextValidateCustomL
 				return ve.ValidateName("body" + "." + "qan_mysql_slowlog_agent" + "." + "common" + "." + "custom_labels")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "qan_mysql_slowlog_agent" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommon) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mysql_slowlog_agent" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mysql_slowlog_agent" + "." + "common" + "." + "metrics_resolutions")
 			}
 			return err
 		}
@@ -6396,6 +7982,49 @@ func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonCustomLabels) MarshalBin
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonCustomLabels) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonCustomLabels
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonMetricsResolutions
+*/
+type ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent params body QAN mysql slowlog agent common metrics resolutions
+func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body QAN mysql slowlog agent common metrics resolutions based on context it is used
+func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyQANMysqlSlowlogAgentCommonMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -6508,6 +8137,9 @@ type ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon struct {
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonCustomLabels `json:"custom_labels,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent params body QAN postgresql pgstatements agent common
@@ -6515,6 +8147,10 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon) Validate(for
 	var res []error
 
 	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -6543,11 +8179,34 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon) validateCust
 	return nil
 }
 
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this change agent params body QAN postgresql pgstatements agent common based on the context it is used
 func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -6564,6 +8223,21 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon) contextValid
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent" + "." + "common" + "." + "custom_labels")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent" + "." + "common" + "." + "metrics_resolutions")
 			}
 			return err
 		}
@@ -6620,6 +8294,49 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonCustomLabels) 
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonCustomLabels) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonCustomLabels
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonMetricsResolutions
+*/
+type ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent params body QAN postgresql pgstatements agent common metrics resolutions
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body QAN postgresql pgstatements agent common metrics resolutions based on context it is used
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -6732,6 +8449,9 @@ type ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon struct {
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonCustomLabels `json:"custom_labels,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent params body QAN postgresql pgstatmonitor agent common
@@ -6739,6 +8459,10 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon) Validate(fo
 	var res []error
 
 	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -6767,11 +8491,34 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon) validateCus
 	return nil
 }
 
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this change agent params body QAN postgresql pgstatmonitor agent common based on the context it is used
 func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -6788,6 +8535,21 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon) contextVali
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + "common" + "." + "custom_labels")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + "common" + "." + "metrics_resolutions")
 			}
 			return err
 		}
@@ -6844,6 +8606,49 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonCustomLabels)
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonCustomLabels) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonCustomLabels
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonMetricsResolutions
+*/
+type ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent params body QAN postgresql pgstatmonitor agent common metrics resolutions
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body QAN postgresql pgstatmonitor agent common metrics resolutions based on context it is used
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -6956,6 +8761,9 @@ type ChangeAgentParamsBodyRDSExporterCommon struct {
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyRDSExporterCommonCustomLabels `json:"custom_labels,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentParamsBodyRDSExporterCommonMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change agent params body RDS exporter common
@@ -6963,6 +8771,10 @@ func (o *ChangeAgentParamsBodyRDSExporterCommon) Validate(formats strfmt.Registr
 	var res []error
 
 	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -6991,11 +8803,34 @@ func (o *ChangeAgentParamsBodyRDSExporterCommon) validateCustomLabels(formats st
 	return nil
 }
 
+func (o *ChangeAgentParamsBodyRDSExporterCommon) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "rds_exporter" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "rds_exporter" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this change agent params body RDS exporter common based on the context it is used
 func (o *ChangeAgentParamsBodyRDSExporterCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -7012,6 +8847,21 @@ func (o *ChangeAgentParamsBodyRDSExporterCommon) contextValidateCustomLabels(ctx
 				return ve.ValidateName("body" + "." + "rds_exporter" + "." + "common" + "." + "custom_labels")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "rds_exporter" + "." + "common" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyRDSExporterCommon) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "rds_exporter" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "rds_exporter" + "." + "common" + "." + "metrics_resolutions")
 			}
 			return err
 		}
@@ -7068,6 +8918,49 @@ func (o *ChangeAgentParamsBodyRDSExporterCommonCustomLabels) MarshalBinary() ([]
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyRDSExporterCommonCustomLabels) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyRDSExporterCommonCustomLabels
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyRDSExporterCommonMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentParamsBodyRDSExporterCommonMetricsResolutions
+*/
+type ChangeAgentParamsBodyRDSExporterCommonMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent params body RDS exporter common metrics resolutions
+func (o *ChangeAgentParamsBodyRDSExporterCommonMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body RDS exporter common metrics resolutions based on context it is used
+func (o *ChangeAgentParamsBodyRDSExporterCommonMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyRDSExporterCommonMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyRDSExporterCommonMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyRDSExporterCommonMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

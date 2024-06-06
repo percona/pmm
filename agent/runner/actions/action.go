@@ -29,6 +29,8 @@ type Action interface {
 	Type() string
 	// Timeout returns Job timeout.
 	Timeout() time.Duration
+	// DSN returns Data Source Name required for the Action.
+	DSN() string
 	// Run runs an Action and returns output and error.
 	Run(ctx context.Context) ([]byte, error)
 

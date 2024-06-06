@@ -21,9 +21,9 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/encoding/prototext"
 	"gopkg.in/reform.v1"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -274,7 +274,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		AgentProcesses: agentProcesses,
 		BuiltinAgents:  builtinAgents,
 	}
-	l.Debugf("sendSetStateRequest:\n%s", proto.MarshalTextString(state))
+	l.Debugf("sendSetStateRequest:\n%s", prototext.Format(state))
 
 	resp, err := agent.channel.SendAndWaitResponse(state)
 	if err != nil {

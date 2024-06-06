@@ -61,6 +61,7 @@ type Server struct {
 	awsInstanceChecker   *AWSInstanceChecker
 	grafanaClient        grafanaClient
 	haService            haService
+	updater              *Updater
 
 	l *logrus.Entry
 
@@ -92,6 +93,7 @@ type Params struct {
 	TelemetryService     telemetryService
 	AwsInstanceChecker   *AWSInstanceChecker
 	GrafanaClient        grafanaClient
+	Updater              *Updater
 }
 
 // NewServer returns new server for Server service.
@@ -114,6 +116,7 @@ func NewServer(params *Params) (*Server, error) {
 		telemetryService:     params.TelemetryService,
 		awsInstanceChecker:   params.AwsInstanceChecker,
 		grafanaClient:        params.GrafanaClient,
+		updater:              params.Updater,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
 		envSettings:          &models.ChangeSettingsParams{},
@@ -259,16 +262,16 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 	s.envRW.RUnlock()
 
 	if req.OnlyInstalledVersion {
-		return s.onlyInstalledVersionResponse(ctx), nil
+		return s.updater.onlyInstalledVersionResponse(), nil
 	}
 
 	if req.Force {
-		if err := s.supervisord.ForceCheckUpdates(ctx); err != nil {
+		if err := s.updater.ForceCheckUpdates(ctx); err != nil {
 			return nil, err
 		}
 	}
 
-	v, lastCheck := s.supervisord.LastCheckUpdatesResult(ctx)
+	v, lastCheck := s.updater.LastCheckUpdatesResult(ctx)
 	if v == nil {
 		return nil, status.Error(codes.Unavailable, "failed to check for updates")
 	}
@@ -282,7 +285,7 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 			Version:     v.Latest.Version,
 			FullVersion: v.Latest.FullVersion,
 		},
-		UpdateAvailable: v.UpdateAvailable,
+		UpdateAvailable: true,
 		LatestNewsUrl:   v.LatestNewsURL,
 	}
 
@@ -312,22 +315,22 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateReque
 	s.envRW.RUnlock()
 
 	if updatesEnabled != nil && !*updatesEnabled {
-		return nil, status.Error(codes.FailedPrecondition, "Updates are disabled via ENABLE_UPDATES environment variable.")
+		return nil, status.Error(codes.FailedPrecondition, "Updates are disabled via PMM_ENABLE_UPDATES environment variable.")
 	}
 
-	offset, err := s.supervisord.StartUpdate()
+	err := s.updater.StartUpdate(ctx, req.GetNewImage())
 	if err != nil {
 		return nil, err
 	}
 
 	authToken := uuid.New().String()
-	if err = s.writeUpdateAuthToken(authToken); err != nil {
+	if err := s.writeUpdateAuthToken(authToken); err != nil {
 		return nil, err
 	}
 
 	return &serverv1.StartUpdateResponse{
 		AuthToken: authToken,
-		LogOffset: offset,
+		LogOffset: 0,
 	}, nil
 }
 
@@ -482,11 +485,11 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 	// check request parameters compatibility with environment variables
 
 	if req.EnableUpdates != nil && s.envSettings.EnableUpdates != nil && *req.EnableUpdates != *s.envSettings.EnableUpdates {
-		return status.Error(codes.FailedPrecondition, "Updates are configured via ENABLE_UPDATES environment variable.")
+		return status.Error(codes.FailedPrecondition, "Updates are configured via PMM_ENABLE_UPDATES environment variable.")
 	}
 
 	if req.EnableTelemetry != nil && s.envSettings.EnableTelemetry != nil && *req.EnableTelemetry != *s.envSettings.EnableTelemetry {
-		return status.Error(codes.FailedPrecondition, "Telemetry is configured via ENABLE_TELEMETRY environment variable.")
+		return status.Error(codes.FailedPrecondition, "Telemetry is configured via PMM_ENABLE_TELEMETRY environment variable.")
 	}
 
 	if req.EnableAlerting != nil && s.envSettings.EnableAlerting != nil && *req.EnableAlerting != *s.envSettings.EnableAlerting {
@@ -494,23 +497,23 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 	}
 
 	if req.EnableAzurediscover != nil && s.envSettings.EnableAzurediscover != nil && *req.EnableAzurediscover != *s.envSettings.EnableAzurediscover {
-		return status.Error(codes.FailedPrecondition, "Azure Discover is configured via ENABLE_AZUREDISCOVER environment variable.")
+		return status.Error(codes.FailedPrecondition, "Azure Discover is configured via PMM_ENABLE_AZURE_DISCOVER environment variable.")
 	}
 
 	if !canUpdateDurationSetting(metricsRes.GetHr().AsDuration(), s.envSettings.MetricsResolutions.HR) {
-		return status.Error(codes.FailedPrecondition, "High resolution for metrics is set via METRICS_RESOLUTION_HR (or METRICS_RESOLUTION) environment variable.")
+		return status.Error(codes.FailedPrecondition, "High resolution for metrics is set via PMM_METRICS_RESOLUTION_HR (or PMM_METRICS_RESOLUTION) environment variable.") //nolint:lll
 	}
 
 	if !canUpdateDurationSetting(metricsRes.GetMr().AsDuration(), s.envSettings.MetricsResolutions.MR) {
-		return status.Error(codes.FailedPrecondition, "Medium resolution for metrics is set via METRICS_RESOLUTION_MR environment variable.")
+		return status.Error(codes.FailedPrecondition, "Medium resolution for metrics is set via PMM_METRICS_RESOLUTION_MR environment variable.")
 	}
 
 	if !canUpdateDurationSetting(metricsRes.GetLr().AsDuration(), s.envSettings.MetricsResolutions.LR) {
-		return status.Error(codes.FailedPrecondition, "Low resolution for metrics is set via METRICS_RESOLUTION_LR environment variable.")
+		return status.Error(codes.FailedPrecondition, "Low resolution for metrics is set via PMM_METRICS_RESOLUTION_LR environment variable.")
 	}
 
 	if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
-		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via DATA_RETENTION environment variable.")
+		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via PMM_DATA_RETENTION environment variable.")
 	}
 
 	return nil
