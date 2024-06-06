@@ -323,7 +323,7 @@ scrape_configs:
           labels:
             instance: pmm-server
       follow_redirects: false
-    - job_name: mongodb_exporter_agent_id_cfec996c-4fe6-41d9-83cb-e1a3b1fe10a8_hr
+    - job_name: mongodb_exportercfec996c-4fe6-41d9-83cb-e1a3b1fe10a8_hr
       honor_timestamps: false
       scrape_interval: 5s
       scrape_timeout: 4500ms
