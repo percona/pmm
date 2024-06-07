@@ -1310,6 +1310,9 @@ type ListAgentsOKBodyAzureDatabaseExporterItems0 struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this list agents OK body azure database exporter items0
@@ -1321,6 +1324,10 @@ func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) Validate(formats strfmt.Re
 	}
 
 	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1444,8 +1451,51 @@ func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) validateLogLevel(formats s
 	return nil
 }
 
-// ContextValidate validates this list agents OK body azure database exporter items0 based on context it is used
+func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list agents OK body azure database exporter items0 based on the context it is used
 func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -1460,6 +1510,49 @@ func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) MarshalBinary() ([]byte, e
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyAzureDatabaseExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions
+*/
+type ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this list agents OK body azure database exporter items0 metrics resolutions
+func (o *ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body azure database exporter items0 metrics resolutions based on context it is used
+func (o *ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1504,15 +1597,70 @@ type ListAgentsOKBodyExternalExporterItems0 struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ListAgentsOKBodyExternalExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this list agents OK body external exporter items0
 func (o *ListAgentsOKBodyExternalExporterItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this list agents OK body external exporter items0 based on context it is used
+func (o *ListAgentsOKBodyExternalExporterItems0) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list agents OK body external exporter items0 based on the context it is used
 func (o *ListAgentsOKBodyExternalExporterItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyExternalExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -1527,6 +1675,49 @@ func (o *ListAgentsOKBodyExternalExporterItems0) MarshalBinary() ([]byte, error)
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyExternalExporterItems0) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyExternalExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyExternalExporterItems0MetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ListAgentsOKBodyExternalExporterItems0MetricsResolutions
+*/
+type ListAgentsOKBodyExternalExporterItems0MetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this list agents OK body external exporter items0 metrics resolutions
+func (o *ListAgentsOKBodyExternalExporterItems0MetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body external exporter items0 metrics resolutions based on context it is used
+func (o *ListAgentsOKBodyExternalExporterItems0MetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyExternalExporterItems0MetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyExternalExporterItems0MetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyExternalExporterItems0MetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1605,6 +1796,9 @@ type ListAgentsOKBodyMongodbExporterItems0 struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ListAgentsOKBodyMongodbExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this list agents OK body mongodb exporter items0
@@ -1616,6 +1810,10 @@ func (o *ListAgentsOKBodyMongodbExporterItems0) Validate(formats strfmt.Registry
 	}
 
 	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1739,8 +1937,51 @@ func (o *ListAgentsOKBodyMongodbExporterItems0) validateLogLevel(formats strfmt.
 	return nil
 }
 
-// ContextValidate validates this list agents OK body mongodb exporter items0 based on context it is used
+func (o *ListAgentsOKBodyMongodbExporterItems0) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list agents OK body mongodb exporter items0 based on the context it is used
 func (o *ListAgentsOKBodyMongodbExporterItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyMongodbExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -1755,6 +1996,49 @@ func (o *ListAgentsOKBodyMongodbExporterItems0) MarshalBinary() ([]byte, error) 
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyMongodbExporterItems0) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyMongodbExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyMongodbExporterItems0MetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ListAgentsOKBodyMongodbExporterItems0MetricsResolutions
+*/
+type ListAgentsOKBodyMongodbExporterItems0MetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this list agents OK body mongodb exporter items0 metrics resolutions
+func (o *ListAgentsOKBodyMongodbExporterItems0MetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body mongodb exporter items0 metrics resolutions based on context it is used
+func (o *ListAgentsOKBodyMongodbExporterItems0MetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyMongodbExporterItems0MetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyMongodbExporterItems0MetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyMongodbExporterItems0MetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1840,6 +2124,9 @@ type ListAgentsOKBodyMysqldExporterItems0 struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ListAgentsOKBodyMysqldExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this list agents OK body mysqld exporter items0
@@ -1851,6 +2138,10 @@ func (o *ListAgentsOKBodyMysqldExporterItems0) Validate(formats strfmt.Registry)
 	}
 
 	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1974,8 +2265,51 @@ func (o *ListAgentsOKBodyMysqldExporterItems0) validateLogLevel(formats strfmt.R
 	return nil
 }
 
-// ContextValidate validates this list agents OK body mysqld exporter items0 based on context it is used
+func (o *ListAgentsOKBodyMysqldExporterItems0) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list agents OK body mysqld exporter items0 based on the context it is used
 func (o *ListAgentsOKBodyMysqldExporterItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyMysqldExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -1990,6 +2324,49 @@ func (o *ListAgentsOKBodyMysqldExporterItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyMysqldExporterItems0) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyMysqldExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyMysqldExporterItems0MetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ListAgentsOKBodyMysqldExporterItems0MetricsResolutions
+*/
+type ListAgentsOKBodyMysqldExporterItems0MetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this list agents OK body mysqld exporter items0 metrics resolutions
+func (o *ListAgentsOKBodyMysqldExporterItems0MetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body mysqld exporter items0 metrics resolutions based on context it is used
+func (o *ListAgentsOKBodyMysqldExporterItems0MetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyMysqldExporterItems0MetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyMysqldExporterItems0MetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyMysqldExporterItems0MetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -2046,6 +2423,9 @@ type ListAgentsOKBodyNodeExporterItems0 struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ListAgentsOKBodyNodeExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this list agents OK body node exporter items0
@@ -2057,6 +2437,10 @@ func (o *ListAgentsOKBodyNodeExporterItems0) Validate(formats strfmt.Registry) e
 	}
 
 	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -2180,8 +2564,51 @@ func (o *ListAgentsOKBodyNodeExporterItems0) validateLogLevel(formats strfmt.Reg
 	return nil
 }
 
-// ContextValidate validates this list agents OK body node exporter items0 based on context it is used
+func (o *ListAgentsOKBodyNodeExporterItems0) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list agents OK body node exporter items0 based on the context it is used
 func (o *ListAgentsOKBodyNodeExporterItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyNodeExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -2196,6 +2623,49 @@ func (o *ListAgentsOKBodyNodeExporterItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyNodeExporterItems0) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyNodeExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyNodeExporterItems0MetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ListAgentsOKBodyNodeExporterItems0MetricsResolutions
+*/
+type ListAgentsOKBodyNodeExporterItems0MetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this list agents OK body node exporter items0 metrics resolutions
+func (o *ListAgentsOKBodyNodeExporterItems0MetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body node exporter items0 metrics resolutions based on context it is used
+func (o *ListAgentsOKBodyNodeExporterItems0MetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyNodeExporterItems0MetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyNodeExporterItems0MetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyNodeExporterItems0MetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -2319,6 +2789,9 @@ type ListAgentsOKBodyPostgresExporterItems0 struct {
 
 	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ListAgentsOKBodyPostgresExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this list agents OK body postgres exporter items0
@@ -2330,6 +2803,10 @@ func (o *ListAgentsOKBodyPostgresExporterItems0) Validate(formats strfmt.Registr
 	}
 
 	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -2453,8 +2930,51 @@ func (o *ListAgentsOKBodyPostgresExporterItems0) validateLogLevel(formats strfmt
 	return nil
 }
 
-// ContextValidate validates this list agents OK body postgres exporter items0 based on context it is used
+func (o *ListAgentsOKBodyPostgresExporterItems0) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list agents OK body postgres exporter items0 based on the context it is used
 func (o *ListAgentsOKBodyPostgresExporterItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyPostgresExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -2469,6 +2989,49 @@ func (o *ListAgentsOKBodyPostgresExporterItems0) MarshalBinary() ([]byte, error)
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyPostgresExporterItems0) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyPostgresExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyPostgresExporterItems0MetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ListAgentsOKBodyPostgresExporterItems0MetricsResolutions
+*/
+type ListAgentsOKBodyPostgresExporterItems0MetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this list agents OK body postgres exporter items0 metrics resolutions
+func (o *ListAgentsOKBodyPostgresExporterItems0MetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body postgres exporter items0 metrics resolutions based on context it is used
+func (o *ListAgentsOKBodyPostgresExporterItems0MetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyPostgresExporterItems0MetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyPostgresExporterItems0MetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyPostgresExporterItems0MetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -2537,6 +3100,9 @@ type ListAgentsOKBodyProxysqlExporterItems0 struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this list agents OK body proxysql exporter items0
@@ -2548,6 +3114,10 @@ func (o *ListAgentsOKBodyProxysqlExporterItems0) Validate(formats strfmt.Registr
 	}
 
 	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -2671,8 +3241,51 @@ func (o *ListAgentsOKBodyProxysqlExporterItems0) validateLogLevel(formats strfmt
 	return nil
 }
 
-// ContextValidate validates this list agents OK body proxysql exporter items0 based on context it is used
+func (o *ListAgentsOKBodyProxysqlExporterItems0) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list agents OK body proxysql exporter items0 based on the context it is used
 func (o *ListAgentsOKBodyProxysqlExporterItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyProxysqlExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -2687,6 +3300,49 @@ func (o *ListAgentsOKBodyProxysqlExporterItems0) MarshalBinary() ([]byte, error)
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyProxysqlExporterItems0) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyProxysqlExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions
+*/
+type ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this list agents OK body proxysql exporter items0 metrics resolutions
+func (o *ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body proxysql exporter items0 metrics resolutions based on context it is used
+func (o *ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -3844,6 +4500,9 @@ type ListAgentsOKBodyRDSExporterItems0 struct {
 
 	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ListAgentsOKBodyRDSExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this list agents OK body RDS exporter items0
@@ -3855,6 +4514,10 @@ func (o *ListAgentsOKBodyRDSExporterItems0) Validate(formats strfmt.Registry) er
 	}
 
 	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -3978,8 +4641,51 @@ func (o *ListAgentsOKBodyRDSExporterItems0) validateLogLevel(formats strfmt.Regi
 	return nil
 }
 
-// ContextValidate validates this list agents OK body RDS exporter items0 based on context it is used
+func (o *ListAgentsOKBodyRDSExporterItems0) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list agents OK body RDS exporter items0 based on the context it is used
 func (o *ListAgentsOKBodyRDSExporterItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyRDSExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -3994,6 +4700,49 @@ func (o *ListAgentsOKBodyRDSExporterItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyRDSExporterItems0) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyRDSExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyRDSExporterItems0MetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ListAgentsOKBodyRDSExporterItems0MetricsResolutions
+*/
+type ListAgentsOKBodyRDSExporterItems0MetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this list agents OK body RDS exporter items0 metrics resolutions
+func (o *ListAgentsOKBodyRDSExporterItems0MetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body RDS exporter items0 metrics resolutions based on context it is used
+func (o *ListAgentsOKBodyRDSExporterItems0MetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyRDSExporterItems0MetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyRDSExporterItems0MetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyRDSExporterItems0MetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

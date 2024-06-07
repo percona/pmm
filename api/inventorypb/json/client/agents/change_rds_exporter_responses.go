@@ -502,6 +502,9 @@ type ChangeRDSExporterOKBodyRDSExporter struct {
 
 	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeRDSExporterOKBodyRDSExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change RDS exporter OK body RDS exporter
@@ -513,6 +516,10 @@ func (o *ChangeRDSExporterOKBodyRDSExporter) Validate(formats strfmt.Registry) e
 	}
 
 	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -636,8 +643,51 @@ func (o *ChangeRDSExporterOKBodyRDSExporter) validateLogLevel(formats strfmt.Reg
 	return nil
 }
 
-// ContextValidate validates this change RDS exporter OK body RDS exporter based on context it is used
+func (o *ChangeRDSExporterOKBodyRDSExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeRdsExporterOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeRdsExporterOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change RDS exporter OK body RDS exporter based on the context it is used
 func (o *ChangeRDSExporterOKBodyRDSExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeRDSExporterOKBodyRDSExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeRdsExporterOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeRdsExporterOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -652,6 +702,49 @@ func (o *ChangeRDSExporterOKBodyRDSExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeRDSExporterOKBodyRDSExporter) UnmarshalBinary(b []byte) error {
 	var res ChangeRDSExporterOKBodyRDSExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeRDSExporterOKBodyRDSExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeRDSExporterOKBodyRDSExporterMetricsResolutions
+*/
+type ChangeRDSExporterOKBodyRDSExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change RDS exporter OK body RDS exporter metrics resolutions
+func (o *ChangeRDSExporterOKBodyRDSExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change RDS exporter OK body RDS exporter metrics resolutions based on context it is used
+func (o *ChangeRDSExporterOKBodyRDSExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeRDSExporterOKBodyRDSExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeRDSExporterOKBodyRDSExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeRDSExporterOKBodyRDSExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -682,15 +775,70 @@ type ChangeRDSExporterParamsBodyCommon struct {
 
 	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
 	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeRDSExporterParamsBodyCommonMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change RDS exporter params body common
 func (o *ChangeRDSExporterParamsBodyCommon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change RDS exporter params body common based on context it is used
+func (o *ChangeRDSExporterParamsBodyCommon) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change RDS exporter params body common based on the context it is used
 func (o *ChangeRDSExporterParamsBodyCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeRDSExporterParamsBodyCommon) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -705,6 +853,49 @@ func (o *ChangeRDSExporterParamsBodyCommon) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeRDSExporterParamsBodyCommon) UnmarshalBinary(b []byte) error {
 	var res ChangeRDSExporterParamsBodyCommon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeRDSExporterParamsBodyCommonMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeRDSExporterParamsBodyCommonMetricsResolutions
+*/
+type ChangeRDSExporterParamsBodyCommonMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change RDS exporter params body common metrics resolutions
+func (o *ChangeRDSExporterParamsBodyCommonMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change RDS exporter params body common metrics resolutions based on context it is used
+func (o *ChangeRDSExporterParamsBodyCommonMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeRDSExporterParamsBodyCommonMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeRDSExporterParamsBodyCommonMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeRDSExporterParamsBodyCommonMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

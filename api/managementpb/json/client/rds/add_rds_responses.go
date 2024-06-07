@@ -1057,6 +1057,9 @@ type AddRDSOKBodyMysqldExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddRDSOKBodyMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this add RDS OK body mysqld exporter
@@ -1068,6 +1071,10 @@ func (o *AddRDSOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1191,8 +1198,51 @@ func (o *AddRDSOKBodyMysqldExporter) validateLogLevel(formats strfmt.Registry) e
 	return nil
 }
 
-// ContextValidate validates this add RDS OK body mysqld exporter based on context it is used
+func (o *AddRDSOKBodyMysqldExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add RDS OK body mysqld exporter based on the context it is used
 func (o *AddRDSOKBodyMysqldExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddRDSOKBodyMysqldExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -1207,6 +1257,49 @@ func (o *AddRDSOKBodyMysqldExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddRDSOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 	var res AddRDSOKBodyMysqldExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddRDSOKBodyMysqldExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model AddRDSOKBodyMysqldExporterMetricsResolutions
+*/
+type AddRDSOKBodyMysqldExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this add RDS OK body mysqld exporter metrics resolutions
+func (o *AddRDSOKBodyMysqldExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add RDS OK body mysqld exporter metrics resolutions based on context it is used
+func (o *AddRDSOKBodyMysqldExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddRDSOKBodyMysqldExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddRDSOKBodyMysqldExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res AddRDSOKBodyMysqldExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1410,6 +1503,9 @@ type AddRDSOKBodyPostgresqlExporter struct {
 
 	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddRDSOKBodyPostgresqlExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this add RDS OK body postgresql exporter
@@ -1421,6 +1517,10 @@ func (o *AddRDSOKBodyPostgresqlExporter) Validate(formats strfmt.Registry) error
 	}
 
 	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1544,8 +1644,51 @@ func (o *AddRDSOKBodyPostgresqlExporter) validateLogLevel(formats strfmt.Registr
 	return nil
 }
 
-// ContextValidate validates this add RDS OK body postgresql exporter based on context it is used
+func (o *AddRDSOKBodyPostgresqlExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "postgresql_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "postgresql_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add RDS OK body postgresql exporter based on the context it is used
 func (o *AddRDSOKBodyPostgresqlExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddRDSOKBodyPostgresqlExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "postgresql_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "postgresql_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -1560,6 +1703,49 @@ func (o *AddRDSOKBodyPostgresqlExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddRDSOKBodyPostgresqlExporter) UnmarshalBinary(b []byte) error {
 	var res AddRDSOKBodyPostgresqlExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddRDSOKBodyPostgresqlExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model AddRDSOKBodyPostgresqlExporterMetricsResolutions
+*/
+type AddRDSOKBodyPostgresqlExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this add RDS OK body postgresql exporter metrics resolutions
+func (o *AddRDSOKBodyPostgresqlExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add RDS OK body postgresql exporter metrics resolutions based on context it is used
+func (o *AddRDSOKBodyPostgresqlExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddRDSOKBodyPostgresqlExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddRDSOKBodyPostgresqlExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res AddRDSOKBodyPostgresqlExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -2063,6 +2249,9 @@ type AddRDSOKBodyRDSExporter struct {
 
 	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddRDSOKBodyRDSExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this add RDS OK body RDS exporter
@@ -2074,6 +2263,10 @@ func (o *AddRDSOKBodyRDSExporter) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -2197,8 +2390,51 @@ func (o *AddRDSOKBodyRDSExporter) validateLogLevel(formats strfmt.Registry) erro
 	return nil
 }
 
-// ContextValidate validates this add RDS OK body RDS exporter based on context it is used
+func (o *AddRDSOKBodyRDSExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add RDS OK body RDS exporter based on the context it is used
 func (o *AddRDSOKBodyRDSExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddRDSOKBodyRDSExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -2213,6 +2449,49 @@ func (o *AddRDSOKBodyRDSExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddRDSOKBodyRDSExporter) UnmarshalBinary(b []byte) error {
 	var res AddRDSOKBodyRDSExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddRDSOKBodyRDSExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model AddRDSOKBodyRDSExporterMetricsResolutions
+*/
+type AddRDSOKBodyRDSExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this add RDS OK body RDS exporter metrics resolutions
+func (o *AddRDSOKBodyRDSExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add RDS OK body RDS exporter metrics resolutions based on context it is used
+func (o *AddRDSOKBodyRDSExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddRDSOKBodyRDSExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddRDSOKBodyRDSExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res AddRDSOKBodyRDSExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

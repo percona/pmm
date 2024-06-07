@@ -326,20 +326,20 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 		if err != nil {
 			return err
 		}
-		s := settings.MetricsResolutions
+		globalResoulutions := settings.MetricsResolutions
 		if cfg.GlobalConfig.ScrapeInterval == 0 {
-			cfg.GlobalConfig.ScrapeInterval = config.Duration(s.LR)
+			cfg.GlobalConfig.ScrapeInterval = config.Duration(globalResoulutions.LR)
 		}
 		if cfg.GlobalConfig.ScrapeTimeout == 0 {
-			cfg.GlobalConfig.ScrapeTimeout = ScrapeTimeout(s.LR)
+			cfg.GlobalConfig.ScrapeTimeout = ScrapeTimeout(globalResoulutions.LR)
 		}
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(svc.l, s.HR, svc.params))
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(svc.l, globalResoulutions.HR, svc.params))
 		if svc.params.ExternalVM() {
-			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForInternalVMAgent(s.HR, svc.baseURL.Host))
+			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForInternalVMAgent(globalResoulutions.HR, svc.baseURL.Host))
 		}
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(s.HR))
-		AddInternalServicesToScrape(cfg, s, settings.DBaaS.Enabled)
-		return AddScrapeConfigs(svc.l, cfg, tx.Querier, &s, nil, false)
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(globalResoulutions.HR))
+		AddInternalServicesToScrape(cfg, globalResoulutions, settings.DBaaS.Enabled)
+		return AddScrapeConfigs(svc.l, cfg, tx.Querier, &globalResoulutions, nil, false)
 	})
 }
 
