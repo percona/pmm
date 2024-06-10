@@ -777,14 +777,9 @@ func main() { //nolint:cyclop,maintidx
 	}
 	ds := cfg.Config.Services.Telemetry.DataSources
 
-	encryptedPassword, err := encryption.Decrypt(*postgresDBPasswordF)
-	if err != nil {
-		logrus.Debugf("Encryption: %#v", err)
-	}
-
 	pmmdb := ds.PmmDBSelect
 	pmmdb.Credentials.Username = *postgresDBUsernameF
-	pmmdb.Credentials.Password = encryptedPassword
+	pmmdb.Credentials.Password = *postgresDBPasswordF
 	pmmdb.DSN.Scheme = "postgres" // TODO: should be configurable
 	pmmdb.DSN.Host = *postgresAddrF
 	pmmdb.DSN.DB = *postgresDBNameF
@@ -821,7 +816,7 @@ func main() { //nolint:cyclop,maintidx
 		Address:     *postgresAddrF,
 		Name:        *postgresDBNameF,
 		Username:    *postgresDBUsernameF,
-		Password:    encryptedPassword,
+		Password:    *postgresDBPasswordF,
 		SSLMode:     *postgresSSLModeF,
 		SSLCAPath:   *postgresSSLCAPathF,
 		SSLKeyPath:  *postgresSSLKeyPathF,
@@ -899,7 +894,7 @@ func main() { //nolint:cyclop,maintidx
 				Addr:        *postgresAddrF,
 				DBName:      *postgresDBNameF,
 				DBUsername:  *postgresDBUsernameF,
-				DBPassword:  encryptedPassword,
+				DBPassword:  *postgresDBPasswordF,
 				SSLMode:     *postgresSSLModeF,
 				SSLCAPath:   *postgresSSLCAPathF,
 				SSLKeyPath:  *postgresSSLKeyPathF,
