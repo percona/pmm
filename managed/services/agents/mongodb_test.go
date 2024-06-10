@@ -24,6 +24,7 @@ import (
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/encryption"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
@@ -387,6 +388,9 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 }
 
 func TestMongodbExporterConfig(t *testing.T) {
+	err := encryption.Init(encryption.DefaultEncryptionKeyPath)
+	require.NoError(t, err)
+
 	pmmAgentVersion := version.MustParse("2.0.0")
 	node := &models.Node{
 		Address: "1.2.3.4",
@@ -508,6 +512,9 @@ func TestMongodbExporterConfig(t *testing.T) {
 }
 
 func TestNewMongodbExporterConfig(t *testing.T) {
+	err := encryption.Init(encryption.DefaultEncryptionKeyPath)
+	require.NoError(t, err)
+
 	pmmAgentVersion := version.MustParse("2.10.0")
 	node := &models.Node{
 		Address: "1.2.3.4",
