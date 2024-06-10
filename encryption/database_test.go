@@ -10,8 +10,8 @@ func TestDatabaseConnection_Connect(t *testing.T) {
 	dbConnection := DatabaseConnection{
 		Host:     "127.0.0.1",
 		Port:     5432,
-		User:     "pmm-agent",
-		Password: "pmm-agent-password",
+		User:     "postgres",
+		Password: "",
 	}
 	_, err := dbConnection.Connect()
 	assert.NoError(t, err)
