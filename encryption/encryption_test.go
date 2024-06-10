@@ -25,7 +25,6 @@ func TestEncryption(t *testing.T) {
 		Port:     5432,
 		User:     "postgres",
 		Password: "",
-		SSLMode:  "disable",
 		EncryptedItems: []EncryptedItem{
 			{
 				Database:       "pmm-agent",
