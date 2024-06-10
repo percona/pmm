@@ -821,7 +821,7 @@ func main() { //nolint:cyclop,maintidx
 		Address:     *postgresAddrF,
 		Name:        *postgresDBNameF,
 		Username:    *postgresDBUsernameF,
-		Password:    *postgresDBPasswordF,
+		Password:    encryptedPassword,
 		SSLMode:     *postgresSSLModeF,
 		SSLCAPath:   *postgresSSLCAPathF,
 		SSLKeyPath:  *postgresSSLKeyPathF,

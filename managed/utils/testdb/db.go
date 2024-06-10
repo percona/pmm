@@ -25,6 +25,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm/encryption"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -36,6 +37,9 @@ const (
 // Open recreates testing PostgreSQL database and returns an open connection to it.
 func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersion *int) *sql.DB {
 	tb.Helper()
+
+	err := encryption.Init(encryption.DefaultEncryptionKeyPath)
+	require.NoError(tb, err)
 
 	setupParams := models.SetupDBParams{
 		Address:  "127.0.0.1:5432",
