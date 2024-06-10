@@ -4,7 +4,7 @@ services:
     container_name: pmm-server
     # Temporary till we have arm builds
     platform: linux/amd64
-    image: perconalab/pmm-server:3-dev-container
+    image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:3-dev-container}
     ports:
       - 80:9080
       - 443:8443
