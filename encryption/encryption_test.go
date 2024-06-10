@@ -9,10 +9,9 @@ import (
 )
 
 func TestEncryption(t *testing.T) {
-	testPath := "/Users/jiri.ctvrtka/pmm-encryption.key"
 	secret := "password1"
 
-	err := create(testPath)
+	err := create(DefaultEncryptionKeyPath)
 	require.NoError(t, err)
 	cipherText, err := Encrypt(secret)
 	require.NoError(t, err)
@@ -24,13 +23,14 @@ func TestEncryption(t *testing.T) {
 	c := &DatabaseConnection{
 		Host:     "127.0.0.1",
 		Port:     5432,
-		User:     "pmm-agent",
-		Password: "pmm-agent-password",
+		User:     "postgres",
+		Password: "",
+		SSLMode:  "disable",
 		EncryptedItems: []EncryptedItem{
 			{
 				Database:       "pmm-agent",
-				Table:          "acc",
-				Identificators: []string{"id"},
+				Table:          "agents",
+				Identificators: []string{"agent_id"},
 				Columns:        []string{"username", "password"},
 			},
 		},
