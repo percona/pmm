@@ -525,6 +525,24 @@ func FindPmmAgentIDToRunActionOrJob(pmmAgentID string, agents []*Agent) (string,
 	return "", status.Errorf(codes.FailedPrecondition, "Couldn't find pmm-agent-id to run action")
 }
 
+// ExtractPmmAgentVersionFromAgent extract PMM agent version from Agent by pmm-agent-id.
+func ExtractPmmAgentVersionFromAgent(q *reform.Querier, agent *Agent) *version.Parsed {
+	pmmAgentID, err := ExtractPmmAgentID(agent)
+	if err != nil {
+		return nil
+	}
+	pmmAgent, err := FindAgentByID(q, pmmAgentID)
+	if err != nil {
+		return nil
+	}
+	version, err := version.Parse(pointer.GetString(pmmAgent.Version))
+	if err != nil {
+		return nil
+	}
+
+	return version
+}
+
 // ExtractPmmAgentID extract pmm-agent-id from Agent by type.
 func ExtractPmmAgentID(agent *Agent) (string, error) {
 	switch agent.AgentType {
