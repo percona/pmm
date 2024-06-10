@@ -74,6 +74,7 @@ import (
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/api/uieventspb"
 	"github.com/percona/pmm/api/userpb"
+	"github.com/percona/pmm/encryption"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
 	agentgrpc "github.com/percona/pmm/managed/services/agents/grpc"
@@ -518,6 +519,11 @@ type setupDeps struct {
 // setup performs setup tasks that depend on database.
 func setup(ctx context.Context, deps *setupDeps) bool {
 	l := reform.NewPrintfLogger(deps.l.Debugf)
+	err := encryption.Init(encryption.DefaultEncryptionKeyPath)
+	if err != nil {
+		deps.l.Warnf("Failed to setup encryption: %s.", err)
+		return false
+	}
 	db := reform.NewDB(deps.sqlDB, postgresql.Dialect, l)
 
 	// log and ignore validation errors; fail on other errors
@@ -771,9 +777,14 @@ func main() { //nolint:cyclop,maintidx
 	}
 	ds := cfg.Config.Services.Telemetry.DataSources
 
+	encryptedPassword, err := encryption.Decrypt(*postgresDBPasswordF)
+	if err != nil {
+		logrus.Debugf("Encryption: %#v", err)
+	}
+
 	pmmdb := ds.PmmDBSelect
 	pmmdb.Credentials.Username = *postgresDBUsernameF
-	pmmdb.Credentials.Password = *postgresDBPasswordF
+	pmmdb.Credentials.Password = encryptedPassword
 	pmmdb.DSN.Scheme = "postgres" // TODO: should be configurable
 	pmmdb.DSN.Host = *postgresAddrF
 	pmmdb.DSN.DB = *postgresDBNameF
@@ -888,7 +899,7 @@ func main() { //nolint:cyclop,maintidx
 				Addr:        *postgresAddrF,
 				DBName:      *postgresDBNameF,
 				DBUsername:  *postgresDBUsernameF,
-				DBPassword:  *postgresDBPasswordF,
+				DBPassword:  encryptedPassword,
 				SSLMode:     *postgresSSLModeF,
 				SSLCAPath:   *postgresSSLCAPathF,
 				SSLKeyPath:  *postgresSSLKeyPathF,

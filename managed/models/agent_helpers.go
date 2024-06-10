@@ -866,13 +866,9 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		}
 	}
 
-	enc, err := encryption.New("/srv/pmm-encrytion.key")
+	encryptedPassword, err := encryption.Encrypt(params.Password)
 	if err != nil {
-		return nil, err
-	}
-	encryptedPassword, err := enc.Encrypt(params.Password)
-	if err != nil {
-		fmt.Println(err)
+		logrus.Debugf("Encryption: %#v", err)
 	}
 
 	row := &Agent{

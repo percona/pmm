@@ -1,8 +1,11 @@
 package encryption
 
+import "github.com/google/tink/go/tink"
+
 type Encryption struct {
-	Path string
-	Key  string
+	Path      string
+	Key       string
+	Primitive tink.AEAD
 }
 
 type DatabaseConnection struct {

@@ -30,6 +30,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/reform.v1"
 
@@ -321,14 +322,9 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) s
 	username := pointer.GetString(s.Username)
 	password := pointer.GetString(s.Password)
 
-	enc, err := encryption.New("/srv/pmm-encrytion.key")
+	decryptedPassword, err := encryption.Decrypt(password)
 	if err != nil {
-		return ""
-	}
-
-	decryptedPassword, err := enc.Decrypt(password)
-	if err != nil {
-		fmt.Println(err)
+		logrus.Debugf("Encryption: %#v", err)
 	}
 
 	if tdp == nil {
@@ -676,18 +672,9 @@ func (s Agent) Files() map[string]string {
 
 // TemplateDelimiters returns a pair of safe template delimiters that are not present in agent parameters.
 func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
-	enc, err := encryption.New("/srv/pmm-encrytion.key")
+	decryptedPassword, err := encryption.Decrypt(pointer.GetString(s.Password))
 	if err != nil {
-		return nil
-	}
-
-	enc, err = encryption.New("/srv/pmm-encrytion.key")
-	if err != nil {
-		return nil
-	}
-	decryptedPassword, err := enc.Decrypt(pointer.GetString(s.Password))
-	if err != nil {
-		fmt.Println(err)
+		logrus.Debugf("Encryption: %#v", err)
 	}
 
 	templateParams := []string{

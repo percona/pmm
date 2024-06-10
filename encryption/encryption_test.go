@@ -9,17 +9,15 @@ import (
 )
 
 func TestEncryption(t *testing.T) {
-	testPath := "/srv/pmm-encryption.key"
+	testPath := "/Users/jiri.ctvrtka/pmm-encryption.key"
 	secret := "password1"
 
-	e, err := New(testPath)
+	err := create(testPath)
 	require.NoError(t, err)
-	assert.Equal(t, testPath, e.Path)
-	assert.NotEmpty(t, e.Key)
-	cipherText, err := e.Encrypt(secret)
+	cipherText, err := Encrypt(secret)
 	require.NoError(t, err)
 	assert.NotEmpty(t, cipherText)
-	decryptedSecret, err := e.Decrypt(cipherText)
+	decryptedSecret, err := Decrypt(cipherText)
 	require.NoError(t, err)
 	assert.Equal(t, secret, decryptedSecret)
 
@@ -32,13 +30,13 @@ func TestEncryption(t *testing.T) {
 			{
 				Database:       "pmm-agent",
 				Table:          "acc",
-				Identificators: []string{"ID"},
+				Identificators: []string{"id"},
 				Columns:        []string{"username", "password"},
 			},
 		},
 	}
 
 	ctx := context.Background()
-	assert.NoError(t, e.EncryptDB(ctx, c))
-	assert.NoError(t, e.DecryptDB(ctx, c))
+	assert.NoError(t, EncryptDB(ctx, c))
+	assert.NoError(t, DecryptDB(ctx, c))
 }

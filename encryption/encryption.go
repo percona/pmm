@@ -1,19 +1,49 @@
 package encryption
 
 import (
-	"bytes"
 	"context"
 	"encoding/base64"
 	"errors"
 	"os"
-
-	"github.com/google/tink/go/aead"
-	"github.com/google/tink/go/insecurecleartextkeyset"
-	"github.com/google/tink/go/keyset"
-	"github.com/google/tink/go/tink"
+	"sync"
 )
 
-func New(keyPath string) (*Encryption, error) {
+const DefaultEncryptionKeyPath = "/srv/pmm-encryption.key"
+
+var (
+	config    *Encryption
+	configMtx sync.RWMutex
+)
+
+func Init(keyPath string) error {
+	err := create(keyPath)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func InitFromEnv() error {
+	encryption := os.Getenv("PMM_ENCRYPTION")
+	if encryption == "0" {
+		return nil
+	}
+
+	keyPath := os.Getenv("PMM_ENCRYPTION_KEY")
+	if keyPath == "" {
+		keyPath = DefaultEncryptionKeyPath
+	}
+
+	err := create(keyPath)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func create(keyPath string) error {
 	e := new(Encryption)
 	e.Path = keyPath
 
@@ -22,31 +52,40 @@ func New(keyPath string) (*Encryption, error) {
 	case os.IsNotExist(err):
 		err = e.generateKey()
 		if err != nil {
-			return nil, err
+			return err
 		}
 	case err != nil:
-		return nil, err
+		return err
 	default:
 		e.Key = string(bytes)
 	}
 
-	return e, nil
-}
-
-func (e Encryption) Encrypt(secret string) (string, error) {
 	primitive, err := e.getPrimitive()
 	if err != nil {
-		return "", err
+		return err
 	}
+	e.Primitive = primitive
+
+	configMtx.Lock()
+	config = e
+	configMtx.Unlock()
+
+	return nil
+}
+
+func Encrypt(secret string) (string, error) {
+	configMtx.RLock()
+	primitive := config.Primitive
+	configMtx.RUnlock()
 	cipherText, err := primitive.Encrypt([]byte(secret), []byte(""))
 	if err != nil {
-		return "", err
+		return secret, err
 	}
 
 	return base64.StdEncoding.EncodeToString(cipherText), nil
 }
 
-func (e Encryption) EncryptDB(ctx context.Context, c *DatabaseConnection) error {
+func EncryptDB(ctx context.Context, c *DatabaseConnection) error {
 	db, err := c.Connect()
 	if err != nil {
 		return err
@@ -70,7 +109,7 @@ func (e Encryption) EncryptDB(ctx context.Context, c *DatabaseConnection) error 
 
 		for k, v := range res.SetValues {
 			for i, val := range v {
-				encrypted, err := e.Encrypt(*val.(*string))
+				encrypted, err := Encrypt(*val.(*string))
 				if err != nil {
 					return err
 				}
@@ -93,26 +132,24 @@ func (e Encryption) EncryptDB(ctx context.Context, c *DatabaseConnection) error 
 	return nil
 }
 
-func (e Encryption) Decrypt(cipherText string) (string, error) {
-	primitive, err := e.getPrimitive()
-	if err != nil {
-		return "", err
-	}
-
+func Decrypt(cipherText string) (string, error) {
 	decoded, err := base64.StdEncoding.DecodeString(cipherText)
 	if err != nil {
-		return "", err
+		return cipherText, err
 	}
 
+	configMtx.RLock()
+	primitive := config.Primitive
+	configMtx.RUnlock()
 	secret, err := primitive.Decrypt([]byte(decoded), []byte(""))
 	if err != nil {
-		return "", err
+		return cipherText, err
 	}
 
 	return string(secret), nil
 }
 
-func (e Encryption) DecryptDB(ctx context.Context, c *DatabaseConnection) error {
+func DecryptDB(ctx context.Context, c *DatabaseConnection) error {
 	db, err := c.Connect()
 	if err != nil {
 		return err
@@ -141,7 +178,7 @@ func (e Encryption) DecryptDB(ctx context.Context, c *DatabaseConnection) error 
 				if err != nil {
 					return err
 				}
-				decrypted, err := e.Decrypt(string(decoded))
+				decrypted, err := Decrypt(string(decoded))
 				if err != nil {
 					return err
 				}
@@ -162,39 +199,4 @@ func (e Encryption) DecryptDB(ctx context.Context, c *DatabaseConnection) error 
 	}
 
 	return nil
-}
-
-func (e Encryption) getPrimitive() (tink.AEAD, error) {
-	serializedKeyset, err := base64.StdEncoding.DecodeString(e.Key)
-	if err != nil {
-		return nil, err
-	}
-
-	binaryReader := keyset.NewBinaryReader(bytes.NewBuffer(serializedKeyset))
-	parsedHandle, err := insecurecleartextkeyset.Read(binaryReader)
-	if err != nil {
-		return nil, err
-	}
-
-	return aead.New(parsedHandle)
-}
-
-func (e Encryption) generateKey() error {
-	handle, err := keyset.NewHandle(aead.AES256GCMKeyTemplate())
-	if err != nil {
-		return err
-	}
-
-	buff := &bytes.Buffer{}
-	err = insecurecleartextkeyset.Write(handle, keyset.NewBinaryWriter(buff))
-	if err != nil {
-		return err
-	}
-
-	e.Key = base64.StdEncoding.EncodeToString(buff.Bytes())
-	return e.saveKeyToFile()
-}
-
-func (e Encryption) saveKeyToFile() error {
-	return os.WriteFile(e.Path, []byte(e.Key), 0o644)
 }
