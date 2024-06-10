@@ -75,6 +75,8 @@ const (
 	VMAgentType                         AgentType = "vmagent"
 )
 
+var v2_42 = version.MustParse("2.42.0-0")
+
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.
 const PMMServerAgentID = string("pmm-server") // no /agent_id/ prefix
 
@@ -315,7 +317,7 @@ type DSNParams struct {
 }
 
 // DSN returns a DSN string for accessing a given Service with this Agent (and an implicit driver).
-func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) string { //nolint:cyclop,maintidx
+func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, pmmAgentVersion *version.Parsed) string { //nolint:cyclop,maintidx
 	host := pointer.GetString(service.Address)
 	port := pointer.GetUint16(service.Port)
 	socket := pointer.GetString(service.Socket)
@@ -347,8 +349,12 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) s
 		cfg.Params = make(map[string]string)
 		if s.TLS {
 			// It is mandatory to have "custom" as the first case.
+			// Except case for backward compatibility.
 			// Skip verify for "custom" is handled on pmm-agent side.
 			switch {
+			// Backward compatibility
+			case s.TLSSkipVerify && (pmmAgentVersion == nil || pmmAgentVersion.Less(v2_42)):
+				cfg.Params["tls"] = skipVerify
 			case len(s.Files()) != 0:
 				cfg.Params["tls"] = "custom"
 			case s.TLSSkipVerify:
@@ -378,8 +384,12 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) s
 		cfg.Params = make(map[string]string)
 		if s.TLS {
 			// It is mandatory to have "custom" as the first case.
+			// Except case for backward compatibility.
 			// Skip verify for "custom" is handled on pmm-agent side.
 			switch {
+			// Backward compatibility
+			case pmmAgentVersion != nil && s.TLSSkipVerify && pmmAgentVersion.Less(v2_42):
+				cfg.Params["tls"] = skipVerify
 			case len(s.Files()) != 0:
 				cfg.Params["tls"] = "custom"
 			case s.TLSSkipVerify:
