@@ -27,7 +27,7 @@ func TestEncryption(t *testing.T) {
 		Password: "",
 		EncryptedItems: []EncryptedItem{
 			{
-				Database:       "pmm-agent",
+				Database:       "pmm-managed",
 				Table:          "agents",
 				Identificators: []string{"agent_id"},
 				Columns:        []string{"username", "password"},
