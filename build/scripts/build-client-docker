@@ -33,11 +33,9 @@ docker buildx build --build-arg BUILD_DATE="`date --rfc-3339=seconds`" \
                     -t ${DOCKER_CLIENT_TAG} \
                     ${DOCKER_FILE_LOCATION}
 
-if [ -n "${PUSH_DOCKER}" ]; then
-    mkdir -p $(dirname ${docker_client_tag_file})
-    echo ${DOCKER_CLIENT_TAG} > ${docker_client_tag_file}
-    docker buildx imagetools create --tag ${DOCKER_CLIENT_TAG} ${DOCKER_CLIENT_TAG}
-fi
+mkdir -p $(dirname ${docker_client_tag_file})
+echo ${DOCKER_CLIENT_TAG} > ${docker_client_tag_file}
+
 if [ -n "${SAVE_DOCKER}" ]; then
     mkdir -p $(dirname ${docker_client_tarball})
     docker save ${DOCKER_CLIENT_TAG} | xz > ${docker_client_tarball}
