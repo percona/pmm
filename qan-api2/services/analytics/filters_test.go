@@ -24,7 +24,6 @@ import (
 	"time"
 
 	_ "github.com/ClickHouse/clickhouse-go/v2" // register database/sql driver
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/types/known/timestamppb"
