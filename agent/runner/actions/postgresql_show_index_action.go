@@ -30,22 +30,29 @@ import (
 	"github.com/percona/pmm/utils/sqlrows"
 )
 
+const postgreSQLShowIndexActionType = "postgresql-show-index"
+
 type postgresqlShowIndexAction struct {
 	id      string
 	timeout time.Duration
 	params  *agentpb.StartActionRequest_PostgreSQLShowIndexParams
-	tempDir string
+	dsn     string
 }
 
 // NewPostgreSQLShowIndexAction creates PostgreSQL SHOW INDEX Action.
 // This is an Action that can run `SHOW INDEX` command on PostgreSQL service with given DSN.
-func NewPostgreSQLShowIndexAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_PostgreSQLShowIndexParams, tempDir string) Action {
+func NewPostgreSQLShowIndexAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_PostgreSQLShowIndexParams, tempDir string) (Action, error) {
+	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, filepath.Join(tempDir, postgreSQLShowIndexActionType, id))
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
 	return &postgresqlShowIndexAction{
 		id:      id,
 		timeout: timeout,
 		params:  params,
-		tempDir: tempDir,
-	}
+		dsn:     dsn,
+	}, nil
 }
 
 // ID returns an Action ID.
@@ -60,17 +67,17 @@ func (a *postgresqlShowIndexAction) Timeout() time.Duration {
 
 // Type returns an Action type.
 func (a *postgresqlShowIndexAction) Type() string {
-	return "postgresql-show-index"
+	return postgreSQLShowIndexActionType
+}
+
+// DSN returns a DSN for the Action.
+func (a *postgresqlShowIndexAction) DSN() string {
+	return a.dsn
 }
 
 // Run runs an Action and returns output and error.
 func (a *postgresqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
-	dsn, err := templates.RenderDSN(a.params.Dsn, a.params.TlsFiles, filepath.Join(a.tempDir, strings.ToLower(a.Type()), a.id))
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	connector, err := pq.NewConnector(dsn)
+	connector, err := pq.NewConnector(a.dsn)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
