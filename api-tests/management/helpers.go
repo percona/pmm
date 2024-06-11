@@ -48,6 +48,7 @@ func RegisterGenericNode(t pmmapitests.TestingT, body node.RegisterNodeBody) (st
 	require.NotNil(t, registerOK.Payload.PMMAgent.AgentID)
 	require.NotNil(t, registerOK.Payload.GenericNode)
 	require.NotNil(t, registerOK.Payload.GenericNode.NodeID)
+
 	return registerOK.Payload.GenericNode.NodeID, registerOK.Payload.PMMAgent.AgentID
 }
 
@@ -65,6 +66,7 @@ func registerContainerNode(t pmmapitests.TestingT, body node.RegisterNodeBody) (
 	require.NotNil(t, registerOK.Payload.PMMAgent.AgentID)
 	require.NotNil(t, registerOK.Payload.ContainerNode)
 	require.NotNil(t, registerOK.Payload.ContainerNode.NodeID)
+
 	return registerOK.Payload.ContainerNode.NodeID, registerOK.Payload.PMMAgent.AgentID
 }
 

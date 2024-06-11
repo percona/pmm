@@ -55,9 +55,14 @@ func (a *mysqlQuerySelectAction) Type() string {
 	return "mysql-query-select"
 }
 
+// DSN returns a DSN for the Action.
+func (a *mysqlQuerySelectAction) DSN() string {
+	return a.params.Dsn
+}
+
 // Run runs an Action and returns output and error.
 func (a *mysqlQuerySelectAction) Run(ctx context.Context) ([]byte, error) {
-	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles)
+	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles, a.params.TlsSkipVerify)
 	if err != nil {
 		return nil, err
 	}

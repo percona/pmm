@@ -17,7 +17,6 @@ package actions
 import (
 	"context"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -29,27 +28,38 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 )
 
+const mongoDBQueryAdminCommandActionType = "mongodb-query-admincommand"
+
 type mongodbQueryAdmincommandAction struct {
 	id      string
 	timeout time.Duration
 	dsn     string
-	files   *agentpb.TextFiles
 	command string
 	arg     interface{}
-	tempDir string
 }
 
 // NewMongoDBQueryAdmincommandAction creates a MongoDB adminCommand query action.
-func NewMongoDBQueryAdmincommandAction(id string, timeout time.Duration, dsn string, files *agentpb.TextFiles, command string, arg interface{}, tempDir string) Action {
+func NewMongoDBQueryAdmincommandAction(
+	id string,
+	timeout time.Duration,
+	dsn string,
+	files *agentpb.TextFiles,
+	command string,
+	arg interface{},
+	tempDir string,
+) (Action, error) {
+	dsn, err := templates.RenderDSN(dsn, files, filepath.Join(tempDir, mongoDBQueryAdminCommandActionType, id))
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
 	return &mongodbQueryAdmincommandAction{
 		id:      id,
 		timeout: timeout,
 		dsn:     dsn,
-		files:   files,
 		command: command,
 		arg:     arg,
-		tempDir: tempDir,
-	}
+	}, nil
 }
 
 // ID returns an action ID.
@@ -64,17 +74,17 @@ func (a *mongodbQueryAdmincommandAction) Timeout() time.Duration {
 
 // Type returns an action type.
 func (a *mongodbQueryAdmincommandAction) Type() string {
-	return "mongodb-query-admincommand"
+	return mongoDBQueryAdminCommandActionType
+}
+
+// DSN returns a DSN for the Action.
+func (a *mongodbQueryAdmincommandAction) DSN() string {
+	return a.dsn
 }
 
 // Run runs an action and returns output and error.
 func (a *mongodbQueryAdmincommandAction) Run(ctx context.Context) ([]byte, error) {
-	dsn, err := templates.RenderDSN(a.dsn, a.files, filepath.Join(a.tempDir, strings.ToLower(a.Type()), a.id))
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	opts, err := mongo_fix.ClientOptionsForDSN(a.dsn)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

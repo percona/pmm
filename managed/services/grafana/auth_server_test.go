@@ -31,6 +31,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -161,7 +162,6 @@ func TestAuthServerMustSetup(t *testing.T) {
 
 func TestAuthServerAuthenticate(t *testing.T) {
 	t.Parallel()
-	// logrus.SetLevel(logrus.TraceLevel)
 
 	checker := &mockAwsInstanceChecker{}
 	checker.Test(t)
@@ -198,7 +198,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 	})
 
 	for uri, minRole := range map[string]role{
-		"/agent.Agent/Connect": none,
+		"/agent.Agent/Connect": admin,
 
 		"/inventory.Nodes/ListNodes":                          admin,
 		"/management.Actions/StartMySQLShowTableStatusAction": viewer,
@@ -268,6 +268,76 @@ func TestAuthServerAuthenticate(t *testing.T) {
 			})
 		}
 	}
+}
+
+func TestServerClientConnection(t *testing.T) {
+	t.Parallel()
+
+	checker := &mockAwsInstanceChecker{}
+	checker.Test(t)
+	t.Cleanup(func() { checker.AssertExpectations(t) })
+
+	ctx := context.Background()
+	c := NewClient("127.0.0.1:3000")
+	s := NewAuthServer(c, checker, nil)
+
+	t.Run("Basic auth - success", func(t *testing.T) {
+		t.Parallel()
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, connectionEndpoint, nil)
+		require.NoError(t, err)
+		req.SetBasicAuth("admin", "admin")
+
+		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		assert.Nil(t, authError)
+	})
+
+	// Beware: Five or more wrong tries will lock user with error message: "Invalid user or password".
+	t.Run("Basic auth - fail", func(t *testing.T) {
+		t.Parallel()
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, connectionEndpoint, nil)
+		require.NoError(t, err)
+		req.SetBasicAuth("admin", "wrong")
+
+		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		assert.Equal(t, codes.Unauthenticated, authError.code)
+	})
+
+	t.Run("Token auth - success", func(t *testing.T) {
+		t.Parallel()
+
+		nodeName := fmt.Sprintf("N1-%d", time.Now().UnixNano())
+		headersMD := metadata.New(map[string]string{
+			"Authorization": "Basic YWRtaW46YWRtaW4=",
+		})
+		ctx := metadata.NewIncomingContext(context.Background(), headersMD)
+		_, serviceToken, err := c.CreateServiceAccount(ctx, nodeName, true)
+		require.NoError(t, err)
+		defer func() {
+			warning, err := c.DeleteServiceAccount(ctx, nodeName, true)
+			require.NoError(t, err)
+			require.Empty(t, warning)
+		}()
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, connectionEndpoint, nil)
+		require.NoError(t, err)
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", serviceToken))
+
+		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		assert.Nil(t, authError)
+	})
+
+	t.Run("Token auth - fail", func(t *testing.T) {
+		t.Parallel()
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, connectionEndpoint, nil)
+		require.NoError(t, err)
+		req.Header.Set("Authorization", "Bearer wrong")
+
+		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		assert.Equal(t, codes.Unauthenticated, authError.code)
+	})
 }
 
 func TestAuthServerAddVMGatewayToken(t *testing.T) {
