@@ -723,6 +723,8 @@ command =
 environment =
 	PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
 	PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
+
+
 user = pmm
 autorestart = true
 autostart = true
