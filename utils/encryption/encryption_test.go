@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -15,10 +14,10 @@ func TestEncryption(t *testing.T) {
 	require.NoError(t, err)
 	cipherText, err := Encrypt(secret)
 	require.NoError(t, err)
-	assert.NotEmpty(t, cipherText)
+	require.NotEmpty(t, cipherText)
 	decryptedSecret, err := Decrypt(cipherText)
 	require.NoError(t, err)
-	assert.Equal(t, secret, decryptedSecret)
+	require.Equal(t, secret, decryptedSecret)
 
 	c := &DatabaseConnection{
 		Host:     "127.0.0.1",
@@ -36,6 +35,6 @@ func TestEncryption(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	assert.NoError(t, EncryptDB(ctx, c))
-	assert.NoError(t, DecryptDB(ctx, c))
+	require.NoError(t, EncryptDB(ctx, c))
+	require.NoError(t, DecryptDB(ctx, c))
 }

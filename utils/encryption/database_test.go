@@ -3,7 +3,7 @@ package encryption
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDatabaseConnection_Connect(t *testing.T) {
@@ -13,6 +13,7 @@ func TestDatabaseConnection_Connect(t *testing.T) {
 		User:     "postgres",
 		Password: "",
 	}
-	_, err := dbConnection.Connect()
-	assert.NoError(t, err)
+	c, err := dbConnection.Connect()
+	require.NoError(t, err)
+	require.NoError(t, c.Close())
 }

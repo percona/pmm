@@ -27,7 +27,11 @@ func (c DatabaseConnection) DSN() string {
 		c.SSLMode = "disable"
 	}
 
-	return fmt.Sprintf("host=%s port=%d user=%s password=%s sslmode=%s", c.Host, c.Port, c.User, c.Password, c.SSLMode)
+	if c.Password != "" {
+		c.Password = fmt.Sprintf("password=%s", c.Password)
+	}
+
+	return fmt.Sprintf("host=%s port=%d user=%s %s sslmode=%s", c.Host, c.Port, c.User, c.Password, c.SSLMode)
 }
 
 func (item EncryptedItem) Read(tx *sql.Tx) (*QueryValues, error) {
