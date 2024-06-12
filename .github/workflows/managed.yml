@@ -51,9 +51,7 @@ jobs:
       - name: Pull the cache image and inject cache to PMM Server
         run: |
           if docker pull ${{ env.PMM_CACHE_IMAGE }}; then
-            docker run --name pmm-cache --volumes-from pmm-server ${{ env.PMM_CACHE_IMAGE }} sh -c "cp -rf /mod-cache/* /root/go/pkg/mod; cp -rf /build-cache/* /root/.cache/go-build"
-            # docker run --rm --name pmm-cache --volumes-from pmm-server ghcr.io/percona/pmm:dev-cache sh -c "cp -rf /mod-cache/* /root/go/pkg/mod; cp -rf /build-cache/* /root/.cache/go-build"
-            docker rm -v pmm-cache
+            docker run --rm --volumes-from pmm-server ${{ env.PMM_CACHE_IMAGE }} sh -c "cp -rf /mod-cache/* /root/go/pkg/mod; cp -rf /build-cache/* /root/.cache/go-build"
             docker exec -t pmm-server du -sh /root/.cache/go-build
             docker exec -t pmm-server du -sh /root/go/pkg/mod
           fi
