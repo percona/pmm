@@ -99,7 +99,7 @@ services:
 # docker run -v /var/run/docker.sock:/var/run/docker.sock -e WATCHTOWER_HTTP_API_UPDATE=1 -e WATCHTOWER_HTTP_API_TOKEN=123 --hostname=watchtower --network=pmm_default docker.io/bupychuk/watchtower
   watchtower:
     profiles:
-      - pmm3
+      - pmm
     image: ${WATCHTOWER_IMAGE:-perconalab/watchtower}
     container_name: watchtower
     environment:

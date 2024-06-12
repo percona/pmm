@@ -21,83 +21,56 @@ on:
 
 jobs:
   test:
-    name: Tests
+    name: Managed tests
     runs-on: ubuntu-22.04
     timeout-minutes: 30
+    permissions:
+      packages: write    
 
     env:
       PMM_SERVER_IMAGE: perconalab/pmm-server:3-dev-latest
+      PMM_CACHE_IMAGE: ghcr.io/percona/pmm:dev-cache
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
       PMM_DEV_OAUTH_CLIENT_ID: ${{ secrets.OAUTH_PMM_CLIENT_ID }}
       PMM_DEV_OAUTH_CLIENT_SECRET: ${{ secrets.OAUTH_PMM_CLIENT_SECRET }}
-      DEVCONTAINER_CACHE_ENABLED: false
+      BUILD_CACHE: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'v3' }} # change to `main` once v3 goes GA
 
     steps:
       - name: Check out code
         uses: actions/checkout@v4
 
-      - name: Enable Go build cache
-        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
-          restore-keys: |
-            ${{ runner.os }}-go-build-${{ github.ref }}-
-            ${{ runner.os }}-go-build-
-
-      - name: Enable Go modules cache
-        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
-        uses: actions/cache@v4
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: ${{ runner.os }}-go-modules-
-
-      - name: Download tools
-        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
-        run: |
-          pushd tools && go mod download -x
-          popd        && go mod download -x
-
       - name: Launch PMM Server (see docker-compose.yml)
         run: |
-          # Note: launching the container with --wait fails for an unknown reason.
-          # A temporary workaround is to run it manually. To be reverted once the issue is resolved.
-          # make env-compose-up # the container workdir is /root/go/src/github.com/percona/pmm
-          docker compose --profile pmm up -d
-          sleep 100s
+          make env-compose-up # the container workdir is /root/go/src/github.com/percona/pmm
           docker logs pmm-server
-      - name: Restore Go build cache
-        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
-        continue-on-error: true
-        run: docker cp ~/.cache/go-build pmm-server:/root/.cache/go-build
-
-      - name: Restore Go modules cache
-        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
-        continue-on-error: true
-        run: docker cp ~/go/pkg/mod pmm-server:/root/go/pkg/mod
 
       - name: Mark the root directory of pmm as safe
         run: docker exec -i pmm-server git config --global --add safe.directory /root/go/src/github.com/percona/pmm
 
-      - name: Update binaries
+      - name: Pull the cache image and inject cache to PMM Server
         run: |
-          docker exec -i pmm-server make run-managed-ci run-agent run-vmproxy
+          if docker pull ${{ env.PMM_CACHE_IMAGE }}; then
+            docker run --name pmm-cache --volumes-from pmm-server ${{ env.PMM_CACHE_IMAGE }} sh -c "cp -rf /mod-cache/* /root/go/pkg/mod; cp -rf /build-cache/* /root/.cache/go-build"
+            # docker run --rm --name pmm-cache --volumes-from pmm-server ghcr.io/percona/pmm:dev-cache sh -c "cp -rf /mod-cache/* /root/go/pkg/mod; cp -rf /build-cache/* /root/.cache/go-build"
+            docker rm -v pmm-cache
+            docker exec -t pmm-server du -sh /root/.cache/go-build
+            docker exec -t pmm-server du -sh /root/go/pkg/mod
+          fi
+
+      - name: Rebuild the binaries
+        run: docker exec -i pmm-server make run-managed-ci run-agent run-vmproxy
 
       - name: Check the status of components
-        run: docker exec -t pmm-server supervisorctl status || true
+        continue-on-error: true
+        run: docker exec -t pmm-server supervisorctl status
 
       - name: Run tests
+        if: ${{ !env.ACT }}
         run: docker exec -i pmm-server make -C managed test-cover
 
-      - name: Run PMM server update test
-        run: |
-          echo "PMM Server update test will be refactored once we have a new update mechanism."
-          # docker exec -i pmm-server make -C managed test-update
-
       - name: Upload coverage results
+        if: ${{ !env.ACT }}
         uses: codecov/codecov-action@v4
         with:
           file: managed/cover.out
@@ -106,17 +79,32 @@ jobs:
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Cache
-        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
+      - name: Save PMM Go module and build cache as an image
+        if: ${{ env.BUILD_CACHE }}
         run: |
-          docker exec pmm-server go clean -testcache
-          docker exec pmm-server find ./managed -type d -name fuzzdata -exec rm -r {} +
-          rm -fr ~/.cache/go-build
-          mkdir -p ~/.cache
-          docker cp pmm-server:/root/.cache/go-build ~/.cache/go-build
+          docker run --name pmm-cache --volumes-from pmm-server busybox sh -c "mkdir /mod-cache /build-cache; cp -r /root/go/pkg/mod/* /mod-cache; cp -r /root/.cache/go-build/* /build-cache"
+          docker commit pmm-cache ${{ env.PMM_CACHE_IMAGE }}
+          docker rm -v pmm-cache
 
-      - name: Run debug commands on failure
-        if: ${{ failure() }}
+      - name: Run PMM Server update test
+        run: |
+          echo "PMM Server update test will be refactored once we have a new update mechanism."
+          # docker exec -i pmm-server make -C managed test-update
+
+      - name: Login to ghcr.io registry
+        if: ${{ env.BUILD_CACHE }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push the image to ghcr.io
+        if: ${{ env.BUILD_CACHE }}
+        run: docker push ${{ env.PMM_CACHE_IMAGE }}
+
+      - name: Run debug commands
+        if: ${{ always() }}
         run: |
           env | sort
           go env | sort
