@@ -25,8 +25,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/encryption"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/utils/encryption"
 )
 
 const (

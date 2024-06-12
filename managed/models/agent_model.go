@@ -34,7 +34,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/encryption"
+	"github.com/percona/pmm/utils/encryption"
 	"github.com/percona/pmm/version"
 )
 

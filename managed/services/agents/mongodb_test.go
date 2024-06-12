@@ -24,8 +24,8 @@ import (
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/encryption"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/utils/encryption"
 	"github.com/percona/pmm/version"
 )
 

@@ -31,7 +31,7 @@ import (
 	"strings"
 
 	"github.com/lib/pq"
-	"github.com/percona/pmm/encryption"
+	"github.com/percona/pmm/utils/encryption"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
