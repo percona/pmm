@@ -886,7 +886,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 
 	encryptedPassword, err := encryption.Encrypt(params.Password)
 	if err != nil {
-		logrus.Debugf("Encryption: %#v", err)
+		logrus.Warningf("Encryption: %#v", err)
 	}
 
 	row := &Agent{
