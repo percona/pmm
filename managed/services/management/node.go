@@ -28,6 +28,7 @@ import (
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/services/inventory"
 	"github.com/percona/pmm/managed/utils/auth"
 )
 
@@ -36,13 +37,15 @@ type NodeService struct {
 	db *reform.DB
 	ap authProvider
 	l  *logrus.Entry
+	ns *inventory.NodesService
 }
 
 // NewNodeService creates NodeService instance.
-func NewNodeService(db *reform.DB, ap authProvider) *NodeService {
+func NewNodeService(db *reform.DB, ap authProvider, ns *inventory.NodesService) *NodeService {
 	return &NodeService{
 		db: db,
 		ap: ap,
+		ns: ns,
 		l:  logrus.WithField("component", "node"),
 	}
 }
@@ -152,14 +155,7 @@ func (s *NodeService) Unregister(ctx context.Context, req *managementpb.Unregist
 		return nil, err
 	}
 
-	err = s.db.InTransaction(func(tx *reform.TX) error {
-		mode := models.RemoveRestrict
-		if req.Force {
-			mode = models.RemoveCascade
-		}
-
-		return models.RemoveNode(tx.Querier, req.NodeId, mode)
-	})
+	err = s.ns.Remove(ctx, req.NodeId, req.Force)
 	if err != nil {
 		return nil, err
 	}
