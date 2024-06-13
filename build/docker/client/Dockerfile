@@ -29,6 +29,8 @@ COPY --from=users --chown=0:0 /usr/bin/curl /usr/bin/
 
 COPY --from=users --chown=0:0 /usr/lib64/libjq.so.1.0.4 /lib64/libjq.so.1
 COPY --from=users --chown=0:0 /usr/lib64/libonig.so.5.1.0 /lib64/libonig.so.5
+
+# Dependencies of curl
 COPY --from=users --chown=0:0 /usr/lib64/libkeyutils.so* /lib64/
 COPY --from=users --chown=0:0 /usr/lib64/libz.so* /lib64/
 COPY --from=users --chown=0:0 /usr/lib64/libkrb5support.so* /lib64/
