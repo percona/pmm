@@ -97,7 +97,7 @@ func New(params *Params, redactWords []string, l *logrus.Entry) *Process {
 		changes:     make(chan inventorypb.AgentStatus, 10),
 		backoff:     backoff.New(backoffMinDelay, backoffMaxDelay),
 		ctxDone:     make(chan struct{}),
-		initialized: make(chan bool),
+		initialized: make(chan bool, 1),
 	}
 }
 
