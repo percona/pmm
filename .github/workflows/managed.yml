@@ -49,6 +49,7 @@ jobs:
         run: docker exec -i pmm-server git config --global --add safe.directory /root/go/src/github.com/percona/pmm
 
       - name: Pull the cache image and inject cache to PMM Server
+        continue-on-error: true
         run: |
           if docker pull ${{ env.PMM_CACHE_IMAGE }}; then
             docker run --rm --volumes-from pmm-server ${{ env.PMM_CACHE_IMAGE }} sh -c "cp -rf /mod-cache/* /root/go/pkg/mod; cp -rf /build-cache/* /root/.cache/go-build"
