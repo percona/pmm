@@ -78,7 +78,7 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 		database = exporter.MongoDBOptions.AuthenticationDatabase
 	}
 	env := []string{
-		fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: database}, tdp)),
+		fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: database}, tdp, pmmAgentVersion)),
 	}
 
 	res := &agentpb.SetStateRequest_AgentProcess{
@@ -270,11 +270,11 @@ func defaultCollectors(collectAll bool) map[string]collectorArgs {
 }
 
 // qanMongoDBProfilerAgentConfig returns desired configuration of qan-mongodb-profiler-agent built-in agent.
-func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
+func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentpb.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type:                 inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT,
-		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil),
+		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
 		DisableQueryExamples: agent.QueryExamplesDisabled,
 		MaxQueryLength:       agent.MaxQueryLength,
 		TextFiles: &agentpb.TextFiles{
