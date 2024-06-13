@@ -69,11 +69,9 @@ jobs:
         run: docker exec -t pmm-server supervisorctl status
 
       - name: Run tests
-        if: ${{ !env.ACT }}
         run: docker exec -i pmm-server make -C managed test-cover
 
       - name: Upload coverage results
-        if: ${{ !env.ACT }}
         uses: codecov/codecov-action@v4
         with:
           file: managed/cover.out
@@ -88,7 +86,7 @@ jobs:
           # docker exec -i pmm-server make -C managed test-update
 
       - name: Save PMM Go module and build cache as an image
-        if: ${{ env.BUILD_CACHE }}
+        if: ${{ fromJSON(env.BUILD_CACHE) }}
         run: |
           df -h | grep -A 1 Filesystem
           # We need to free up some space, see more https://github.com/actions/runner-images/issues/2840
@@ -101,7 +99,7 @@ jobs:
           docker rm -v pmm-cache
 
       - name: Login to ghcr.io registry
-        if: ${{ env.BUILD_CACHE }}
+        if: ${{ fromJSON(env.BUILD_CACHE) }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -109,7 +107,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push the image to ghcr.io
-        if: ${{ env.BUILD_CACHE }}
+        if: ${{ fromJSON(env.BUILD_CACHE) }}
         run: docker push ${{ env.PMM_CACHE_IMAGE }}
 
       - name: Run debug commands

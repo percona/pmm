@@ -22,6 +22,13 @@ PMM_LD_FLAGS = -ldflags " \
 			-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 			"
 
+IS_ARM        := $(filter arm64,$(shell uname -m))
+PMM_RACE_FLAG ?= $(if $(IS_ARM),,-race)
+
+PMM_TEST_FLAGS ?= -timeout=180s
+PMM_TEST_RUN_UPDATE ?= 0
+PMM_TEST_FILES ?= ./...
+
 gen: clean                      ## Generate files
 	go generate ./...
 
@@ -36,17 +43,8 @@ release-starlark:
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-managed-starlark/...
 	$(PMM_RELEASE_PATH)/pmm-managed-starlark --version
 
-ARCH=$(shell uname -m)
 release-dev:										## Build pmm-managed binaries for development
-	if [ $(ARCH) = "aarch64" ]; then \
-		go build -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/... ; \
-	else \
-		go build -race -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/... ; \
-    fi
-
-PMM_TEST_FLAGS ?= -timeout=180s
-PMM_TEST_RUN_UPDATE ?= 0
-PMM_TEST_FILES ?= ./...
+	go build $(PMM_RACE_FLAG) -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
 
 test:                           ## Run tests
 	go test $(PMM_TEST_FLAGS) -p 1 -race $(PMM_TEST_FILES)
