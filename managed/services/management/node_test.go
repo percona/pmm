@@ -31,6 +31,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/inventory"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 	"github.com/percona/pmm/utils/logger"
@@ -50,45 +51,61 @@ func TestNodeService(t *testing.T) {
 			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 			db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
+			serviceAccountID := int(0)
+			nodeName := getTestNodeName()
+			reregister := false
+
+			r := &mockAgentsRegistry{}
+			r.Test(t)
+
+			vmdb := &mockPrometheusService{}
+			vmdb.Test(t)
+
+			state := &mockAgentsStateUpdater{}
+			state.Test(t)
+
+			authProvider := &mockAuthProvider{}
+			authProvider.Test(t)
+
 			teardown = func(t *testing.T) {
 				t.Helper()
 				uuid.SetRand(nil)
 
 				require.NoError(t, sqlDB.Close())
+
+				r.AssertExpectations(t)
+				vmdb.AssertExpectations(t)
+				state.AssertExpectations(t)
+				authProvider.AssertExpectations(t)
 			}
 			md := metadata.New(map[string]string{
 				"Authorization": "Basic username:password",
 			})
 			ctx = metadata.NewIncomingContext(ctx, md)
 
-			serviceAccountID := int(0)
-			nodeName := getTestNodeName()
-			reregister := false
-			force := true
-
-			var authProvider mockAuthProvider
-			authProvider.Test(t)
 			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
-			authProvider.On("DeleteServiceAccount", ctx, nodeName, force).Return("", nil)
-			s = NewNodeService(db, &authProvider)
+
+			s = NewNodeService(db, authProvider, inventory.NewNodesService(db, r, state, vmdb))
 
 			return
 		}
 
+		ctx, s, teardown := setup(t)
+		defer teardown(t)
+
 		t.Run("New", func(t *testing.T) {
-			ctx, s, teardown := setup(t)
-			defer teardown(t)
+			nodeName := getTestNodeName()
 
 			res, err := s.Register(ctx, &managementpb.RegisterNodeRequest{
 				NodeType: inventorypb.NodeType_GENERIC_NODE,
-				NodeName: "test-node",
+				NodeName: nodeName,
 				Address:  "some.address.org",
 				Region:   "region",
 			})
 			expected := &managementpb.RegisterNodeResponse{
 				GenericNode: &inventorypb.GenericNode{
 					NodeId:   "/node_id/00000000-0000-4000-8000-000000000005",
-					NodeName: "test-node",
+					NodeName: nodeName,
 					Address:  "some.address.org",
 					Region:   "region",
 				},
@@ -105,7 +122,7 @@ func TestNodeService(t *testing.T) {
 			t.Run("Exist", func(t *testing.T) {
 				res, err = s.Register(ctx, &managementpb.RegisterNodeRequest{
 					NodeType: inventorypb.NodeType_GENERIC_NODE,
-					NodeName: "test-node",
+					NodeName: getTestNodeName(),
 				})
 				assert.Nil(t, res)
 				tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test-node" already exists.`), err)
@@ -113,8 +130,8 @@ func TestNodeService(t *testing.T) {
 
 			t.Run("Reregister", func(t *testing.T) {
 				serviceAccountID := int(0)
-				nodeName := getTestNodeName()
-				reregister := true
+				nodeName := "test-node-new"
+				reregister := false
 
 				var authProvider mockAuthProvider
 				authProvider.Test(t)
@@ -123,27 +140,13 @@ func TestNodeService(t *testing.T) {
 
 				res, err = s.Register(ctx, &managementpb.RegisterNodeRequest{
 					NodeType:   inventorypb.NodeType_GENERIC_NODE,
-					NodeName:   "test-node",
+					NodeName:   nodeName,
 					Address:    "some.address.org",
 					Region:     "region",
-					Reregister: true,
+					Reregister: false,
 				})
-				expected := &managementpb.RegisterNodeResponse{
-					GenericNode: &inventorypb.GenericNode{
-						NodeId:   "/node_id/00000000-0000-4000-8000-000000000008",
-						NodeName: "test-node",
-						Address:  "some.address.org",
-						Region:   "region",
-					},
-					ContainerNode: (*inventorypb.ContainerNode)(nil),
-					PmmAgent: &inventorypb.PMMAgent{
-						AgentId:      "/agent_id/00000000-0000-4000-8000-000000000009",
-						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000008",
-					},
-					Token: "test-token",
-				}
-				assert.Equal(t, expected, res)
-				assert.NoError(t, err)
+
+				tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with instance "some.address.org" and region "region" already exists.`), err)
 			})
 
 			t.Run("Reregister-force", func(t *testing.T) {
@@ -158,22 +161,22 @@ func TestNodeService(t *testing.T) {
 
 				res, err = s.Register(ctx, &managementpb.RegisterNodeRequest{
 					NodeType:   inventorypb.NodeType_GENERIC_NODE,
-					NodeName:   "test-node-new",
+					NodeName:   nodeName,
 					Address:    "some.address.org",
 					Region:     "region",
 					Reregister: true,
 				})
 				expected := &managementpb.RegisterNodeResponse{
 					GenericNode: &inventorypb.GenericNode{
-						NodeId:   "/node_id/00000000-0000-4000-8000-00000000000b",
-						NodeName: "test-node-new",
+						NodeId:   "/node_id/00000000-0000-4000-8000-000000000008",
+						NodeName: nodeName,
 						Address:  "some.address.org",
 						Region:   "region",
 					},
 					ContainerNode: (*inventorypb.ContainerNode)(nil),
 					PmmAgent: &inventorypb.PMMAgent{
-						AgentId:      "/agent_id/00000000-0000-4000-8000-00000000000c",
-						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-00000000000b",
+						AgentId:      "/agent_id/00000000-0000-4000-8000-000000000009",
+						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000008",
 					},
 					Token: "test-token",
 				}
@@ -193,9 +196,20 @@ func TestNodeService(t *testing.T) {
 				authProvider.On("DeleteServiceAccount", ctx, nodeName, force).Return("", nil)
 				s.ap = &authProvider
 
+				state := &mockAgentsStateUpdater{}
+				state.Test(t)
+				state.On("RequestStateUpdate", ctx, "/agent_id/00000000-0000-4000-8000-00000000000c")
+				r := &mockAgentsRegistry{}
+				r.Test(t)
+				r.On("Kick", ctx, "/agent_id/00000000-0000-4000-8000-00000000000c").Return(true)
+				vmdb := &mockPrometheusService{}
+				vmdb.Test(t)
+				vmdb.On("RequestConfigurationUpdate").Return()
+				s.ns = inventory.NewNodesService(s.db, r, state, vmdb)
+
 				resRegister, err := s.Register(ctx, &managementpb.RegisterNodeRequest{
 					NodeType:   inventorypb.NodeType_GENERIC_NODE,
-					NodeName:   "test-node",
+					NodeName:   nodeName,
 					Address:    "some.address.org",
 					Region:     "region",
 					Reregister: true,
@@ -204,15 +218,15 @@ func TestNodeService(t *testing.T) {
 
 				expected := &managementpb.RegisterNodeResponse{
 					GenericNode: &inventorypb.GenericNode{
-						NodeId:   "/node_id/00000000-0000-4000-8000-00000000000e",
-						NodeName: "test-node",
+						NodeId:   "/node_id/00000000-0000-4000-8000-00000000000b",
+						NodeName: nodeName,
 						Address:  "some.address.org",
 						Region:   "region",
 					},
 					ContainerNode: (*inventorypb.ContainerNode)(nil),
 					PmmAgent: &inventorypb.PMMAgent{
-						AgentId:      "/agent_id/00000000-0000-4000-8000-00000000000f",
-						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-00000000000e",
+						AgentId:      "/agent_id/00000000-0000-4000-8000-00000000000c",
+						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-00000000000b",
 					},
 					Token: "test-token",
 				}
