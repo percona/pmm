@@ -39,10 +39,10 @@ func TestNodeService(t *testing.T) {
 	getTestNodeName := func() string {
 		return "test-node"
 	}
-	setup := func(t *testing.T) (ctx context.Context, s *NodeService, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (context.Context, *NodeService, func(t *testing.T)) {
 		t.Helper()
 
-		ctx = logger.Set(context.Background(), t.Name())
+		ctx := logger.Set(context.Background(), t.Name())
 		uuid.SetRand(&tests.IDReader{})
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
@@ -65,7 +65,7 @@ func TestNodeService(t *testing.T) {
 		authProvider.Test(t)
 		authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
 
-		teardown = func(t *testing.T) {
+		teardown := func(t *testing.T) {
 			t.Helper()
 			uuid.SetRand(nil)
 
@@ -77,9 +77,9 @@ func TestNodeService(t *testing.T) {
 			authProvider.AssertExpectations(t)
 		}
 
-		s = NewNodeService(db, authProvider, r, state, vmdb)
+		s := NewNodeService(db, authProvider, r, state, vmdb)
 
-		return
+		return ctx, s, teardown
 	}
 
 	ctx, s, teardown := setup(t)

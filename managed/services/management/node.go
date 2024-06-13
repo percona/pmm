@@ -17,7 +17,6 @@ package management
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
@@ -59,7 +58,6 @@ func NewNodeService(db *reform.DB, ap authProvider, r agentsRegistry, state agen
 func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNodeRequest) (*managementpb.RegisterNodeResponse, error) {
 	res := &managementpb.RegisterNodeResponse{}
 
-	fmt.Printf("\n\n %t \n\n", req.Reregister)
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		node, err := models.FindNodeByName(tx.Querier, req.NodeName)
 		switch status.Code(err) { //nolint:exhaustive
