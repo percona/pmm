@@ -82,23 +82,23 @@ jobs:
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Save PMM Go module and build cache as an image
-        if: ${{ env.BUILD_CACHE }}
-        run: |
-          df -h
-          # We need to free up some space, see more https://github.com/actions/runner-images/issues/2840
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /usr/local/share/boost
-          df -h
-          docker run --name pmm-cache --volumes-from pmm-server busybox sh -c "mkdir /mod-cache /build-cache; cp -r /root/go/pkg/mod/* /mod-cache; cp -r /root/.cache/go-build/* /build-cache"
-          docker commit pmm-cache ${{ env.PMM_CACHE_IMAGE }}
-          docker rm -v pmm-cache
-
       - name: Run PMM Server update test
         run: |
           echo "PMM Server update test will be refactored once we have a new update mechanism."
           # docker exec -i pmm-server make -C managed test-update
+
+      - name: Save PMM Go module and build cache as an image
+        if: ${{ env.BUILD_CACHE }}
+        run: |
+          df -h | grep -A 1 Filesystem
+          # We need to free up some space, see more https://github.com/actions/runner-images/issues/2840
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          df -h | grep -A 1 Filesystem
+          docker run --name pmm-cache --volumes-from pmm-server busybox sh -c "mkdir /mod-cache /build-cache; cp -r /root/go/pkg/mod/* /mod-cache; cp -r /root/.cache/go-build/* /build-cache"
+          docker commit pmm-cache ${{ env.PMM_CACHE_IMAGE }}
+          docker rm -v pmm-cache
 
       - name: Login to ghcr.io registry
         if: ${{ env.BUILD_CACHE }}
