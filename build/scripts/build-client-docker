@@ -29,7 +29,7 @@ docker buildx build --build-arg BUILD_DATE="`date --rfc-3339=seconds`" \
                     --platform linux/${ARCH} \
                     --squash \
                     --no-cache \
-                    --load
+                    --load \
                     -f ${DOCKER_FILE_LOCATION}/${docker_file} \
                     -t ${DOCKER_CLIENT_TAG}-${ARCH} \
                     ${DOCKER_FILE_LOCATION}
