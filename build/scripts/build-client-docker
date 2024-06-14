@@ -38,7 +38,7 @@ if [ -n "${PUSH_DOCKER}" ]; then
     mkdir -p $(dirname ${docker_client_tag_file})
     echo ${DOCKER_CLIENT_TAG} > ${docker_client_tag_file}
     docker push ${DOCKER_CLIENT_TAG}-${ARCH}
-    docker manifest create ${DOCKER_CLIENT_TAG} ${DOCKER_CLIENT_TAG}-amd64 ${DOCKER_CLIENT_TAG}-arm64
+    docker manifest create ${DOCKER_CLIENT_TAG} --amend ${DOCKER_CLIENT_TAG}-amd64 --amend ${DOCKER_CLIENT_TAG}-arm64
     docker manifest annotate --arch amd64 ${DOCKER_CLIENT_TAG} ${DOCKER_CLIENT_TAG}-amd64
     docker manifest annotate --arch arm64 ${DOCKER_CLIENT_TAG} ${DOCKER_CLIENT_TAG}-arm64
     docker manifest push ${DOCKER_CLIENT_TAG}
