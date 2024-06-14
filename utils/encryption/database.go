@@ -36,7 +36,7 @@ func (c DatabaseConnection) DSN() string {
 
 func (item EncryptedItem) Read(tx *sql.Tx) (*QueryValues, error) {
 	what := append(item.Identificators, item.Columns...)
-	query := fmt.Sprintf("SELECT %s FROM %s", strings.Join(what, ","), item.Table)
+	query := fmt.Sprintf("SELECT %s FROM %s", strings.Join(what, ", "), item.Table)
 	rows, err := tx.Query(query)
 	if err != nil {
 		return nil, err
