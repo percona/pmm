@@ -31,7 +31,7 @@ message UserUpdateRequest {
   // Alerting Tour
   bool alerting_tour_completed = 3;
   // Snooze update alert for a PMM version
-  string snoozed_pmm_version = 4;
+  google.protobuf.StringValue snoozed_pmm_version = 4;
 }
 
 message ListUsersRequest {}
