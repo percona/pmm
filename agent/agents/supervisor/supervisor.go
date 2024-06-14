@@ -25,6 +25,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
@@ -423,10 +424,11 @@ const (
 	type_TEST_SLEEP    inventorypb.AgentType = 998 // process
 	type_TEST_NOOP     inventorypb.AgentType = 999 // built-in
 	process_Retry_Time int                   = 3
+	start_Process_Waiting                    = 2 * time.Second
 )
 
 func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentpb.SetStateRequest_AgentProcess, port uint16) error {
-	var err error = nil
+	var err error
 	for i := 0; i < process_Retry_Time; i++ {
 		if port == 0 {
 			_port, err := s.portsRegistry.Reserve()
@@ -487,10 +489,16 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 		}
 		close(done)
 	}()
-
-	if !<-process.IsInitialized() {
-		defer cancel()
-		return process.GetError()
+	
+	t := time.NewTimer(start_Process_Waiting)
+	defer t.Stop()
+	select {
+	case isInitialized := <- process.IsInitialized():
+		if (!isInitialized){
+			defer cancel()
+			return process.GetError()
+		}
+	case <-t.C:
 	}
 
 	//nolint:forcetypeassert

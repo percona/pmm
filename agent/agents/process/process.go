@@ -17,12 +17,12 @@ package process
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os/exec"
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
@@ -101,10 +101,12 @@ func New(params *Params, redactWords []string, l *logrus.Entry) *Process {
 	}
 }
 
+// If the process is initialized.
 func (p *Process) IsInitialized() <-chan bool {
 	return p.initialized
 }
 
+// error thrown when initializing the process.
 func (p *Process) GetError() error {
 	return p.err
 }
@@ -119,7 +121,7 @@ func (p *Process) Run(ctx context.Context) {
 }
 
 // STARTING -> RUNNING.
-// STARTING -> FAILING
+// STARTING -> FAILING.
 func (p *Process) toStarting() {
 	p.l.Tracef("Process: starting.")
 	p.changes <- inventorypb.AgentStatus_STARTING
@@ -205,7 +207,7 @@ func (p *Process) toWaiting() {
 	}
 }
 
-// FAILING -> DONE
+// FAILING -> DONE.
 func (p *Process) toFailing(err error) {
 	p.l.Tracef("Process: failing")
 	p.changes <- inventorypb.AgentStatus_INITIALIZATION_ERROR
