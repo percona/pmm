@@ -77,11 +77,14 @@ func TestCheckUpdates(t *testing.T) {
 		assert.NotEmpty(t, res.Payload.Latest.Tag)
 		assert.NotEqual(t, res.Payload.Installed.FullVersion, res.Payload.Latest.Version)
 		assert.NotEqual(t, res.Payload.Installed.Timestamp, res.Payload.Latest.Timestamp)
-		assert.True(t, strings.HasPrefix(res.Payload.LatestNewsURL, "https://per.co.na/pmm/2."), "latest_news_url = %q", res.Payload.LatestNewsURL)
+		assert.True(t, strings.HasPrefix(res.Payload.Latest.ReleaseNotesURL, "https://per.co.na/pmm/2."), "latest_news_url = %q", res.Payload.Latest.ReleaseNotesURL)
+
+		assert.NotEmpty(t, res.Payload.AvailableVersions)
+		assert.NotEmpty(t, res.Payload.AvailableVersions[0].ReleaseNotesURL)
 	} else {
 		assert.Equal(t, res.Payload.Installed.Timestamp, res.Payload.Latest.Timestamp)
 		assert.Empty(t, res.Payload.Installed.FullVersion, res.Payload.Latest.Version)
-		assert.Empty(t, res.Payload.LatestNewsURL, "latest_news_url should be empty")
+		assert.Empty(t, res.Payload.Latest.ReleaseNotesText, "release_notes_url should be empty")
 	}
 	assert.NotEmpty(t, res.Payload.LastCheck)
 

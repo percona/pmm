@@ -419,8 +419,8 @@ type CheckUpdatesOKBody struct {
 	// True if there is a PMM Server update available.
 	UpdateAvailable bool `json:"update_available,omitempty"`
 
-	// Latest available PMM Server release announcement URL.
-	LatestNewsURL string `json:"latest_news_url,omitempty"`
+	// List of all available PMM versions between the installed version and the newest released versioned.
+	AvailableVersions []*CheckUpdatesOKBodyAvailableVersionsItems0 `json:"available_versions"`
 
 	// Last check time.
 	// Format: date-time
@@ -437,6 +437,10 @@ type CheckUpdatesOKBody struct {
 func (o *CheckUpdatesOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateAvailableVersions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateLastCheck(formats); err != nil {
 		res = append(res, err)
 	}
@@ -452,6 +456,32 @@ func (o *CheckUpdatesOKBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *CheckUpdatesOKBody) validateAvailableVersions(formats strfmt.Registry) error {
+	if swag.IsZero(o.AvailableVersions) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.AvailableVersions); i++ {
+		if swag.IsZero(o.AvailableVersions[i]) { // not required
+			continue
+		}
+
+		if o.AvailableVersions[i] != nil {
+			if err := o.AvailableVersions[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("checkUpdatesOk" + "." + "available_versions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("checkUpdatesOk" + "." + "available_versions" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 
@@ -509,6 +539,10 @@ func (o *CheckUpdatesOKBody) validateLatest(formats strfmt.Registry) error {
 func (o *CheckUpdatesOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.contextValidateAvailableVersions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateInstalled(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -520,6 +554,23 @@ func (o *CheckUpdatesOKBody) ContextValidate(ctx context.Context, formats strfmt
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *CheckUpdatesOKBody) contextValidateAvailableVersions(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.AvailableVersions); i++ {
+		if o.AvailableVersions[i] != nil {
+			if err := o.AvailableVersions[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("checkUpdatesOk" + "." + "available_versions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("checkUpdatesOk" + "." + "available_versions" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -564,6 +615,77 @@ func (o *CheckUpdatesOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *CheckUpdatesOKBody) UnmarshalBinary(b []byte) error {
 	var res CheckUpdatesOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+CheckUpdatesOKBodyAvailableVersionsItems0 check updates OK body available versions items0
+swagger:model CheckUpdatesOKBodyAvailableVersionsItems0
+*/
+type CheckUpdatesOKBodyAvailableVersionsItems0 struct {
+	// PMM Version.
+	Version string `json:"version,omitempty"`
+
+	// Docker image tag.
+	Tag string `json:"tag,omitempty"`
+
+	// Release date.
+	// Format: date-time
+	Timestamp strfmt.DateTime `json:"timestamp,omitempty"`
+
+	// Release notes URL for the version release (if available).
+	ReleaseNotesURL string `json:"release_notes_url,omitempty"`
+
+	// Release notes text for the version release (if available).
+	ReleaseNotesText string `json:"release_notes_text,omitempty"`
+}
+
+// Validate validates this check updates OK body available versions items0
+func (o *CheckUpdatesOKBodyAvailableVersionsItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateTimestamp(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *CheckUpdatesOKBodyAvailableVersionsItems0) validateTimestamp(formats strfmt.Registry) error {
+	if swag.IsZero(o.Timestamp) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("timestamp", "body", "date-time", o.Timestamp.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this check updates OK body available versions items0 based on context it is used
+func (o *CheckUpdatesOKBodyAvailableVersionsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CheckUpdatesOKBodyAvailableVersionsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CheckUpdatesOKBodyAvailableVersionsItems0) UnmarshalBinary(b []byte) error {
+	var res CheckUpdatesOKBodyAvailableVersionsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -650,6 +772,12 @@ type CheckUpdatesOKBodyLatest struct {
 	// Release date.
 	// Format: date-time
 	Timestamp strfmt.DateTime `json:"timestamp,omitempty"`
+
+	// Release notes URL for the version release (if available).
+	ReleaseNotesURL string `json:"release_notes_url,omitempty"`
+
+	// Release notes text for the version release (if available).
+	ReleaseNotesText string `json:"release_notes_text,omitempty"`
 }
 
 // Validate validates this check updates OK body latest

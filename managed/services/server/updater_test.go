@@ -233,7 +233,7 @@ func TestUpdater(t *testing.T) {
 				u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
 				parsed, err := version.Parse(tt.args.currentVersion)
 				require.NoError(t, err)
-				next := u.next(*parsed, tt.args.results)
+				_, next := u.next(*parsed, tt.args.results)
 				require.NoError(t, err)
 				assert.Equal(t, tt.want.Version, next.Version.String())
 				assert.Equal(t, tt.want.DockerImage, next.DockerImage)
@@ -247,9 +247,9 @@ func TestUpdater(t *testing.T) {
 
 	t.Run("TestLatest", func(t *testing.T) {
 		// Used PMM 2, because PMM 3 is not released yet.
-		version.Version = "2.41.0"
+		version.Version = "2.40.0"
 		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
-		latest, err := u.latest(context.Background())
+		_, latest, err := u.latest(context.Background())
 		require.NoError(t, err)
 		assert.NotNil(t, latest)
 		assert.True(t, strings.HasPrefix(latest.Version.String(), "2.41."), "latest version of PMM 2 should have prefix 2.41.")
@@ -265,7 +265,7 @@ func TestUpdater(t *testing.T) {
 		require.NoError(t, err)
 
 		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
-		latest, err := u.latest(context.Background())
+		_, latest, err := u.latest(context.Background())
 		require.NoError(t, err)
 		assert.Equal(t, "2.41.1", latest.Version.String())
 		assert.Equal(t, "2.41.1", latest.DockerImage)

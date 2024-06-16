@@ -262,20 +262,9 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 		return nil, status.Error(codes.Unavailable, "failed to check for updates")
 	}
 
-	res := &serverpb.CheckUpdatesResponse{
-		Installed: &serverpb.VersionInfo{
-			Version:     v.Installed.Version,
-			FullVersion: v.Installed.FullVersion,
-			Timestamp:   timestamppb.New(*v.Installed.BuildTime),
-		},
-		Latest: &serverpb.DockerVersionInfo{
-			Version: v.Latest.Version.String(),
-			Tag:     v.Latest.DockerImage,
-		},
-		UpdateAvailable: v.Latest.DockerImage != "",
-		LatestNewsUrl:   v.LatestNewsURL,
-	}
+	res := convertResponseToProto(v)
 
+	s.l.Infof("%+v", res.AvailableVersions)
 	if updatesDisabled {
 		res.UpdateAvailable = false
 	}
@@ -295,6 +284,36 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 	return res, nil
 }
 
+func convertResponseToProto(v *version.UpdateCheckResult) *serverpb.CheckUpdatesResponse {
+	newerVersions := make([]*serverpb.DockerVersionInfo, 0, len(v.NewerVersions))
+	for _, nv := range v.NewerVersions {
+		newerVersions = append(newerVersions, &serverpb.DockerVersionInfo{
+			Version:          nv.Version.String(),
+			ReleaseNotesUrl:  nv.ReleaseNotesURL,
+			ReleaseNotesText: nv.ReleaseNotesText,
+			Tag:              nv.DockerImage,
+			Timestamp:        timestamppb.New(nv.BuildTime),
+		})
+	}
+
+	return &serverpb.CheckUpdatesResponse{
+		Installed: &serverpb.VersionInfo{
+			Version:     v.Installed.Version,
+			FullVersion: v.Installed.FullVersion,
+			Timestamp:   timestamppb.New(*v.Installed.BuildTime),
+		},
+		Latest: &serverpb.DockerVersionInfo{
+			Version:          v.Latest.Version.String(),
+			ReleaseNotesUrl:  v.Latest.ReleaseNotesURL,
+			ReleaseNotesText: v.Latest.ReleaseNotesText,
+			Tag:              v.Latest.DockerImage,
+			Timestamp:        timestamppb.New(v.Latest.BuildTime),
+		},
+		AvailableVersions: newerVersions,
+		UpdateAvailable:   v.Latest.DockerImage != "",
+	}
+}
+
 // StartUpdate starts PMM Server update.
 func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateRequest) (*serverpb.StartUpdateResponse, error) { //nolint:revive
 	s.envRW.RLock()
@@ -307,7 +326,7 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 
 	newImage := req.GetNewImage()
 	if newImage == "" {
-		latest, err := s.updater.latest(ctx)
+		_, latest, err := s.updater.latest(ctx)
 		if err != nil {
 			s.l.WithError(err).Error("Failed to get latest version")
 			newImage = defaultLatestPMMImage

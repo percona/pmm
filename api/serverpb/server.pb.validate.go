@@ -998,6 +998,10 @@ func (m *DockerVersionInfo) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for ReleaseNotesUrl
+
+	// no validation rules for ReleaseNotesText
+
 	if len(errors) > 0 {
 		return DockerVersionInfoMultiError(errors)
 	}
@@ -1160,7 +1164,39 @@ func (m *CheckUpdatesResponse) validate(all bool) error {
 
 	// no validation rules for UpdateAvailable
 
-	// no validation rules for LatestNewsUrl
+	for idx, item := range m.GetAvailableVersions() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, CheckUpdatesResponseValidationError{
+						field:  fmt.Sprintf("AvailableVersions[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, CheckUpdatesResponseValidationError{
+						field:  fmt.Sprintf("AvailableVersions[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return CheckUpdatesResponseValidationError{
+					field:  fmt.Sprintf("AvailableVersions[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
 
 	if all {
 		switch v := interface{}(m.GetLastCheck()).(type) {

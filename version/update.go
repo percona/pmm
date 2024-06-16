@@ -32,15 +32,17 @@ type UpdateInstalledResult struct {
 
 // UpdateCheckResult represents `pmm-update -check` result.
 type UpdateCheckResult struct {
-	Installed       PackageInfo       `json:"installed"`
-	Latest          DockerVersionInfo `json:"latest,omitempty"`
-	UpdateAvailable bool              `json:"update_available"`
-	LatestNewsURL   string            `json:"latest_news_url"`
+	Installed       PackageInfo          `json:"installed"`
+	Latest          DockerVersionInfo    `json:"latest,omitempty"`
+	NewerVersions   []*DockerVersionInfo `json:"newer_versions"`
+	UpdateAvailable bool                 `json:"update_available"`
 }
 
 // DockerVersionInfo describes the version of the Docker image.
 type DockerVersionInfo struct {
-	Version     Parsed    `json:"version"`
-	DockerImage string    `json:"docker_image"`
-	BuildTime   time.Time `json:"build_time"`
+	Version          Parsed    `json:"version"`
+	DockerImage      string    `json:"docker_image"`
+	BuildTime        time.Time `json:"build_time"`
+	ReleaseNotesURL  string    `json:"release_notes_url"`
+	ReleaseNotesText string    `json:"release_notes_text"`
 }

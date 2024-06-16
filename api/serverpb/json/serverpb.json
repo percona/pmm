@@ -690,6 +690,42 @@
             "schema": {
               "type": "object",
               "properties": {
+                "available_versions": {
+                  "description": "List of all available PMM versions between the installed version and the newest released versioned.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "release_notes_text": {
+                        "description": "Release notes text for the version release (if available).",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "release_notes_url": {
+                        "description": "Release notes URL for the version release (if available).",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "tag": {
+                        "description": "Docker image tag.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "timestamp": {
+                        "description": "Release date.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 2
+                      },
+                      "version": {
+                        "description": "PMM Version.",
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
                 "installed": {
                   "description": "VersionInfo describes component version, or PMM Server as a whole.",
                   "type": "object",
@@ -722,6 +758,16 @@
                 "latest": {
                   "type": "object",
                   "properties": {
+                    "release_notes_text": {
+                      "description": "Release notes text for the version release (if available).",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "release_notes_url": {
+                      "description": "Release notes URL for the version release (if available).",
+                      "type": "string",
+                      "x-order": 3
+                    },
                     "tag": {
                       "description": "Docker image tag.",
                       "type": "string",
@@ -740,11 +786,6 @@
                     }
                   },
                   "x-order": 1
-                },
-                "latest_news_url": {
-                  "description": "Latest available PMM Server release announcement URL.",
-                  "type": "string",
-                  "x-order": 3
                 },
                 "update_available": {
                   "description": "True if there is a PMM Server update available.",

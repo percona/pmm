@@ -73,17 +73,21 @@ message DockerVersionInfo {
   string tag = 2;
   // Release date.
   google.protobuf.Timestamp timestamp = 3;
+  // Release notes URL for the version release (if available).
+  string release_notes_url = 4;
+  // Release notes text for the version release (if available).
+  string release_notes_text = 5;
 }
 
 message CheckUpdatesResponse {
   // Currently installed PMM Server version.
   VersionInfo installed = 1;
-  // Latest available PMM Server version.
+  // Latest available PMM Server version that can be upgraded to.
   DockerVersionInfo latest = 2;
   // True if there is a PMM Server update available.
   bool update_available = 3;
-  // Latest available PMM Server release announcement URL.
-  string latest_news_url = 4;
+  // List of all available PMM versions between the installed version and the newest released versioned.
+  repeated DockerVersionInfo available_versions = 4;
   // Last check time.
   google.protobuf.Timestamp last_check = 5;
 }
