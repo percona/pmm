@@ -1,3 +1,5 @@
+
+
 /*
 * Prefixed by https://autoprefixer.github.io
 * PostCSS: v8.4.14,
@@ -77,6 +79,7 @@
 [data-md-color-scheme="percona-light"] {
 
     /* Primitives */
+    --md-hue: 220;
     --md-primary-fg-color: var(--sky700);
 
     /* Type */
@@ -102,11 +105,14 @@
     /* Code */
     --md-code-bg-color: var(--stone800);
     --md-code-bg-color: var(--stone50);
+
+    /* Tables */
+    --md-typeset-table-color: hsla(var(--md-hue),17%,21%,0.25)
 }
 [data-md-color-scheme="percona-dark"] {
 
     /* Primitives */
-    --md-hue: 230;
+    --md-hue: 0;
     --md-primary-fg-color: var(--sky200);
 
     /* Type */
@@ -133,6 +139,9 @@
     /* Code */
     --md-code-bg-color: var(--stone50);
     --md-code-bg-color: var(--stone800);
+
+    /* Tables */
+    --md-typeset-table-color: hsla(var(--md-hue),0%,100%,0.25)
 }
 
 /* Typography */
@@ -254,6 +263,12 @@
     vertical-align: baseline;
     padding: 0 0.2em 0.1em;
     border-radius: 0.15em;
+}
+.md-typeset .highlight code span,
+.md-typeset code,
+.md-typeset kbd,
+.md-typeset pre {
+    color: var(--md-typeset-color);
 }
 .md-button code,
 [data-md-color-scheme="percona-dark"] .md-button:not(.md-button--primary) code {
@@ -620,34 +635,6 @@ i[warning] [class*="moji"] {
     margin-right: 0.125em;
     fill: currentColor;
     vertical-align: -0.3125em;
-}
-
-/* Version Select */
-
-.version-select::after {
-    content: "\25BE";
-    display: inline-block;
-    margin-left: -1em;
-    transform: translate(-0.625em, -0.0625em);
-    pointer-events: none;
-}
-#versionSelect {
-    -webkit-appearance: none;
-       -moz-appearance: none;
-            appearance: none;
-    align-self: center;
-    font-size: 0.9rem;
-    line-height: 1;
-    font-weight: 700;
-    padding: 0.5em 1.375em 0.5em 0.5em;
-    margin: 0 0.25em;
-    background-color: rgba(0,0,0,0.2);
-    color: inherit;
-    border: none;
-    border-radius: 0.1rem;
-}
-#versionSelect::-ms-expand {
-    display: none;
 }
 
 /* Media queries */
