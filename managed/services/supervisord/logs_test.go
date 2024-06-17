@@ -83,7 +83,7 @@ func TestReadLog(t *testing.T) {
 	defer os.Remove(fNoNewLineEnding.Name()) //nolint:errcheck
 
 	t.Run("LimitByLines", func(t *testing.T) {
-		b, m, err := readLog(f.Name(), 5, 500)
+		b, m, err := readLog(f.Name(), 5)
 		require.NoError(t, err)
 		assert.WithinDuration(t, time.Now(), m, 5*time.Second)
 		expected := []string{"line #005", "line #006", "line #007", "line #008", "line #009"}
@@ -92,28 +92,10 @@ func TestReadLog(t *testing.T) {
 	})
 
 	t.Run("LimitByLines - no new line ending", func(t *testing.T) {
-		b, m, err := readLog(fNoNewLineEnding.Name(), 5, 500)
+		b, m, err := readLog(fNoNewLineEnding.Name(), 5)
 		require.NoError(t, err)
 		assert.WithinDuration(t, time.Now(), m, 5*time.Second)
 		expected := []string{"line #006", "line #007", "line #008", "line #009", "some string without new line"}
-		actual := strings.Split(strings.TrimSpace(string(b)), "\n")
-		assert.Equal(t, expected, actual)
-	})
-
-	t.Run("LimitByBytes", func(t *testing.T) {
-		b, m, err := readLog(f.Name(), 500, 5)
-		require.NoError(t, err)
-		assert.WithinDuration(t, time.Now(), m, 5*time.Second)
-		expected := []string{"#009"}
-		actual := strings.Split(strings.TrimSpace(string(b)), "\n")
-		assert.Equal(t, expected, actual)
-	})
-
-	t.Run("LimitByBytes - no new line ending", func(t *testing.T) {
-		b, m, err := readLog(fNoNewLineEnding.Name(), 500, 5)
-		require.NoError(t, err)
-		assert.WithinDuration(t, time.Now(), m, 5*time.Second)
-		expected := []string{"line"}
 		actual := strings.Split(strings.TrimSpace(string(b)), "\n")
 		assert.Equal(t, expected, actual)
 	})
@@ -151,7 +133,7 @@ func TestFiles(t *testing.T) {
 	l := NewLogs("2.4.5", checker, params)
 	ctx := logger.Set(context.Background(), t.Name())
 
-	files := l.files(ctx, nil)
+	files := l.files(ctx, nil, -1)
 	actual := make([]string, 0, len(files))
 	for _, f := range files {
 		// present only after update
@@ -197,7 +179,7 @@ func TestZip(t *testing.T) {
 	ctx := logger.Set(context.Background(), t.Name())
 
 	var buf bytes.Buffer
-	require.NoError(t, l.Zip(ctx, &buf, nil))
+	require.NoError(t, l.Zip(ctx, &buf, nil, -1))
 	reader := bytes.NewReader(buf.Bytes())
 	r, err := zip.NewReader(reader, reader.Size())
 	require.NoError(t, err)
