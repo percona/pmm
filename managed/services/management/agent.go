@@ -19,6 +19,7 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -26,6 +27,7 @@ import (
 
 	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/utils/encryption"
 )
 
 // AgentService represents service for working with agents.
@@ -134,6 +136,11 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 		return nil, err
 	}
 
+	decryptedPassword, err := encryption.Decrypt(pointer.GetString(agent.Password))
+	if err != nil {
+		logrus.Warningf("Encryption: %#v", err)
+	}
+
 	ua := &agentv1beta1.UniversalAgent{
 		AgentId:                        agent.AgentID,
 		AgentType:                      string(agent.AgentType),
@@ -143,7 +150,7 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 		Disabled:                       agent.Disabled,
 		DisabledCollectors:             agent.DisabledCollectors,
 		IsConnected:                    s.r.IsConnected(agent.AgentID),
-		IsAgentPasswordSet:             agent.AgentPassword != nil,
+		IsAgentPasswordSet:             decryptedPassword != "",
 		IsAwsSecretKeySet:              agent.AWSSecretKey != nil,
 		IsPasswordSet:                  agent.Password != nil,
 		ListenPort:                     uint32(pointer.GetUint16(agent.ListenPort)),

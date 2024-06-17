@@ -36,8 +36,6 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
-
-	"github.com/percona/pmm/utils/encryption"
 )
 
 const (
@@ -1231,8 +1229,6 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 		return err
 	}
 
-	encryptedPassword, err := encryption.Encrypt(params.Username)
-
 	ap := &CreateAgentParams{
 		PMMAgentID:              PMMServerAgentID,
 		ServiceID:               service.ServiceID,
@@ -1240,7 +1236,7 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 		TLSSkipVerify:           params.SSLMode == DisableSSLMode || params.SSLMode == VerifyCaSSLMode,
 		CommentsParsingDisabled: true,
 		Username:                params.Username,
-		Password:                encryptedPassword,
+		Password:                params.Password,
 	}
 	if ap.TLS {
 		ap.PostgreSQLOptions = &PostgreSQLOptions{}
