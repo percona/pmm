@@ -163,7 +163,7 @@ func TestClient(t *testing.T) {
 			s.On("AgentsList").Return([]*agentlocalpb.AgentInfo{})
 			s.On("ClearChangesChannel").Return()
 
-			r := runner.New(cfgStorage.Get().RunnerCapacity)
+			r := runner.New(cfgStorage.Get().RunnerCapacity, cfgStorage.Get().RunnerMaxConnectionsPerService)
 			client := New(cfgStorage, &s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 			err := client.Run(context.Background())
 			assert.NoError(t, err)
@@ -281,7 +281,7 @@ func TestUnexpectedActionType(t *testing.T) {
 	s.On("AgentsList").Return([]*agentlocalpb.AgentInfo{})
 	s.On("ClearChangesChannel").Return()
 
-	r := runner.New(cfgStorage.Get().RunnerCapacity)
+	r := runner.New(cfgStorage.Get().RunnerCapacity, cfgStorage.Get().RunnerMaxConnectionsPerService)
 	client := New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 	err := client.Run(context.Background())
 	assert.NoError(t, err)

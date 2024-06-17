@@ -26,12 +26,12 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/encoding/prototext"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -318,7 +318,7 @@ func TestRDSService(t *testing.T) {
 				Status:                inventorypb.AgentStatus_UNKNOWN,
 			},
 		}
-		assert.Equal(t, proto.MarshalTextString(expected), proto.MarshalTextString(resp)) // for better diffs
+		assert.Equal(t, prototext.Format(expected), prototext.Format(resp)) // for better diffs
 	})
 
 	t.Run("AddRDSPostgreSQL", func(t *testing.T) {
@@ -408,6 +408,6 @@ func TestRDSService(t *testing.T) {
 				Status:     inventorypb.AgentStatus_UNKNOWN,
 			},
 		}
-		assert.Equal(t, proto.MarshalTextString(expected), proto.MarshalTextString(resp)) // for better diffs
+		assert.Equal(t, prototext.Format(expected), prototext.Format(resp)) // for better diffs
 	})
 }
