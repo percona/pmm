@@ -10,7 +10,7 @@ import {
   Alert,
 } from '@mui/material';
 import { FC } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { formatTimestamp } from 'utils/formatTimestamp';
 import { PMM_HOME_URL } from 'constants';
 import { Messages } from './UpdateCard.messages';
@@ -18,10 +18,10 @@ import { getVersion } from './UpdateCard.utils';
 import { FetchingIcon } from 'components/fetching-icon';
 
 export const UpdateCard: FC = () => {
-  const { isLoading, data, error, isRefetching, refetch } = useQuery(
-    ['currentVersion'],
-    () => getVersion()
-  );
+  const { isLoading, data, error, isRefetching, refetch } = useQuery({
+    queryKey: ['currentVersion'],
+    queryFn: () => getVersion(),
+  });
   const isUpToDate =
     (data?.installed.fullVersion || data?.installed.version) ===
     (data?.latest?.fullVersion || data?.latest?.version);

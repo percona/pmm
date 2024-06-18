@@ -1,6 +1,6 @@
 import { FC, PropsWithChildren, useEffect } from 'react';
 import { AuthContext } from './auth.context';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { rotateToken } from 'api/auth';
 import { getRefetchInterval, redirectToLogin } from './auth.utils';
 import { AxiosError, HttpStatusCode } from 'axios';
