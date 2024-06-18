@@ -4,6 +4,7 @@ import {
   GetUpdateStatusResponse,
   GetUpdatesBody,
   GetUpdatesResponse,
+  StartUpdateBody,
   StartUpdateResponse,
 } from 'types/version.types';
 import { api } from './api';
@@ -18,11 +19,11 @@ export const getCurrentVersion = async (
   return res.data;
 };
 
-export const startUpdate = async () => {
-  const res = await api.post<object, AxiosResponse<StartUpdateResponse>>(
-    '/Updates/Start',
-    {}
-  );
+export const startUpdate = async (body: StartUpdateBody) => {
+  const res = await api.post<
+    StartUpdateBody,
+    AxiosResponse<StartUpdateResponse>
+  >('/Updates/Start', body);
   return res.data;
 };
 

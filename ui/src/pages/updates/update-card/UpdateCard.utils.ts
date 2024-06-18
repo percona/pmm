@@ -1,14 +1,5 @@
-import { getCurrentVersion } from 'api/version';
+import { VersionInfo } from 'types/version.types';
+import { formatTimestamp } from 'utils/formatTimestamp';
 
-export const getVersion = async () => {
-  try {
-    const res = await getCurrentVersion();
-    return res;
-  } catch (error) {
-    const res = await getCurrentVersion({
-      force: false,
-      onlyInstalledVersion: true,
-    });
-    return res;
-  }
-};
+export const formatVersion = ({ version, timestamp }: VersionInfo) =>
+  ` ${version}` + (!!timestamp ? `, ${formatTimestamp(timestamp)}` : '');

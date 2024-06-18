@@ -3,20 +3,23 @@ export interface GetUpdatesBody {
   onlyInstalledVersion?: boolean;
 }
 
+export interface VersionInfo {
+  fullVersion?: string;
+  timestamp?: string;
+  version?: string;
+  tag?: string;
+}
+
 export interface GetUpdatesResponse {
   lastCheck: string;
-  latest?: {
-    fullVersion: string;
-    timestamp: string;
-    version: string;
-  };
-  installed: {
-    fullVersion: string;
-    timestamp: string;
-    version: string;
-  };
+  latest?: VersionInfo;
+  installed: VersionInfo;
   latestNewsUrl?: string;
   updateAvailable?: boolean;
+}
+
+export interface StartUpdateBody {
+  newImage?: string;
 }
 
 export interface StartUpdateResponse {
