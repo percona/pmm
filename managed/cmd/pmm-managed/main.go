@@ -264,7 +264,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc, mgmtServices))
 	inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
-	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient)
+	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient, deps.agentsRegistry, deps.agentsStateUpdater,
+		deps.vmdb)
 	agentSvc := management.NewAgentService(deps.db, deps.agentsRegistry)
 	serviceSvc := management.NewServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
 	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.versionCache)
