@@ -31,6 +31,7 @@ import (
 	"strings"
 
 	"github.com/lib/pq"
+	"github.com/percona/pmm/utils/encryption"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -1043,6 +1044,11 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 	var logger reform.Logger
 	if params.Logf != nil {
 		logger = reform.NewPrintfLogger(params.Logf)
+	}
+
+	err := encryption.Init(encryption.DefaultEncryptionKeyPath)
+	if err != nil {
+		return nil, err
 	}
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, logger)

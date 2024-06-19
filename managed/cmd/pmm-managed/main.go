@@ -107,7 +107,6 @@ import (
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
-	"github.com/percona/pmm/utils/encryption"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/sqlmetrics"
@@ -520,11 +519,6 @@ type setupDeps struct {
 // setup performs setup tasks that depend on database.
 func setup(ctx context.Context, deps *setupDeps) bool {
 	l := reform.NewPrintfLogger(deps.l.Debugf)
-	err := encryption.Init(encryption.DefaultEncryptionKeyPath)
-	if err != nil {
-		deps.l.Warnf("Failed to setup encryption: %s.", err)
-		return false
-	}
 	db := reform.NewDB(deps.sqlDB, postgresql.Dialect, l)
 
 	// log and ignore validation errors; fail on other errors
