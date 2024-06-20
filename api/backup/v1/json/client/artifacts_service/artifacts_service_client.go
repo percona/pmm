@@ -38,7 +38,9 @@ type ClientService interface {
 }
 
 /*
-DeleteArtifact deletes artifact deletes specified artifact
+DeleteArtifact deletes artifact
+
+Deletes an artifact.
 */
 func (a *Client) DeleteArtifact(params *DeleteArtifactParams, opts ...ClientOption) (*DeleteArtifactOK, error) {
 	// TODO: Validate the params before sending
@@ -47,7 +49,7 @@ func (a *Client) DeleteArtifact(params *DeleteArtifactParams, opts ...ClientOpti
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "DeleteArtifact",
-		Method:             "POST",
+		Method:             "DELETE",
 		PathPattern:        "/v1/backups/artifacts/{artifact_id}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
@@ -75,7 +77,9 @@ func (a *Client) DeleteArtifact(params *DeleteArtifactParams, opts ...ClientOpti
 }
 
 /*
-ListArtifacts lists artifacts returns a list of all backup artifacts
+ListArtifacts lists artifacts
+
+Return a list of backup artifacts.
 */
 func (a *Client) ListArtifacts(params *ListArtifactsParams, opts ...ClientOption) (*ListArtifactsOK, error) {
 	// TODO: Validate the params before sending
@@ -112,7 +116,9 @@ func (a *Client) ListArtifacts(params *ListArtifactsParams, opts ...ClientOption
 }
 
 /*
-ListPitrTimeranges lists pitr timeranges list the available mongo DB p i t r timeranges in a given backup location
+ListPitrTimeranges lists p i t r timeranges
+
+Return a list of available MongoDB point-in-time-recovery timeranges.
 */
 func (a *Client) ListPitrTimeranges(params *ListPitrTimerangesParams, opts ...ClientOption) (*ListPitrTimerangesOK, error) {
 	// TODO: Validate the params before sending

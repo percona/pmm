@@ -58,7 +58,7 @@ type DeleteArtifactOK struct {
 }
 
 func (o *DeleteArtifactOK) Error() string {
-	return fmt.Sprintf("[POST /v1/backups/artifacts/{artifact_id}][%d] deleteArtifactOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[DELETE /v1/backups/artifacts/{artifact_id}][%d] deleteArtifactOk  %+v", 200, o.Payload)
 }
 
 func (o *DeleteArtifactOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *DeleteArtifactDefault) Code() int {
 }
 
 func (o *DeleteArtifactDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/backups/artifacts/{artifact_id}][%d] DeleteArtifact default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[DELETE /v1/backups/artifacts/{artifact_id}][%d] DeleteArtifact default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *DeleteArtifactDefault) GetPayload() *DeleteArtifactDefaultBody {
@@ -113,43 +113,6 @@ func (o *DeleteArtifactDefault) readResponse(response runtime.ClientResponse, co
 		return err
 	}
 
-	return nil
-}
-
-/*
-DeleteArtifactBody delete artifact body
-swagger:model DeleteArtifactBody
-*/
-type DeleteArtifactBody struct {
-	// Removes all the backup files associated with artifact if flag is set.
-	RemoveFiles bool `json:"remove_files,omitempty"`
-}
-
-// Validate validates this delete artifact body
-func (o *DeleteArtifactBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this delete artifact body based on context it is used
-func (o *DeleteArtifactBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DeleteArtifactBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DeleteArtifactBody) UnmarshalBinary(b []byte) error {
-	var res DeleteArtifactBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

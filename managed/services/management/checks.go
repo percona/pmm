@@ -113,7 +113,6 @@ func (s *ChecksAPIService) ListFailedServices(ctx context.Context, _ *advisorsv1
 
 // GetFailedChecks returns details of failed checks for a given service.
 func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *advisorsv1.GetFailedChecksRequest) (*advisorsv1.GetFailedChecksResponse, error) {
-
 	results, err := s.checksService.GetChecksResults(ctx, req.ServiceId)
 	if err != nil {
 		if errors.Is(err, services.ErrAdvisorsDisabled) {

@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // NewDeleteArtifactParams creates a new DeleteArtifactParams object,
@@ -66,8 +67,11 @@ type DeleteArtifactParams struct {
 	*/
 	ArtifactID string
 
-	// Body.
-	Body DeleteArtifactBody
+	/* RemoveFiles.
+
+	   Removes all the backup files associated with artifact if flag is set.
+	*/
+	RemoveFiles *bool
 
 	timeout    time.Duration
 	Context    context.Context
@@ -133,15 +137,15 @@ func (o *DeleteArtifactParams) SetArtifactID(artifactID string) {
 	o.ArtifactID = artifactID
 }
 
-// WithBody adds the body to the delete artifact params
-func (o *DeleteArtifactParams) WithBody(body DeleteArtifactBody) *DeleteArtifactParams {
-	o.SetBody(body)
+// WithRemoveFiles adds the removeFiles to the delete artifact params
+func (o *DeleteArtifactParams) WithRemoveFiles(removeFiles *bool) *DeleteArtifactParams {
+	o.SetRemoveFiles(removeFiles)
 	return o
 }
 
-// SetBody adds the body to the delete artifact params
-func (o *DeleteArtifactParams) SetBody(body DeleteArtifactBody) {
-	o.Body = body
+// SetRemoveFiles adds the removeFiles to the delete artifact params
+func (o *DeleteArtifactParams) SetRemoveFiles(removeFiles *bool) {
+	o.RemoveFiles = removeFiles
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -155,8 +159,21 @@ func (o *DeleteArtifactParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 	if err := r.SetPathParam("artifact_id", o.ArtifactID); err != nil {
 		return err
 	}
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+
+	if o.RemoveFiles != nil {
+
+		// query param remove_files
+		var qrRemoveFiles bool
+
+		if o.RemoveFiles != nil {
+			qrRemoveFiles = *o.RemoveFiles
+		}
+		qRemoveFiles := swag.FormatBool(qrRemoveFiles)
+		if qRemoveFiles != "" {
+			if err := r.SetQueryParam("remove_files", qRemoveFiles); err != nil {
+				return err
+			}
+		}
 	}
 
 	if len(res) > 0 {

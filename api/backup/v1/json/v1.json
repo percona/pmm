@@ -17,10 +17,11 @@
   "paths": {
     "/v1/backups/artifacts": {
       "get": {
+        "description": "Return a list of backup artifacts.",
         "tags": [
           "ArtifactsService"
         ],
-        "summary": "ListArtifacts returns a list of all backup artifacts.",
+        "summary": "List artifacts",
         "operationId": "ListArtifacts",
         "responses": {
           "200": {
@@ -215,11 +216,12 @@
       }
     },
     "/v1/backups/artifacts/{artifact_id}": {
-      "post": {
+      "delete": {
+        "description": "Deletes an artifact.",
         "tags": [
           "ArtifactsService"
         ],
-        "summary": "DeleteArtifact deletes specified artifact.",
+        "summary": "Delete Artifact",
         "operationId": "DeleteArtifact",
         "parameters": [
           {
@@ -230,19 +232,10 @@
             "required": true
           },
           {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "remove_files": {
-                  "description": "Removes all the backup files associated with artifact if flag is set.",
-                  "type": "boolean",
-                  "x-order": 0
-                }
-              }
-            }
+            "type": "boolean",
+            "description": "Removes all the backup files associated with artifact if flag is set.",
+            "name": "remove_files",
+            "in": "query"
           }
         ],
         "responses": {
@@ -288,10 +281,11 @@
     },
     "/v1/backups/artifacts/{artifact_id}/pitr-timeranges": {
       "get": {
+        "description": "Return a list of available MongoDB point-in-time-recovery timeranges.",
         "tags": [
           "ArtifactsService"
         ],
-        "summary": "ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location",
+        "summary": "List PITR Timeranges",
         "operationId": "ListPitrTimeranges",
         "parameters": [
           {

@@ -97,3 +97,4 @@ curl -X POST -d '{"queryid": "32b9a8dbf71f9d7b202fe117ebc72ce060bf304b504dbeae74
 ###  POST /v0/qan/ObjectDetails/ExplainFingerprintByQueryId -> POST /v1/qan:explainFingerprint
 curl -X POST -d '{"queryid": "32b9a8dbf71f9d7b202fe117ebc72ce060bf304b504dbeae74da8782a5d27edf","period_start_from":"2024-05-29T23:32:25+03:00","period_start_to":"2024-05-30T11:32:25+03:00"}' http://admin:admin@127.0.0.1:8080/v1/qan:explainFingerprint
 
+curl -X POST -d '{}' http://admin:admin@127.0.0.1:8080/v1/backups/restores:start
