@@ -28,7 +28,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/utils/encryption"
+	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/version"
 )
 

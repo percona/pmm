@@ -109,7 +109,13 @@ func EncryptDB(ctx context.Context, c *DatabaseConnection) error {
 
 		for k, v := range res.SetValues {
 			for i, val := range v {
-				encrypted, err := Encrypt(*val.(*string))
+				value := *val.(*string)
+				_, err := base64.StdEncoding.DecodeString(value)
+				if err == nil {
+					continue
+				}
+
+				encrypted, err := Encrypt(value)
 				if err != nil {
 					return err
 				}

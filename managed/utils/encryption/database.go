@@ -31,7 +31,10 @@ func (c DatabaseConnection) DSN() string {
 		c.Password = fmt.Sprintf("password=%s", c.Password)
 	}
 
-	return fmt.Sprintf("host=%s port=%d user=%s %s sslmode=%s", c.Host, c.Port, c.User, c.Password, c.SSLMode)
+	return fmt.Sprintf(
+		"host=%s port=%d user=%s %s sslmode=%s sslrootcert=%s sslkey=%s sslcert=%s",
+		c.Host, c.Port, c.User, c.Password, c.SSLMode, c.SSLCAPath, c.SSLKeyPath, c.SSLCertPath,
+	)
 }
 
 func (item EncryptedItem) Read(tx *sql.Tx) (*QueryValues, error) {

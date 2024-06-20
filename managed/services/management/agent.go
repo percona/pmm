@@ -27,7 +27,7 @@ import (
 
 	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/utils/encryption"
+	"github.com/percona/pmm/managed/utils/encryption"
 )
 
 // AgentService represents service for working with agents.
