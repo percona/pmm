@@ -11,6 +11,7 @@ type Encryption struct {
 type DatabaseConnection struct {
 	Host, User, Password string
 	Port                 int16
+	DBName               string
 	SSLMode              string
 	SSLCAPath            string
 	SSLKeyPath           string

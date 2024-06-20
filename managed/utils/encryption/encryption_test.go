@@ -10,8 +10,7 @@ import (
 func TestEncryption(t *testing.T) {
 	secret := "password1"
 
-	err := create(DefaultEncryptionKeyPath)
-	require.NoError(t, err)
+	require.NoError(t, create(DefaultEncryptionKeyPath))
 	cipherText, err := Encrypt(secret)
 	require.NoError(t, err)
 	require.NotEmpty(t, cipherText)

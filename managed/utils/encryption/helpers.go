@@ -27,7 +27,7 @@ func prepareRowPointers(rows *sql.Rows) ([]any, error) {
 	for _, t := range columns {
 		switch t {
 		case "VARCHAR":
-			row = append(row, new(string))
+			row = append(row, new(sql.NullString))
 		default:
 			// TODO support more identificators types
 			return nil, fmt.Errorf("unsupported identificator type %s", t)

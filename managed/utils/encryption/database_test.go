@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestDatabaseConnection_Connect(t *testing.T) {
+func TestDatabaseConnection(t *testing.T) {
 	dbConnection := DatabaseConnection{
 		Host:     "127.0.0.1",
 		Port:     5432,

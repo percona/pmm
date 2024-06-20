@@ -2,6 +2,7 @@ package encryption
 
 import (
 	"context"
+	"database/sql"
 	"encoding/base64"
 	"errors"
 	"os"
@@ -86,16 +87,18 @@ func Encrypt(secret string) (string, error) {
 }
 
 func EncryptDB(ctx context.Context, c *DatabaseConnection) error {
-	db, err := c.Connect()
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	if len(c.EncryptedItems) == 0 {
-		return errors.New("DB Connection: Database target tables/columns not defined")
-	}
 	for _, item := range c.EncryptedItems {
+		c.DBName = item.Database
+		db, err := c.Connect()
+		if err != nil {
+			return err
+		}
+		defer db.Close()
+
+		if len(c.EncryptedItems) == 0 {
+			return errors.New("DB Connection: Database target tables/columns not defined")
+		}
+
 		tx, err := db.BeginTx(ctx, nil)
 		if err != nil {
 			return err
@@ -109,10 +112,16 @@ func EncryptDB(ctx context.Context, c *DatabaseConnection) error {
 
 		for k, v := range res.SetValues {
 			for i, val := range v {
-				value := *val.(*string)
-				_, err := base64.StdEncoding.DecodeString(value)
-				if err == nil {
-					continue
+				var value string
+				if v, ok := val.(*sql.NullString); ok {
+					value = v.String
+				}
+
+				if value != "" {
+					_, err := base64.StdEncoding.DecodeString(value)
+					if err == nil {
+						continue
+					}
 				}
 
 				encrypted, err := Encrypt(value)
@@ -156,17 +165,18 @@ func Decrypt(cipherText string) (string, error) {
 }
 
 func DecryptDB(ctx context.Context, c *DatabaseConnection) error {
-	db, err := c.Connect()
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	if len(c.EncryptedItems) == 0 {
-		return errors.New("DB Connection: Database target tables/columns not defined")
-	}
-
 	for _, item := range c.EncryptedItems {
+		c.DBName = item.Database
+		db, err := c.Connect()
+		if err != nil {
+			return err
+		}
+		defer db.Close()
+
+		if len(c.EncryptedItems) == 0 {
+			return errors.New("DB Connection: Database target tables/columns not defined")
+		}
+
 		tx, err := db.BeginTx(ctx, nil)
 		if err != nil {
 			return err
@@ -180,7 +190,7 @@ func DecryptDB(ctx context.Context, c *DatabaseConnection) error {
 
 		for k, v := range res.SetValues {
 			for i, val := range v {
-				decoded, err := base64.StdEncoding.DecodeString(*val.(*string))
+				decoded, err := base64.StdEncoding.DecodeString(val.(*sql.NullString).String)
 				if err != nil {
 					return err
 				}

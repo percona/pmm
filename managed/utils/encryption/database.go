@@ -32,8 +32,8 @@ func (c DatabaseConnection) DSN() string {
 	}
 
 	return fmt.Sprintf(
-		"host=%s port=%d user=%s %s sslmode=%s sslrootcert=%s sslkey=%s sslcert=%s",
-		c.Host, c.Port, c.User, c.Password, c.SSLMode, c.SSLCAPath, c.SSLKeyPath, c.SSLCertPath,
+		"host=%s port=%d dbname=%s user=%s %s sslmode=%s sslrootcert=%s sslkey=%s sslcert=%s",
+		c.Host, c.Port, c.DBName, c.User, c.Password, c.SSLMode, c.SSLCAPath, c.SSLKeyPath, c.SSLCertPath,
 	)
 }
 
