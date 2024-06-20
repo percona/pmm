@@ -316,7 +316,7 @@ func readLog(name string, maxLines int) ([]byte, time.Time, error) {
 		}
 	}
 
-	res := make([]byte, 0, maxLines)
+	res := []byte{}
 	r.Do(func(v interface{}) {
 		if v != nil {
 			res = append(res, v.([]byte)...) //nolint:forcetypeassert
@@ -341,7 +341,6 @@ func readLogUnlimited(name string) ([]byte, time.Time, error) {
 	m = fi.ModTime()
 
 	res := []byte{}
-
 	reader := bufio.NewReader(f)
 	for {
 		b, err := reader.ReadBytes('\n')
