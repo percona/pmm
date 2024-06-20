@@ -19,6 +19,7 @@ import (
 	"archive/zip"
 	"bufio"
 	"bytes"
+	"container/ring"
 	"context"
 	"encoding/json"
 	"io"
@@ -128,15 +129,25 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer, pprofConfig *PprofConfig, l
 
 // files reads log/config/pprof files and returns content.
 func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines int) []fileContent {
+	var (
+		b []byte
+		m time.Time
+	)
 	files := make([]fileContent, 0, 20)
-
 	// add logs
 	logs, err := filepath.Glob("/srv/logs/*.log")
 	if err != nil {
 		logger.Get(ctx).WithField("component", "logs").Error(err)
 	}
 	for _, f := range logs {
-		b, m, err := readLog(f, logReadLines)
+		switch logReadLines {
+		case -1: // unlimited line count
+			b, m, err = readLogUnlimited(f)
+		case 0: // default maximum line count
+			b, m, err = readLog(f, maxLogReadLines)
+		default: // user-defined line count
+			b, m, err = readLog(f, logReadLines)
+		}
 		files = append(files, fileContent{
 			Name:     filepath.Base(f),
 			Modified: m,
@@ -179,7 +190,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 	})
 
 	// add supervisord status
-	b, err := readCmdOutput(ctx, "supervisorctl", "status")
+	b, err = readCmdOutput(ctx, "supervisorctl", "status")
 	files = append(files, fileContent{
 		Name: "supervisorctl_status.log",
 		Data: b,
@@ -270,11 +281,53 @@ func (l *Logs) victoriaMetricsTargets(ctx context.Context) ([]byte, error) {
 
 // readLog reads a log file from the end up to given number of lines,
 // and returns them together with modification time.
-func readLog(name string, readLines int) ([]byte, time.Time, error) {
-	var (
-		m         time.Time
-		lineCount int
-	)
+func readLog(name string, maxLines int) ([]byte, time.Time, error) {
+	var m time.Time
+	f, err := os.Open(name) //nolint:gosec
+	if err != nil {
+		return nil, m, errors.WithStack(err)
+	}
+	defer f.Close() //nolint:gosec,errcheck,nolintlint
+
+	fi, err := f.Stat()
+	if err != nil {
+		return nil, m, errors.WithStack(err)
+	}
+	m = fi.ModTime()
+
+	r := ring.New(maxLines)
+	reader := bufio.NewReader(f)
+	for {
+		b, err := reader.ReadBytes('\n')
+		if err == io.EOF {
+			// A special case when the last line does not end with a new line
+			if len(b) != 0 {
+				r.Value = b
+				r = r.Next()
+			}
+			break
+		}
+
+		r.Value = b
+		r = r.Next()
+
+		if err != nil {
+			return nil, m, errors.WithStack(err)
+		}
+	}
+
+	res := []byte{}
+	r.Do(func(v interface{}) {
+		if v != nil {
+			res = append(res, v.([]byte)...) //nolint:forcetypeassert
+		}
+	})
+	return res, m, nil
+}
+
+// readLogUnlimited reads the whole log file and returns its contents along with modification time.
+func readLogUnlimited(name string) ([]byte, time.Time, error) {
+	var m time.Time
 	f, err := os.Open(name) //nolint:gosec
 	if err != nil {
 		return nil, m, errors.WithStack(err)
@@ -286,16 +339,6 @@ func readLog(name string, readLines int) ([]byte, time.Time, error) {
 		return nil, m, errors.WithStack(err)
 	}
 	m = fi.ModTime()
-
-	switch readLines {
-	case 0:
-		// no parameter passed, use the default line count
-		lineCount = maxLogReadLines
-	case -1:
-		// unlimited number of lines
-	default:
-		lineCount = readLines
-	}
 
 	res := []byte{}
 
@@ -314,15 +357,6 @@ func readLog(name string, readLines int) ([]byte, time.Time, error) {
 
 		if err != nil {
 			return nil, m, errors.WithStack(err)
-		}
-
-		if readLines != -1 {
-			// Do not decrease the counter when unlimited line count
-			lineCount--
-		}
-
-		if lineCount == 0 {
-			break
 		}
 	}
 

@@ -71,7 +71,7 @@ func TestReadLog(t *testing.T) {
 	fNoNewLineEnding, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
 	require.NoError(t, err)
 
-	for i := 0; i < 10; i++ {
+	for i := range 10 { //nolint:typecheck
 		fmt.Fprintf(f, "line #%03d\n", i)                // 10 bytes
 		fmt.Fprintf(fNoNewLineEnding, "line #%03d\n", i) // 10 bytes
 	}
@@ -96,6 +96,42 @@ func TestReadLog(t *testing.T) {
 		require.NoError(t, err)
 		assert.WithinDuration(t, time.Now(), m, 5*time.Second)
 		expected := []string{"line #006", "line #007", "line #008", "line #009", "some string without new line"}
+		actual := strings.Split(strings.TrimSpace(string(b)), "\n")
+		assert.Equal(t, expected, actual)
+	})
+}
+
+func TestReadLogUnlimited(t *testing.T) {
+	f, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
+	require.NoError(t, err)
+	fNoNewLineEnding, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
+	require.NoError(t, err)
+
+	for i := range 10 { //nolint:typecheck
+		fmt.Fprintf(f, "line #%03d\n", i)                // 10 bytes
+		fmt.Fprintf(fNoNewLineEnding, "line #%03d\n", i) // 10 bytes
+	}
+	fmt.Fprintf(fNoNewLineEnding, "some string without new line")
+	require.NoError(t, f.Close())
+	require.NoError(t, fNoNewLineEnding.Close())
+
+	defer os.Remove(f.Name())                //nolint:errcheck
+	defer os.Remove(fNoNewLineEnding.Name()) //nolint:errcheck
+
+	t.Run("UnlimitedLineCount", func(t *testing.T) {
+		b, m, err := readLog(f.Name(), 5)
+		require.NoError(t, err)
+		assert.WithinDuration(t, time.Now(), m, 5*time.Second)
+		expected := []string{"line #000", "line #001", "line #002", "line #003", "line #004", "line #005", "line #006", "line #007", "line #008", "line #009"}
+		actual := strings.Split(strings.TrimSpace(string(b)), "\n")
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("UnlimitedLineCount - no new line ending", func(t *testing.T) {
+		b, m, err := readLog(fNoNewLineEnding.Name(), 5)
+		require.NoError(t, err)
+		assert.WithinDuration(t, time.Now(), m, 5*time.Second)
+		expected := []string{"line #000", "line #001", "line #002", "line #003", "line #004", "line #005", "line #006", "line #007", "line #008", "line #009", "some string without new line"}
 		actual := strings.Split(strings.TrimSpace(string(b)), "\n")
 		assert.Equal(t, expected, actual)
 	})
