@@ -63,7 +63,7 @@ func PMMHTTPErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshaler r
 	body := &serverv1.HttpError{
 		Error:   s.Message(),
 		Message: s.Message(),
-		Code:    int32(s.Code()),
+		Code:    int32(runtime.HTTPStatusFromCode(s.Code())),
 		Details: s.Proto().GetDetails(),
 	}
 
@@ -157,5 +157,6 @@ func PMMRoutingErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshale
 		Err:        status.Error(codes.NotFound, msg),
 	}
 
-	runtime.DefaultHTTPErrorHandler(ctx, mux, marshaler, w, r, err)
+	// runtime.DefaultHTTPErrorHandler(ctx, mux, marshaler, w, r, err)
+	PMMHTTPErrorHandler(ctx, mux, marshaler, w, r, err)
 }
