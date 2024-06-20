@@ -31,9 +31,10 @@ type CreateUserParams struct {
 
 // UpdateUserParams has parameters to update existing user.
 type UpdateUserParams struct {
-	UserID       int
-	Tour         bool
-	AlertingTour bool
+	UserID            int
+	Tour              bool
+	AlertingTour      bool
+	SnoozedPMMVersion string
 }
 
 // GetOrCreateUser returns user and optionally creates it, if not in database yet.
@@ -103,6 +104,9 @@ func UpdateUser(q *reform.Querier, params *UpdateUserParams) (*UserDetails, erro
 
 	row.Tour = params.Tour
 	row.AlertingTour = params.AlertingTour
+	if params.SnoozedPMMVersion != "" {
+		row.SnoozedPMMVersion = params.SnoozedPMMVersion
+	}
 
 	if err = q.Update(row); err != nil {
 		return nil, errors.Wrap(err, "failed to update user")

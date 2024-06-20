@@ -71,11 +71,12 @@ func (s *Service) GetUser(ctx context.Context, _ *userpb.UserDetailsRequest) (*u
 		UserId:                uint32(userInfo.ID),
 		ProductTourCompleted:  userInfo.Tour,
 		AlertingTourCompleted: userInfo.AlertingTour,
+		SnoozedPmmVersion:     userInfo.SnoozedPMMVersion,
 	}
 	return resp, nil
 }
 
-// UpdateUser updates data for given user.
+// UpdateUser updates data and flags for the given user.
 func (s *Service) UpdateUser(ctx context.Context, req *userpb.UserUpdateRequest) (*userpb.UserDetailsResponse, error) {
 	userID, err := s.c.GetUserID(ctx)
 	if err != nil {
@@ -106,6 +107,9 @@ func (s *Service) UpdateUser(ctx context.Context, req *userpb.UserUpdateRequest)
 		if req.AlertingTourCompleted {
 			params.AlertingTour = req.AlertingTourCompleted
 		}
+		if req.SnoozedPmmVersion != nil {
+			params.SnoozedPMMVersion = req.SnoozedPmmVersion.Value
+		}
 
 		userInfo, err = models.UpdateUser(tx.Querier, params)
 		if err != nil {
@@ -122,6 +126,7 @@ func (s *Service) UpdateUser(ctx context.Context, req *userpb.UserUpdateRequest)
 		UserId:                uint32(userInfo.ID),
 		ProductTourCompleted:  userInfo.Tour,
 		AlertingTourCompleted: userInfo.AlertingTour,
+		SnoozedPmmVersion:     userInfo.SnoozedPMMVersion,
 	}
 	return resp, nil
 }

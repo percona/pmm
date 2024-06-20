@@ -39,6 +39,11 @@
                   "title": "Product Tour",
                   "x-order": 1
                 },
+                "snoozed_pmm_version": {
+                  "type": "string",
+                  "title": "Snoozed PMM version update",
+                  "x-order": 3
+                },
                 "user_id": {
                   "type": "integer",
                   "format": "int64",
@@ -105,6 +110,11 @@
                   "type": "boolean",
                   "title": "Product Tour",
                   "x-order": 0
+                },
+                "snoozed_pmm_version": {
+                  "type": "string",
+                  "title": "Snooze update alert for a PMM version",
+                  "x-order": 2
                 }
               }
             }
@@ -125,6 +135,11 @@
                   "type": "boolean",
                   "title": "Product Tour",
                   "x-order": 1
+                },
+                "snoozed_pmm_version": {
+                  "type": "string",
+                  "title": "Snoozed PMM version update",
+                  "x-order": 3
                 },
                 "user_id": {
                   "type": "integer",
