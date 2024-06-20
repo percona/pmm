@@ -56,7 +56,6 @@ theme:
 extra_css:
   - https://unicons.iconscout.com/release/v3.0.3/css/line.css
   - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css
-  - css/percona.css
   - css/lightgallery.min.css
   - css/extra.css
   - css/nocopy.css
@@ -83,7 +82,7 @@ markdown_extensions:
   pymdownx.details: {}
   pymdownx.mark: {}
   pymdownx.smartsymbols: {}
-  pymdownx.tabbed: 
+  pymdownx.tabbed:
       {alternate_style: true}
   pymdownx.tilde: {}
   pymdownx.superfences: {}
@@ -104,7 +103,6 @@ markdown_extensions:
       custom_icons:
         - overrides/.icons
 
-
 plugins:
   search:
     separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
@@ -115,6 +113,7 @@ plugins:
     enable_checks: false
     min_length: 50
     max_length: 160
+  # https://mkdocs-macros-plugin.readthedocs.io/en/latest/
   macros:
     include_yaml:
       - "variables.yml"
@@ -127,9 +126,8 @@ plugins:
     output_path: "_pdf/PerconaMonitoringAndManagement-3.0.0 ALPHA.pdf"
     cover_title: "Percona Monitoring and Management Documentation"
     cover_subtitle: 3.0.0 (May 16, 2024)
-
     author: "Percona Technical Documentation Team"
-    cover_logo: docs/_images/Percona_Logo_Color.png
+    cover_logo: docs/_images/pmm_pdf_logo.png
     custom_template_path: _resources/templates
     enabled_if_env: ENABLE_PDF_EXPORT
   # Check links - but extends build time significantly
