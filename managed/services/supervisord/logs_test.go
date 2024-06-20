@@ -119,7 +119,7 @@ func TestReadLogUnlimited(t *testing.T) {
 	defer os.Remove(fNoNewLineEnding.Name()) //nolint:errcheck
 
 	t.Run("UnlimitedLineCount", func(t *testing.T) {
-		b, m, err := readLog(f.Name(), 5)
+		b, m, err := readLogUnlimited(f.Name())
 		require.NoError(t, err)
 		assert.WithinDuration(t, time.Now(), m, 5*time.Second)
 		expected := []string{"line #000", "line #001", "line #002", "line #003", "line #004", "line #005", "line #006", "line #007", "line #008", "line #009"}
@@ -128,7 +128,7 @@ func TestReadLogUnlimited(t *testing.T) {
 	})
 
 	t.Run("UnlimitedLineCount - no new line ending", func(t *testing.T) {
-		b, m, err := readLog(fNoNewLineEnding.Name(), 5)
+		b, m, err := readLogUnlimited(fNoNewLineEnding.Name())
 		require.NoError(t, err)
 		assert.WithinDuration(t, time.Now(), m, 5*time.Second)
 		expected := []string{"line #000", "line #001", "line #002", "line #003", "line #004", "line #005", "line #006", "line #007", "line #008", "line #009", "some string without new line"}

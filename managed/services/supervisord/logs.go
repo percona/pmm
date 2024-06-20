@@ -287,7 +287,7 @@ func readLog(name string, maxLines int) ([]byte, time.Time, error) {
 	if err != nil {
 		return nil, m, errors.WithStack(err)
 	}
-	defer f.Close() //nolint:gosec,errcheck,nolintlint
+	defer f.Close() //nolint:errcheck
 
 	fi, err := f.Stat()
 	if err != nil {
@@ -316,7 +316,7 @@ func readLog(name string, maxLines int) ([]byte, time.Time, error) {
 		}
 	}
 
-	res := []byte{}
+	res := make([]byte, 0, maxLines)
 	r.Do(func(v interface{}) {
 		if v != nil {
 			res = append(res, v.([]byte)...) //nolint:forcetypeassert
