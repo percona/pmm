@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package backup.v1;
 
+import "backup/v1/artifacts.proto";
 import "backup/v1/common.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
@@ -228,6 +229,31 @@ service BackupService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Logs"
       description: "Get logs from the underlying tools for a backup/restore job."
+    };
+  }
+  // ListArtifacts returns a list of all backup artifacts.
+  rpc ListArtifacts(ListArtifactsRequest) returns (ListArtifactsResponse) {
+    option (google.api.http) = {get: "/v1/backups/artifacts"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List artifacts"
+      description: "Return a list of backup artifacts."
+    };
+  }
+  // DeleteArtifact deletes specified artifact.
+  rpc DeleteArtifact(DeleteArtifactRequest) returns (DeleteArtifactResponse) {
+    option (google.api.http) = {delete: "/v1/backups/artifacts/{artifact_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Delete Artifact"
+      description: "Deletes an artifact."
+    };
+  }
+
+  // ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location
+  rpc ListPitrTimeranges(ListPitrTimerangesRequest) returns (ListPitrTimerangesResponse) {
+    option (google.api.http) = {get: "/v1/backups/artifacts/{artifact_id}/pitr-timeranges"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List PITR Timeranges"
+      description: "Return a list of available MongoDB point-in-time-recovery timeranges."
     };
   }
 }

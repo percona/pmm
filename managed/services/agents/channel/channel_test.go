@@ -248,7 +248,7 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 	assert.NoError(t, err)
 
 	_, err = stream.Recv()
-	tests.AssertGRPCError(t, status.New(codes.Internal, "Internal server error."), err)
+	tests.AssertGRPCError(t, status.New(codes.Internal, "EOF"), err)
 }
 
 func TestAgentClosesStream(t *testing.T) {

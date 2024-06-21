@@ -45,7 +45,7 @@ const (
 // rules maps original URL prefix to minimal required role.
 var rules = map[string]role{
 	// TODO https://jira.percona.com/browse/PMM-4420
-	"/agent.Agent/Connect": admin, // NOTE: remove before v3 GA
+	"/agent.Agent/Connect": admin, // compatibility for v2 agents
 	connectionEndpoint:     admin,
 
 	"/inventory.":                               admin,

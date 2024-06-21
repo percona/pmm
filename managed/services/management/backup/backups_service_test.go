@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/brianvoe/gofakeit/v6"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -80,9 +81,10 @@ func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serv
 func TestStartBackup(t *testing.T) {
 	t.Run("mysql", func(t *testing.T) {
 		backupService := &mockBackupService{}
+		mockedPbmPITRService := &mockPbmPITRService{}
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		backupSvc := NewBackupsService(db, backupService, nil, nil)
+		backupSvc := NewBackupsService(db, backupService, nil, nil, nil, mockedPbmPITRService)
 		agent := setup(t, db.Querier, models.MySQLServiceType, t.Name(), "cluster")
 
 		for _, tc := range []struct {
@@ -156,7 +158,8 @@ func TestStartBackup(t *testing.T) {
 		t.Run("starting mongodb physical snapshot is successful", func(t *testing.T) {
 			ctx := context.Background()
 			backupService := &mockBackupService{}
-			backupSvc := NewBackupsService(db, backupService, nil, nil)
+			mockedPbmPITRService := &mockPbmPITRService{}
+			backupSvc := NewBackupsService(db, backupService, nil, nil, nil, mockedPbmPITRService)
 			backupService.On("PerformBackup", mock.Anything, mock.Anything).Return("", nil)
 			_, err := backupSvc.StartBackup(ctx, &backupv1.StartBackupRequest{
 				ServiceId:     *agent.ServiceID,
@@ -173,7 +176,9 @@ func TestStartBackup(t *testing.T) {
 		t.Run("check folder and artifact name", func(t *testing.T) {
 			ctx := context.Background()
 			backupService := &mockBackupService{}
-			backupSvc := NewBackupsService(db, backupService, nil, nil)
+			mockedPbmPITRService := &mockPbmPITRService{}
+
+			backupSvc := NewBackupsService(db, backupService, nil, nil, nil, mockedPbmPITRService)
 
 			tc := []struct {
 				TestName   string
@@ -249,7 +254,8 @@ func TestRestoreBackupErrors(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	backupService := &mockBackupService{}
-	backupSvc := NewBackupsService(db, backupService, nil, nil)
+	mockedPbmPITRService := &mockPbmPITRService{}
+	backupSvc := NewBackupsService(db, backupService, nil, nil, nil, mockedPbmPITRService)
 
 	for _, tc := range []struct {
 		testName    string
@@ -328,8 +334,9 @@ func TestScheduledBackups(t *testing.T) {
 
 	t.Run("mysql", func(t *testing.T) {
 		backupService := &mockBackupService{}
+		mockedPbmPITRService := &mockPbmPITRService{}
 		schedulerService := scheduler.New(db, backupService)
-		backupSvc := NewBackupsService(db, backupService, nil, schedulerService)
+		backupSvc := NewBackupsService(db, backupService, nil, schedulerService, nil, mockedPbmPITRService)
 
 		agent := setup(t, db.Querier, models.MySQLServiceType, t.Name(), "cluster")
 
@@ -441,7 +448,8 @@ func TestScheduledBackups(t *testing.T) {
 		t.Run("PITR unsupported for physical model", func(t *testing.T) {
 			ctx := context.Background()
 			schedulerService := &mockScheduleService{}
-			backupSvc := NewBackupsService(db, nil, nil, schedulerService)
+			mockedPbmPITRService := &mockPbmPITRService{}
+			backupSvc := NewBackupsService(db, nil, nil, schedulerService, nil, mockedPbmPITRService)
 
 			schedulerService.On("Add", mock.Anything, mock.Anything).Return("", nil)
 			_, err := backupSvc.ScheduleBackup(ctx, &backupv1.ScheduleBackupRequest{
@@ -461,7 +469,8 @@ func TestScheduledBackups(t *testing.T) {
 		t.Run("normal", func(t *testing.T) {
 			ctx := context.Background()
 			schedulerService := &mockScheduleService{}
-			backupSvc := NewBackupsService(db, nil, nil, schedulerService)
+			mockedPbmPITRService := &mockPbmPITRService{}
+			backupSvc := NewBackupsService(db, nil, nil, schedulerService, nil, mockedPbmPITRService)
 			schedulerService.On("Add", mock.Anything, mock.Anything).Return(&models.ScheduledTask{}, nil)
 			_, err := backupSvc.ScheduleBackup(ctx, &backupv1.ScheduleBackupRequest{
 				ServiceId:     *agent.ServiceID,
@@ -484,7 +493,8 @@ func TestGetLogs(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	backupService := &mockBackupService{}
 	schedulerService := &mockScheduleService{}
-	backupSvc := NewBackupsService(db, backupService, nil, schedulerService)
+	mockedPbmPITRService := &mockPbmPITRService{}
+	backupSvc := NewBackupsService(db, backupService, nil, schedulerService, nil, mockedPbmPITRService)
 	t.Cleanup(func() {
 		_ = sqlDB.Close()
 	})
@@ -553,4 +563,178 @@ func TestGetLogs(t *testing.T) {
 			assert.Equal(t, tc.expect, chunkIDs)
 		}
 	})
+}
+
+func TestListPitrTimeranges(t *testing.T) {
+	ctx := context.Background()
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	mockedPbmPITRService := &mockPbmPITRService{}
+
+	timelines := []backup.Timeline{
+		{
+			ReplicaSet: "rs0",
+			Start:      uint32(time.Now().Unix()),
+			End:        uint32(time.Now().Unix()),
+		},
+	}
+
+	mockedPbmPITRService.On("ListPITRTimeranges", ctx, mock.Anything, mock.Anything, mock.Anything).Return(timelines, nil)
+
+	backupService := &mockBackupService{}
+	schedulerService := &mockScheduleService{}
+	backupSvc := NewBackupsService(db, backupService, nil, schedulerService, nil, mockedPbmPITRService)
+
+	var locationID string
+
+	params := models.CreateBackupLocationParams{
+		Name:        gofakeit.Name(),
+		Description: "",
+	}
+	params.S3Config = &models.S3LocationConfig{
+		Endpoint:     "https://awsS3.us-west-2.amazonaws.com/",
+		AccessKey:    "access_key",
+		SecretKey:    "secret_key",
+		BucketName:   "example_bucket",
+		BucketRegion: "us-east-1",
+	}
+	loc, err := models.CreateBackupLocation(db.Querier, params)
+	require.NoError(t, err)
+	require.NotEmpty(t, loc.ID)
+
+	locationID = loc.ID
+
+	t.Run("successfully lists PITR time ranges", func(t *testing.T) {
+		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
+			Name:       "test_artifact",
+			Vendor:     "test_vendor",
+			LocationID: locationID,
+			ServiceID:  "test_service",
+			Mode:       models.PITR,
+			DataModel:  models.LogicalDataModel,
+			Status:     models.PendingBackupStatus,
+		})
+		assert.NoError(t, err)
+		assert.NotEmpty(t, artifact.ID)
+
+		response, err := backupSvc.ListPitrTimeranges(ctx, &backupv1.ListPitrTimerangesRequest{
+			ArtifactId: artifact.ID,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, response)
+		assert.Len(t, response.Timeranges, 1)
+	})
+
+	t.Run("fails for invalid artifact ID", func(t *testing.T) {
+		unknownID := uuid.New().String()
+		response, err := backupSvc.ListPitrTimeranges(ctx, &backupv1.ListPitrTimerangesRequest{
+			ArtifactId: unknownID,
+		})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Artifact with ID '%s' not found.", unknownID)), err)
+		assert.Nil(t, response)
+	})
+
+	t.Run("fails for non-PITR artifact", func(t *testing.T) {
+		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
+			Name:       "test_non_pitr_artifact",
+			Vendor:     "test_vendor",
+			LocationID: locationID,
+			ServiceID:  "test_service",
+			Mode:       models.Snapshot,
+			DataModel:  models.LogicalDataModel,
+			Status:     models.PendingBackupStatus,
+		})
+		assert.NoError(t, err)
+		assert.NotEmpty(t, artifact.ID)
+
+		response, err := backupSvc.ListPitrTimeranges(ctx, &backupv1.ListPitrTimerangesRequest{
+			ArtifactId: artifact.ID,
+		})
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Artifact is not a PITR artifact."), err)
+		assert.Nil(t, response)
+	})
+	mock.AssertExpectationsForObjects(t, mockedPbmPITRService)
+}
+
+func TestArtifactMetadataListToProto(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	params := models.CreateBackupLocationParams{
+		Name:        gofakeit.Name(),
+		Description: "",
+	}
+	params.S3Config = &models.S3LocationConfig{
+		Endpoint:     "https://awsS3.us-west-2.amazonaws.com/",
+		AccessKey:    "access_key",
+		SecretKey:    "secret_key",
+		BucketName:   "example_bucket",
+		BucketRegion: "us-east-1",
+	}
+	loc, err := models.CreateBackupLocation(db.Querier, params)
+	require.NoError(t, err)
+	require.NotEmpty(t, loc.ID)
+
+	artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
+		Name:       "test_artifact",
+		Vendor:     "test_vendor",
+		LocationID: loc.ID,
+		ServiceID:  "test_service",
+		Mode:       models.PITR,
+		DataModel:  models.LogicalDataModel,
+		Status:     models.PendingBackupStatus,
+	})
+	assert.NoError(t, err)
+
+	artifact, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
+		Metadata: &models.Metadata{
+			FileList: []models.File{{Name: "dir1", IsDirectory: true}, {Name: "file1"}, {Name: "file2"}, {Name: "file3"}},
+		},
+	})
+	require.NoError(t, err)
+
+	restoreTo := time.Unix(123, 456)
+
+	artifact, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
+		Metadata: &models.Metadata{
+			FileList:       []models.File{{Name: "dir2", IsDirectory: true}, {Name: "file4"}, {Name: "file5"}, {Name: "file6"}},
+			RestoreTo:      &restoreTo,
+			BackupToolData: &models.BackupToolData{PbmMetadata: &models.PbmMetadata{Name: "backup tool data name"}},
+		},
+	})
+	require.NoError(t, err)
+
+	expected := []*backupv1.Metadata{
+		{
+			FileList: []*backupv1.File{
+				{Name: "dir1", IsDirectory: true},
+				{Name: "file1"},
+				{Name: "file2"},
+				{Name: "file3"},
+			},
+		},
+		{
+			FileList: []*backupv1.File{
+				{Name: "dir2", IsDirectory: true},
+				{Name: "file4"},
+				{Name: "file5"},
+				{Name: "file6"},
+			},
+			RestoreTo:          &timestamppb.Timestamp{Seconds: 123, Nanos: 456},
+			BackupToolMetadata: &backupv1.Metadata_PbmMetadata{PbmMetadata: &backupv1.PbmMetadata{Name: "backup tool data name"}},
+		},
+	}
+
+	actual := artifactMetadataListToProto(artifact)
+
+	assert.Equal(t, expected, actual)
 }

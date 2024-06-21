@@ -2137,7 +2137,7 @@
       "get": {
         "description": "Return a list of backup artifacts.",
         "tags": [
-          "ArtifactsService"
+          "BackupService"
         ],
         "summary": "List artifacts",
         "operationId": "ListArtifacts",
@@ -2337,7 +2337,7 @@
       "delete": {
         "description": "Deletes an artifact.",
         "tags": [
-          "ArtifactsService"
+          "BackupService"
         ],
         "summary": "Delete Artifact",
         "operationId": "DeleteArtifact",
@@ -2401,7 +2401,7 @@
       "get": {
         "description": "Return a list of available MongoDB point-in-time-recovery timeranges.",
         "tags": [
-          "ArtifactsService"
+          "BackupService"
         ],
         "summary": "List PITR Timeranges",
         "operationId": "ListPitrTimeranges",
@@ -14664,9 +14664,6 @@
     },
     {
       "name": "ActionsService"
-    },
-    {
-      "name": "ArtifactsService"
     },
     {
       "name": "BackupService"

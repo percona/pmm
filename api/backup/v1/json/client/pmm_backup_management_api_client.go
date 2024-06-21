@@ -10,7 +10,6 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/backup/v1/json/client/artifacts_service"
 	"github.com/percona/pmm/api/backup/v1/json/client/backup_service"
 	"github.com/percona/pmm/api/backup/v1/json/client/locations_service"
 	"github.com/percona/pmm/api/backup/v1/json/client/restore_service"
@@ -58,7 +57,6 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMBackupM
 
 	cli := new(PMMBackupManagementAPI)
 	cli.Transport = transport
-	cli.ArtifactsService = artifacts_service.New(transport, formats)
 	cli.BackupService = backup_service.New(transport, formats)
 	cli.LocationsService = locations_service.New(transport, formats)
 	cli.RestoreService = restore_service.New(transport, formats)
@@ -106,8 +104,6 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // PMMBackupManagementAPI is a client for PMM backup management API
 type PMMBackupManagementAPI struct {
-	ArtifactsService artifacts_service.ClientService
-
 	BackupService backup_service.ClientService
 
 	LocationsService locations_service.ClientService
@@ -120,7 +116,6 @@ type PMMBackupManagementAPI struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *PMMBackupManagementAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.ArtifactsService.SetTransport(transport)
 	c.BackupService.SetTransport(transport)
 	c.LocationsService.SetTransport(transport)
 	c.RestoreService.SetTransport(transport)

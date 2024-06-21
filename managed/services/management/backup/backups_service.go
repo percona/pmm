@@ -32,7 +32,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	backuppb "github.com/percona/pmm/api/backup/v1"
+	backupv1 "github.com/percona/pmm/api/backup/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
@@ -46,9 +46,11 @@ type BackupService struct { //nolint:revive
 	backupService        backupService
 	compatibilityService compatibilityService
 	scheduleService      scheduleService
+	removalSVC           removalService
+	pbmPITRService       pbmPITRService
 	l                    *logrus.Entry
 
-	backuppb.UnimplementedBackupServiceServer
+	backupv1.UnimplementedBackupServiceServer
 }
 
 const (
@@ -67,18 +69,22 @@ func NewBackupsService(
 	backupService backupService,
 	cSvc compatibilityService,
 	scheduleService scheduleService,
+	removalSVC removalService,
+	pbmPITRService pbmPITRService,
 ) *BackupService {
 	return &BackupService{
-		l:                    logrus.WithField("component", "management/backup/backups"),
+		l:                    logrus.WithField("component", "management/backup"),
 		db:                   db,
 		backupService:        backupService,
 		compatibilityService: cSvc,
 		scheduleService:      scheduleService,
+		removalSVC:           removalSVC,
+		pbmPITRService:       pbmPITRService,
 	}
 }
 
 // StartBackup starts on-demand backup.
-func (s *BackupService) StartBackup(ctx context.Context, req *backuppb.StartBackupRequest) (*backuppb.StartBackupResponse, error) {
+func (s *BackupService) StartBackup(ctx context.Context, req *backupv1.StartBackupRequest) (*backupv1.StartBackupResponse, error) {
 	if req.Retries > maxRetriesAttempts {
 		return nil, status.Errorf(codes.InvalidArgument, "Exceeded max retries %d.", maxRetriesAttempts)
 	}
@@ -125,7 +131,7 @@ func (s *BackupService) StartBackup(ctx context.Context, req *backuppb.StartBack
 		return nil, convertError(err)
 	}
 
-	return &backuppb.StartBackupResponse{
+	return &backupv1.StartBackupResponse{
 		ArtifactId: artifactID,
 	}, nil
 }
@@ -133,8 +139,8 @@ func (s *BackupService) StartBackup(ctx context.Context, req *backuppb.StartBack
 // RestoreBackup starts restore backup job.
 func (s *BackupService) RestoreBackup(
 	ctx context.Context,
-	req *backuppb.RestoreBackupRequest,
-) (*backuppb.RestoreBackupResponse, error) {
+	req *backupv1.RestoreBackupRequest,
+) (*backupv1.RestoreBackupResponse, error) {
 	// Disable all related scheduled backups before restoring
 	tasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{ServiceID: req.ServiceId})
 	if err != nil {
@@ -142,7 +148,7 @@ func (s *BackupService) RestoreBackup(
 	}
 
 	for _, t := range tasks {
-		if _, err := s.ChangeScheduledBackup(ctx, &backuppb.ChangeScheduledBackupRequest{
+		if _, err := s.ChangeScheduledBackup(ctx, &backupv1.ChangeScheduledBackupRequest{
 			ScheduledBackupId: t.ID,
 			Enabled:           pointer.ToBool(false),
 		}); err != nil {
@@ -155,13 +161,13 @@ func (s *BackupService) RestoreBackup(
 		return nil, convertError(err)
 	}
 
-	return &backuppb.RestoreBackupResponse{
+	return &backupv1.RestoreBackupResponse{
 		RestoreId: id,
 	}, nil
 }
 
 // ScheduleBackup add new backup task to scheduler.
-func (s *BackupService) ScheduleBackup(ctx context.Context, req *backuppb.ScheduleBackupRequest) (*backuppb.ScheduleBackupResponse, error) {
+func (s *BackupService) ScheduleBackup(ctx context.Context, req *backupv1.ScheduleBackupRequest) (*backupv1.ScheduleBackupResponse, error) {
 	var id string
 
 	if req.Retries > maxRetriesAttempts {
@@ -260,11 +266,11 @@ func (s *BackupService) ScheduleBackup(ctx context.Context, req *backuppb.Schedu
 	if errTx != nil {
 		return nil, errTx
 	}
-	return &backuppb.ScheduleBackupResponse{ScheduledBackupId: id}, nil
+	return &backupv1.ScheduleBackupResponse{ScheduledBackupId: id}, nil
 }
 
 // ListScheduledBackups lists all tasks related to a backup.
-func (s *BackupService) ListScheduledBackups(ctx context.Context, req *backuppb.ListScheduledBackupsRequest) (*backuppb.ListScheduledBackupsResponse, error) { //nolint:revive,lll
+func (s *BackupService) ListScheduledBackups(ctx context.Context, req *backupv1.ListScheduledBackupsRequest) (*backupv1.ListScheduledBackupsResponse, error) { //nolint:revive,lll
 	tasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{
 		Types: []models.ScheduledTaskType{
 			models.ScheduledMySQLBackupTask,
@@ -303,7 +309,7 @@ func (s *BackupService) ListScheduledBackups(ctx context.Context, req *backuppb.
 		return nil, err
 	}
 
-	scheduledBackups := make([]*backuppb.ScheduledBackup, 0, len(tasks))
+	scheduledBackups := make([]*backupv1.ScheduledBackup, 0, len(tasks))
 	for _, task := range tasks {
 		scheduledBackup, err := convertTaskToScheduledBackup(task, svcs, locations)
 		if err != nil {
@@ -313,13 +319,13 @@ func (s *BackupService) ListScheduledBackups(ctx context.Context, req *backuppb.
 		scheduledBackups = append(scheduledBackups, scheduledBackup)
 	}
 
-	return &backuppb.ListScheduledBackupsResponse{
+	return &backupv1.ListScheduledBackupsResponse{
 		ScheduledBackups: scheduledBackups,
 	}, nil
 }
 
 // ChangeScheduledBackup changes existing scheduled backup task.
-func (s *BackupService) ChangeScheduledBackup(ctx context.Context, req *backuppb.ChangeScheduledBackupRequest) (*backuppb.ChangeScheduledBackupResponse, error) {
+func (s *BackupService) ChangeScheduledBackup(ctx context.Context, req *backupv1.ChangeScheduledBackupRequest) (*backupv1.ChangeScheduledBackupResponse, error) {
 	var disablePITR bool
 	var serviceID string
 
@@ -388,11 +394,11 @@ func (s *BackupService) ChangeScheduledBackup(ctx context.Context, req *backuppb
 		}
 	}
 
-	return &backuppb.ChangeScheduledBackupResponse{}, nil
+	return &backupv1.ChangeScheduledBackupResponse{}, nil
 }
 
 // RemoveScheduledBackup stops and removes existing scheduled backup task.
-func (s *BackupService) RemoveScheduledBackup(ctx context.Context, req *backuppb.RemoveScheduledBackupRequest) (*backuppb.RemoveScheduledBackupResponse, error) {
+func (s *BackupService) RemoveScheduledBackup(ctx context.Context, req *backupv1.RemoveScheduledBackupRequest) (*backupv1.RemoveScheduledBackupResponse, error) {
 	task, err := models.FindScheduledTaskByID(s.db.Querier, req.ScheduledBackupId)
 	if err != nil {
 		return nil, err
@@ -438,11 +444,11 @@ func (s *BackupService) RemoveScheduledBackup(ctx context.Context, req *backuppb
 		}
 	}
 
-	return &backuppb.RemoveScheduledBackupResponse{}, nil
+	return &backupv1.RemoveScheduledBackupResponse{}, nil
 }
 
 // GetLogs returns logs from the underlying tools for a backup/restore job.
-func (s *BackupService) GetLogs(_ context.Context, req *backuppb.GetLogsRequest) (*backuppb.GetLogsResponse, error) {
+func (s *BackupService) GetLogs(_ context.Context, req *backupv1.GetLogsRequest) (*backupv1.GetLogsResponse, error) {
 	jobsFilter := models.JobsFilter{
 		Types: []models.JobType{
 			models.MySQLBackupJob,
@@ -477,15 +483,15 @@ func (s *BackupService) GetLogs(_ context.Context, req *backuppb.GetLogsRequest)
 		return nil, err
 	}
 
-	res := &backuppb.GetLogsResponse{
-		Logs: make([]*backuppb.LogChunk, 0, len(jobLogs)),
+	res := &backupv1.GetLogsResponse{
+		Logs: make([]*backupv1.LogChunk, 0, len(jobLogs)),
 	}
 	for _, log := range jobLogs {
 		if log.LastChunk {
 			res.End = true
 			break
 		}
-		res.Logs = append(res.Logs, &backuppb.LogChunk{
+		res.Logs = append(res.Logs, &backupv1.LogChunk{
 			ChunkId: uint32(log.ChunkID),
 			Data:    log.Data,
 		})
@@ -497,8 +503,8 @@ func (s *BackupService) GetLogs(_ context.Context, req *backuppb.GetLogsRequest)
 // ListArtifactCompatibleServices lists compatible service for restoring given artifact.
 func (s *BackupService) ListArtifactCompatibleServices(
 	ctx context.Context,
-	req *backuppb.ListArtifactCompatibleServicesRequest,
-) (*backuppb.ListArtifactCompatibleServicesResponse, error) {
+	req *backupv1.ListArtifactCompatibleServicesRequest,
+) (*backupv1.ListArtifactCompatibleServicesResponse, error) {
 	compatibleServices, err := s.compatibilityService.FindArtifactCompatibleServices(ctx, req.ArtifactId)
 	switch {
 	case err == nil:
@@ -508,7 +514,7 @@ func (s *BackupService) ListArtifactCompatibleServices(
 		return nil, err
 	}
 
-	res := &backuppb.ListArtifactCompatibleServicesResponse{}
+	res := &backupv1.ListArtifactCompatibleServicesResponse{}
 	for _, service := range compatibleServices {
 		apiService, err := services.ToAPIService(service)
 		if err != nil {
@@ -533,11 +539,128 @@ func (s *BackupService) ListArtifactCompatibleServices(
 	return res, nil
 }
 
+// ListArtifacts returns a list of all artifacts.
+func (s *BackupService) ListArtifacts(context.Context, *backupv1.ListArtifactsRequest) (*backupv1.ListArtifactsResponse, error) {
+	q := s.db.Querier
+
+	artifacts, err := models.FindArtifacts(q, models.ArtifactFilters{})
+	if err != nil {
+		return nil, err
+	}
+
+	locationIDs := make([]string, 0, len(artifacts))
+	for _, b := range artifacts {
+		locationIDs = append(locationIDs, b.LocationID)
+	}
+	locations, err := models.FindBackupLocationsByIDs(q, locationIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	serviceIDs := make([]string, 0, len(artifacts))
+	for _, a := range artifacts {
+		if a.ServiceID != "" {
+			serviceIDs = append(serviceIDs, a.ServiceID)
+		}
+	}
+
+	services, err := models.FindServicesByIDs(q, serviceIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	artifactsResponse := make([]*backupv1.Artifact, 0, len(artifacts))
+	for _, b := range artifacts {
+		convertedArtifact, err := convertArtifact(b, services, locations)
+		if err != nil {
+			return nil, err
+		}
+		artifactsResponse = append(artifactsResponse, convertedArtifact)
+	}
+	return &backupv1.ListArtifactsResponse{
+		Artifacts: artifactsResponse,
+	}, nil
+}
+
+// Enabled returns if service is enabled and can be used.
+func (s *BackupService) Enabled() bool {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		s.l.WithError(err).Error("can't get settings")
+		return false
+	}
+	return settings.IsBackupManagementEnabled()
+}
+
+// DeleteArtifact deletes specified artifact and its files.
+func (s *BackupService) DeleteArtifact(ctx context.Context, req *backupv1.DeleteArtifactRequest) (*backupv1.DeleteArtifactResponse, error) { //nolint:revive
+	artifact, err := models.FindArtifactByID(s.db.Querier, req.ArtifactId)
+	if err != nil {
+		return nil, err
+	}
+
+	location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
+	if err != nil {
+		return nil, err
+	}
+
+	storage := backup.GetStorageForLocation(location)
+
+	if err := s.removalSVC.DeleteArtifact(storage, req.ArtifactId, req.RemoveFiles); err != nil {
+		return nil, err
+	}
+	return &backupv1.DeleteArtifactResponse{}, nil
+}
+
+// ListPitrTimeranges lists available PITR timelines/time-ranges (for MongoDB).
+func (s *BackupService) ListPitrTimeranges(ctx context.Context, req *backupv1.ListPitrTimerangesRequest) (*backupv1.ListPitrTimerangesResponse, error) {
+	var artifact *models.Artifact
+	var err error
+
+	artifact, err = models.FindArtifactByID(s.db.Querier, req.ArtifactId)
+	if err != nil {
+		if errors.Is(err, models.ErrNotFound) {
+			return nil, status.Errorf(codes.NotFound, "Artifact with ID '%s' not found.", req.ArtifactId)
+		}
+		return nil, err
+	}
+
+	if artifact.Mode != models.PITR {
+		return nil, status.Errorf(codes.FailedPrecondition, "Artifact is not a PITR artifact.")
+	}
+
+	if artifact.IsShardedCluster {
+		return nil, status.Errorf(codes.FailedPrecondition, "Getting PITR timeranges is not supported for sharded cluster artifacts.")
+	}
+
+	location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
+	if err != nil {
+		return nil, err
+	}
+
+	storage := backup.GetStorageForLocation(location)
+
+	timelines, err := s.pbmPITRService.ListPITRTimeranges(ctx, storage, location, artifact)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]*backupv1.PitrTimerange, 0, len(timelines))
+	for _, tl := range timelines {
+		result = append(result, &backupv1.PitrTimerange{
+			StartTimestamp: timestamppb.New(time.Unix(int64(tl.Start), 0)),
+			EndTimestamp:   timestamppb.New(time.Unix(int64(tl.End), 0)),
+		})
+	}
+	return &backupv1.ListPitrTimerangesResponse{
+		Timeranges: result,
+	}, nil
+}
+
 func convertTaskToScheduledBackup(task *models.ScheduledTask,
 	services map[string]*models.Service,
 	locationModels map[string]*models.BackupLocation,
-) (*backuppb.ScheduledBackup, error) {
-	scheduledBackup := &backuppb.ScheduledBackup{
+) (*backupv1.ScheduledBackup, error) {
+	scheduledBackup := &backupv1.ScheduledBackup{
 		ScheduledBackupId: task.ID,
 		CronExpression:    task.CronExpression,
 		Enabled:           !task.Disabled,
@@ -593,39 +716,39 @@ func convertTaskToScheduledBackup(task *models.ScheduledTask,
 	return scheduledBackup, nil
 }
 
-func convertBackupModeToModel(mode backuppb.BackupMode) (models.BackupMode, error) {
+func convertBackupModeToModel(mode backupv1.BackupMode) (models.BackupMode, error) {
 	switch mode {
-	case backuppb.BackupMode_BACKUP_MODE_SNAPSHOT:
+	case backupv1.BackupMode_BACKUP_MODE_SNAPSHOT:
 		return models.Snapshot, nil
-	case backuppb.BackupMode_BACKUP_MODE_INCREMENTAL:
+	case backupv1.BackupMode_BACKUP_MODE_INCREMENTAL:
 		return models.Incremental, nil
-	case backuppb.BackupMode_BACKUP_MODE_PITR:
+	case backupv1.BackupMode_BACKUP_MODE_PITR:
 		return models.PITR, nil
-	case backuppb.BackupMode_BACKUP_MODE_UNSPECIFIED:
+	case backupv1.BackupMode_BACKUP_MODE_UNSPECIFIED:
 		return "", status.Errorf(codes.InvalidArgument, "invalid backup mode: %s", mode.String())
 	default:
 		return "", status.Errorf(codes.InvalidArgument, "Unknown backup mode: %s", mode.String())
 	}
 }
 
-func convertModelToBackupMode(mode models.BackupMode) (backuppb.BackupMode, error) {
+func convertModelToBackupMode(mode models.BackupMode) (backupv1.BackupMode, error) {
 	switch mode {
 	case models.Snapshot:
-		return backuppb.BackupMode_BACKUP_MODE_SNAPSHOT, nil
+		return backupv1.BackupMode_BACKUP_MODE_SNAPSHOT, nil
 	case models.Incremental:
-		return backuppb.BackupMode_BACKUP_MODE_INCREMENTAL, nil
+		return backupv1.BackupMode_BACKUP_MODE_INCREMENTAL, nil
 	case models.PITR:
-		return backuppb.BackupMode_BACKUP_MODE_PITR, nil
+		return backupv1.BackupMode_BACKUP_MODE_PITR, nil
 	default:
 		return 0, errors.Errorf("unknown backup mode: %s", mode)
 	}
 }
 
-func convertModelToBackupModel(dataModel backuppb.DataModel) (models.DataModel, error) {
+func convertModelToBackupModel(dataModel backupv1.DataModel) (models.DataModel, error) {
 	switch dataModel {
-	case backuppb.DataModel_DATA_MODEL_LOGICAL:
+	case backupv1.DataModel_DATA_MODEL_LOGICAL:
 		return models.LogicalDataModel, nil
-	case backuppb.DataModel_DATA_MODEL_PHYSICAL:
+	case backupv1.DataModel_DATA_MODEL_PHYSICAL:
 		return models.PhysicalDataModel, nil
 	default:
 		return "", errors.Errorf("unknown backup mode: %s", dataModel)
@@ -643,18 +766,18 @@ func convertError(e error) error {
 		return status.Error(codes.FailedPrecondition, e.Error())
 	}
 
-	var code backuppb.ErrorCode
+	var code backupv1.ErrorCode
 	switch {
 	case errors.Is(e, backup.ErrXtrabackupNotInstalled):
-		code = backuppb.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED
+		code = backupv1.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED
 	case errors.Is(e, backup.ErrInvalidXtrabackup):
-		code = backuppb.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
+		code = backupv1.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
 	case errors.Is(e, backup.ErrIncompatibleXtrabackup):
-		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
+		code = backupv1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
 	case errors.Is(e, backup.ErrIncompatibleTargetMySQL):
-		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL
+		code = backupv1.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL
 	case errors.Is(e, backup.ErrIncompatibleTargetMongoDB):
-		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MONGODB
+		code = backupv1.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MONGODB
 	case errors.Is(e, backup.ErrTimestampOutOfRange):
 		return status.Error(codes.OutOfRange, e.Error())
 	case errors.Is(e, models.ErrNotFound):
@@ -674,7 +797,7 @@ func convertError(e error) error {
 		return e
 	}
 
-	st, err := status.New(codes.FailedPrecondition, e.Error()).WithDetails(&backuppb.Error{
+	st, err := status.New(codes.FailedPrecondition, e.Error()).WithDetails(&backupv1.Error{
 		Code: code,
 	})
 	if err != nil {
@@ -717,7 +840,124 @@ func isNameSafe(name string) error {
 	return nil
 }
 
+func convertDataModel(model models.DataModel) (backupv1.DataModel, error) {
+	switch model {
+	case models.PhysicalDataModel:
+		return backupv1.DataModel_DATA_MODEL_PHYSICAL, nil
+	case models.LogicalDataModel:
+		return backupv1.DataModel_DATA_MODEL_LOGICAL, nil
+	default:
+		return 0, errors.Errorf("unknown data model: %s", model)
+	}
+}
+
+func convertBackupStatus(status models.BackupStatus) (backupv1.BackupStatus, error) {
+	switch status {
+	case models.PendingBackupStatus:
+		return backupv1.BackupStatus_BACKUP_STATUS_PENDING, nil
+	case models.InProgressBackupStatus:
+		return backupv1.BackupStatus_BACKUP_STATUS_IN_PROGRESS, nil
+	case models.PausedBackupStatus:
+		return backupv1.BackupStatus_BACKUP_STATUS_PAUSED, nil
+	case models.SuccessBackupStatus:
+		return backupv1.BackupStatus_BACKUP_STATUS_SUCCESS, nil
+	case models.ErrorBackupStatus:
+		return backupv1.BackupStatus_BACKUP_STATUS_ERROR, nil
+	case models.DeletingBackupStatus:
+		return backupv1.BackupStatus_BACKUP_STATUS_DELETING, nil
+	case models.FailedToDeleteBackupStatus:
+		return backupv1.BackupStatus_BACKUP_STATUS_FAILED_TO_DELETE, nil
+	case models.CleanupInProgressStatus:
+		return backupv1.BackupStatus_BACKUP_STATUS_CLEANUP_IN_PROGRESS, nil
+	default:
+		return 0, errors.Errorf("invalid status '%s'", status)
+	}
+}
+
+func convertArtifact(
+	a *models.Artifact,
+	services map[string]*models.Service,
+	locationModels map[string]*models.BackupLocation,
+) (*backupv1.Artifact, error) {
+	createdAt := timestamppb.New(a.CreatedAt)
+	if err := createdAt.CheckValid(); err != nil {
+		return nil, errors.Wrap(err, "failed to convert timestamp")
+	}
+
+	l, ok := locationModels[a.LocationID]
+	if !ok {
+		return nil, errors.Errorf(
+			"failed to convert artifact with id '%s': no location id '%s' in the map", a.ID, a.LocationID)
+	}
+
+	var serviceName string
+	if s, ok := services[a.ServiceID]; ok {
+		serviceName = s.ServiceName
+	}
+
+	dataModel, err := convertDataModel(a.DataModel)
+	if err != nil {
+		return nil, errors.Wrapf(err, "artifact id '%s'", a.ID)
+	}
+
+	backupStatus, err := convertBackupStatus(a.Status)
+	if err != nil {
+		return nil, errors.Wrapf(err, "artifact id '%s'", a.ID)
+	}
+
+	backupMode, err := convertModelToBackupMode(a.Mode)
+	if err != nil {
+		return nil, errors.Wrapf(err, "artifact id '%s'", a.ID)
+	}
+
+	return &backupv1.Artifact{
+		ArtifactId:       a.ID,
+		Name:             a.Name,
+		Vendor:           a.Vendor,
+		LocationId:       a.LocationID,
+		LocationName:     l.Name,
+		ServiceId:        a.ServiceID,
+		ServiceName:      serviceName,
+		DataModel:        dataModel,
+		Mode:             backupMode,
+		Status:           backupStatus,
+		CreatedAt:        createdAt,
+		IsShardedCluster: a.IsShardedCluster,
+		Folder:           a.Folder,
+		MetadataList:     artifactMetadataListToProto(a),
+	}, nil
+}
+
+// artifactMetadataListToProto returns artifact metadata list in protobuf format.
+func artifactMetadataListToProto(artifact *models.Artifact) []*backupv1.Metadata {
+	res := make([]*backupv1.Metadata, len(artifact.MetadataList))
+	for i, metadata := range artifact.MetadataList {
+		res[i] = &backupv1.Metadata{}
+		res[i].FileList = make([]*backupv1.File, len(metadata.FileList))
+
+		for j, file := range metadata.FileList {
+			res[i].FileList[j] = &backupv1.File{
+				Name:        file.Name,
+				IsDirectory: file.IsDirectory,
+			}
+		}
+
+		if metadata.RestoreTo != nil {
+			res[i].RestoreTo = timestamppb.New(*metadata.RestoreTo)
+		}
+
+		if metadata.BackupToolData != nil {
+			if metadata.BackupToolData.PbmMetadata != nil {
+				res[i].BackupToolMetadata = &backupv1.Metadata_PbmMetadata{
+					PbmMetadata: &backupv1.PbmMetadata{Name: metadata.BackupToolData.PbmMetadata.Name},
+				}
+			}
+		}
+	}
+	return res
+}
+
 // Check interfaces.
 var (
-	_ backuppb.BackupServiceServer = (*BackupService)(nil)
+	_ backupv1.BackupServiceServer = (*BackupService)(nil)
 )

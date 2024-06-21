@@ -30,9 +30,15 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	ChangeScheduledBackup(params *ChangeScheduledBackupParams, opts ...ClientOption) (*ChangeScheduledBackupOK, error)
 
+	DeleteArtifact(params *DeleteArtifactParams, opts ...ClientOption) (*DeleteArtifactOK, error)
+
 	GetLogs(params *GetLogsParams, opts ...ClientOption) (*GetLogsOK, error)
 
 	ListArtifactCompatibleServices(params *ListArtifactCompatibleServicesParams, opts ...ClientOption) (*ListArtifactCompatibleServicesOK, error)
+
+	ListArtifacts(params *ListArtifactsParams, opts ...ClientOption) (*ListArtifactsOK, error)
+
+	ListPitrTimeranges(params *ListPitrTimerangesParams, opts ...ClientOption) (*ListPitrTimerangesOK, error)
 
 	ListScheduledBackups(params *ListScheduledBackupsParams, opts ...ClientOption) (*ListScheduledBackupsOK, error)
 
@@ -81,6 +87,45 @@ func (a *Client) ChangeScheduledBackup(params *ChangeScheduledBackupParams, opts
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ChangeScheduledBackupDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+DeleteArtifact deletes artifact
+
+Deletes an artifact.
+*/
+func (a *Client) DeleteArtifact(params *DeleteArtifactParams, opts ...ClientOption) (*DeleteArtifactOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDeleteArtifactParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "DeleteArtifact",
+		Method:             "DELETE",
+		PathPattern:        "/v1/backups/artifacts/{artifact_id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &DeleteArtifactReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*DeleteArtifactOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*DeleteArtifactDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -159,6 +204,84 @@ func (a *Client) ListArtifactCompatibleServices(params *ListArtifactCompatibleSe
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ListArtifactCompatibleServicesDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListArtifacts lists artifacts
+
+Return a list of backup artifacts.
+*/
+func (a *Client) ListArtifacts(params *ListArtifactsParams, opts ...ClientOption) (*ListArtifactsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListArtifactsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListArtifacts",
+		Method:             "GET",
+		PathPattern:        "/v1/backups/artifacts",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListArtifactsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListArtifactsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListArtifactsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListPitrTimeranges lists p i t r timeranges
+
+Return a list of available MongoDB point-in-time-recovery timeranges.
+*/
+func (a *Client) ListPitrTimeranges(params *ListPitrTimerangesParams, opts ...ClientOption) (*ListPitrTimerangesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListPitrTimerangesParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListPitrTimeranges",
+		Method:             "GET",
+		PathPattern:        "/v1/backups/artifacts/{artifact_id}/pitr-timeranges",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListPitrTimerangesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListPitrTimerangesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListPitrTimerangesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

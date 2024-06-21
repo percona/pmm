@@ -134,11 +134,6 @@
   POST /v1/management/SecurityChecks/GetCheckResults           N/A                                                ❌ Deprecated in v2 and removed in v3
   POST /v1/management/SecurityChecks/ToggleCheckAlert          N/A                                                ❌ Deprecated in v2 and removed in v3
 
-  **Backups:: Artifacts**                                                                                         TODO: merge to BackupService
-  POST /v1/backup/Artifacts/List                               GET /v1/backups/artifacts                          ✅
-  POST /v1/backup/Artifacts/Delete                             DELETE /v1/backups/artifacts/{artifact_id}         ✅ ?remove_files=true
-  POST /v1/backup/Artifacts/PITRTimeranges                     GET /v1/backups/artifacts/{artifact_id}/pitr-timeranges ✅
-
   **Backups**
   POST /v1/backup/Backups/ChangeScheduled                      PUT /v1/backups:changeScheduled                    ✅
   POST /v1/backup/Backups/GetLogs                              GET /v1/backups/{artifact_id}/logs                 ✅
@@ -147,6 +142,9 @@
   POST /v1/backup/Backups/RemoveScheduled                      DELETE /v1/backups/scheduled/{scheduled_backup_id} ✅
   POST /v1/backup/Backups/Schedule                             POST /v1/backups:schedule                          ✅
   POST /v1/backup/Backups/Start                                POST /v1/backups:start                             ✅
+  POST /v1/backup/Artifacts/List                               GET /v1/backups/artifacts                          ✅
+  POST /v1/backup/Artifacts/Delete                             DELETE /v1/backups/artifacts/{artifact_id}         ✅ ?remove_files=true
+  POST /v1/backup/Artifacts/PITRTimeranges                     GET /v1/backups/artifacts/{artifact_id}/pitr-timeranges ✅
 
   **Backups:: Locations**
   POST /v1/backup/Locations/Add                                POST /v1/backups/locations                         ✅

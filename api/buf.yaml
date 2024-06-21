@@ -12,6 +12,7 @@ lint:
         - agent/v1/agent.proto # We want our naming in this file to be different
     PACKAGE_VERSION_SUFFIX:
       - common/common.proto # We don't want to version this file
+      - common/metrics_resolutions.proto # We don't want to version this file
 
 
 deps:

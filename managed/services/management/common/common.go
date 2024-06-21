@@ -32,17 +32,15 @@ var ErrClusterLocked = errors.New("cluster/service is locked")
 
 // MgmtServices represents a collection of management services.
 type MgmtServices struct {
-	BackupService    *managementbackup.BackupService
-	ArtifactsService *managementbackup.ArtifactsService
-	RestoreService   *managementbackup.RestoreService
+	BackupService  *managementbackup.BackupService
+	RestoreService *managementbackup.RestoreService
 }
 
 // NewMgmtServices creates a new MgmtServices instance.
-func NewMgmtServices(bs *managementbackup.BackupService, as *managementbackup.ArtifactsService, rs *managementbackup.RestoreService) *MgmtServices {
+func NewMgmtServices(bs *managementbackup.BackupService, rs *managementbackup.RestoreService) *MgmtServices {
 	return &MgmtServices{
-		BackupService:    bs,
-		ArtifactsService: as,
-		RestoreService:   rs,
+		BackupService:  bs,
+		RestoreService: rs,
 	}
 }
 
@@ -95,7 +93,7 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 	}
 
 	// Check no backup tasks running.
-	artifacts, err := s.ArtifactsService.ListArtifacts(ctx, &backuppb.ListArtifactsRequest{})
+	artifacts, err := s.BackupService.ListArtifacts(ctx, &backuppb.ListArtifactsRequest{})
 	if err != nil {
 		return err
 	}

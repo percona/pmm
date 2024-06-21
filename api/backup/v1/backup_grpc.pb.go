@@ -27,6 +27,9 @@ const (
 	BackupService_ChangeScheduledBackup_FullMethodName          = "/backup.v1.BackupService/ChangeScheduledBackup"
 	BackupService_RemoveScheduledBackup_FullMethodName          = "/backup.v1.BackupService/RemoveScheduledBackup"
 	BackupService_GetLogs_FullMethodName                        = "/backup.v1.BackupService/GetLogs"
+	BackupService_ListArtifacts_FullMethodName                  = "/backup.v1.BackupService/ListArtifacts"
+	BackupService_DeleteArtifact_FullMethodName                 = "/backup.v1.BackupService/DeleteArtifact"
+	BackupService_ListPitrTimeranges_FullMethodName             = "/backup.v1.BackupService/ListPitrTimeranges"
 )
 
 // BackupServiceClient is the client API for BackupService service.
@@ -47,6 +50,12 @@ type BackupServiceClient interface {
 	RemoveScheduledBackup(ctx context.Context, in *RemoveScheduledBackupRequest, opts ...grpc.CallOption) (*RemoveScheduledBackupResponse, error)
 	// GetLogs returns logs from the underlying tools for a backup/restore job.
 	GetLogs(ctx context.Context, in *GetLogsRequest, opts ...grpc.CallOption) (*GetLogsResponse, error)
+	// ListArtifacts returns a list of all backup artifacts.
+	ListArtifacts(ctx context.Context, in *ListArtifactsRequest, opts ...grpc.CallOption) (*ListArtifactsResponse, error)
+	// DeleteArtifact deletes specified artifact.
+	DeleteArtifact(ctx context.Context, in *DeleteArtifactRequest, opts ...grpc.CallOption) (*DeleteArtifactResponse, error)
+	// ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location
+	ListPitrTimeranges(ctx context.Context, in *ListPitrTimerangesRequest, opts ...grpc.CallOption) (*ListPitrTimerangesResponse, error)
 }
 
 type backupServiceClient struct {
@@ -120,6 +129,33 @@ func (c *backupServiceClient) GetLogs(ctx context.Context, in *GetLogsRequest, o
 	return out, nil
 }
 
+func (c *backupServiceClient) ListArtifacts(ctx context.Context, in *ListArtifactsRequest, opts ...grpc.CallOption) (*ListArtifactsResponse, error) {
+	out := new(ListArtifactsResponse)
+	err := c.cc.Invoke(ctx, BackupService_ListArtifacts_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *backupServiceClient) DeleteArtifact(ctx context.Context, in *DeleteArtifactRequest, opts ...grpc.CallOption) (*DeleteArtifactResponse, error) {
+	out := new(DeleteArtifactResponse)
+	err := c.cc.Invoke(ctx, BackupService_DeleteArtifact_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *backupServiceClient) ListPitrTimeranges(ctx context.Context, in *ListPitrTimerangesRequest, opts ...grpc.CallOption) (*ListPitrTimerangesResponse, error) {
+	out := new(ListPitrTimerangesResponse)
+	err := c.cc.Invoke(ctx, BackupService_ListPitrTimeranges_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BackupServiceServer is the server API for BackupService service.
 // All implementations must embed UnimplementedBackupServiceServer
 // for forward compatibility
@@ -138,6 +174,12 @@ type BackupServiceServer interface {
 	RemoveScheduledBackup(context.Context, *RemoveScheduledBackupRequest) (*RemoveScheduledBackupResponse, error)
 	// GetLogs returns logs from the underlying tools for a backup/restore job.
 	GetLogs(context.Context, *GetLogsRequest) (*GetLogsResponse, error)
+	// ListArtifacts returns a list of all backup artifacts.
+	ListArtifacts(context.Context, *ListArtifactsRequest) (*ListArtifactsResponse, error)
+	// DeleteArtifact deletes specified artifact.
+	DeleteArtifact(context.Context, *DeleteArtifactRequest) (*DeleteArtifactResponse, error)
+	// ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location
+	ListPitrTimeranges(context.Context, *ListPitrTimerangesRequest) (*ListPitrTimerangesResponse, error)
 	mustEmbedUnimplementedBackupServiceServer()
 }
 
@@ -170,6 +212,18 @@ func (UnimplementedBackupServiceServer) RemoveScheduledBackup(context.Context, *
 
 func (UnimplementedBackupServiceServer) GetLogs(context.Context, *GetLogsRequest) (*GetLogsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLogs not implemented")
+}
+
+func (UnimplementedBackupServiceServer) ListArtifacts(context.Context, *ListArtifactsRequest) (*ListArtifactsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListArtifacts not implemented")
+}
+
+func (UnimplementedBackupServiceServer) DeleteArtifact(context.Context, *DeleteArtifactRequest) (*DeleteArtifactResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteArtifact not implemented")
+}
+
+func (UnimplementedBackupServiceServer) ListPitrTimeranges(context.Context, *ListPitrTimerangesRequest) (*ListPitrTimerangesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListPitrTimeranges not implemented")
 }
 func (UnimplementedBackupServiceServer) mustEmbedUnimplementedBackupServiceServer() {}
 
@@ -310,6 +364,60 @@ func _BackupService_GetLogs_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BackupService_ListArtifacts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListArtifactsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BackupServiceServer).ListArtifacts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BackupService_ListArtifacts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BackupServiceServer).ListArtifacts(ctx, req.(*ListArtifactsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BackupService_DeleteArtifact_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteArtifactRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BackupServiceServer).DeleteArtifact(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BackupService_DeleteArtifact_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BackupServiceServer).DeleteArtifact(ctx, req.(*DeleteArtifactRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BackupService_ListPitrTimeranges_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListPitrTimerangesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BackupServiceServer).ListPitrTimeranges(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BackupService_ListPitrTimeranges_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BackupServiceServer).ListPitrTimeranges(ctx, req.(*ListPitrTimerangesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BackupService_ServiceDesc is the grpc.ServiceDesc for BackupService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -344,6 +452,18 @@ var BackupService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetLogs",
 			Handler:    _BackupService_GetLogs_Handler,
+		},
+		{
+			MethodName: "ListArtifacts",
+			Handler:    _BackupService_ListArtifacts_Handler,
+		},
+		{
+			MethodName: "DeleteArtifact",
+			Handler:    _BackupService_DeleteArtifact_Handler,
+		},
+		{
+			MethodName: "ListPitrTimeranges",
+			Handler:    _BackupService_ListPitrTimeranges_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -251,10 +251,9 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
 		deps.vmdb, deps.connectionCheck, deps.serviceInfoBroker, deps.agentService)
 
-	mgmtBackupService := managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService)
-	mgmtArtifactsService := managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pbmPITRService)
+	mgmtBackupService := managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService, deps.backupRemovalService, deps.pbmPITRService)
 	mgmtRestoreService := managementbackup.NewRestoreService(deps.db)
-	mgmtServices := common.NewMgmtServices(mgmtBackupService, mgmtArtifactsService, mgmtRestoreService)
+	mgmtServices := common.NewMgmtServices(mgmtBackupService, mgmtRestoreService)
 
 	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.versionCache, mgmtServices)
 	inventoryv1.RegisterNodesServiceServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
@@ -273,7 +272,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	backupv1.RegisterBackupServiceServer(gRPCServer, mgmtBackupService)
 	backupv1.RegisterLocationsServiceServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
-	backupv1.RegisterArtifactsServiceServer(gRPCServer, mgmtArtifactsService)
 	backupv1.RegisterRestoreServiceServer(gRPCServer, mgmtRestoreService)
 
 	dumpv1beta1.RegisterDumpServiceServer(gRPCServer, managementdump.New(deps.db, deps.grafanaClient, deps.dumpService))
@@ -366,7 +364,6 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 		backupv1.RegisterBackupServiceHandlerFromEndpoint,
 		backupv1.RegisterLocationsServiceHandlerFromEndpoint,
-		backupv1.RegisterArtifactsServiceHandlerFromEndpoint,
 		backupv1.RegisterRestoreServiceHandlerFromEndpoint,
 
 		dumpv1beta1.RegisterDumpServiceHandlerFromEndpoint,
