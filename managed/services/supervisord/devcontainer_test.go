@@ -62,7 +62,7 @@ func TestDevContainer(t *testing.T) {
 		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
 
 		res, resT := checker.checkResult(ctx)
-		// The assert beliw hides the real error that causes it to fail, i.e. it's somewhat useless
+		// The assert below hides the real error that causes it to fail, i.e. it's somewhat useless
 		// assert.WithinDuration(t, time.Now(), resT, time.Second)
 
 		assert.True(t, strings.HasPrefix(res.Installed.Version, "2."), "%s", res.Installed.Version)
