@@ -276,8 +276,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	clickhouseDatabase := getValueFromENV("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
 	clickhouseAddr := getValueFromENV("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
 	clickhouseDataSourceAddr := getValueFromENV("PMM_CLICKHOUSE_DATASOURCE_ADDR", defaultClickhouseDataSourceAddr)
-	clickhousePoolSize := getValueFromENV("PMM_CLICKHOUSE_POOL_SIZE", "")
-	clickhouseBlockSize := getValueFromENV("PMM_CLICKHOUSE_BLOCK_SIZE", "")
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2)
 	vmSearchDisableCache := getValueFromENV("VM_search_disableCache", strconv.FormatBool(!settings.VictoriaMetrics.CacheEnabled))
 	vmSearchMaxQueryLen := getValueFromENV("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
@@ -308,8 +306,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhouseAddr":               clickhouseAddr,
 		"ClickhouseDataSourceAddr":     clickhouseDataSourceAddr,
 		"ClickhouseDatabase":           clickhouseDatabase,
-		"ClickhousePoolSize":           clickhousePoolSize,
-		"ClickhouseBlockSize":          clickhouseBlockSize,
 		"ClickhouseHost":               clickhouseAddrPair[0],
 		"ClickhousePort":               clickhouseAddrPair[1],
 	}
@@ -578,8 +574,8 @@ command =
 environment =
 	PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
 	PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
-{{ if .ClickhousePoolSize }}	PMM_CLICKHOUSE_POOL_SIZE={{ .ClickhousePoolSize }},{{- end}}
-{{ if .ClickhouseBlockSize }}	PMM_CLICKHOUSE_BLOCK_SIZE={{ .ClickhouseBlockSize }}{{- end}}
+
+
 user = pmm
 autorestart = true
 autostart = true
