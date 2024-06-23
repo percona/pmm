@@ -1047,11 +1047,6 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		logger = reform.NewPrintfLogger(params.Logf)
 	}
 
-	err := encryption.Init(encryption.DefaultEncryptionKeyPath)
-	if err != nil {
-		return nil, err
-	}
-
 	db := reform.NewDB(sqlDB, postgresql.Dialect, logger)
 	errCV := checkVersion(ctx, db)
 	if pErr, ok := errCV.(*pq.Error); ok && pErr.Code == "28000" { //nolint:errorlint
@@ -1097,6 +1092,11 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 				Columns:        []string{"username", "password"},
 			},
 		},
+	}
+
+	err = encryption.Init(encryption.DefaultEncryptionKeyPath)
+	if err != nil {
+		return nil, err
 	}
 
 	if err := encryption.EncryptDB(ctx, c); err != nil {

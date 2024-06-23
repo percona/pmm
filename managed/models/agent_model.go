@@ -324,6 +324,10 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 	username := pointer.GetString(s.Username)
 	password := pointer.GetString(s.Password)
 
+	decryptedUsername, err := encryption.Decrypt(username)
+	if err != nil {
+		logrus.Warningf("Encryption: %#v", err)
+	}
 	decryptedPassword, err := encryption.Decrypt(password)
 	if err != nil {
 		logrus.Warningf("Encryption: %#v", err)
@@ -336,7 +340,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 	switch s.AgentType {
 	case MySQLdExporterType:
 		cfg := mysql.NewConfig()
-		cfg.User = username
+		cfg.User = decryptedUsername
 		cfg.Passwd = decryptedPassword
 		cfg.Net = unix
 		cfg.Addr = socket
@@ -371,7 +375,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 	case QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
 		cfg := mysql.NewConfig()
-		cfg.User = username
+		cfg.User = decryptedUsername
 		cfg.Passwd = decryptedPassword
 		cfg.Net = unix
 		cfg.Addr = socket
@@ -410,7 +414,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 	case ProxySQLExporterType:
 		cfg := mysql.NewConfig()
-		cfg.User = username
+		cfg.User = decryptedUsername
 		cfg.Passwd = decryptedPassword
 		cfg.Net = unix
 		cfg.Addr = socket
@@ -492,13 +496,14 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 		}
 		switch {
 		case password != "":
-			u.User = url.UserPassword(username, decryptedPassword)
+			u.User = url.UserPassword(decryptedUsername, decryptedPassword)
 		case username != "":
-			u.User = url.User(username)
+			u.User = url.User(decryptedUsername)
 		}
 		dsn := u.String()
 		dsn = strings.ReplaceAll(dsn, url.QueryEscape(tdp.Left), tdp.Left)
 		dsn = strings.ReplaceAll(dsn, url.QueryEscape(tdp.Right), tdp.Right)
+
 		return dsn
 
 	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType, QANPostgreSQLPgStatMonitorAgentType:
@@ -553,9 +558,9 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 		}
 		switch {
 		case password != "":
-			u.User = url.UserPassword(username, decryptedPassword)
+			u.User = url.UserPassword(decryptedUsername, decryptedPassword)
 		case username != "":
-			u.User = url.User(username)
+			u.User = url.User(decryptedUsername)
 		}
 
 		dsn := u.String()

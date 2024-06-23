@@ -128,7 +128,7 @@ func EncryptDB(ctx context.Context, c *DatabaseConnection) error {
 				if err != nil {
 					return err
 				}
-				res.SetValues[k][i] = base64.StdEncoding.EncodeToString([]byte(encrypted))
+				res.SetValues[k][i] = encrypted
 			}
 			data := append([]any{}, v...)
 			data = append(data, res.WhereValues[k]...)
