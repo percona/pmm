@@ -421,10 +421,10 @@ func filter(existing, ap map[string]agentpb.AgentParams) ([]string, []string, []
 
 //nolint:golint,stylecheck,revive
 const (
-	type_TEST_SLEEP    inventorypb.AgentType = 998 // process
-	type_TEST_NOOP     inventorypb.AgentType = 999 // built-in
-	process_Retry_Time int                   = 3
-	start_Process_Waiting                    = 2 * time.Second
+	type_TEST_SLEEP       inventorypb.AgentType = 998 // process
+	type_TEST_NOOP        inventorypb.AgentType = 999 // built-in
+	process_Retry_Time    int                   = 3
+	start_Process_Waiting                       = 2 * time.Second
 )
 
 func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentpb.SetStateRequest_AgentProcess, port uint16) error {
@@ -489,12 +489,12 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 		}
 		close(done)
 	}()
-	
+
 	t := time.NewTimer(start_Process_Waiting)
 	defer t.Stop()
 	select {
-	case isInitialized := <- process.IsInitialized():
-		if (!isInitialized){
+	case isInitialized := <-process.IsInitialized():
+		if !isInitialized {
 			defer cancel()
 			return process.GetError()
 		}
