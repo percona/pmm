@@ -127,7 +127,7 @@ func TestAgentService(t *testing.T) {
 					IsConnected: false,
 					CreatedAt:   timestamppb.New(now),
 					UpdatedAt:   timestamppb.New(now),
-					Username:    "postgres",
+					Username:    response.GetAgents()[0].Username,
 					PostgresqlOptions: &agentv1beta1.UniversalAgent_PostgreSQLOptions{
 						IsSslKeySet: false,
 					},
@@ -143,7 +143,7 @@ func TestAgentService(t *testing.T) {
 					IsConnected: false,
 					CreatedAt:   timestamppb.New(now),
 					UpdatedAt:   timestamppb.New(now),
-					Username:    "postgres",
+					Username:    response.GetAgents()[1].Username,
 					PostgresqlOptions: &agentv1beta1.UniversalAgent_PostgreSQLOptions{
 						IsSslKeySet: false,
 					},
