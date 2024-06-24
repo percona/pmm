@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -30,6 +31,8 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	grpcstatus "google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/version"
 )
@@ -147,6 +150,12 @@ func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 	up.performM.Unlock()
 	if newImageName == "" {
 		return errors.New("newImageName is empty")
+	}
+
+	err := up.checkWatchtowerHost()
+	if err != nil {
+		up.l.WithError(err).Error("Failed to check watchtower host")
+		return grpcstatus.Errorf(codes.FailedPrecondition, "failed to check watchtower host")
 	}
 
 	if err := up.sendRequestToWatchtower(ctx, newImageName); err != nil {
@@ -388,4 +397,27 @@ func (up *Updater) check(ctx context.Context) error {
 	up.lastCheckResult = latest
 	up.lastCheckTime = time.Now()
 	return nil
+}
+
+func (up *Updater) checkWatchtowerHost() error {
+	// Check if watchtower host is available
+	if up.watchtowerHost == nil {
+		return errors.New("watchtower host is not set")
+	}
+	if !isHostAvailable(up.watchtowerHost.Hostname(), up.watchtowerHost.Port(), updateDefaultTimeout) {
+		return errors.New("watchtower host is not available")
+	}
+	return nil
+}
+
+func isHostAvailable(host string, port string, timeout time.Duration) bool {
+	conn, err := net.DialTimeout("tcp", net.JoinHostPort(host, port), timeout)
+	if err != nil {
+		return false
+	}
+	if conn != nil {
+		defer conn.Close() //nolint:errcheck
+		return true
+	}
+	return false
 }
