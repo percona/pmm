@@ -30,6 +30,9 @@ import (
 )
 
 func TestMongodbExporterConfig225(t *testing.T) {
+	err := encryption.Init(encryption.DefaultEncryptionKeyPath)
+	require.NoError(t, err)
+
 	pmmAgentVersion := version.MustParse("2.25.0")
 	node := &models.Node{
 		Address: "1.2.3.4",
@@ -88,6 +91,9 @@ func TestMongodbExporterConfig225(t *testing.T) {
 }
 
 func TestMongodbExporterConfig226(t *testing.T) {
+	err := encryption.Init(encryption.DefaultEncryptionKeyPath)
+	require.NoError(t, err)
+
 	pmmAgentVersion := version.MustParse("2.26.0")
 	node := &models.Node{
 		Address: "1.2.3.4",
@@ -233,6 +239,9 @@ func TestMongodbExporterConfig226(t *testing.T) {
 }
 
 func TestMongodbExporterConfig2411(t *testing.T) {
+	err := encryption.Init(encryption.DefaultEncryptionKeyPath)
+	require.NoError(t, err)
+
 	pmmAgentVersion := version.MustParse("2.41.1")
 	node := &models.Node{
 		Address: "1.2.3.4",
@@ -568,6 +577,9 @@ func TestNewMongodbExporterConfig(t *testing.T) {
 
 func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 	t.Parallel()
+
+	err := encryption.Init(encryption.DefaultEncryptionKeyPath)
+	require.NoError(t, err)
 
 	pmmAgentVersion := version.MustParse("2.28.0")
 
