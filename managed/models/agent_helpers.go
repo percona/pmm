@@ -710,14 +710,24 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 	if metricsPath == "" {
 		metricsPath = "/metrics"
 	}
+
+	encryptedUsername, err := encryption.Encrypt(params.Username)
+	if err != nil {
+		logrus.Warningf("Encryption: %v", err)
+	}
+	encryptedPassword, err := encryption.Encrypt(params.Password)
+	if err != nil {
+		logrus.Warningf("Encryption: %v", err)
+	}
+
 	row := &Agent{
 		PMMAgentID:    pmmAgentID,
 		AgentID:       id,
 		AgentType:     ExternalExporterType,
 		RunsOnNodeID:  runsOnNodeID,
 		ServiceID:     pointer.ToStringOrNil(params.ServiceID),
-		Username:      pointer.ToStringOrNil(params.Username),
-		Password:      pointer.ToStringOrNil(params.Password),
+		Username:      &encryptedUsername,
+		Password:      &encryptedPassword,
 		MetricsScheme: &scheme,
 		MetricsPath:   &metricsPath,
 		ListenPort:    pointer.ToUint16(uint16(params.ListenPort)),
