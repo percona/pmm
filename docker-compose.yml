@@ -10,7 +10,7 @@ services:
     #   context: .
     #   args:
     #     PMM_SERVER_IMAGE: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:3-dev-latest}
-    #   dockerfile: devcontainer.Dockerfile
+    #   dockerfile: ./.devcontainer/Dockerfile
     container_name: pmm-server
     hostname: pmm-server
     networks:

@@ -17,7 +17,7 @@ on:
 
 jobs:
   devcontainer:
-    name: Build
+    name: Devcontainer
     runs-on: ubuntu-22.04
     timeout-minutes: 15
     permissions:
@@ -53,7 +53,8 @@ jobs:
       - name: Build and push to registries
         uses: docker/build-push-action@v5
         with:
-          file: ./devcontainer.Dockerfile
+          file: ./.devcontainer/Dockerfile
+          context: .
           push: true
           tags: |
             ${{ env.GH_DEVCONTAINER_IMAGE }}
