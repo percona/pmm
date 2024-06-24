@@ -138,7 +138,7 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 
 	decryptedPassword, err := encryption.Decrypt(pointer.GetString(agent.Password))
 	if err != nil {
-		logrus.Warningf("Encryption: %#v", err)
+		logrus.Warningf("Encryption: %v", err)
 	}
 
 	ua := &agentv1beta1.UniversalAgent{

@@ -884,9 +884,13 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		}
 	}
 
+	encryptedUsername, err := encryption.Encrypt(params.Username)
+	if err != nil {
+		logrus.Warningf("Encryption: %v", err)
+	}
 	encryptedPassword, err := encryption.Encrypt(params.Password)
 	if err != nil {
-		logrus.Warningf("Encryption: %#v", err)
+		logrus.Warningf("Encryption: %v", err)
 	}
 
 	row := &Agent{
@@ -895,7 +899,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		PMMAgentID:                     &params.PMMAgentID,
 		ServiceID:                      pointer.ToStringOrNil(params.ServiceID),
 		NodeID:                         pointer.ToStringOrNil(params.NodeID),
-		Username:                       pointer.ToStringOrNil(params.Username),
+		Username:                       pointer.ToStringOrNil(encryptedUsername),
 		Password:                       pointer.ToStringOrNil(encryptedPassword),
 		AgentPassword:                  pointer.ToStringOrNil(params.AgentPassword),
 		TLS:                            params.TLS,

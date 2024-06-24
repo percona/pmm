@@ -326,11 +326,11 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 	decryptedUsername, err := encryption.Decrypt(username)
 	if err != nil {
-		logrus.Warningf("Encryption: %#v", err)
+		logrus.Warningf("Encryption: %v", err)
 	}
 	decryptedPassword, err := encryption.Decrypt(password)
 	if err != nil {
-		logrus.Warningf("Encryption: %#v", err)
+		logrus.Warningf("Encryption: %v", err)
 	}
 
 	if tdp == nil {
@@ -689,7 +689,7 @@ func (s Agent) Files() map[string]string {
 func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 	decryptedPassword, err := encryption.Decrypt(pointer.GetString(s.Password))
 	if err != nil {
-		logrus.Warningf("Encryption: %#v", err)
+		logrus.Warningf("Encryption: %v", err)
 	}
 
 	templateParams := []string{
