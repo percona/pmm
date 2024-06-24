@@ -10,7 +10,7 @@ services:
     #   context: .
     #   args:
     #     PMM_SERVER_IMAGE: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:3-dev-latest}
-    #   dockerfile: devcontainer.Dockerfile
+    #   dockerfile: ./.devcontainer/Dockerfile
     container_name: pmm-server
     hostname: pmm-server
     networks:
@@ -25,6 +25,7 @@ services:
       - PMM_DEV_VERSION_SERVICE_URL=${PMM_DEV_VERSION_SERVICE_URL}
       - PMM_WATCHTOWER_HOST=${PMM_WATCHTOWER_HOST:-http://watchtower:8080}
       - PMM_WATCHTOWER_TOKEN=${PMM_WATCHTOWER_TOKEN:-INSECURE_TOKEN}
+      - PMM_RELEASE_VERSION=3.0.0-alpha
       # - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check.localhost
       # - PMM_DEV_PERCONA_PLATFORM_INSECURE=1
       # - PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY=<public key>
@@ -242,7 +243,7 @@ services:
       - GF_DATABASE_URL=postgres://grafana:grafana@pg:5432/grafana
       # - GF_DATABASE_SSL_MODE=require
       # - PMM_DEBUG=1
-      - GO_VERSION=1.20
+      - GO_VERSION=1.22
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
       - PMM_TEST_HA_ENABLE=1
       - PMM_TEST_HA_BOOTSTRAP=1
