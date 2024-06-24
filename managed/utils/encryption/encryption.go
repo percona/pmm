@@ -25,25 +25,6 @@ func Init(keyPath string) error {
 	return nil
 }
 
-func InitFromEnv() error {
-	encryption := os.Getenv("PMM_ENCRYPTION")
-	if encryption == "0" {
-		return nil
-	}
-
-	keyPath := os.Getenv("PMM_ENCRYPTION_KEY")
-	if keyPath == "" {
-		keyPath = DefaultEncryptionKeyPath
-	}
-
-	err := create(keyPath)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func create(keyPath string) error {
 	e := new(Encryption)
 	e.Path = keyPath
