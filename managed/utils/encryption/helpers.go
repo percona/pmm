@@ -69,5 +69,5 @@ func (e *Encryption) generateKey() error {
 }
 
 func (e *Encryption) saveKeyToFile() error {
-	return os.WriteFile(e.Path, []byte(e.Key), 0o777)
+	return os.WriteFile(e.Path, []byte(e.Key), 0o644)
 }
