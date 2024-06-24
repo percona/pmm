@@ -171,11 +171,13 @@ func DecryptDB(ctx context.Context, c *DatabaseConnection) error {
 
 		for k, v := range res.SetValues {
 			for i, val := range v {
-				decoded, err := base64.StdEncoding.DecodeString(val.(*sql.NullString).String)
-				if err != nil {
-					return err
+				value := val.(*sql.NullString)
+				if !value.Valid {
+					res.SetValues[k][i] = ""
+					continue
 				}
-				decrypted, err := Decrypt(string(decoded))
+
+				decrypted, err := Decrypt(value.String)
 				if err != nil {
 					return err
 				}
