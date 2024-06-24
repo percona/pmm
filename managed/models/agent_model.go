@@ -687,6 +687,10 @@ func (s Agent) Files() map[string]string {
 
 // TemplateDelimiters returns a pair of safe template delimiters that are not present in agent parameters.
 func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
+	decryptedUsername, err := encryption.Decrypt(pointer.GetString(s.Username))
+	if err != nil {
+		logrus.Warningf("Encryption: %v", err)
+	}
 	decryptedPassword, err := encryption.Decrypt(pointer.GetString(s.Password))
 	if err != nil {
 		logrus.Warningf("Encryption: %v", err)
@@ -694,7 +698,7 @@ func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 
 	templateParams := []string{
 		pointer.GetString(svc.Address),
-		pointer.GetString(s.Username),
+		decryptedUsername,
 		decryptedPassword,
 		pointer.GetString(s.MetricsPath),
 	}
