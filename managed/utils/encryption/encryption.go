@@ -183,13 +183,17 @@ func DecryptDB(ctx context.Context, c *DatabaseConnection) error {
 			for i, val := range v {
 				value := val.(*sql.NullString)
 				if !value.Valid {
-					res.SetValues[k][i] = ""
+					res.SetValues[k][i] = sql.NullString{}
 					continue
 				}
 
 				decrypted, err := Decrypt(value.String)
 				if err != nil {
 					return err
+				}
+				if decrypted == "" {
+					res.SetValues[k][i] = sql.NullString{}
+					continue
 				}
 				res.SetValues[k][i] = decrypted
 			}
