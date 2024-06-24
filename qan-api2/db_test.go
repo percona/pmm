@@ -25,7 +25,7 @@ import (
 	"testing"
 	"time"
 
-	_ "github.com/ClickHouse/clickhouse-go/151" // register database/sql driver
+	_ "github.com/ClickHouse/clickhouse-go/v2" // register database/sql driver
 	_ "github.com/golang-migrate/migrate/v4/database/clickhouse"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
@@ -39,9 +39,9 @@ func setup() *sqlx.DB {
 	}
 
 	dsn, ok := os.LookupEnv("QANAPI_DSN_TEST")
-	dsn = strings.Replace(dsn, "?database=pmm_test", "?database=pmm_test_parts", 1)
+	dsn = strings.Replace(dsn, "/pmm_test", "/pmm_test_parts", 1)
 	if !ok {
-		dsn = "clickhouse://127.0.0.1:19000?database=pmm_test_parts"
+		dsn = "clickhouse://127.0.0.1:19000/pmm_test_parts"
 	}
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
@@ -113,13 +113,13 @@ func TestCreateDbIfNotExists(t *testing.T) {
 	t.Run("connect to db that doesnt exist", func(t *testing.T) {
 		dsn, ok := os.LookupEnv("QANAPI_DSN_TEST")
 
-		dsn = strings.Replace(dsn, "?database=pmm_test", "?database=pmm_created_db", 1)
+		dsn = strings.Replace(dsn, "/pmm_test", "/pmm_created_db", 1)
 		if !ok {
-			dsn = "clickhouse://127.0.0.1:19000?database=pmm_created_db"
+			dsn = "clickhouse://127.0.0.1:19000/pmm_created_db"
 		}
 
 		db := createDB(dsn)
 
-		require.Equal(t, db, nil, "Check connection after we create database")
+		require.Nil(t, db, "Check connection after we create database")
 	})
 }
