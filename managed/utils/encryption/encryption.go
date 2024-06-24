@@ -12,8 +12,9 @@ import (
 const DefaultEncryptionKeyPath = "/srv/pmm-encryption.key"
 
 var (
-	config    *Encryption
-	configMtx sync.RWMutex
+	config                      *Encryption
+	configMtx                   sync.RWMutex
+	ErrEncryptionNotInitialized = errors.New("encryption is not initialized")
 )
 
 func Init(keyPath string) error {
@@ -57,8 +58,13 @@ func create(keyPath string) error {
 
 func Encrypt(secret string) (string, error) {
 	configMtx.RLock()
+	if config == nil {
+		configMtx.RUnlock()
+		return "", ErrEncryptionNotInitialized
+	}
 	primitive := config.Primitive
 	configMtx.RUnlock()
+
 	cipherText, err := primitive.Encrypt([]byte(secret), []byte(""))
 	if err != nil {
 		return secret, err
@@ -129,14 +135,18 @@ func EncryptDB(ctx context.Context, c *DatabaseConnection) error {
 }
 
 func Decrypt(cipherText string) (string, error) {
+	configMtx.RLock()
+	if config == nil {
+		configMtx.RUnlock()
+		return "", ErrEncryptionNotInitialized
+	}
+	primitive := config.Primitive
+	configMtx.RUnlock()
+
 	decoded, err := base64.StdEncoding.DecodeString(cipherText)
 	if err != nil {
 		return cipherText, err
 	}
-
-	configMtx.RLock()
-	primitive := config.Primitive
-	configMtx.RUnlock()
 	secret, err := primitive.Decrypt([]byte(decoded), []byte(""))
 	if err != nil {
 		return cipherText, err
