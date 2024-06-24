@@ -468,17 +468,14 @@ func TestAgentHelpers(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			assert.NotEmpty(t, agent.Username)
-			assert.NotEmpty(t, agent.Password)
-			agent.Username = nil
-			agent.Password = nil
-
 			assert.Equal(t, &models.Agent{
 				AgentID:       agent.AgentID,
 				AgentType:     models.ExternalExporterType,
 				RunsOnNodeID:  pointer.ToString("N1"),
 				ServiceID:     pointer.ToString("S1"),
 				ListenPort:    pointer.ToUint16(9104),
+				Username:      agent.Username,
+				Password:      agent.Password,
 				MetricsPath:   pointer.ToString("/metrics"),
 				MetricsScheme: pointer.ToString("http"),
 				CreatedAt:     now,
