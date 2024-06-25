@@ -17,12 +17,14 @@ package encryption
 
 import "github.com/google/tink/go/tink"
 
+// Encryption contains fields required for encryption.
 type Encryption struct {
 	Path      string
 	Key       string
 	Primitive tink.AEAD
 }
 
+// DatabaseConnection represents DB connection and it's encrypted items.
 type DatabaseConnection struct {
 	Host, User, Password string
 	Port                 int16
@@ -34,12 +36,14 @@ type DatabaseConnection struct {
 	EncryptedItems       []EncryptedItem
 }
 
+// EncryptedItem resresents DB name, table, encrypted columns and it's identificators.
 type EncryptedItem struct {
 	Database, Table string
 	Identificators  []string
 	Columns         []string
 }
 
+// QueryValues represents query to update row after encrypt/decrypt.
 type QueryValues struct {
 	Query       string
 	SetValues   [][]any
