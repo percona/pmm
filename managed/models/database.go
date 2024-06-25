@@ -1094,11 +1094,6 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		},
 	}
 
-	err = encryption.Init(encryption.DefaultEncryptionKeyPath)
-	if err != nil {
-		return nil, err
-	}
-
 	if err := encryption.EncryptDB(ctx, c); err != nil {
 		return nil, err
 	}

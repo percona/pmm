@@ -22,30 +22,22 @@ import (
 	"errors"
 	"os"
 	"slices"
-	"sync"
+
+	"github.com/sirupsen/logrus"
 )
 
 // DefaultEncryptionKeyPath contains default PMM encryption key path.
 const DefaultEncryptionKeyPath = "/srv/pmm-encryption.key"
 
 var (
-	config    *Encryption
-	configMtx sync.RWMutex
 	// ErrEncryptionNotInitialized is error in case of encryption is not initialized.
 	ErrEncryptionNotInitialized = errors.New("encryption is not initialized")
 )
 
-// Init initialize encryption.
-func Init(keyPath string) error {
-	err := create(keyPath)
-	if err != nil {
-		return err
-	}
+var DefaultEncryption = New(DefaultEncryptionKeyPath)
 
-	return nil
-}
-
-func create(keyPath string) error {
+// New initialize encryption.
+func New(keyPath string) *Encryption {
 	e := new(Encryption)
 	e.Path = keyPath
 
@@ -54,38 +46,35 @@ func create(keyPath string) error {
 	case os.IsNotExist(err):
 		err = e.generateKey()
 		if err != nil {
-			return err
+			logrus.Errorf("Encryption: %v", err)
 		}
 	case err != nil:
-		return err
+		logrus.Errorf("Encryption: %v", err)
 	default:
 		e.Key = string(bytes)
 	}
 
 	primitive, err := e.getPrimitive()
 	if err != nil {
-		return err
+		logrus.Errorf("Encryption: %v", err)
 	}
 	e.Primitive = primitive
 
-	configMtx.Lock()
-	config = e
-	configMtx.Unlock()
+	return e
+}
 
-	return nil
+// Encrypt is wrapper around DefaultEncryption.Encrypt.
+func Encrypt(secret string) (string, error) {
+	return DefaultEncryption.Encrypt(secret)
 }
 
 // Encrypt returns input string encrypted.
-func Encrypt(secret string) (string, error) {
-	configMtx.RLock()
-	if config == nil {
-		configMtx.RUnlock()
+func (e *Encryption) Encrypt(secret string) (string, error) {
+	if e == nil || e.Primitive == nil {
 		return "", ErrEncryptionNotInitialized
 	}
-	primitive := config.Primitive
-	configMtx.RUnlock()
 
-	cipherText, err := primitive.Encrypt([]byte(secret), []byte(""))
+	cipherText, err := e.Primitive.Encrypt([]byte(secret), []byte(""))
 	if err != nil {
 		return secret, err
 	}
@@ -93,8 +82,13 @@ func Encrypt(secret string) (string, error) {
 	return base64.StdEncoding.EncodeToString(cipherText), nil
 }
 
-// EncryptDB will encrypt all columns provided in DB connection.
+// EncryptDB is wrapper around DefaultEncryption.EncryptDB.
 func EncryptDB(ctx context.Context, c *DatabaseConnection) error {
+	return DefaultEncryption.EncryptDB(ctx, c)
+}
+
+// EncryptDB will encrypt all columns provided in DB connection.
+func (e *Encryption) EncryptDB(ctx context.Context, c *DatabaseConnection) error {
 	for _, item := range c.EncryptedItems {
 		c.DBName = item.Database
 		db, err := c.Connect()
@@ -132,7 +126,7 @@ func EncryptDB(ctx context.Context, c *DatabaseConnection) error {
 					}
 				}
 
-				encrypted, err := Encrypt(value)
+				encrypted, err := e.Encrypt(value)
 				if err != nil {
 					return err
 				}
@@ -155,21 +149,22 @@ func EncryptDB(ctx context.Context, c *DatabaseConnection) error {
 	return nil
 }
 
-// Decrypt returns input string decrypted.
+// Decrypt is wrapper around DefaultEncryption.Decrypt.
 func Decrypt(cipherText string) (string, error) {
-	configMtx.RLock()
-	if config == nil {
-		configMtx.RUnlock()
+	return DefaultEncryption.Decrypt(cipherText)
+}
+
+// Decrypt returns input string decrypted.
+func (e *Encryption) Decrypt(cipherText string) (string, error) {
+	if e == nil || e.Primitive == nil {
 		return "", ErrEncryptionNotInitialized
 	}
-	primitive := config.Primitive
-	configMtx.RUnlock()
 
 	decoded, err := base64.StdEncoding.DecodeString(cipherText)
 	if err != nil {
 		return cipherText, err
 	}
-	secret, err := primitive.Decrypt(decoded, []byte(""))
+	secret, err := e.Primitive.Decrypt(decoded, []byte(""))
 	if err != nil {
 		return cipherText, err
 	}
@@ -177,8 +172,13 @@ func Decrypt(cipherText string) (string, error) {
 	return string(secret), nil
 }
 
-// DecryptDB will decrypt all columns provided in DB connection.
+// DecryptDB is wrapper around DefaultEncryption.DecryptDB.
 func DecryptDB(ctx context.Context, c *DatabaseConnection) error {
+	return DefaultEncryption.DecryptDB(ctx, c)
+}
+
+// DecryptDB will decrypt all columns provided in DB connection.
+func (e *Encryption) DecryptDB(ctx context.Context, c *DatabaseConnection) error {
 	for _, item := range c.EncryptedItems {
 		c.DBName = item.Database
 		db, err := c.Connect()
@@ -210,7 +210,7 @@ func DecryptDB(ctx context.Context, c *DatabaseConnection) error {
 					continue
 				}
 
-				decrypted, err := Decrypt(value.String)
+				decrypted, err := e.Decrypt(value.String)
 				if err != nil {
 					return err
 				}
