@@ -11,6 +11,9 @@ release-dev-agent:                ## Build pmm-agent
 release-vmproxy:                  ## Build vmproxy
 	make -C vmproxy release
 
+release-qan:                      ## Build QAN
+	make -C qan-api2 release
+
 # used by host Makefile
 _bash:
 	/bin/bash
@@ -37,6 +40,12 @@ run-vmproxy: release-vmproxy
 	supervisorctl stop vmproxy
 	cp $(PMM_RELEASE_PATH)/vmproxy /usr/sbin/vmproxy
 	supervisorctl start vmproxy
+
+run-qan: release-qan
+	supervisorctl stop qan-api2
+	cp $(PMM_RELEASE_PATH)/qan-api2 /usr/sbin/percona-qan-api2
+	echo -n > /srv/logs/qan-api2.log
+	supervisorctl start qan-api2
 
 run-all: run-agent run-managed       ## Run pmm-managed and pmm-agent
 

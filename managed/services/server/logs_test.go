@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package supervisord
+package server
 
 import (
 	"archive/zip"
@@ -27,7 +27,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -143,10 +142,10 @@ func TestAddAdminSummary(t *testing.T) {
 }
 
 func TestFiles(t *testing.T) {
-	checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
+	updater := &Updater{}
 	params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	require.NoError(t, err)
-	l := NewLogs("2.4.5", checker, params)
+	l := NewLogs("2.4.5", updater, params)
 	ctx := logger.Set(context.Background(), t.Name())
 
 	files := l.files(ctx, nil)
@@ -184,10 +183,10 @@ func TestFiles(t *testing.T) {
 func TestZip(t *testing.T) {
 	t.Skip("FIXME")
 
-	checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
+	updater := &Updater{}
 	params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	require.NoError(t, err)
-	l := NewLogs("2.4.5", checker, params)
+	l := NewLogs("2.4.5", updater, params)
 	ctx := logger.Set(context.Background(), t.Name())
 
 	var buf bytes.Buffer

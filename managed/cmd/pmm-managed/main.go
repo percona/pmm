@@ -137,7 +137,7 @@ const (
 
 var pprofSemaphore = semaphore.NewWeighted(1)
 
-func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
+func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 	l := logrus.WithField("component", "logs.zip")
 
 	mux.HandleFunc("/logs.zip", func(rw http.ResponseWriter, req *http.Request) {
@@ -147,7 +147,7 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 		if err != nil {
 			l.Debug("Unable to read 'pprof' query param. Using default: pprof=false")
 		}
-		var pprofConfig *supervisord.PprofConfig
+		var pprofConfig *server.PprofConfig
 		if pprofQueryParameter {
 			if !pprofSemaphore.TryAcquire(1) {
 				rw.WriteHeader(http.StatusLocked)
@@ -160,7 +160,7 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 			defer pprofSemaphore.Release(1)
 
 			contextTimeout += pProfProfileDuration + pProfTraceDuration
-			pprofConfig = &supervisord.PprofConfig{
+			pprofConfig = &server.PprofConfig{
 				ProfileDuration: pProfProfileDuration,
 				TraceDuration:   pProfTraceDuration,
 			}
@@ -263,7 +263,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc, mgmtServices))
 	inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
-	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient)
+	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient, deps.agentsRegistry, deps.agentsStateUpdater,
+		deps.vmdb)
 	agentSvc := management.NewAgentService(deps.db, deps.agentsRegistry)
 	serviceSvc := management.NewServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
 	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.versionCache)
@@ -334,7 +335,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 }
 
 type http1ServerDeps struct {
-	logs       *supervisord.Logs
+	logs       *server.Logs
 	authServer *grafana.AuthServer
 }
 
@@ -875,13 +876,12 @@ func main() { //nolint:cyclop,maintidx
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
 	serviceInfoBroker := agents.NewServiceInfoBroker(agentsRegistry)
 
-	pmmUpdateCheck := supervisord.NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker"))
+	updater := server.NewUpdater(*watchtowerHostF, gRPCMessageMaxSize)
 
-	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck, vmParams)
+	logs := server.NewLogs(version.FullInfo(), updater, vmParams)
 
 	supervisord := supervisord.New(
 		*supervisordConfigDirF,
-		pmmUpdateCheck,
 		&models.Params{
 			VMParams: vmParams,
 			PGParams: &models.PGParams{
@@ -895,8 +895,7 @@ func main() { //nolint:cyclop,maintidx
 				SSLCertPath: *postgresSSLCertPathF,
 			},
 			HAParams: haParams,
-		},
-		gRPCMessageMaxSize)
+		})
 
 	haService.AddLeaderService(ha.NewStandardService("pmm-agent-runner", func(ctx context.Context) error {
 		return supervisord.StartSupervisedService("pmm-agent")
@@ -970,8 +969,6 @@ func main() { //nolint:cyclop,maintidx
 	versionCache := versioncache.New(db, versioner)
 
 	dumpService := dump.New(db)
-
-	updater := server.NewUpdater(supervisord, *watchtowerHostF)
 
 	serverParams := &server.Params{
 		DB:                   db,
@@ -1085,6 +1082,12 @@ func main() { //nolint:cyclop,maintidx
 	go func() {
 		defer wg.Done()
 		supervisord.Run(ctx)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		updater.Run(ctx)
 	}()
 
 	wg.Add(1)
