@@ -101,12 +101,12 @@ func New(params *Params, redactWords []string, l *logrus.Entry) *Process {
 	}
 }
 
-// If the process is initialized.
+// IsInitialized returns a chan of bool. True can be received if the process is initialized.
 func (p *Process) IsInitialized() <-chan bool {
 	return p.initialized
 }
 
-// error thrown when initializing the process.
+// GetError returns the error thrown when initializing the process.
 func (p *Process) GetError() error {
 	return p.err
 }
