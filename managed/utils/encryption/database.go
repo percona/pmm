@@ -98,7 +98,7 @@ func (item EncryptedItem) Read(tx *sql.Tx) (*QueryValues, error) {
 
 		q.Query = fmt.Sprintf("UPDATE %s %s %s", item.Table, setSQL, whereSQL)
 	}
-	err = rows.Close() //nolint:errcheck
+	err = rows.Close() //nolint:errcheck,sqlclosecheck
 	if err != nil {
 		return nil, err
 	}
