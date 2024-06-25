@@ -419,9 +419,6 @@ type CheckUpdatesOKBody struct {
 	// True if there is a PMM Server update available.
 	UpdateAvailable bool `json:"update_available,omitempty"`
 
-	// Latest available PMM Server release announcement URL.
-	LatestNewsURL string `json:"latest_news_url,omitempty"`
-
 	// Last check time.
 	// Format: date-time
 	LastCheck strfmt.DateTime `json:"last_check,omitempty"`
@@ -650,6 +647,12 @@ type CheckUpdatesOKBodyLatest struct {
 	// Release date.
 	// Format: date-time
 	Timestamp strfmt.DateTime `json:"timestamp,omitempty"`
+
+	// Release notes URL for the version (if available).
+	ReleaseNotesURL string `json:"release_notes_url,omitempty"`
+
+	// Release notes text for the version (if available).
+	ReleaseNotesText string `json:"release_notes_text,omitempty"`
 }
 
 // Validate validates this check updates OK body latest

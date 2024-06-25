@@ -998,6 +998,10 @@ func (m *DockerVersionInfo) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for ReleaseNotesUrl
+
+	// no validation rules for ReleaseNotesText
+
 	if len(errors) > 0 {
 		return DockerVersionInfoMultiError(errors)
 	}
@@ -1159,8 +1163,6 @@ func (m *CheckUpdatesResponse) validate(all bool) error {
 	}
 
 	// no validation rules for UpdateAvailable
-
-	// no validation rules for LatestNewsUrl
 
 	if all {
 		switch v := interface{}(m.GetLastCheck()).(type) {

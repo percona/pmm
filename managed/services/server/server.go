@@ -269,11 +269,11 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 			Timestamp:   timestamppb.New(*v.Installed.BuildTime),
 		},
 		Latest: &serverpb.DockerVersionInfo{
-			Version: v.Latest.Version.String(),
-			Tag:     v.Latest.DockerImage,
+			Version:         v.Latest.Version.String(),
+			Tag:             v.Latest.DockerImage,
+			ReleaseNotesUrl: v.Latest.ReleaseNotesURL,
 		},
 		UpdateAvailable: v.Latest.DockerImage != "",
-		LatestNewsUrl:   v.LatestNewsURL,
 	}
 
 	if updatesDisabled {

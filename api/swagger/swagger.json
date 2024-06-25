@@ -731,6 +731,16 @@
                       "type": "string",
                       "format": "date-time",
                       "x-order": 2
+                    },
+                    "release_notes_url": {
+                      "description": "Release notes URL for the version (if available).",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "release_notes_text": {
+                      "description": "Release notes text for the version (if available).",
+                      "type": "string",
+                      "x-order": 4
                     }
                   },
                   "x-order": 1
@@ -740,16 +750,11 @@
                   "type": "boolean",
                   "x-order": 2
                 },
-                "latest_news_url": {
-                  "description": "Latest available PMM Server release announcement URL.",
-                  "type": "string",
-                  "x-order": 3
-                },
                 "last_check": {
                   "description": "Last check time.",
                   "type": "string",
                   "format": "date-time",
-                  "x-order": 4
+                  "x-order": 3
                 }
               }
             }
