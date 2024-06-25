@@ -21,10 +21,10 @@ import (
 	"slices"
 	"strings"
 
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // register SQL driver
 )
 
-// DatabaseConnection.Connect open connection to DB.
+// Connect open connection to DB.
 func (c DatabaseConnection) Connect() (*sql.DB, error) {
 	db, err := sql.Open("postgres", c.DSN())
 	if err != nil {
@@ -39,7 +39,7 @@ func (c DatabaseConnection) Connect() (*sql.DB, error) {
 	return db, nil
 }
 
-// DatabaseConnection.DSN returns formatted connection string to PG.
+// DSN returns formatted connection string to PG.
 func (c DatabaseConnection) DSN() string {
 	if c.SSLMode == "" {
 		c.SSLMode = "disable"
@@ -55,10 +55,10 @@ func (c DatabaseConnection) DSN() string {
 	)
 }
 
-// EncryptedItem.Read returns query and it's values based on input.
+// Read returns query and it's values based on input.
 func (item EncryptedItem) Read(tx *sql.Tx) (*QueryValues, error) {
 	what := slices.Concat(item.Identificators, item.Columns)
-	query := fmt.Sprintf("SELECT %s FROM %s", strings.Join(what, ", "), item.Table)
+	query := fmt.Sprintf("SELECT %s FROM %s", strings.Join(what, ", "), item.Table) //nolint:gosec
 	rows, err := tx.Query(query)
 	if err != nil {
 		return nil, err
