@@ -60,6 +60,9 @@ type Updater struct {
 	checkRW         sync.RWMutex
 	lastCheckResult *version.DockerVersionInfo
 	lastCheckTime   time.Time
+
+	// releaseNotes holds a map of PMM server versions to their release notes.
+	releaseNotes map[string]string
 }
 
 // NewUpdater creates a new Updater service.
@@ -68,6 +71,7 @@ func NewUpdater(watchtowerHost *url.URL, gRPCMessageMaxSize uint32) *Updater {
 		l:                  logrus.WithField("service", "updater"),
 		watchtowerHost:     watchtowerHost,
 		gRPCMessageMaxSize: gRPCMessageMaxSize,
+		releaseNotes:       make(map[string]string),
 	}
 	return u
 }
@@ -256,7 +260,7 @@ func (up *Updater) latestAvailableFromDockerHub(ctx context.Context) (*version.D
 	}
 
 	if len(tagsResponse.Results) != 0 {
-		up.l.Infof("Found %d tags", len(tagsResponse.Results))
+		up.l.Debugf("Found %d tags", len(tagsResponse.Results))
 		next := up.next(*up.currentVersion(), tagsResponse.Results)
 		if next.DockerImage != "" {
 			next.DockerImage = repo + ":" + next.DockerImage
@@ -296,19 +300,28 @@ func (up *Updater) next(currentVersion version.Parsed, results []result) *versio
 		if !currentVersion.Less(v) {
 			continue
 		}
+		releaseNotesURL := "https://per.co.na/pmm/" + v.String()
+		releaseNote, err := up.getReleaseNotesText(context.Background(), *v)
+		if err != nil {
+			up.l.Errorf("Failed to get release notes for version: %s, %s", v.String(), err.Error())
+		}
 		if v.Major == currentVersion.Major && nextMinor.Version.Less(v) { // next major
 			nextMinor = &version.DockerVersionInfo{
-				Version:     *v,
-				DockerImage: result.Name,
-				BuildTime:   result.TagLastPushed,
+				Version:          *v,
+				DockerImage:      result.Name,
+				BuildTime:        result.TagLastPushed,
+				ReleaseNotesURL:  releaseNotesURL,
+				ReleaseNotesText: releaseNote,
 			}
 		}
 		if v.Major > currentVersion.Major &&
 			(nextMajor == nil || (nextMajor.Version.Less(v) && nextMajor.Version.Major == v.Major) || v.Major < nextMajor.Version.Major) {
 			nextMajor = &version.DockerVersionInfo{
-				Version:     *v,
-				DockerImage: result.Name,
-				BuildTime:   result.TagLastPushed,
+				Version:          *v,
+				DockerImage:      result.Name,
+				BuildTime:        result.TagLastPushed,
+				ReleaseNotesURL:  releaseNotesURL,
+				ReleaseNotesText: releaseNote,
 			}
 		}
 	}
@@ -420,4 +433,45 @@ func isHostAvailable(host string, port string, timeout time.Duration) bool {
 		return true
 	}
 	return false
+}
+
+// GetReleaseNotesText returns the change log for a specific PMM server release.
+// if the version argument has an extra label (e.g 2.40.0-alpha), it strips the label
+// and returns the release notes for the base version (e.g 2.40.0).
+func (up *Updater) getReleaseNotesText(ctx context.Context, version version.Parsed) (string, error) {
+	if version.Rest != "" {
+		version.Rest = ""
+	}
+
+	versionString := version.String()
+	if releaseNotes, ok := up.releaseNotes[versionString]; ok {
+		return releaseNotes, nil
+	}
+
+	u := "https://api.github.com/repos/percona/pmm-doc/contents/docs/release-notes/" + versionString + ".md"
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+	req.Header.Set("Accept", "application/vnd.github.raw+json")
+	if err != nil {
+		up.l.WithError(err).Error("Failed to create request")
+		return "", errors.Wrap(err, "failed to create request")
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		up.l.WithError(err).Error("Failed to get tags from DockerHub")
+		return "", errors.Wrap(err, "failed to get change log")
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		up.l.Infof("Failed to get release notes for PMM %s, got HTTP %d", version.String(), resp.StatusCode)
+		return "", nil
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	content, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to read file content")
+	}
+	releaseNotes := string(content)
+	up.releaseNotes[versionString] = releaseNotes
+	return releaseNotes, nil
 }

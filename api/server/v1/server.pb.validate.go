@@ -998,6 +998,10 @@ func (m *DockerVersionInfo) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for ReleaseNotesUrl
+
+	// no validation rules for ReleaseNotesText
+
 	if len(errors) > 0 {
 		return DockerVersionInfoMultiError(errors)
 	}

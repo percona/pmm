@@ -72,6 +72,10 @@ message DockerVersionInfo {
   string tag = 2;
   // Release date.
   google.protobuf.Timestamp timestamp = 3;
+  // Release notes URL for the version (if available).
+  string release_notes_url = 4;
+  // Release notes text for the version (if available).
+  string release_notes_text = 5;
 }
 
 message CheckUpdatesResponse {

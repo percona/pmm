@@ -40,7 +40,9 @@ type UpdateCheckResult struct {
 
 // DockerVersionInfo describes the version of the Docker image.
 type DockerVersionInfo struct {
-	Version     Parsed    `json:"version"`
-	DockerImage string    `json:"docker_image"`
-	BuildTime   time.Time `json:"build_time"`
+	Version          Parsed    `json:"version"`
+	DockerImage      string    `json:"docker_image"`
+	BuildTime        time.Time `json:"build_time"`
+	ReleaseNotesURL  string    `json:"release_notes_url"`
+	ReleaseNotesText string    `json:"release_notes_text"`
 }

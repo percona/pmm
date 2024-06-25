@@ -71,6 +71,15 @@ func TestCheckUpdates(t *testing.T) {
 	assert.NotEmpty(t, res.Payload.Installed.FullVersion)
 
 	if res.Payload.UpdateAvailable {
+		require.NotEmpty(t, res.Payload.Latest)
+		assert.True(t, strings.HasPrefix(res.Payload.Latest.Version, "2.") || strings.HasPrefix(res.Payload.Installed.Version, "3."),
+			"latest.version = %q should have '2.' or '3.' prefix", res.Payload.Latest.Version)
+		require.NotEmpty(t, res.Payload.Latest.Timestamp)
+		ts = time.Time(res.Payload.Latest.Timestamp)
+		hour, min, _ = ts.Clock()
+		assert.Zero(t, hour, "latest.timestamp should contain only date")
+		assert.Zero(t, min, "latest.timestamp should contain only date")
+
 		assert.NotEmpty(t, res.Payload.Latest.Tag)
 		require.NotEmpty(t, res.Payload.Latest.Timestamp)
 		ts = time.Time(res.Payload.Latest.Timestamp)
@@ -81,6 +90,7 @@ func TestCheckUpdates(t *testing.T) {
 		assert.NotEqual(t, res.Payload.Installed.FullVersion, res.Payload.Latest.Version)
 		assert.NotEqual(t, res.Payload.Installed.Timestamp, res.Payload.Latest.Timestamp)
 		assert.True(t, strings.HasPrefix(res.Payload.LatestNewsURL, "https://per.co.na/pmm/2."), "latest_news_url = %q", res.Payload.LatestNewsURL)
+		assert.True(t, strings.HasPrefix(res.Payload.Latest.ReleaseNotesURL, "https://per.co.na/pmm/2."), "latest_news_url = %q", res.Payload.Latest.ReleaseNotesURL)
 	}
 	assert.NotEmpty(t, res.Payload.LastCheck)
 

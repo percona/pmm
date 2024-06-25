@@ -777,6 +777,16 @@
                 "latest": {
                   "type": "object",
                   "properties": {
+                    "release_notes_text": {
+                      "description": "Release notes text for the version (if available).",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "release_notes_url": {
+                      "description": "Release notes URL for the version (if available).",
+                      "type": "string",
+                      "x-order": 3
+                    },
                     "tag": {
                       "description": "Docker image tag.",
                       "type": "string",
