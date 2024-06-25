@@ -61,7 +61,7 @@ import (
 
 const (
 	shutdownTimeout = 3 * time.Second
-	defaultDsnF     = "clickhouse://%s?database=%s&block_size=%s&pool_size=%s"
+	defaultDsnF     = "clickhouse://%s/%s"
 	maxIdleConns    = 5
 	maxOpenConns    = 10
 )
@@ -264,10 +264,6 @@ func main() {
 	dsnF := kingpin.Flag("dsn", "ClickHouse database DSN. Can be override with database/host/port options").Default(defaultDsnF).String()
 	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PMM_CLICKHOUSE_DATABASE").String()
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
-	clickhouseBlockSizeF := kingpin.Flag("clickhouse-block-size", "Number of rows that can be load from table in one cycle").
-		Default("10000").Envar("PMM_CLICKHOUSE_BLOCK_SIZE").String()
-	clickhousePoolSizeF := kingpin.Flag("clickhouse-pool-size", "Controls how much queries can be run simultaneously").
-		Default("2").Envar("PMM_CLICKHOUSE_POOL_SIZE").String()
 
 	debugF := kingpin.Flag("debug", "Enable debug logging").Bool()
 	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug)").Bool()
@@ -295,7 +291,7 @@ func main() {
 
 	var dsn string
 	if *dsnF == defaultDsnF {
-		dsn = fmt.Sprintf(defaultDsnF, *clickhouseAddrF, *clickHouseDatabaseF, *clickhouseBlockSizeF, *clickhousePoolSizeF)
+		dsn = fmt.Sprintf(defaultDsnF, *clickhouseAddrF, *clickHouseDatabaseF)
 	} else {
 		dsn = *dsnF
 	}

@@ -67,7 +67,6 @@ func TestCheckUpdates(t *testing.T) {
 	require.NotEmpty(t, res.Payload.Latest)
 	assert.True(t, strings.HasPrefix(res.Payload.Latest.Version, "2."),
 		"latest.version = %q should have '2.' prefix", res.Payload.Latest.Version)
-	assert.NotEmpty(t, res.Payload.Latest.FullVersion)
 	require.NotEmpty(t, res.Payload.Latest.Timestamp)
 	ts = time.Time(res.Payload.Latest.Timestamp)
 	hour, min, _ = ts.Clock()
@@ -75,12 +74,13 @@ func TestCheckUpdates(t *testing.T) {
 	assert.Zero(t, min, "latest.timestamp should contain only date")
 
 	if res.Payload.UpdateAvailable {
-		assert.NotEqual(t, res.Payload.Installed.FullVersion, res.Payload.Latest.FullVersion)
+		assert.NotEmpty(t, res.Payload.Latest.Tag)
+		assert.NotEqual(t, res.Payload.Installed.FullVersion, res.Payload.Latest.Version)
 		assert.NotEqual(t, res.Payload.Installed.Timestamp, res.Payload.Latest.Timestamp)
 		assert.True(t, strings.HasPrefix(res.Payload.LatestNewsURL, "https://per.co.na/pmm/2."), "latest_news_url = %q", res.Payload.LatestNewsURL)
 	} else {
-		assert.Equal(t, res.Payload.Installed.FullVersion, res.Payload.Latest.FullVersion)
 		assert.Equal(t, res.Payload.Installed.Timestamp, res.Payload.Latest.Timestamp)
+		assert.Empty(t, res.Payload.Installed.FullVersion, res.Payload.Latest.Version)
 		assert.Empty(t, res.Payload.LatestNewsURL, "latest_news_url should be empty")
 	}
 	assert.NotEmpty(t, res.Payload.LastCheck)
@@ -108,7 +108,7 @@ func TestCheckUpdates(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, res.Payload.Installed, resForce.Payload.Installed)
-		assert.Equal(t, resForce.Payload.Installed.FullVersion != resForce.Payload.Latest.FullVersion, resForce.Payload.UpdateAvailable)
+		assert.Equal(t, resForce.Payload.Latest.Tag != "", resForce.Payload.UpdateAvailable)
 		assert.NotEqual(t, res.Payload.LastCheck, resForce.Payload.LastCheck)
 	})
 }
