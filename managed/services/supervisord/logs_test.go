@@ -169,7 +169,7 @@ func TestFiles(t *testing.T) {
 	l := NewLogs("2.4.5", checker, params)
 	ctx := logger.Set(context.Background(), t.Name())
 
-	files := l.files(ctx, nil, -1)
+	files := l.files(ctx, nil, maxLogReadLines)
 	actual := make([]string, 0, len(files))
 	for _, f := range files {
 		// present only after update
