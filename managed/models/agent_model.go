@@ -256,7 +256,11 @@ func (s *Agent) SetCustomLabels(m map[string]string) error {
 func (s *Agent) GetAgentPassword() string {
 	password := s.AgentID
 	if pointer.GetString(s.AgentPassword) != "" {
-		password = *s.AgentPassword
+		decryptedAgentPassword, err := encryption.Decrypt(*s.AgentPassword)
+		if err != nil {
+			logrus.Warningf("Encryption: %v", err)
+		}
+		password = decryptedAgentPassword
 	}
 
 	return password
@@ -299,9 +303,21 @@ func (c *DBConfig) Valid() bool {
 
 // DBConfig returns DBConfig for given Service with this agent.
 func (s *Agent) DBConfig(service *Service) *DBConfig {
+	username := pointer.GetString(s.Username)
+	password := pointer.GetString(s.Password)
+
+	decryptedUsername, err := encryption.Decrypt(username)
+	if err != nil {
+		logrus.Warningf("Encryption: %v", err)
+	}
+	decryptedPassword, err := encryption.Decrypt(password)
+	if err != nil {
+		logrus.Warningf("Encryption: %v", err)
+	}
+
 	return &DBConfig{
-		User:     pointer.GetString(s.Username),
-		Password: pointer.GetString(s.Password),
+		User:     decryptedUsername,
+		Password: decryptedPassword,
 		Address:  pointer.GetString(service.Address),
 		Port:     int(pointer.GetUint16(service.Port)),
 		Socket:   pointer.GetString(service.Socket),
@@ -470,7 +486,12 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 				q.Add("tlsCertificateKeyFile", tdp.Left+".TextFiles."+certificateKeyFilePlaceholder+tdp.Right)
 			}
 			if s.MongoDBOptions.TLSCertificateKeyFilePassword != "" {
-				q.Add("tlsCertificateKeyFilePassword", s.MongoDBOptions.TLSCertificateKeyFilePassword)
+				decryptedTLSCertificateKeyFilePassword, err := encryption.Decrypt(s.MongoDBOptions.TLSCertificateKeyFilePassword)
+				if err != nil {
+					logrus.Warningf("Encryption: %v", err)
+				}
+
+				q.Add("tlsCertificateKeyFilePassword", decryptedTLSCertificateKeyFilePassword)
 			}
 			if s.MongoDBOptions.TLSCa != "" {
 				q.Add("tlsCaFile", tdp.Left+".TextFiles."+caFilePlaceholder+tdp.Right)
@@ -495,9 +516,9 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 			RawQuery: q.Encode(),
 		}
 		switch {
-		case password != "":
+		case decryptedPassword != "":
 			u.User = url.UserPassword(decryptedUsername, decryptedPassword)
-		case username != "":
+		case decryptedUsername != "":
 			u.User = url.User(decryptedUsername)
 		}
 		dsn := u.String()
@@ -557,9 +578,9 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 			RawQuery: q.Encode(),
 		}
 		switch {
-		case password != "":
+		case decryptedPassword != "":
 			u.User = url.UserPassword(decryptedUsername, decryptedPassword)
-		case username != "":
+		case decryptedUsername != "":
 			u.User = url.User(decryptedUsername)
 		}
 
@@ -580,6 +601,15 @@ func (s *Agent) ExporterURL(q *reform.Querier) (string, error) {
 	listenPort := int(pointer.GetUint16(s.ListenPort))
 	username := pointer.GetString(s.Username)
 	password := pointer.GetString(s.Password)
+
+	decryptedUsername, err := encryption.Decrypt(username)
+	if err != nil {
+		logrus.Warningf("Encryption: %v", err)
+	}
+	decryptedPassword, err := encryption.Decrypt(password)
+	if err != nil {
+		logrus.Warningf("Encryption: %v", err)
+	}
 
 	host := "127.0.0.1"
 	if !s.PushMetrics {
@@ -606,10 +636,10 @@ func (s *Agent) ExporterURL(q *reform.Querier) (string, error) {
 	}
 
 	switch {
-	case password != "":
-		u.User = url.UserPassword(username, password)
-	case username != "":
-		u.User = url.User(username)
+	case decryptedPassword != "":
+		u.User = url.UserPassword(decryptedUsername, decryptedPassword)
+	case decryptedUsername != "":
+		u.User = url.User(decryptedUsername)
 	}
 	return u.String(), nil
 }
@@ -710,7 +740,11 @@ func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 		}
 	case MongoDBServiceType:
 		if s.MongoDBOptions != nil {
-			templateParams = append(templateParams, s.MongoDBOptions.TLSCertificateKeyFilePassword)
+			decryptedTLSCertificateKeyFilePassword, err := encryption.Decrypt(s.MongoDBOptions.TLSCertificateKeyFilePassword)
+			if err != nil {
+				logrus.Warningf("Encryption: %v", err)
+			}
+			templateParams = append(templateParams, decryptedTLSCertificateKeyFilePassword)
 		}
 	case PostgreSQLServiceType:
 		if s.PostgreSQLOptions != nil {
