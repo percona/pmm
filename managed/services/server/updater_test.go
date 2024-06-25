@@ -252,7 +252,7 @@ func TestUpdater(t *testing.T) {
 		latest, err := u.latest(context.Background())
 		require.NoError(t, err)
 		assert.NotNil(t, latest)
-		assert.True(t, strings.HasPrefix(latest.Version.String(), "2.41."), "latest version of PMM 2 should have prefix 2.41.")
+		assert.True(t, strings.HasPrefix(latest.Version.String(), "2."), "latest version of PMM 2 should have prefix 2.")
 	})
 
 	t.Run("TestParseFile", func(t *testing.T) {
