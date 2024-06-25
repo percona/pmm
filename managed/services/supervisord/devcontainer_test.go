@@ -63,10 +63,10 @@ func TestDevContainer(t *testing.T) {
 
 		res, resT := checker.checkResult(ctx)
 
-		assert.True(t, strings.HasPrefix(res.Installed.Version, "2."))
+		assert.True(t, strings.HasPrefix(res.Installed.Version, "2."), "%s", res.Installed.Version)
 		assert.WithinDuration(t, time.Now(), resT, time.Second)
 		installedFullVersion, _ := normalizeFullversion(&res.Installed)
-		assert.True(t, strings.HasPrefix(installedFullVersion, "2."))
+		assert.True(t, strings.HasPrefix(installedFullVersion, "2."), "%s", installedFullVersion)
 		require.NotEmpty(t, res.Installed.BuildTime)
 		assert.True(t, res.Installed.BuildTime.After(gaReleaseDate), "Installed.BuildTime = %s", res.Installed.BuildTime)
 		assert.Equal(t, "local", res.Installed.Repo)
