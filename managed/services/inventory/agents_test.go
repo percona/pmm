@@ -383,7 +383,7 @@ func TestAgents(t *testing.T) {
 			AgentId:      "/agent_id/00000000-0000-4000-8000-000000000006",
 			PmmAgentId:   "pmm-server",
 			NodeId:       "/node_id/00000000-0000-4000-8000-000000000005",
-			AwsAccessKey: "EXAMPLE_ACCESS_KEY",
+			AwsAccessKey: agent.AwsAccessKey,
 			CustomLabels: map[string]string{"baz": "qux"},
 			Status:       inventorypb.AgentStatus_UNKNOWN,
 		}
@@ -692,7 +692,7 @@ func TestAgents(t *testing.T) {
 			AgentId:            "/agent_id/00000000-0000-4000-8000-000000000006",
 			PmmAgentId:         "pmm-server",
 			NodeId:             "/node_id/00000000-0000-4000-8000-000000000005",
-			AwsAccessKey:       "EXAMPLE_ACCESS_KEY",
+			AwsAccessKey:       agent.AwsAccessKey,
 			CustomLabels:       map[string]string{"baz": "qux"},
 			PushMetricsEnabled: true,
 			Status:             inventorypb.AgentStatus_UNKNOWN,

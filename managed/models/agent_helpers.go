@@ -930,7 +930,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		NodeID:                         pointer.ToStringOrNil(params.NodeID),
 		Username:                       &params.Username,
 		Password:                       &params.Password,
-		AgentPassword:                  pointer.ToStringOrNil(params.AgentPassword),
+		AgentPassword:                  &params.AgentPassword,
 		TLS:                            params.TLS,
 		TLSSkipVerify:                  params.TLSSkipVerify,
 		MySQLOptions:                   params.MySQLOptions,
