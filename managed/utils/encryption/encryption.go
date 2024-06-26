@@ -121,20 +121,13 @@ func (e *Encryption) EncryptDB(ctx context.Context, c *DatabaseConnection) error
 
 		for k, v := range res.SetValues {
 			for i, val := range v {
-				var value string
-				if v, ok := val.(*sql.NullString); ok {
-					value = v.String
+				value := val.(*sql.NullString)
+				if !value.Valid {
+					res.SetValues[k][i] = sql.NullString{}
+					continue
 				}
 
-				if value != "" {
-					_, err := base64.StdEncoding.DecodeString(value)
-					if err == nil {
-						res.SetValues[k][i] = value
-						continue
-					}
-				}
-
-				encrypted, err := e.Encrypt(value)
+				encrypted, err := e.Encrypt(value.String)
 				if err != nil {
 					return err
 				}
@@ -225,10 +218,6 @@ func (e *Encryption) DecryptDB(ctx context.Context, c *DatabaseConnection) error
 				decrypted, err := e.Decrypt(value.String)
 				if err != nil {
 					return err
-				}
-				if decrypted == "" {
-					res.SetValues[k][i] = sql.NullString{}
-					continue
 				}
 				res.SetValues[k][i] = decrypted
 			}

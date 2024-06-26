@@ -474,8 +474,6 @@ func TestAgentHelpers(t *testing.T) {
 				RunsOnNodeID:  pointer.ToString("N1"),
 				ServiceID:     pointer.ToString("S1"),
 				ListenPort:    pointer.ToUint16(9104),
-				Username:      agent.Username,
-				Password:      agent.Password,
 				MetricsPath:   pointer.ToString("/metrics"),
 				MetricsScheme: pointer.ToString("http"),
 				CreatedAt:     now,

@@ -593,21 +593,10 @@ func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabe
 	// TODO https://jira.percona.com/browse/PMM-4496
 	// Check that Node is not remote.
 
-	encryptedUsername, err := encryption.Encrypt("")
-	if err != nil {
-		logrus.Warningf("Encryption: %v", err)
-	}
-	encryptedPassword, err := encryption.Encrypt("")
-	if err != nil {
-		logrus.Warningf("Encryption: %v", err)
-	}
-
 	agent := &Agent{
 		AgentID:      id,
 		AgentType:    PMMAgentType,
 		RunsOnNodeID: &runsOnNodeID,
-		Username:     &encryptedUsername,
-		Password:     &encryptedPassword,
 	}
 	if err := agent.SetCustomLabels(customLabels); err != nil {
 		return nil, err
@@ -654,22 +643,11 @@ func CreateNodeExporter(q *reform.Querier,
 			" it doesn't support it, minimum supported version=%q", pointer.GetString(pmmAgent.Version), PMMAgentWithPushMetricsSupport.String())
 	}
 
-	encryptedUsername, err := encryption.Encrypt("")
-	if err != nil {
-		logrus.Warningf("Encryption: %v", err)
-	}
-	encryptedPassword, err := encryption.Encrypt("")
-	if err != nil {
-		logrus.Warningf("Encryption: %v", err)
-	}
-
 	row := &Agent{
 		AgentID:            id,
 		AgentType:          NodeExporterType,
 		PMMAgentID:         &pmmAgentID,
 		NodeID:             pmmAgent.RunsOnNodeID,
-		Username:           &encryptedUsername,
-		Password:           &encryptedPassword,
 		PushMetrics:        pushMetrics,
 		DisabledCollectors: disableCollectors,
 		AgentPassword:      agentPassword,
@@ -750,23 +728,12 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		metricsPath = "/metrics"
 	}
 
-	encryptedUsername, err := encryption.Encrypt(params.Username)
-	if err != nil {
-		logrus.Warningf("Encryption: %v", err)
-	}
-	encryptedPassword, err := encryption.Encrypt(params.Password)
-	if err != nil {
-		logrus.Warningf("Encryption: %v", err)
-	}
-
 	row := &Agent{
 		PMMAgentID:    pmmAgentID,
 		AgentID:       id,
 		AgentType:     ExternalExporterType,
 		RunsOnNodeID:  runsOnNodeID,
 		ServiceID:     pointer.ToStringOrNil(params.ServiceID),
-		Username:      &encryptedUsername,
-		Password:      &encryptedPassword,
 		MetricsScheme: &scheme,
 		MetricsPath:   &metricsPath,
 		ListenPort:    pointer.ToUint16(uint16(params.ListenPort)),
