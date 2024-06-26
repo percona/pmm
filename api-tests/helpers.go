@@ -145,6 +145,7 @@ func UnregisterNodes(t TestingT, nodeIDs ...string) {
 		params := &node.UnregisterNodeParams{
 			Body: node.UnregisterNodeBody{
 				NodeID: nodeID,
+				Force:  true,
 			},
 			Context: context.Background(),
 		}
