@@ -74,6 +74,13 @@ func (e *Encryption) Encrypt(secret string) (string, error) {
 		return "", ErrEncryptionNotInitialized
 	}
 
+	if secret != "" {
+		_, err := base64.StdEncoding.DecodeString(secret)
+		if err == nil {
+			return secret, nil
+		}
+	}
+
 	cipherText, err := e.Primitive.Encrypt([]byte(secret), []byte(""))
 	if err != nil {
 		return secret, err
@@ -122,6 +129,7 @@ func (e *Encryption) EncryptDB(ctx context.Context, c *DatabaseConnection) error
 				if value != "" {
 					_, err := base64.StdEncoding.DecodeString(value)
 					if err == nil {
+						res.SetValues[k][i] = value
 						continue
 					}
 				}
@@ -158,6 +166,10 @@ func Decrypt(cipherText string) (string, error) {
 func (e *Encryption) Decrypt(cipherText string) (string, error) {
 	if e == nil || e.Primitive == nil {
 		return "", ErrEncryptionNotInitialized
+	}
+
+	if cipherText == "" {
+		return "", nil
 	}
 
 	decoded, err := base64.StdEncoding.DecodeString(cipherText)

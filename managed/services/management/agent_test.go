@@ -257,7 +257,6 @@ func TestAgentService(t *testing.T) {
 					AgentType:   "azure_database_exporter",
 					PmmAgentId:  "/agent_id/00000000-0000-4000-8000-000000000007",
 					IsConnected: false,
-					Username:    response.GetAgents()[0].Username,
 					CreatedAt:   timestamppb.New(now),
 					UpdatedAt:   timestamppb.New(now),
 					ServiceId:   "/service_id/00000000-0000-4000-8000-000000000006",

@@ -136,7 +136,23 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 		return nil, err
 	}
 
+	decryptedUsername, err := encryption.Decrypt(pointer.GetString(agent.Username))
+	if err != nil {
+		logrus.Warningf("Encryption: %v", err)
+	}
 	decryptedPassword, err := encryption.Decrypt(pointer.GetString(agent.Password))
+	if err != nil {
+		logrus.Warningf("Encryption: %v", err)
+	}
+	decryptedAWSAccessKey, err := encryption.Decrypt(pointer.GetString(agent.AWSAccessKey))
+	if err != nil {
+		logrus.Warningf("Encryption: %v", err)
+	}
+	decryptedAgentPassword, err := encryption.Decrypt(pointer.GetString(agent.AgentPassword))
+	if err != nil {
+		logrus.Warningf("Encryption: %v", err)
+	}
+	decryptedAWSSecretKey, err := encryption.Decrypt(pointer.GetString(agent.AWSSecretKey))
 	if err != nil {
 		logrus.Warningf("Encryption: %v", err)
 	}
@@ -144,14 +160,14 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 	ua := &agentv1beta1.UniversalAgent{
 		AgentId:                        agent.AgentID,
 		AgentType:                      string(agent.AgentType),
-		AwsAccessKey:                   pointer.GetString(agent.AWSAccessKey),
+		AwsAccessKey:                   decryptedAWSAccessKey,
 		CreatedAt:                      timestamppb.New(agent.CreatedAt),
 		CustomLabels:                   labels,
 		Disabled:                       agent.Disabled,
 		DisabledCollectors:             agent.DisabledCollectors,
 		IsConnected:                    s.r.IsConnected(agent.AgentID),
-		IsAgentPasswordSet:             agent.AgentPassword != nil,
-		IsAwsSecretKeySet:              agent.AWSSecretKey != nil,
+		IsAgentPasswordSet:             decryptedAgentPassword != "",
+		IsAwsSecretKeySet:              decryptedAWSSecretKey != "",
 		IsPasswordSet:                  decryptedPassword != "",
 		ListenPort:                     uint32(pointer.GetUint16(agent.ListenPort)),
 		LogLevel:                       pointer.GetString(agent.LogLevel),
@@ -175,44 +191,80 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 		TableCountTablestatsGroupLimit: agent.TableCountTablestatsGroupLimit,
 		Tls:                            agent.TLS,
 		TlsSkipVerify:                  agent.TLSSkipVerify,
-		Username:                       pointer.GetString(agent.Username),
+		Username:                       decryptedUsername,
 		UpdatedAt:                      timestamppb.New(agent.UpdatedAt),
 		Version:                        pointer.GetString(agent.Version),
 	}
 
 	if agent.AzureOptions != nil {
+		decryptedClientID, err := encryption.Decrypt(agent.AzureOptions.ClientID)
+		if err != nil {
+			logrus.Warningf("Encryption: %v", err)
+		}
+		decryptedClientSecret, err := encryption.Decrypt(agent.AzureOptions.ClientSecret)
+		if err != nil {
+			logrus.Warningf("Encryption: %v", err)
+		}
+		decryptedTenantID, err := encryption.Decrypt(agent.AzureOptions.TenantID)
+		if err != nil {
+			logrus.Warningf("Encryption: %v", err)
+		}
+		decryptedSubscriptionID, err := encryption.Decrypt(agent.AzureOptions.SubscriptionID)
+		if err != nil {
+			logrus.Warningf("Encryption: %v", err)
+		}
+
 		ua.AzureOptions = &agentv1beta1.UniversalAgent_AzureOptions{
-			ClientId:          agent.AzureOptions.ClientID,
-			IsClientSecretSet: agent.AzureOptions.ClientSecret != "",
-			TenantId:          agent.AzureOptions.TenantID,
-			SubscriptionId:    agent.AzureOptions.SubscriptionID,
+			ClientId:          decryptedClientID,
+			IsClientSecretSet: decryptedClientSecret != "",
+			TenantId:          decryptedTenantID,
+			SubscriptionId:    decryptedSubscriptionID,
 			ResourceGroup:     agent.AzureOptions.ResourceGroup,
 		}
 	}
 
 	if agent.MySQLOptions != nil {
+		decryptedTLSKey, err := encryption.Decrypt(agent.MySQLOptions.TLSKey)
+		if err != nil {
+			logrus.Warningf("Encryption: %v", err)
+		}
+
 		ua.MysqlOptions = &agentv1beta1.UniversalAgent_MySQLOptions{
-			IsTlsKeySet: agent.MySQLOptions.TLSKey != "",
+			IsTlsKeySet: decryptedTLSKey != "",
 		}
 	}
 
 	if agent.PostgreSQLOptions != nil {
+		decryptedSSLKey, err := encryption.Decrypt(agent.PostgreSQLOptions.SSLKey)
+		if err != nil {
+			logrus.Warningf("Encryption: %v", err)
+		}
+
 		ua.PostgresqlOptions = &agentv1beta1.UniversalAgent_PostgreSQLOptions{
-			IsSslKeySet:            agent.PostgreSQLOptions.SSLKey != "",
+			IsSslKeySet:            decryptedSSLKey != "",
 			AutoDiscoveryLimit:     agent.PostgreSQLOptions.AutoDiscoveryLimit,
 			MaxExporterConnections: agent.PostgreSQLOptions.MaxExporterConnections,
 		}
 	}
 
 	if agent.MongoDBOptions != nil {
+		decryptedTLSCertificateKey, err := encryption.Decrypt(agent.MongoDBOptions.TLSCertificateKey)
+		if err != nil {
+			logrus.Warningf("Encryption: %v", err)
+		}
+		decryptedTLSCertificateKeyFilePassword, err := encryption.Decrypt(agent.MongoDBOptions.TLSCertificateKeyFilePassword)
+		if err != nil {
+			logrus.Warningf("Encryption: %v", err)
+		}
+
 		ua.MongoDbOptions = &agentv1beta1.UniversalAgent_MongoDBOptions{
 			AuthenticationMechanism:            agent.MongoDBOptions.AuthenticationMechanism,
 			AuthenticationDatabase:             agent.MongoDBOptions.AuthenticationDatabase,
 			CollectionsLimit:                   agent.MongoDBOptions.CollectionsLimit,
 			EnableAllCollectors:                agent.MongoDBOptions.EnableAllCollectors,
 			StatsCollections:                   agent.MongoDBOptions.StatsCollections,
-			IsTlsCertificateKeySet:             agent.MongoDBOptions.TLSCertificateKey != "",
-			IsTlsCertificateKeyFilePasswordSet: agent.MongoDBOptions.TLSCertificateKeyFilePassword != "",
+			IsTlsCertificateKeySet:             decryptedTLSCertificateKey != "",
+			IsTlsCertificateKeyFilePasswordSet: decryptedTLSCertificateKeyFilePassword != "",
 		}
 	}
 

@@ -581,10 +581,21 @@ func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabe
 	// TODO https://jira.percona.com/browse/PMM-4496
 	// Check that Node is not remote.
 
+	encryptedUsername, err := encryption.Encrypt("")
+	if err != nil {
+		logrus.Warningf("Encryption: %v", err)
+	}
+	encryptedPassword, err := encryption.Encrypt("")
+	if err != nil {
+		logrus.Warningf("Encryption: %v", err)
+	}
+
 	agent := &Agent{
 		AgentID:      id,
 		AgentType:    PMMAgentType,
 		RunsOnNodeID: &runsOnNodeID,
+		Username:     &encryptedUsername,
+		Password:     &encryptedPassword,
 	}
 	if err := agent.SetCustomLabels(customLabels); err != nil {
 		return nil, err
@@ -906,7 +917,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		}
 	}
 
-	encryptedParams, err := encryptCreateAgentParams(params)
+	err = encryptCreateAgentParams(params)
 	if err != nil {
 		return nil, err
 	}
@@ -917,24 +928,24 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		PMMAgentID:                     &params.PMMAgentID,
 		ServiceID:                      pointer.ToStringOrNil(params.ServiceID),
 		NodeID:                         pointer.ToStringOrNil(params.NodeID),
-		Username:                       &encryptedParams.Username,
-		Password:                       &encryptedParams.Password,
+		Username:                       &params.Username,
+		Password:                       &params.Password,
 		AgentPassword:                  pointer.ToStringOrNil(params.AgentPassword),
 		TLS:                            params.TLS,
 		TLSSkipVerify:                  params.TLSSkipVerify,
 		MySQLOptions:                   params.MySQLOptions,
-		MongoDBOptions:                 encryptedParams.MongoDBOptions,
+		MongoDBOptions:                 params.MongoDBOptions,
 		PostgreSQLOptions:              params.PostgreSQLOptions,
 		TableCountTablestatsGroupLimit: params.TableCountTablestatsGroupLimit,
 		MaxQueryLength:                 params.MaxQueryLength,
 		QueryExamplesDisabled:          params.QueryExamplesDisabled,
 		CommentsParsingDisabled:        params.CommentsParsingDisabled,
 		MaxQueryLogSize:                params.MaxQueryLogSize,
-		AWSAccessKey:                   &encryptedParams.AWSAccessKey,
-		AWSSecretKey:                   &encryptedParams.AWSSecretKey,
+		AWSAccessKey:                   &params.AWSAccessKey,
+		AWSSecretKey:                   &params.AWSSecretKey,
 		RDSBasicMetricsDisabled:        params.RDSBasicMetricsDisabled,
 		RDSEnhancedMetricsDisabled:     params.RDSEnhancedMetricsDisabled,
-		AzureOptions:                   encryptedParams.AzureOptions,
+		AzureOptions:                   params.AzureOptions,
 		PushMetrics:                    params.PushMetrics,
 		ExposeExporter:                 params.ExposeExporter,
 		DisabledCollectors:             params.DisableCollectors,
@@ -951,74 +962,74 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	return row, nil
 }
 
-func encryptCreateAgentParams(params *CreateAgentParams) (*CreateAgentParams, error) {
-	encryptedUsername, err := encryption.Encrypt(params.Username)
+func encryptCreateAgentParams(params *CreateAgentParams) error {
+	var err error
+	params.Username, err = encryption.Encrypt(params.Username)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	encryptedPassword, err := encryption.Encrypt(params.Password)
+	params.Password, err = encryption.Encrypt(params.Password)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	encryptedAgentPassword, err := encryption.Encrypt(params.AgentPassword)
+	params.AgentPassword, err = encryption.Encrypt(params.AgentPassword)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	encryptedAWSAccessKey, err := encryption.Encrypt(params.AWSAccessKey)
+	params.AWSAccessKey, err = encryption.Encrypt(params.AWSAccessKey)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	encryptedAWSSecretKey, err := encryption.Encrypt(params.AWSSecretKey)
+	params.AWSSecretKey, err = encryption.Encrypt(params.AWSSecretKey)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	encryptedMongoDBOptions := &MongoDBOptions{}
+	if params.MySQLOptions != nil {
+		params.MySQLOptions.TLSKey, err = encryption.Encrypt(params.MySQLOptions.TLSKey)
+		if err != nil {
+			return err
+		}
+	}
+
+	if params.PostgreSQLOptions != nil {
+		params.PostgreSQLOptions.SSLKey, err = encryption.Encrypt(params.PostgreSQLOptions.SSLKey)
+		if err != nil {
+			return err
+		}
+	}
+
 	if params.MongoDBOptions != nil {
-		encryptedTLSCertificateKeyFilePassword, err := encryption.Encrypt(params.MongoDBOptions.TLSCertificateKeyFilePassword)
+		params.MongoDBOptions.TLSCertificateKey, err = encryption.Encrypt(params.MongoDBOptions.TLSCertificateKey)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		*encryptedMongoDBOptions = *params.MongoDBOptions
-		encryptedMongoDBOptions.TLSCertificateKeyFilePassword = encryptedTLSCertificateKeyFilePassword
+		params.MongoDBOptions.TLSCertificateKeyFilePassword, err = encryption.Encrypt(params.MongoDBOptions.TLSCertificateKeyFilePassword)
+		if err != nil {
+			return err
+		}
 	}
 
-	var encryptedAzureOptions *AzureOptions
 	if params.AzureOptions != nil {
-		encryptedClientID, err := encryption.Encrypt(params.AzureOptions.ClientID)
+		params.AzureOptions.ClientID, err = encryption.Encrypt(params.AzureOptions.ClientID)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		encryptedClientSecret, err := encryption.Encrypt(params.AzureOptions.ClientSecret)
+		params.AzureOptions.ClientSecret, err = encryption.Encrypt(params.AzureOptions.ClientSecret)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		encryptedSubscriptionID, err := encryption.Encrypt(params.AzureOptions.SubscriptionID)
+		params.AzureOptions.SubscriptionID, err = encryption.Encrypt(params.AzureOptions.SubscriptionID)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		encryptedTenantID, err := encryption.Encrypt(params.AzureOptions.TenantID)
+		params.AzureOptions.TenantID, err = encryption.Encrypt(params.AzureOptions.TenantID)
 		if err != nil {
-			return nil, err
-		}
-		encryptedAzureOptions = &AzureOptions{
-			SubscriptionID: encryptedSubscriptionID,
-			ClientID:       encryptedClientID,
-			ClientSecret:   encryptedClientSecret,
-			TenantID:       encryptedTenantID,
-			ResourceGroup:  params.AzureOptions.ResourceGroup,
+			return err
 		}
 	}
 
-	return &CreateAgentParams{
-		Username:       encryptedUsername,
-		Password:       encryptedPassword,
-		AgentPassword:  encryptedAgentPassword,
-		AWSAccessKey:   encryptedAWSAccessKey,
-		AWSSecretKey:   encryptedAWSSecretKey,
-		MongoDBOptions: encryptedMongoDBOptions,
-		AzureOptions:   encryptedAzureOptions,
-	}, nil
+	return nil
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
