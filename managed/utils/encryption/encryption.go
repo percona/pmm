@@ -20,6 +20,7 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"os"
 	"slices"
 
@@ -71,7 +72,7 @@ func Encrypt(secret string) (string, error) {
 // Encrypt returns input string encrypted.
 func (e *Encryption) Encrypt(secret string) (string, error) {
 	if e == nil || e.Primitive == nil {
-		return "", ErrEncryptionNotInitialized
+		return secret, ErrEncryptionNotInitialized
 	}
 
 	if secret != "" {
@@ -158,11 +159,11 @@ func Decrypt(cipherText string) (string, error) {
 // Decrypt returns input string decrypted.
 func (e *Encryption) Decrypt(cipherText string) (string, error) {
 	if e == nil || e.Primitive == nil {
-		return "", ErrEncryptionNotInitialized
+		return cipherText, ErrEncryptionNotInitialized
 	}
 
 	if cipherText == "" {
-		return "", nil
+		return cipherText, nil
 	}
 
 	decoded, err := base64.StdEncoding.DecodeString(cipherText)
@@ -171,6 +172,7 @@ func (e *Encryption) Decrypt(cipherText string) (string, error) {
 	}
 	secret, err := e.Primitive.Decrypt(decoded, []byte(""))
 	if err != nil {
+		fmt.Printf("%s failed %v \n\n", string(cipherText), err)
 		return cipherText, err
 	}
 
@@ -211,7 +213,7 @@ func (e *Encryption) DecryptDB(ctx context.Context, c *DatabaseConnection) error
 			for i, val := range v {
 				value := val.(*sql.NullString)
 				if !value.Valid {
-					res.SetValues[k][i] = sql.NullString{}
+					res.SetValues[k][i] = nil
 					continue
 				}
 

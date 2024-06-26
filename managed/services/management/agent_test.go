@@ -127,7 +127,7 @@ func TestAgentService(t *testing.T) {
 					IsConnected: false,
 					CreatedAt:   timestamppb.New(now),
 					UpdatedAt:   timestamppb.New(now),
-					Username:    response.GetAgents()[0].Username,
+					Username:    "postgres",
 					PostgresqlOptions: &agentv1beta1.UniversalAgent_PostgreSQLOptions{
 						IsSslKeySet: false,
 					},
@@ -143,7 +143,7 @@ func TestAgentService(t *testing.T) {
 					IsConnected: false,
 					CreatedAt:   timestamppb.New(now),
 					UpdatedAt:   timestamppb.New(now),
-					Username:    response.GetAgents()[1].Username,
+					Username:    "postgres",
 					PostgresqlOptions: &agentv1beta1.UniversalAgent_PostgreSQLOptions{
 						IsSslKeySet: false,
 					},
@@ -206,7 +206,6 @@ func TestAgentService(t *testing.T) {
 					AgentType:   "rds_exporter",
 					PmmAgentId:  "/agent_id/00000000-0000-4000-8000-000000000007",
 					IsConnected: false,
-					Username:    response.GetAgents()[0].Username,
 					CreatedAt:   timestamppb.New(now),
 					UpdatedAt:   timestamppb.New(now),
 					ServiceId:   "/service_id/00000000-0000-4000-8000-000000000006",

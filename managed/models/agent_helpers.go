@@ -231,7 +231,7 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	agents := make([]*Agent, len(structs))
 	for i, s := range structs {
 		agent := s.(*Agent) //nolint:forcetypeassert
-		decryptAgent(agent)
+		fmt.Println(decryptAgent(agent))
 		agents[i] = agent
 	}
 
@@ -734,6 +734,8 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		AgentType:     ExternalExporterType,
 		RunsOnNodeID:  runsOnNodeID,
 		ServiceID:     pointer.ToStringOrNil(params.ServiceID),
+		Username:      pointer.ToStringOrNil(params.Username),
+		Password:      pointer.ToStringOrNil(params.Password),
 		MetricsScheme: &scheme,
 		MetricsPath:   &metricsPath,
 		ListenPort:    pointer.ToUint16(uint16(params.ListenPort)),
@@ -913,9 +915,9 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		PMMAgentID:                     &params.PMMAgentID,
 		ServiceID:                      pointer.ToStringOrNil(params.ServiceID),
 		NodeID:                         pointer.ToStringOrNil(params.NodeID),
-		Username:                       &params.Username,
-		Password:                       &params.Password,
-		AgentPassword:                  &params.AgentPassword,
+		Username:                       pointer.ToStringOrNil(params.Username),
+		Password:                       pointer.ToStringOrNil(params.Password),
+		AgentPassword:                  pointer.ToStringOrNil(params.AgentPassword),
 		TLS:                            params.TLS,
 		TLSSkipVerify:                  params.TLSSkipVerify,
 		MySQLOptions:                   params.MySQLOptions,
@@ -926,8 +928,8 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		QueryExamplesDisabled:          params.QueryExamplesDisabled,
 		CommentsParsingDisabled:        params.CommentsParsingDisabled,
 		MaxQueryLogSize:                params.MaxQueryLogSize,
-		AWSAccessKey:                   &params.AWSAccessKey,
-		AWSSecretKey:                   &params.AWSSecretKey,
+		AWSAccessKey:                   pointer.ToStringOrNil(params.AWSAccessKey),
+		AWSSecretKey:                   pointer.ToStringOrNil(params.AWSSecretKey),
 		RDSBasicMetricsDisabled:        params.RDSBasicMetricsDisabled,
 		RDSEnhancedMetricsDisabled:     params.RDSEnhancedMetricsDisabled,
 		AzureOptions:                   params.AzureOptions,
@@ -951,10 +953,10 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 
 func encryptCreateAgentParams(params *CreateAgentParams) error {
 	var err error
-	params.Username, err = encryption.Encrypt(params.Username)
-	if err != nil {
-		return err
-	}
+	// params.Username, err = encryption.Encrypt(params.Username)
+	// if err != nil {
+	// 	return err
+	// }
 	params.Password, err = encryption.Encrypt(params.Password)
 	if err != nil {
 		return err
@@ -1015,18 +1017,18 @@ func encryptCreateAgentParams(params *CreateAgentParams) error {
 			return err
 		}
 	}
-
+	fmt.Println(params)
 	return nil
 }
 
 func decryptAgent(agent *Agent) error {
-	if agent.Username != nil {
-		username, err := encryption.Decrypt(*agent.Username)
-		if err != nil {
-			return err
-		}
-		agent.Username = &username
-	}
+	// if agent.Username != nil {
+	// 	username, err := encryption.Decrypt(*agent.Username)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	agent.Username = &username
+	// }
 
 	if agent.Password != nil {
 		password, err := encryption.Decrypt(*agent.Password)
