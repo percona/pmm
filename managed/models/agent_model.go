@@ -364,8 +364,8 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 	case QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
 		cfg := mysql.NewConfig()
-		cfg.User = decryptedUsername
-		cfg.Passwd = decryptedPassword
+		cfg.User = username
+		cfg.Passwd = password
 		cfg.Net = unix
 		cfg.Addr = socket
 		if socket == "" {
@@ -403,8 +403,8 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 	case ProxySQLExporterType:
 		cfg := mysql.NewConfig()
-		cfg.User = decryptedUsername
-		cfg.Passwd = decryptedPassword
+		cfg.User = username
+		cfg.Passwd = password
 		cfg.Net = unix
 		cfg.Addr = socket
 		if socket == "" {
@@ -484,10 +484,10 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 			RawQuery: q.Encode(),
 		}
 		switch {
-		case decryptedPassword != "":
-			u.User = url.UserPassword(decryptedUsername, decryptedPassword)
-		case decryptedUsername != "":
-			u.User = url.User(decryptedUsername)
+		case password != "":
+			u.User = url.UserPassword(username, password)
+		case username != "":
+			u.User = url.User(username)
 		}
 		dsn := u.String()
 		dsn = strings.ReplaceAll(dsn, url.QueryEscape(tdp.Left), tdp.Left)
@@ -546,10 +546,10 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 			RawQuery: q.Encode(),
 		}
 		switch {
-		case decryptedPassword != "":
-			u.User = url.UserPassword(decryptedUsername, decryptedPassword)
-		case decryptedUsername != "":
-			u.User = url.User(decryptedUsername)
+		case password != "":
+			u.User = url.UserPassword(username, password)
+		case username != "":
+			u.User = url.User(username)
 		}
 
 		dsn := u.String()
