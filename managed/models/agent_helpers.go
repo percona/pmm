@@ -1053,75 +1053,87 @@ func encryptCreateAgentParams(params *CreateAgentParams) error {
 }
 
 func decryptAgent(agent *Agent) error {
-	username, err := encryption.Decrypt(pointer.GetString(agent.Username))
-	if err != nil {
-		return err
-	}
-	agent.Username = &username
-
-	password, err := encryption.Encrypt(pointer.GetString(agent.Password))
-	if err != nil {
-		return err
-	}
-	agent.Password = &password
-
-	agentPassword, err := encryption.Encrypt(pointer.GetString(agent.AgentPassword))
-	if err != nil {
-		return err
-	}
-	agent.AgentPassword = &agentPassword
-
-	awsAccessKey, err := encryption.Encrypt(pointer.GetString(agent.AWSAccessKey))
-	if err != nil {
-		return err
-	}
-	agent.AWSAccessKey = &awsAccessKey
-
-	awsSecretKey, err := encryption.Encrypt(pointer.GetString(agent.AWSSecretKey))
-	if err != nil {
-		return err
-	}
-	agent.AWSSecretKey = &awsSecretKey
-
-	if agent.MySQLOptions != nil {
-		agent.MySQLOptions.TLSKey, err = encryption.Encrypt(agent.MySQLOptions.TLSKey)
+	if agent.Username != nil {
+		username, err := encryption.Decrypt(*agent.Username)
 		if err != nil {
 			return err
 		}
+		agent.Username = &username
+	}
+
+	if agent.Password != nil {
+		password, err := encryption.Decrypt(*agent.Password)
+		if err != nil {
+			return err
+		}
+		agent.Password = &password
+	}
+
+	if agent.AgentPassword != nil {
+		agentPassword, err := encryption.Decrypt(*agent.AgentPassword)
+		if err != nil {
+			return err
+		}
+		agent.AgentPassword = &agentPassword
+	}
+
+	if agent.AWSAccessKey != nil {
+		awsAccessKey, err := encryption.Decrypt(*agent.AWSAccessKey)
+		if err != nil {
+			return err
+		}
+		agent.AWSAccessKey = &awsAccessKey
+	}
+
+	if agent.AWSSecretKey != nil {
+		awsSecretKey, err := encryption.Decrypt(*agent.AWSSecretKey)
+		if err != nil {
+			return err
+		}
+		agent.AWSSecretKey = &awsSecretKey
+	}
+
+	var err error
+	if agent.MySQLOptions != nil {
+		agent.MySQLOptions.TLSKey, err = encryption.Decrypt(agent.MySQLOptions.TLSKey)
+		if err != nil {
+			return err
+		}
+
 	}
 
 	if agent.PostgreSQLOptions != nil {
-		agent.PostgreSQLOptions.SSLKey, err = encryption.Encrypt(agent.PostgreSQLOptions.SSLKey)
+		agent.PostgreSQLOptions.SSLKey, err = encryption.Decrypt(agent.PostgreSQLOptions.SSLKey)
 		if err != nil {
 			return err
 		}
 	}
 
 	if agent.MongoDBOptions != nil {
-		agent.MongoDBOptions.TLSCertificateKey, err = encryption.Encrypt(agent.MongoDBOptions.TLSCertificateKey)
+		agent.MongoDBOptions.TLSCertificateKey, err = encryption.Decrypt(agent.MongoDBOptions.TLSCertificateKey)
 		if err != nil {
 			return err
 		}
-		agent.MongoDBOptions.TLSCertificateKeyFilePassword, err = encryption.Encrypt(agent.MongoDBOptions.TLSCertificateKeyFilePassword)
+		agent.MongoDBOptions.TLSCertificateKeyFilePassword, err = encryption.Decrypt(agent.MongoDBOptions.TLSCertificateKeyFilePassword)
 		if err != nil {
 			return err
 		}
 	}
 
 	if agent.AzureOptions != nil {
-		agent.AzureOptions.ClientID, err = encryption.Encrypt(agent.AzureOptions.ClientID)
+		agent.AzureOptions.ClientID, err = encryption.Decrypt(agent.AzureOptions.ClientID)
 		if err != nil {
 			return err
 		}
-		agent.AzureOptions.ClientSecret, err = encryption.Encrypt(agent.AzureOptions.ClientSecret)
+		agent.AzureOptions.ClientSecret, err = encryption.Decrypt(agent.AzureOptions.ClientSecret)
 		if err != nil {
 			return err
 		}
-		agent.AzureOptions.SubscriptionID, err = encryption.Encrypt(agent.AzureOptions.SubscriptionID)
+		agent.AzureOptions.SubscriptionID, err = encryption.Decrypt(agent.AzureOptions.SubscriptionID)
 		if err != nil {
 			return err
 		}
-		agent.AzureOptions.TenantID, err = encryption.Encrypt(agent.AzureOptions.TenantID)
+		agent.AzureOptions.TenantID, err = encryption.Decrypt(agent.AzureOptions.TenantID)
 		if err != nil {
 			return err
 		}
