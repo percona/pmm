@@ -246,13 +246,13 @@ func TestUpdater(t *testing.T) {
 	})
 
 	t.Run("TestLatest", func(t *testing.T) {
-		// Used PMM 2, because PMM 3 is not released yet.
 		version.Version = "2.41.0"
 		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
 		latest, err := u.latest(context.Background())
 		require.NoError(t, err)
 		assert.NotNil(t, latest)
-		assert.True(t, strings.HasPrefix(latest.Version.String(), "2.41."), "latest version of PMM 2 should have prefix 2.41.")
+		assert.True(t, strings.HasPrefix(latest.Version.String(), "2.") || strings.HasPrefix(latest.Version.String(), "3."),
+			"latest version of PMM 2 should have prefix 2.")
 	})
 
 	t.Run("TestParseFile", func(t *testing.T) {
