@@ -30,11 +30,9 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/version"
 )
 
@@ -256,11 +254,7 @@ func (s *Agent) SetCustomLabels(m map[string]string) error {
 func (s *Agent) GetAgentPassword() string {
 	password := s.AgentID
 	if pointer.GetString(s.AgentPassword) != "" {
-		decryptedAgentPassword, err := encryption.Decrypt(*s.AgentPassword)
-		if err != nil {
-			logrus.Warningf("Encryption: %v", err)
-		}
-		password = decryptedAgentPassword
+		password = *s.AgentPassword
 	}
 
 	return password
@@ -303,21 +297,9 @@ func (c *DBConfig) Valid() bool {
 
 // DBConfig returns DBConfig for given Service with this agent.
 func (s *Agent) DBConfig(service *Service) *DBConfig {
-	username := pointer.GetString(s.Username)
-	password := pointer.GetString(s.Password)
-
-	decryptedUsername, err := encryption.Decrypt(username)
-	if err != nil {
-		logrus.Warningf("Encryption: %v", err)
-	}
-	decryptedPassword, err := encryption.Decrypt(password)
-	if err != nil {
-		logrus.Warningf("Encryption: %v", err)
-	}
-
 	return &DBConfig{
-		User:     decryptedUsername,
-		Password: decryptedPassword,
+		User:     pointer.GetString(s.Username),
+		Password: pointer.GetString(s.Password),
 		Address:  pointer.GetString(service.Address),
 		Port:     int(pointer.GetUint16(service.Port)),
 		Socket:   pointer.GetString(service.Socket),
@@ -340,15 +322,6 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 	username := pointer.GetString(s.Username)
 	password := pointer.GetString(s.Password)
 
-	decryptedUsername, err := encryption.Decrypt(username)
-	if err != nil {
-		logrus.Warningf("Encryption: %v", err)
-	}
-	decryptedPassword, err := encryption.Decrypt(password)
-	if err != nil {
-		logrus.Warningf("Encryption: %v", err)
-	}
-
 	if tdp == nil {
 		tdp = s.TemplateDelimiters(service)
 	}
@@ -356,8 +329,8 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 	switch s.AgentType {
 	case MySQLdExporterType:
 		cfg := mysql.NewConfig()
-		cfg.User = decryptedUsername
-		cfg.Passwd = decryptedPassword
+		cfg.User = username
+		cfg.Passwd = password
 		cfg.Net = unix
 		cfg.Addr = socket
 		if socket == "" {
@@ -486,12 +459,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 				q.Add("tlsCertificateKeyFile", tdp.Left+".TextFiles."+certificateKeyFilePlaceholder+tdp.Right)
 			}
 			if s.MongoDBOptions.TLSCertificateKeyFilePassword != "" {
-				decryptedTLSCertificateKeyFilePassword, err := encryption.Decrypt(s.MongoDBOptions.TLSCertificateKeyFilePassword)
-				if err != nil {
-					logrus.Warningf("Encryption: %v", err)
-				}
-
-				q.Add("tlsCertificateKeyFilePassword", decryptedTLSCertificateKeyFilePassword)
+				q.Add("tlsCertificateKeyFilePassword", s.MongoDBOptions.TLSCertificateKeyFilePassword)
 			}
 			if s.MongoDBOptions.TLSCa != "" {
 				q.Add("tlsCaFile", tdp.Left+".TextFiles."+caFilePlaceholder+tdp.Right)
@@ -602,15 +570,6 @@ func (s *Agent) ExporterURL(q *reform.Querier) (string, error) {
 	username := pointer.GetString(s.Username)
 	password := pointer.GetString(s.Password)
 
-	decryptedUsername, err := encryption.Decrypt(username)
-	if err != nil {
-		logrus.Warningf("Encryption: %v", err)
-	}
-	decryptedPassword, err := encryption.Decrypt(password)
-	if err != nil {
-		logrus.Warningf("Encryption: %v", err)
-	}
-
 	host := "127.0.0.1"
 	if !s.PushMetrics {
 		node, err := FindNodeByID(q, *s.RunsOnNodeID)
@@ -636,10 +595,10 @@ func (s *Agent) ExporterURL(q *reform.Querier) (string, error) {
 	}
 
 	switch {
-	case decryptedPassword != "":
-		u.User = url.UserPassword(decryptedUsername, decryptedPassword)
-	case decryptedUsername != "":
-		u.User = url.User(decryptedUsername)
+	case password != "":
+		u.User = url.UserPassword(username, password)
+	case username != "":
+		u.User = url.User(username)
 	}
 	return u.String(), nil
 }
@@ -717,19 +676,10 @@ func (s Agent) Files() map[string]string {
 
 // TemplateDelimiters returns a pair of safe template delimiters that are not present in agent parameters.
 func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
-	decryptedUsername, err := encryption.Decrypt(pointer.GetString(s.Username))
-	if err != nil {
-		logrus.Warningf("Encryption: %v", err)
-	}
-	decryptedPassword, err := encryption.Decrypt(pointer.GetString(s.Password))
-	if err != nil {
-		logrus.Warningf("Encryption: %v", err)
-	}
-
 	templateParams := []string{
 		pointer.GetString(svc.Address),
-		decryptedUsername,
-		decryptedPassword,
+		pointer.GetString(s.Username),
+		pointer.GetString(s.Password),
 		pointer.GetString(s.MetricsPath),
 	}
 
@@ -740,11 +690,7 @@ func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 		}
 	case MongoDBServiceType:
 		if s.MongoDBOptions != nil {
-			decryptedTLSCertificateKeyFilePassword, err := encryption.Decrypt(s.MongoDBOptions.TLSCertificateKeyFilePassword)
-			if err != nil {
-				logrus.Warningf("Encryption: %v", err)
-			}
-			templateParams = append(templateParams, decryptedTLSCertificateKeyFilePassword)
+			templateParams = append(templateParams, s.MongoDBOptions.TLSCertificateKeyFilePassword)
 		}
 	case PostgreSQLServiceType:
 		if s.PostgreSQLOptions != nil {

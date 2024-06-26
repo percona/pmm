@@ -230,7 +230,9 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 
 	agents := make([]*Agent, len(structs))
 	for i, s := range structs {
-		agents[i] = s.(*Agent) //nolint:forcetypeassert
+		agent := s.(*Agent) //nolint:forcetypeassert
+		decryptAgent(agent)
+		agents[i] = agent
 	}
 
 	return agents, nil
@@ -250,6 +252,8 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 		}
 		return nil, errors.WithStack(err)
 	}
+
+	decryptAgent(agent)
 
 	return agent, nil
 }
@@ -273,7 +277,9 @@ func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 
 	res := make([]*Agent, len(structs))
 	for i, s := range structs {
-		res[i] = s.(*Agent) //nolint:forcetypeassert
+		agent := s.(*Agent) //nolint:forcetypeassert
+		decryptAgent(agent)
+		res[i] = agent
 	}
 	return res, nil
 }
@@ -324,7 +330,9 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 
 	res := make([]*Agent, len(structs))
 	for i, s := range structs {
-		res[i] = s.(*Agent) //nolint:forcetypeassert
+		agent := s.(*Agent) //nolint:forcetypeassert
+		decryptAgent(agent)
+		res[i] = agent
 	}
 
 	if len(res) == 0 {
@@ -352,6 +360,7 @@ func FindPMMAgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, err
 	res := make([]*Agent, 0, len(structs))
 	for _, str := range structs {
 		row := str.(*Agent) //nolint:forcetypeassert
+		decryptAgent(row)
 		res = append(res, row)
 	}
 
@@ -397,6 +406,7 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	res := make([]*Agent, 0, len(pmmAgentRecords))
 	for _, str := range pmmAgentRecords {
 		row := str.(*Agent) //nolint:forcetypeassert
+		decryptAgent(row)
 		res = append(res, row)
 	}
 
@@ -478,7 +488,9 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 
 	res := make([]*Agent, len(allAgents))
 	for i, s := range allAgents {
-		res[i] = s.(*Agent) //nolint:forcetypeassert
+		agent := s.(*Agent) //nolint:forcetypeassert
+		decryptAgent(agent)
+		res[i] = agent
 	}
 	return res, nil
 }
@@ -605,6 +617,8 @@ func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabe
 		return nil, errors.WithStack(err)
 	}
 
+	decryptAgent(agent)
+
 	return agent, nil
 }
 
@@ -668,6 +682,8 @@ func CreateNodeExporter(q *reform.Querier,
 	if err := q.Insert(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
+
+	decryptAgent(row)
 
 	return row, nil
 }
@@ -762,6 +778,8 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 	if err := q.Insert(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
+
+	decryptAgent(row)
 
 	return row, nil
 }
@@ -959,6 +977,8 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		return nil, errors.WithStack(err)
 	}
 
+	decryptAgent(row)
+
 	return row, nil
 }
 
@@ -1024,6 +1044,84 @@ func encryptCreateAgentParams(params *CreateAgentParams) error {
 			return err
 		}
 		params.AzureOptions.TenantID, err = encryption.Encrypt(params.AzureOptions.TenantID)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func decryptAgent(agent *Agent) error {
+	username, err := encryption.Decrypt(pointer.GetString(agent.Username))
+	if err != nil {
+		return err
+	}
+	agent.Username = &username
+
+	password, err := encryption.Encrypt(pointer.GetString(agent.Password))
+	if err != nil {
+		return err
+	}
+	agent.Password = &password
+
+	agentPassword, err := encryption.Encrypt(pointer.GetString(agent.AgentPassword))
+	if err != nil {
+		return err
+	}
+	agent.AgentPassword = &agentPassword
+
+	awsAccessKey, err := encryption.Encrypt(pointer.GetString(agent.AWSAccessKey))
+	if err != nil {
+		return err
+	}
+	agent.AWSAccessKey = &awsAccessKey
+
+	awsSecretKey, err := encryption.Encrypt(pointer.GetString(agent.AWSSecretKey))
+	if err != nil {
+		return err
+	}
+	agent.AWSSecretKey = &awsSecretKey
+
+	if agent.MySQLOptions != nil {
+		agent.MySQLOptions.TLSKey, err = encryption.Encrypt(agent.MySQLOptions.TLSKey)
+		if err != nil {
+			return err
+		}
+	}
+
+	if agent.PostgreSQLOptions != nil {
+		agent.PostgreSQLOptions.SSLKey, err = encryption.Encrypt(agent.PostgreSQLOptions.SSLKey)
+		if err != nil {
+			return err
+		}
+	}
+
+	if agent.MongoDBOptions != nil {
+		agent.MongoDBOptions.TLSCertificateKey, err = encryption.Encrypt(agent.MongoDBOptions.TLSCertificateKey)
+		if err != nil {
+			return err
+		}
+		agent.MongoDBOptions.TLSCertificateKeyFilePassword, err = encryption.Encrypt(agent.MongoDBOptions.TLSCertificateKeyFilePassword)
+		if err != nil {
+			return err
+		}
+	}
+
+	if agent.AzureOptions != nil {
+		agent.AzureOptions.ClientID, err = encryption.Encrypt(agent.AzureOptions.ClientID)
+		if err != nil {
+			return err
+		}
+		agent.AzureOptions.ClientSecret, err = encryption.Encrypt(agent.AzureOptions.ClientSecret)
+		if err != nil {
+			return err
+		}
+		agent.AzureOptions.SubscriptionID, err = encryption.Encrypt(agent.AzureOptions.SubscriptionID)
+		if err != nil {
+			return err
+		}
+		agent.AzureOptions.TenantID, err = encryption.Encrypt(agent.AzureOptions.TenantID)
 		if err != nil {
 			return err
 		}
