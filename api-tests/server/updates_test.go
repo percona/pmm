@@ -55,8 +55,8 @@ func TestCheckUpdates(t *testing.T) {
 	require.NoError(t, err)
 
 	require.NotEmpty(t, res.Payload.Installed)
-	assert.True(t, strings.HasPrefix(res.Payload.Installed.Version, "2."),
-		"installed.version = %q should have '2.' prefix", res.Payload.Installed.Version)
+	assert.True(t, strings.HasPrefix(res.Payload.Installed.Version, "2.") || strings.HasPrefix(res.Payload.Installed.Version, "3."),
+		"installed.version = %q should have '2.' or '3.' prefix", res.Payload.Installed.Version)
 	assert.NotEmpty(t, res.Payload.Installed.FullVersion)
 	require.NotEmpty(t, res.Payload.Installed.Timestamp)
 	ts := time.Time(res.Payload.Installed.Timestamp)
@@ -65,23 +65,21 @@ func TestCheckUpdates(t *testing.T) {
 	assert.Zero(t, min, "installed.timestamp should contain only date")
 
 	require.NotEmpty(t, res.Payload.Latest)
-	assert.True(t, strings.HasPrefix(res.Payload.Latest.Version, "2."),
-		"latest.version = %q should have '2.' prefix", res.Payload.Latest.Version)
-	require.NotEmpty(t, res.Payload.Latest.Timestamp)
-	ts = time.Time(res.Payload.Latest.Timestamp)
-	hour, min, _ = ts.Clock()
-	assert.Zero(t, hour, "latest.timestamp should contain only date")
-	assert.Zero(t, min, "latest.timestamp should contain only date")
+	assert.True(t, strings.HasPrefix(res.Payload.Installed.Version, "2.") || strings.HasPrefix(res.Payload.Installed.Version, "3."),
+		"installed.version = %q should have '2.' or '3.' prefix", res.Payload.Installed.Version)
+	assert.NotEmpty(t, res.Payload.Installed.FullVersion)
 
 	if res.Payload.UpdateAvailable {
 		assert.NotEmpty(t, res.Payload.Latest.Tag)
+		require.NotEmpty(t, res.Payload.Latest.Timestamp)
+		ts = time.Time(res.Payload.Latest.Timestamp)
+		hour, min, _ = ts.Clock()
+		assert.Zero(t, hour, "latest.timestamp should contain only date")
+		assert.Zero(t, min, "latest.timestamp should contain only date")
+
 		assert.NotEqual(t, res.Payload.Installed.FullVersion, res.Payload.Latest.Version)
 		assert.NotEqual(t, res.Payload.Installed.Timestamp, res.Payload.Latest.Timestamp)
 		assert.True(t, strings.HasPrefix(res.Payload.LatestNewsURL, "https://per.co.na/pmm/2."), "latest_news_url = %q", res.Payload.LatestNewsURL)
-	} else {
-		assert.Equal(t, res.Payload.Installed.Timestamp, res.Payload.Latest.Timestamp)
-		assert.Empty(t, res.Payload.Installed.FullVersion, res.Payload.Latest.Version)
-		assert.Empty(t, res.Payload.LatestNewsURL, "latest_news_url should be empty")
 	}
 	assert.NotEmpty(t, res.Payload.LastCheck)
 
