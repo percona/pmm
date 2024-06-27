@@ -467,7 +467,6 @@ func TestAgentHelpers(t *testing.T) {
 				ListenPort:   9104,
 			})
 			require.NoError(t, err)
-
 			assert.Equal(t, &models.Agent{
 				AgentID:       agent.AgentID,
 				AgentType:     models.ExternalExporterType,

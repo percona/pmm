@@ -125,7 +125,7 @@ func TestAgents(t *testing.T) {
 			AgentId:    "/agent_id/00000000-0000-4000-8000-000000000008",
 			PmmAgentId: "/agent_id/00000000-0000-4000-8000-000000000005",
 			ServiceId:  s.ServiceId,
-			Username:   actualAgent.(*inventorypb.MySQLdExporter).Username,
+			Username:   "username",
 			Status:     inventorypb.AgentStatus_UNKNOWN,
 		}
 		assert.Equal(t, expectedMySQLdExporter, actualAgent)
@@ -154,7 +154,7 @@ func TestAgents(t *testing.T) {
 			AgentId:    "/agent_id/00000000-0000-4000-8000-00000000000a",
 			PmmAgentId: pmmAgent.AgentId,
 			ServiceId:  ms.ServiceId,
-			Username:   actualAgent.(*inventorypb.MongoDBExporter).Username,
+			Username:   "username",
 			Status:     inventorypb.AgentStatus_UNKNOWN,
 		}
 		assert.Equal(t, expectedMongoDBExporter, actualAgent)
@@ -173,7 +173,7 @@ func TestAgents(t *testing.T) {
 			AgentId:    "/agent_id/00000000-0000-4000-8000-00000000000b",
 			PmmAgentId: pmmAgent.AgentId,
 			ServiceId:  s.ServiceId,
-			Username:   actualAgent.(*inventorypb.QANMySQLSlowlogAgent).Username,
+			Username:   "username",
 			Status:     inventorypb.AgentStatus_UNKNOWN,
 		}
 		assert.Equal(t, expectedQANMySQLSlowlogAgent, actualAgent)
@@ -200,7 +200,7 @@ func TestAgents(t *testing.T) {
 			AgentId:    "/agent_id/00000000-0000-4000-8000-00000000000d",
 			PmmAgentId: pmmAgent.AgentId,
 			ServiceId:  ps.ServiceId,
-			Username:   actualAgent.(*inventorypb.PostgresExporter).Username,
+			Username:   "username",
 			Status:     inventorypb.AgentStatus_UNKNOWN,
 		}
 		assert.Equal(t, expectedPostgresExporter, actualAgent)
@@ -220,7 +220,7 @@ func TestAgents(t *testing.T) {
 			AgentId:      "/agent_id/00000000-0000-4000-8000-00000000000e",
 			RunsOnNodeId: models.PMMServerNodeID,
 			ServiceId:    ps.ServiceId,
-			Username:     actualAgent.(*inventorypb.ExternalExporter).Username,
+			Username:     "username",
 			Scheme:       "http",
 			MetricsPath:  "/metrics",
 			ListenPort:   9222,
@@ -383,7 +383,7 @@ func TestAgents(t *testing.T) {
 			AgentId:      "/agent_id/00000000-0000-4000-8000-000000000006",
 			PmmAgentId:   "pmm-server",
 			NodeId:       "/node_id/00000000-0000-4000-8000-000000000005",
-			AwsAccessKey: agent.AwsAccessKey,
+			AwsAccessKey: "EXAMPLE_ACCESS_KEY",
 			CustomLabels: map[string]string{"baz": "qux"},
 			Status:       inventorypb.AgentStatus_UNKNOWN,
 		}
@@ -415,7 +415,7 @@ func TestAgents(t *testing.T) {
 			AgentId:      "/agent_id/00000000-0000-4000-8000-000000000006",
 			RunsOnNodeId: models.PMMServerNodeID,
 			ServiceId:    service.ServiceId,
-			Username:     agent.Username,
+			Username:     "username",
 			Scheme:       "http",
 			MetricsPath:  "/metrics",
 			ListenPort:   12345,
@@ -499,7 +499,7 @@ func TestAgents(t *testing.T) {
 			AgentId:            "/agent_id/00000000-0000-4000-8000-000000000007",
 			PmmAgentId:         pmmAgent.AgentId,
 			ServiceId:          ms.ServiceId,
-			Username:           actualAgent.Username,
+			Username:           "username",
 			PushMetricsEnabled: true,
 			Status:             inventorypb.AgentStatus_UNKNOWN,
 		}
@@ -590,7 +590,7 @@ func TestAgents(t *testing.T) {
 			AgentId:            "/agent_id/00000000-0000-4000-8000-000000000007",
 			PmmAgentId:         pmmAgent.AgentId,
 			ServiceId:          ps.ServiceId,
-			Username:           actualAgent.Username,
+			Username:           "username",
 			PushMetricsEnabled: true,
 			Status:             inventorypb.AgentStatus_UNKNOWN,
 		}
@@ -647,7 +647,7 @@ func TestAgents(t *testing.T) {
 			AgentId:            "/agent_id/00000000-0000-4000-8000-000000000007",
 			PmmAgentId:         "/agent_id/00000000-0000-4000-8000-000000000005",
 			ServiceId:          s.ServiceId,
-			Username:           actualAgent.Username,
+			Username:           "username",
 			PushMetricsEnabled: true,
 			Status:             inventorypb.AgentStatus_UNKNOWN,
 		}
@@ -692,7 +692,7 @@ func TestAgents(t *testing.T) {
 			AgentId:            "/agent_id/00000000-0000-4000-8000-000000000006",
 			PmmAgentId:         "pmm-server",
 			NodeId:             "/node_id/00000000-0000-4000-8000-000000000005",
-			AwsAccessKey:       agent.AwsAccessKey,
+			AwsAccessKey:       "EXAMPLE_ACCESS_KEY",
 			CustomLabels:       map[string]string{"baz": "qux"},
 			PushMetricsEnabled: true,
 			Status:             inventorypb.AgentStatus_UNKNOWN,
@@ -724,7 +724,7 @@ func TestAgents(t *testing.T) {
 			AgentId:            "/agent_id/00000000-0000-4000-8000-000000000006",
 			RunsOnNodeId:       models.PMMServerNodeID,
 			ServiceId:          service.ServiceId,
-			Username:           agent.Username,
+			Username:           "username",
 			Scheme:             "http",
 			MetricsPath:        "/metrics",
 			ListenPort:         12345,
