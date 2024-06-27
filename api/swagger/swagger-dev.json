@@ -28495,21 +28495,20 @@
                   "x-order": 0
                 },
                 "latest": {
-                  "description": "VersionInfo describes component version, or PMM Server as a whole.",
                   "type": "object",
                   "properties": {
                     "version": {
-                      "description": "User-visible version.",
+                      "description": "PMM Version.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "full_version": {
-                      "description": "Full version for debugging.",
+                    "tag": {
+                      "description": "Docker image tag.",
                       "type": "string",
                       "x-order": 1
                     },
                     "timestamp": {
-                      "description": "Build or release date.",
+                      "description": "Release date.",
                       "type": "string",
                       "format": "date-time",
                       "x-order": 2

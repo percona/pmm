@@ -65,11 +65,20 @@ message CheckUpdatesRequest {
   bool only_installed_version = 2;
 }
 
+message DockerVersionInfo {
+  // PMM Version.
+  string version = 1;
+  // Docker image tag.
+  string tag = 2;
+  // Release date.
+  google.protobuf.Timestamp timestamp = 3;
+}
+
 message CheckUpdatesResponse {
   // Currently installed PMM Server version.
   VersionInfo installed = 1;
   // Latest available PMM Server version.
-  VersionInfo latest = 2;
+  DockerVersionInfo latest = 2;
   // True if there is a PMM Server update available.
   bool update_available = 3;
   // Latest available PMM Server release announcement URL.

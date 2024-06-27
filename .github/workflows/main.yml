@@ -111,7 +111,6 @@ jobs:
       - name: Run go-consistent
         env:
           COMMAND: 'bin/go-consistent -pedantic -exclude "tests" ./...'
-          REDIRECT: "| bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-on-error=true"
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           if out=$( ${{ env.COMMAND }} ); exit_code=$?; [ $exit_code -ne 0 ]; then
@@ -119,7 +118,7 @@ jobs:
               echo "$out"
               exit $exit_code
             else
-              echo "$out" ${{ env.REDIRECT }}
+              echo "$out" | bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-on-error=true
             fi
           else
             echo "$out"
@@ -131,10 +130,8 @@ jobs:
       - name: Run debug commands on failure
         if: ${{ failure() }}
         run: |
-          env
-          go version
-          go env
-          pwd
+          env | sort
+          go env | sort
           git status
 
   merge-gatekeeper:

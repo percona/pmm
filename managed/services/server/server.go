@@ -190,15 +190,14 @@ func (s *Server) Version(ctx context.Context, req *serverv1.VersionRequest) (*se
 		res.Managed.Timestamp = timestamppb.New(t)
 	}
 
-	if v := s.supervisord.InstalledPMMVersion(ctx); v != nil {
-		res.Version = v.Version
-		res.Server = &serverv1.VersionInfo{
-			Version:     v.Version,
-			FullVersion: v.FullVersion,
-		}
-		if v.BuildTime != nil {
-			res.Server.Timestamp = timestamppb.New(*v.BuildTime)
-		}
+	v := s.updater.InstalledPMMVersion()
+	res.Version = v.Version
+	res.Server = &serverpb.VersionInfo{
+		Version:     v.Version,
+		FullVersion: v.FullVersion,
+	}
+	if v.BuildTime != nil {
+		res.Server.Timestamp = timestamppb.New(*v.BuildTime)
 	}
 
 	return res, nil
@@ -262,7 +261,14 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 	s.envRW.RUnlock()
 
 	if req.OnlyInstalledVersion {
-		return s.updater.onlyInstalledVersionResponse(), nil
+		installedPMMVersion := s.updater.InstalledPMMVersion()
+		return &serverpb.CheckUpdatesResponse{
+			Installed: &serverpb.VersionInfo{
+				Version:     installedPMMVersion.Version,
+				FullVersion: installedPMMVersion.FullVersion,
+				Timestamp:   timestamppb.New(*installedPMMVersion.BuildTime),
+			},
+		}, nil
 	}
 
 	if req.Force {
@@ -280,12 +286,13 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 		Installed: &serverv1.VersionInfo{
 			Version:     v.Installed.Version,
 			FullVersion: v.Installed.FullVersion,
+			Timestamp:   timestamppb.New(*v.Installed.BuildTime),
 		},
-		Latest: &serverv1.VersionInfo{
-			Version:     v.Latest.Version,
-			FullVersion: v.Latest.FullVersion,
+		Latest: &serverv1.DockerVersionInfo{
+			Version: v.Latest.Version.String(),
+			Tag:     v.Latest.DockerImage,
 		},
-		UpdateAvailable: true,
+		UpdateAvailable: v.Latest.DockerImage != "",
 		LatestNewsUrl:   v.LatestNewsURL,
 	}
 
@@ -300,7 +307,7 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 		res.Installed.Timestamp = timestamppb.New(t)
 	}
 
-	if v.Latest.BuildTime != nil {
+	if v.Latest.DockerImage != "" {
 		t := v.Latest.BuildTime.UTC().Truncate(24 * time.Hour) // return only date
 		res.Latest.Timestamp = timestamppb.New(t)
 	}
@@ -318,7 +325,17 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateReque
 		return nil, status.Error(codes.FailedPrecondition, "Updates are disabled via PMM_ENABLE_UPDATES environment variable.")
 	}
 
-	err := s.updater.StartUpdate(ctx, req.GetNewImage())
+	newImage := req.GetNewImage()
+	if newImage == "" {
+		latest, err := s.updater.latest(ctx)
+		if err != nil {
+			s.l.WithError(err).Error("Failed to get latest version")
+			newImage = defaultLatestPMMImage
+		} else {
+			newImage = latest.DockerImage
+		}
+	}
+	err := s.updater.StartUpdate(ctx, newImage)
 	if err != nil {
 		return nil, err
 	}
@@ -351,13 +368,13 @@ func (s *Server) UpdateStatus(ctx context.Context, req *serverv1.UpdateStatusReq
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 	for ctx.Err() == nil {
-		done = !s.supervisord.UpdateRunning()
+		done = !s.updater.IsRunning()
 		if done {
 			// give supervisord a second to flush logs to file
 			time.Sleep(time.Second)
 		}
 
-		lines, newOffset, err = s.supervisord.UpdateLog(req.LogOffset)
+		lines, newOffset, err = s.updater.UpdateLog(req.GetLogOffset())
 		if err != nil {
 			s.l.Warn(err)
 		}
