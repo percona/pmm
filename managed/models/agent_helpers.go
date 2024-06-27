@@ -606,8 +606,6 @@ func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabe
 		return nil, errors.WithStack(err)
 	}
 
-	decryptAgent(agent)
-
 	return agent, nil
 }
 
@@ -642,7 +640,6 @@ func CreateNodeExporter(q *reform.Querier,
 		return nil, status.Errorf(codes.FailedPrecondition, "cannot use push_metrics_enabled with pmm_agent version=%q,"+
 			" it doesn't support it, minimum supported version=%q", pointer.GetString(pmmAgent.Version), PMMAgentWithPushMetricsSupport.String())
 	}
-
 	row := &Agent{
 		AgentID:            id,
 		AgentType:          NodeExporterType,
@@ -654,6 +651,8 @@ func CreateNodeExporter(q *reform.Querier,
 		LogLevel:           pointer.ToStringOrNil(logLevel),
 		ExposeExporter:     exposeExporter,
 	}
+	encryptAgent(row)
+
 	if err := row.SetCustomLabels(customLabels); err != nil {
 		return nil, err
 	}
@@ -727,7 +726,6 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 	if metricsPath == "" {
 		metricsPath = "/metrics"
 	}
-
 	row := &Agent{
 		PMMAgentID:    pmmAgentID,
 		AgentID:       id,
@@ -741,6 +739,8 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		ListenPort:    pointer.ToUint16(uint16(params.ListenPort)),
 		PushMetrics:   params.PushMetrics,
 	}
+	encryptAgent(row)
+
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}
@@ -904,8 +904,6 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		}
 	}
 
-	encryptCreateAgentParams(params)
-
 	row := &Agent{
 		AgentID:                        id,
 		AgentType:                      agentType,
@@ -935,6 +933,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		DisabledCollectors:             params.DisableCollectors,
 		LogLevel:                       pointer.ToStringOrNil(params.LogLevel),
 	}
+	encryptAgent(row)
 
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
@@ -948,73 +947,92 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	return row, nil
 }
 
-func encryptCreateAgentParams(params *CreateAgentParams) {
+func encryptAgent(agent *Agent) {
+	if agent.Username != nil {
+		username, err := encryption.Encrypt(*agent.Username)
+		if err != nil {
+			logrus.Warning(err)
+		}
+		agent.Username = &username
+	}
+
+	if agent.Password != nil {
+		password, err := encryption.Encrypt(*agent.Password)
+		if err != nil {
+			logrus.Warning(err)
+		}
+		agent.Password = &password
+	}
+
+	if agent.AgentPassword != nil {
+		agentPassword, err := encryption.Encrypt(*agent.AgentPassword)
+		if err != nil {
+			logrus.Warning(err)
+		}
+		agent.AgentPassword = &agentPassword
+	}
+
+	if agent.AWSAccessKey != nil {
+		awsAccessKey, err := encryption.Encrypt(*agent.AWSAccessKey)
+		if err != nil {
+			logrus.Warning(err)
+		}
+		agent.AWSAccessKey = &awsAccessKey
+	}
+
+	if agent.AWSSecretKey != nil {
+		awsSecretKey, err := encryption.Encrypt(*agent.AWSSecretKey)
+		if err != nil {
+			logrus.Warning(err)
+		}
+		agent.AWSSecretKey = &awsSecretKey
+	}
+
 	var err error
-	params.Username, err = encryption.Encrypt(params.Username)
-	if err != nil {
-		logrus.Warning(err)
-	}
-	params.Password, err = encryption.Encrypt(params.Password)
-	if err != nil {
-		logrus.Warning(err)
-	}
-	params.AgentPassword, err = encryption.Encrypt(params.AgentPassword)
-	if err != nil {
-		logrus.Warning(err)
-	}
-	params.AWSAccessKey, err = encryption.Encrypt(params.AWSAccessKey)
-	if err != nil {
-		logrus.Warning(err)
-	}
-	params.AWSSecretKey, err = encryption.Encrypt(params.AWSSecretKey)
-	if err != nil {
-		logrus.Warning(err)
+	if agent.MySQLOptions != nil {
+		agent.MySQLOptions.TLSKey, err = encryption.Encrypt(agent.MySQLOptions.TLSKey)
+		if err != nil {
+			logrus.Warning(err)
+		}
+
 	}
 
-	if params.MySQLOptions != nil {
-		params.MySQLOptions.TLSKey, err = encryption.Encrypt(params.MySQLOptions.TLSKey)
+	if agent.PostgreSQLOptions != nil {
+		agent.PostgreSQLOptions.SSLKey, err = encryption.Encrypt(agent.PostgreSQLOptions.SSLKey)
 		if err != nil {
 			logrus.Warning(err)
 		}
 	}
 
-	if params.PostgreSQLOptions != nil {
-		params.PostgreSQLOptions.SSLKey, err = encryption.Encrypt(params.PostgreSQLOptions.SSLKey)
+	if agent.MongoDBOptions != nil {
+		agent.MongoDBOptions.TLSCertificateKey, err = encryption.Encrypt(agent.MongoDBOptions.TLSCertificateKey)
+		if err != nil {
+			logrus.Warning(err)
+		}
+		agent.MongoDBOptions.TLSCertificateKeyFilePassword, err = encryption.Encrypt(agent.MongoDBOptions.TLSCertificateKeyFilePassword)
 		if err != nil {
 			logrus.Warning(err)
 		}
 	}
 
-	if params.MongoDBOptions != nil {
-		params.MongoDBOptions.TLSCertificateKey, err = encryption.Encrypt(params.MongoDBOptions.TLSCertificateKey)
+	if agent.AzureOptions != nil {
+		agent.AzureOptions.ClientID, err = encryption.Encrypt(agent.AzureOptions.ClientID)
 		if err != nil {
 			logrus.Warning(err)
 		}
-		params.MongoDBOptions.TLSCertificateKeyFilePassword, err = encryption.Encrypt(params.MongoDBOptions.TLSCertificateKeyFilePassword)
+		agent.AzureOptions.ClientSecret, err = encryption.Encrypt(agent.AzureOptions.ClientSecret)
 		if err != nil {
 			logrus.Warning(err)
 		}
-	}
-
-	if params.AzureOptions != nil {
-		params.AzureOptions.ClientID, err = encryption.Encrypt(params.AzureOptions.ClientID)
+		agent.AzureOptions.SubscriptionID, err = encryption.Encrypt(agent.AzureOptions.SubscriptionID)
 		if err != nil {
 			logrus.Warning(err)
 		}
-		params.AzureOptions.ClientSecret, err = encryption.Encrypt(params.AzureOptions.ClientSecret)
-		if err != nil {
-			logrus.Warning(err)
-		}
-		params.AzureOptions.SubscriptionID, err = encryption.Encrypt(params.AzureOptions.SubscriptionID)
-		if err != nil {
-			logrus.Warning(err)
-		}
-		params.AzureOptions.TenantID, err = encryption.Encrypt(params.AzureOptions.TenantID)
+		agent.AzureOptions.TenantID, err = encryption.Encrypt(agent.AzureOptions.TenantID)
 		if err != nil {
 			logrus.Warning(err)
 		}
 	}
-	fmt.Println(params)
 }
 
 func decryptAgent(agent *Agent) {

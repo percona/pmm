@@ -20,7 +20,6 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"os"
 	"slices"
 
@@ -30,10 +29,8 @@ import (
 // DefaultEncryptionKeyPath contains default PMM encryption key path.
 const DefaultEncryptionKeyPath = "/srv/pmm-encryption.key"
 
-var (
-	// ErrEncryptionNotInitialized is error in case of encryption is not initialized.
-	ErrEncryptionNotInitialized = errors.New("encryption is not initialized")
-)
+// ErrEncryptionNotInitialized is error in case of encryption is not initialized.
+var ErrEncryptionNotInitialized = errors.New("encryption is not initialized")
 
 var DefaultEncryption = New(DefaultEncryptionKeyPath)
 
@@ -73,13 +70,6 @@ func Encrypt(secret string) (string, error) {
 func (e *Encryption) Encrypt(secret string) (string, error) {
 	if e == nil || e.Primitive == nil {
 		return secret, ErrEncryptionNotInitialized
-	}
-
-	if secret != "" {
-		_, err := base64.StdEncoding.DecodeString(secret)
-		if err == nil {
-			return secret, nil
-		}
 	}
 
 	cipherText, err := e.Primitive.Encrypt([]byte(secret), []byte(""))
@@ -161,18 +151,15 @@ func (e *Encryption) Decrypt(cipherText string) (string, error) {
 	if e == nil || e.Primitive == nil {
 		return cipherText, ErrEncryptionNotInitialized
 	}
-
 	if cipherText == "" {
 		return cipherText, nil
 	}
-
 	decoded, err := base64.StdEncoding.DecodeString(cipherText)
 	if err != nil {
 		return cipherText, err
 	}
 	secret, err := e.Primitive.Decrypt(decoded, []byte(""))
 	if err != nil {
-		fmt.Printf("%s failed %v \n\n", string(cipherText), err)
 		return cipherText, err
 	}
 
