@@ -38,7 +38,8 @@ import (
 // RegisterNode performs the registration of a new node.
 func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) {
 	res := &managementv1.RegisterNodeResponse{}
-	e := s.db.InTransaction(func(tx *reform.TX) error {
+
+	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		node, err := models.FindNodeByName(tx.Querier, req.NodeName)
 		switch status.Code(err) { //nolint:exhaustive
 		case codes.OK:
@@ -135,23 +136,67 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 
 // Unregister do unregistration of the node.
 func (s *ManagementService) Unregister(ctx context.Context, req *managementv1.UnregisterNodeRequest) (*managementv1.UnregisterNodeResponse, error) {
+	idsToKick := make(map[string]struct{})
+	idsToSetState := make(map[string]struct{})
+
 	node, err := models.FindNodeByID(s.db.Querier, req.NodeId)
 	if err != nil {
 		return nil, err
 	}
 
-	err = s.db.InTransaction(func(tx *reform.TX) error {
-		return models.RemoveNode(tx.Querier, req.NodeId, models.RemoveCascade)
-	})
-	if err != nil {
-		return nil, err
+	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		mode := models.RemoveRestrict
+		if req.Force {
+			mode = models.RemoveCascade
+
+			agents, err := models.FindPMMAgentsRunningOnNode(tx.Querier, node.NodeID)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			for _, a := range agents {
+				idsToKick[a.AgentID] = struct{}{}
+			}
+
+			agents, err = models.FindAgents(tx.Querier, models.AgentFilters{NodeID: node.NodeID})
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			for _, a := range agents {
+				if a.PMMAgentID != nil {
+					idsToSetState[pointer.GetString(a.PMMAgentID)] = struct{}{}
+				}
+			}
+
+			agents, err = models.FindPMMAgentsForServicesOnNode(tx.Querier, node.NodeID)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			for _, a := range agents {
+				idsToSetState[a.AgentID] = struct{}{}
+			}
+		}
+		return models.RemoveNode(tx.Querier, node.NodeID, mode)
+	}); e != nil {
+		return nil, e
+	}
+
+	for id := range idsToSetState {
+		s.state.RequestStateUpdate(ctx, id)
+	}
+	for id := range idsToKick {
+		s.r.Kick(ctx, id)
+	}
+
+	if req.Force {
+		// It's required to regenerate victoriametrics config file for the agents which aren't run by pmm-agent.
+		s.vmdb.RequestConfigurationUpdate()
 	}
 
 	warning, err := s.grafanaClient.DeleteServiceAccount(ctx, node.NodeName, req.Force)
 	if err != nil {
 		// TODO: need to pass the logger to the service
 		// s.l.WithError(err).Error("deleting service account")
-		return &managementv1.UnregisterNodeResponse{
+		return &managementv1.UnregisterNodeResponse{ //nolint:nilerr
 			Warning: err.Error(),
 		}, nil
 	}

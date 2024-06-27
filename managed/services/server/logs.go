@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package supervisord
+package server
 
 import (
 	"archive/zip"
@@ -56,12 +56,12 @@ type fileContent struct {
 // Logs is responsible for interactions with logs.
 type Logs struct {
 	pmmVersion       string
-	pmmUpdateChecker *PMMUpdateChecker
+	pmmUpdateChecker *Updater
 	vmParams         victoriaMetricsParams
 }
 
 // NewLogs creates a new Logs service.
-func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker, vmParams victoriaMetricsParams) *Logs {
+func NewLogs(pmmVersion string, pmmUpdateChecker *Updater, vmParams victoriaMetricsParams) *Logs {
 	return &Logs{
 		pmmVersion:       pmmVersion,
 		pmmUpdateChecker: pmmUpdateChecker,
@@ -202,7 +202,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 	})
 
 	// update checker installed info
-	b, err = json.Marshal(l.pmmUpdateChecker.Installed(ctx))
+	b, err = json.Marshal(l.pmmUpdateChecker.InstalledPMMVersion())
 	files = append(files, fileContent{
 		Name: "installed.json",
 		Data: b,

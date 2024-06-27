@@ -823,7 +823,7 @@ func (m *Metrics) SelectQueryPlan(ctx context.Context, queryID string) (*qanv1.G
 	defer cancel()
 
 	var res qanv1.GetQueryPlanResponse
-	err := m.db.GetContext(queryCtx, &res, planByQueryID, []interface{}{queryID}) //nolint:asasalint
+	err := m.db.GetContext(queryCtx, &res, planByQueryID, queryID)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, fmt.Errorf("QueryxContext error:%v", err) //nolint:errorlint
 	}

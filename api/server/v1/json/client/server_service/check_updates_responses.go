@@ -597,17 +597,17 @@ func (o *CheckUpdatesOKBodyInstalled) UnmarshalBinary(b []byte) error {
 }
 
 /*
-CheckUpdatesOKBodyLatest VersionInfo describes component version, or PMM Server as a whole.
+CheckUpdatesOKBodyLatest check updates OK body latest
 swagger:model CheckUpdatesOKBodyLatest
 */
 type CheckUpdatesOKBodyLatest struct {
-	// User-visible version.
+	// PMM Version.
 	Version string `json:"version,omitempty"`
 
-	// Full version for debugging.
-	FullVersion string `json:"full_version,omitempty"`
+	// Docker image tag.
+	Tag string `json:"tag,omitempty"`
 
-	// Build or release date.
+	// Release date.
 	// Format: date-time
 	Timestamp strfmt.DateTime `json:"timestamp,omitempty"`
 }

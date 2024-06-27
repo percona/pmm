@@ -34,7 +34,7 @@ type mongodbQueryAdmincommandAction struct {
 	id      string
 	timeout time.Duration
 	dsn     string
-	files   *agentv1.TextFiles
+	files   *agentv1.TextFiles //nolint:unused
 	command string
 	arg     interface{}
 }

@@ -151,7 +151,6 @@ func TestNodeRegister(t *testing.T) {
 			})
 			assert.NotEmpty(t, nodeID)
 			assert.NotEmpty(t, pmmAgentID)
-			pmmapitests.UnregisterNodes(t, nodeID)
 
 			body := mservice.RegisterNodeBody{
 				NodeName:   nodeName + "_new",

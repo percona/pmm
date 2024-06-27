@@ -131,10 +131,8 @@ jobs:
       - name: Run debug commands on failure
         if: ${{ failure() }}
         run: |
-          env
-          go version
-          go env
-          pwd
+          env | sort
+          go env | sort
           git status
 
   merge-gatekeeper:

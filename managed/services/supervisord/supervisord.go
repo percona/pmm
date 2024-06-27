@@ -21,7 +21,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io"
 	"io/fs"
 	"net/url"
 	"os"
@@ -38,13 +37,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/utils/pdeathsig"
-	"github.com/percona/pmm/version"
 )
 
 const (
@@ -63,18 +59,15 @@ const (
 
 // Service is responsible for interactions with Supervisord via supervisorctl.
 type Service struct {
-	configDir          string
-	supervisorctlPath  string
-	gRPCMessageMaxSize uint32
-	l                  *logrus.Entry
-	pmmUpdateCheck     *PMMUpdateChecker
+	configDir         string
+	supervisorctlPath string
+	l                 *logrus.Entry
 
 	eventsM    sync.Mutex
 	subs       map[chan *event]sub
 	lastEvents map[string]eventType
 
-	pmmUpdatePerformLogM sync.Mutex
-	supervisordConfigsM  sync.Mutex
+	supervisordConfigsM sync.Mutex
 
 	vmParams *models.VictoriaMetricsParams
 	pgParams *models.PGParams
@@ -88,52 +81,26 @@ type sub struct {
 
 // values from supervisord configuration.
 const (
-	pmmUpdatePerformProgram = "pmm-update-perform"
-	pmmUpdatePerformLog     = "/srv/logs/pmm-update-perform.log"
-	pmmConfig               = "/etc/supervisord.d/pmm.ini"
+	pmmConfig = "/etc/supervisord.d/pmm.ini"
 )
 
 // New creates new service.
-func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, params *models.Params, gRPCMessageMaxSize uint32) *Service {
+func New(configDir string, params *models.Params) *Service {
 	path, _ := exec.LookPath("supervisorctl")
 	return &Service{
-		configDir:          configDir,
-		supervisorctlPath:  path,
-		gRPCMessageMaxSize: gRPCMessageMaxSize,
-		l:                  logrus.WithField("component", "supervisord"),
-		pmmUpdateCheck:     pmmUpdateCheck,
-		subs:               make(map[chan *event]sub),
-		lastEvents:         make(map[string]eventType),
-		vmParams:           params.VMParams,
-		pgParams:           params.PGParams,
-		haParams:           params.HAParams,
+		configDir:         configDir,
+		supervisorctlPath: path,
+		l:                 logrus.WithField("component", "supervisord"),
+		subs:              make(map[chan *event]sub),
+		lastEvents:        make(map[string]eventType),
+		vmParams:          params.VMParams,
+		pgParams:          params.PGParams,
+		haParams:          params.HAParams,
 	}
 }
 
 // Run reads supervisord's log (maintail) and sends events to subscribers.
 func (s *Service) Run(ctx context.Context) {
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
-		// pre-set installed packages info to cache it.
-		s.pmmUpdateCheck.Installed(ctx)
-
-		// Do not check for updates for the first 10 minutes.
-		// That solves PMM Server building problems when we start pmm-managed.
-		// TODO https://jira.percona.com/browse/PMM-4429
-		sleepCtx, sleepCancel := context.WithTimeout(ctx, 10*time.Minute)
-		<-sleepCtx.Done()
-		sleepCancel()
-		if ctx.Err() != nil {
-			return
-		}
-
-		s.pmmUpdateCheck.run(ctx)
-	}()
-	defer wg.Wait()
-
 	if s.supervisorctlPath == "" {
 		s.l.Errorf("supervisorctl not found, updates are disabled.")
 		return
@@ -210,21 +177,6 @@ func (s *Service) Run(ctx context.Context) {
 	}
 }
 
-// InstalledPMMVersion returns currently installed PMM version information.
-func (s *Service) InstalledPMMVersion(ctx context.Context) *version.PackageInfo {
-	return s.pmmUpdateCheck.Installed(ctx)
-}
-
-// LastCheckUpdatesResult returns last PMM update check result and last check time.
-func (s *Service) LastCheckUpdatesResult(ctx context.Context) (*version.UpdateCheckResult, time.Time) {
-	return s.pmmUpdateCheck.checkResult(ctx)
-}
-
-// ForceCheckUpdates forces check for PMM updates. Result can be obtained via LastCheckUpdatesResult.
-func (s *Service) ForceCheckUpdates(ctx context.Context) error {
-	return s.pmmUpdateCheck.check(ctx)
-}
-
 func (s *Service) subscribe(program string, eventTypes ...eventType) chan *event {
 	ch := make(chan *event, 1)
 	s.eventsM.Lock()
@@ -249,66 +201,6 @@ func (s *Service) supervisorctl(args ...string) ([]byte, error) {
 	return b, errors.Wrapf(err, "%s failed", cmdLine)
 }
 
-// StartUpdate starts pmm-update-perform supervisord program with some preparations.
-// It returns initial log file offset.
-func (s *Service) StartUpdate() (uint32, error) {
-	if s.UpdateRunning() {
-		return 0, status.Errorf(codes.FailedPrecondition, "Update is already running.")
-	}
-
-	// We need to remove and reopen log file for UpdateStatus API to be able to read it without it being rotated.
-	// Additionally, SIGUSR2 is expected by our Ansible playbook.
-
-	s.pmmUpdatePerformLogM.Lock()
-	defer s.pmmUpdatePerformLogM.Unlock()
-
-	// remove existing log file
-	err := os.Remove(pmmUpdatePerformLog)
-	if err != nil && errors.Is(err, fs.ErrNotExist) {
-		err = nil
-	}
-	if err != nil {
-		s.l.Warn(err)
-	}
-
-	// send SIGUSR2 to supervisord and wait for it to reopen log file
-	ch := s.subscribe("supervisord", logReopen)
-	b, err := s.supervisorctl("pid")
-	if err != nil {
-		return 0, err
-	}
-	pid, err := strconv.Atoi(strings.TrimSpace(string(b)))
-	if err != nil {
-		return 0, errors.WithStack(err)
-	}
-	p, err := os.FindProcess(pid)
-	if err != nil {
-		return 0, errors.WithStack(err)
-	}
-	if err = p.Signal(unix.SIGUSR2); err != nil {
-		s.l.Warnf("Failed to send SIGUSR2: %s", err)
-	}
-	s.l.Debug("Waiting for log reopen...")
-	<-ch
-
-	var offset uint32
-	fi, err := os.Stat(pmmUpdatePerformLog)
-	switch {
-	case err == nil:
-		if fi.Size() != 0 {
-			s.l.Warnf("Unexpected log file size: %+v", fi)
-		}
-		offset = uint32(fi.Size())
-	case errors.Is(err, fs.ErrNotExist):
-		// that's expected as we remove this file above
-	default:
-		s.l.Warn(err)
-	}
-
-	_, err = s.supervisorctl("start", pmmUpdatePerformProgram)
-	return offset, err
-}
-
 // parseStatus parses `supervisorctl status <name>` output, returns true if <name> is running,
 // false if definitely not, and nil if status can't be determined.
 func parseStatus(status string) *bool {
@@ -325,11 +217,6 @@ func parseStatus(status string) *bool {
 		}
 	}
 	return nil
-}
-
-// UpdateRunning returns true if pmm-update-perform is not done yet.
-func (s *Service) UpdateRunning() bool {
-	return s.programRunning(pmmUpdatePerformProgram)
 }
 
 // UpdateRunning returns true if given supervisord program is running or being restarted,
@@ -367,42 +254,6 @@ func (s *Service) programRunning(program string) bool {
 	}
 }
 
-// UpdateLog returns some lines and a new offset from pmm-update-perform log starting from the given offset.
-// It may return zero lines and the same offset. Caller is expected to handle this.
-func (s *Service) UpdateLog(offset uint32) ([]string, uint32, error) {
-	s.pmmUpdatePerformLogM.Lock()
-	defer s.pmmUpdatePerformLogM.Unlock()
-
-	f, err := os.Open(pmmUpdatePerformLog)
-	if err != nil {
-		return nil, 0, errors.WithStack(err)
-	}
-	defer f.Close() //nolint:errcheck,gosec,nolintlint
-
-	if _, err = f.Seek(int64(offset), io.SeekStart); err != nil {
-		return nil, 0, errors.WithStack(err)
-	}
-
-	lines := make([]string, 0, 10)
-	reader := bufio.NewReader(f)
-	newOffset := offset
-	for {
-		line, err := reader.ReadString('\n')
-		if err == nil {
-			newOffset += uint32(len(line))
-			if newOffset-offset > s.gRPCMessageMaxSize {
-				return lines, newOffset - uint32(len(line)), nil
-			}
-			lines = append(lines, strings.TrimSuffix(line, "\n"))
-			continue
-		}
-		if err == io.EOF {
-			err = nil
-		}
-		return lines, newOffset, errors.WithStack(err)
-	}
-}
-
 // reload asks supervisord to reload configuration.
 func (s *Service) reload(name string) error {
 	if _, err := s.supervisorctl("reread"); err != nil {
@@ -425,8 +276,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	clickhouseDatabase := getValueFromENV("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
 	clickhouseAddr := getValueFromENV("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
 	clickhouseDataSourceAddr := getValueFromENV("PMM_CLICKHOUSE_DATASOURCE_ADDR", defaultClickhouseDataSourceAddr)
-	clickhousePoolSize := getValueFromENV("PMM_CLICKHOUSE_POOL_SIZE", "")
-	clickhouseBlockSize := getValueFromENV("PMM_CLICKHOUSE_BLOCK_SIZE", "")
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2)
 	vmSearchDisableCache := getValueFromENV("VM_search_disableCache", strconv.FormatBool(!settings.IsVictoriaMetricsCacheEnabled()))
 	vmSearchMaxQueryLen := getValueFromENV("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
@@ -457,8 +306,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhouseAddr":               clickhouseAddr,
 		"ClickhouseDataSourceAddr":     clickhouseDataSourceAddr,
 		"ClickhouseDatabase":           clickhouseDatabase,
-		"ClickhousePoolSize":           clickhousePoolSize,
-		"ClickhouseBlockSize":          clickhouseBlockSize,
 		"ClickhouseHost":               clickhouseAddrPair[0],
 		"ClickhousePort":               clickhouseAddrPair[1],
 	}
@@ -727,8 +574,8 @@ command =
 environment =
 	PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
 	PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
-{{ if .ClickhousePoolSize }}	PMM_CLICKHOUSE_POOL_SIZE={{ .ClickhousePoolSize }},{{- end}}
-{{ if .ClickhouseBlockSize }}	PMM_CLICKHOUSE_BLOCK_SIZE={{ .ClickhouseBlockSize }}{{- end}}
+
+
 user = pmm
 autorestart = true
 autostart = true
