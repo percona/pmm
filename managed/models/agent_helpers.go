@@ -231,7 +231,7 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	agents := make([]*Agent, len(structs))
 	for i, s := range structs {
 		agent := s.(*Agent) //nolint:forcetypeassert
-		fmt.Println(decryptAgent(agent))
+		decryptAgent(agent)
 		agents[i] = agent
 	}
 
@@ -904,10 +904,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		}
 	}
 
-	err = encryptCreateAgentParams(params)
-	if err != nil {
-		return nil, err
-	}
+	encryptCreateAgentParams(params)
 
 	row := &Agent{
 		AgentID:                        id,
@@ -951,89 +948,88 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	return row, nil
 }
 
-func encryptCreateAgentParams(params *CreateAgentParams) error {
+func encryptCreateAgentParams(params *CreateAgentParams) {
 	var err error
-	// params.Username, err = encryption.Encrypt(params.Username)
-	// if err != nil {
-	// 	return err
-	// }
+	params.Username, err = encryption.Encrypt(params.Username)
+	if err != nil {
+		logrus.Warning(err)
+	}
 	params.Password, err = encryption.Encrypt(params.Password)
 	if err != nil {
-		return err
+		logrus.Warning(err)
 	}
 	params.AgentPassword, err = encryption.Encrypt(params.AgentPassword)
 	if err != nil {
-		return err
+		logrus.Warning(err)
 	}
 	params.AWSAccessKey, err = encryption.Encrypt(params.AWSAccessKey)
 	if err != nil {
-		return err
+		logrus.Warning(err)
 	}
 	params.AWSSecretKey, err = encryption.Encrypt(params.AWSSecretKey)
 	if err != nil {
-		return err
+		logrus.Warning(err)
 	}
 
 	if params.MySQLOptions != nil {
 		params.MySQLOptions.TLSKey, err = encryption.Encrypt(params.MySQLOptions.TLSKey)
 		if err != nil {
-			return err
+			logrus.Warning(err)
 		}
 	}
 
 	if params.PostgreSQLOptions != nil {
 		params.PostgreSQLOptions.SSLKey, err = encryption.Encrypt(params.PostgreSQLOptions.SSLKey)
 		if err != nil {
-			return err
+			logrus.Warning(err)
 		}
 	}
 
 	if params.MongoDBOptions != nil {
 		params.MongoDBOptions.TLSCertificateKey, err = encryption.Encrypt(params.MongoDBOptions.TLSCertificateKey)
 		if err != nil {
-			return err
+			logrus.Warning(err)
 		}
 		params.MongoDBOptions.TLSCertificateKeyFilePassword, err = encryption.Encrypt(params.MongoDBOptions.TLSCertificateKeyFilePassword)
 		if err != nil {
-			return err
+			logrus.Warning(err)
 		}
 	}
 
 	if params.AzureOptions != nil {
 		params.AzureOptions.ClientID, err = encryption.Encrypt(params.AzureOptions.ClientID)
 		if err != nil {
-			return err
+			logrus.Warning(err)
 		}
 		params.AzureOptions.ClientSecret, err = encryption.Encrypt(params.AzureOptions.ClientSecret)
 		if err != nil {
-			return err
+			logrus.Warning(err)
 		}
 		params.AzureOptions.SubscriptionID, err = encryption.Encrypt(params.AzureOptions.SubscriptionID)
 		if err != nil {
-			return err
+			logrus.Warning(err)
 		}
 		params.AzureOptions.TenantID, err = encryption.Encrypt(params.AzureOptions.TenantID)
 		if err != nil {
-			return err
+			logrus.Warning(err)
 		}
 	}
 	fmt.Println(params)
-	return nil
 }
 
-func decryptAgent(agent *Agent) error {
-	// if agent.Username != nil {
-	// 	username, err := encryption.Decrypt(*agent.Username)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	agent.Username = &username
-	// }
+func decryptAgent(agent *Agent) {
+	if agent.Username != nil {
+		username, err := encryption.Decrypt(*agent.Username)
+		if err != nil {
+			logrus.Warning(err)
+		}
+		agent.Username = &username
+	}
 
 	if agent.Password != nil {
 		password, err := encryption.Decrypt(*agent.Password)
 		if err != nil {
-			return err
+			logrus.Warning(err)
 		}
 		agent.Password = &password
 	}
@@ -1041,7 +1037,7 @@ func decryptAgent(agent *Agent) error {
 	if agent.AgentPassword != nil {
 		agentPassword, err := encryption.Decrypt(*agent.AgentPassword)
 		if err != nil {
-			return err
+			logrus.Warning(err)
 		}
 		agent.AgentPassword = &agentPassword
 	}
@@ -1049,7 +1045,7 @@ func decryptAgent(agent *Agent) error {
 	if agent.AWSAccessKey != nil {
 		awsAccessKey, err := encryption.Decrypt(*agent.AWSAccessKey)
 		if err != nil {
-			return err
+			logrus.Warning(err)
 		}
 		agent.AWSAccessKey = &awsAccessKey
 	}
@@ -1057,7 +1053,7 @@ func decryptAgent(agent *Agent) error {
 	if agent.AWSSecretKey != nil {
 		awsSecretKey, err := encryption.Decrypt(*agent.AWSSecretKey)
 		if err != nil {
-			return err
+			logrus.Warning(err)
 		}
 		agent.AWSSecretKey = &awsSecretKey
 	}
@@ -1066,7 +1062,7 @@ func decryptAgent(agent *Agent) error {
 	if agent.MySQLOptions != nil {
 		agent.MySQLOptions.TLSKey, err = encryption.Decrypt(agent.MySQLOptions.TLSKey)
 		if err != nil {
-			return err
+			logrus.Warning(err)
 		}
 
 	}
@@ -1074,41 +1070,39 @@ func decryptAgent(agent *Agent) error {
 	if agent.PostgreSQLOptions != nil {
 		agent.PostgreSQLOptions.SSLKey, err = encryption.Decrypt(agent.PostgreSQLOptions.SSLKey)
 		if err != nil {
-			return err
+			logrus.Warning(err)
 		}
 	}
 
 	if agent.MongoDBOptions != nil {
 		agent.MongoDBOptions.TLSCertificateKey, err = encryption.Decrypt(agent.MongoDBOptions.TLSCertificateKey)
 		if err != nil {
-			return err
+			logrus.Warning(err)
 		}
 		agent.MongoDBOptions.TLSCertificateKeyFilePassword, err = encryption.Decrypt(agent.MongoDBOptions.TLSCertificateKeyFilePassword)
 		if err != nil {
-			return err
+			logrus.Warning(err)
 		}
 	}
 
 	if agent.AzureOptions != nil {
 		agent.AzureOptions.ClientID, err = encryption.Decrypt(agent.AzureOptions.ClientID)
 		if err != nil {
-			return err
+			logrus.Warning(err)
 		}
 		agent.AzureOptions.ClientSecret, err = encryption.Decrypt(agent.AzureOptions.ClientSecret)
 		if err != nil {
-			return err
+			logrus.Warning(err)
 		}
 		agent.AzureOptions.SubscriptionID, err = encryption.Decrypt(agent.AzureOptions.SubscriptionID)
 		if err != nil {
-			return err
+			logrus.Warning(err)
 		}
 		agent.AzureOptions.TenantID, err = encryption.Decrypt(agent.AzureOptions.TenantID)
 		if err != nil {
-			return err
+			logrus.Warning(err)
 		}
 	}
-
-	return nil
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
