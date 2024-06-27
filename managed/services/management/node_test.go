@@ -27,6 +27,8 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -86,23 +88,23 @@ func TestNodeService(t *testing.T) {
 	t.Run("New", func(t *testing.T) {
 		nodeName := getTestNodeName()
 
-		res, err := s.Register(ctx, &managementpb.RegisterNodeRequest{
-			NodeType: inventorypb.NodeType_GENERIC_NODE,
+		res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+			NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 			NodeName: nodeName,
 			Address:  "some.address.org",
 			Region:   "region",
 		})
-		expected := &managementpb.RegisterNodeResponse{
-			GenericNode: &inventorypb.GenericNode{
-				NodeId:   "/node_id/00000000-0000-4000-8000-000000000005",
+		expected := &managementv1.RegisterNodeResponse{
+			GenericNode: &inventoryv1.GenericNode{
+				NodeId:   "00000000-0000-4000-8000-000000000005",
 				NodeName: nodeName,
 				Address:  "some.address.org",
 				Region:   "region",
 			},
-			ContainerNode: (*inventorypb.ContainerNode)(nil),
-			PmmAgent: &inventorypb.PMMAgent{
-				AgentId:      "/agent_id/00000000-0000-4000-8000-000000000006",
-				RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000005",
+			ContainerNode: (*inventoryv1.ContainerNode)(nil),
+			PmmAgent: &inventoryv1.PMMAgent{
+				AgentId:      "00000000-0000-4000-8000-000000000006",
+				RunsOnNodeId: "00000000-0000-4000-8000-000000000005",
 			},
 			Token: "test-token",
 		}
@@ -111,8 +113,8 @@ func TestNodeService(t *testing.T) {
 	})
 
 	t.Run("Exist", func(t *testing.T) {
-		res, err := s.Register(ctx, &managementpb.RegisterNodeRequest{
-			NodeType: inventorypb.NodeType_GENERIC_NODE,
+		res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+			NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 			NodeName: getTestNodeName(),
 		})
 		assert.Nil(t, res)
@@ -127,10 +129,10 @@ func TestNodeService(t *testing.T) {
 		authProvider := &mockGrafanaClient{}
 		authProvider.Test(t)
 		authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
-		s.ap = authProvider
+		s.grafanaClient = authProvider
 
-		_, err := s.Register(ctx, &managementpb.RegisterNodeRequest{
-			NodeType:   inventorypb.NodeType_GENERIC_NODE,
+		_, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+			NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 			NodeName:   nodeName,
 			Address:    "some.address.org",
 			Region:     "region",
@@ -148,26 +150,26 @@ func TestNodeService(t *testing.T) {
 		authProvider := &mockGrafanaClient{}
 		authProvider.Test(t)
 		authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
-		s.ap = authProvider
+		s.grafanaClient = authProvider
 
-		res, err := s.Register(ctx, &managementpb.RegisterNodeRequest{
-			NodeType:   inventorypb.NodeType_GENERIC_NODE,
+		res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+			NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 			NodeName:   nodeName,
 			Address:    "some.address.org",
 			Region:     "region",
 			Reregister: true,
 		})
-		expected := &managementpb.RegisterNodeResponse{
-			GenericNode: &inventorypb.GenericNode{
-				NodeId:   "/node_id/00000000-0000-4000-8000-000000000008",
+		expected := &managementv1.RegisterNodeResponse{
+			GenericNode: &inventoryv1.GenericNode{
+				NodeId:   "00000000-0000-4000-8000-000000000008",
 				NodeName: nodeName,
 				Address:  "some.address.org",
 				Region:   "region",
 			},
-			ContainerNode: (*inventorypb.ContainerNode)(nil),
-			PmmAgent: &inventorypb.PMMAgent{
-				AgentId:      "/agent_id/00000000-0000-4000-8000-000000000009",
-				RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000008",
+			ContainerNode: (*inventoryv1.ContainerNode)(nil),
+			PmmAgent: &inventoryv1.PMMAgent{
+				AgentId:      "00000000-0000-4000-8000-000000000009",
+				RunsOnNodeId: "00000000-0000-4000-8000-000000000008",
 			},
 			Token: "test-token",
 		}
@@ -185,23 +187,23 @@ func TestNodeService(t *testing.T) {
 		authProvider.Test(t)
 		authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
 		authProvider.On("DeleteServiceAccount", ctx, nodeName, force).Return("", nil)
-		s.ap = authProvider
+		s.grafanaClient = authProvider
 
 		state := &mockAgentsStateUpdater{}
 		state.Test(t)
-		state.On("RequestStateUpdate", ctx, "/agent_id/00000000-0000-4000-8000-00000000000c")
+		state.On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-00000000000c")
 		s.state = state
 		r := &mockAgentsRegistry{}
 		r.Test(t)
-		r.On("Kick", ctx, "/agent_id/00000000-0000-4000-8000-00000000000c").Return(true)
+		r.On("Kick", ctx, "00000000-0000-4000-8000-00000000000c").Return(true)
 		s.r = r
 		vmdb := &mockPrometheusService{}
 		vmdb.Test(t)
 		vmdb.On("RequestConfigurationUpdate").Return()
 		s.vmdb = vmdb
 
-		resRegister, err := s.Register(ctx, &managementpb.RegisterNodeRequest{
-			NodeType:   inventorypb.NodeType_GENERIC_NODE,
+		resRegister, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+			NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 			NodeName:   nodeName,
 			Address:    "some.address.org",
 			Region:     "region",
@@ -209,7 +211,7 @@ func TestNodeService(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
-		res, err := s.Unregister(ctx, &managementpb.UnregisterNodeRequest{
+		res, err := s.Unregister(ctx, &managementv1.UnregisterNodeRequest{
 			NodeId: resRegister.GenericNode.NodeId,
 			Force:  true,
 		})
