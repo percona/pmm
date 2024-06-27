@@ -20,6 +20,7 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"os"
 	"slices"
 
@@ -156,7 +157,7 @@ func (e *Encryption) Decrypt(cipherText string) (string, error) {
 	}
 	decoded, err := base64.StdEncoding.DecodeString(cipherText)
 	if err != nil {
-		return cipherText, err
+		return cipherText, fmt.Errorf("value %s is probably not encrypted, error: %v", cipherText, err)
 	}
 	secret, err := e.Primitive.Decrypt(decoded, []byte(""))
 	if err != nil {

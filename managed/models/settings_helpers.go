@@ -105,6 +105,9 @@ type ChangeSettingsParams struct {
 
 	// DefaultRoleID sets a default role to be assigned to new users.
 	DefaultRoleID int
+
+	// List of tables in format db.table to be encrypted.
+	EncryptedItems []string
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -260,6 +263,10 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 	if params.DefaultRoleID != 0 {
 		settings.DefaultRoleID = params.DefaultRoleID
+	}
+
+	if len(params.EncryptedItems) != 0 {
+		settings.EncryptedItems = params.EncryptedItems
 	}
 
 	err = SaveSettings(q, settings)
