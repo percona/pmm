@@ -36,8 +36,6 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
-
-	"github.com/percona/pmm/managed/utils/encryption"
 )
 
 const (
@@ -1065,38 +1063,38 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, err
 	}
 
-	host, p, err := net.SplitHostPort(params.Address)
-	if err != nil {
-		return nil, err
-	}
+	// host, p, err := net.SplitHostPort(params.Address)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	port, err := strconv.ParseInt(p, 10, 16)
-	if err != nil {
-		return nil, err
-	}
+	// port, err := strconv.ParseInt(p, 10, 16)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	c := &encryption.DatabaseConnection{
-		Host:        host,
-		Port:        int16(port),
-		User:        params.Username,
-		Password:    params.Password,
-		SSLMode:     params.SSLMode,
-		SSLCAPath:   params.SSLCAPath,
-		SSLKeyPath:  params.SSLKeyPath,
-		SSLCertPath: params.SSLCertPath,
-		EncryptedItems: []encryption.EncryptedItem{
-			{
-				Database:       "pmm-managed",
-				Table:          "agents",
-				Identificators: []string{"agent_id"},
-				Columns:        []string{"username", "password"},
-			},
-		},
-	}
+	// c := &encryption.DatabaseConnection{
+	// 	Host:        host,
+	// 	Port:        int16(port),
+	// 	User:        params.Username,
+	// 	Password:    params.Password,
+	// 	SSLMode:     params.SSLMode,
+	// 	SSLCAPath:   params.SSLCAPath,
+	// 	SSLKeyPath:  params.SSLKeyPath,
+	// 	SSLCertPath: params.SSLCertPath,
+	// 	EncryptedItems: []encryption.EncryptedItem{
+	// 		{
+	// 			Database:       "pmm-managed",
+	// 			Table:          "agents",
+	// 			Identificators: []string{"agent_id"},
+	// 			Columns:        []string{"username", "password"},
+	// 		},
+	// 	},
+	// }
 
-	if err := encryption.EncryptDB(ctx, c); err != nil {
-		return nil, err
-	}
+	// if err := encryption.EncryptDB(ctx, c); err != nil {
+	// 	return nil, err
+	// }
 
 	return db, nil
 }
