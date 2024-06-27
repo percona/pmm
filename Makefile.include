@@ -88,15 +88,14 @@ gen-api:            ## Generate PMM API
 		api/swagger/header.json \
 		api/server/v1/json/v1.json \
 		api/user/v1/json/v1.json \
-    api/inventory/v1/json/v1.json \
+		api/inventory/v1/json/v1.json \
 		api/management/v1/json/v1.json \
 		api/actions/v1/json/v1.json \
 		api/alerting/v1/json/v1.json \
 		api/advisors/v1/json/v1.json \
 		api/backup/v1/json/v1.json \
-    api/dump/v1/json/v1.json \
-    api/role/v1/json/v1.json \
-    api/qan/v1/json/v1.json
+		api/qan/v1/json/v1.json \
+		api/platform/v1/json/v1.json
 	bin/swagger validate api/swagger/swagger.json
 
 	bin/swagger-order --output=api/swagger/swagger.json api/swagger/swagger.json

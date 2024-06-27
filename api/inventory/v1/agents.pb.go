@@ -10828,19 +10828,19 @@ func file_inventory_v1_agents_proto_init() {
 		(*ChangeAgentResponse_QanPostgresqlPgstatementsAgent)(nil),
 		(*ChangeAgentResponse_QanPostgresqlPgstatmonitorAgent)(nil),
 	}
-	file_inventory_v1_agents_proto_msgTypes[28].OneofWrappers = []interface{}{}
-	file_inventory_v1_agents_proto_msgTypes[30].OneofWrappers = []interface{}{}
-	file_inventory_v1_agents_proto_msgTypes[32].OneofWrappers = []interface{}{}
-	file_inventory_v1_agents_proto_msgTypes[34].OneofWrappers = []interface{}{}
-	file_inventory_v1_agents_proto_msgTypes[36].OneofWrappers = []interface{}{}
-	file_inventory_v1_agents_proto_msgTypes[38].OneofWrappers = []interface{}{}
-	file_inventory_v1_agents_proto_msgTypes[40].OneofWrappers = []interface{}{}
-	file_inventory_v1_agents_proto_msgTypes[42].OneofWrappers = []interface{}{}
-	file_inventory_v1_agents_proto_msgTypes[44].OneofWrappers = []interface{}{}
-	file_inventory_v1_agents_proto_msgTypes[46].OneofWrappers = []interface{}{}
-	file_inventory_v1_agents_proto_msgTypes[48].OneofWrappers = []interface{}{}
-	file_inventory_v1_agents_proto_msgTypes[50].OneofWrappers = []interface{}{}
-	file_inventory_v1_agents_proto_msgTypes[52].OneofWrappers = []interface{}{}
+	file_inventory_v1_agents_proto_msgTypes[28].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[30].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[32].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[34].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[36].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[38].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[40].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[42].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[44].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[46].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[48].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[50].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[52].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
