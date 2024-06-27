@@ -70,7 +70,7 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 		default:
 			// %+v for inner stacktraces produced by errors.WithStack(err)
 			l.Errorf("%s done in %s with unexpected error: %+v", prefix, dur, err)
-			err = status.Error(codes.Internal, err.Error())
+			err = status.Error(codes.Internal, "Internal server error.")
 		}
 	}()
 
