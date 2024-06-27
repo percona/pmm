@@ -192,7 +192,7 @@ func (s *ManagementService) Unregister(ctx context.Context, req *managementv1.Un
 	if err != nil {
 		// TODO: need to pass the logger to the service
 		// s.l.WithError(err).Error("deleting service account")
-		return &managementv1.UnregisterNodeResponse{
+		return &managementv1.UnregisterNodeResponse{ //nolint:nilerr
 			Warning: err.Error(),
 		}, nil
 	}

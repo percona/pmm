@@ -150,7 +150,7 @@ func (s *Server) UpdateSettingsFromEnv(env []string) []error {
 }
 
 // Version returns PMM Server version.
-func (s *Server) Version(ctx context.Context, req *serverv1.VersionRequest) (*serverv1.VersionResponse, error) {
+func (s *Server) Version(_ context.Context, req *serverv1.VersionRequest) (*serverv1.VersionResponse, error) {
 	// for API testing of authentication, panic handling, etc.
 	if req.Dummy != "" {
 		switch {
@@ -297,7 +297,7 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 }
 
 // StartUpdate starts PMM Server update.
-func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateRequest) (*serverv1.StartUpdateResponse, error) { //nolint:revive
+func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateRequest) (*serverv1.StartUpdateResponse, error) {
 	s.envRW.RLock()
 	updatesEnabled := s.envSettings.EnableUpdates
 	s.envRW.RUnlock()
