@@ -192,7 +192,7 @@ func (s *Server) Version(ctx context.Context, req *serverv1.VersionRequest) (*se
 
 	v := s.updater.InstalledPMMVersion()
 	res.Version = v.Version
-	res.Server = &serverpb.VersionInfo{
+	res.Server = &serverv1.VersionInfo{
 		Version:     v.Version,
 		FullVersion: v.FullVersion,
 	}
@@ -235,25 +235,6 @@ func (s *Server) LeaderHealthCheck(ctx context.Context, req *serverv1.LeaderHeal
 	return nil, status.Error(codes.FailedPrecondition, "this PMM Server isn't the leader")
 }
 
-func (s *Server) onlyInstalledVersionResponse(ctx context.Context) *serverv1.CheckUpdatesResponse {
-	v := s.supervisord.InstalledPMMVersion(ctx)
-	r := &serverv1.CheckUpdatesResponse{
-		Installed: &serverv1.VersionInfo{
-			Version:     v.Version,
-			FullVersion: v.FullVersion,
-		},
-	}
-
-	if v.BuildTime != nil {
-		t := v.BuildTime.UTC().Truncate(24 * time.Hour) // return only date
-		r.Installed.Timestamp = timestamppb.New(t)
-	}
-
-	r.LastCheck = timestamppb.New(time.Now())
-
-	return r
-}
-
 // CheckUpdates checks PMM Server updates availability.
 func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesRequest) (*serverv1.CheckUpdatesResponse, error) {
 	s.envRW.RLock()
@@ -262,8 +243,8 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 
 	if req.OnlyInstalledVersion {
 		installedPMMVersion := s.updater.InstalledPMMVersion()
-		return &serverpb.CheckUpdatesResponse{
-			Installed: &serverpb.VersionInfo{
+		return &serverv1.CheckUpdatesResponse{
+			Installed: &serverv1.VersionInfo{
 				Version:     installedPMMVersion.Version,
 				FullVersion: installedPMMVersion.FullVersion,
 				Timestamp:   timestamppb.New(*installedPMMVersion.BuildTime),

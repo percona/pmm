@@ -34,7 +34,8 @@ import (
 // RegisterNode performs the registration of a new node.
 func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) {
 	res := &managementv1.RegisterNodeResponse{}
-	e := s.db.InTransaction(func(tx *reform.TX) error {
+
+	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		node, err := models.FindNodeByName(tx.Querier, req.NodeName)
 		switch status.Code(err) { //nolint:exhaustive
 		case codes.OK:
