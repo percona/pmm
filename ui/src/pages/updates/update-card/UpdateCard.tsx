@@ -9,24 +9,25 @@ import {
   Skeleton,
   Alert,
 } from '@mui/material';
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { formatTimestamp } from 'utils/formatTimestamp';
 import { PMM_HOME_URL } from 'constants';
 import { Messages } from './UpdateCard.messages';
-import { formatVersion } from './UpdateCard.utils';
 import { FetchingIcon } from 'components/fetching-icon';
-import { UpdateInfo } from '../update-info';
-import { KeyboardDoubleArrowUp } from '@mui/icons-material';
-import { UpdateInProgressCard } from '../update-in-progress-card';
 import { useCheckUpdates, useStartUpdate } from 'hooks/api/useUpdates';
+import { formatVersion } from './UpdateCard.utils';
 import { enqueueSnackbar } from 'notistack';
+import { UpdateInProgressCard } from '../update-in-progress-card';
+import { KeyboardDoubleArrowUp } from '@mui/icons-material';
+import { UpdateInfo } from '../update-info';
 
 export const UpdateCard: FC = () => {
   const { isLoading, data, error, isRefetching, refetch } = useCheckUpdates();
   const { mutate: startUpdate, isPending: updateInProgress } = useStartUpdate();
-  const isUpToDate =
-    (data?.installed.fullVersion || data?.installed.version) ===
-    (data?.latest?.fullVersion || data?.latest?.version);
+  const isUpToDate = useMemo(
+    () => data?.installed.version === data?.latest?.version,
+    [data]
+  );
 
   const handleStartUpdate = async () => {
     startUpdate(

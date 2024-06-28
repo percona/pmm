@@ -1,19 +1,18 @@
-import { getCurrentVersion, startUpdate } from 'api/version';
+import { checkForUpdates, startUpdate, StartUpdateBody } from 'api/updates';
 import {
-  UseMutationOptions,
   useMutation,
+  UseMutationOptions,
   useQuery,
 } from '@tanstack/react-query';
-import { StartUpdateBody } from 'types/version.types';
 
 export const useCheckUpdates = () =>
   useQuery({
     queryKey: ['checkUpdates'],
     queryFn: async () => {
       try {
-        return await getCurrentVersion();
+        return await checkForUpdates();
       } catch (error) {
-        return await getCurrentVersion({
+        return await checkForUpdates({
           force: false,
           onlyInstalledVersion: true,
         });

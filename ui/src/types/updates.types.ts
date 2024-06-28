@@ -4,7 +4,6 @@ export interface GetUpdatesBody {
 }
 
 export interface VersionInfo {
-  fullVersion?: string;
   timestamp?: string;
   version?: string;
   tag?: string;
