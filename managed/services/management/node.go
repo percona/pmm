@@ -135,7 +135,7 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 }
 
 // Unregister do unregistration of the node.
-func (s *ManagementService) Unregister(ctx context.Context, req *managementv1.UnregisterNodeRequest) (*managementv1.UnregisterNodeResponse, error) {
+func (s *ManagementService) UnregisterNode(ctx context.Context, req *managementv1.UnregisterNodeRequest) (*managementv1.UnregisterNodeResponse, error) {
 	idsToKick := make(map[string]struct{})
 	idsToSetState := make(map[string]struct{})
 

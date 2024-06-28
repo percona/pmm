@@ -221,7 +221,7 @@ func TestNodeService(t *testing.T) {
 			})
 			assert.NoError(t, err)
 
-			res, err := s.Unregister(ctx, &managementv1.UnregisterNodeRequest{
+			res, err := s.UnregisterNode(ctx, &managementv1.UnregisterNodeRequest{
 				NodeId: resRegister.GenericNode.NodeId,
 				Force:  true,
 			})
