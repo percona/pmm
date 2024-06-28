@@ -1316,7 +1316,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 func TestMetricsResolutionsChange(t *testing.T) {
 	t.Parallel()
 
-	genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+	genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Generic node")).NodeID
 	require.NotEmpty(t, genericNodeID)
 	defer pmmapitests.RemoveNodes(t, genericNodeID)
 
@@ -1342,7 +1342,7 @@ func TestMetricsResolutionsChange(t *testing.T) {
 	res, err := client.Default.AgentsService.AddAgent(
 		&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
-				QANPostgresqlPgstatmonitorAgent: &agents.AddAgentParamsBodyQANPostgresqlPgstatmonitorAgent{
+				PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
 					ServiceID:  serviceID,
 					Username:   "username",
 					Password:   "password",
@@ -1357,7 +1357,7 @@ func TestMetricsResolutionsChange(t *testing.T) {
 		})
 	require.NoError(t, err)
 	agentID := res.Payload.PostgresExporter.AgentID
-	defer pmmapitests.RemoveAgentsWithForce(t, agentID)
+	defer pmmapitests.RemoveAgents(t, agentID)
 
 	getAgentRes, err := client.Default.AgentsService.GetAgent(
 		&agents.GetAgentParams{
@@ -1365,20 +1365,18 @@ func TestMetricsResolutionsChange(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 	require.NoError(t, err)
-	assert.Equal(t, &agents.GetAgentOK{
-		Payload: &agents.GetAgentOKBody{
-			PostgresExporter: &agents.GetAgentOKBodyPostgresExporter{
-				AgentID:    agentID,
-				ServiceID:  serviceID,
-				Username:   "username",
-				PMMAgentID: pmmAgentID,
-				CustomLabels: map[string]string{
-					"custom_label_postgres_exporter": "postgres_exporter",
-				},
-				Status: &AgentStatusUnknown,
-			},
+	assert.Equal(t, &agents.GetAgentOKBodyPostgresExporter{
+		AgentID:    agentID,
+		ServiceID:  serviceID,
+		Username:   "username",
+		PMMAgentID: pmmAgentID,
+		CustomLabels: map[string]string{
+			"custom_label_postgres_exporter": "postgres_exporter",
 		},
-	}, getAgentRes)
+		Status:             &AgentStatusUnknown,
+		LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+		DisabledCollectors: []string{},
+	}, getAgentRes.Payload.PostgresExporter)
 
 	// Change metrics resolutions
 	changePostgresExporterOK, err := client.Default.AgentsService.ChangeAgent(
@@ -1396,25 +1394,23 @@ func TestMetricsResolutionsChange(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 	require.NoError(t, err)
-	assert.Equal(t, &agents.ChangeAgentOK{
-		Payload: &agents.ChangeAgentOKBody{
-			PostgresExporter: &agents.ChangeAgentOKBodyPostgresExporter{
-				AgentID:    agentID,
-				ServiceID:  serviceID,
-				Username:   "username",
-				PMMAgentID: pmmAgentID,
-				CustomLabels: map[string]string{
-					"custom_label_postgres_exporter": "postgres_exporter",
-				},
-				Status: &AgentStatusUnknown,
-				MetricsResolutions: &agents.ChangeAgentOKBodyPostgresExporterMetricsResolutions{
-					Hr: "600s",
-					Mr: "300s",
-					Lr: "100s",
-				},
-			},
+	assert.Equal(t, &agents.ChangeAgentOKBodyPostgresExporter{
+		AgentID:    agentID,
+		ServiceID:  serviceID,
+		Username:   "username",
+		PMMAgentID: pmmAgentID,
+		CustomLabels: map[string]string{
+			"custom_label_postgres_exporter": "postgres_exporter",
 		},
-	}, changePostgresExporterOK)
+		Status:             &AgentStatusUnknown,
+		LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+		DisabledCollectors: []string{},
+		MetricsResolutions: &agents.ChangeAgentOKBodyPostgresExporterMetricsResolutions{
+			Hr: "600s",
+			Mr: "300s",
+			Lr: "100s",
+		},
+	}, changePostgresExporterOK.Payload.PostgresExporter)
 
 	// Reset part of metrics resolutions
 	changePostgresExporterOK, err = client.Default.AgentsService.ChangeAgent(
@@ -1432,24 +1428,22 @@ func TestMetricsResolutionsChange(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 	require.NoError(t, err)
-	assert.Equal(t, &agents.ChangeAgentOK{
-		Payload: &agents.ChangeAgentOKBody{
-			PostgresExporter: &agents.ChangeAgentOKBodyPostgresExporter{
-				AgentID:    agentID,
-				ServiceID:  serviceID,
-				Username:   "username",
-				PMMAgentID: pmmAgentID,
-				CustomLabels: map[string]string{
-					"custom_label_postgres_exporter": "postgres_exporter",
-				},
-				Status: &AgentStatusUnknown,
-				MetricsResolutions: &agents.ChangeAgentOKBodyPostgresExporterMetricsResolutions{
-					Hr: "600s",
-					Mr: "300s",
-				},
-			},
+	assert.Equal(t, &agents.ChangeAgentOKBodyPostgresExporter{
+		AgentID:    agentID,
+		ServiceID:  serviceID,
+		Username:   "username",
+		PMMAgentID: pmmAgentID,
+		CustomLabels: map[string]string{
+			"custom_label_postgres_exporter": "postgres_exporter",
 		},
-	}, changePostgresExporterOK)
+		Status:             &AgentStatusUnknown,
+		LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+		DisabledCollectors: []string{},
+		MetricsResolutions: &agents.ChangeAgentOKBodyPostgresExporterMetricsResolutions{
+			Hr: "600s",
+			Mr: "300s",
+		},
+	}, changePostgresExporterOK.Payload.PostgresExporter)
 
 	// Change part of metrics resolutions
 	changePostgresExporterOK, err = client.Default.AgentsService.ChangeAgent(
@@ -1465,22 +1459,20 @@ func TestMetricsResolutionsChange(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 	require.NoError(t, err)
-	assert.Equal(t, &agents.ChangeAgentOK{
-		Payload: &agents.ChangeAgentOKBody{
-			PostgresExporter: &agents.ChangeAgentOKBodyPostgresExporter{
-				AgentID:    agentID,
-				ServiceID:  serviceID,
-				Username:   "username",
-				PMMAgentID: pmmAgentID,
-				CustomLabels: map[string]string{
-					"custom_label_postgres_exporter": "postgres_exporter",
-				},
-				Status: &AgentStatusUnknown,
-				MetricsResolutions: &agents.ChangeAgentOKBodyPostgresExporterMetricsResolutions{
-					Hr: "500s",
-					Mr: "300s",
-				},
-			},
+	assert.Equal(t, &agents.ChangeAgentOKBodyPostgresExporter{
+		AgentID:    agentID,
+		ServiceID:  serviceID,
+		Username:   "username",
+		PMMAgentID: pmmAgentID,
+		CustomLabels: map[string]string{
+			"custom_label_postgres_exporter": "postgres_exporter",
 		},
-	}, changePostgresExporterOK)
+		Status:             &AgentStatusUnknown,
+		LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+		DisabledCollectors: []string{},
+		MetricsResolutions: &agents.ChangeAgentOKBodyPostgresExporterMetricsResolutions{
+			Hr: "500s",
+			Mr: "300s",
+		},
+	}, changePostgresExporterOK.Payload.PostgresExporter)
 }
