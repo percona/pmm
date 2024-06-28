@@ -9,22 +9,20 @@ import {
   Skeleton,
   Alert,
 } from '@mui/material';
-import { FC } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { FC, useMemo } from 'react';
 import { formatTimestamp } from 'utils/formatTimestamp';
 import { PMM_HOME_URL } from 'constants';
 import { Messages } from './UpdateCard.messages';
-import { getVersion } from './UpdateCard.utils';
 import { FetchingIcon } from 'components/fetching-icon';
+import { useCheckUpdates } from 'hooks/api/useUpdates';
+import { formatVersion } from './UpdateCard.utils';
 
 export const UpdateCard: FC = () => {
-  const { isLoading, data, error, isRefetching, refetch } = useQuery({
-    queryKey: ['currentVersion'],
-    queryFn: () => getVersion(),
-  });
-  const isUpToDate =
-    (data?.installed.fullVersion || data?.installed.version) ===
-    (data?.latest?.fullVersion || data?.latest?.version);
+  const { isLoading, data, error, isRefetching, refetch } = useCheckUpdates();
+  const isUpToDate = useMemo(
+    () => data?.installed.version === data?.latest?.version,
+    [data]
+  );
 
   if (isLoading)
     return (
@@ -65,10 +63,8 @@ export const UpdateCard: FC = () => {
           <Typography variant="body1">
             <Typography fontWeight="bold" component="strong">
               {Messages.runningVersion}
-            </Typography>{' '}
-            {data?.installed?.version}
-            {data?.installed.timestamp &&
-              ', ' + formatTimestamp(data.installed.timestamp)}
+            </Typography>
+            {data?.installed && formatVersion(data.installed)}
           </Typography>
           {data.lastCheck && (
             <Typography variant="body1">

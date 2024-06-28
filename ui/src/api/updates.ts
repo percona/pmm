@@ -5,10 +5,10 @@ import {
   GetUpdatesBody,
   GetUpdatesResponse,
   StartUpdateResponse,
-} from 'types/version.types';
+} from 'types/updates.types';
 import { api } from './api';
 
-export const getCurrentVersion = async (
+export const checkForUpdates = async (
   body: GetUpdatesBody = { force: false }
 ) => {
   const res = await api.post<GetUpdatesBody, AxiosResponse<GetUpdatesResponse>>(
