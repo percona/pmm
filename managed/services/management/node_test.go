@@ -41,191 +41,193 @@ import (
 )
 
 func TestNodeService(t *testing.T) {
-	getTestNodeName := func() string {
-		return "test-node"
-	}
-	setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T)) {
-		t.Helper()
-
-		ctx := logger.Set(context.Background(), t.Name())
-		uuid.SetRand(&tests.IDReader{})
-
-		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-
-		serviceAccountID := int(0)
-		nodeName := getTestNodeName()
-		reregister := false
-
-		r := &mockAgentsRegistry{}
-		r.Test(t)
-
-		vmdb := &mockPrometheusService{}
-		vmdb.Test(t)
-
-		state := &mockAgentsStateUpdater{}
-		state.Test(t)
-
-		authProvider := &mockGrafanaClient{}
-		authProvider.Test(t)
-		authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
-
-		vmClient := &mockVictoriaMetricsClient{}
-		vmClient.Test(t)
-
-		teardown := func(t *testing.T) {
+	t.Run("NodeRegistration", func(t *testing.T) {
+		getTestNodeName := func() string {
+			return "test-node"
+		}
+		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T)) {
 			t.Helper()
-			uuid.SetRand(nil)
 
-			require.NoError(t, sqlDB.Close())
+			ctx := logger.Set(context.Background(), t.Name())
+			uuid.SetRand(&tests.IDReader{})
 
-			r.AssertExpectations(t)
-			vmdb.AssertExpectations(t)
-			state.AssertExpectations(t)
-			authProvider.AssertExpectations(t)
-			vmClient.AssertExpectations(t)
+			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+			db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+			serviceAccountID := int(0)
+			nodeName := getTestNodeName()
+			reregister := false
+
+			r := &mockAgentsRegistry{}
+			r.Test(t)
+
+			vmdb := &mockPrometheusService{}
+			vmdb.Test(t)
+
+			state := &mockAgentsStateUpdater{}
+			state.Test(t)
+
+			authProvider := &mockGrafanaClient{}
+			authProvider.Test(t)
+			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+
+			vmClient := &mockVictoriaMetricsClient{}
+			vmClient.Test(t)
+
+			teardown := func(t *testing.T) {
+				t.Helper()
+				uuid.SetRand(nil)
+
+				require.NoError(t, sqlDB.Close())
+
+				r.AssertExpectations(t)
+				vmdb.AssertExpectations(t)
+				state.AssertExpectations(t)
+				authProvider.AssertExpectations(t)
+				vmClient.AssertExpectations(t)
+			}
+
+			s := NewManagementService(db, r, state, nil, nil, vmdb, nil, authProvider, vmClient)
+
+			return ctx, s, teardown
 		}
 
-		s := NewManagementService(db, r, state, nil, nil, vmdb, nil, authProvider, vmClient)
+		ctx, s, teardown := setup(t)
+		defer teardown(t)
 
-		return ctx, s, teardown
-	}
+		t.Run("New", func(t *testing.T) {
+			nodeName := getTestNodeName()
 
-	ctx, s, teardown := setup(t)
-	defer teardown(t)
-
-	t.Run("New", func(t *testing.T) {
-		nodeName := getTestNodeName()
-
-		res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
-			NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
-			NodeName: nodeName,
-			Address:  "some.address.org",
-			Region:   "region",
-		})
-		expected := &managementv1.RegisterNodeResponse{
-			GenericNode: &inventoryv1.GenericNode{
-				NodeId:   "00000000-0000-4000-8000-000000000005",
+			res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 				NodeName: nodeName,
 				Address:  "some.address.org",
 				Region:   "region",
-			},
-			ContainerNode: (*inventoryv1.ContainerNode)(nil),
-			PmmAgent: &inventoryv1.PMMAgent{
-				AgentId:      "00000000-0000-4000-8000-000000000006",
-				RunsOnNodeId: "00000000-0000-4000-8000-000000000005",
-			},
-			Token: "test-token",
-		}
-		assert.Equal(t, expected, res)
-		assert.NoError(t, err)
-	})
-
-	t.Run("Exist", func(t *testing.T) {
-		res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
-			NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
-			NodeName: getTestNodeName(),
-		})
-		assert.Nil(t, res)
-		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test-node" already exists.`), err)
-	})
-
-	t.Run("Reregister", func(t *testing.T) {
-		serviceAccountID := int(0)
-		nodeName := "test-node-new"
-		reregister := false
-
-		authProvider := &mockGrafanaClient{}
-		authProvider.Test(t)
-		authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
-		s.grafanaClient = authProvider
-
-		_, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
-			NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
-			NodeName:   nodeName,
-			Address:    "some.address.org",
-			Region:     "region",
-			Reregister: false,
+			})
+			expected := &managementv1.RegisterNodeResponse{
+				GenericNode: &inventoryv1.GenericNode{
+					NodeId:   "00000000-0000-4000-8000-000000000005",
+					NodeName: nodeName,
+					Address:  "some.address.org",
+					Region:   "region",
+				},
+				ContainerNode: (*inventoryv1.ContainerNode)(nil),
+				PmmAgent: &inventoryv1.PMMAgent{
+					AgentId:      "00000000-0000-4000-8000-000000000006",
+					RunsOnNodeId: "00000000-0000-4000-8000-000000000005",
+				},
+				Token: "test-token",
+			}
+			assert.Equal(t, expected, res)
+			assert.NoError(t, err)
 		})
 
-		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with instance "some.address.org" and region "region" already exists.`), err)
-	})
-
-	t.Run("Reregister-force", func(t *testing.T) {
-		serviceAccountID := int(0)
-		nodeName := "test-node-new"
-		reregister := true
-
-		authProvider := &mockGrafanaClient{}
-		authProvider.Test(t)
-		authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
-		s.grafanaClient = authProvider
-
-		res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
-			NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
-			NodeName:   nodeName,
-			Address:    "some.address.org",
-			Region:     "region",
-			Reregister: true,
+		t.Run("Exist", func(t *testing.T) {
+			res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+				NodeName: getTestNodeName(),
+			})
+			assert.Nil(t, res)
+			tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test-node" already exists.`), err)
 		})
-		expected := &managementv1.RegisterNodeResponse{
-			GenericNode: &inventoryv1.GenericNode{
-				NodeId:   "00000000-0000-4000-8000-000000000008",
-				NodeName: nodeName,
-				Address:  "some.address.org",
-				Region:   "region",
-			},
-			ContainerNode: (*inventoryv1.ContainerNode)(nil),
-			PmmAgent: &inventoryv1.PMMAgent{
-				AgentId:      "00000000-0000-4000-8000-000000000009",
-				RunsOnNodeId: "00000000-0000-4000-8000-000000000008",
-			},
-			Token: "test-token",
-		}
-		assert.Equal(t, expected, res)
-		assert.NoError(t, err)
-	})
 
-	t.Run("Register/Unregister", func(t *testing.T) {
-		serviceAccountID := int(0)
-		nodeName := getTestNodeName()
-		reregister := true
-		force := true
+		t.Run("Reregister", func(t *testing.T) {
+			serviceAccountID := int(0)
+			nodeName := "test-node-new"
+			reregister := false
 
-		authProvider := &mockGrafanaClient{}
-		authProvider.Test(t)
-		authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
-		authProvider.On("DeleteServiceAccount", ctx, nodeName, force).Return("", nil)
-		s.grafanaClient = authProvider
+			authProvider := &mockGrafanaClient{}
+			authProvider.Test(t)
+			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+			s.grafanaClient = authProvider
 
-		state := &mockAgentsStateUpdater{}
-		state.Test(t)
-		state.On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-00000000000c")
-		s.state = state
-		r := &mockAgentsRegistry{}
-		r.Test(t)
-		r.On("Kick", ctx, "00000000-0000-4000-8000-00000000000c").Return(true)
-		s.r = r
-		vmdb := &mockPrometheusService{}
-		vmdb.Test(t)
-		vmdb.On("RequestConfigurationUpdate").Return()
-		s.vmdb = vmdb
+			_, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+				NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+				NodeName:   nodeName,
+				Address:    "some.address.org",
+				Region:     "region",
+				Reregister: false,
+			})
 
-		resRegister, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
-			NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
-			NodeName:   nodeName,
-			Address:    "some.address.org",
-			Region:     "region",
-			Reregister: true,
+			tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with instance "some.address.org" and region "region" already exists.`), err)
 		})
-		assert.NoError(t, err)
 
-		res, err := s.Unregister(ctx, &managementv1.UnregisterNodeRequest{
-			NodeId: resRegister.GenericNode.NodeId,
-			Force:  true,
+		t.Run("Reregister-force", func(t *testing.T) {
+			serviceAccountID := int(0)
+			nodeName := "test-node-new"
+			reregister := true
+
+			authProvider := &mockGrafanaClient{}
+			authProvider.Test(t)
+			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+			s.grafanaClient = authProvider
+
+			res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+				NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+				NodeName:   nodeName,
+				Address:    "some.address.org",
+				Region:     "region",
+				Reregister: true,
+			})
+			expected := &managementv1.RegisterNodeResponse{
+				GenericNode: &inventoryv1.GenericNode{
+					NodeId:   "00000000-0000-4000-8000-000000000008",
+					NodeName: nodeName,
+					Address:  "some.address.org",
+					Region:   "region",
+				},
+				ContainerNode: (*inventoryv1.ContainerNode)(nil),
+				PmmAgent: &inventoryv1.PMMAgent{
+					AgentId:      "00000000-0000-4000-8000-000000000009",
+					RunsOnNodeId: "00000000-0000-4000-8000-000000000008",
+				},
+				Token: "test-token",
+			}
+			assert.Equal(t, expected, res)
+			assert.NoError(t, err)
 		})
-		assert.NoError(t, err)
-		assert.Equal(t, "", res.Warning)
+
+		t.Run("Register/Unregister", func(t *testing.T) {
+			serviceAccountID := int(0)
+			nodeName := getTestNodeName()
+			reregister := true
+			force := true
+
+			authProvider := &mockGrafanaClient{}
+			authProvider.Test(t)
+			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+			authProvider.On("DeleteServiceAccount", ctx, nodeName, force).Return("", nil)
+			s.grafanaClient = authProvider
+
+			state := &mockAgentsStateUpdater{}
+			state.Test(t)
+			state.On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-00000000000c")
+			s.state = state
+			r := &mockAgentsRegistry{}
+			r.Test(t)
+			r.On("Kick", ctx, "00000000-0000-4000-8000-00000000000c").Return(true)
+			s.r = r
+			vmdb := &mockPrometheusService{}
+			vmdb.Test(t)
+			vmdb.On("RequestConfigurationUpdate").Return()
+			s.vmdb = vmdb
+
+			resRegister, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+				NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+				NodeName:   nodeName,
+				Address:    "some.address.org",
+				Region:     "region",
+				Reregister: true,
+			})
+			assert.NoError(t, err)
+
+			res, err := s.Unregister(ctx, &managementv1.UnregisterNodeRequest{
+				NodeId: resRegister.GenericNode.NodeId,
+				Force:  true,
+			})
+			assert.NoError(t, err)
+			assert.Equal(t, "", res.Warning)
+		})
 	})
 
 	t.Run("ListNodes", func(t *testing.T) {
