@@ -1,5 +1,12 @@
-import { checkForUpdates } from 'api/updates';
-import { useQuery } from '@tanstack/react-query';
+import { checkForUpdates, startUpdate } from 'api/updates';
+import {
+  useMutation,
+  UseMutationOptions,
+  useQuery,
+} from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import { StartUpdateBody } from 'types/updates.types';
+import { ApiErrorResponse } from 'types/api.types';
 
 export const useCheckUpdates = () =>
   useQuery({
@@ -14,4 +21,24 @@ export const useCheckUpdates = () =>
         });
       }
     },
+  });
+
+export const useStartUpdate = (
+  options?: UseMutationOptions<unknown, unknown, StartUpdateBody>
+) =>
+  useMutation({
+    mutationFn: async (args) => {
+      try {
+        return await startUpdate(args);
+      } catch (error) {
+        const { response } = error as AxiosError<ApiErrorResponse>;
+
+        if (response?.status === 499 || response?.data?.code === 14) {
+          return;
+        }
+
+        throw error;
+      }
+    },
+    ...options,
   });
