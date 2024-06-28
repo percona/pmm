@@ -24,7 +24,7 @@ services:
       - PMM_WATCHTOWER_HOST=http://watchtower:8080
       - PMM_WATCHTOWER_TOKEN=123
       # Uncomment to specify to which docker image to update
-      # - PMM_DEV_UPDATE_DOCKER_IMAGE=${PMM_SERVER_IMAGE:-perconalab/pmm-server:3-dev-container}
+      # - PMM_DEV_UPDATE_DOCKER_IMAGE=${PMM_UPDATE_IMAGE:-perconalab/pmm-server:3-dev-container}
 
   mysql:
     image: percona:5.7.30
