@@ -478,7 +478,7 @@ func TestAddMongoDB(t *testing.T) {
 			},
 		}
 		addMongoDBOK, err := client.Default.ManagementService.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBRequest.ServiceName: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBServiceParams.ServiceName: value length must be at least 1 runes")
 		assert.Nil(t, addMongoDBOK)
 	})
 
@@ -555,7 +555,7 @@ func TestAddMongoDB(t *testing.T) {
 			},
 		}
 		addMongoDBOK, err := client.Default.ManagementService.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBRequest.PmmAgentId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBServiceParams.PmmAgentId: value length must be at least 1 runes")
 		assert.Nil(t, addMongoDBOK)
 	})
 

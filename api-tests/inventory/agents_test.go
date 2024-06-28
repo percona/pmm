@@ -423,14 +423,14 @@ func TestPMMAgent(t *testing.T) {
 				AgentID: pmmAgentID,
 				Context: pmmapitests.Context,
 			})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID %q not found.", pmmAgentID)
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID %s not found.", pmmAgentID)
 		assert.Nil(t, getAgentRes)
 
 		listAgentsOK, err = client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			PMMAgentID: pointer.ToString(pmmAgentID),
 			Context:    pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID %q not found.", pmmAgentID)
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID %s not found.", pmmAgentID)
 		assert.Nil(t, listAgentsOK)
 	})
 
@@ -444,7 +444,7 @@ func TestPMMAgent(t *testing.T) {
 		}
 		res, err := client.Default.AgentsService.RemoveAgent(params)
 		assert.Nil(t, res)
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, `Agent with ID %q not found.`, agentID)
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, `Agent with ID %s not found.`, agentID)
 	})
 
 	t.Run("Remove with empty params", func(t *testing.T) {
@@ -722,7 +722,7 @@ func TestQanAgentExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID \"pmm-not-exist-server\" not found.")
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID pmm-not-exist-server not found.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANMysqlPerfschemaAgent.AgentID)
 		}
@@ -981,7 +981,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID \"pmm-not-exist-server\" not found.")
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID pmm-not-exist-server not found.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANPostgresqlPgstatementsAgent.AgentID)
 		}
@@ -1306,7 +1306,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID \"pmm-not-exist-server\" not found.")
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID pmm-not-exist-server not found.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANPostgresqlPgstatmonitorAgent.AgentID)
 		}
@@ -1357,7 +1357,7 @@ func TestMetricsResolutionsChange(t *testing.T) {
 		})
 	require.NoError(t, err)
 	agentID := res.Payload.PostgresExporter.AgentID
-	defer pmmapitests.RemoveAgents(t, agentID)
+	defer pmmapitests.RemoveAgentsWithForce(t, agentID)
 
 	getAgentRes, err := client.Default.AgentsService.GetAgent(
 		&agents.GetAgentParams{

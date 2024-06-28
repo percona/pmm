@@ -472,7 +472,7 @@ func TestAddProxySQL(t *testing.T) {
 			},
 		}
 		addProxySQLOK, err := client.Default.ManagementService.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLRequest.ServiceName: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLServiceParams.ServiceName: value length must be at least 1 runes")
 		assert.Nil(t, addProxySQLOK)
 	})
 
@@ -581,7 +581,7 @@ func TestAddProxySQL(t *testing.T) {
 			},
 		}
 		addProxySQLOK, err := client.Default.ManagementService.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLRequest.PmmAgentId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLServiceParams.PmmAgentId: value length must be at least 1 runes")
 		assert.Nil(t, addProxySQLOK)
 	})
 
@@ -608,7 +608,7 @@ func TestAddProxySQL(t *testing.T) {
 			},
 		}
 		addProxySQLOK, err := client.Default.ManagementService.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLRequest.Username: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLServiceParams.Username: value length must be at least 1 runes")
 		assert.Nil(t, addProxySQLOK)
 	})
 }

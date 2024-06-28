@@ -303,7 +303,7 @@ func TestAddHAProxy(t *testing.T) {
 			},
 		}
 		addHAProxyOK, err := client.Default.ManagementService.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddHAProxyRequest.ServiceName: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddHAProxyServiceParams.ServiceName: value length must be at least 1 runes")
 		assert.Nil(t, addHAProxyOK)
 	})
 
@@ -324,7 +324,7 @@ func TestAddHAProxy(t *testing.T) {
 			},
 		}
 		addHAProxyOK, err := client.Default.ManagementService.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddHAProxyRequest.ListenPort: value must be inside range (0, 65536)")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddHAProxyServiceParams.ListenPort: value must be inside range (0, 65536)")
 		assert.Nil(t, addHAProxyOK)
 	})
 

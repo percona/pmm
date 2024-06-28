@@ -203,6 +203,22 @@ func RemoveAgents(t TestingT, agentIDs ...string) {
 	}
 }
 
+// RemoveAgentsWithForce removes specified agents along with dependents.
+func RemoveAgentsWithForce(t TestingT, agentIDs ...string) {
+	t.Helper()
+
+	for _, agentID := range agentIDs {
+		params := &agents.RemoveAgentParams{
+			AgentID: agentID,
+			Force:   pointer.ToBool(true),
+			Context: context.Background(),
+		}
+		res, err := client.Default.AgentsService.RemoveAgent(params)
+		require.NoError(t, err)
+		assert.NotNil(t, res)
+	}
+}
+
 // AddGenericNode adds a generic node.
 func AddGenericNode(t TestingT, nodeName string) *nodes.AddNodeOKBodyGeneric {
 	t.Helper()

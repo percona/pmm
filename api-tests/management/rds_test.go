@@ -110,7 +110,7 @@ func TestAddRds(t *testing.T) {
 			AgentID: agentID,
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, agentID))
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf(`Agent with ID %s not found.`, agentID))
 
 		_, err = inventoryClient.Default.NodesService.GetNode(&nodes.GetNodeParams{
 			NodeID:  nodeID,
@@ -168,7 +168,7 @@ func TestAddRds(t *testing.T) {
 			AgentID: body.RDS.RDSExporter.AgentID,
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, body.RDS.RDSExporter.AgentID))
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf(`Agent with ID %s not found.`, body.RDS.RDSExporter.AgentID))
 
 		_, err = inventoryClient.Default.NodesService.GetNode(&nodes.GetNodeParams{
 			NodeID:  body.RDS.Postgresql.NodeID,

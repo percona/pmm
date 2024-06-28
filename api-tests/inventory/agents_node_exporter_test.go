@@ -156,7 +156,7 @@ func TestNodeExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID \"pmm-node-exporter-node\" not found.")
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID pmm-node-exporter-node not found.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.NodeExporter.AgentID)
 		}

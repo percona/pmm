@@ -311,7 +311,7 @@ func TestAddExternal(t *testing.T) {
 			},
 		}
 		addExternalOK, err := client.Default.ManagementService.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalRequest.ServiceName: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalServiceParams.ServiceName: value length must be at least 1 runes")
 		assert.Nil(t, addExternalOK)
 	})
 
@@ -335,7 +335,7 @@ func TestAddExternal(t *testing.T) {
 			},
 		}
 		addExternalOK, err := client.Default.ManagementService.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalRequest.ListenPort: value must be inside range (0, 65536)")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalServiceParams.ListenPort: value must be inside range (0, 65536)")
 		assert.Nil(t, addExternalOK)
 	})
 

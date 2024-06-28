@@ -507,7 +507,7 @@ func TestAddMySQL(t *testing.T) {
 			},
 		}
 		addMySQLOK, err := client.Default.ManagementService.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLRequest.ServiceName: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLServiceParams.ServiceName: value length must be at least 1 runes")
 		assert.Nil(t, addMySQLOK)
 	})
 
@@ -618,7 +618,7 @@ func TestAddMySQL(t *testing.T) {
 			},
 		}
 		addMySQLOK, err := client.Default.ManagementService.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLRequest.PmmAgentId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLServiceParams.PmmAgentId: value length must be at least 1 runes")
 		assert.Nil(t, addMySQLOK)
 	})
 
@@ -645,7 +645,7 @@ func TestAddMySQL(t *testing.T) {
 			},
 		}
 		addMySQLOK, err := client.Default.ManagementService.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLRequest.Username: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLServiceParams.Username: value length must be at least 1 runes")
 		assert.Nil(t, addMySQLOK)
 	})
 

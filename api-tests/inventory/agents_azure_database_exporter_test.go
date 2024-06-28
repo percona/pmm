@@ -212,7 +212,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID \"pmm-not-exist-server\" not found.")
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID pmm-not-exist-server not found.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.AzureDatabaseExporter.AgentID)
 		}
@@ -252,21 +252,17 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		})
 		require.NoError(t, err)
 
-		assert.Equal(t, &agents.GetAgentOK{
-			Payload: &agents.GetAgentOKBody{
-				AzureDatabaseExporter: &agents.GetAgentOKBodyAzureDatabaseExporter{
-					NodeID:                      nodeID,
-					AgentID:                     agentID,
-					PMMAgentID:                  pmmAgentID,
-					AzureDatabaseSubscriptionID: "azure_subscription_id",
-					CustomLabels: map[string]string{
-						"custom_label_azure_database_exporter": "azure_database_exporter",
-					},
-					Status:   &AgentStatusUnknown,
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
-				},
+		assert.Equal(t, &agents.GetAgentOKBodyAzureDatabaseExporter{
+			NodeID:                      nodeID,
+			AgentID:                     agentID,
+			PMMAgentID:                  pmmAgentID,
+			AzureDatabaseSubscriptionID: "azure_subscription_id",
+			CustomLabels: map[string]string{
+				"custom_label_azure_database_exporter": "azure_database_exporter",
 			},
-		}, getAgentRes)
+			Status:   &AgentStatusUnknown,
+			LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+		}, getAgentRes.Payload.AzureDatabaseExporter)
 
 		// Test change API.
 		changeAzureDatabaseExporterOK, err := client.Default.AgentsService.ChangeAgent(

@@ -75,6 +75,7 @@ func TestDownloadLogs(t *testing.T) {
 		"victoriametrics_targets.json",
 		"vmalert.ini",
 		"vmalert.log",
+		"vmproxy.ini",
 		"vmproxy.log",
 	}
 

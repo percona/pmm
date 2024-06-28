@@ -515,7 +515,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			},
 		}
 		addPostgreSQLOK, err := client.Default.ManagementService.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgreSQLRequest.ServiceName: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgreSQLServiceParams.ServiceName: value length must be at least 1 runes")
 		assert.Nil(t, addPostgreSQLOK)
 	})
 
@@ -594,7 +594,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			},
 		}
 		addPostgreSQLOK, err := client.Default.ManagementService.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgreSQLRequest.PmmAgentId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgreSQLServiceParams.PmmAgentId: value length must be at least 1 runes")
 		assert.Nil(t, addPostgreSQLOK)
 	})
 
