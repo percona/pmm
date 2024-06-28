@@ -36,3 +36,11 @@ export interface GetUpdateStatusResponse {
   logOffset: number;
   logLines: string[];
 }
+
+export enum UpdateStatus {
+  Pending = 'pending',
+  Updating = 'updating',
+  Restarting = 'restarting',
+  Completed = 'completed',
+  Error = 'error',
+}

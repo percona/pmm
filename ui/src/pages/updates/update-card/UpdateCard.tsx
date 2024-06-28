@@ -9,7 +9,7 @@ import {
   Skeleton,
   Alert,
 } from '@mui/material';
-import { FC, useMemo } from 'react';
+import { FC, useMemo, useState } from 'react';
 import { formatTimestamp } from 'utils/formatTimestamp';
 import { PMM_HOME_URL } from 'constants';
 import { Messages } from './UpdateCard.messages';
@@ -17,25 +17,43 @@ import { FetchingIcon } from 'components/fetching-icon';
 import { useCheckUpdates, useStartUpdate } from 'hooks/api/useUpdates';
 import { formatVersion } from './UpdateCard.utils';
 import { enqueueSnackbar } from 'notistack';
-import { UpdateInProgressCard } from '../update-in-progress-card';
+import { useWaitForReadiness } from 'hooks/api/useReadiness';
+import { UpdateStatus } from 'types/updates.types';
 import { KeyboardDoubleArrowUp } from '@mui/icons-material';
 import { UpdateInfo } from '../update-info';
+import { UpdateInProgressCard } from '../update-in-progress-card';
 
 export const UpdateCard: FC = () => {
   const { isLoading, data, error, isRefetching, refetch } = useCheckUpdates();
-  const { mutate: startUpdate, isPending: updateInProgress } = useStartUpdate();
+  const { mutate: startUpdate } = useStartUpdate();
+  const { waitForReadiness } = useWaitForReadiness();
+  const [status, setStatus] = useState<UpdateStatus>(UpdateStatus.Pending);
   const isUpToDate = useMemo(
     () => data?.installed.version === data?.latest?.version,
     [data]
   );
+  const updateInProgress = useMemo(
+    () =>
+      status === UpdateStatus.Updating ||
+      status === UpdateStatus.Restarting ||
+      status === UpdateStatus.Completed,
+    [status]
+  );
 
   const handleStartUpdate = async () => {
+    setStatus(UpdateStatus.Updating);
     startUpdate(
+      {},
       {
-        newImage: data?.latest?.tag,
-      },
-      {
+        onSuccess: async () => {
+          setStatus(UpdateStatus.Restarting);
+
+          await waitForReadiness();
+
+          setStatus(UpdateStatus.Completed);
+        },
         onError: () => {
+          setStatus(UpdateStatus.Error);
           enqueueSnackbar(Messages.error, {
             variant: 'error',
           });
@@ -67,7 +85,7 @@ export const UpdateCard: FC = () => {
   }
 
   if (updateInProgress && data.latest) {
-    return <UpdateInProgressCard versionInfo={data.latest} />;
+    return <UpdateInProgressCard versionInfo={data.latest} status={status} />;
   }
 
   return (
