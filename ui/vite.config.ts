@@ -13,6 +13,10 @@ export default defineConfig({
       },
     },
     host: '0.0.0.0',
+    strictPort: true,
+    hmr: {
+      clientPort: 5173,
+    },
   },
   test: {
     globals: true,
