@@ -39,7 +39,7 @@ var (
 
 // New create encryption, if key on path doesnt exists will be generated.
 func New(keyPath string) *Encryption {
-	e := new(Encryption)
+	e := &Encryption{}
 	e.Path = keyPath
 
 	bytes, err := os.ReadFile(e.Path)

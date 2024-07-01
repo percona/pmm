@@ -49,10 +49,8 @@ func (c DatabaseConnection) DSN() string {
 		c.Password = fmt.Sprintf("password=%s", c.Password)
 	}
 
-	return fmt.Sprintf(
-		"host=%s port=%d dbname=%s user=%s %s sslmode=%s sslrootcert=%s sslkey=%s sslcert=%s",
-		c.Host, c.Port, c.DBName, c.User, c.Password, c.SSLMode, c.SSLCAPath, c.SSLKeyPath, c.SSLCertPath,
-	)
+	return fmt.Sprintf("host=%s port=%d dbname=%s user=%s %s sslmode=%s sslrootcert=%s sslkey=%s sslcert=%s",
+		c.Host, c.Port, c.DBName, c.User, c.Password, c.SSLMode, c.SSLCAPath, c.SSLKeyPath, c.SSLCertPath)
 }
 
 // ColumnsList returns array of table columns.
@@ -74,7 +72,7 @@ func (item Table) Read(tx *sql.Tx) (*QueryValues, error) {
 		return nil, err
 	}
 
-	q := new(QueryValues)
+	q := &QueryValues{}
 	for rows.Next() {
 		row, err := prepareRowPointers(rows)
 		if err != nil {

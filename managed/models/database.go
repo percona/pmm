@@ -1070,7 +1070,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, err
 	}
 
-	if len(settings.EncryptedItems) > 0 {
+	if len(settings.EncryptedItems) != 0 {
 		return db, nil
 	}
 
