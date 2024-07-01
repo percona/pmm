@@ -41,8 +41,7 @@ import (
 )
 
 const (
-	maxLogReadLines = 1000
-	maxLogReadBytes = 1024 * 1024
+	maxLogReadLines = 50000
 )
 
 // fileContent represents logs.zip item.
@@ -70,7 +69,7 @@ func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker, vmParams vic
 }
 
 // Zip creates .zip archive with all logs.
-func (l *Logs) Zip(ctx context.Context, w io.Writer, pprofConfig *PprofConfig) error {
+func (l *Logs) Zip(ctx context.Context, w io.Writer, pprofConfig *PprofConfig, logReadLines int) error {
 	start := time.Now()
 	log := logger.Get(ctx).WithField("component", "logs")
 	log.WithField("d", time.Since(start).Seconds()).Info("Starting...")
@@ -81,7 +80,7 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer, pprofConfig *PprofConfig) e
 	zw := zip.NewWriter(w)
 	now := time.Now().UTC()
 
-	files := l.files(ctx, pprofConfig)
+	files := l.files(ctx, pprofConfig, logReadLines)
 	log.WithField("d", time.Since(start).Seconds()).Infof("Collected %d files.", len(files))
 
 	for _, file := range files {
@@ -129,16 +128,26 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer, pprofConfig *PprofConfig) e
 }
 
 // files reads log/config/pprof files and returns content.
-func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileContent {
+func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines int) []fileContent {
+	var (
+		b []byte
+		m time.Time
+	)
 	files := make([]fileContent, 0, 20)
-
 	// add logs
 	logs, err := filepath.Glob("/srv/logs/*.log")
 	if err != nil {
 		logger.Get(ctx).WithField("component", "logs").Error(err)
 	}
 	for _, f := range logs {
-		b, m, err := readLog(f, maxLogReadLines, maxLogReadBytes)
+		switch logReadLines {
+		case -1: // unlimited line count
+			b, m, err = readLogUnlimited(f)
+		case 0: // default maximum line count
+			b, m, err = readLog(f, maxLogReadLines)
+		default: // user-defined line count
+			b, m, err = readLog(f, logReadLines)
+		}
 		files = append(files, fileContent{
 			Name:     filepath.Base(f),
 			Modified: m,
@@ -181,7 +190,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 	})
 
 	// add supervisord status
-	b, err := readCmdOutput(ctx, "supervisorctl", "status")
+	b, err = readCmdOutput(ctx, "supervisorctl", "status")
 	files = append(files, fileContent{
 		Name: "supervisorctl_status.log",
 		Data: b,
@@ -270,26 +279,21 @@ func (l *Logs) victoriaMetricsTargets(ctx context.Context) ([]byte, error) {
 	return readURL(ctx, targetsURL.String())
 }
 
-// readLog reads last lines (up to given number of lines and bytes) from given file,
+// readLog reads a log file from the end up to given number of lines,
 // and returns them together with modification time.
-func readLog(name string, maxLines int, maxBytes int64) ([]byte, time.Time, error) {
+func readLog(name string, maxLines int) ([]byte, time.Time, error) {
 	var m time.Time
 	f, err := os.Open(name) //nolint:gosec
 	if err != nil {
 		return nil, m, errors.WithStack(err)
 	}
-	defer f.Close() //nolint:gosec,errcheck,nolintlint
+	defer f.Close() //nolint:errcheck
 
 	fi, err := f.Stat()
 	if err != nil {
 		return nil, m, errors.WithStack(err)
 	}
 	m = fi.ModTime()
-	if fi.Size() > maxBytes {
-		if _, err = f.Seek(-maxBytes, io.SeekEnd); err != nil {
-			return nil, m, errors.WithStack(err)
-		}
-	}
 
 	r := ring.New(maxLines)
 	reader := bufio.NewReader(f)
@@ -312,12 +316,49 @@ func readLog(name string, maxLines int, maxBytes int64) ([]byte, time.Time, erro
 		}
 	}
 
-	res := make([]byte, 0, maxBytes)
+	res := []byte{}
 	r.Do(func(v interface{}) {
 		if v != nil {
 			res = append(res, v.([]byte)...) //nolint:forcetypeassert
 		}
 	})
+	return res, m, nil
+}
+
+// readLogUnlimited reads the whole log file and returns its contents along with modification time.
+func readLogUnlimited(name string) ([]byte, time.Time, error) {
+	var m time.Time
+	f, err := os.Open(name) //nolint:gosec
+	if err != nil {
+		return nil, m, errors.WithStack(err)
+	}
+	defer f.Close() //nolint:errcheck
+
+	fi, err := f.Stat()
+	if err != nil {
+		return nil, m, errors.WithStack(err)
+	}
+	m = fi.ModTime()
+
+	res := []byte{}
+	reader := bufio.NewReader(f)
+	for {
+		b, err := reader.ReadBytes('\n')
+		if err == io.EOF {
+			// A special case when the last line does not end with a new line
+			if len(b) != 0 {
+				res = append(res, b...) //nolint:makezero
+			}
+			break
+		}
+
+		res = append(res, b...) //nolint:makezero
+
+		if err != nil {
+			return nil, m, errors.WithStack(err)
+		}
+	}
+
 	return res, m, nil
 }
 

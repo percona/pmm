@@ -62,9 +62,9 @@ func TestDevContainer(t *testing.T) {
 		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
 
 		res, resT := checker.checkResult(ctx)
-		assert.WithinDuration(t, time.Now(), resT, time.Second)
 
 		assert.True(t, strings.HasPrefix(res.Installed.Version, "2."), "%s", res.Installed.Version)
+		assert.WithinDuration(t, time.Now(), resT, time.Second)
 		installedFullVersion, _ := normalizeFullversion(&res.Installed)
 		assert.True(t, strings.HasPrefix(installedFullVersion, "2."), "%s", installedFullVersion)
 		require.NotEmpty(t, res.Installed.BuildTime)

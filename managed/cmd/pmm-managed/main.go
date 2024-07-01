@@ -147,6 +147,7 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 	l := logrus.WithField("component", "logs.zip")
 
 	mux.HandleFunc("/logs.zip", func(rw http.ResponseWriter, req *http.Request) {
+		var lineCount int64
 		contextTimeout := defaultContextTimeout
 		// increase context timeout if pprof query parameter exist in request
 		pprofQueryParameter, err := strconv.ParseBool(req.FormValue("pprof"))
@@ -171,6 +172,17 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 				TraceDuration:   pProfTraceDuration,
 			}
 		}
+
+		lc := req.FormValue("line-count")
+		if lc != "" {
+			lineCount, err = strconv.ParseInt(lc, 10, 32)
+			if err != nil {
+				l.Error(err)
+				http.Error(rw, fmt.Sprintf("Unable to parse line-count parameter: %s", err), http.StatusBadRequest)
+				return
+			}
+		}
+
 		// fail-safe
 		ctx, cancel := context.WithTimeout(req.Context(), contextTimeout)
 		defer cancel()
@@ -181,7 +193,7 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 		rw.Header().Set(`Content-Disposition`, `attachment; filename="`+filename+`"`)
 
 		ctx = logger.Set(ctx, "logs")
-		if err := logs.Zip(ctx, rw, pprofConfig); err != nil {
+		if err := logs.Zip(ctx, rw, pprofConfig, int(lineCount)); err != nil {
 			l.Errorf("%+v", err)
 		}
 	})
