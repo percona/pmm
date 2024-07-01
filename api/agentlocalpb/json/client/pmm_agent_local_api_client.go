@@ -6,20 +6,20 @@ package client
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"net"
+
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
 	"github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
+	"github.com/percona/pmm/utils/iputils"
 )
 
 // Default PMM agent local API HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
-	// DefaultHost is the default Host
-	// found in Meta (info) section of spec file
-	DefaultHost string = "127.0.0.1:7777"
 	// DefaultBasePath is the default BasePath
 	// found in Meta (info) section of spec file
 	DefaultBasePath string = "/"
@@ -63,7 +63,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMAgentLo
 // default settings taken from the meta section of the spec file.
 func DefaultTransportConfig() *TransportConfig {
 	return &TransportConfig{
-		Host:     DefaultHost,
+		Host:     net.JoinHostPort(iputils.GetLoopbackAddress(), "7777"),
 		BasePath: DefaultBasePath,
 		Schemes:  DefaultSchemes,
 	}

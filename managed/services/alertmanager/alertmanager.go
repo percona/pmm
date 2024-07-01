@@ -23,6 +23,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -49,6 +50,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/dir"
+	"github.com/percona/pmm/utils/iputils"
 	"github.com/percona/pmm/utils/pdeathsig"
 )
 
@@ -212,7 +214,7 @@ func (svc *Service) updateConfiguration(ctx context.Context) error {
 
 // reload asks Alertmanager to reload configuration.
 func (svc *Service) reload(ctx context.Context) error {
-	u := "http://127.0.0.1:9093/alertmanager/-/reload"
+	u := fmt.Sprintf("http://%s/-/reload", net.JoinHostPort(iputils.GetLoopbackAddress(), "9093"))
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, u, nil)
 	if err != nil {
 		return errors.WithStack(err)
@@ -849,7 +851,7 @@ func (svc *Service) UnsilenceAlerts(ctx context.Context, alerts []*ammodels.Gett
 
 // IsReady verifies that Alertmanager works.
 func (svc *Service) IsReady(ctx context.Context) error {
-	u := "http://127.0.0.1:9093/alertmanager/-/ready"
+	u := fmt.Sprintf("http://%s/-/ready", net.JoinHostPort(iputils.GetLoopbackAddress(), "9093"))
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		return errors.WithStack(err)
@@ -876,5 +878,5 @@ func (svc *Service) IsReady(ctx context.Context) error {
 //
 //nolint:gochecknoinits
 func init() {
-	amclient.Default.SetTransport(httptransport.New("127.0.0.1:9093", "/alertmanager/api/v2", []string{"http"}))
+	amclient.Default.SetTransport(httptransport.New(net.JoinHostPort(iputils.GetLoopbackAddress(), "9093"), "/alertmanager/api/v2", []string{"http"}))
 }

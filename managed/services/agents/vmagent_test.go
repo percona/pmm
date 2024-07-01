@@ -26,13 +26,13 @@ import (
 
 func TestMaxScrapeSize(t *testing.T) {
 	t.Run("by default 64MiB", func(t *testing.T) {
-		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL())
 		require.NoError(t, err)
 		actual := vmAgentConfig("", params)
 		assert.Contains(t, actual.Args, "-promscrape.maxScrapeSize="+maxScrapeSizeDefault)
 	})
 	t.Run("overridden with ENV", func(t *testing.T) {
-		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL())
 		require.NoError(t, err)
 		newValue := "16MiB"
 		t.Setenv(maxScrapeSizeEnv, newValue)
@@ -40,7 +40,7 @@ func TestMaxScrapeSize(t *testing.T) {
 		assert.Contains(t, actual.Args, "-promscrape.maxScrapeSize="+newValue)
 	})
 	t.Run("VMAGENT_ ENV variables", func(t *testing.T) {
-		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL())
 		require.NoError(t, err)
 		t.Setenv("VMAGENT_promscrape_maxScrapeSize", "16MiB")
 		t.Setenv("VM_remoteWrite_basicAuth_password", "password")

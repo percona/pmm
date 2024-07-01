@@ -23,6 +23,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/utils/iputils"
 	"github.com/percona/pmm/version"
 )
 
@@ -88,7 +89,7 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 		// special case for push metrics mode,
 		// vmagent scrapes it from localhost.
 		case pushMetrics:
-			paramsHost = "127.0.0.1"
+			paramsHost = iputils.GetLoopbackAddress()
 		case agent.PMMAgentID != nil:
 			pmmAgentNode := &models.Node{NodeID: pointer.GetString(pmmAgent.RunsOnNodeID)}
 			if err = q.Reload(pmmAgentNode); err != nil {

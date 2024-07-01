@@ -1,7 +1,11 @@
 ---
+- name: Set Grafana URL based on IPV6ONLY flag
+  set_fact:
+    grafana_url: "{{ 'http://[::1]:3000/api/health' if IPV6ONLY == 'true' else 'http://127.0.0.1:3000/api/health' }}"
+
 - name: Wait for grafana to update DB and be ready
   ansible.builtin.uri:
-    url: "http://127.0.0.1:3000/api/health"
+    url: "{{ grafana_url }}"
     status_code: 200
     method: GET
   register: healthcheck

@@ -68,9 +68,13 @@
     enablerepo: clickhouse
   ignore_errors: "{{ ansible_check_mode }}" # We don't have clickhouse repo when we run ansible with --check
 
+- name: Determine files directory
+  set_fact:
+    files_dir: "{{ 'files_ipv6' if IPV6ONLY == 'true' else 'files' }}"
+
 - name: Copy clickhouse config to image
   copy:
-    src: config.xml
+    src: "{{ files_dir }}/config.xml"
     dest: /etc/clickhouse-server/config.xml
     mode: 0600
 

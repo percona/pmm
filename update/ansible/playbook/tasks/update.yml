@@ -21,6 +21,7 @@
       - pmm-dump
       - vmproxy
       - grafana-db-migrator
+    IPV6ONLY: "{{ lookup('env','PMM_IPV6ONLY') }}"
   pre_tasks:
     - name: Check for updates of ansible-core package | EL9
       shell: yum list updates ansible-core | grep -q 'ansible-core' && echo 'Available' || echo 'Not Available'
@@ -76,9 +77,13 @@
         is_docker: True
       when: is_docker is undefined
   tasks:
+    - name: Determine files directory
+      set_fact:
+        files_dir: "{{ 'files_ipv6' if IPV6ONLY == 'true' else 'files' }}"
+
     - name: Enable maintenance mode
       copy:
-        src: maintenance.html
+        src: "{{ files_dir }}/maintenance.html"
         dest: /usr/share/pmm-server/maintenance/
         mode: 0644
 
@@ -136,7 +141,7 @@
 
     - name: Upgrade supervisor config
       copy:
-        src: pmm.ini
+        src: "{{ files_dir }}/pmm.ini"
         dest: /etc/supervisord.d/pmm.ini
 
     # restart pmm-managed-init and pmm-managed first as they may update supervisord configuration on start
@@ -154,7 +159,7 @@
 
     - name: Upgrade supervisord config
       copy:
-        src: supervisord.ini
+        src: "{{ files_dir }}/supervisord.ini"
         dest: /etc/supervisord.d/supervisord.ini
 
     - name: Remove supervisord
@@ -219,9 +224,13 @@
       when: is_docker and not is_supervisor_running.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
       shell: /usr/local/bin/supervisord -c /etc/supervisord.conf &
 
+    - name: Set postgres host address based on IPV6ONLY flag
+      set_fact:
+        postgres_host: "{{ '::1' if IPV6ONLY == 'true' else 'localhost' }}"
+
     - name: Wait until postgres port is present before continuing
       wait_for:
-        host: localhost
+        host: "{{ postgres_host }}"
         port: 5432
 
     - name: Run initialization playbook
@@ -330,14 +339,14 @@
     # https://jira.percona.com/browse/PMM-9298
     - name: Copy rezise-xfs file for lvm
       copy:
-        src: resize-xfs-lvm
+        src: "{{ files_dir }}/resize-xfs-lvm"
         dest: /var/lib/cloud/scripts/per-boot/resize-xfs
         mode: 0755
       when: not is_docker
 
     - name: Create change-admin-password command
       copy:
-        src: change-admin-password
+        src: "{{ files_dir }}/change-admin-password"
         dest: /usr/local/sbin/change-admin-password
         mode: 0755
 
@@ -489,9 +498,13 @@
     - name: Print other services's logs
       debug: var=update_result.stdout_lines
 
+    - name: Set PMM URL based on IPV6ONLY flag
+      set_fact:
+        pmm_url: "{{ 'http://[::1]:7772/v1/readyz' if IPV6ONLY == 'true' else 'http://127.0.0.1:7772/v1/readyz' }}"
+
     - name: Wait for PMM to be ready
       ansible.builtin.uri:
-        url: "http://127.0.0.1:7772/v1/readyz"
+        url: "{{ pmm_url }}"
         status_code: 200
         method: GET
       register: healthcheck

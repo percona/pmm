@@ -35,6 +35,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/utils/iputils"
 )
 
 // ErrDumpAlreadyRunning is an exported error indicating that pmm-dump is already running.
@@ -105,10 +106,14 @@ func (s *Service) StartDump(params *Params) (string, error) {
 	s.cancel = cancel
 	s.rw.Unlock()
 
+	pmmURL := "http://127.0.0.1"
+	if iputils.IsIPV6Only() {
+		pmmURL = "http://[::1]"
+	}
 	pmmDumpCmd := exec.CommandContext(ctx, //nolint:gosec
 		pmmDumpBin,
 		"export",
-		"--pmm-url=http://127.0.0.1",
+		fmt.Sprintf("--pmm-url=%s", pmmURL),
 		fmt.Sprintf("--dump-path=%s", getDumpFilePath(dump.ID)))
 
 	if params.APIKey != "" {
