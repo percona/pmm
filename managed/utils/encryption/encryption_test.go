@@ -19,8 +19,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/managed/utils/encryption"
 )
 
 func TestEncryption(t *testing.T) {

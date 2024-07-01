@@ -4,8 +4,9 @@ import (
 	"database/sql"
 	"encoding/json"
 
-	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/managed/utils/encryption"
 )
 
 // EncryptAgent returns agent after it is encrypted.

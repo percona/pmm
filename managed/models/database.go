@@ -31,12 +31,13 @@ import (
 	"strings"
 
 	"github.com/lib/pq"
-	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
+
+	"github.com/percona/pmm/managed/utils/encryption"
 )
 
 const (
