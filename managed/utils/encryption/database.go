@@ -55,6 +55,7 @@ func (c DatabaseConnection) DSN() string {
 	)
 }
 
+// ColumnsList returns array of table columns.
 func (item Table) ColumnsList() []string {
 	res := []string{}
 	for _, c := range item.Columns {

@@ -153,7 +153,7 @@ func DecryptMySQLOptionsHandler(e *encryption.Encryption, val any) (any, error) 
 
 func mySQLOptionsHandler(val any, handler func(string) (string, error)) (any, error) {
 	o := MySQLOptions{}
-	value := val.(*sql.NullString)
+	value := val.(*sql.NullString) //nolint:forcetypeassert
 	if !value.Valid {
 		return sql.NullString{}, nil
 	}
@@ -196,7 +196,7 @@ func DecryptPostgreSQLOptionsHandler(e *encryption.Encryption, val any) (any, er
 
 func postgreSQLOptionsHandler(val any, handler func(string) (string, error)) (any, error) {
 	o := PostgreSQLOptions{}
-	value := val.(*sql.NullString)
+	value := val.(*sql.NullString) //nolint:forcetypeassert
 	if !value.Valid {
 		return sql.NullString{}, nil
 	}
@@ -239,7 +239,7 @@ func DecryptMongoDBOptionsHandler(e *encryption.Encryption, val any) (any, error
 
 func mongoDBOptionsHandler(val any, handler func(string) (string, error)) (any, error) {
 	o := MongoDBOptions{}
-	value := val.(*sql.NullString)
+	value := val.(*sql.NullString) //nolint:forcetypeassert
 	if !value.Valid {
 		return sql.NullString{}, nil
 	}
@@ -282,7 +282,7 @@ func DecryptAzureOptionsHandler(e *encryption.Encryption, val any) (any, error) 
 
 func azureOptionsHandler(val any, handler func(string) (string, error)) (any, error) {
 	o := AzureOptions{}
-	value := val.(*sql.NullString)
+	value := val.(*sql.NullString) //nolint:forcetypeassert
 	if !value.Valid {
 		return sql.NullString{}, nil
 	}

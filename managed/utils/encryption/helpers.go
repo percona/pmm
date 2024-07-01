@@ -53,7 +53,7 @@ func prepareRowPointers(rows *sql.Rows) ([]any, error) {
 }
 
 func encryptColumnStringHandler(e *Encryption, val any) (any, error) {
-	value := val.(*sql.NullString)
+	value := val.(*sql.NullString) //nolint:forcetypeassert
 	if !value.Valid {
 		return sql.NullString{}, nil
 	}
@@ -67,9 +67,9 @@ func encryptColumnStringHandler(e *Encryption, val any) (any, error) {
 }
 
 func decryptColumnStringHandler(e *Encryption, val any) (any, error) {
-	value := val.(*sql.NullString)
+	value := val.(*sql.NullString) //nolint:forcetypeassert
 	if !value.Valid {
-		return nil, nil
+		return nil, nil //nolint:nilnil
 	}
 
 	decrypted, err := e.Decrypt(value.String)

@@ -13,17 +13,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package collectors contains functions to encrypt/decrypt items or DB.
+// Package encryption contains functions to encrypt/decrypt items or DB.
 package encryption
 
 import (
 	"context"
 	"encoding/base64"
-	"errors"
 	"fmt"
 	"os"
 	"slices"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -129,7 +129,6 @@ func (e *Encryption) EncryptDB(ctx context.Context, c *DatabaseConnection, items
 						return err
 					}
 					res.SetValues[k][i] = encrypted
-
 				}
 				data := slices.Concat([]any{}, v)
 				data = slices.Concat(data, res.WhereValues[k])
@@ -164,7 +163,7 @@ func (e *Encryption) Decrypt(cipherText string) (string, error) {
 	}
 	decoded, err := base64.StdEncoding.DecodeString(cipherText)
 	if err != nil {
-		return cipherText, fmt.Errorf("value %s is probably not encrypted, error: %v", cipherText, err)
+		return cipherText, fmt.Errorf("value %s is probably not encrypted, error: %w", cipherText, err)
 	}
 	secret, err := e.Primitive.Decrypt(decoded, []byte(""))
 	if err != nil {
