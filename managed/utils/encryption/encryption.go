@@ -114,17 +114,20 @@ func (e *Encryption) EncryptDB(ctx context.Context, c *DatabaseConnection) error
 
 			for k, v := range res.SetValues {
 				for i, val := range v {
-					value := val.(*sql.NullString)
-					if !value.Valid {
-						res.SetValues[k][i] = sql.NullString{}
-						continue
+					var encrypted any
+					var err error
+					switch table.Columns[i].Handler {
+					case nil:
+						encrypted, err = encryptedColumnStringHandler(e, val)
+					default:
+						encrypted, err = table.Columns[i].Handler(e, val)
 					}
 
-					encrypted, err := e.Encrypt(value.String)
 					if err != nil {
 						return err
 					}
 					res.SetValues[k][i] = encrypted
+
 				}
 				data := slices.Concat([]any{}, v)
 				data = slices.Concat(data, res.WhereValues[k])

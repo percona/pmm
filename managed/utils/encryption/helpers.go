@@ -41,7 +41,7 @@ func prepareRowPointers(rows *sql.Rows) ([]any, error) {
 	row := []any{}
 	for _, t := range columns {
 		switch t {
-		case "VARCHAR":
+		case "VARCHAR", "JSONB":
 			row = append(row, new(sql.NullString))
 		default:
 			// TODO support more identificators types
@@ -50,6 +50,20 @@ func prepareRowPointers(rows *sql.Rows) ([]any, error) {
 	}
 
 	return row, nil
+}
+
+func encryptedColumnStringHandler(e *Encryption, val any) (any, error) {
+	value := val.(*sql.NullString)
+	if !value.Valid {
+		return sql.NullString{}, nil
+	}
+
+	encrypted, err := e.Encrypt(value.String)
+	if err != nil {
+		return nil, err
+	}
+
+	return encrypted, nil
 }
 
 func (e *Encryption) getPrimitive() (tink.AEAD, error) {

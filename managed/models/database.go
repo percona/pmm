@@ -1092,12 +1092,19 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		SSLCAPath:   params.SSLCAPath,
 		SSLKeyPath:  params.SSLKeyPath,
 		SSLCertPath: params.SSLCertPath,
-		EncryptedItems: []encryption.EncryptedItem{
+		EncryptedItems: []encryption.EncryptedDatabase{
 			{
-				Database:       "pmm-managed",
-				Table:          "agents",
-				Identificators: []string{"agent_id"},
-				Columns:        []string{"username", "password"},
+				Database: "pmm-managed",
+				Tables: []encryption.EncryptedTable{
+					{
+						Table:          "agents",
+						Identificators: []string{"agent_id"},
+						Columns: []encryption.EncryptedColumn{
+							{Column: "username"},
+							{Column: "password"},
+						},
+					},
+				},
 			},
 		},
 	}

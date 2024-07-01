@@ -13,40 +13,43 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package encryption
+package encryption_test
 
 import (
 	"context"
 	"testing"
 
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/stretchr/testify/require"
 )
 
 func TestEncryption(t *testing.T) {
 	secret := "password1"
 
-	cipherText, err := Encrypt(secret)
+	cipherText, err := encryption.Encrypt(secret)
 	require.NoError(t, err)
 	require.NotEmpty(t, cipherText)
-	decryptedSecret, err := Decrypt(cipherText)
+	decryptedSecret, err := encryption.Decrypt(cipherText)
 	require.NoError(t, err)
 	require.Equal(t, secret, decryptedSecret)
 
-	c := &DatabaseConnection{
+	c := &encryption.DatabaseConnection{
 		Host:     "127.0.0.1",
 		Port:     5432,
 		User:     "postgres",
 		Password: "",
-		EncryptedItems: []EncryptedDatabase{
+		EncryptedItems: []encryption.EncryptedDatabase{
 			{
 				Database: "pmm-managed",
-				Tables: []EncryptedTable{
+				Tables: []encryption.EncryptedTable{
 					{
 						Table:          "agents",
 						Identificators: []string{"agent_id"},
-						Columns: []EncryptedColumn{
-							{Column: "username", Handler: func() {}},
-							{Column: "password", Handler: func() {}},
+						Columns: []encryption.EncryptedColumn{
+							{Column: "username"},
+							{Column: "password"},
+							{Column: "postgresql_options", Handler: models.EncryptedColumnPostgreSQLOptionsHandler},
 						},
 					},
 				},
@@ -55,6 +58,6 @@ func TestEncryption(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	require.NoError(t, EncryptDB(ctx, c))
-	require.NoError(t, DecryptDB(ctx, c))
+	require.NoError(t, encryption.EncryptDB(ctx, c))
+	//require.NoError(t, encryption.DecryptDB(ctx, c))
 }

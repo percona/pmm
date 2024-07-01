@@ -50,7 +50,7 @@ type EncryptedTable struct {
 
 type EncryptedColumn struct {
 	Column  string
-	Handler func()
+	Handler func(e *Encryption, val any) (any, error)
 }
 
 // QueryValues represents query to update row after encrypt/decrypt.
