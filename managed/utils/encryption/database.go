@@ -55,7 +55,7 @@ func (c DatabaseConnection) DSN() string {
 	)
 }
 
-func (item EncryptedTable) ColumnsList() []string {
+func (item Table) ColumnsList() []string {
 	res := []string{}
 	for _, c := range item.Columns {
 		res = append(res, c.Column)
@@ -65,7 +65,7 @@ func (item EncryptedTable) ColumnsList() []string {
 }
 
 // Read returns query and it's values based on input.
-func (item EncryptedTable) Read(tx *sql.Tx) (*QueryValues, error) {
+func (item Table) Read(tx *sql.Tx) (*QueryValues, error) {
 	what := slices.Concat(item.Identificators, item.ColumnsList())
 	query := fmt.Sprintf("SELECT %s FROM %s", strings.Join(what, ", "), item.Table) //nolint:gosec
 	rows, err := tx.Query(query)

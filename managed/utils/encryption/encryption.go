@@ -29,10 +29,11 @@ import (
 // DefaultEncryptionKeyPath contains default PMM encryption key path.
 const DefaultEncryptionKeyPath = "/srv/pmm-encryption.key"
 
-// ErrEncryptionNotInitialized is error in case of encryption is not initialized.
-var ErrEncryptionNotInitialized = errors.New("encryption is not initialized")
-
-var DefaultEncryption = New(DefaultEncryptionKeyPath)
+var (
+	// ErrEncryptionNotInitialized is error in case of encryption is not initialized.
+	ErrEncryptionNotInitialized = errors.New("encryption is not initialized")
+	DefaultEncryption           = New(DefaultEncryptionKeyPath)
+)
 
 // New create encryption, if key on path doesnt exists will be generated.
 func New(keyPath string) *Encryption {
@@ -81,23 +82,23 @@ func (e *Encryption) Encrypt(secret string) (string, error) {
 }
 
 // EncryptDB is wrapper around DefaultEncryption.EncryptDB.
-func EncryptDB(ctx context.Context, c *DatabaseConnection) error {
-	return DefaultEncryption.EncryptDB(ctx, c)
+func EncryptDB(ctx context.Context, c *DatabaseConnection, items []Database) error {
+	return DefaultEncryption.EncryptDB(ctx, c, items)
 }
 
 // EncryptDB will encrypt all columns provided in DB connection.
-func (e *Encryption) EncryptDB(ctx context.Context, c *DatabaseConnection) error {
-	for _, item := range c.EncryptedItems {
+func (e *Encryption) EncryptDB(ctx context.Context, c *DatabaseConnection, items []Database) error {
+	if len(items) == 0 {
+		return errors.New("DB Connection: Database target tables/columns not defined")
+	}
+
+	for _, item := range items {
 		c.DBName = item.Database
 		db, err := c.Connect()
 		if err != nil {
 			return err
 		}
 		defer db.Close() //nolint:errcheck
-
-		if len(c.EncryptedItems) == 0 {
-			return errors.New("DB Connection: Database target tables/columns not defined")
-		}
 
 		tx, err := db.BeginTx(ctx, nil)
 		if err != nil {
@@ -115,11 +116,11 @@ func (e *Encryption) EncryptDB(ctx context.Context, c *DatabaseConnection) error
 				for i, val := range v {
 					var encrypted any
 					var err error
-					switch table.Columns[i].Handler {
+					switch table.Columns[i].CustomHandler {
 					case nil:
 						encrypted, err = encryptColumnStringHandler(e, val)
 					default:
-						encrypted, err = table.Columns[i].Handler(e, val)
+						encrypted, err = table.Columns[i].CustomHandler(e, val)
 					}
 
 					if err != nil {
@@ -172,23 +173,23 @@ func (e *Encryption) Decrypt(cipherText string) (string, error) {
 }
 
 // DecryptDB is wrapper around DefaultEncryption.DecryptDB.
-func DecryptDB(ctx context.Context, c *DatabaseConnection) error {
-	return DefaultEncryption.DecryptDB(ctx, c)
+func DecryptDB(ctx context.Context, c *DatabaseConnection, items []Database) error {
+	return DefaultEncryption.DecryptDB(ctx, c, items)
 }
 
 // DecryptDB will decrypt all columns provided in DB connection.
-func (e *Encryption) DecryptDB(ctx context.Context, c *DatabaseConnection) error {
-	for _, item := range c.EncryptedItems {
+func (e *Encryption) DecryptDB(ctx context.Context, c *DatabaseConnection, items []Database) error {
+	if len(items) == 0 {
+		return errors.New("DB Connection: Database target tables/columns not defined")
+	}
+
+	for _, item := range items {
 		c.DBName = item.Database
 		db, err := c.Connect()
 		if err != nil {
 			return err
 		}
 		defer db.Close() //nolint:errcheck
-
-		if len(c.EncryptedItems) == 0 {
-			return errors.New("DB Connection: Database target tables/columns not defined")
-		}
 
 		tx, err := db.BeginTx(ctx, nil)
 		if err != nil {
@@ -206,11 +207,11 @@ func (e *Encryption) DecryptDB(ctx context.Context, c *DatabaseConnection) error
 				for i, val := range v {
 					var decrypted any
 					var err error
-					switch table.Columns[i].Handler {
+					switch table.Columns[i].CustomHandler {
 					case nil:
 						decrypted, err = decryptColumnStringHandler(e, val)
 					default:
-						decrypted, err = table.Columns[i].Handler(e, val)
+						decrypted, err = table.Columns[i].CustomHandler(e, val)
 					}
 
 					if err != nil {

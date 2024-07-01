@@ -1092,24 +1092,26 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		SSLCAPath:   params.SSLCAPath,
 		SSLKeyPath:  params.SSLKeyPath,
 		SSLCertPath: params.SSLCertPath,
-		EncryptedItems: []encryption.EncryptedDatabase{
-			{
-				Database: "pmm-managed",
-				Tables: []encryption.EncryptedTable{
-					{
-						Table:          "agents",
-						Identificators: []string{"agent_id"},
-						Columns: []encryption.EncryptedColumn{
-							{Column: "username"},
-							{Column: "password"},
-						},
+	}
+
+	itemsToEncrypt := []encryption.Database{
+		{
+			Database: "pmm-managed",
+			Tables: []encryption.Table{
+				{
+					Table:          "agents",
+					Identificators: []string{"agent_id"},
+					Columns: []encryption.Column{
+						{Column: "username"},
+						{Column: "password"},
+						{Column: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler},
 					},
 				},
 			},
 		},
 	}
 
-	if err := encryption.EncryptDB(ctx, c); err != nil {
+	if err := encryption.EncryptDB(ctx, c, itemsToEncrypt); err != nil {
 		return nil, err
 	}
 

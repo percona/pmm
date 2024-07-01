@@ -39,25 +39,42 @@ func TestEncryption(t *testing.T) {
 		Port:     5432,
 		User:     "postgres",
 		Password: "",
-		EncryptedItems: []encryption.EncryptedDatabase{
-			{
-				Database: "pmm-managed",
-				Tables: []encryption.EncryptedTable{
-					{
-						Table:          "agents",
-						Identificators: []string{"agent_id"},
-						Columns: []encryption.EncryptedColumn{
-							{Column: "username"},
-							{Column: "password"},
-							{Column: "postgresql_options", Handler: models.EncryptColumnPostgreSQLOptionsHandler},
-						},
+	}
+	ctx := context.Background()
+
+	itemsToEncrypt := []encryption.Database{
+		{
+			Database: "pmm-managed",
+			Tables: []encryption.Table{
+				{
+					Table:          "agents",
+					Identificators: []string{"agent_id"},
+					Columns: []encryption.Column{
+						{Column: "username"},
+						{Column: "password"},
+						{Column: "postgresql_options", CustomHandler: models.EncryptPostgreSQLOptionsHandler},
 					},
 				},
 			},
 		},
 	}
+	require.NoError(t, encryption.EncryptDB(ctx, c, itemsToEncrypt))
 
-	ctx := context.Background()
-	require.NoError(t, encryption.EncryptDB(ctx, c))
-	require.NoError(t, encryption.DecryptDB(ctx, c))
+	itemsToDecrypt := []encryption.Database{
+		{
+			Database: "pmm-managed",
+			Tables: []encryption.Table{
+				{
+					Table:          "agents",
+					Identificators: []string{"agent_id"},
+					Columns: []encryption.Column{
+						{Column: "username"},
+						{Column: "password"},
+						{Column: "postgresql_options", CustomHandler: models.DecryptPostgreSQLOptionsHandler},
+					},
+				},
+			},
+		},
+	}
+	require.NoError(t, encryption.DecryptDB(ctx, c, itemsToDecrypt))
 }
