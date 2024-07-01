@@ -80,7 +80,7 @@ func decryptColumnStringHandler(e *Encryption, val any) (any, error) {
 	return decrypted, nil
 }
 
-func (e *Encryption) getPrimitive() (tink.AEAD, error) {
+func (e *Encryption) getPrimitive() (tink.AEAD, error) { //nolint:ireturn
 	serializedKeyset, err := base64.StdEncoding.DecodeString(e.Key)
 	if err != nil {
 		return nil, err
