@@ -17,7 +17,6 @@ package encryption
 
 import (
 	"context"
-	"database/sql"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -118,7 +117,7 @@ func (e *Encryption) EncryptDB(ctx context.Context, c *DatabaseConnection) error
 					var err error
 					switch table.Columns[i].Handler {
 					case nil:
-						encrypted, err = encryptedColumnStringHandler(e, val)
+						encrypted, err = encryptColumnStringHandler(e, val)
 					default:
 						encrypted, err = table.Columns[i].Handler(e, val)
 					}
@@ -205,13 +204,15 @@ func (e *Encryption) DecryptDB(ctx context.Context, c *DatabaseConnection) error
 
 			for k, v := range res.SetValues {
 				for i, val := range v {
-					value := val.(*sql.NullString)
-					if !value.Valid {
-						res.SetValues[k][i] = nil
-						continue
+					var decrypted any
+					var err error
+					switch table.Columns[i].Handler {
+					case nil:
+						decrypted, err = decryptColumnStringHandler(e, val)
+					default:
+						decrypted, err = table.Columns[i].Handler(e, val)
 					}
 
-					decrypted, err := e.Decrypt(value.String)
 					if err != nil {
 						return err
 					}

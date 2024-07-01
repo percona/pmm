@@ -52,7 +52,7 @@ func prepareRowPointers(rows *sql.Rows) ([]any, error) {
 	return row, nil
 }
 
-func encryptedColumnStringHandler(e *Encryption, val any) (any, error) {
+func encryptColumnStringHandler(e *Encryption, val any) (any, error) {
 	value := val.(*sql.NullString)
 	if !value.Valid {
 		return sql.NullString{}, nil
@@ -64,6 +64,20 @@ func encryptedColumnStringHandler(e *Encryption, val any) (any, error) {
 	}
 
 	return encrypted, nil
+}
+
+func decryptColumnStringHandler(e *Encryption, val any) (any, error) {
+	value := val.(*sql.NullString)
+	if !value.Valid {
+		return nil, nil
+	}
+
+	decrypted, err := e.Decrypt(value.String)
+	if err != nil {
+		return nil, err
+	}
+
+	return decrypted, nil
 }
 
 func (e *Encryption) getPrimitive() (tink.AEAD, error) {

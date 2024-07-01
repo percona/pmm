@@ -49,7 +49,7 @@ func TestEncryption(t *testing.T) {
 						Columns: []encryption.EncryptedColumn{
 							{Column: "username"},
 							{Column: "password"},
-							{Column: "postgresql_options", Handler: models.EncryptedColumnPostgreSQLOptionsHandler},
+							{Column: "postgresql_options", Handler: models.EncryptColumnPostgreSQLOptionsHandler},
 						},
 					},
 				},
@@ -59,5 +59,5 @@ func TestEncryption(t *testing.T) {
 
 	ctx := context.Background()
 	require.NoError(t, encryption.EncryptDB(ctx, c))
-	//require.NoError(t, encryption.DecryptDB(ctx, c))
+	require.NoError(t, encryption.DecryptDB(ctx, c))
 }

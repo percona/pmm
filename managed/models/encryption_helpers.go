@@ -184,7 +184,7 @@ func decryptAgent(agent *Agent) {
 	}
 }
 
-func EncryptedColumnPostgreSQLOptionsHandler(e *encryption.Encryption, val any) (any, error) {
+func EncryptColumnPostgreSQLOptionsHandler(e *encryption.Encryption, val any) (any, error) {
 	o := PostgreSQLOptions{}
 	value := val.(*sql.NullString)
 	if !value.Valid {
