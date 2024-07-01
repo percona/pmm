@@ -55,9 +55,18 @@ func (c DatabaseConnection) DSN() string {
 	)
 }
 
+func (item EncryptedTable) ColumnsList() []string {
+	res := []string{}
+	for _, c := range item.Columns {
+		res = append(res, c.Column)
+	}
+
+	return res
+}
+
 // Read returns query and it's values based on input.
-func (item EncryptedItem) Read(tx *sql.Tx) (*QueryValues, error) {
-	what := slices.Concat(item.Identificators, item.Columns)
+func (item EncryptedTable) Read(tx *sql.Tx) (*QueryValues, error) {
+	what := slices.Concat(item.Identificators, item.ColumnsList())
 	query := fmt.Sprintf("SELECT %s FROM %s", strings.Join(what, ", "), item.Table) //nolint:gosec
 	rows, err := tx.Query(query)
 	if err != nil {
@@ -79,7 +88,7 @@ func (item EncryptedItem) Read(tx *sql.Tx) (*QueryValues, error) {
 		set := []string{}
 		setValues := []any{}
 		for k, v := range row[len(item.Identificators):] {
-			set = append(set, fmt.Sprintf("%s = $%d", item.Columns[k], i))
+			set = append(set, fmt.Sprintf("%s = $%d", item.Columns[k].Column, i))
 			setValues = append(setValues, v)
 			i++
 		}

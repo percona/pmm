@@ -33,14 +33,24 @@ type DatabaseConnection struct {
 	SSLCAPath            string
 	SSLKeyPath           string
 	SSLCertPath          string
-	EncryptedItems       []EncryptedItem
+	EncryptedItems       []EncryptedDatabase
 }
 
 // EncryptedItem resresents DB name, table, encrypted columns and it's identificators.
-type EncryptedItem struct {
-	Database, Table string
-	Identificators  []string
-	Columns         []string
+type EncryptedDatabase struct {
+	Database string
+	Tables   []EncryptedTable
+}
+
+type EncryptedTable struct {
+	Table          string
+	Identificators []string
+	Columns        []EncryptedColumn
+}
+
+type EncryptedColumn struct {
+	Column  string
+	Handler func()
 }
 
 // QueryValues represents query to update row after encrypt/decrypt.

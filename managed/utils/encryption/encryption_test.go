@@ -37,12 +37,19 @@ func TestEncryption(t *testing.T) {
 		Port:     5432,
 		User:     "postgres",
 		Password: "",
-		EncryptedItems: []EncryptedItem{
+		EncryptedItems: []EncryptedDatabase{
 			{
-				Database:       "pmm-managed",
-				Table:          "agents",
-				Identificators: []string{"agent_id"},
-				Columns:        []string{"username", "password"},
+				Database: "pmm-managed",
+				Tables: []EncryptedTable{
+					{
+						Table:          "agents",
+						Identificators: []string{"agent_id"},
+						Columns: []EncryptedColumn{
+							{Column: "username", Handler: func() {}},
+							{Column: "password", Handler: func() {}},
+						},
+					},
+				},
 			},
 		},
 	}

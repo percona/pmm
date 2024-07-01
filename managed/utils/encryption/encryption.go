@@ -106,30 +106,32 @@ func (e *Encryption) EncryptDB(ctx context.Context, c *DatabaseConnection) error
 		}
 		defer tx.Rollback() //nolint:errcheck
 
-		res, err := item.Read(tx)
-		if err != nil {
-			return err
-		}
+		for _, table := range item.Tables {
+			res, err := table.Read(tx)
+			if err != nil {
+				return err
+			}
 
-		for k, v := range res.SetValues {
-			for i, val := range v {
-				value := val.(*sql.NullString)
-				if !value.Valid {
-					res.SetValues[k][i] = sql.NullString{}
-					continue
+			for k, v := range res.SetValues {
+				for i, val := range v {
+					value := val.(*sql.NullString)
+					if !value.Valid {
+						res.SetValues[k][i] = sql.NullString{}
+						continue
+					}
+
+					encrypted, err := e.Encrypt(value.String)
+					if err != nil {
+						return err
+					}
+					res.SetValues[k][i] = encrypted
 				}
-
-				encrypted, err := e.Encrypt(value.String)
+				data := slices.Concat([]any{}, v)
+				data = slices.Concat(data, res.WhereValues[k])
+				_, err := tx.Exec(res.Query, data...)
 				if err != nil {
 					return err
 				}
-				res.SetValues[k][i] = encrypted
-			}
-			data := slices.Concat([]any{}, v)
-			data = slices.Concat(data, res.WhereValues[k])
-			_, err := tx.Exec(res.Query, data...)
-			if err != nil {
-				return err
 			}
 		}
 
@@ -192,30 +194,32 @@ func (e *Encryption) DecryptDB(ctx context.Context, c *DatabaseConnection) error
 		}
 		defer tx.Rollback() //nolint:errcheck
 
-		res, err := item.Read(tx)
-		if err != nil {
-			return err
-		}
+		for _, table := range item.Tables {
+			res, err := table.Read(tx)
+			if err != nil {
+				return err
+			}
 
-		for k, v := range res.SetValues {
-			for i, val := range v {
-				value := val.(*sql.NullString)
-				if !value.Valid {
-					res.SetValues[k][i] = nil
-					continue
+			for k, v := range res.SetValues {
+				for i, val := range v {
+					value := val.(*sql.NullString)
+					if !value.Valid {
+						res.SetValues[k][i] = nil
+						continue
+					}
+
+					decrypted, err := e.Decrypt(value.String)
+					if err != nil {
+						return err
+					}
+					res.SetValues[k][i] = decrypted
 				}
-
-				decrypted, err := e.Decrypt(value.String)
+				data := slices.Concat([]any{}, v)
+				data = slices.Concat(data, res.WhereValues[k])
+				_, err := tx.Exec(res.Query, data...)
 				if err != nil {
 					return err
 				}
-				res.SetValues[k][i] = decrypted
-			}
-			data := slices.Concat([]any{}, v)
-			data = slices.Concat(data, res.WhereValues[k])
-			_, err := tx.Exec(res.Query, data...)
-			if err != nil {
-				return err
 			}
 		}
 
