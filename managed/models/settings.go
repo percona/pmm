@@ -154,4 +154,5 @@ func (s *Settings) fillDefaults() {
 	// VictoriaMetrics CacheEnable is false by default
 	// PMMPublicAddress is empty by default
 	// Azurediscover.Enabled is false by default
+	// EncryptedItems are empty by default
 }
