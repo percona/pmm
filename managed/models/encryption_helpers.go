@@ -8,11 +8,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func encryptAgent(agent *Agent) {
+func EncryptAgent(agent *Agent) {
 	agentEncryption(agent, encryption.Encrypt)
 }
 
-func decryptAgent(agent *Agent) {
+func DecryptAgent(agent *Agent) {
 	agentEncryption(agent, encryption.Decrypt)
 }
 
