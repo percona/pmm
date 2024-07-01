@@ -35,18 +35,20 @@ type DatabaseConnection struct {
 	SSLCertPath          string
 }
 
-// EncryptedItem resresents DB name, table, encrypted columns and it's identificators.
+// Database resresents database name and tables to be encrypted/decrypted.
 type Database struct {
 	Database string
 	Tables   []Table
 }
 
+// Table represents table name, it's identificators and columns to be encrypted/decrypted.
 type Table struct {
 	Table          string
 	Identificators []string
 	Columns        []Column
 }
 
+// Column represents column name and column's custom handler (if needed).
 type Column struct {
 	Column        string
 	CustomHandler func(e *Encryption, val any) (any, error)

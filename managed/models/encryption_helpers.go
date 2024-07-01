@@ -8,10 +8,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// EncryptAgent returns agent after it is encrypted.
 func EncryptAgent(agent *Agent) {
 	agentEncryption(agent, encryption.Encrypt)
 }
 
+// DecryptAgent returns agent after it is decrypted.
 func DecryptAgent(agent *Agent) {
 	agentEncryption(agent, encryption.Decrypt)
 }
@@ -123,10 +125,12 @@ func agentEncryption(agent *Agent, handler func(string) (string, error)) {
 	}
 }
 
+// EncryptMySQLOptionsHandler returns encrypted MySQL Options.
 func EncryptMySQLOptionsHandler(e *encryption.Encryption, val any) (any, error) {
 	return mySQLOptionsHandler(val, e.Encrypt)
 }
 
+// DecryptMySQLOptionsHandler returns decrypted MySQL Options.
 func DecryptMySQLOptionsHandler(e *encryption.Encryption, val any) (any, error) {
 	return mySQLOptionsHandler(val, e.Decrypt)
 }
@@ -164,10 +168,12 @@ func mySQLOptionsHandler(val any, handler func(string) (string, error)) (any, er
 	return res, nil
 }
 
+// EncryptPostgreSQLOptionsHandler returns encrypted PostgreSQL Options.
 func EncryptPostgreSQLOptionsHandler(e *encryption.Encryption, val any) (any, error) {
 	return postgreSQLOptionsHandler(val, e.Encrypt)
 }
 
+// DecryptPostgreSQLOptionsHandler returns decrypted PostgreSQL Options.
 func DecryptPostgreSQLOptionsHandler(e *encryption.Encryption, val any) (any, error) {
 	return postgreSQLOptionsHandler(val, e.Decrypt)
 }
@@ -205,10 +211,12 @@ func postgreSQLOptionsHandler(val any, handler func(string) (string, error)) (an
 	return res, nil
 }
 
+// EncryptMongoDBOptionsHandler returns encrypted MongoDB Options.
 func EncryptMongoDBOptionsHandler(e *encryption.Encryption, val any) (any, error) {
 	return mongoDBOptionsHandler(val, e.Encrypt)
 }
 
+// DecryptMongoDBOptionsHandler returns decrypted MongoDB Options.
 func DecryptMongoDBOptionsHandler(e *encryption.Encryption, val any) (any, error) {
 	return mongoDBOptionsHandler(val, e.Decrypt)
 }
@@ -246,10 +254,12 @@ func mongoDBOptionsHandler(val any, handler func(string) (string, error)) (any, 
 	return res, nil
 }
 
+// EncryptAzureOptionsHandler returns encrypted Azure Options.
 func EncryptAzureOptionsHandler(e *encryption.Encryption, val any) (any, error) {
 	return azureOptionsHandler(val, e.Encrypt)
 }
 
+// DecryptAzureOptionsHandler returns decrypted Azure Options.
 func DecryptAzureOptionsHandler(e *encryption.Encryption, val any) (any, error) {
 	return azureOptionsHandler(val, e.Decrypt)
 }

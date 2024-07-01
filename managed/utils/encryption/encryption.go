@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package collectors contains functions to encrypt/decrypt items or DB.
 package encryption
 
 import (
@@ -32,7 +33,8 @@ const DefaultEncryptionKeyPath = "/srv/pmm-encryption.key"
 var (
 	// ErrEncryptionNotInitialized is error in case of encryption is not initialized.
 	ErrEncryptionNotInitialized = errors.New("encryption is not initialized")
-	DefaultEncryption           = New(DefaultEncryptionKeyPath)
+	// DefaultEncryption is the default implementation of encryption.
+	DefaultEncryption = New(DefaultEncryptionKeyPath)
 )
 
 // New create encryption, if key on path doesnt exists will be generated.
