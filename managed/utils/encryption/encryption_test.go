@@ -19,7 +19,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/stretchr/testify/require"
 )
@@ -52,7 +51,6 @@ func TestEncryption(t *testing.T) {
 					Columns: []encryption.Column{
 						{Column: "username"},
 						{Column: "password"},
-						{Column: "postgresql_options", CustomHandler: models.EncryptPostgreSQLOptionsHandler},
 					},
 				},
 			},
@@ -70,7 +68,6 @@ func TestEncryption(t *testing.T) {
 					Columns: []encryption.Column{
 						{Column: "username"},
 						{Column: "password"},
-						{Column: "postgresql_options", CustomHandler: models.DecryptPostgreSQLOptionsHandler},
 					},
 				},
 			},
