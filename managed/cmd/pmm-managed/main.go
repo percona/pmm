@@ -637,7 +637,7 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 			},
 		}
 		l.Infof("Encrypting database...")
-		err = models.EncryptDB(context.TODO(), sqlDB, params, itemsToEncrypt)
+		err = models.EncryptDB(timeoutCtx, sqlDB, params, itemsToEncrypt)
 		if err == nil {
 			return
 		}
