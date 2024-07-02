@@ -100,6 +100,9 @@ type Settings struct {
 		// Enabled is true if access control is enabled.
 		Enabled bool `json:"enabled"`
 	} `json:"access_control"`
+
+	// Contains all already encrypted tables in format db.table.
+	EncryptedItems []string `json:"encrypted_items"`
 }
 
 // STTCheckIntervals represents intervals between STT checks.
@@ -151,4 +154,5 @@ func (s *Settings) fillDefaults() {
 	// VictoriaMetrics CacheEnable is false by default
 	// PMMPublicAddress is empty by default
 	// Azurediscover.Enabled is false by default
+	// EncryptedItems are empty by default
 }

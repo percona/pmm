@@ -418,6 +418,14 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 16
+                    },
+                    "encrypted_items": {
+                      "description": "Contains all already encrypted tables in format db.table.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 17
                     }
                   },
                   "x-order": 0
@@ -611,6 +619,14 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 16
+                    },
+                    "encrypted_items": {
+                      "description": "Contains all already encrypted tables in format db.table.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 17
                     }
                   },
                   "x-order": 0

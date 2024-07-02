@@ -229,7 +229,9 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 
 	agents := make([]*Agent, len(structs))
 	for i, s := range structs {
-		agents[i] = s.(*Agent) //nolint:forcetypeassert
+		agent := s.(*Agent) //nolint:forcetypeassert
+		DecryptAgent(agent)
+		agents[i] = agent
 	}
 
 	return agents, nil
@@ -249,6 +251,8 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 		}
 		return nil, errors.WithStack(err)
 	}
+
+	DecryptAgent(agent)
 
 	return agent, nil
 }
@@ -272,7 +276,9 @@ func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 
 	res := make([]*Agent, len(structs))
 	for i, s := range structs {
-		res[i] = s.(*Agent) //nolint:forcetypeassert
+		agent := s.(*Agent) //nolint:forcetypeassert
+		DecryptAgent(agent)
+		res[i] = agent
 	}
 	return res, nil
 }
@@ -323,7 +329,9 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 
 	res := make([]*Agent, len(structs))
 	for i, s := range structs {
-		res[i] = s.(*Agent) //nolint:forcetypeassert
+		agent := s.(*Agent) //nolint:forcetypeassert
+		DecryptAgent(agent)
+		res[i] = agent
 	}
 
 	if len(res) == 0 {
@@ -351,6 +359,7 @@ func FindPMMAgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, err
 	res := make([]*Agent, 0, len(structs))
 	for _, str := range structs {
 		row := str.(*Agent) //nolint:forcetypeassert
+		DecryptAgent(row)
 		res = append(res, row)
 	}
 
@@ -396,6 +405,7 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	res := make([]*Agent, 0, len(pmmAgentRecords))
 	for _, str := range pmmAgentRecords {
 		row := str.(*Agent) //nolint:forcetypeassert
+		DecryptAgent(row)
 		res = append(res, row)
 	}
 
@@ -477,7 +487,9 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 
 	res := make([]*Agent, len(allAgents))
 	for i, s := range allAgents {
-		res[i] = s.(*Agent) //nolint:forcetypeassert
+		agent := s.(*Agent) //nolint:forcetypeassert
+		DecryptAgent(agent)
+		res[i] = agent
 	}
 	return res, nil
 }
@@ -638,12 +650,16 @@ func CreateNodeExporter(q *reform.Querier,
 		LogLevel:           pointer.ToStringOrNil(logLevel),
 		ExposeExporter:     exposeExporter,
 	}
+	EncryptAgent(row)
+
 	if err := row.SetCustomLabels(customLabels); err != nil {
 		return nil, err
 	}
 	if err := q.Insert(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
+
+	DecryptAgent(row)
 
 	return row, nil
 }
@@ -722,12 +738,16 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		ListenPort:    pointer.ToUint16(uint16(params.ListenPort)),
 		PushMetrics:   params.PushMetrics,
 	}
+	EncryptAgent(row)
+
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}
 	if err := q.Insert(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
+
+	DecryptAgent(row)
 
 	return row, nil
 }
@@ -912,6 +932,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		DisabledCollectors:             params.DisableCollectors,
 		LogLevel:                       pointer.ToStringOrNil(params.LogLevel),
 	}
+	EncryptAgent(row)
 
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
@@ -919,6 +940,8 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	if err := q.Insert(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
+
+	DecryptAgent(row)
 
 	return row, nil
 }

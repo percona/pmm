@@ -27,6 +27,7 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -36,6 +37,8 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
+
+	"github.com/percona/pmm/managed/utils/encryption"
 )
 
 const (
@@ -1039,7 +1042,7 @@ type SetupDBParams struct {
 }
 
 // SetupDB checks minimal required PostgreSQL version and runs database migrations. Optionally creates database and adds initial data.
-func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.DB, error) {
+func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams, itemsToEncrypt []encryption.Table) (*reform.DB, error) {
 	var logger reform.Logger
 	if params.Logf != nil {
 		logger = reform.NewPrintfLogger(params.Logf)
@@ -1062,7 +1065,61 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 	if err := migrateDB(db, params); err != nil {
 		return nil, err
 	}
+
+	err := EncryptDB(ctx, sqlDB, params, itemsToEncrypt)
+	if err != nil {
+		return nil, err
+	}
+
+	// add PMM Server postgres_exporter and pg_stat_statements
+	// once db is already encrypted to prevent double encryption
+	// during adding by CreateAgent methods.
+	if err = setupPMMServerAgents(db.Querier, params); err != nil {
+		return nil, err
+	}
+
 	return db, nil
+}
+
+// EncryptDB encrypt all provided columns in specific database and table.
+func EncryptDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams, itemsToEncrypt []encryption.Table) error {
+	settings, err := GetSettings(sqlDB)
+	if err != nil {
+		return err
+	}
+	alreadyEncrypted := make(map[string]bool)
+	for _, v := range settings.EncryptedItems {
+		alreadyEncrypted[v] = true
+	}
+
+	notEncrypted := []encryption.Table{}
+	newlyEncrypted := []string{}
+	for _, table := range itemsToEncrypt {
+		dbWithTable := fmt.Sprintf("%s.%s", params.Name, table.Name)
+		if alreadyEncrypted[dbWithTable] {
+			continue
+		}
+
+		notEncrypted = append(notEncrypted, table)
+		newlyEncrypted = append(newlyEncrypted, dbWithTable)
+	}
+
+	if len(notEncrypted) == 0 {
+		return nil
+	}
+
+	err = encryption.EncryptItems(ctx, sqlDB, notEncrypted)
+	if err != nil {
+		return err
+	}
+	_, err = UpdateSettings(sqlDB, &ChangeSettingsParams{
+		EncryptedItems: slices.Concat(settings.EncryptedItems, newlyEncrypted),
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // checkVersion checks minimal required PostgreSQL server version.
@@ -1173,17 +1230,11 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			return err
 		}
 
-		if err = setupFixture1(tx.Querier, params); err != nil {
-			return err
-		}
-		if err = setupFixture2(tx.Querier, params.Username, params.Password); err != nil {
-			return err
-		}
 		return nil
 	})
 }
 
-func setupFixture1(q *reform.Querier, params SetupDBParams) error {
+func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents
 	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
 		NodeName: "pmm-server",
@@ -1263,12 +1314,6 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	if err != nil {
 		return err
 	}
-	return nil
-}
-
-func setupFixture2(q *reform.Querier, username, password string) error { //nolint:revive
-	// TODO add clickhouse_exporter
-
 	return nil
 }
 
