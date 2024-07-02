@@ -129,7 +129,7 @@ func (table Table) columnsList() []string {
 
 func (table Table) read(tx *reform.TX) (*QueryValues, error) {
 	what := slices.Concat(table.Identificators, table.columnsList())
-	query := fmt.Sprintf("SELECT %s FROM %s", strings.Join(what, ", "), table.Name) //nolint:gosec
+	query := fmt.Sprintf("SELECT %s FROM %s", strings.Join(what, ", "), table.Name)
 	rows, err := tx.Query(query)
 	if err != nil {
 		return nil, err

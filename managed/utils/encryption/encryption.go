@@ -17,7 +17,6 @@
 package encryption
 
 import (
-	"context"
 	"encoding/base64"
 	"fmt"
 	"os"
@@ -85,12 +84,12 @@ func (e *Encryption) Encrypt(secret string) (string, error) {
 }
 
 // EncryptItems is wrapper around DefaultEncryption.EncryptItems.
-func EncryptItems(ctx context.Context, tx *reform.TX, tables []Table) error {
-	return DefaultEncryption.EncryptItems(ctx, tx, tables)
+func EncryptItems(tx *reform.TX, tables []Table) error {
+	return DefaultEncryption.EncryptItems(tx, tables)
 }
 
 // EncryptItems will encrypt all columns provided in DB connection.
-func (e *Encryption) EncryptItems(ctx context.Context, tx *reform.TX, tables []Table) error {
+func (e *Encryption) EncryptItems(tx *reform.TX, tables []Table) error {
 	if len(tables) == 0 {
 		return errors.New("target tables/columns not defined")
 	}
@@ -155,12 +154,12 @@ func (e *Encryption) Decrypt(cipherText string) (string, error) {
 }
 
 // DecryptItems is wrapper around DefaultEncryption.DecryptItems.
-func DecryptItems(ctx context.Context, tx *reform.TX, tables []Table) error {
-	return DefaultEncryption.DecryptItems(ctx, tx, tables)
+func DecryptItems(tx *reform.TX, tables []Table) error {
+	return DefaultEncryption.DecryptItems(tx, tables)
 }
 
 // DecryptItems will decrypt all columns provided in DB connection.
-func (e *Encryption) DecryptItems(ctx context.Context, tx *reform.TX, tables []Table) error {
+func (e *Encryption) DecryptItems(tx *reform.TX, tables []Table) error {
 	if len(tables) == 0 {
 		return errors.New("target tables/columns not defined")
 	}

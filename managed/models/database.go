@@ -1070,7 +1070,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams, itemsToEn
 }
 
 // EncryptDB encrypt all provided columns in specific database and table.
-func EncryptDB(ctx context.Context, tx *reform.TX, params SetupDBParams, itemsToEncrypt []encryption.Table) error {
+func EncryptDB(tx *reform.TX, params SetupDBParams, itemsToEncrypt []encryption.Table) error {
 	settings, err := GetSettings(tx)
 	if err != nil {
 		return err
@@ -1096,7 +1096,7 @@ func EncryptDB(ctx context.Context, tx *reform.TX, params SetupDBParams, itemsTo
 		return nil
 	}
 
-	err = encryption.EncryptItems(ctx, tx, notEncrypted)
+	err = encryption.EncryptItems(tx, notEncrypted)
 	if err != nil {
 		return err
 	}
@@ -1206,7 +1206,7 @@ func migrateDB(db *reform.DB, params SetupDBParams, itemsToEncrypt []encryption.
 		}
 
 		if params.SetupFixtures == SkipFixtures {
-			err := EncryptDB(context.TODO(), tx, params, itemsToEncrypt)
+			err := EncryptDB(tx, params, itemsToEncrypt)
 			if err != nil {
 				return err
 			}
@@ -1223,7 +1223,7 @@ func migrateDB(db *reform.DB, params SetupDBParams, itemsToEncrypt []encryption.
 			return err
 		}
 
-		err = EncryptDB(context.TODO(), tx, params, itemsToEncrypt)
+		err = EncryptDB(tx, params, itemsToEncrypt)
 		if err != nil {
 			return err
 		}
