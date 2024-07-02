@@ -38,10 +38,6 @@ linters-settings:
   goimports:
     local-prefixes: github.com/percona/pmm
 
-  gomoddirectives:
-    replace-allow-list:
-      - github.com/percona-platform/dbaas-api
-
   ireturn:
     allow:
       - anon
@@ -104,6 +100,7 @@ linters:
     - maligned         # deprecated
     - nlreturn         # too annoying
     - nosnakecase      # deprecated
+    - protogetter      # mostly useless
     - rowserrcheck     # disabled because of generics
     - scopelint        # too many false positives
     - structcheck      # replaced by unused

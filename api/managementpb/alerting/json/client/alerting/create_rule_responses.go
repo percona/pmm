@@ -150,6 +150,9 @@ type CreateRuleBody struct {
 
 	// Filters.
 	Filters []*CreateRuleParamsBodyFiltersItems0 `json:"filters"`
+
+	// Evaluation Interval
+	Interval string `json:"interval,omitempty"`
 }
 
 // Validate validates this create rule body

@@ -83,6 +83,11 @@
                   "type": "string",
                   "x-order": 2
                 },
+                "interval": {
+                  "type": "string",
+                  "title": "Evaluation Interval",
+                  "x-order": 9
+                },
                 "name": {
                   "description": "Rule name.",
                   "type": "string",

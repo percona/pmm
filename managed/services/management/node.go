@@ -17,14 +17,11 @@ package management
 
 import (
 	"context"
-	"fmt"
-	"math/rand"
-	"net/http"
 
 	"github.com/AlekSi/pointer"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
@@ -32,22 +29,28 @@ import (
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/auth"
 )
 
 // NodeService represents service for working with nodes.
 type NodeService struct {
-	db  *reform.DB
-	akp apiKeyProvider
-
-	l *logrus.Entry
+	db    *reform.DB
+	ap    authProvider
+	l     *logrus.Entry
+	r     agentsRegistry
+	state agentsStateUpdater
+	vmdb  prometheusService
 }
 
 // NewNodeService creates NodeService instance.
-func NewNodeService(db *reform.DB, akp apiKeyProvider) *NodeService {
+func NewNodeService(db *reform.DB, ap authProvider, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService) *NodeService {
 	return &NodeService{
-		db:  db,
-		akp: akp,
-		l:   logrus.WithField("component", "node"),
+		db:    db,
+		ap:    ap,
+		r:     r,
+		state: state,
+		vmdb:  vmdb,
+		l:     logrus.WithField("component", "node"),
 	}
 }
 
@@ -136,29 +139,87 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		return nil, e
 	}
 
-	// get authorization from headers.
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		msg := "Couldn't create Admin API Key: cannot get headers from metadata"
-		s.l.Errorln(msg)
-		res.Warning = msg
-		return res, nil
-	}
-	authorizationHeaders := md.Get("Authorization")
-	if len(authorizationHeaders) == 0 {
-		return nil, status.Error(codes.Unauthenticated, "Authorization error.")
-	}
-	headers := make(http.Header)
-	headers.Set("Authorization", authorizationHeaders[0])
-	if !s.akp.IsAPIKeyAuth(headers) {
-		apiKeyName := fmt.Sprintf("pmm-agent-%s-%d", req.NodeName, rand.Int63()) //nolint:gosec
-		_, res.Token, e = s.akp.CreateAdminAPIKey(ctx, apiKeyName)
+	authHeaders, _ := auth.GetHeadersFromContext(ctx)
+	token := auth.GetTokenFromHeaders(authHeaders)
+	if token != "" {
+		res.Token = token
+	} else {
+		_, res.Token, e = s.ap.CreateServiceAccount(ctx, req.NodeName, req.Reregister)
 		if e != nil {
-			msg := fmt.Sprintf("Couldn't create Admin API Key: %s", e)
-			s.l.Errorln(msg)
-			res.Warning = msg
+			return nil, e
 		}
 	}
 
 	return res, nil
+}
+
+// Unregister do unregistration of the node.
+func (s *NodeService) Unregister(ctx context.Context, req *managementpb.UnregisterNodeRequest) (*managementpb.UnregisterNodeResponse, error) {
+	idsToKick := make(map[string]struct{})
+	idsToSetState := make(map[string]struct{})
+
+	node, err := models.FindNodeByID(s.db.Querier, req.NodeId)
+	if err != nil {
+		return nil, err
+	}
+
+	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		mode := models.RemoveRestrict
+		if req.Force {
+			mode = models.RemoveCascade
+
+			agents, err := models.FindPMMAgentsRunningOnNode(tx.Querier, node.NodeID)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			for _, a := range agents {
+				idsToKick[a.AgentID] = struct{}{}
+			}
+
+			agents, err = models.FindAgents(tx.Querier, models.AgentFilters{NodeID: node.NodeID})
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			for _, a := range agents {
+				if a.PMMAgentID != nil {
+					idsToSetState[pointer.GetString(a.PMMAgentID)] = struct{}{}
+				}
+			}
+
+			agents, err = models.FindPMMAgentsForServicesOnNode(tx.Querier, node.NodeID)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			for _, a := range agents {
+				idsToSetState[a.AgentID] = struct{}{}
+			}
+		}
+		return models.RemoveNode(tx.Querier, node.NodeID, mode)
+	}); e != nil {
+		return nil, e
+	}
+
+	for id := range idsToSetState {
+		s.state.RequestStateUpdate(ctx, id)
+	}
+	for id := range idsToKick {
+		s.r.Kick(ctx, id)
+	}
+
+	if req.Force {
+		// It's required to regenerate victoriametrics config file for the agents which aren't run by pmm-agent.
+		s.vmdb.RequestConfigurationUpdate()
+	}
+
+	warning, err := s.ap.DeleteServiceAccount(ctx, node.NodeName, req.Force)
+	if err != nil {
+		s.l.WithError(err).Error("deleting service account")
+		return &managementpb.UnregisterNodeResponse{
+			Warning: err.Error(),
+		}, nil
+	}
+
+	return &managementpb.UnregisterNodeResponse{
+		Warning: warning,
+	}, nil
 }

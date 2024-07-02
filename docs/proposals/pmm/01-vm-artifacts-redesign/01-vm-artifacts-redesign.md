@@ -21,7 +21,7 @@ Instead of a custom VM image, we recommend using a more advanced base VM of your
 
 ## Motivation
 
-[Currently](https://github.com/percona/pmm/blob/pmm-2.35.0/build/packer/pmm2.json), we build several VM artifacts with CentOS 7 as a base. There is also work to migrate that base to EL 9 base. 
+[Currently](https://github.com/percona/pmm/blob/pmm-3.35.0/build/packer/pmm.json), we build several VM artifacts with CentOS 7 as a base. There is also work to migrate that base to EL 9 base. 
 Migration to EL9 will not solve the problem but will further postpone it to a later time.
 
 VM was designed like a container - base image (CentOS 7/EL9) + ansible roles/playbooks/tasks to provision PMM inside the image. After provisioning, there is another custom image with PMM and all the needed software that could be used to bootstrap.

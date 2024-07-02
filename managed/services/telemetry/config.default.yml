@@ -48,23 +48,6 @@ telemetry:
       - metric_name: "pmm_server_backup_management_enabled"
         column: "backup_management_enabled"
 
-  - id: PMMServerAlertManagerUsed
-    source: PMMDB_SELECT
-    query: (CASE alert_manager_url WHEN '""' THEN 'false' ELSE 'true' END) as alert_manager_set FROM settings s, jsonb_extract_path(s.settings, 'alert_manager_url') AS alert_manager_url
-    summary: "PMM Server alert manager integration  - used/not used"
-    data:
-      - metric_name: "pmm_server_alert_manager_enabled"
-        column: "alert_manager_set"
-
-
-  - id: PMMServerDBaaSEnabled
-    source: PMMDB_SELECT
-    query: (CASE WHEN dbaas->'enabled' = 'true' THEN '1' ELSE '0' END) AS dbaas_enabled FROM settings s, jsonb_extract_path(s.settings, 'dbaas') AS dbaas
-    summary: "PMM Server DBaaS feature enabled/disabled"
-    data:
-      - metric_name: "pmm_server_dbaas_enabled"
-        column: "dbaas_enabled"
-
   - id: PMMServerAccessControlEnabled
     source: PMMDB_SELECT
     query: (CASE WHEN access_control->'enabled' = 'true' THEN '1' ELSE '0' END) AS access_control_enabled FROM settings s, jsonb_extract_path(s.settings, 'access_control') AS access_control
@@ -690,32 +673,6 @@ telemetry:
       - metric_name: "pmm_server_node_os_pretty_name_and_version"
         label: "pretty_name"
 
-  # DBaaS
-  - id: DBaaSServicesCount
-    source: PMMDB_SELECT
-    query: count(service_name) AS count from services where service_name ~ concat('default-', cluster,'-(pxc|rs0)-\d+')
-    summary: "DBaaS Services Count"
-    data:
-      - metric_name: "dbaas_services_count"
-        column: "count"
-
-  - id: DBaaSClustersCount
-    source: PMMDB_SELECT
-    query: count(distinct cluster) AS count from services where service_name ~ concat('default-', cluster,'-(pxc|rs0)-\d+')
-    summary: "DBaaS Clusters Count"
-    data:
-      - metric_name: "dbaas_clusters_count"
-        column: "count"
-
-  # K8s Clusters
-  - id: K8sClustersCount
-    source: PMMDB_SELECT
-    query: count(*) AS count FROM kubernetes_clusters
-    summary: "K8s Clusters Count"
-    data:
-      - metric_name: "k8s_clusters_count"
-        column: "count"
-
   # Advisor
   - id: AdvisorChecksAvailable
     source: VM
@@ -895,31 +852,31 @@ telemetry:
       	j.job_status bm_job_status,
       	coalesce(bl_backup.type, bl_restore.type, 'N/A') bm_location_type,
       	count(*) count
-      from (select type, 
-      			"data"->"type"->>'mode' mod, 
-      			"data"->"type"->>'data_model' dm, 
+      from (select type,
+      			"data"->"type"->>'mode' mod,
+      			"data"->"type"->>'data_model' dm,
       			"data"->"type"->>'artifact_id' artifact_id,
       			"data"->"type"->>'restore_id' restore_id,
       			case error when '' then 'success' else 'failed' end job_status
-      		from jobs 
-      		where created_at BETWEEN NOW() - INTERVAL '24 HOURS' AND NOW() 
+      		from jobs
+      		where created_at BETWEEN NOW() - INTERVAL '24 HOURS' AND NOW()
       			group by type, mod, dm, artifact_id, restore_id, job_status) j
       left join artifacts a_backup
       	on a_backup.id = j.artifact_id
       left join backup_locations bl_backup
-      	on bl_backup.id = a_backup.location_id 
+      	on bl_backup.id = a_backup.location_id
       left join restore_history rh
       	on rh.id = j.restore_id
       left join artifacts a_restore
       	on a_restore.id = rh.artifact_id
       left join backup_locations bl_restore
       	on bl_restore.id = a_restore.location_id
-      group by 
-      	bm_job_type, 
-      	bm_backup_mode, 
-      	bm_data_model, 
-      	bm_job_run_type, 
-      	bm_job_status, 
+      group by
+      	bm_job_type,
+      	bm_backup_mode,
+      	bm_data_model,
+      	bm_job_run_type,
+      	bm_job_status,
       	bm_location_type
     transform:
       type: JSON
@@ -1008,8 +965,8 @@ telemetry:
     summary: "Use of External DBs"
     data:
       - metric_name: "pmm_server_ha_clickhouse_address"
-        column: "PERCONA_TEST_PMM_CLICKHOUSE_ADDR"
+        column: "PMM_CLICKHOUSE_ADDR"
       - metric_name: "pmm_server_ha_postgres_address"
-        column: "PERCONA_TEST_POSTGRES_ADDR"
+        column: "PMM_POSTGRES_ADDR"
       - metric_name: "pmm_server_ha_vm_url"
         column: "PMM_VM_URL"

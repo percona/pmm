@@ -21,10 +21,12 @@ digraph packages {
 	"/agents/noop" -> "/agents";
 	"/agents/noop.test" -> "/agents/noop";
 	"/agents/postgres/pgstatmonitor" -> "/agents";
+	"/agents/postgres/pgstatmonitor" -> "/queryparser";
 	"/agents/postgres/pgstatmonitor.test" -> "/agents/postgres/pgstatmonitor";
 	"/agents/postgres/pgstatstatements" -> "/agents";
 	"/agents/postgres/pgstatstatements" -> "/agents/cache";
 	"/agents/postgres/pgstatstatements" -> "/agents/postgres/parser";
+	"/agents/postgres/pgstatstatements" -> "/queryparser";
 	"/agents/postgres/pgstatstatements.test" -> "/agents/postgres/pgstatstatements";
 	"/agents/process.test" -> "/agents/process";
 	"/agents/supervisor" -> "/agents";
@@ -38,9 +40,11 @@ digraph packages {
 	"/agents/supervisor" -> "/config";
 	"/agents/supervisor" -> "/tailog";
 	"/agents/supervisor.test" -> "/agents/supervisor";
+	"/client" -> "/client/cache";
 	"/client" -> "/client/channel";
 	"/client" -> "/config";
 	"/client" -> "/connectionuptime";
+	"/client" -> "/models";
 	"/client" -> "/runner";
 	"/client" -> "/runner/actions";
 	"/client" -> "/runner/jobs";
@@ -54,6 +58,7 @@ digraph packages {
 	"/commands" -> "/connectionchecker";
 	"/commands" -> "/connectionuptime";
 	"/commands" -> "/runner";
+	"/commands" -> "/serviceinfobroker";
 	"/commands" -> "/tailog";
 	"/commands" -> "/versioner";
 	"/connectionchecker" -> "/config";

@@ -54,7 +54,7 @@ func getHandler(cfg Config) http.HandlerFunc {
 		Director: director(cfg.TargetURL, cfg.HeaderName),
 	}
 
-	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+	return func(rw http.ResponseWriter, req *http.Request) {
 		logrus.Infof("%s: %s", req.Method, req.URL)
 
 		if failOnInvalidHeader(rw, req, cfg.HeaderName) {
@@ -62,7 +62,7 @@ func getHandler(cfg Config) http.HandlerFunc {
 		}
 
 		rProxy.ServeHTTP(rw, req)
-	})
+	}
 }
 
 func failOnInvalidHeader(rw http.ResponseWriter, req *http.Request, headerName string) bool {

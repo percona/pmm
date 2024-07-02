@@ -20,15 +20,18 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Node_RegisterNode_FullMethodName = "/management.Node/RegisterNode"
+	Node_RegisterNode_FullMethodName   = "/management.Node/RegisterNode"
+	Node_UnregisterNode_FullMethodName = "/management.Node/UnregisterNode"
 )
 
 // NodeClient is the client API for Node service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NodeClient interface {
-	// RegisterNode registers a new Node and pmm-agent.
+	// RegisterNode registers a new Node, pmm-agent and create service account and it's token.
 	RegisterNode(ctx context.Context, in *RegisterNodeRequest, opts ...grpc.CallOption) (*RegisterNodeResponse, error)
+	// UnregisterNode unregister a Node, pmm-agent and remove service account and it's token.
+	UnregisterNode(ctx context.Context, in *UnregisterNodeRequest, opts ...grpc.CallOption) (*UnregisterNodeResponse, error)
 }
 
 type nodeClient struct {
@@ -48,12 +51,23 @@ func (c *nodeClient) RegisterNode(ctx context.Context, in *RegisterNodeRequest, 
 	return out, nil
 }
 
+func (c *nodeClient) UnregisterNode(ctx context.Context, in *UnregisterNodeRequest, opts ...grpc.CallOption) (*UnregisterNodeResponse, error) {
+	out := new(UnregisterNodeResponse)
+	err := c.cc.Invoke(ctx, Node_UnregisterNode_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NodeServer is the server API for Node service.
 // All implementations must embed UnimplementedNodeServer
 // for forward compatibility
 type NodeServer interface {
-	// RegisterNode registers a new Node and pmm-agent.
+	// RegisterNode registers a new Node, pmm-agent and create service account and it's token.
 	RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error)
+	// UnregisterNode unregister a Node, pmm-agent and remove service account and it's token.
+	UnregisterNode(context.Context, *UnregisterNodeRequest) (*UnregisterNodeResponse, error)
 	mustEmbedUnimplementedNodeServer()
 }
 
@@ -62,6 +76,10 @@ type UnimplementedNodeServer struct{}
 
 func (UnimplementedNodeServer) RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterNode not implemented")
+}
+
+func (UnimplementedNodeServer) UnregisterNode(context.Context, *UnregisterNodeRequest) (*UnregisterNodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnregisterNode not implemented")
 }
 func (UnimplementedNodeServer) mustEmbedUnimplementedNodeServer() {}
 
@@ -94,6 +112,24 @@ func _Node_RegisterNode_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Node_UnregisterNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnregisterNodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServer).UnregisterNode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Node_UnregisterNode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServer).UnregisterNode(ctx, req.(*UnregisterNodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Node_ServiceDesc is the grpc.ServiceDesc for Node service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -104,6 +140,10 @@ var Node_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RegisterNode",
 			Handler:    _Node_RegisterNode_Handler,
+		},
+		{
+			MethodName: "UnregisterNode",
+			Handler:    _Node_UnregisterNode_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

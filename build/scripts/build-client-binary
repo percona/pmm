@@ -57,8 +57,8 @@ gobuild_component() {
         export PMM_RELEASE_BRANCH=""
         sudo chown -R builder:builder /home/builder/tmp
 
-        source_dir=/home/builder/tmp/source/pmm2-client-${pmm_version}
-        binary_dir=/home/builder/tmp/binary/pmm2-client-${pmm_version}
+        source_dir=/home/builder/tmp/source/pmm-client-${pmm_version}
+        binary_dir=/home/builder/tmp/binary/pmm-client-${pmm_version}
         export PMM_RELEASE_PATH=\${binary_dir}/bin
 
         mkdir -p \$binary_dir/bin
@@ -131,7 +131,7 @@ main() {
     mkdir -p $(dirname ${binary_tarball}) || :
     
     # Removes pmm binary in case this is not a PR build - such as RC/GA build
-    if [[ "$(basename ${root_dir})" != pmm2-submodules_PR-* ]]; then
+    if [[ "$(basename ${root_dir})" != pmm-submodules_PR-* ]]; then
         rm -f "${binary_dir}/bin/pmm"
     fi
 

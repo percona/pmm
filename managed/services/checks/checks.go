@@ -56,8 +56,8 @@ const (
 	defaultStartDelay = time.Minute
 
 	// Environment variables that affect checks service; only for testing.
-	envCheckFile         = "PERCONA_TEST_CHECKS_FILE" //nolint:gosec
-	envDisableStartDelay = "PERCONA_TEST_CHECKS_DISABLE_START_DELAY"
+	envCheckFile         = "PMM_DEV_ADVISOR_CHECKS_FILE"
+	envDisableStartDelay = "PMM_ADVISORS_CHECKS_DISABLE_START_DELAY"
 
 	checkExecutionTimeout  = 5 * time.Minute  // limits execution time for every single check
 	platformRequestTimeout = 2 * time.Minute  // time limit to get checks list from the portal
@@ -260,7 +260,7 @@ func (s *Service) GetSecurityCheckResults() ([]services.CheckResult, error) {
 	return s.alertsRegistry.getCheckResults(""), nil
 }
 
-// GetChecksResults returns the failed checks for a given service from AlertManager.
+// GetChecksResults returns the failed checks for a given service.
 func (s *Service) GetChecksResults(_ context.Context, serviceID string) ([]services.CheckResult, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {

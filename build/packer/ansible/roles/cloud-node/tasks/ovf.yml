@@ -1,0 +1,15 @@
+---
+# Common things for all OVF images
+- name: ovf                 | Disable EC2, CloudStack
+  when: ansible_virtualization_type == "virtualbox"
+  copy:
+    content: |
+      datasource_list: [ NoCloud, ConfigDrive, OpenNebula, DigitalOcean, Azure, AltCloud, OVF, MAAS, GCE, OpenStack, CloudSigma, SmartOS, None ]
+      disable_ec2_metadata: true
+      datasource:
+        OpenStack:
+          max_wait: 6
+          timeout: 3
+          retries: 2
+    dest: /etc/cloud/cloud.cfg.d/90_disable-cloud.cfg
+    mode: 0644
