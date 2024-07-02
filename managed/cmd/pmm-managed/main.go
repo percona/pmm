@@ -613,11 +613,11 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 		}
 		l.Infof("Migrating database...")
 		_, err := models.SetupDB(timeoutCtx, sqlDB, params)
-		if err == nil {
-			return
+		if err != nil {
+			l.Warnf("Failed to migrate database: %s.", err)
+			time.Sleep(time.Second)
+			continue
 		}
-		l.Warnf("Failed to migrate database: %s.", err)
-		time.Sleep(time.Second)
 
 		itemsToEncrypt := []encryption.Database{
 			{
@@ -642,7 +642,8 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 			},
 		}
 		l.Infof("Encrypting database...")
-		if err := models.EncryptDB(context.TODO(), sqlDB, params, itemsToEncrypt); err != nil {
+		err = models.EncryptDB(context.TODO(), sqlDB, params, itemsToEncrypt)
+		if err == nil {
 			return
 		}
 		l.Warnf("Failed to encrypt database: %s.", err)
