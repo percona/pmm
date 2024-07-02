@@ -1062,19 +1062,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams, itemsToEn
 		return nil, errCV
 	}
 
-	if err := migrateDB(db, params); err != nil {
-		return nil, err
-	}
-
-	err := EncryptDB(ctx, sqlDB, params, itemsToEncrypt)
-	if err != nil {
-		return nil, err
-	}
-
-	// add PMM Server postgres_exporter and pg_stat_statements
-	// once db is already encrypted to prevent double encryption
-	// during adding by CreateAgent methods.
-	if err = setupPMMServerAgents(db.Querier, params); err != nil {
+	if err := migrateDB(db, params, itemsToEncrypt); err != nil {
 		return nil, err
 	}
 
@@ -1082,8 +1070,8 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams, itemsToEn
 }
 
 // EncryptDB encrypt all provided columns in specific database and table.
-func EncryptDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams, itemsToEncrypt []encryption.Table) error {
-	settings, err := GetSettings(sqlDB)
+func EncryptDB(ctx context.Context, tx *reform.TX, params SetupDBParams, itemsToEncrypt []encryption.Table) error {
+	settings, err := GetSettings(tx)
 	if err != nil {
 		return err
 	}
@@ -1108,11 +1096,11 @@ func EncryptDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams, itemsTo
 		return nil
 	}
 
-	err = encryption.EncryptItems(ctx, sqlDB, notEncrypted)
+	err = encryption.EncryptItems(ctx, tx, notEncrypted)
 	if err != nil {
 		return err
 	}
-	_, err = UpdateSettings(sqlDB, &ChangeSettingsParams{
+	_, err = UpdateSettings(tx, &ChangeSettingsParams{
 		EncryptedItems: slices.Concat(settings.EncryptedItems, newlyEncrypted),
 	})
 	if err != nil {
@@ -1181,7 +1169,7 @@ func initWithRoot(params SetupDBParams) error {
 }
 
 // migrateDB runs PostgreSQL database migrations.
-func migrateDB(db *reform.DB, params SetupDBParams) error {
+func migrateDB(db *reform.DB, params SetupDBParams, itemsToEncrypt []encryption.Table) error {
 	var currentVersion int
 	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
@@ -1218,6 +1206,11 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 		}
 
 		if params.SetupFixtures == SkipFixtures {
+			err := EncryptDB(context.TODO(), tx, params, itemsToEncrypt)
+			if err != nil {
+				return err
+			}
+
 			return nil
 		}
 
@@ -1227,6 +1220,16 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			return err
 		}
 		if err = SaveSettings(tx, s); err != nil {
+			return err
+		}
+
+		err = EncryptDB(context.TODO(), tx, params, itemsToEncrypt)
+		if err != nil {
+			return err
+		}
+
+		err = setupPMMServerAgents(tx.Querier, params)
+		if err != nil {
 			return err
 		}
 

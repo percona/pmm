@@ -28,6 +28,7 @@ import (
 	"github.com/google/tink/go/insecurecleartextkeyset"
 	"github.com/google/tink/go/keyset"
 	"github.com/google/tink/go/tink"
+	"gopkg.in/reform.v1"
 )
 
 func prepareRowPointers(rows *sql.Rows) ([]any, error) {
@@ -126,7 +127,7 @@ func (table Table) columnsList() []string {
 	return res
 }
 
-func (table Table) read(tx *sql.Tx) (*QueryValues, error) {
+func (table Table) read(tx *reform.TX) (*QueryValues, error) {
 	what := slices.Concat(table.Identificators, table.columnsList())
 	query := fmt.Sprintf("SELECT %s FROM %s", strings.Join(what, ", "), table.Name) //nolint:gosec
 	rows, err := tx.Query(query)

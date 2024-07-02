@@ -18,7 +18,6 @@ package encryption
 
 import (
 	"context"
-	"database/sql"
 	"encoding/base64"
 	"fmt"
 	"os"
@@ -26,6 +25,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/reform.v1"
 )
 
 // DefaultEncryptionKeyPath contains default PMM encryption key path.
@@ -85,21 +85,15 @@ func (e *Encryption) Encrypt(secret string) (string, error) {
 }
 
 // EncryptItems is wrapper around DefaultEncryption.EncryptItems.
-func EncryptItems(ctx context.Context, db *sql.DB, tables []Table) error {
-	return DefaultEncryption.EncryptItems(ctx, db, tables)
+func EncryptItems(ctx context.Context, tx *reform.TX, tables []Table) error {
+	return DefaultEncryption.EncryptItems(ctx, tx, tables)
 }
 
 // EncryptItems will encrypt all columns provided in DB connection.
-func (e *Encryption) EncryptItems(ctx context.Context, db *sql.DB, tables []Table) error {
+func (e *Encryption) EncryptItems(ctx context.Context, tx *reform.TX, tables []Table) error {
 	if len(tables) == 0 {
 		return errors.New("target tables/columns not defined")
 	}
-
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback() //nolint:errcheck
 
 	for _, table := range tables {
 		res, err := table.read(tx)
@@ -132,11 +126,6 @@ func (e *Encryption) EncryptItems(ctx context.Context, db *sql.DB, tables []Tabl
 		}
 	}
 
-	err = tx.Commit()
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -166,21 +155,15 @@ func (e *Encryption) Decrypt(cipherText string) (string, error) {
 }
 
 // DecryptItems is wrapper around DefaultEncryption.DecryptItems.
-func DecryptItems(ctx context.Context, db *sql.DB, tables []Table) error {
-	return DefaultEncryption.DecryptItems(ctx, db, tables)
+func DecryptItems(ctx context.Context, tx *reform.TX, tables []Table) error {
+	return DefaultEncryption.DecryptItems(ctx, tx, tables)
 }
 
 // DecryptItems will decrypt all columns provided in DB connection.
-func (e *Encryption) DecryptItems(ctx context.Context, db *sql.DB, tables []Table) error {
+func (e *Encryption) DecryptItems(ctx context.Context, tx *reform.TX, tables []Table) error {
 	if len(tables) == 0 {
 		return errors.New("target tables/columns not defined")
 	}
-
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback() //nolint:errcheck
 
 	for _, table := range tables {
 		res, err := table.read(tx)
@@ -211,11 +194,6 @@ func (e *Encryption) DecryptItems(ctx context.Context, db *sql.DB, tables []Tabl
 				return err
 			}
 		}
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		return err
 	}
 
 	return nil
