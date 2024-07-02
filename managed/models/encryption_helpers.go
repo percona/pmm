@@ -24,12 +24,12 @@ import (
 	"github.com/percona/pmm/managed/utils/encryption"
 )
 
-// EncryptAgent returns agent after it is encrypted.
+// EncryptAgent encrypt agent.
 func EncryptAgent(agent *Agent) {
 	agentEncryption(agent, encryption.Encrypt)
 }
 
-// DecryptAgent returns agent after it is decrypted.
+// DecryptAgent decrypt agent.
 func DecryptAgent(agent *Agent) {
 	agentEncryption(agent, encryption.Decrypt)
 }

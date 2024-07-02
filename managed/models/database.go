@@ -1066,6 +1066,28 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, err
 	}
 
+	itemsToEncrypt := []encryption.Table{
+		{
+			Name:           "agents",
+			Identificators: []string{"agent_id"},
+			Columns: []encryption.Column{
+				{Name: "username"},
+				{Name: "password"},
+			},
+		},
+	}
+	err := EncryptDB(ctx, sqlDB, params, itemsToEncrypt)
+	if err != nil {
+		return nil, err
+	}
+
+	// add PMM Server postgres_exporter and pg_stat_statements
+	// once db is already encrypted to prevent double encryption
+	// during adding by CreateAgent methods.
+	if err = setupPMMServerAgents(db.Querier, params); err != nil {
+		return nil, err
+	}
+
 	return db, nil
 }
 
@@ -1218,17 +1240,11 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			return err
 		}
 
-		if err = setupFixture1(tx.Querier, params); err != nil {
-			return err
-		}
-		if err = setupFixture2(tx.Querier, params.Username, params.Password); err != nil {
-			return err
-		}
 		return nil
 	})
 }
 
-func setupFixture1(q *reform.Querier, params SetupDBParams) error {
+func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents
 	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
 		NodeName: "pmm-server",
@@ -1308,12 +1324,6 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	if err != nil {
 		return err
 	}
-	return nil
-}
-
-func setupFixture2(q *reform.Querier, username, password string) error { //nolint:revive
-	// TODO add clickhouse_exporter
-
 	return nil
 }
 
