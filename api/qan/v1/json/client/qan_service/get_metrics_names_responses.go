@@ -58,7 +58,7 @@ type GetMetricsNamesOK struct {
 }
 
 func (o *GetMetricsNamesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/GetMetricsNames][%d] getMetricsNamesOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/qan/metrics:getNames][%d] getMetricsNamesOk  %+v", 200, o.Payload)
 }
 
 func (o *GetMetricsNamesOK) GetPayload() *GetMetricsNamesOKBody {
@@ -100,7 +100,7 @@ func (o *GetMetricsNamesDefault) Code() int {
 }
 
 func (o *GetMetricsNamesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/GetMetricsNames][%d] GetMetricsNames default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/qan/metrics:getNames][%d] GetMetricsNames default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetMetricsNamesDefault) GetPayload() *GetMetricsNamesDefaultBody {

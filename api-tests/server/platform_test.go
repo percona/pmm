@@ -80,7 +80,7 @@ func TestPlatform(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-			pmmapitests.AssertAPIErrorf(t, err, http.StatusBadRequest, codes.InvalidArgument, "invalid field ServerName: value '' must not be an empty string")
+			pmmapitests.AssertAPIErrorf(t, err, http.StatusBadRequest, codes.InvalidArgument, "invalid field ConnectRequest.ServerName: value '' must not be an empty string")
 		})
 
 		t.Run("successful connect and disconnect", func(t *testing.T) {

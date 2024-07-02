@@ -60,8 +60,11 @@ GetNodeParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type GetNodeParams struct {
-	// Body.
-	Body GetNodeBody
+	/* NodeID.
+
+	   Unique randomly generated instance identifier.
+	*/
+	NodeID string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -116,15 +119,15 @@ func (o *GetNodeParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the get node params
-func (o *GetNodeParams) WithBody(body GetNodeBody) *GetNodeParams {
-	o.SetBody(body)
+// WithNodeID adds the nodeID to the get node params
+func (o *GetNodeParams) WithNodeID(nodeID string) *GetNodeParams {
+	o.SetNodeID(nodeID)
 	return o
 }
 
-// SetBody adds the body to the get node params
-func (o *GetNodeParams) SetBody(body GetNodeBody) {
-	o.Body = body
+// SetNodeID adds the nodeId to the get node params
+func (o *GetNodeParams) SetNodeID(nodeID string) {
+	o.NodeID = nodeID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,7 +136,9 @@ func (o *GetNodeParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regis
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
+
+	// path param node_id
+	if err := r.SetPathParam("node_id", o.NodeID); err != nil {
 		return err
 	}
 

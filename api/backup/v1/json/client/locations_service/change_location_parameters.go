@@ -63,6 +63,12 @@ type ChangeLocationParams struct {
 	// Body.
 	Body ChangeLocationBody
 
+	/* LocationID.
+
+	   Machine-readable ID.
+	*/
+	LocationID string
+
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
@@ -127,6 +133,17 @@ func (o *ChangeLocationParams) SetBody(body ChangeLocationBody) {
 	o.Body = body
 }
 
+// WithLocationID adds the locationID to the change location params
+func (o *ChangeLocationParams) WithLocationID(locationID string) *ChangeLocationParams {
+	o.SetLocationID(locationID)
+	return o
+}
+
+// SetLocationID adds the locationId to the change location params
+func (o *ChangeLocationParams) SetLocationID(locationID string) {
+	o.LocationID = locationID
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *ChangeLocationParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 	if err := r.SetTimeout(o.timeout); err != nil {
@@ -134,6 +151,11 @@ func (o *ChangeLocationParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 	}
 	var res []error
 	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
+	}
+
+	// path param location_id
+	if err := r.SetPathParam("location_id", o.LocationID); err != nil {
 		return err
 	}
 

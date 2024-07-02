@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // NewRemoveNodeParams creates a new RemoveNodeParams object,
@@ -60,8 +61,17 @@ RemoveNodeParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type RemoveNodeParams struct {
-	// Body.
-	Body RemoveNodeBody
+	/* Force.
+
+	   Remove node with all dependencies.
+	*/
+	Force *bool
+
+	/* NodeID.
+
+	   Unique randomly generated instance identifier.
+	*/
+	NodeID string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -116,15 +126,26 @@ func (o *RemoveNodeParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the remove node params
-func (o *RemoveNodeParams) WithBody(body RemoveNodeBody) *RemoveNodeParams {
-	o.SetBody(body)
+// WithForce adds the force to the remove node params
+func (o *RemoveNodeParams) WithForce(force *bool) *RemoveNodeParams {
+	o.SetForce(force)
 	return o
 }
 
-// SetBody adds the body to the remove node params
-func (o *RemoveNodeParams) SetBody(body RemoveNodeBody) {
-	o.Body = body
+// SetForce adds the force to the remove node params
+func (o *RemoveNodeParams) SetForce(force *bool) {
+	o.Force = force
+}
+
+// WithNodeID adds the nodeID to the remove node params
+func (o *RemoveNodeParams) WithNodeID(nodeID string) *RemoveNodeParams {
+	o.SetNodeID(nodeID)
+	return o
+}
+
+// SetNodeID adds the nodeId to the remove node params
+func (o *RemoveNodeParams) SetNodeID(nodeID string) {
+	o.NodeID = nodeID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,7 +154,25 @@ func (o *RemoveNodeParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
+
+	if o.Force != nil {
+
+		// query param force
+		var qrForce bool
+
+		if o.Force != nil {
+			qrForce = *o.Force
+		}
+		qForce := swag.FormatBool(qrForce)
+		if qForce != "" {
+			if err := r.SetQueryParam("force", qForce); err != nil {
+				return err
+			}
+		}
+	}
+
+	// path param node_id
+	if err := r.SetPathParam("node_id", o.NodeID); err != nil {
 		return err
 	}
 

@@ -297,7 +297,7 @@ const insertSQL = `
     :fingerprint,
     :example,
     :is_query_truncated,
-    CAST( :example_type_s AS Enum8('RANDOM' = 0, 'SLOWEST' = 1, 'FASTEST' = 2, 'WITH_ERROR' = 3)) AS example_type,
+    CAST( :example_type_s AS Enum8('EXAMPLE_TYPE_INVALID' = 0, 'RANDOM' = 1, 'SLOWEST' = 2, 'FASTEST' = 3, 'WITH_ERROR' = 4)) AS example_type,
     :example_metrics,
     :num_queries_with_warnings,
     :warnings_code,
@@ -676,7 +676,7 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) error {
 			q := MetricsBucketExtended{
 				time.Unix(int64(metricsBucket.GetPeriodStartUnixSecs()), 0).UTC(),
 				agentTypeToClickHouseEnum(metricsBucket.GetAgentType()),
-				metricsBucket.GetExampleType().String(),
+				exampleTypeToClickHouseEnum(metricsBucket.GetExampleType()),
 				lk,
 				lv,
 				wk,

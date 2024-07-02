@@ -26,7 +26,7 @@ import (
 func TestAddMongoDB(t *testing.T) {
 	t.Run("TablestatEnabled", func(t *testing.T) {
 		res := &addMongoDBResult{
-			Service: &mservice.AddMongoDBOKBodyService{
+			Service: &mservice.AddServiceOKBodyMongodbService{
 				ServiceID:   "1",
 				ServiceName: "mysql-1",
 			},

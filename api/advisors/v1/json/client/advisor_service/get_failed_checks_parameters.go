@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // NewGetFailedChecksParams creates a new GetFailedChecksParams object,
@@ -60,8 +61,27 @@ GetFailedChecksParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type GetFailedChecksParams struct {
-	// Body.
-	Body GetFailedChecksBody
+	/* PageIndex.
+
+	   Index of the requested page, starts from 0.
+
+	   Format: int32
+	*/
+	PageIndex *int32
+
+	/* PageSize.
+
+	   Maximum number of results per page.
+
+	   Format: int32
+	*/
+	PageSize *int32
+
+	/* ServiceID.
+
+	   Service ID.
+	*/
+	ServiceID *string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -116,15 +136,37 @@ func (o *GetFailedChecksParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the get failed checks params
-func (o *GetFailedChecksParams) WithBody(body GetFailedChecksBody) *GetFailedChecksParams {
-	o.SetBody(body)
+// WithPageIndex adds the pageIndex to the get failed checks params
+func (o *GetFailedChecksParams) WithPageIndex(pageIndex *int32) *GetFailedChecksParams {
+	o.SetPageIndex(pageIndex)
 	return o
 }
 
-// SetBody adds the body to the get failed checks params
-func (o *GetFailedChecksParams) SetBody(body GetFailedChecksBody) {
-	o.Body = body
+// SetPageIndex adds the pageIndex to the get failed checks params
+func (o *GetFailedChecksParams) SetPageIndex(pageIndex *int32) {
+	o.PageIndex = pageIndex
+}
+
+// WithPageSize adds the pageSize to the get failed checks params
+func (o *GetFailedChecksParams) WithPageSize(pageSize *int32) *GetFailedChecksParams {
+	o.SetPageSize(pageSize)
+	return o
+}
+
+// SetPageSize adds the pageSize to the get failed checks params
+func (o *GetFailedChecksParams) SetPageSize(pageSize *int32) {
+	o.PageSize = pageSize
+}
+
+// WithServiceID adds the serviceID to the get failed checks params
+func (o *GetFailedChecksParams) WithServiceID(serviceID *string) *GetFailedChecksParams {
+	o.SetServiceID(serviceID)
+	return o
+}
+
+// SetServiceID adds the serviceId to the get failed checks params
+func (o *GetFailedChecksParams) SetServiceID(serviceID *string) {
+	o.ServiceID = serviceID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,8 +175,53 @@ func (o *GetFailedChecksParams) WriteToRequest(r runtime.ClientRequest, reg strf
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+
+	if o.PageIndex != nil {
+
+		// query param page_index
+		var qrPageIndex int32
+
+		if o.PageIndex != nil {
+			qrPageIndex = *o.PageIndex
+		}
+		qPageIndex := swag.FormatInt32(qrPageIndex)
+		if qPageIndex != "" {
+			if err := r.SetQueryParam("page_index", qPageIndex); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.PageSize != nil {
+
+		// query param page_size
+		var qrPageSize int32
+
+		if o.PageSize != nil {
+			qrPageSize = *o.PageSize
+		}
+		qPageSize := swag.FormatInt32(qrPageSize)
+		if qPageSize != "" {
+			if err := r.SetQueryParam("page_size", qPageSize); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.ServiceID != nil {
+
+		// query param service_id
+		var qrServiceID string
+
+		if o.ServiceID != nil {
+			qrServiceID = *o.ServiceID
+		}
+		qServiceID := qrServiceID
+		if qServiceID != "" {
+			if err := r.SetQueryParam("service_id", qServiceID); err != nil {
+				return err
+			}
+		}
 	}
 
 	if len(res) > 0 {

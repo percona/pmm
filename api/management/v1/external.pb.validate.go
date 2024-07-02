@@ -35,22 +35,22 @@ var (
 	_ = sort.Sort
 )
 
-// Validate checks the field values on AddExternalRequest with the rules
+// Validate checks the field values on AddExternalServiceParams with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddExternalRequest) Validate() error {
+func (m *AddExternalServiceParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddExternalRequest with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on AddExternalServiceParams with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddExternalRequestMultiError, or nil if none found.
-func (m *AddExternalRequest) ValidateAll() error {
+// AddExternalServiceParamsMultiError, or nil if none found.
+func (m *AddExternalServiceParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddExternalRequest) validate(all bool) error {
+func (m *AddExternalServiceParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -65,7 +65,7 @@ func (m *AddExternalRequest) validate(all bool) error {
 		switch v := interface{}(m.GetAddNode()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddExternalRequestValidationError{
+				errors = append(errors, AddExternalServiceParamsValidationError{
 					field:  "AddNode",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -73,7 +73,7 @@ func (m *AddExternalRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddExternalRequestValidationError{
+				errors = append(errors, AddExternalServiceParamsValidationError{
 					field:  "AddNode",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -82,7 +82,7 @@ func (m *AddExternalRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetAddNode()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddExternalRequestValidationError{
+			return AddExternalServiceParamsValidationError{
 				field:  "AddNode",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -93,7 +93,7 @@ func (m *AddExternalRequest) validate(all bool) error {
 	// no validation rules for Address
 
 	if utf8.RuneCountInString(m.GetServiceName()) < 1 {
-		err := AddExternalRequestValidationError{
+		err := AddExternalServiceParamsValidationError{
 			field:  "ServiceName",
 			reason: "value length must be at least 1 runes",
 		}
@@ -112,7 +112,7 @@ func (m *AddExternalRequest) validate(all bool) error {
 	// no validation rules for MetricsPath
 
 	if val := m.GetListenPort(); val <= 0 || val >= 65536 {
-		err := AddExternalRequestValidationError{
+		err := AddExternalServiceParamsValidationError{
 			field:  "ListenPort",
 			reason: "value must be inside range (0, 65536)",
 		}
@@ -139,19 +139,19 @@ func (m *AddExternalRequest) validate(all bool) error {
 	// no validation rules for SkipConnectionCheck
 
 	if len(errors) > 0 {
-		return AddExternalRequestMultiError(errors)
+		return AddExternalServiceParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddExternalRequestMultiError is an error wrapping multiple validation errors
-// returned by AddExternalRequest.ValidateAll() if the designated constraints
-// aren't met.
-type AddExternalRequestMultiError []error
+// AddExternalServiceParamsMultiError is an error wrapping multiple validation
+// errors returned by AddExternalServiceParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddExternalServiceParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddExternalRequestMultiError) Error() string {
+func (m AddExternalServiceParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -160,11 +160,11 @@ func (m AddExternalRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddExternalRequestMultiError) AllErrors() []error { return m }
+func (m AddExternalServiceParamsMultiError) AllErrors() []error { return m }
 
-// AddExternalRequestValidationError is the validation error returned by
-// AddExternalRequest.Validate if the designated constraints aren't met.
-type AddExternalRequestValidationError struct {
+// AddExternalServiceParamsValidationError is the validation error returned by
+// AddExternalServiceParams.Validate if the designated constraints aren't met.
+type AddExternalServiceParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -172,24 +172,24 @@ type AddExternalRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddExternalRequestValidationError) Field() string { return e.field }
+func (e AddExternalServiceParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddExternalRequestValidationError) Reason() string { return e.reason }
+func (e AddExternalServiceParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddExternalRequestValidationError) Cause() error { return e.cause }
+func (e AddExternalServiceParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddExternalRequestValidationError) Key() bool { return e.key }
+func (e AddExternalServiceParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddExternalRequestValidationError) ErrorName() string {
-	return "AddExternalRequestValidationError"
+func (e AddExternalServiceParamsValidationError) ErrorName() string {
+	return "AddExternalServiceParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddExternalRequestValidationError) Error() string {
+func (e AddExternalServiceParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -201,14 +201,14 @@ func (e AddExternalRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddExternalRequest.%s: %s%s",
+		"invalid %sAddExternalServiceParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddExternalRequestValidationError{}
+var _ error = AddExternalServiceParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -216,24 +216,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddExternalRequestValidationError{}
+} = AddExternalServiceParamsValidationError{}
 
-// Validate checks the field values on AddExternalResponse with the rules
+// Validate checks the field values on ExternalServiceResult with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddExternalResponse) Validate() error {
+func (m *ExternalServiceResult) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddExternalResponse with the rules
+// ValidateAll checks the field values on ExternalServiceResult with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddExternalResponseMultiError, or nil if none found.
-func (m *AddExternalResponse) ValidateAll() error {
+// ExternalServiceResultMultiError, or nil if none found.
+func (m *ExternalServiceResult) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddExternalResponse) validate(all bool) error {
+func (m *ExternalServiceResult) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -244,7 +244,7 @@ func (m *AddExternalResponse) validate(all bool) error {
 		switch v := interface{}(m.GetService()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddExternalResponseValidationError{
+				errors = append(errors, ExternalServiceResultValidationError{
 					field:  "Service",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -252,7 +252,7 @@ func (m *AddExternalResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddExternalResponseValidationError{
+				errors = append(errors, ExternalServiceResultValidationError{
 					field:  "Service",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -261,7 +261,7 @@ func (m *AddExternalResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetService()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddExternalResponseValidationError{
+			return ExternalServiceResultValidationError{
 				field:  "Service",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -273,7 +273,7 @@ func (m *AddExternalResponse) validate(all bool) error {
 		switch v := interface{}(m.GetExternalExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddExternalResponseValidationError{
+				errors = append(errors, ExternalServiceResultValidationError{
 					field:  "ExternalExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -281,7 +281,7 @@ func (m *AddExternalResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddExternalResponseValidationError{
+				errors = append(errors, ExternalServiceResultValidationError{
 					field:  "ExternalExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -290,7 +290,7 @@ func (m *AddExternalResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetExternalExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddExternalResponseValidationError{
+			return ExternalServiceResultValidationError{
 				field:  "ExternalExporter",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -299,19 +299,19 @@ func (m *AddExternalResponse) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return AddExternalResponseMultiError(errors)
+		return ExternalServiceResultMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddExternalResponseMultiError is an error wrapping multiple validation
-// errors returned by AddExternalResponse.ValidateAll() if the designated
+// ExternalServiceResultMultiError is an error wrapping multiple validation
+// errors returned by ExternalServiceResult.ValidateAll() if the designated
 // constraints aren't met.
-type AddExternalResponseMultiError []error
+type ExternalServiceResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddExternalResponseMultiError) Error() string {
+func (m ExternalServiceResultMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -320,11 +320,11 @@ func (m AddExternalResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddExternalResponseMultiError) AllErrors() []error { return m }
+func (m ExternalServiceResultMultiError) AllErrors() []error { return m }
 
-// AddExternalResponseValidationError is the validation error returned by
-// AddExternalResponse.Validate if the designated constraints aren't met.
-type AddExternalResponseValidationError struct {
+// ExternalServiceResultValidationError is the validation error returned by
+// ExternalServiceResult.Validate if the designated constraints aren't met.
+type ExternalServiceResultValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -332,24 +332,24 @@ type AddExternalResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddExternalResponseValidationError) Field() string { return e.field }
+func (e ExternalServiceResultValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddExternalResponseValidationError) Reason() string { return e.reason }
+func (e ExternalServiceResultValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddExternalResponseValidationError) Cause() error { return e.cause }
+func (e ExternalServiceResultValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddExternalResponseValidationError) Key() bool { return e.key }
+func (e ExternalServiceResultValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddExternalResponseValidationError) ErrorName() string {
-	return "AddExternalResponseValidationError"
+func (e ExternalServiceResultValidationError) ErrorName() string {
+	return "ExternalServiceResultValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddExternalResponseValidationError) Error() string {
+func (e ExternalServiceResultValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -361,14 +361,14 @@ func (e AddExternalResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddExternalResponse.%s: %s%s",
+		"invalid %sExternalServiceResult.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddExternalResponseValidationError{}
+var _ error = ExternalServiceResultValidationError{}
 
 var _ interface {
 	Field() string
@@ -376,4 +376,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddExternalResponseValidationError{}
+} = ExternalServiceResultValidationError{}

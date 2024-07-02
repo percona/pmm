@@ -59,7 +59,7 @@ type SearchOrganizationEntitlementsOK struct {
 }
 
 func (o *SearchOrganizationEntitlementsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/platform/SearchOrganizationEntitlements][%d] searchOrganizationEntitlementsOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/platform/organization/entitlements][%d] searchOrganizationEntitlementsOk  %+v", 200, o.Payload)
 }
 
 func (o *SearchOrganizationEntitlementsOK) GetPayload() *SearchOrganizationEntitlementsOKBody {
@@ -101,7 +101,7 @@ func (o *SearchOrganizationEntitlementsDefault) Code() int {
 }
 
 func (o *SearchOrganizationEntitlementsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/platform/SearchOrganizationEntitlements][%d] SearchOrganizationEntitlements default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/platform/organization/entitlements][%d] SearchOrganizationEntitlements default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *SearchOrganizationEntitlementsDefault) GetPayload() *SearchOrganizationEntitlementsDefaultBody {

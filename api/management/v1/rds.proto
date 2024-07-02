@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package management.v1;
 
-import "google/api/annotations.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/nodes.proto";
 import "inventory/v1/services.proto";
@@ -47,7 +46,7 @@ message DiscoverRDSResponse {
   repeated DiscoverRDSInstance rds_instances = 1;
 }
 
-message AddRDSRequest {
+message AddRDSServiceParams {
   // AWS region.
   string region = 1 [(validate.rules).string.min_len = 1];
   // AWS availability zone.
@@ -119,7 +118,7 @@ message AddRDSRequest {
   int32 max_postgresql_exporter_connections = 33;
 }
 
-message AddRDSResponse {
+message RDSServiceResult {
   inventory.v1.RemoteRDSNode node = 1;
   inventory.v1.RDSExporter rds_exporter = 2;
   inventory.v1.MySQLService mysql = 3;

@@ -59,7 +59,7 @@ type GetHistogramOK struct {
 }
 
 func (o *GetHistogramOK) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/ObjectDetails/GetHistogram][%d] getHistogramOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/qan:getHistogram][%d] getHistogramOk  %+v", 200, o.Payload)
 }
 
 func (o *GetHistogramOK) GetPayload() *GetHistogramOKBody {
@@ -101,7 +101,7 @@ func (o *GetHistogramDefault) Code() int {
 }
 
 func (o *GetHistogramDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/ObjectDetails/GetHistogram][%d] GetHistogram default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/qan:getHistogram][%d] GetHistogram default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetHistogramDefault) GetPayload() *GetHistogramDefaultBody {

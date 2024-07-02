@@ -323,6 +323,7 @@ type Response struct {
 	ConfigAdvisor   string `json:"config_advisor"`
 }
 
+// SearchOrganizationTicketsResponse is a response structure for the ticket search endpoint.
 type SearchOrganizationTicketsResponse struct {
 	Tickets []*TicketResponse `json:"tickets"`
 }

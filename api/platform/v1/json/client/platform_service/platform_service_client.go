@@ -46,7 +46,7 @@ type ClientService interface {
 }
 
 /*
-Connect connects
+Connect connects PMM server
 
 Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
 */
@@ -58,7 +58,7 @@ func (a *Client) Connect(params *ConnectParams, opts ...ClientOption) (*ConnectO
 	op := &runtime.ClientOperation{
 		ID:                 "Connect",
 		Method:             "POST",
-		PathPattern:        "/v1/platform/Connect",
+		PathPattern:        "/v1/platform:connect",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -85,7 +85,7 @@ func (a *Client) Connect(params *ConnectParams, opts ...ClientOption) (*ConnectO
 }
 
 /*
-Disconnect disconnects
+Disconnect disconnects PMM server
 
 Disconnect a PMM server from the organization created on Percona Portal.
 */
@@ -97,7 +97,7 @@ func (a *Client) Disconnect(params *DisconnectParams, opts ...ClientOption) (*Di
 	op := &runtime.ClientOperation{
 		ID:                 "Disconnect",
 		Method:             "POST",
-		PathPattern:        "/v1/platform/Disconnect",
+		PathPattern:        "/v1/platform:disconnect",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -126,7 +126,7 @@ func (a *Client) Disconnect(params *DisconnectParams, opts ...ClientOption) (*Di
 /*
 GetContactInformation gets contact information
 
-GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.
+Fetch the contact details of the customer success employee handling the Percona customer account.
 */
 func (a *Client) GetContactInformation(params *GetContactInformationParams, opts ...ClientOption) (*GetContactInformationOK, error) {
 	// TODO: Validate the params before sending
@@ -135,8 +135,8 @@ func (a *Client) GetContactInformation(params *GetContactInformationParams, opts
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "GetContactInformation",
-		Method:             "POST",
-		PathPattern:        "/v1/platform/GetContactInformation",
+		Method:             "GET",
+		PathPattern:        "/v1/platform/contact",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -165,7 +165,7 @@ func (a *Client) GetContactInformation(params *GetContactInformationParams, opts
 /*
 SearchOrganizationEntitlements searches organization entitlements
 
-SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.
+Fetch entitlements available to the Portal organization that the PMM server is connected to.
 */
 func (a *Client) SearchOrganizationEntitlements(params *SearchOrganizationEntitlementsParams, opts ...ClientOption) (*SearchOrganizationEntitlementsOK, error) {
 	// TODO: Validate the params before sending
@@ -174,8 +174,8 @@ func (a *Client) SearchOrganizationEntitlements(params *SearchOrganizationEntitl
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "SearchOrganizationEntitlements",
-		Method:             "POST",
-		PathPattern:        "/v1/platform/SearchOrganizationEntitlements",
+		Method:             "GET",
+		PathPattern:        "/v1/platform/organization/entitlements",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -204,7 +204,7 @@ func (a *Client) SearchOrganizationEntitlements(params *SearchOrganizationEntitl
 /*
 SearchOrganizationTickets searches organization tickets
 
-SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.
+Fetch support tickets belonging to the Percona Portal Organization that the PMM server is connected to.
 */
 func (a *Client) SearchOrganizationTickets(params *SearchOrganizationTicketsParams, opts ...ClientOption) (*SearchOrganizationTicketsOK, error) {
 	// TODO: Validate the params before sending
@@ -213,8 +213,8 @@ func (a *Client) SearchOrganizationTickets(params *SearchOrganizationTicketsPara
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "SearchOrganizationTickets",
-		Method:             "POST",
-		PathPattern:        "/v1/platform/SearchOrganizationTickets",
+		Method:             "GET",
+		PathPattern:        "/v1/platform/organization/tickets",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -241,9 +241,9 @@ func (a *Client) SearchOrganizationTickets(params *SearchOrganizationTicketsPara
 }
 
 /*
-ServerInfo servers info
+ServerInfo gets server info
 
-ServerInfo returns PMM server ID and name.
+Return PMM server ID and name.
 */
 func (a *Client) ServerInfo(params *ServerInfoParams, opts ...ClientOption) (*ServerInfoOK, error) {
 	// TODO: Validate the params before sending
@@ -252,8 +252,8 @@ func (a *Client) ServerInfo(params *ServerInfoParams, opts ...ClientOption) (*Se
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ServerInfo",
-		Method:             "POST",
-		PathPattern:        "/v1/platform/ServerInfo",
+		Method:             "GET",
+		PathPattern:        "/v1/platform/server",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -280,9 +280,9 @@ func (a *Client) ServerInfo(params *ServerInfoParams, opts ...ClientOption) (*Se
 }
 
 /*
-UserStatus users status
+UserStatus gets user status
 
-UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.
+Check if the current user is logged in with their Percona Account.
 */
 func (a *Client) UserStatus(params *UserStatusParams, opts ...ClientOption) (*UserStatusOK, error) {
 	// TODO: Validate the params before sending
@@ -291,8 +291,8 @@ func (a *Client) UserStatus(params *UserStatusParams, opts ...ClientOption) (*Us
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "UserStatus",
-		Method:             "POST",
-		PathPattern:        "/v1/platform/UserStatus",
+		Method:             "GET",
+		PathPattern:        "/v1/platform/user",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

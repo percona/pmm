@@ -61,7 +61,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-			Body:    agents.GetAgentBody{AgentID: agentID},
+			AgentID: agentID,
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -84,18 +84,16 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		// Test change API.
 		changeAzureDatabaseExporterOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCommon{
-							Enable:       pointer.ToBool(false),
-							CustomLabels: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCommonCustomLabels{},
-						},
+						Enable:       pointer.ToBool(false),
+						CustomLabels: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				AzureDatabaseExporter: &agents.ChangeAgentOKBodyAzureDatabaseExporter{
@@ -113,22 +111,20 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 
 		changeAzureDatabaseExporterOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCommon{
-							Enable: pointer.ToBool(true),
-							CustomLabels: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCommonCustomLabels{
-								Values: map[string]string{
-									"new_label": "azure_database_exporter",
-								},
+						Enable: pointer.ToBool(true),
+						CustomLabels: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCustomLabels{
+							Values: map[string]string{
+								"new_label": "azure_database_exporter",
 							},
 						},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				AzureDatabaseExporter: &agents.ChangeAgentOKBodyAzureDatabaseExporter{
@@ -216,7 +212,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID \"pmm-not-exist-server\" not found.")
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID pmm-not-exist-server not found.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.AzureDatabaseExporter.AgentID)
 		}
@@ -251,41 +247,35 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-			Body:    agents.GetAgentBody{AgentID: agentID},
+			AgentID: agentID,
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 
-		assert.Equal(t, &agents.GetAgentOK{
-			Payload: &agents.GetAgentOKBody{
-				AzureDatabaseExporter: &agents.GetAgentOKBodyAzureDatabaseExporter{
-					NodeID:                      nodeID,
-					AgentID:                     agentID,
-					PMMAgentID:                  pmmAgentID,
-					AzureDatabaseSubscriptionID: "azure_subscription_id",
-					CustomLabels: map[string]string{
-						"custom_label_azure_database_exporter": "azure_database_exporter",
-					},
-					Status:   &AgentStatusUnknown,
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
-				},
+		assert.Equal(t, &agents.GetAgentOKBodyAzureDatabaseExporter{
+			NodeID:                      nodeID,
+			AgentID:                     agentID,
+			PMMAgentID:                  pmmAgentID,
+			AzureDatabaseSubscriptionID: "azure_subscription_id",
+			CustomLabels: map[string]string{
+				"custom_label_azure_database_exporter": "azure_database_exporter",
 			},
-		}, getAgentRes)
+			Status:   &AgentStatusUnknown,
+			LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+		}, getAgentRes.Payload.AzureDatabaseExporter)
 
 		// Test change API.
 		changeAzureDatabaseExporterOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCommon{
-							EnablePushMetrics: pointer.ToBool(true),
-						},
+						EnablePushMetrics: pointer.ToBool(true),
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				AzureDatabaseExporter: &agents.ChangeAgentOKBodyAzureDatabaseExporter{
@@ -304,17 +294,15 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 
 		changeAzureDatabaseExporterOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCommon{
-							EnablePushMetrics: pointer.ToBool(false),
-						},
+						EnablePushMetrics: pointer.ToBool(false),
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				AzureDatabaseExporter: &agents.ChangeAgentOKBodyAzureDatabaseExporter{

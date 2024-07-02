@@ -6,38 +6,28 @@ import "alerting/v1/params.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
-import "management/v1/boolean_flag.proto";
-import "management/v1/pagination.proto";
 import "management/v1/severity.proto";
 import "validate/validate.proto";
 
 // BoolParamDefinition represents boolean parameter's default value.
 message BoolParamDefinition {
-  management.v1.BooleanFlag default = 1;
+  optional bool default = 1;
 }
 
 // FloatParamDefinition represents float parameter's default value and valid range.
 message FloatParamDefinition {
-  // True if default value is set.
-  bool has_default = 1;
-  // Default value if has_default is true.
-  double default = 2;
-  // True if minimal valid value is set.
-  bool has_min = 3;
-  // Minimal valid value (inclusive) if has_min is true.
-  double min = 4;
-  // True if maximal valid value is set.
-  bool has_max = 5;
-  // Maximal valid value (inclusive) if has_max is true.
-  double max = 6;
+  // Default value.
+  optional double default = 1;
+  // Minimum valid value (inclusive).
+  optional double min = 2;
+  // Maximum valid value (inclusive).
+  optional double max = 3;
 }
 
 // StringParamDefinition represents string parameter's default value.
 message StringParamDefinition {
-  // True if default value is set.
-  bool has_default = 1;
-  // Default value if has_default is true.
-  string default = 2;
+  // Default value.
+  optional string default = 1;
 }
 
 // ParamDefinition represents a single query parameter.
@@ -46,7 +36,7 @@ message ParamDefinition {
   string name = 1 [(validate.rules).string.min_len = 1];
   // Short human-readable parameter summary.
   string summary = 2 [(validate.rules).string.min_len = 1];
-  // Parameter unit.
+  // Parameter unit. TODO: remove this parameter.
   ParamUnit unit = 3;
   // Parameter type.
   ParamType type = 4;
@@ -101,16 +91,21 @@ message Template {
 }
 
 message ListTemplatesRequest {
+  // Maximum number of results per page.
+  optional int32 page_size = 1 [(validate.rules).int32.gte = 1];
+  // Index of the requested page, starts from 0.
+  optional int32 page_index = 2 [(validate.rules).int32.gte = 0];
   // If true, template files will be re-read from disk.
-  bool reload = 1;
-  // Page request.
-  management.v1.PageParams page_params = 2;
+  bool reload = 3;
 }
 
 message ListTemplatesResponse {
-  repeated Template templates = 1;
-  // Total items and pages.
-  management.v1.PageTotals totals = 2;
+  // Total number of results.
+  int32 total_items = 1;
+  // Total number of pages.
+  int32 total_pages = 2;
+  // Alerting templates.
+  repeated Template templates = 3;
 }
 
 message CreateTemplateRequest {
@@ -195,36 +190,30 @@ message CreateRuleResponse {}
 service AlertingService {
   // ListTemplates returns a list of all collected alert rule templates.
   rpc ListTemplates(ListTemplatesRequest) returns (ListTemplatesResponse) {
-    option (google.api.http) = {
-      post: "/v1/alerting/Templates/List"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/alerting/templates"};
   }
   // CreateTemplate creates a new template.
   rpc CreateTemplate(CreateTemplateRequest) returns (CreateTemplateResponse) {
     option (google.api.http) = {
-      post: "/v1/alerting/Templates/Create"
+      post: "/v1/alerting/templates"
       body: "*"
     };
   }
   // UpdateTemplate updates existing template, previously created via API.
   rpc UpdateTemplate(UpdateTemplateRequest) returns (UpdateTemplateResponse) {
     option (google.api.http) = {
-      post: "/v1/alerting/Templates/Update"
+      put: "/v1/alerting/templates/{name}"
       body: "*"
     };
   }
   // DeleteTemplate deletes existing, previously created via API.
   rpc DeleteTemplate(DeleteTemplateRequest) returns (DeleteTemplateResponse) {
-    option (google.api.http) = {
-      post: "/v1/alerting/Templates/Delete"
-      body: "*"
-    };
+    option (google.api.http) = {delete: "/v1/alerting/templates/{name}"};
   }
   // CreateRule creates alerting rule from the given template.
   rpc CreateRule(CreateRuleRequest) returns (CreateRuleResponse) {
     option (google.api.http) = {
-      post: "/v1/alerting/Rules/Create"
+      post: "/v1/alerting/rules"
       body: "*"
     };
   }

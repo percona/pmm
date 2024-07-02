@@ -149,6 +149,7 @@ issues:
         - forcetypeassert  # for tests' brevity sake
         - funlen           # tests may be long
         - gocognit         # triggered by subtests
+        - goconst          # not critical for tests
         - gomnd            # tests are full of magic numbers
         - ireturn          # we have exceptions, so need to silence them in tests
         - lll              # tests often require long lines

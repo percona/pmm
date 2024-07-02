@@ -60,8 +60,8 @@ DeleteTemplateParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type DeleteTemplateParams struct {
-	// Body.
-	Body DeleteTemplateBody
+	// Name.
+	Name string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -116,15 +116,15 @@ func (o *DeleteTemplateParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the delete template params
-func (o *DeleteTemplateParams) WithBody(body DeleteTemplateBody) *DeleteTemplateParams {
-	o.SetBody(body)
+// WithName adds the name to the delete template params
+func (o *DeleteTemplateParams) WithName(name string) *DeleteTemplateParams {
+	o.SetName(name)
 	return o
 }
 
-// SetBody adds the body to the delete template params
-func (o *DeleteTemplateParams) SetBody(body DeleteTemplateBody) {
-	o.Body = body
+// SetName adds the name to the delete template params
+func (o *DeleteTemplateParams) SetName(name string) {
+	o.Name = name
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,7 +133,9 @@ func (o *DeleteTemplateParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
+
+	// path param name
+	if err := r.SetPathParam("name", o.Name); err != nil {
 		return err
 	}
 

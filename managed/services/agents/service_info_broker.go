@@ -32,10 +32,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
-	"github.com/percona/pmm/version"
 )
-
-var sericeInfoBrokerPMMVersion = version.MustParse("2.40.99")
 
 // ServiceInfoBroker helps query various information from services.
 type ServiceInfoBroker struct {

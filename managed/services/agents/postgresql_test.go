@@ -114,7 +114,7 @@ func (s *PostgresExporterConfigTestSuite) TestEmptyPassword() {
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, exposeSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
 
-	s.Assert().Equal("DATA_SOURCE_NAME=postgres://username@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
+	s.Equal("DATA_SOURCE_NAME=postgres://username@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
 }
 
 func (s *PostgresExporterConfigTestSuite) TestEmptyUsername() {
@@ -123,7 +123,7 @@ func (s *PostgresExporterConfigTestSuite) TestEmptyUsername() {
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, exposeSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
 
-	s.Assert().Equal("DATA_SOURCE_NAME=postgres://:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
+	s.Equal("DATA_SOURCE_NAME=postgres://:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
 }
 
 func (s *PostgresExporterConfigTestSuite) TestEmptyUsernameAndPassword() {
@@ -133,7 +133,7 @@ func (s *PostgresExporterConfigTestSuite) TestEmptyUsernameAndPassword() {
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, exposeSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
 
-	s.Assert().Equal("DATA_SOURCE_NAME=postgres://1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
+	s.Equal("DATA_SOURCE_NAME=postgres://1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
 }
 
 func (s *PostgresExporterConfigTestSuite) TestSocket() {
@@ -146,7 +146,7 @@ func (s *PostgresExporterConfigTestSuite) TestSocket() {
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, exposeSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
 
-	s.Assert().Equal("DATA_SOURCE_NAME=postgres:///postgres?connect_timeout=1&host=%2Fvar%2Frun%2Fpostgres&sslmode=disable", actual.Env[0])
+	s.Equal("DATA_SOURCE_NAME=postgres:///postgres?connect_timeout=1&host=%2Fvar%2Frun%2Fpostgres&sslmode=disable", actual.Env[0])
 }
 
 func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {

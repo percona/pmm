@@ -47,16 +47,7 @@ def install_go():
 
     go_version = str(subprocess.check_output("gimme -r " + GO_VERSION, shell=True).strip().decode())
 
-    if GO_VERSION == "tip":
-        run_commands([
-            "mkdir $HOME/git_source",
-            "wget https://github.com/git/git/archive/refs/tags/v2.34.4.tar.gz -O $HOME/git.tar.gz",
-            "tar -xzf $HOME/git.tar.gz -C $HOME/git_source --strip-components 1",
-            "cd $HOME/git_source && make configure && ./configure --prefix=/usr && make all && make install",
-        ])
-        gimme_go_dir = "go"
-    else:
-        gimme_go_dir = "go{go_version}.linux.amd64".format(go_version=go_version)
+    gimme_go_dir = "go{go_version}.linux.amd64".format(go_version=go_version)
 
     run_commands([
         "gimme " + go_version,

@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package management.v1;
 
-import "google/api/annotations.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/log_level.proto";
 import "inventory/v1/services.proto";
@@ -12,7 +11,7 @@ import "validate/validate.proto";
 
 // Add PostgreSQL
 
-message AddPostgreSQLRequest {
+message AddPostgreSQLServiceParams {
   // Node identifier on which a service is been running.
   // Exactly one of these parameters should be present: node_id, node_name, add_node.
   string node_id = 1;
@@ -89,7 +88,7 @@ message AddPostgreSQLRequest {
   int32 max_exporter_connections = 33;
 }
 
-message AddPostgreSQLResponse {
+message PostgreSQLServiceResult {
   inventory.v1.PostgreSQLService service = 1;
   inventory.v1.PostgresExporter postgres_exporter = 2;
   inventory.v1.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 3;

@@ -29,10 +29,11 @@ import (
 )
 
 // AddExternal adds an external service based on the provided request.
-func (s *ManagementService) AddExternal(ctx context.Context, req *managementv1.AddExternalRequest) (*managementv1.AddExternalResponse, error) {
-	res := &managementv1.AddExternalResponse{}
+func (s *ManagementService) addExternal(ctx context.Context, req *managementv1.AddExternalServiceParams) (*managementv1.AddServiceResponse, error) {
+	external := &managementv1.ExternalServiceResult{}
 	var pmmAgentID *string
-	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+
+	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		if (req.NodeId == "") != (req.RunsOnNodeId == "") {
 			return status.Error(codes.InvalidArgument, "runs_on_node_id and node_id should be specified together.")
 		}
@@ -66,7 +67,7 @@ func (s *ManagementService) AddExternal(ctx context.Context, req *managementv1.A
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventoryv1.ExternalService) //nolint:forcetypeassert
+		external.Service = invService.(*inventoryv1.ExternalService) //nolint:forcetypeassert
 
 		if req.MetricsMode == managementv1.MetricsMode_METRICS_MODE_UNSPECIFIED {
 			agentIDs, err := models.FindPMMAgentsRunningOnNode(tx.Querier, req.RunsOnNodeId)
@@ -107,19 +108,28 @@ func (s *ManagementService) AddExternal(ctx context.Context, req *managementv1.A
 		if err != nil {
 			return err
 		}
-		res.ExternalExporter = agent.(*inventoryv1.ExternalExporter) //nolint:forcetypeassert
+		external.ExternalExporter = agent.(*inventoryv1.ExternalExporter) //nolint:forcetypeassert
+
 		pmmAgentID = row.PMMAgentID
 
 		return nil
-	}); e != nil {
-		return nil, e
+	})
+
+	if errTx != nil {
+		return nil, errTx
 	}
-	// we have to trigger after transaction
+
+	// we have to trigger these once the transaction completes
 	if pmmAgentID != nil {
 		// It's required to regenerate victoriametrics config file.
 		s.state.RequestStateUpdate(ctx, *pmmAgentID)
 	} else {
 		s.vmdb.RequestConfigurationUpdate()
 	}
-	return res, nil
+
+	return &managementv1.AddServiceResponse{
+		Service: &managementv1.AddServiceResponse_External{
+			External: external,
+		},
+	}, nil
 }

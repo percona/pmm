@@ -63,6 +63,12 @@ type UpdateTemplateParams struct {
 	// Body.
 	Body UpdateTemplateBody
 
+	/* Name.
+
+	   Machine-readable name (ID).
+	*/
+	Name string
+
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
@@ -127,6 +133,17 @@ func (o *UpdateTemplateParams) SetBody(body UpdateTemplateBody) {
 	o.Body = body
 }
 
+// WithName adds the name to the update template params
+func (o *UpdateTemplateParams) WithName(name string) *UpdateTemplateParams {
+	o.SetName(name)
+	return o
+}
+
+// SetName adds the name to the update template params
+func (o *UpdateTemplateParams) SetName(name string) {
+	o.Name = name
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *UpdateTemplateParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 	if err := r.SetTimeout(o.timeout); err != nil {
@@ -134,6 +151,11 @@ func (o *UpdateTemplateParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 	}
 	var res []error
 	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
+	}
+
+	// path param name
+	if err := r.SetPathParam("name", o.Name); err != nil {
 		return err
 	}
 

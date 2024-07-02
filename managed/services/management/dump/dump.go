@@ -36,7 +36,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	dumpv1beta1 "github.com/percona/pmm/api/dump/v1"
+	dumpv1beta1 "github.com/percona/pmm/api/dump/v1beta1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/dump"
 	"github.com/percona/pmm/managed/services/grafana"
@@ -50,7 +50,7 @@ type Service struct {
 	dumpService   dumpService
 	grafanaClient *grafana.Client
 
-	dumpv1beta1.UnimplementedDumpsServiceServer
+	dumpv1beta1.UnimplementedDumpServiceServer
 }
 
 // New creates a new instance of the Service with the provided dependencies.

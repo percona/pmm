@@ -60,7 +60,7 @@ type GetFailedChecksOK struct {
 }
 
 func (o *GetFailedChecksOK) Error() string {
-	return fmt.Sprintf("[POST /v1/advisors/FailedChecks][%d] getFailedChecksOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/advisors/checks/failed][%d] getFailedChecksOk  %+v", 200, o.Payload)
 }
 
 func (o *GetFailedChecksOK) GetPayload() *GetFailedChecksOKBody {
@@ -102,7 +102,7 @@ func (o *GetFailedChecksDefault) Code() int {
 }
 
 func (o *GetFailedChecksDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/advisors/FailedChecks][%d] GetFailedChecks default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/advisors/checks/failed][%d] GetFailedChecks default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetFailedChecksDefault) GetPayload() *GetFailedChecksDefaultBody {
@@ -117,98 +117,6 @@ func (o *GetFailedChecksDefault) readResponse(response runtime.ClientResponse, c
 		return err
 	}
 
-	return nil
-}
-
-/*
-GetFailedChecksBody get failed checks body
-swagger:model GetFailedChecksBody
-*/
-type GetFailedChecksBody struct {
-	// service id
-	ServiceID string `json:"service_id,omitempty"`
-
-	// page params
-	PageParams *GetFailedChecksParamsBodyPageParams `json:"page_params,omitempty"`
-}
-
-// Validate validates this get failed checks body
-func (o *GetFailedChecksBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validatePageParams(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *GetFailedChecksBody) validatePageParams(formats strfmt.Registry) error {
-	if swag.IsZero(o.PageParams) { // not required
-		return nil
-	}
-
-	if o.PageParams != nil {
-		if err := o.PageParams.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "page_params")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "page_params")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// ContextValidate validate this get failed checks body based on the context it is used
-func (o *GetFailedChecksBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.contextValidatePageParams(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *GetFailedChecksBody) contextValidatePageParams(ctx context.Context, formats strfmt.Registry) error {
-	if o.PageParams != nil {
-		if err := o.PageParams.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "page_params")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "page_params")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetFailedChecksBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetFailedChecksBody) UnmarshalBinary(b []byte) error {
-	var res GetFailedChecksBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 
@@ -358,11 +266,14 @@ GetFailedChecksOKBody get failed checks OK body
 swagger:model GetFailedChecksOKBody
 */
 type GetFailedChecksOKBody struct {
-	// results
-	Results []*GetFailedChecksOKBodyResultsItems0 `json:"results"`
+	// Total number of results.
+	TotalItems int32 `json:"total_items,omitempty"`
 
-	// page totals
-	PageTotals *GetFailedChecksOKBodyPageTotals `json:"page_totals,omitempty"`
+	// Total number of pages.
+	TotalPages int32 `json:"total_pages,omitempty"`
+
+	// Check results
+	Results []*GetFailedChecksOKBodyResultsItems0 `json:"results"`
 }
 
 // Validate validates this get failed checks OK body
@@ -370,10 +281,6 @@ func (o *GetFailedChecksOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateResults(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validatePageTotals(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -409,34 +316,11 @@ func (o *GetFailedChecksOKBody) validateResults(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *GetFailedChecksOKBody) validatePageTotals(formats strfmt.Registry) error {
-	if swag.IsZero(o.PageTotals) { // not required
-		return nil
-	}
-
-	if o.PageTotals != nil {
-		if err := o.PageTotals.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getFailedChecksOk" + "." + "page_totals")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("getFailedChecksOk" + "." + "page_totals")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 // ContextValidate validate this get failed checks OK body based on the context it is used
 func (o *GetFailedChecksOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateResults(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.contextValidatePageTotals(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -463,21 +347,6 @@ func (o *GetFailedChecksOKBody) contextValidateResults(ctx context.Context, form
 	return nil
 }
 
-func (o *GetFailedChecksOKBody) contextValidatePageTotals(ctx context.Context, formats strfmt.Registry) error {
-	if o.PageTotals != nil {
-		if err := o.PageTotals.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getFailedChecksOk" + "." + "page_totals")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("getFailedChecksOk" + "." + "page_totals")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 // MarshalBinary interface implementation
 func (o *GetFailedChecksOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -489,46 +358,6 @@ func (o *GetFailedChecksOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetFailedChecksOKBody) UnmarshalBinary(b []byte) error {
 	var res GetFailedChecksOKBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-GetFailedChecksOKBodyPageTotals PageTotals represents total values for pagination.
-swagger:model GetFailedChecksOKBodyPageTotals
-*/
-type GetFailedChecksOKBodyPageTotals struct {
-	// Total number of results.
-	TotalItems int32 `json:"total_items,omitempty"`
-
-	// Total number of pages.
-	TotalPages int32 `json:"total_pages,omitempty"`
-}
-
-// Validate validates this get failed checks OK body page totals
-func (o *GetFailedChecksOKBodyPageTotals) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this get failed checks OK body page totals based on context it is used
-func (o *GetFailedChecksOKBodyPageTotals) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetFailedChecksOKBodyPageTotals) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetFailedChecksOKBodyPageTotals) UnmarshalBinary(b []byte) error {
-	var res GetFailedChecksOKBodyPageTotals
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -663,46 +492,6 @@ func (o *GetFailedChecksOKBodyResultsItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetFailedChecksOKBodyResultsItems0) UnmarshalBinary(b []byte) error {
 	var res GetFailedChecksOKBodyResultsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-GetFailedChecksParamsBodyPageParams PageParams represents page request parameters for pagination.
-swagger:model GetFailedChecksParamsBodyPageParams
-*/
-type GetFailedChecksParamsBodyPageParams struct {
-	// Maximum number of results per page.
-	PageSize int32 `json:"page_size,omitempty"`
-
-	// Index of the requested page, starts from 0.
-	Index int32 `json:"index,omitempty"`
-}
-
-// Validate validates this get failed checks params body page params
-func (o *GetFailedChecksParamsBodyPageParams) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this get failed checks params body page params based on context it is used
-func (o *GetFailedChecksParamsBodyPageParams) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetFailedChecksParamsBodyPageParams) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetFailedChecksParamsBodyPageParams) UnmarshalBinary(b []byte) error {
-	var res GetFailedChecksParamsBodyPageParams
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

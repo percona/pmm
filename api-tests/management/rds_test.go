@@ -59,123 +59,121 @@ func TestRDSDiscovery(t *testing.T) {
 
 func TestAddRds(t *testing.T) {
 	t.Run("BasicAddRDS", func(t *testing.T) {
-		params := &mservice.AddRDSParams{
-			Body: mservice.AddRDSBody{
-				Region:                    "region",
-				Az:                        "az",
-				InstanceID:                "d752f1a9-31c9-4b8c-bb2d-d26bc000001",
-				NodeModel:                 "some-model",
-				Address:                   "some.example.rds",
-				Port:                      3306,
-				Engine:                    pointer.ToString("DISCOVER_RDS_ENGINE_MYSQL"),
-				NodeName:                  "some-node-name-000001",
-				ServiceName:               "test-add-rds-service000001",
-				Environment:               "some-env",
-				Cluster:                   "cluster-01",
-				ReplicationSet:            "rs-01",
-				Username:                  "some-username",
-				Password:                  "some-password",
-				AWSAccessKey:              "my-aws-access-key",
-				AWSSecretKey:              "my-aws-secret-key",
-				RDSExporter:               true,
-				QANMysqlPerfschema:        true,
-				CustomLabels:              make(map[string]string),
-				SkipConnectionCheck:       true,
-				TLS:                       false,
-				TLSSkipVerify:             false,
-				DisableQueryExamples:      false,
-				TablestatsGroupTableLimit: 2000,
-				DisableBasicMetrics:       true,
-				DisableEnhancedMetrics:    true,
+		params := &mservice.AddServiceParams{
+			Body: mservice.AddServiceBody{
+				RDS: &mservice.AddServiceParamsBodyRDS{
+					Region:                    "region",
+					Az:                        "az",
+					InstanceID:                "d752f1a9-31c9-4b8c-bb2d-d26bc000001",
+					NodeModel:                 "some-model",
+					Address:                   "some.example.rds",
+					Port:                      3306,
+					Engine:                    pointer.ToString("DISCOVER_RDS_ENGINE_MYSQL"),
+					NodeName:                  "some-node-name-000001",
+					ServiceName:               "test-add-rds-service000001",
+					Environment:               "some-env",
+					Cluster:                   "cluster-01",
+					ReplicationSet:            "rs-01",
+					Username:                  "some-username",
+					Password:                  "some-password",
+					AWSAccessKey:              "my-aws-access-key",
+					AWSSecretKey:              "my-aws-secret-key",
+					RDSExporter:               true,
+					QANMysqlPerfschema:        true,
+					CustomLabels:              make(map[string]string),
+					SkipConnectionCheck:       true,
+					TLS:                       false,
+					TLSSkipVerify:             false,
+					DisableQueryExamples:      false,
+					TablestatsGroupTableLimit: 2000,
+					DisableBasicMetrics:       true,
+					DisableEnhancedMetrics:    true,
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		addRDSOK, err := client.Default.ManagementService.AddRDS(params)
+		addRDSOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
 		require.NotNil(t, addRDSOK.Payload)
 
 		body := addRDSOK.Payload
-		assert.True(t, body.RDSExporter.BasicMetricsDisabled)
-		assert.True(t, body.RDSExporter.EnhancedMetricsDisabled)
+		assert.True(t, body.RDS.RDSExporter.BasicMetricsDisabled)
+		assert.True(t, body.RDS.RDSExporter.EnhancedMetricsDisabled)
 
-		pmmapitests.RemoveAgents(t, body.MysqldExporter.AgentID)
-		pmmapitests.RemoveAgents(t, body.QANMysqlPerfschema.AgentID)
-		pmmapitests.RemoveServices(t, body.Mysql.ServiceID)
+		pmmapitests.RemoveAgents(t, body.RDS.MysqldExporter.AgentID)
+		pmmapitests.RemoveAgents(t, body.RDS.QANMysqlPerfschema.AgentID)
+		pmmapitests.RemoveServices(t, body.RDS.Mysql.ServiceID)
 
+		agentID := body.RDS.RDSExporter.AgentID
+		nodeID := body.RDS.Mysql.NodeID
 		_, err = inventoryClient.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-			Body: agents.GetAgentBody{
-				AgentID: body.RDSExporter.AgentID,
-			},
+			AgentID: agentID,
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, body.RDSExporter.AgentID))
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf(`Agent with ID %s not found.`, agentID))
 
 		_, err = inventoryClient.Default.NodesService.GetNode(&nodes.GetNodeParams{
-			Body: nodes.GetNodeBody{
-				NodeID: body.Mysql.NodeID,
-			},
+			NodeID:  nodeID,
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, body.Mysql.NodeID))
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, nodeID))
 	})
 
 	t.Run("AddRDSPostgres", func(t *testing.T) {
-		params := &mservice.AddRDSParams{
-			Body: mservice.AddRDSBody{
-				Region:                    "region",
-				Az:                        "az",
-				InstanceID:                "d752f1a9-31c9-4b8c-bb2d-d26bc000009",
-				NodeModel:                 "some-model",
-				Address:                   "some.example.rds",
-				Port:                      5432,
-				Engine:                    pointer.ToString("DISCOVER_RDS_ENGINE_POSTGRESQL"),
-				NodeName:                  "some-node-name-000009",
-				ServiceName:               "test-add-rds-service000009",
-				Environment:               "some-env",
-				Cluster:                   "cluster-01",
-				ReplicationSet:            "rs-01",
-				Username:                  "some-username",
-				Password:                  "some-password",
-				AWSAccessKey:              "my-aws-access-key",
-				AWSSecretKey:              "my-aws-secret-key",
-				RDSExporter:               true,
-				CustomLabels:              make(map[string]string),
-				SkipConnectionCheck:       true,
-				TLS:                       false,
-				TLSSkipVerify:             false,
-				TablestatsGroupTableLimit: 2000,
-				DisableBasicMetrics:       true,
-				DisableEnhancedMetrics:    true,
-				QANPostgresqlPgstatements: true,
+		params := &mservice.AddServiceParams{
+			Body: mservice.AddServiceBody{
+				RDS: &mservice.AddServiceParamsBodyRDS{
+					Region:                    "region",
+					Az:                        "az",
+					InstanceID:                "d752f1a9-31c9-4b8c-bb2d-d26bc000009",
+					NodeModel:                 "some-model",
+					Address:                   "some.example.rds",
+					Port:                      5432,
+					Engine:                    pointer.ToString("DISCOVER_RDS_ENGINE_POSTGRESQL"),
+					NodeName:                  "some-node-name-000009",
+					ServiceName:               "test-add-rds-service000009",
+					Environment:               "some-env",
+					Cluster:                   "cluster-01",
+					ReplicationSet:            "rs-01",
+					Username:                  "some-username",
+					Password:                  "some-password",
+					AWSAccessKey:              "my-aws-access-key",
+					AWSSecretKey:              "my-aws-secret-key",
+					RDSExporter:               true,
+					CustomLabels:              make(map[string]string),
+					SkipConnectionCheck:       true,
+					TLS:                       false,
+					TLSSkipVerify:             false,
+					TablestatsGroupTableLimit: 2000,
+					DisableBasicMetrics:       true,
+					DisableEnhancedMetrics:    true,
+					QANPostgresqlPgstatements: true,
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		addRDSOK, err := client.Default.ManagementService.AddRDS(params)
+		addRDSOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
 		require.NotNil(t, addRDSOK.Payload)
 
 		body := addRDSOK.Payload
-		assert.True(t, body.RDSExporter.BasicMetricsDisabled)
-		assert.True(t, body.RDSExporter.EnhancedMetricsDisabled)
+		assert.True(t, body.RDS.RDSExporter.BasicMetricsDisabled)
+		assert.True(t, body.RDS.RDSExporter.EnhancedMetricsDisabled)
 
-		pmmapitests.RemoveAgents(t, body.PostgresqlExporter.AgentID)
-		pmmapitests.RemoveAgents(t, body.QANPostgresqlPgstatements.AgentID)
-		pmmapitests.RemoveServices(t, body.Postgresql.ServiceID)
+		pmmapitests.RemoveAgents(t, body.RDS.PostgresqlExporter.AgentID)
+		pmmapitests.RemoveAgents(t, body.RDS.QANPostgresqlPgstatements.AgentID)
+		pmmapitests.RemoveServices(t, body.RDS.Postgresql.ServiceID)
 
 		_, err = inventoryClient.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-			Body: agents.GetAgentBody{
-				AgentID: body.RDSExporter.AgentID,
-			},
+			AgentID: body.RDS.RDSExporter.AgentID,
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, body.RDSExporter.AgentID))
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf(`Agent with ID %s not found.`, body.RDS.RDSExporter.AgentID))
 
 		_, err = inventoryClient.Default.NodesService.GetNode(&nodes.GetNodeParams{
-			Body: nodes.GetNodeBody{
-				NodeID: body.Postgresql.NodeID,
-			},
+			NodeID:  body.RDS.Postgresql.NodeID,
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, body.Postgresql.NodeID))
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, body.RDS.Postgresql.NodeID))
 	})
 }

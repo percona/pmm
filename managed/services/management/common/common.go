@@ -32,14 +32,21 @@ var ErrClusterLocked = errors.New("cluster/service is locked")
 
 // MgmtServices represents a collection of management services.
 type MgmtServices struct {
-	BackupsService   *managementbackup.BackupsService
-	ArtifactsService *managementbackup.ArtifactsService
-	RestoreService   *managementbackup.RestoreService
+	BackupService  *managementbackup.BackupService
+	RestoreService *managementbackup.RestoreService
+}
+
+// NewMgmtServices creates a new MgmtServices instance.
+func NewMgmtServices(bs *managementbackup.BackupService, rs *managementbackup.RestoreService) *MgmtServices {
+	return &MgmtServices{
+		BackupService:  bs,
+		RestoreService: rs,
+	}
 }
 
 // RemoveScheduledTasks removes scheduled backup tasks and check there are no running backup/restore tasks in case user changes service cluster label.
 func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, params *models.ChangeStandardLabelsParams) error {
-	if params.Cluster == nil {
+	if params.Cluster == nil || *params.Cluster == "" {
 		return nil
 	}
 
@@ -57,11 +64,9 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 		}
 	}
 
-	if *params.Cluster != "" {
-		servicesInNewCluster, err = models.FindServices(db.Querier, models.ServiceFilters{Cluster: *params.Cluster})
-		if err != nil {
-			return err
-		}
+	servicesInNewCluster, err = models.FindServices(db.Querier, models.ServiceFilters{Cluster: *params.Cluster})
+	if err != nil {
+		return err
 	}
 
 	allServices := append(servicesInCurrentCluster, servicesInNewCluster...) //nolint:gocritic
@@ -72,7 +77,7 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 		sMap[service.ServiceID] = struct{}{}
 	}
 
-	scheduledTasks, err := s.BackupsService.ListScheduledBackups(ctx, &backuppb.ListScheduledBackupsRequest{})
+	scheduledTasks, err := s.BackupService.ListScheduledBackups(ctx, &backuppb.ListScheduledBackupsRequest{})
 	if err != nil {
 		return err
 	}
@@ -80,7 +85,7 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 	// Remove scheduled tasks.
 	for _, task := range scheduledTasks.ScheduledBackups {
 		if _, ok := sMap[task.ServiceId]; ok {
-			_, err = s.BackupsService.RemoveScheduledBackup(ctx, &backuppb.RemoveScheduledBackupRequest{ScheduledBackupId: task.ScheduledBackupId})
+			_, err = s.BackupService.RemoveScheduledBackup(ctx, &backuppb.RemoveScheduledBackupRequest{ScheduledBackupId: task.ScheduledBackupId})
 			if err != nil {
 				return err
 			}
@@ -88,7 +93,7 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 	}
 
 	// Check no backup tasks running.
-	artifacts, err := s.ArtifactsService.ListArtifacts(ctx, &backuppb.ListArtifactsRequest{})
+	artifacts, err := s.BackupService.ListArtifacts(ctx, &backuppb.ListArtifactsRequest{})
 	if err != nil {
 		return err
 	}

@@ -481,7 +481,16 @@ func (m *DeleteArtifactRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ArtifactId
+	if utf8.RuneCountInString(m.GetArtifactId()) < 1 {
+		err := DeleteArtifactRequestValidationError{
+			field:  "ArtifactId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	// no validation rules for RemoveFiles
 
@@ -847,7 +856,16 @@ func (m *ListPitrTimerangesRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ArtifactId
+	if utf8.RuneCountInString(m.GetArtifactId()) < 1 {
+		err := ListPitrTimerangesRequestValidationError{
+			field:  "ArtifactId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ListPitrTimerangesRequestMultiError(errors)

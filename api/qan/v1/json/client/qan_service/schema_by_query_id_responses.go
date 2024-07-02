@@ -58,7 +58,7 @@ type SchemaByQueryIDOK struct {
 }
 
 func (o *SchemaByQueryIDOK) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/ObjectDetails/SchemaByQueryID][%d] schemaByQueryIdOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/qan/query:getSchema][%d] schemaByQueryIdOk  %+v", 200, o.Payload)
 }
 
 func (o *SchemaByQueryIDOK) GetPayload() *SchemaByQueryIDOKBody {
@@ -100,7 +100,7 @@ func (o *SchemaByQueryIDDefault) Code() int {
 }
 
 func (o *SchemaByQueryIDDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/ObjectDetails/SchemaByQueryID][%d] SchemaByQueryID default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/qan/query:getSchema][%d] SchemaByQueryID default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *SchemaByQueryIDDefault) GetPayload() *SchemaByQueryIDDefaultBody {

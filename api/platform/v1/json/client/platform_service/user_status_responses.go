@@ -58,7 +58,7 @@ type UserStatusOK struct {
 }
 
 func (o *UserStatusOK) Error() string {
-	return fmt.Sprintf("[POST /v1/platform/UserStatus][%d] userStatusOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/platform/user][%d] userStatusOk  %+v", 200, o.Payload)
 }
 
 func (o *UserStatusOK) GetPayload() *UserStatusOKBody {
@@ -100,7 +100,7 @@ func (o *UserStatusDefault) Code() int {
 }
 
 func (o *UserStatusDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/platform/UserStatus][%d] UserStatus default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/platform/user][%d] UserStatus default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *UserStatusDefault) GetPayload() *UserStatusDefaultBody {

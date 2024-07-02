@@ -60,7 +60,7 @@ type ListTemplatesOK struct {
 }
 
 func (o *ListTemplatesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/alerting/Templates/List][%d] listTemplatesOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/alerting/templates][%d] listTemplatesOk  %+v", 200, o.Payload)
 }
 
 func (o *ListTemplatesOK) GetPayload() *ListTemplatesOKBody {
@@ -102,7 +102,7 @@ func (o *ListTemplatesDefault) Code() int {
 }
 
 func (o *ListTemplatesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/alerting/Templates/List][%d] ListTemplates default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/alerting/templates][%d] ListTemplates default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ListTemplatesDefault) GetPayload() *ListTemplatesDefaultBody {
@@ -117,98 +117,6 @@ func (o *ListTemplatesDefault) readResponse(response runtime.ClientResponse, con
 		return err
 	}
 
-	return nil
-}
-
-/*
-ListTemplatesBody list templates body
-swagger:model ListTemplatesBody
-*/
-type ListTemplatesBody struct {
-	// If true, template files will be re-read from disk.
-	Reload bool `json:"reload,omitempty"`
-
-	// page params
-	PageParams *ListTemplatesParamsBodyPageParams `json:"page_params,omitempty"`
-}
-
-// Validate validates this list templates body
-func (o *ListTemplatesBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validatePageParams(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ListTemplatesBody) validatePageParams(formats strfmt.Registry) error {
-	if swag.IsZero(o.PageParams) { // not required
-		return nil
-	}
-
-	if o.PageParams != nil {
-		if err := o.PageParams.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "page_params")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "page_params")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// ContextValidate validate this list templates body based on the context it is used
-func (o *ListTemplatesBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.contextValidatePageParams(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ListTemplatesBody) contextValidatePageParams(ctx context.Context, formats strfmt.Registry) error {
-	if o.PageParams != nil {
-		if err := o.PageParams.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "page_params")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "page_params")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListTemplatesBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListTemplatesBody) UnmarshalBinary(b []byte) error {
-	var res ListTemplatesBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 
@@ -358,11 +266,14 @@ ListTemplatesOKBody list templates OK body
 swagger:model ListTemplatesOKBody
 */
 type ListTemplatesOKBody struct {
-	// templates
-	Templates []*ListTemplatesOKBodyTemplatesItems0 `json:"templates"`
+	// Total number of results.
+	TotalItems int32 `json:"total_items,omitempty"`
 
-	// totals
-	Totals *ListTemplatesOKBodyTotals `json:"totals,omitempty"`
+	// Total number of pages.
+	TotalPages int32 `json:"total_pages,omitempty"`
+
+	// Alerting templates.
+	Templates []*ListTemplatesOKBodyTemplatesItems0 `json:"templates"`
 }
 
 // Validate validates this list templates OK body
@@ -370,10 +281,6 @@ func (o *ListTemplatesOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateTemplates(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateTotals(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -409,34 +316,11 @@ func (o *ListTemplatesOKBody) validateTemplates(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ListTemplatesOKBody) validateTotals(formats strfmt.Registry) error {
-	if swag.IsZero(o.Totals) { // not required
-		return nil
-	}
-
-	if o.Totals != nil {
-		if err := o.Totals.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("listTemplatesOk" + "." + "totals")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("listTemplatesOk" + "." + "totals")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 // ContextValidate validate this list templates OK body based on the context it is used
 func (o *ListTemplatesOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateTemplates(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.contextValidateTotals(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -457,21 +341,6 @@ func (o *ListTemplatesOKBody) contextValidateTemplates(ctx context.Context, form
 				}
 				return err
 			}
-		}
-	}
-
-	return nil
-}
-
-func (o *ListTemplatesOKBody) contextValidateTotals(ctx context.Context, formats strfmt.Registry) error {
-	if o.Totals != nil {
-		if err := o.Totals.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("listTemplatesOk" + "." + "totals")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("listTemplatesOk" + "." + "totals")
-			}
-			return err
 		}
 	}
 
@@ -1073,72 +942,12 @@ ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool BoolParamDefinition represent
 swagger:model ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool
 */
 type ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool struct {
-	// BooleanFlag represent a command to set some boolean property to true,
-	// to false, or avoid changing that property.
-	//
-	//  - BOOLEAN_FLAG_UNSPECIFIED: Do not change boolean property. Default value.
-	//  - BOOLEAN_FLAG_TRUE: True.
-	//  - BOOLEAN_FLAG_FALSE: False.
-	// Enum: [BOOLEAN_FLAG_UNSPECIFIED BOOLEAN_FLAG_TRUE BOOLEAN_FLAG_FALSE]
-	Default *string `json:"default,omitempty"`
+	// default
+	Default *bool `json:"default,omitempty"`
 }
 
 // Validate validates this list templates OK body templates items0 params items0 bool
 func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateDefault(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var listTemplatesOkBodyTemplatesItems0ParamsItems0BoolTypeDefaultPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["BOOLEAN_FLAG_UNSPECIFIED","BOOLEAN_FLAG_TRUE","BOOLEAN_FLAG_FALSE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		listTemplatesOkBodyTemplatesItems0ParamsItems0BoolTypeDefaultPropEnum = append(listTemplatesOkBodyTemplatesItems0ParamsItems0BoolTypeDefaultPropEnum, v)
-	}
-}
-
-const (
-
-	// ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultBOOLEANFLAGUNSPECIFIED captures enum value "BOOLEAN_FLAG_UNSPECIFIED"
-	ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultBOOLEANFLAGUNSPECIFIED string = "BOOLEAN_FLAG_UNSPECIFIED"
-
-	// ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultBOOLEANFLAGTRUE captures enum value "BOOLEAN_FLAG_TRUE"
-	ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultBOOLEANFLAGTRUE string = "BOOLEAN_FLAG_TRUE"
-
-	// ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultBOOLEANFLAGFALSE captures enum value "BOOLEAN_FLAG_FALSE"
-	ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultBOOLEANFLAGFALSE string = "BOOLEAN_FLAG_FALSE"
-)
-
-// prop value enum
-func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool) validateDefaultEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, listTemplatesOkBodyTemplatesItems0ParamsItems0BoolTypeDefaultPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool) validateDefault(formats strfmt.Registry) error {
-	if swag.IsZero(o.Default) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateDefaultEnum("bool"+"."+"default", "body", *o.Default); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -1170,23 +979,14 @@ ListTemplatesOKBodyTemplatesItems0ParamsItems0Float FloatParamDefinition represe
 swagger:model ListTemplatesOKBodyTemplatesItems0ParamsItems0Float
 */
 type ListTemplatesOKBodyTemplatesItems0ParamsItems0Float struct {
-	// True if default value is set.
-	HasDefault bool `json:"has_default,omitempty"`
+	// Default value.
+	Default *float64 `json:"default,omitempty"`
 
-	// Default value if has_default is true.
-	Default float64 `json:"default,omitempty"`
+	// Minimum valid value (inclusive).
+	Min *float64 `json:"min,omitempty"`
 
-	// True if minimal valid value is set.
-	HasMin bool `json:"has_min,omitempty"`
-
-	// Minimal valid value (inclusive) if has_min is true.
-	Min float64 `json:"min,omitempty"`
-
-	// True if maximal valid value is set.
-	HasMax bool `json:"has_max,omitempty"`
-
-	// Maximal valid value (inclusive) if has_max is true.
-	Max float64 `json:"max,omitempty"`
+	// Maximum valid value (inclusive).
+	Max *float64 `json:"max,omitempty"`
 }
 
 // Validate validates this list templates OK body templates items0 params items0 float
@@ -1222,11 +1022,8 @@ ListTemplatesOKBodyTemplatesItems0ParamsItems0String StringParamDefinition repre
 swagger:model ListTemplatesOKBodyTemplatesItems0ParamsItems0String
 */
 type ListTemplatesOKBodyTemplatesItems0ParamsItems0String struct {
-	// True if default value is set.
-	HasDefault bool `json:"has_default,omitempty"`
-
-	// Default value if has_default is true.
-	Default string `json:"default,omitempty"`
+	// Default value.
+	Default *string `json:"default,omitempty"`
 }
 
 // Validate validates this list templates OK body templates items0 params items0 string
@@ -1250,86 +1047,6 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0String) MarshalBinary() (
 // UnmarshalBinary interface implementation
 func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0String) UnmarshalBinary(b []byte) error {
 	var res ListTemplatesOKBodyTemplatesItems0ParamsItems0String
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-ListTemplatesOKBodyTotals PageTotals represents total values for pagination.
-swagger:model ListTemplatesOKBodyTotals
-*/
-type ListTemplatesOKBodyTotals struct {
-	// Total number of results.
-	TotalItems int32 `json:"total_items,omitempty"`
-
-	// Total number of pages.
-	TotalPages int32 `json:"total_pages,omitempty"`
-}
-
-// Validate validates this list templates OK body totals
-func (o *ListTemplatesOKBodyTotals) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this list templates OK body totals based on context it is used
-func (o *ListTemplatesOKBodyTotals) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListTemplatesOKBodyTotals) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListTemplatesOKBodyTotals) UnmarshalBinary(b []byte) error {
-	var res ListTemplatesOKBodyTotals
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-ListTemplatesParamsBodyPageParams PageParams represents page request parameters for pagination.
-swagger:model ListTemplatesParamsBodyPageParams
-*/
-type ListTemplatesParamsBodyPageParams struct {
-	// Maximum number of results per page.
-	PageSize int32 `json:"page_size,omitempty"`
-
-	// Index of the requested page, starts from 0.
-	Index int32 `json:"index,omitempty"`
-}
-
-// Validate validates this list templates params body page params
-func (o *ListTemplatesParamsBodyPageParams) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this list templates params body page params based on context it is used
-func (o *ListTemplatesParamsBodyPageParams) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListTemplatesParamsBodyPageParams) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListTemplatesParamsBodyPageParams) UnmarshalBinary(b []byte) error {
-	var res ListTemplatesParamsBodyPageParams
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -36,8 +36,8 @@ Warning: {{ .Warning }}
 `)
 
 type addPostgreSQLResult struct {
-	Service *mservice.AddPostgreSQLOKBodyService `json:"service"`
-	Warning string                               `json:"warning"`
+	Service *mservice.AddServiceOKBodyPostgresqlService `json:"service"`
+	Warning string                                      `json:"warning"`
 }
 
 func (res *addPostgreSQLResult) Result() {}
@@ -182,53 +182,55 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &mservice.AddPostgreSQLParams{
-		Body: mservice.AddPostgreSQLBody{
-			NodeID:                 cmd.NodeID,
-			ServiceName:            serviceName,
-			Address:                host,
-			Socket:                 socket,
-			Port:                   int64(port),
-			ExposeExporter:         cmd.ExposeExporter,
-			Username:               cmd.Username,
-			Password:               cmd.Password,
-			Database:               cmd.Database,
-			AgentPassword:          cmd.AgentPassword,
-			SkipConnectionCheck:    cmd.SkipConnectionCheck,
-			DisableCommentsParsing: disableCommentsParsing,
+	params := &mservice.AddServiceParams{
+		Body: mservice.AddServiceBody{
+			Postgresql: &mservice.AddServiceParamsBodyPostgresql{
+				NodeID:                 cmd.NodeID,
+				ServiceName:            serviceName,
+				Address:                host,
+				Socket:                 socket,
+				Port:                   int64(port),
+				ExposeExporter:         cmd.ExposeExporter,
+				Username:               cmd.Username,
+				Password:               cmd.Password,
+				Database:               cmd.Database,
+				AgentPassword:          cmd.AgentPassword,
+				SkipConnectionCheck:    cmd.SkipConnectionCheck,
+				DisableCommentsParsing: disableCommentsParsing,
 
-			PMMAgentID:     cmd.PMMAgentID,
-			Environment:    cmd.Environment,
-			Cluster:        cmd.Cluster,
-			ReplicationSet: cmd.ReplicationSet,
-			CustomLabels:   customLabels,
+				PMMAgentID:     cmd.PMMAgentID,
+				Environment:    cmd.Environment,
+				Cluster:        cmd.Cluster,
+				ReplicationSet: cmd.ReplicationSet,
+				CustomLabels:   customLabels,
 
-			QANPostgresqlPgstatementsAgent:  usePgStatements,
-			QANPostgresqlPgstatmonitorAgent: usePgStatMonitor,
+				QANPostgresqlPgstatementsAgent:  usePgStatements,
+				QANPostgresqlPgstatmonitorAgent: usePgStatMonitor,
 
-			TLS:           cmd.TLS,
-			TLSCa:         tlsCa,
-			TLSCert:       tlsCert,
-			TLSKey:        tlsKey,
-			TLSSkipVerify: cmd.TLSSkipVerify,
+				TLS:           cmd.TLS,
+				TLSCa:         tlsCa,
+				TLSCert:       tlsCert,
+				TLSKey:        tlsKey,
+				TLSSkipVerify: cmd.TLSSkipVerify,
 
-			MaxQueryLength:         cmd.MaxQueryLength,
-			DisableQueryExamples:   cmd.DisableQueryExamples,
-			MetricsMode:            pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
-			DisableCollectors:      commands.ParseDisableCollectors(cmd.DisableCollectors),
-			AutoDiscoveryLimit:     cmd.AutoDiscoveryLimit,
-			MaxExporterConnections: cmd.MaxExporterConnections,
-			LogLevel:               &cmd.AddLogLevel,
+				MaxQueryLength:         cmd.MaxQueryLength,
+				DisableQueryExamples:   cmd.DisableQueryExamples,
+				MetricsMode:            pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
+				DisableCollectors:      commands.ParseDisableCollectors(cmd.DisableCollectors),
+				AutoDiscoveryLimit:     cmd.AutoDiscoveryLimit,
+				MaxExporterConnections: cmd.MaxExporterConnections,
+				LogLevel:               &cmd.AddLogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.ManagementService.AddPostgreSQL(params)
+	resp, err := client.Default.ManagementService.AddService(params)
 	if err != nil {
 		return nil, err
 	}
 
 	return &addPostgreSQLResult{
-		Service: resp.Payload.Service,
-		Warning: resp.Payload.Warning,
+		Service: resp.Payload.Postgresql.Service,
+		Warning: resp.Payload.Postgresql.Warning,
 	}, nil
 }

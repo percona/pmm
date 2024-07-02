@@ -37,10 +37,6 @@ func request_RestoreService_ListRestores_0(ctx context.Context, marshaler runtim
 	var protoReq ListRestoresRequest
 	var metadata runtime.ServerMetadata
 
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
 	msg, err := client.ListRestores(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
@@ -49,11 +45,73 @@ func local_request_RestoreService_ListRestores_0(ctx context.Context, marshaler 
 	var protoReq ListRestoresRequest
 	var metadata runtime.ServerMetadata
 
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	msg, err := server.ListRestores(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+var filter_RestoreService_GetLogs_0 = &utilities.DoubleArray{Encoding: map[string]int{"restore_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+
+func request_RestoreService_GetLogs_0(ctx context.Context, marshaler runtime.Marshaler, client RestoreServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq RestoreServiceGetLogsRequest
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["restore_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "restore_id")
+	}
+
+	protoReq.RestoreId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "restore_id", err)
+	}
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_RestoreService_GetLogs_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.ListRestores(ctx, &protoReq)
+	msg, err := client.GetLogs(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_RestoreService_GetLogs_0(ctx context.Context, marshaler runtime.Marshaler, server RestoreServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq RestoreServiceGetLogsRequest
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["restore_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "restore_id")
+	}
+
+	protoReq.RestoreId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "restore_id", err)
+	}
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_RestoreService_GetLogs_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.GetLogs(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -86,7 +144,7 @@ func local_request_RestoreService_RestoreBackup_0(ctx context.Context, marshaler
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterRestoreServiceHandlerFromEndpoint instead.
 func RegisterRestoreServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server RestoreServiceServer) error {
-	mux.Handle("POST", pattern_RestoreService_ListRestores_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_RestoreService_ListRestores_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -94,7 +152,7 @@ func RegisterRestoreServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.RestoreService/ListRestores", runtime.WithHTTPPathPattern("/v1/backup/RestoreHistory/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.RestoreService/ListRestores", runtime.WithHTTPPathPattern("/v1/backups/restores"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -110,6 +168,30 @@ func RegisterRestoreServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		forward_RestoreService_ListRestores_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
+	mux.Handle("GET", pattern_RestoreService_GetLogs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.RestoreService/GetLogs", runtime.WithHTTPPathPattern("/v1/backups/restores/{restore_id}/logs"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_RestoreService_GetLogs_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_RestoreService_GetLogs_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+
 	mux.Handle("POST", pattern_RestoreService_RestoreBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -118,7 +200,7 @@ func RegisterRestoreServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.RestoreService/RestoreBackup", runtime.WithHTTPPathPattern("/v1/backup/Backups/Restore"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.RestoreService/RestoreBackup", runtime.WithHTTPPathPattern("/v1/backups/restores:start"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -174,13 +256,13 @@ func RegisterRestoreServiceHandler(ctx context.Context, mux *runtime.ServeMux, c
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "RestoreServiceClient" to call the correct interceptors.
 func RegisterRestoreServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client RestoreServiceClient) error {
-	mux.Handle("POST", pattern_RestoreService_ListRestores_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_RestoreService_ListRestores_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.RestoreService/ListRestores", runtime.WithHTTPPathPattern("/v1/backup/RestoreHistory/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.RestoreService/ListRestores", runtime.WithHTTPPathPattern("/v1/backups/restores"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -195,13 +277,34 @@ func RegisterRestoreServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		forward_RestoreService_ListRestores_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
+	mux.Handle("GET", pattern_RestoreService_GetLogs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.RestoreService/GetLogs", runtime.WithHTTPPathPattern("/v1/backups/restores/{restore_id}/logs"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_RestoreService_GetLogs_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_RestoreService_GetLogs_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+
 	mux.Handle("POST", pattern_RestoreService_RestoreBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.RestoreService/RestoreBackup", runtime.WithHTTPPathPattern("/v1/backup/Backups/Restore"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.RestoreService/RestoreBackup", runtime.WithHTTPPathPattern("/v1/backups/restores:start"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -220,13 +323,17 @@ func RegisterRestoreServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 }
 
 var (
-	pattern_RestoreService_ListRestores_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "backup", "RestoreHistory", "List"}, ""))
+	pattern_RestoreService_ListRestores_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "backups", "restores"}, ""))
 
-	pattern_RestoreService_RestoreBackup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "backup", "Backups", "Restore"}, ""))
+	pattern_RestoreService_GetLogs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "backups", "restores", "restore_id", "logs"}, ""))
+
+	pattern_RestoreService_RestoreBackup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "backups", "restores"}, "start"))
 )
 
 var (
 	forward_RestoreService_ListRestores_0 = runtime.ForwardResponseMessage
+
+	forward_RestoreService_GetLogs_0 = runtime.ForwardResponseMessage
 
 	forward_RestoreService_RestoreBackup_0 = runtime.ForwardResponseMessage
 )

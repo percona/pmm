@@ -117,7 +117,7 @@ func TestListBackupLocations(t *testing.T) {
 		},
 	}
 	res1, err := svc.AddLocation(ctx, req1)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	req2 := &backuppb.AddLocationRequest{
 		Name: gofakeit.Name(),
 		S3Config: &backuppb.S3LocationConfig{
@@ -128,11 +128,11 @@ func TestListBackupLocations(t *testing.T) {
 		},
 	}
 	res2, err := svc.AddLocation(ctx, req2)
-	require.Nil(t, err)
+	require.NoError(t, err)
 
 	t.Run("list", func(t *testing.T) {
 		res, err := svc.ListLocations(ctx, &backuppb.ListLocationsRequest{})
-		require.Nil(t, err)
+		require.NoError(t, err)
 
 		checkLocation := func(id string, req *backuppb.AddLocationRequest) func() bool {
 			return func() bool {

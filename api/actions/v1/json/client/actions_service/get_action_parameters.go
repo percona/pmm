@@ -60,8 +60,11 @@ GetActionParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type GetActionParams struct {
-	// Body.
-	Body GetActionBody
+	/* ActionID.
+
+	   Unique Action ID.
+	*/
+	ActionID string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -116,15 +119,15 @@ func (o *GetActionParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the get action params
-func (o *GetActionParams) WithBody(body GetActionBody) *GetActionParams {
-	o.SetBody(body)
+// WithActionID adds the actionID to the get action params
+func (o *GetActionParams) WithActionID(actionID string) *GetActionParams {
+	o.SetActionID(actionID)
 	return o
 }
 
-// SetBody adds the body to the get action params
-func (o *GetActionParams) SetBody(body GetActionBody) {
-	o.Body = body
+// SetActionID adds the actionId to the get action params
+func (o *GetActionParams) SetActionID(actionID string) {
+	o.ActionID = actionID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,7 +136,9 @@ func (o *GetActionParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Reg
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
+
+	// path param action_id
+	if err := r.SetPathParam("action_id", o.ActionID); err != nil {
 		return err
 	}
 

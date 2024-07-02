@@ -33,10 +33,10 @@ const (
 )
 
 // AddMySQL adds "MySQL Service", "MySQL Exporter Agent" and "QAN MySQL PerfSchema Agent".
-func (s *ManagementService) AddMySQL(ctx context.Context, req *managementv1.AddMySQLRequest) (*managementv1.AddMySQLResponse, error) {
-	res := &managementv1.AddMySQLResponse{}
+func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddMySQLServiceParams) (*managementv1.AddServiceResponse, error) {
+	mysql := &managementv1.MySQLServiceResult{}
 
-	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		// tweak according to API docs
 		tablestatsGroupTableLimit := req.TablestatsGroupTableLimit
 		if tablestatsGroupTableLimit == 0 {
@@ -79,7 +79,7 @@ func (s *ManagementService) AddMySQL(ctx context.Context, req *managementv1.AddM
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventoryv1.MySQLService) //nolint:forcetypeassert
+		mysql.Service = invService.(*inventoryv1.MySQLService) //nolint:forcetypeassert
 
 		req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, req.PmmAgentId)
 		if err != nil {
@@ -113,14 +113,14 @@ func (s *ManagementService) AddMySQL(ctx context.Context, req *managementv1.AddM
 				return err
 			}
 			// GetInfoFromService updates the table count in row so, let's also update the response
-			res.TableCount = *row.TableCount
+			mysql.TableCount = *row.TableCount
 		}
 
 		agent, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
-		res.MysqldExporter = agent.(*inventoryv1.MySQLdExporter) //nolint:forcetypeassert
+		mysql.MysqldExporter = agent.(*inventoryv1.MySQLdExporter) //nolint:forcetypeassert
 
 		if req.QanMysqlPerfschema {
 			row, err = models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, &models.CreateAgentParams{
@@ -144,7 +144,7 @@ func (s *ManagementService) AddMySQL(ctx context.Context, req *managementv1.AddM
 			if err != nil {
 				return err
 			}
-			res.QanMysqlPerfschema = agent.(*inventoryv1.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
+			mysql.QanMysqlPerfschema = agent.(*inventoryv1.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
 		}
 
 		if req.QanMysqlSlowlog {
@@ -170,16 +170,24 @@ func (s *ManagementService) AddMySQL(ctx context.Context, req *managementv1.AddM
 			if err != nil {
 				return err
 			}
-			res.QanMysqlSlowlog = agent.(*inventoryv1.QANMySQLSlowlogAgent) //nolint:forcetypeassert
+			mysql.QanMysqlSlowlog = agent.(*inventoryv1.QANMySQLSlowlogAgent) //nolint:forcetypeassert
 		}
 
 		return nil
-	}); e != nil {
-		return nil, e
+	})
+
+	if errTx != nil {
+		return nil, errTx
 	}
 
 	s.state.RequestStateUpdate(ctx, req.PmmAgentId)
 	s.vc.RequestSoftwareVersionsUpdate()
+
+	res := &managementv1.AddServiceResponse{
+		Service: &managementv1.AddServiceResponse_Mysql{
+			Mysql: mysql,
+		},
+	}
 
 	return res, nil
 }

@@ -65,8 +65,8 @@ func (a *Client) AWSInstanceCheck(params *AWSInstanceCheckParams, opts ...Client
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "AWSInstanceCheck",
-		Method:             "POST",
-		PathPattern:        "/v1/AWSInstanceCheck",
+		Method:             "GET",
+		PathPattern:        "/v1/server/AWSInstance",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -104,8 +104,8 @@ func (a *Client) ChangeSettings(params *ChangeSettingsParams, opts ...ClientOpti
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ChangeSettings",
-		Method:             "POST",
-		PathPattern:        "/v1/settings/Change",
+		Method:             "PUT",
+		PathPattern:        "/v1/server/settings",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -143,8 +143,8 @@ func (a *Client) CheckUpdates(params *CheckUpdatesParams, opts ...ClientOption) 
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "CheckUpdates",
-		Method:             "POST",
-		PathPattern:        "/v1/updates/Check",
+		Method:             "GET",
+		PathPattern:        "/v1/server/updates",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -182,8 +182,8 @@ func (a *Client) GetSettings(params *GetSettingsParams, opts ...ClientOption) (*
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "GetSettings",
-		Method:             "POST",
-		PathPattern:        "/v1/settings/Get",
+		Method:             "GET",
+		PathPattern:        "/v1/server/settings",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -221,8 +221,8 @@ func (a *Client) LeaderHealthCheck(params *LeaderHealthCheckParams, opts ...Clie
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "LeaderHealthCheck",
-		Method:             "POST",
-		PathPattern:        "/v1/leaderHealthCheck",
+		Method:             "GET",
+		PathPattern:        "/v1/server/leaderHealthCheck",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -261,7 +261,7 @@ func (a *Client) Logs(params *LogsParams, writer io.Writer, opts ...ClientOption
 	op := &runtime.ClientOperation{
 		ID:                 "Logs",
 		Method:             "GET",
-		PathPattern:        "/logs.zip",
+		PathPattern:        "/v1/server/logs.zip",
 		ProducesMediaTypes: []string{"application/zip"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -300,7 +300,7 @@ func (a *Client) Readiness(params *ReadinessParams, opts ...ClientOption) (*Read
 	op := &runtime.ClientOperation{
 		ID:                 "Readiness",
 		Method:             "GET",
-		PathPattern:        "/v1/readyz",
+		PathPattern:        "/v1/server/readyz",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -339,7 +339,7 @@ func (a *Client) StartUpdate(params *StartUpdateParams, opts ...ClientOption) (*
 	op := &runtime.ClientOperation{
 		ID:                 "StartUpdate",
 		Method:             "POST",
-		PathPattern:        "/v1/updates/Start",
+		PathPattern:        "/v1/server/updates:start",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -378,7 +378,7 @@ func (a *Client) UpdateStatus(params *UpdateStatusParams, opts ...ClientOption) 
 	op := &runtime.ClientOperation{
 		ID:                 "UpdateStatus",
 		Method:             "POST",
-		PathPattern:        "/v1/updates/Status",
+		PathPattern:        "/v1/server/updates:getStatus",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -417,7 +417,7 @@ func (a *Client) Version(params *VersionParams, opts ...ClientOption) (*VersionO
 	op := &runtime.ClientOperation{
 		ID:                 "Version",
 		Method:             "GET",
-		PathPattern:        "/v1/version",
+		PathPattern:        "/v1/server/version",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

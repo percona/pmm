@@ -34,7 +34,7 @@ Service name: {{ .Service.ServiceName }}
 `)
 
 type addHAProxyResult struct {
-	Service *mservice.AddHAProxyOKBodyService `json:"service"`
+	Service *mservice.AddServiceOKBodyHaproxyService `json:"service"`
 }
 
 func (res *addHAProxyResult) Result() {}
@@ -105,30 +105,32 @@ func (cmd *AddHAProxyCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &mservice.AddHAProxyParams{
-		Body: mservice.AddHAProxyBody{
-			ServiceName:         cmd.ServiceName,
-			Username:            cmd.Username,
-			Password:            cmd.Password,
-			Scheme:              cmd.Scheme,
-			MetricsPath:         cmd.MetricsPath,
-			ListenPort:          int64(cmd.ListenPort),
-			NodeID:              cmd.NodeID,
-			Environment:         cmd.Environment,
-			Cluster:             cmd.Cluster,
-			ReplicationSet:      cmd.ReplicationSet,
-			CustomLabels:        customLabels,
-			MetricsMode:         pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
+	params := &mservice.AddServiceParams{
+		Body: mservice.AddServiceBody{
+			Haproxy: &mservice.AddServiceParamsBodyHaproxy{
+				ServiceName:         cmd.ServiceName,
+				Username:            cmd.Username,
+				Password:            cmd.Password,
+				Scheme:              cmd.Scheme,
+				MetricsPath:         cmd.MetricsPath,
+				ListenPort:          int64(cmd.ListenPort),
+				NodeID:              cmd.NodeID,
+				Environment:         cmd.Environment,
+				Cluster:             cmd.Cluster,
+				ReplicationSet:      cmd.ReplicationSet,
+				CustomLabels:        customLabels,
+				MetricsMode:         pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
+				SkipConnectionCheck: cmd.SkipConnectionCheck,
+			},
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.ManagementService.AddHAProxy(params)
+	resp, err := client.Default.ManagementService.AddService(params)
 	if err != nil {
 		return nil, err
 	}
 
 	return &addHAProxyResult{
-		Service: resp.Payload.Service,
+		Service: resp.Payload.Haproxy.Service,
 	}, nil
 }

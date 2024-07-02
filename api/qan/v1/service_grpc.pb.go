@@ -24,13 +24,13 @@ const (
 	QANService_GetFilteredMetricsNames_FullMethodName     = "/qan.v1.QANService/GetFilteredMetricsNames"
 	QANService_GetMetricsNames_FullMethodName             = "/qan.v1.QANService/GetMetricsNames"
 	QANService_GetMetrics_FullMethodName                  = "/qan.v1.QANService/GetMetrics"
-	QANService_GetQueryExample_FullMethodName             = "/qan.v1.QANService/GetQueryExample"
 	QANService_GetLabels_FullMethodName                   = "/qan.v1.QANService/GetLabels"
-	QANService_GetQueryPlan_FullMethodName                = "/qan.v1.QANService/GetQueryPlan"
 	QANService_GetHistogram_FullMethodName                = "/qan.v1.QANService/GetHistogram"
-	QANService_QueryExists_FullMethodName                 = "/qan.v1.QANService/QueryExists"
 	QANService_ExplainFingerprintByQueryID_FullMethodName = "/qan.v1.QANService/ExplainFingerprintByQueryID"
+	QANService_GetQueryPlan_FullMethodName                = "/qan.v1.QANService/GetQueryPlan"
+	QANService_QueryExists_FullMethodName                 = "/qan.v1.QANService/QueryExists"
 	QANService_SchemaByQueryID_FullMethodName             = "/qan.v1.QANService/SchemaByQueryID"
+	QANService_GetQueryExample_FullMethodName             = "/qan.v1.QANService/GetQueryExample"
 )
 
 // QANServiceClient is the client API for QANService service.
@@ -45,20 +45,20 @@ type QANServiceClient interface {
 	GetMetricsNames(ctx context.Context, in *GetMetricsNamesRequest, opts ...grpc.CallOption) (*GetMetricsNamesResponse, error)
 	// GetMetrics returns a map of metrics for specific filtering.
 	GetMetrics(ctx context.Context, in *GetMetricsRequest, opts ...grpc.CallOption) (*GetMetricsResponse, error)
-	// GetQueryExample returns a list of query examples.
-	GetQueryExample(ctx context.Context, in *GetQueryExampleRequest, opts ...grpc.CallOption) (*GetQueryExampleResponse, error)
 	// GetLabels return a list of labels for object details.
 	GetLabels(ctx context.Context, in *GetLabelsRequest, opts ...grpc.CallOption) (*GetLabelsResponse, error)
-	// GetQueryPlan returns a query plan and plan id for specific filtering.
-	GetQueryPlan(ctx context.Context, in *GetQueryPlanRequest, opts ...grpc.CallOption) (*GetQueryPlanResponse, error)
 	// GetHistogram returns histogram items for specific filtering.
 	GetHistogram(ctx context.Context, in *GetHistogramRequest, opts ...grpc.CallOption) (*GetHistogramResponse, error)
-	// QueryExists checks if query exists in clickhouse.
-	QueryExists(ctx context.Context, in *QueryExistsRequest, opts ...grpc.CallOption) (*QueryExistsResponse, error)
 	// ExplainFingerprintByQueryID returns an explain fingerprint for given query ID.
 	ExplainFingerprintByQueryID(ctx context.Context, in *ExplainFingerprintByQueryIDRequest, opts ...grpc.CallOption) (*ExplainFingerprintByQueryIDResponse, error)
+	// GetQueryPlan returns a query plan and plan id for specific filtering.
+	GetQueryPlan(ctx context.Context, in *GetQueryPlanRequest, opts ...grpc.CallOption) (*GetQueryPlanResponse, error)
+	// QueryExists checks if query exists in clickhouse.
+	QueryExists(ctx context.Context, in *QueryExistsRequest, opts ...grpc.CallOption) (*QueryExistsResponse, error)
 	// SchemaByQueryID returns the schema for a given queryID and serviceID.
 	SchemaByQueryID(ctx context.Context, in *SchemaByQueryIDRequest, opts ...grpc.CallOption) (*SchemaByQueryIDResponse, error)
+	// GetQueryExample returns a list of query examples.
+	GetQueryExample(ctx context.Context, in *GetQueryExampleRequest, opts ...grpc.CallOption) (*GetQueryExampleResponse, error)
 }
 
 type qANServiceClient struct {
@@ -105,27 +105,9 @@ func (c *qANServiceClient) GetMetrics(ctx context.Context, in *GetMetricsRequest
 	return out, nil
 }
 
-func (c *qANServiceClient) GetQueryExample(ctx context.Context, in *GetQueryExampleRequest, opts ...grpc.CallOption) (*GetQueryExampleResponse, error) {
-	out := new(GetQueryExampleResponse)
-	err := c.cc.Invoke(ctx, QANService_GetQueryExample_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *qANServiceClient) GetLabels(ctx context.Context, in *GetLabelsRequest, opts ...grpc.CallOption) (*GetLabelsResponse, error) {
 	out := new(GetLabelsResponse)
 	err := c.cc.Invoke(ctx, QANService_GetLabels_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *qANServiceClient) GetQueryPlan(ctx context.Context, in *GetQueryPlanRequest, opts ...grpc.CallOption) (*GetQueryPlanResponse, error) {
-	out := new(GetQueryPlanResponse)
-	err := c.cc.Invoke(ctx, QANService_GetQueryPlan_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -141,15 +123,6 @@ func (c *qANServiceClient) GetHistogram(ctx context.Context, in *GetHistogramReq
 	return out, nil
 }
 
-func (c *qANServiceClient) QueryExists(ctx context.Context, in *QueryExistsRequest, opts ...grpc.CallOption) (*QueryExistsResponse, error) {
-	out := new(QueryExistsResponse)
-	err := c.cc.Invoke(ctx, QANService_QueryExists_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *qANServiceClient) ExplainFingerprintByQueryID(ctx context.Context, in *ExplainFingerprintByQueryIDRequest, opts ...grpc.CallOption) (*ExplainFingerprintByQueryIDResponse, error) {
 	out := new(ExplainFingerprintByQueryIDResponse)
 	err := c.cc.Invoke(ctx, QANService_ExplainFingerprintByQueryID_FullMethodName, in, out, opts...)
@@ -159,9 +132,36 @@ func (c *qANServiceClient) ExplainFingerprintByQueryID(ctx context.Context, in *
 	return out, nil
 }
 
+func (c *qANServiceClient) GetQueryPlan(ctx context.Context, in *GetQueryPlanRequest, opts ...grpc.CallOption) (*GetQueryPlanResponse, error) {
+	out := new(GetQueryPlanResponse)
+	err := c.cc.Invoke(ctx, QANService_GetQueryPlan_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *qANServiceClient) QueryExists(ctx context.Context, in *QueryExistsRequest, opts ...grpc.CallOption) (*QueryExistsResponse, error) {
+	out := new(QueryExistsResponse)
+	err := c.cc.Invoke(ctx, QANService_QueryExists_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *qANServiceClient) SchemaByQueryID(ctx context.Context, in *SchemaByQueryIDRequest, opts ...grpc.CallOption) (*SchemaByQueryIDResponse, error) {
 	out := new(SchemaByQueryIDResponse)
 	err := c.cc.Invoke(ctx, QANService_SchemaByQueryID_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *qANServiceClient) GetQueryExample(ctx context.Context, in *GetQueryExampleRequest, opts ...grpc.CallOption) (*GetQueryExampleResponse, error) {
+	out := new(GetQueryExampleResponse)
+	err := c.cc.Invoke(ctx, QANService_GetQueryExample_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -180,20 +180,20 @@ type QANServiceServer interface {
 	GetMetricsNames(context.Context, *GetMetricsNamesRequest) (*GetMetricsNamesResponse, error)
 	// GetMetrics returns a map of metrics for specific filtering.
 	GetMetrics(context.Context, *GetMetricsRequest) (*GetMetricsResponse, error)
-	// GetQueryExample returns a list of query examples.
-	GetQueryExample(context.Context, *GetQueryExampleRequest) (*GetQueryExampleResponse, error)
 	// GetLabels return a list of labels for object details.
 	GetLabels(context.Context, *GetLabelsRequest) (*GetLabelsResponse, error)
-	// GetQueryPlan returns a query plan and plan id for specific filtering.
-	GetQueryPlan(context.Context, *GetQueryPlanRequest) (*GetQueryPlanResponse, error)
 	// GetHistogram returns histogram items for specific filtering.
 	GetHistogram(context.Context, *GetHistogramRequest) (*GetHistogramResponse, error)
-	// QueryExists checks if query exists in clickhouse.
-	QueryExists(context.Context, *QueryExistsRequest) (*QueryExistsResponse, error)
 	// ExplainFingerprintByQueryID returns an explain fingerprint for given query ID.
 	ExplainFingerprintByQueryID(context.Context, *ExplainFingerprintByQueryIDRequest) (*ExplainFingerprintByQueryIDResponse, error)
+	// GetQueryPlan returns a query plan and plan id for specific filtering.
+	GetQueryPlan(context.Context, *GetQueryPlanRequest) (*GetQueryPlanResponse, error)
+	// QueryExists checks if query exists in clickhouse.
+	QueryExists(context.Context, *QueryExistsRequest) (*QueryExistsResponse, error)
 	// SchemaByQueryID returns the schema for a given queryID and serviceID.
 	SchemaByQueryID(context.Context, *SchemaByQueryIDRequest) (*SchemaByQueryIDResponse, error)
+	// GetQueryExample returns a list of query examples.
+	GetQueryExample(context.Context, *GetQueryExampleRequest) (*GetQueryExampleResponse, error)
 	mustEmbedUnimplementedQANServiceServer()
 }
 
@@ -216,32 +216,32 @@ func (UnimplementedQANServiceServer) GetMetrics(context.Context, *GetMetricsRequ
 	return nil, status.Errorf(codes.Unimplemented, "method GetMetrics not implemented")
 }
 
-func (UnimplementedQANServiceServer) GetQueryExample(context.Context, *GetQueryExampleRequest) (*GetQueryExampleResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetQueryExample not implemented")
-}
-
 func (UnimplementedQANServiceServer) GetLabels(context.Context, *GetLabelsRequest) (*GetLabelsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLabels not implemented")
-}
-
-func (UnimplementedQANServiceServer) GetQueryPlan(context.Context, *GetQueryPlanRequest) (*GetQueryPlanResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetQueryPlan not implemented")
 }
 
 func (UnimplementedQANServiceServer) GetHistogram(context.Context, *GetHistogramRequest) (*GetHistogramResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHistogram not implemented")
 }
 
-func (UnimplementedQANServiceServer) QueryExists(context.Context, *QueryExistsRequest) (*QueryExistsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method QueryExists not implemented")
-}
-
 func (UnimplementedQANServiceServer) ExplainFingerprintByQueryID(context.Context, *ExplainFingerprintByQueryIDRequest) (*ExplainFingerprintByQueryIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExplainFingerprintByQueryID not implemented")
 }
 
+func (UnimplementedQANServiceServer) GetQueryPlan(context.Context, *GetQueryPlanRequest) (*GetQueryPlanResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetQueryPlan not implemented")
+}
+
+func (UnimplementedQANServiceServer) QueryExists(context.Context, *QueryExistsRequest) (*QueryExistsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryExists not implemented")
+}
+
 func (UnimplementedQANServiceServer) SchemaByQueryID(context.Context, *SchemaByQueryIDRequest) (*SchemaByQueryIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SchemaByQueryID not implemented")
+}
+
+func (UnimplementedQANServiceServer) GetQueryExample(context.Context, *GetQueryExampleRequest) (*GetQueryExampleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetQueryExample not implemented")
 }
 func (UnimplementedQANServiceServer) mustEmbedUnimplementedQANServiceServer() {}
 
@@ -328,24 +328,6 @@ func _QANService_GetMetrics_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _QANService_GetQueryExample_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetQueryExampleRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QANServiceServer).GetQueryExample(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: QANService_GetQueryExample_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QANServiceServer).GetQueryExample(ctx, req.(*GetQueryExampleRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _QANService_GetLabels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetLabelsRequest)
 	if err := dec(in); err != nil {
@@ -360,24 +342,6 @@ func _QANService_GetLabels_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(QANServiceServer).GetLabels(ctx, req.(*GetLabelsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _QANService_GetQueryPlan_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetQueryPlanRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QANServiceServer).GetQueryPlan(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: QANService_GetQueryPlan_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QANServiceServer).GetQueryPlan(ctx, req.(*GetQueryPlanRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -400,24 +364,6 @@ func _QANService_GetHistogram_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _QANService_QueryExists_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryExistsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QANServiceServer).QueryExists(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: QANService_QueryExists_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QANServiceServer).QueryExists(ctx, req.(*QueryExistsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _QANService_ExplainFingerprintByQueryID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ExplainFingerprintByQueryIDRequest)
 	if err := dec(in); err != nil {
@@ -436,6 +382,42 @@ func _QANService_ExplainFingerprintByQueryID_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _QANService_GetQueryPlan_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetQueryPlanRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QANServiceServer).GetQueryPlan(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: QANService_GetQueryPlan_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QANServiceServer).GetQueryPlan(ctx, req.(*GetQueryPlanRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _QANService_QueryExists_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryExistsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QANServiceServer).QueryExists(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: QANService_QueryExists_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QANServiceServer).QueryExists(ctx, req.(*QueryExistsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _QANService_SchemaByQueryID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SchemaByQueryIDRequest)
 	if err := dec(in); err != nil {
@@ -450,6 +432,24 @@ func _QANService_SchemaByQueryID_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(QANServiceServer).SchemaByQueryID(ctx, req.(*SchemaByQueryIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _QANService_GetQueryExample_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetQueryExampleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QANServiceServer).GetQueryExample(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: QANService_GetQueryExample_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QANServiceServer).GetQueryExample(ctx, req.(*GetQueryExampleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -478,32 +478,32 @@ var QANService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _QANService_GetMetrics_Handler,
 		},
 		{
-			MethodName: "GetQueryExample",
-			Handler:    _QANService_GetQueryExample_Handler,
-		},
-		{
 			MethodName: "GetLabels",
 			Handler:    _QANService_GetLabels_Handler,
-		},
-		{
-			MethodName: "GetQueryPlan",
-			Handler:    _QANService_GetQueryPlan_Handler,
 		},
 		{
 			MethodName: "GetHistogram",
 			Handler:    _QANService_GetHistogram_Handler,
 		},
 		{
-			MethodName: "QueryExists",
-			Handler:    _QANService_QueryExists_Handler,
-		},
-		{
 			MethodName: "ExplainFingerprintByQueryID",
 			Handler:    _QANService_ExplainFingerprintByQueryID_Handler,
 		},
 		{
+			MethodName: "GetQueryPlan",
+			Handler:    _QANService_GetQueryPlan_Handler,
+		},
+		{
+			MethodName: "QueryExists",
+			Handler:    _QANService_QueryExists_Handler,
+		},
+		{
 			MethodName: "SchemaByQueryID",
 			Handler:    _QANService_SchemaByQueryID_Handler,
+		},
+		{
+			MethodName: "GetQueryExample",
+			Handler:    _QANService_GetQueryExample_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

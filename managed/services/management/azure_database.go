@@ -28,8 +28,9 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	azurev1beta1 "github.com/percona/pmm/api/management/v1/azure"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -53,7 +54,7 @@ const (
 )
 
 // Enabled returns if service is enabled and can be used.
-func (s *ManagementService) Enabled() bool {
+func (s *ManagementService) isAzureEnabled() bool {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		logrus.WithField("component", "management/azure_database").WithError(err).Error("can't get settings")
@@ -75,7 +76,7 @@ type AzureDatabaseInstanceData struct {
 	Zones         string                 `json:"zones"`
 }
 
-func (s *ManagementService) getAzureClient(req *azurev1beta1.DiscoverAzureDatabaseRequest) (*armresourcegraph.Client, error) {
+func (s *ManagementService) getAzureClient(req *managementv1.DiscoverAzureDatabaseRequest) (*armresourcegraph.Client, error) {
 	credential, err := azidentity.NewClientSecretCredential(req.AzureTenantId, req.AzureClientId, req.AzureClientSecret, nil)
 	if err != nil {
 		return nil, err
@@ -92,7 +93,7 @@ func (s *ManagementService) getAzureClient(req *azurev1beta1.DiscoverAzureDataba
 
 func (s *ManagementService) fetchAzureDatabaseInstancesData(
 	ctx context.Context,
-	req *azurev1beta1.DiscoverAzureDatabaseRequest,
+	req *managementv1.DiscoverAzureDatabaseRequest,
 	client *armresourcegraph.Client,
 ) ([]AzureDatabaseInstanceData, error) {
 	query := azureDatabaseResourceQuery
@@ -131,8 +132,12 @@ func (s *ManagementService) fetchAzureDatabaseInstancesData(
 // DiscoverAzureDatabase discovers database instances on Azure.
 func (s *ManagementService) DiscoverAzureDatabase(
 	ctx context.Context,
-	req *azurev1beta1.DiscoverAzureDatabaseRequest,
-) (*azurev1beta1.DiscoverAzureDatabaseResponse, error) {
+	req *managementv1.DiscoverAzureDatabaseRequest,
+) (*managementv1.DiscoverAzureDatabaseResponse, error) {
+	if !s.isAzureEnabled() {
+		return nil, services.ErrAzureDisabled
+	}
+
 	client, err := s.getAzureClient(req)
 	if err != nil {
 		return nil, err
@@ -143,10 +148,10 @@ func (s *ManagementService) DiscoverAzureDatabase(
 		return nil, status.Error(codes.Unknown, err.Error())
 	}
 
-	resp := azurev1beta1.DiscoverAzureDatabaseResponse{}
+	resp := managementv1.DiscoverAzureDatabaseResponse{}
 
 	for _, instance := range dataInstData {
-		inst := azurev1beta1.DiscoverAzureDatabaseInstance{
+		inst := managementv1.DiscoverAzureDatabaseInstance{
 			InstanceId:         instance.ID,
 			Region:             instance.Location,
 			ServiceName:        instance.Name,
@@ -158,13 +163,13 @@ func (s *ManagementService) DiscoverAzureDatabase(
 		case "microsoft.dbformysql/servers",
 			"microsoft.dbformysql/flexibleservers",
 			"microsoft.dbformariadb/servers":
-			inst.Type = azurev1beta1.DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_MYSQL
+			inst.Type = managementv1.DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_MYSQL
 		case "microsoft.dbforpostgresql/servers",
 			"microsoft.dbforpostgresql/flexibleservers",
 			"microsoft.dbforpostgresql/serversv2":
-			inst.Type = azurev1beta1.DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL
+			inst.Type = managementv1.DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL
 		default:
-			inst.Type = azurev1beta1.DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED
+			inst.Type = managementv1.DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED
 		}
 
 		if val, ok := instance.Properties["administratorLogin"].(string); ok {
@@ -184,7 +189,11 @@ func (s *ManagementService) DiscoverAzureDatabase(
 }
 
 // AddAzureDatabase add azure database to monitoring.
-func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *azurev1beta1.AddAzureDatabaseRequest) (*azurev1beta1.AddAzureDatabaseResponse, error) {
+func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managementv1.AddAzureDatabaseRequest) (*managementv1.AddAzureDatabaseResponse, error) {
+	if !s.isAzureEnabled() {
+		return nil, services.ErrAzureDisabled
+	}
+
 	l := logger.Get(ctx).WithField("component", "discover/azureDatabase")
 	// tweak according to API docs
 	if req.NodeName == "" {
@@ -208,11 +217,11 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *azurev1be
 	var qanAgentType models.AgentType
 
 	switch req.Type {
-	case azurev1beta1.DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_MYSQL:
+	case managementv1.DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_MYSQL:
 		serviceType = models.MySQLServiceType
 		exporterType = models.MySQLdExporterType
 		qanAgentType = models.QANMySQLPerfSchemaAgentType
-	case azurev1beta1.DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL:
+	case managementv1.DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL:
 		serviceType = models.PostgreSQLServiceType
 		exporterType = models.PostgresExporterType
 		qanAgentType = models.QANPostgreSQLPgStatementsAgentType
@@ -306,5 +315,5 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *azurev1be
 	}
 
 	s.state.RequestStateUpdate(ctx, models.PMMServerAgentID)
-	return &azurev1beta1.AddAzureDatabaseResponse{}, nil
+	return &managementv1.AddAzureDatabaseResponse{}, nil
 }

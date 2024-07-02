@@ -59,7 +59,7 @@ type LogsOK struct {
 }
 
 func (o *LogsOK) Error() string {
-	return fmt.Sprintf("[GET /logs.zip][%d] logsOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/server/logs.zip][%d] logsOk  %+v", 200, o.Payload)
 }
 
 func (o *LogsOK) GetPayload() io.Writer {
@@ -99,7 +99,7 @@ func (o *LogsDefault) Code() int {
 }
 
 func (o *LogsDefault) Error() string {
-	return fmt.Sprintf("[GET /logs.zip][%d] Logs default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/server/logs.zip][%d] Logs default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *LogsDefault) GetPayload() *LogsDefaultBody {

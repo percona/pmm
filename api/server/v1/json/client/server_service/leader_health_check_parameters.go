@@ -60,9 +60,6 @@ LeaderHealthCheckParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type LeaderHealthCheckParams struct {
-	// Body.
-	Body interface{}
-
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
@@ -116,28 +113,12 @@ func (o *LeaderHealthCheckParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the leader health check params
-func (o *LeaderHealthCheckParams) WithBody(body interface{}) *LeaderHealthCheckParams {
-	o.SetBody(body)
-	return o
-}
-
-// SetBody adds the body to the leader health check params
-func (o *LeaderHealthCheckParams) SetBody(body interface{}) {
-	o.Body = body
-}
-
 // WriteToRequest writes these params to a swagger request
 func (o *LeaderHealthCheckParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
 	var res []error
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
-	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

@@ -115,7 +115,7 @@ func TestClient(t *testing.T) {
 
 				u, err := c.getAuthUser(ctx, userAuthHeaders)
 				actualRole := u.role
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.Equal(t, role, actualRole)
 				assert.Equal(t, role.String(), actualRole.String())
 			})
@@ -138,7 +138,7 @@ func TestClient(t *testing.T) {
 
 				u, err := c.getAuthUser(ctx, apiKeyAuthHeaders)
 				actualRole := u.role
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.Equal(t, role, actualRole)
 				assert.Equal(t, role.String(), actualRole.String())
 			})

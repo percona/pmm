@@ -222,10 +222,10 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 }
 
 // AddRDS adds RDS instance.
-func (s *ManagementService) AddRDS(ctx context.Context, req *managementv1.AddRDSRequest) (*managementv1.AddRDSResponse, error) { //nolint:cyclop,maintidx
-	res := &managementv1.AddRDSResponse{}
+func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDSServiceParams) (*managementv1.AddServiceResponse, error) { //nolint:cyclop,maintidx
+	rds := &managementv1.RDSServiceResult{}
 
-	if e := s.db.InTransaction(func(tx *reform.TX) error {
+	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		// tweak according to API docs
 		if req.NodeName == "" {
 			req.NodeName = req.InstanceId
@@ -259,7 +259,7 @@ func (s *ManagementService) AddRDS(ctx context.Context, req *managementv1.AddRDS
 		if err != nil {
 			return err
 		}
-		res.Node = invNode.(*inventoryv1.RemoteRDSNode) //nolint:forcetypeassert
+		rds.Node = invNode.(*inventoryv1.RemoteRDSNode) //nolint:forcetypeassert
 
 		// add RDSExporter Agent
 		if req.RdsExporter {
@@ -278,7 +278,7 @@ func (s *ManagementService) AddRDS(ctx context.Context, req *managementv1.AddRDS
 			if err != nil {
 				return err
 			}
-			res.RdsExporter = invRDSExporter.(*inventoryv1.RDSExporter) //nolint:forcetypeassert
+			rds.RdsExporter = invRDSExporter.(*inventoryv1.RDSExporter) //nolint:forcetypeassert
 		}
 
 		switch req.Engine {
@@ -301,7 +301,7 @@ func (s *ManagementService) AddRDS(ctx context.Context, req *managementv1.AddRDS
 			if err != nil {
 				return err
 			}
-			res.Mysql = invService.(*inventoryv1.MySQLService) //nolint:forcetypeassert
+			rds.Mysql = invService.(*inventoryv1.MySQLService) //nolint:forcetypeassert
 
 			_, err = supportedMetricsMode(tx.Querier, req.MetricsMode, models.PMMServerAgentID)
 			if err != nil {
@@ -325,7 +325,7 @@ func (s *ManagementService) AddRDS(ctx context.Context, req *managementv1.AddRDS
 			if err != nil {
 				return err
 			}
-			res.MysqldExporter = invMySQLdExporter.(*inventoryv1.MySQLdExporter) //nolint:forcetypeassert
+			rds.MysqldExporter = invMySQLdExporter.(*inventoryv1.MySQLdExporter) //nolint:forcetypeassert
 
 			if !req.SkipConnectionCheck {
 				if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, mysqldExporter); err != nil {
@@ -355,7 +355,7 @@ func (s *ManagementService) AddRDS(ctx context.Context, req *managementv1.AddRDS
 				if err != nil {
 					return err
 				}
-				res.QanMysqlPerfschema = invQANAgent.(*inventoryv1.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
+				rds.QanMysqlPerfschema = invQANAgent.(*inventoryv1.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
 			}
 
 			return nil
@@ -380,7 +380,7 @@ func (s *ManagementService) AddRDS(ctx context.Context, req *managementv1.AddRDS
 			if err != nil {
 				return err
 			}
-			res.Postgresql = invService.(*inventoryv1.PostgreSQLService) //nolint:forcetypeassert
+			rds.Postgresql = invService.(*inventoryv1.PostgreSQLService) //nolint:forcetypeassert
 
 			_, err = supportedMetricsMode(tx.Querier, req.MetricsMode, models.PMMServerAgentID)
 			if err != nil {
@@ -408,7 +408,7 @@ func (s *ManagementService) AddRDS(ctx context.Context, req *managementv1.AddRDS
 			if err != nil {
 				return err
 			}
-			res.PostgresqlExporter = invPostgresExporter.(*inventoryv1.PostgresExporter) //nolint:forcetypeassert
+			rds.PostgresqlExporter = invPostgresExporter.(*inventoryv1.PostgresExporter) //nolint:forcetypeassert
 
 			if !req.SkipConnectionCheck {
 				if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, postgresExporter); err != nil {
@@ -438,7 +438,7 @@ func (s *ManagementService) AddRDS(ctx context.Context, req *managementv1.AddRDS
 				if err != nil {
 					return err
 				}
-				res.QanPostgresqlPgstatements = invQANAgent.(*inventoryv1.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
+				rds.QanPostgresqlPgstatements = invQANAgent.(*inventoryv1.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
 			}
 
 			return nil
@@ -446,10 +446,19 @@ func (s *ManagementService) AddRDS(ctx context.Context, req *managementv1.AddRDS
 		default:
 			return status.Errorf(codes.InvalidArgument, "Unsupported Engine type %q.", req.Engine)
 		}
-	}); e != nil {
-		return nil, e
+	})
+
+	if errTx != nil {
+		return nil, errTx
 	}
 
 	s.state.RequestStateUpdate(ctx, models.PMMServerAgentID)
+
+	res := &managementv1.AddServiceResponse{
+		Service: &managementv1.AddServiceResponse_Rds{
+			Rds: rds,
+		},
+	}
+
 	return res, nil
 }

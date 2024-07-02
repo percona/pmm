@@ -35,22 +35,22 @@ var (
 	_ = sort.Sort
 )
 
-// Validate checks the field values on AddHAProxyRequest with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// first error encountered is returned, or nil if there are no violations.
-func (m *AddHAProxyRequest) Validate() error {
+// Validate checks the field values on AddHAProxyServiceParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddHAProxyServiceParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddHAProxyRequest with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on AddHAProxyServiceParams with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddHAProxyRequestMultiError, or nil if none found.
-func (m *AddHAProxyRequest) ValidateAll() error {
+// AddHAProxyServiceParamsMultiError, or nil if none found.
+func (m *AddHAProxyServiceParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddHAProxyRequest) validate(all bool) error {
+func (m *AddHAProxyServiceParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -65,7 +65,7 @@ func (m *AddHAProxyRequest) validate(all bool) error {
 		switch v := interface{}(m.GetAddNode()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddHAProxyRequestValidationError{
+				errors = append(errors, AddHAProxyServiceParamsValidationError{
 					field:  "AddNode",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -73,7 +73,7 @@ func (m *AddHAProxyRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddHAProxyRequestValidationError{
+				errors = append(errors, AddHAProxyServiceParamsValidationError{
 					field:  "AddNode",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -82,7 +82,7 @@ func (m *AddHAProxyRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetAddNode()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddHAProxyRequestValidationError{
+			return AddHAProxyServiceParamsValidationError{
 				field:  "AddNode",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -93,7 +93,7 @@ func (m *AddHAProxyRequest) validate(all bool) error {
 	// no validation rules for Address
 
 	if utf8.RuneCountInString(m.GetServiceName()) < 1 {
-		err := AddHAProxyRequestValidationError{
+		err := AddHAProxyServiceParamsValidationError{
 			field:  "ServiceName",
 			reason: "value length must be at least 1 runes",
 		}
@@ -112,7 +112,7 @@ func (m *AddHAProxyRequest) validate(all bool) error {
 	// no validation rules for MetricsPath
 
 	if val := m.GetListenPort(); val <= 0 || val >= 65536 {
-		err := AddHAProxyRequestValidationError{
+		err := AddHAProxyServiceParamsValidationError{
 			field:  "ListenPort",
 			reason: "value must be inside range (0, 65536)",
 		}
@@ -135,19 +135,19 @@ func (m *AddHAProxyRequest) validate(all bool) error {
 	// no validation rules for SkipConnectionCheck
 
 	if len(errors) > 0 {
-		return AddHAProxyRequestMultiError(errors)
+		return AddHAProxyServiceParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddHAProxyRequestMultiError is an error wrapping multiple validation errors
-// returned by AddHAProxyRequest.ValidateAll() if the designated constraints
-// aren't met.
-type AddHAProxyRequestMultiError []error
+// AddHAProxyServiceParamsMultiError is an error wrapping multiple validation
+// errors returned by AddHAProxyServiceParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddHAProxyServiceParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddHAProxyRequestMultiError) Error() string {
+func (m AddHAProxyServiceParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -156,11 +156,11 @@ func (m AddHAProxyRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddHAProxyRequestMultiError) AllErrors() []error { return m }
+func (m AddHAProxyServiceParamsMultiError) AllErrors() []error { return m }
 
-// AddHAProxyRequestValidationError is the validation error returned by
-// AddHAProxyRequest.Validate if the designated constraints aren't met.
-type AddHAProxyRequestValidationError struct {
+// AddHAProxyServiceParamsValidationError is the validation error returned by
+// AddHAProxyServiceParams.Validate if the designated constraints aren't met.
+type AddHAProxyServiceParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -168,24 +168,24 @@ type AddHAProxyRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddHAProxyRequestValidationError) Field() string { return e.field }
+func (e AddHAProxyServiceParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddHAProxyRequestValidationError) Reason() string { return e.reason }
+func (e AddHAProxyServiceParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddHAProxyRequestValidationError) Cause() error { return e.cause }
+func (e AddHAProxyServiceParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddHAProxyRequestValidationError) Key() bool { return e.key }
+func (e AddHAProxyServiceParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddHAProxyRequestValidationError) ErrorName() string {
-	return "AddHAProxyRequestValidationError"
+func (e AddHAProxyServiceParamsValidationError) ErrorName() string {
+	return "AddHAProxyServiceParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddHAProxyRequestValidationError) Error() string {
+func (e AddHAProxyServiceParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -197,14 +197,14 @@ func (e AddHAProxyRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddHAProxyRequest.%s: %s%s",
+		"invalid %sAddHAProxyServiceParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddHAProxyRequestValidationError{}
+var _ error = AddHAProxyServiceParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -212,24 +212,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddHAProxyRequestValidationError{}
+} = AddHAProxyServiceParamsValidationError{}
 
-// Validate checks the field values on AddHAProxyResponse with the rules
+// Validate checks the field values on HAProxyServiceResult with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddHAProxyResponse) Validate() error {
+func (m *HAProxyServiceResult) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddHAProxyResponse with the rules
+// ValidateAll checks the field values on HAProxyServiceResult with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddHAProxyResponseMultiError, or nil if none found.
-func (m *AddHAProxyResponse) ValidateAll() error {
+// HAProxyServiceResultMultiError, or nil if none found.
+func (m *HAProxyServiceResult) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddHAProxyResponse) validate(all bool) error {
+func (m *HAProxyServiceResult) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -240,7 +240,7 @@ func (m *AddHAProxyResponse) validate(all bool) error {
 		switch v := interface{}(m.GetService()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddHAProxyResponseValidationError{
+				errors = append(errors, HAProxyServiceResultValidationError{
 					field:  "Service",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -248,7 +248,7 @@ func (m *AddHAProxyResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddHAProxyResponseValidationError{
+				errors = append(errors, HAProxyServiceResultValidationError{
 					field:  "Service",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -257,7 +257,7 @@ func (m *AddHAProxyResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetService()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddHAProxyResponseValidationError{
+			return HAProxyServiceResultValidationError{
 				field:  "Service",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -269,7 +269,7 @@ func (m *AddHAProxyResponse) validate(all bool) error {
 		switch v := interface{}(m.GetExternalExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddHAProxyResponseValidationError{
+				errors = append(errors, HAProxyServiceResultValidationError{
 					field:  "ExternalExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -277,7 +277,7 @@ func (m *AddHAProxyResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddHAProxyResponseValidationError{
+				errors = append(errors, HAProxyServiceResultValidationError{
 					field:  "ExternalExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -286,7 +286,7 @@ func (m *AddHAProxyResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetExternalExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddHAProxyResponseValidationError{
+			return HAProxyServiceResultValidationError{
 				field:  "ExternalExporter",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -295,19 +295,19 @@ func (m *AddHAProxyResponse) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return AddHAProxyResponseMultiError(errors)
+		return HAProxyServiceResultMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddHAProxyResponseMultiError is an error wrapping multiple validation errors
-// returned by AddHAProxyResponse.ValidateAll() if the designated constraints
-// aren't met.
-type AddHAProxyResponseMultiError []error
+// HAProxyServiceResultMultiError is an error wrapping multiple validation
+// errors returned by HAProxyServiceResult.ValidateAll() if the designated
+// constraints aren't met.
+type HAProxyServiceResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddHAProxyResponseMultiError) Error() string {
+func (m HAProxyServiceResultMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -316,11 +316,11 @@ func (m AddHAProxyResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddHAProxyResponseMultiError) AllErrors() []error { return m }
+func (m HAProxyServiceResultMultiError) AllErrors() []error { return m }
 
-// AddHAProxyResponseValidationError is the validation error returned by
-// AddHAProxyResponse.Validate if the designated constraints aren't met.
-type AddHAProxyResponseValidationError struct {
+// HAProxyServiceResultValidationError is the validation error returned by
+// HAProxyServiceResult.Validate if the designated constraints aren't met.
+type HAProxyServiceResultValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -328,24 +328,24 @@ type AddHAProxyResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddHAProxyResponseValidationError) Field() string { return e.field }
+func (e HAProxyServiceResultValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddHAProxyResponseValidationError) Reason() string { return e.reason }
+func (e HAProxyServiceResultValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddHAProxyResponseValidationError) Cause() error { return e.cause }
+func (e HAProxyServiceResultValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddHAProxyResponseValidationError) Key() bool { return e.key }
+func (e HAProxyServiceResultValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddHAProxyResponseValidationError) ErrorName() string {
-	return "AddHAProxyResponseValidationError"
+func (e HAProxyServiceResultValidationError) ErrorName() string {
+	return "HAProxyServiceResultValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddHAProxyResponseValidationError) Error() string {
+func (e HAProxyServiceResultValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -357,14 +357,14 @@ func (e AddHAProxyResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddHAProxyResponse.%s: %s%s",
+		"invalid %sHAProxyServiceResult.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddHAProxyResponseValidationError{}
+var _ error = HAProxyServiceResultValidationError{}
 
 var _ interface {
 	Field() string
@@ -372,4 +372,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddHAProxyResponseValidationError{}
+} = HAProxyServiceResultValidationError{}

@@ -74,7 +74,7 @@ func TestProxySQLExporter(t *testing.T) {
 		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-			Body:    agents.GetAgentBody{AgentID: agentID},
+			AgentID: agentID,
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -98,18 +98,16 @@ func TestProxySQLExporter(t *testing.T) {
 		// Test change API.
 		changeProxySQLExporterOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyProxysqlExporterCommon{
-							Enable:       pointer.ToBool(false),
-							CustomLabels: &agents.ChangeAgentParamsBodyProxysqlExporterCommonCustomLabels{},
-						},
+						Enable:       pointer.ToBool(false),
+						CustomLabels: &agents.ChangeAgentParamsBodyProxysqlExporterCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				ProxysqlExporter: &agents.ChangeAgentOKBodyProxysqlExporter{
@@ -128,22 +126,20 @@ func TestProxySQLExporter(t *testing.T) {
 
 		changeProxySQLExporterOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyProxysqlExporterCommon{
-							Enable: pointer.ToBool(true),
-							CustomLabels: &agents.ChangeAgentParamsBodyProxysqlExporterCommonCustomLabels{
-								Values: map[string]string{
-									"new_label": "proxysql_exporter",
-								},
+						Enable: pointer.ToBool(true),
+						CustomLabels: &agents.ChangeAgentParamsBodyProxysqlExporterCustomLabels{
+							Values: map[string]string{
+								"new_label": "proxysql_exporter",
 							},
 						},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				ProxysqlExporter: &agents.ChangeAgentOKBodyProxysqlExporter{
@@ -281,7 +277,7 @@ func TestProxySQLExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID \"pmm-not-exist-server\" not found.")
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID pmm-not-exist-server not found.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.ProxysqlExporter.AgentID)
 		}
@@ -327,7 +323,7 @@ func TestProxySQLExporter(t *testing.T) {
 		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-			Body:    agents.GetAgentBody{AgentID: agentID},
+			AgentID: agentID,
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -350,17 +346,15 @@ func TestProxySQLExporter(t *testing.T) {
 
 		// Test change API.
 		changeProxySQLExporterOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-					AgentID: agentID,
-					Common: &agents.ChangeAgentParamsBodyProxysqlExporterCommon{
-						EnablePushMetrics: pointer.ToBool(true),
-					},
+					EnablePushMetrics: pointer.ToBool(true),
 				},
 			},
 			Context: pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				ProxysqlExporter: &agents.ChangeAgentOKBodyProxysqlExporter{
@@ -381,17 +375,15 @@ func TestProxySQLExporter(t *testing.T) {
 
 		changeProxySQLExporterOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyProxysqlExporterCommon{
-							EnablePushMetrics: pointer.ToBool(false),
-						},
+						EnablePushMetrics: pointer.ToBool(false),
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				ProxysqlExporter: &agents.ChangeAgentOKBodyProxysqlExporter{

@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // NewCheckUpdatesParams creates a new CheckUpdatesParams object,
@@ -60,8 +61,17 @@ CheckUpdatesParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type CheckUpdatesParams struct {
-	// Body.
-	Body CheckUpdatesBody
+	/* Force.
+
+	   If false, cached information may be returned.
+	*/
+	Force *bool
+
+	/* OnlyInstalledVersion.
+
+	   If true, only installed version will be in response.
+	*/
+	OnlyInstalledVersion *bool
 
 	timeout    time.Duration
 	Context    context.Context
@@ -116,15 +126,26 @@ func (o *CheckUpdatesParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the check updates params
-func (o *CheckUpdatesParams) WithBody(body CheckUpdatesBody) *CheckUpdatesParams {
-	o.SetBody(body)
+// WithForce adds the force to the check updates params
+func (o *CheckUpdatesParams) WithForce(force *bool) *CheckUpdatesParams {
+	o.SetForce(force)
 	return o
 }
 
-// SetBody adds the body to the check updates params
-func (o *CheckUpdatesParams) SetBody(body CheckUpdatesBody) {
-	o.Body = body
+// SetForce adds the force to the check updates params
+func (o *CheckUpdatesParams) SetForce(force *bool) {
+	o.Force = force
+}
+
+// WithOnlyInstalledVersion adds the onlyInstalledVersion to the check updates params
+func (o *CheckUpdatesParams) WithOnlyInstalledVersion(onlyInstalledVersion *bool) *CheckUpdatesParams {
+	o.SetOnlyInstalledVersion(onlyInstalledVersion)
+	return o
+}
+
+// SetOnlyInstalledVersion adds the onlyInstalledVersion to the check updates params
+func (o *CheckUpdatesParams) SetOnlyInstalledVersion(onlyInstalledVersion *bool) {
+	o.OnlyInstalledVersion = onlyInstalledVersion
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,8 +154,37 @@ func (o *CheckUpdatesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+
+	if o.Force != nil {
+
+		// query param force
+		var qrForce bool
+
+		if o.Force != nil {
+			qrForce = *o.Force
+		}
+		qForce := swag.FormatBool(qrForce)
+		if qForce != "" {
+			if err := r.SetQueryParam("force", qForce); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.OnlyInstalledVersion != nil {
+
+		// query param only_installed_version
+		var qrOnlyInstalledVersion bool
+
+		if o.OnlyInstalledVersion != nil {
+			qrOnlyInstalledVersion = *o.OnlyInstalledVersion
+		}
+		qOnlyInstalledVersion := swag.FormatBool(qrOnlyInstalledVersion)
+		if qOnlyInstalledVersion != "" {
+			if err := r.SetQueryParam("only_installed_version", qOnlyInstalledVersion); err != nil {
+				return err
+			}
+		}
 	}
 
 	if len(res) > 0 {

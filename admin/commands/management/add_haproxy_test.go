@@ -26,7 +26,7 @@ import (
 func TestAddHAProxy(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		res := &addHAProxyResult{
-			Service: &mservice.AddHAProxyOKBodyService{
+			Service: &mservice.AddServiceOKBodyHaproxyService{
 				ServiceID:   "1",
 				ServiceName: "myhost-redis",
 			},

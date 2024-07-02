@@ -37,7 +37,7 @@ Group       : {{ .Service.Group }}
 `)
 
 type addExternalServerlessResult struct {
-	Service *mservice.AddExternalOKBodyService `json:"service"`
+	Service *mservice.AddServiceOKBodyExternalService `json:"service"`
 }
 
 func (res *addExternalServerlessResult) Result() {}
@@ -125,44 +125,46 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &mservice.AddExternalParams{
-		Body: mservice.AddExternalBody{
-			AddNode: &mservice.AddExternalParamsBodyAddNode{
-				NodeType:      pointer.ToString(mservice.AddExternalParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE),
-				NodeName:      serviceName,
-				MachineID:     cmd.MachineID,
-				Distro:        cmd.Distro,
-				ContainerID:   cmd.ContainerID,
-				ContainerName: cmd.ContainerName,
-				NodeModel:     cmd.NodeModel,
-				Region:        cmd.Region,
-				Az:            cmd.Az,
-				CustomLabels:  customLabels,
+	params := &mservice.AddServiceParams{
+		Body: mservice.AddServiceBody{
+			External: &mservice.AddServiceParamsBodyExternal{
+				AddNode: &mservice.AddServiceParamsBodyExternalAddNode{
+					NodeType:      pointer.ToString(mservice.AddServiceParamsBodyExternalAddNodeNodeTypeNODETYPEREMOTENODE),
+					NodeName:      serviceName,
+					MachineID:     cmd.MachineID,
+					Distro:        cmd.Distro,
+					ContainerID:   cmd.ContainerID,
+					ContainerName: cmd.ContainerName,
+					NodeModel:     cmd.NodeModel,
+					Region:        cmd.Region,
+					Az:            cmd.Az,
+					CustomLabels:  customLabels,
+				},
+				Address:             address,
+				ServiceName:         serviceName,
+				Username:            cmd.Username,
+				Password:            cmd.Password,
+				Scheme:              scheme,
+				MetricsPath:         metricsPath,
+				ListenPort:          int64(port),
+				Environment:         cmd.Environment,
+				Cluster:             cmd.Cluster,
+				ReplicationSet:      cmd.ReplicationSet,
+				CustomLabels:        customLabels,
+				MetricsMode:         pointer.ToString(mservice.AddServiceParamsBodyExternalMetricsModeMETRICSMODEPULL),
+				Group:               cmd.Group,
+				SkipConnectionCheck: cmd.SkipConnectionCheck,
 			},
-			Address:             address,
-			ServiceName:         serviceName,
-			Username:            cmd.Username,
-			Password:            cmd.Password,
-			Scheme:              scheme,
-			MetricsPath:         metricsPath,
-			ListenPort:          int64(port),
-			Environment:         cmd.Environment,
-			Cluster:             cmd.Cluster,
-			ReplicationSet:      cmd.ReplicationSet,
-			CustomLabels:        customLabels,
-			MetricsMode:         pointer.ToString(mservice.AddExternalBodyMetricsModeMETRICSMODEPULL),
-			Group:               cmd.Group,
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.ManagementService.AddExternal(params)
+	resp, err := client.Default.ManagementService.AddService(params)
 	if err != nil {
 		return nil, err
 	}
 
 	return &addExternalServerlessResult{
-		Service: resp.Payload.Service,
+		Service: resp.Payload.External.Service,
 	}, nil
 }
 

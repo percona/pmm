@@ -58,7 +58,7 @@ type AddServiceOK struct {
 }
 
 func (o *AddServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/Add][%d] addServiceOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/services][%d] addServiceOk  %+v", 200, o.Payload)
 }
 
 func (o *AddServiceOK) GetPayload() *AddServiceOKBody {
@@ -100,7 +100,7 @@ func (o *AddServiceDefault) Code() int {
 }
 
 func (o *AddServiceDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/Add][%d] AddService default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/services][%d] AddService default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddServiceDefault) GetPayload() *AddServiceDefaultBody {

@@ -3,8 +3,8 @@ syntax = "proto3";
 package backup.v1;
 
 import "backup/v1/common.proto";
-import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
 
 // BackupStatus shows the current status of execution of backup.
 enum BackupStatus {
@@ -59,7 +59,7 @@ message ListArtifactsResponse {
 
 message DeleteArtifactRequest {
   // Machine-readable artifact ID.
-  string artifact_id = 1;
+  string artifact_id = 1 [(validate.rules).string.min_len = 1];
   // Removes all the backup files associated with artifact if flag is set.
   bool remove_files = 2;
 }
@@ -75,35 +75,9 @@ message PitrTimerange {
 
 message ListPitrTimerangesRequest {
   // Artifact ID represents artifact whose location has PITR timeranges to be retrieved.
-  string artifact_id = 1;
+  string artifact_id = 1 [(validate.rules).string.min_len = 1];
 }
 
 message ListPitrTimerangesResponse {
   repeated PitrTimerange timeranges = 1;
-}
-
-// Artifacts service provides public methods for managing backup artifacts.
-service ArtifactsService {
-  // ListArtifacts returns a list of all backup artifacts.
-  rpc ListArtifacts(ListArtifactsRequest) returns (ListArtifactsResponse) {
-    option (google.api.http) = {
-      post: "/v1/backup/Artifacts/List"
-      body: "*"
-    };
-  }
-  // DeleteArtifact deletes specified artifact.
-  rpc DeleteArtifact(DeleteArtifactRequest) returns (DeleteArtifactResponse) {
-    option (google.api.http) = {
-      post: "/v1/backup/Artifacts/Delete"
-      body: "*"
-    };
-  }
-
-  // ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location
-  rpc ListPitrTimeranges(ListPitrTimerangesRequest) returns (ListPitrTimerangesResponse) {
-    option (google.api.http) = {
-      post: "/v1/backup/Artifacts/ListPITRTimeranges"
-      body: "*"
-    };
-  }
 }

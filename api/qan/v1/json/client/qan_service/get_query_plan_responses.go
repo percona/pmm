@@ -58,7 +58,7 @@ type GetQueryPlanOK struct {
 }
 
 func (o *GetQueryPlanOK) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/ObjectDetails/GetQueryPlan][%d] getQueryPlanOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/qan/query/{queryid}/plan][%d] getQueryPlanOk  %+v", 200, o.Payload)
 }
 
 func (o *GetQueryPlanOK) GetPayload() *GetQueryPlanOKBody {
@@ -100,7 +100,7 @@ func (o *GetQueryPlanDefault) Code() int {
 }
 
 func (o *GetQueryPlanDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/ObjectDetails/GetQueryPlan][%d] GetQueryPlan default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/qan/query/{queryid}/plan][%d] GetQueryPlan default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetQueryPlanDefault) GetPayload() *GetQueryPlanDefaultBody {
@@ -115,43 +115,6 @@ func (o *GetQueryPlanDefault) readResponse(response runtime.ClientResponse, cons
 		return err
 	}
 
-	return nil
-}
-
-/*
-GetQueryPlanBody GetQueryPlanRequest defines filtering by queryid.
-swagger:model GetQueryPlanBody
-*/
-type GetQueryPlanBody struct {
-	// queryid
-	Queryid string `json:"queryid,omitempty"`
-}
-
-// Validate validates this get query plan body
-func (o *GetQueryPlanBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this get query plan body based on context it is used
-func (o *GetQueryPlanBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetQueryPlanBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetQueryPlanBody) UnmarshalBinary(b []byte) error {
-	var res GetQueryPlanBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

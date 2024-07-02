@@ -130,79 +130,63 @@ service PlatformService {
   // Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
   rpc Connect(ConnectRequest) returns (ConnectResponse) {
     option (google.api.http) = {
-      post: "/v1/platform/Connect"
+      post: "/v1/platform:connect"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Connect"
+      summary: "Connect PMM Server"
       description: "Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account."
     };
   }
   // Disconnect a PMM server from the organization created on Percona Portal.
   rpc Disconnect(DisconnectRequest) returns (DisconnectResponse) {
     option (google.api.http) = {
-      post: "/v1/platform/Disconnect"
+      post: "/v1/platform:disconnect"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Disconnect"
+      summary: "Disconnect PMM Server"
       description: "Disconnect a PMM server from the organization created on Percona Portal."
     };
   }
   // SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.
   rpc SearchOrganizationTickets(SearchOrganizationTicketsRequest) returns (SearchOrganizationTicketsResponse) {
-    option (google.api.http) = {
-      post: "/v1/platform/SearchOrganizationTickets"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/platform/organization/tickets"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "SearchOrganizationTickets"
-      description: "SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to."
+      summary: "Search Organization Tickets"
+      description: "Fetch support tickets belonging to the Percona Portal Organization that the PMM server is connected to."
     };
   }
-  // SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.
+  // SearchOrganizationEntitlements fetches entitlements available to the Portal organization that the PMM server is connected to.
   rpc SearchOrganizationEntitlements(SearchOrganizationEntitlementsRequest) returns (SearchOrganizationEntitlementsResponse) {
-    option (google.api.http) = {
-      post: "/v1/platform/SearchOrganizationEntitlements"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/platform/organization/entitlements"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "SearchOrganizationEntitlements"
-      description: "SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to."
+      summary: "Search Organization Entitlements"
+      description: "Fetch entitlements available to the Portal organization that the PMM server is connected to."
     };
   }
-  // GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.
+  // GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account.
   rpc GetContactInformation(GetContactInformationRequest) returns (GetContactInformationResponse) {
-    option (google.api.http) = {
-      post: "/v1/platform/GetContactInformation"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/platform/contact"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "GetContactInformation"
-      description: "GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform."
+      summary: "Get Contact Information"
+      description: "Fetch the contact details of the customer success employee handling the Percona customer account."
     };
   }
   // ServerInfo returns PMM server ID and name.
   rpc ServerInfo(ServerInfoRequest) returns (ServerInfoResponse) {
-    option (google.api.http) = {
-      post: "/v1/platform/ServerInfo"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/platform/server"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "ServerInfo"
-      description: "ServerInfo returns PMM server ID and name."
+      summary: "Get Server Info"
+      description: "Return PMM server ID and name."
     };
   }
-
-  // UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.
+  // UserStatus check if the current user is logged in with their Percona Account.
   rpc UserStatus(UserStatusRequest) returns (UserStatusResponse) {
-    option (google.api.http) = {
-      post: "/v1/platform/UserStatus"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/platform/user"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "UserStatus"
-      description: "UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not."
+      summary: "Get User Status"
+      description: "Check if the current user is logged in with their Percona Account."
     };
   }
 }

@@ -64,7 +64,10 @@ func TestAnnotations(t *testing.T) {
 		grafanaClient := &mockGrafanaClient{}
 		grafanaClient.Test(t)
 
-		s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient)
+		vmClient := &mockVictoriaMetricsClient{}
+		vmClient.Test(t)
+
+		s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
 
 		teardown := func(t *testing.T) {
 			t.Helper()
@@ -79,6 +82,7 @@ func TestAnnotations(t *testing.T) {
 			vmdb.AssertExpectations(t)
 			vc.AssertExpectations(t)
 			grafanaClient.AssertExpectations(t)
+			vmClient.AssertExpectations(t)
 		}
 
 		return ctx, s, db, grafanaClient, teardown

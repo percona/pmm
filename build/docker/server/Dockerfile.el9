@@ -42,6 +42,6 @@ RUN install -T -p -m 644 /opt/ansible/ansible.cfg /etc/ansible/ansible.cfg && \
 
 USER pmm
 
-HEALTHCHECK --interval=3s --timeout=2s --start-period=10s --retries=3 CMD curl -sf http://127.0.0.1:8080/v1/readyz
+HEALTHCHECK --interval=3s --timeout=2s --start-period=10s --retries=3 CMD curl -sf http://127.0.0.1:8080/v1/server/readyz
 
 CMD ["/opt/entrypoint.sh"]

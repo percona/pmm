@@ -40,9 +40,9 @@ func TestSerialization(t *testing.T) {
 
 	u, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
-	u.Path = "/v1/settings/Get"
+	u.Path = "/v1/server/settings"
 
-	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, u.String(), nil)
+	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, u.String(), nil)
 	require.NoError(t, err)
 	req.Header.Set("Content-Type", "application/json")
 

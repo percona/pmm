@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // NewGetAgentLogsParams creates a new GetAgentLogsParams object,
@@ -60,8 +61,19 @@ GetAgentLogsParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type GetAgentLogsParams struct {
-	// Body.
-	Body GetAgentLogsBody
+	/* AgentID.
+
+	   Unique randomly generated instance identifier.
+	*/
+	AgentID string
+
+	/* Limit.
+
+	   Limit the number of log lines to this value. Pass 0 for no limit.
+
+	   Format: int64
+	*/
+	Limit *int64
 
 	timeout    time.Duration
 	Context    context.Context
@@ -116,15 +128,26 @@ func (o *GetAgentLogsParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the get agent logs params
-func (o *GetAgentLogsParams) WithBody(body GetAgentLogsBody) *GetAgentLogsParams {
-	o.SetBody(body)
+// WithAgentID adds the agentID to the get agent logs params
+func (o *GetAgentLogsParams) WithAgentID(agentID string) *GetAgentLogsParams {
+	o.SetAgentID(agentID)
 	return o
 }
 
-// SetBody adds the body to the get agent logs params
-func (o *GetAgentLogsParams) SetBody(body GetAgentLogsBody) {
-	o.Body = body
+// SetAgentID adds the agentId to the get agent logs params
+func (o *GetAgentLogsParams) SetAgentID(agentID string) {
+	o.AgentID = agentID
+}
+
+// WithLimit adds the limit to the get agent logs params
+func (o *GetAgentLogsParams) WithLimit(limit *int64) *GetAgentLogsParams {
+	o.SetLimit(limit)
+	return o
+}
+
+// SetLimit adds the limit to the get agent logs params
+func (o *GetAgentLogsParams) SetLimit(limit *int64) {
+	o.Limit = limit
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,8 +156,26 @@ func (o *GetAgentLogsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
+
+	// path param agent_id
+	if err := r.SetPathParam("agent_id", o.AgentID); err != nil {
 		return err
+	}
+
+	if o.Limit != nil {
+
+		// query param limit
+		var qrLimit int64
+
+		if o.Limit != nil {
+			qrLimit = *o.Limit
+		}
+		qLimit := swag.FormatInt64(qrLimit)
+		if qLimit != "" {
+			if err := r.SetQueryParam("limit", qLimit); err != nil {
+				return err
+			}
+		}
 	}
 
 	if len(res) > 0 {

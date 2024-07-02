@@ -29,10 +29,11 @@ import (
 )
 
 // AddHAProxy adds an HAProxy service based on the provided request.
-func (s *ManagementService) AddHAProxy(ctx context.Context, req *managementv1.AddHAProxyRequest) (*managementv1.AddHAProxyResponse, error) {
-	res := &managementv1.AddHAProxyResponse{}
+func (s *ManagementService) addHAProxy(ctx context.Context, req *managementv1.AddHAProxyServiceParams) (*managementv1.AddServiceResponse, error) {
 	var pmmAgentID *string
-	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+	haproxy := &managementv1.HAProxyServiceResult{}
+
+	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		if req.Address == "" && req.AddNode != nil {
 			return status.Error(codes.InvalidArgument, "address can't be empty for add node request.")
 		}
@@ -57,7 +58,7 @@ func (s *ManagementService) AddHAProxy(ctx context.Context, req *managementv1.Ad
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventoryv1.HAProxyService) //nolint:forcetypeassert
+		haproxy.Service = invService.(*inventoryv1.HAProxyService) //nolint:forcetypeassert
 
 		if req.MetricsMode == managementv1.MetricsMode_METRICS_MODE_UNSPECIFIED {
 			agentIDs, err := models.FindPMMAgentsRunningOnNode(tx.Querier, req.NodeId)
@@ -98,19 +99,28 @@ func (s *ManagementService) AddHAProxy(ctx context.Context, req *managementv1.Ad
 		if err != nil {
 			return err
 		}
-		res.ExternalExporter = agent.(*inventoryv1.ExternalExporter) //nolint:forcetypeassert
+		haproxy.ExternalExporter = agent.(*inventoryv1.ExternalExporter) //nolint:forcetypeassert
 		pmmAgentID = row.PMMAgentID
 
 		return nil
-	}); e != nil {
-		return nil, e
+	})
+
+	if errTx != nil {
+		return nil, errTx
 	}
-	// we have to trigger after transaction
+	// we have to trigger updates once the transaction completes
 	if pmmAgentID != nil {
 		// It's required to regenerate victoriametrics config file.
 		s.state.RequestStateUpdate(ctx, *pmmAgentID)
 	} else {
 		s.vmdb.RequestConfigurationUpdate()
 	}
+
+	res := &managementv1.AddServiceResponse{
+		Service: &managementv1.AddServiceResponse_Haproxy{
+			Haproxy: haproxy,
+		},
+	}
+
 	return res, nil
 }

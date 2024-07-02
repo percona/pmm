@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
@@ -122,10 +123,8 @@ func TestGetFailedChecks(t *testing.T) {
 					CheckName:   "test_check",
 				},
 			},
-			PageTotals: &managementv1.PageTotals{
-				TotalPages: 1,
-				TotalItems: 1,
-			},
+			TotalPages: 1,
+			TotalItems: 1,
 		}
 		var checksService mockChecksService
 		checksService.On("GetChecksResults", mock.Anything, mock.Anything).Return(checkResult, nil)
@@ -190,10 +189,8 @@ func TestGetFailedChecks(t *testing.T) {
 					CheckName:   "test_check2",
 				},
 			},
-			PageTotals: &managementv1.PageTotals{
-				TotalPages: 3,
-				TotalItems: 3,
-			},
+			TotalPages: 3,
+			TotalItems: 3,
 		}
 		var checksService mockChecksService
 		checksService.On("GetChecksResults", mock.Anything, mock.Anything).Return(checkResult, nil)
@@ -202,10 +199,8 @@ func TestGetFailedChecks(t *testing.T) {
 
 		resp, err := s.GetFailedChecks(context.Background(), &advisorsv1.GetFailedChecksRequest{
 			ServiceId: "test_svc",
-			PageParams: &managementv1.PageParams{
-				PageSize: 1,
-				Index:    1,
-			},
+			PageSize:  pointer.ToInt32(1),
+			PageIndex: pointer.ToInt32(1),
 		})
 		require.NoError(t, err)
 		assert.Equal(t, response, resp)

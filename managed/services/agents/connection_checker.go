@@ -99,11 +99,8 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 	l.Infof("CheckConnection response: %+v.", resp)
 
 	switch service.ServiceType {
-	case models.MySQLServiceType:
-		if err != nil {
-			l.Warnf("Failed to check if serviceInfoBroker is supported: %s.", err)
-		}
-	case models.ExternalServiceType,
+	case models.MySQLServiceType,
+		models.ExternalServiceType,
 		models.HAProxyServiceType,
 		models.PostgreSQLServiceType,
 		models.MongoDBServiceType,

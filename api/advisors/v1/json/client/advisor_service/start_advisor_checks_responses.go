@@ -58,7 +58,7 @@ type StartAdvisorChecksOK struct {
 }
 
 func (o *StartAdvisorChecksOK) Error() string {
-	return fmt.Sprintf("[POST /v1/advisors/StartChecks][%d] startAdvisorChecksOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/advisors/checks:start][%d] startAdvisorChecksOk  %+v", 200, o.Payload)
 }
 
 func (o *StartAdvisorChecksOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *StartAdvisorChecksDefault) Code() int {
 }
 
 func (o *StartAdvisorChecksDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/advisors/StartChecks][%d] StartAdvisorChecks default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/advisors/checks:start][%d] StartAdvisorChecks default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *StartAdvisorChecksDefault) GetPayload() *StartAdvisorChecksDefaultBody {

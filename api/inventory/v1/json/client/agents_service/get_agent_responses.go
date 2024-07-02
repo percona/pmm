@@ -60,7 +60,7 @@ type GetAgentOK struct {
 }
 
 func (o *GetAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/Get][%d] getAgentOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/inventory/agents/{agent_id}][%d] getAgentOk  %+v", 200, o.Payload)
 }
 
 func (o *GetAgentOK) GetPayload() *GetAgentOKBody {
@@ -102,7 +102,7 @@ func (o *GetAgentDefault) Code() int {
 }
 
 func (o *GetAgentDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/Get][%d] GetAgent default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/inventory/agents/{agent_id}][%d] GetAgent default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetAgentDefault) GetPayload() *GetAgentDefaultBody {
@@ -117,43 +117,6 @@ func (o *GetAgentDefault) readResponse(response runtime.ClientResponse, consumer
 		return err
 	}
 
-	return nil
-}
-
-/*
-GetAgentBody get agent body
-swagger:model GetAgentBody
-*/
-type GetAgentBody struct {
-	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
-}
-
-// Validate validates this get agent body
-func (o *GetAgentBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this get agent body based on context it is used
-func (o *GetAgentBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetAgentBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetAgentBody) UnmarshalBinary(b []byte) error {
-	var res GetAgentBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

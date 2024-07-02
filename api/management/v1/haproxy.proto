@@ -10,7 +10,7 @@ import "validate/validate.proto";
 
 // Add HAProxy
 
-message AddHAProxyRequest {
+message AddHAProxyServiceParams {
   // Node identifier on which an external exporter is been running.
   // Exactly one of these parameters should be present: node_id, node_name, add_node.
   string node_id = 1;
@@ -57,7 +57,7 @@ message AddHAProxyRequest {
   bool skip_connection_check = 16;
 }
 
-message AddHAProxyResponse {
+message HAProxyServiceResult {
   inventory.v1.HAProxyService service = 1;
   inventory.v1.ExternalExporter external_exporter = 2;
 }

@@ -62,7 +62,7 @@ func TestExternalExporter(t *testing.T) {
 		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-			Body:    agents.GetAgentBody{AgentID: agentID},
+			AgentID: agentID,
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -120,7 +120,7 @@ func TestExternalExporter(t *testing.T) {
 		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-			Body:    agents.GetAgentBody{AgentID: agentID},
+			AgentID: agentID,
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -142,18 +142,16 @@ func TestExternalExporter(t *testing.T) {
 		// Test change API.
 		changeExternalExporterOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyExternalExporterCommon{
-							Enable:       pointer.ToBool(false),
-							CustomLabels: &agents.ChangeAgentParamsBodyExternalExporterCommonCustomLabels{},
-						},
+						Enable:       pointer.ToBool(false),
+						CustomLabels: &agents.ChangeAgentParamsBodyExternalExporterCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			ExternalExporter: &agents.ChangeAgentOKBodyExternalExporter{
 				AgentID:      agentID,
@@ -170,22 +168,20 @@ func TestExternalExporter(t *testing.T) {
 
 		changeExternalExporterOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyExternalExporterCommon{
-							Enable: pointer.ToBool(true),
-							CustomLabels: &agents.ChangeAgentParamsBodyExternalExporterCommonCustomLabels{
-								Values: map[string]string{
-									"new_label": "external_exporter",
-								},
+						Enable: pointer.ToBool(true),
+						CustomLabels: &agents.ChangeAgentParamsBodyExternalExporterCustomLabels{
+							Values: map[string]string{
+								"new_label": "external_exporter",
 							},
 						},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			ExternalExporter: &agents.ChangeAgentOKBodyExternalExporter{
 				AgentID:      agentID,
@@ -381,7 +377,7 @@ func TestExternalExporter(t *testing.T) {
 		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-			Body:    agents.GetAgentBody{AgentID: agentID},
+			AgentID: agentID,
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -403,17 +399,15 @@ func TestExternalExporter(t *testing.T) {
 		// Test change API.
 		changeExternalExporterOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyExternalExporterCommon{
-							EnablePushMetrics: pointer.ToBool(false),
-						},
+						EnablePushMetrics: pointer.ToBool(false),
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			ExternalExporter: &agents.ChangeAgentOKBodyExternalExporter{
 				AgentID:      agentID,
@@ -431,17 +425,15 @@ func TestExternalExporter(t *testing.T) {
 
 		changeExternalExporterOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyExternalExporterCommon{
-							EnablePushMetrics: pointer.ToBool(true),
-						},
+						EnablePushMetrics: pointer.ToBool(true),
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			ExternalExporter: &agents.ChangeAgentOKBodyExternalExporter{
 				AgentID:      agentID,

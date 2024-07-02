@@ -169,7 +169,7 @@ func checkUniqueAgentID(q *reform.Querier, id string) error {
 		return errors.WithStack(err)
 	}
 
-	return status.Errorf(codes.AlreadyExists, "Agent with ID %q already exists.", id)
+	return status.Errorf(codes.AlreadyExists, "Agent with ID %s already exists.", id)
 }
 
 // AgentFilters represents filters for agents list.
@@ -245,7 +245,7 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 	err := q.Reload(agent)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return nil, status.Errorf(codes.NotFound, "Agent with ID %q not found.", id)
+			return nil, status.Errorf(codes.NotFound, "Agent with ID %s not found.", id)
 		}
 		return nil, errors.WithStack(err)
 	}
@@ -1013,7 +1013,7 @@ func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) 
 	if len(structs) != 0 {
 		switch mode {
 		case RemoveRestrict:
-			return nil, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %q has agents.", id)
+			return nil, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %s has agents.", id)
 		case RemoveCascade:
 			for _, str := range structs {
 				agentID := str.(*Agent).AgentID //nolint:forcetypeassert

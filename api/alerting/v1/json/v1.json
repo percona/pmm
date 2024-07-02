@@ -15,7 +15,7 @@
     "version": "v1"
   },
   "paths": {
-    "/v1/alerting/Rules/Create": {
+    "/v1/alerting/rules": {
       "post": {
         "tags": [
           "AlertingService"
@@ -204,137 +204,8 @@
         }
       }
     },
-    "/v1/alerting/Templates/Create": {
-      "post": {
-        "tags": [
-          "AlertingService"
-        ],
-        "summary": "CreateTemplate creates a new template.",
-        "operationId": "CreateTemplate",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "yaml": {
-                  "description": "YAML template file content.",
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/alerting/Templates/Delete": {
-      "post": {
-        "tags": [
-          "AlertingService"
-        ],
-        "summary": "DeleteTemplate deletes existing, previously created via API.",
-        "operationId": "DeleteTemplate",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/alerting/Templates/List": {
-      "post": {
+    "/v1/alerting/templates": {
+      "get": {
         "tags": [
           "AlertingService"
         ],
@@ -342,38 +213,24 @@
         "operationId": "ListTemplates",
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "page_params": {
-                  "description": "PageParams represents page request parameters for pagination.",
-                  "type": "object",
-                  "properties": {
-                    "index": {
-                      "description": "Index of the requested page, starts from 0.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 1
-                    },
-                    "page_size": {
-                      "description": "Maximum number of results per page.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 1
-                },
-                "reload": {
-                  "description": "If true, template files will be re-read from disk.",
-                  "type": "boolean",
-                  "x-order": 0
-                }
-              }
-            }
+            "type": "integer",
+            "format": "int32",
+            "description": "Maximum number of results per page.",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int32",
+            "description": "Index of the requested page, starts from 0.",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "If true, template files will be re-read from disk.",
+            "name": "reload",
+            "in": "query"
           }
         ],
         "responses": {
@@ -383,6 +240,7 @@
               "type": "object",
               "properties": {
                 "templates": {
+                  "description": "Alerting templates.",
                   "type": "array",
                   "items": {
                     "description": "Template represents Alert Template that is used to create Alert Rule.",
@@ -437,14 +295,8 @@
                               "type": "object",
                               "properties": {
                                 "default": {
-                                  "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - BOOLEAN_FLAG_UNSPECIFIED: Do not change boolean property. Default value.\n - BOOLEAN_FLAG_TRUE: True.\n - BOOLEAN_FLAG_FALSE: False.",
-                                  "type": "string",
-                                  "default": "BOOLEAN_FLAG_UNSPECIFIED",
-                                  "enum": [
-                                    "BOOLEAN_FLAG_UNSPECIFIED",
-                                    "BOOLEAN_FLAG_TRUE",
-                                    "BOOLEAN_FLAG_FALSE"
-                                  ],
+                                  "type": "boolean",
+                                  "x-nullable": true,
                                   "x-order": 0
                                 }
                               },
@@ -455,37 +307,25 @@
                               "type": "object",
                               "properties": {
                                 "default": {
-                                  "description": "Default value if has_default is true.",
+                                  "description": "Default value.",
                                   "type": "number",
                                   "format": "double",
-                                  "x-order": 1
-                                },
-                                "has_default": {
-                                  "description": "True if default value is set.",
-                                  "type": "boolean",
+                                  "x-nullable": true,
                                   "x-order": 0
                                 },
-                                "has_max": {
-                                  "description": "True if maximal valid value is set.",
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
-                                "has_min": {
-                                  "description": "True if minimal valid value is set.",
-                                  "type": "boolean",
+                                "max": {
+                                  "description": "Maximum valid value (inclusive).",
+                                  "type": "number",
+                                  "format": "double",
+                                  "x-nullable": true,
                                   "x-order": 2
                                 },
-                                "max": {
-                                  "description": "Maximal valid value (inclusive) if has_max is true.",
-                                  "type": "number",
-                                  "format": "double",
-                                  "x-order": 5
-                                },
                                 "min": {
-                                  "description": "Minimal valid value (inclusive) if has_min is true.",
+                                  "description": "Minimum valid value (inclusive).",
                                   "type": "number",
                                   "format": "double",
-                                  "x-order": 3
+                                  "x-nullable": true,
+                                  "x-order": 1
                                 }
                               },
                               "x-order": 5
@@ -500,13 +340,9 @@
                               "type": "object",
                               "properties": {
                                 "default": {
-                                  "description": "Default value if has_default is true.",
+                                  "description": "Default value.",
                                   "type": "string",
-                                  "x-order": 1
-                                },
-                                "has_default": {
-                                  "description": "True if default value is set.",
-                                  "type": "boolean",
+                                  "x-nullable": true,
                                   "x-order": 0
                                 }
                               },
@@ -586,25 +422,18 @@
                       }
                     }
                   },
+                  "x-order": 2
+                },
+                "total_items": {
+                  "description": "Total number of results.",
+                  "type": "integer",
+                  "format": "int32",
                   "x-order": 0
                 },
-                "totals": {
-                  "description": "PageTotals represents total values for pagination.",
-                  "type": "object",
-                  "properties": {
-                    "total_items": {
-                      "description": "Total number of results.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "total_pages": {
-                      "description": "Total number of pages.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 1
-                    }
-                  },
+                "total_pages": {
+                  "description": "Total number of pages.",
+                  "type": "integer",
+                  "format": "int32",
                   "x-order": 1
                 }
               }
@@ -642,15 +471,13 @@
             }
           }
         }
-      }
-    },
-    "/v1/alerting/Templates/Update": {
+      },
       "post": {
         "tags": [
           "AlertingService"
         ],
-        "summary": "UpdateTemplate updates existing template, previously created via API.",
-        "operationId": "UpdateTemplate",
+        "summary": "CreateTemplate creates a new template.",
+        "operationId": "CreateTemplate",
         "parameters": [
           {
             "name": "body",
@@ -659,18 +486,139 @@
             "schema": {
               "type": "object",
               "properties": {
-                "name": {
-                  "description": "Machine-readable name (ID).",
-                  "type": "string",
-                  "x-order": 0
-                },
                 "yaml": {
                   "description": "YAML template file content.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
                   "type": "string",
                   "x-order": 1
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/v1/alerting/templates/{name}": {
+      "put": {
+        "tags": [
+          "AlertingService"
+        ],
+        "summary": "UpdateTemplate updates existing template, previously created via API.",
+        "operationId": "UpdateTemplate",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Machine-readable name (ID).",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "yaml": {
+                  "description": "YAML template file content.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "AlertingService"
+        ],
+        "summary": "DeleteTemplate deletes existing, previously created via API.",
+        "operationId": "DeleteTemplate",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "name",
+            "in": "path",
+            "required": true
           }
         ],
         "responses": {

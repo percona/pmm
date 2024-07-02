@@ -19,7 +19,6 @@ package interceptors
 import (
 	"context"
 	"io"
-	"os"
 	"runtime/debug"
 	"runtime/pprof"
 	"time"
@@ -93,8 +92,7 @@ func Unary(interceptor grpc.UnaryServerInterceptor) UnaryInterceptorType {
 		// set logger
 		l := logrus.WithField("request", logger.MakeRequestID())
 		ctx = logger.SetEntry(ctx, l)
-
-		if info.FullMethod == "/server.Server/Readiness" && os.Getenv("PMM_LESS_LOG_NOISE") != "" {
+		if info.FullMethod == "/server.v1.ServerService/Readiness" && l.Level < logrus.DebugLevel {
 			l = logrus.NewEntry(logrus.New())
 			l.Logger.SetOutput(io.Discard)
 		}
@@ -124,7 +122,7 @@ func Stream(interceptor grpc.StreamServerInterceptor) func(srv interface{}, ss g
 
 		// set logger
 		l := logrus.WithField("request", logger.MakeRequestID())
-		if info.FullMethod == "/agent.Agent/Connect" {
+		if info.FullMethod == "/agent.v1.AgentService/Connect" {
 			md, _ := agentv1.ReceiveAgentConnectMetadata(ss)
 			if md != nil && md.ID != "" {
 				l = l.WithField("agent_id", md.ID)

@@ -395,22 +395,22 @@ var _ interface {
 	ErrorName() string
 } = DiscoverRDSResponseValidationError{}
 
-// Validate checks the field values on AddRDSRequest with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *AddRDSRequest) Validate() error {
+// Validate checks the field values on AddRDSServiceParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddRDSServiceParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddRDSRequest with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in AddRDSRequestMultiError, or
-// nil if none found.
-func (m *AddRDSRequest) ValidateAll() error {
+// ValidateAll checks the field values on AddRDSServiceParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddRDSServiceParamsMultiError, or nil if none found.
+func (m *AddRDSServiceParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddRDSRequest) validate(all bool) error {
+func (m *AddRDSServiceParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -418,7 +418,7 @@ func (m *AddRDSRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetRegion()) < 1 {
-		err := AddRDSRequestValidationError{
+		err := AddRDSServiceParamsValidationError{
 			field:  "Region",
 			reason: "value length must be at least 1 runes",
 		}
@@ -431,7 +431,7 @@ func (m *AddRDSRequest) validate(all bool) error {
 	// no validation rules for Az
 
 	if utf8.RuneCountInString(m.GetInstanceId()) < 1 {
-		err := AddRDSRequestValidationError{
+		err := AddRDSServiceParamsValidationError{
 			field:  "InstanceId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -444,7 +444,7 @@ func (m *AddRDSRequest) validate(all bool) error {
 	// no validation rules for NodeModel
 
 	if utf8.RuneCountInString(m.GetAddress()) < 1 {
-		err := AddRDSRequestValidationError{
+		err := AddRDSServiceParamsValidationError{
 			field:  "Address",
 			reason: "value length must be at least 1 runes",
 		}
@@ -455,7 +455,7 @@ func (m *AddRDSRequest) validate(all bool) error {
 	}
 
 	if m.GetPort() <= 0 {
-		err := AddRDSRequestValidationError{
+		err := AddRDSServiceParamsValidationError{
 			field:  "Port",
 			reason: "value must be greater than 0",
 		}
@@ -478,7 +478,7 @@ func (m *AddRDSRequest) validate(all bool) error {
 	// no validation rules for ReplicationSet
 
 	if utf8.RuneCountInString(m.GetUsername()) < 1 {
-		err := AddRDSRequestValidationError{
+		err := AddRDSServiceParamsValidationError{
 			field:  "Username",
 			reason: "value length must be at least 1 runes",
 		}
@@ -529,19 +529,19 @@ func (m *AddRDSRequest) validate(all bool) error {
 	// no validation rules for MaxPostgresqlExporterConnections
 
 	if len(errors) > 0 {
-		return AddRDSRequestMultiError(errors)
+		return AddRDSServiceParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddRDSRequestMultiError is an error wrapping multiple validation errors
-// returned by AddRDSRequest.ValidateAll() if the designated constraints
-// aren't met.
-type AddRDSRequestMultiError []error
+// AddRDSServiceParamsMultiError is an error wrapping multiple validation
+// errors returned by AddRDSServiceParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddRDSServiceParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddRDSRequestMultiError) Error() string {
+func (m AddRDSServiceParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -550,11 +550,11 @@ func (m AddRDSRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddRDSRequestMultiError) AllErrors() []error { return m }
+func (m AddRDSServiceParamsMultiError) AllErrors() []error { return m }
 
-// AddRDSRequestValidationError is the validation error returned by
-// AddRDSRequest.Validate if the designated constraints aren't met.
-type AddRDSRequestValidationError struct {
+// AddRDSServiceParamsValidationError is the validation error returned by
+// AddRDSServiceParams.Validate if the designated constraints aren't met.
+type AddRDSServiceParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -562,22 +562,24 @@ type AddRDSRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddRDSRequestValidationError) Field() string { return e.field }
+func (e AddRDSServiceParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddRDSRequestValidationError) Reason() string { return e.reason }
+func (e AddRDSServiceParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddRDSRequestValidationError) Cause() error { return e.cause }
+func (e AddRDSServiceParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddRDSRequestValidationError) Key() bool { return e.key }
+func (e AddRDSServiceParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddRDSRequestValidationError) ErrorName() string { return "AddRDSRequestValidationError" }
+func (e AddRDSServiceParamsValidationError) ErrorName() string {
+	return "AddRDSServiceParamsValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e AddRDSRequestValidationError) Error() string {
+func (e AddRDSServiceParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -589,14 +591,14 @@ func (e AddRDSRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddRDSRequest.%s: %s%s",
+		"invalid %sAddRDSServiceParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddRDSRequestValidationError{}
+var _ error = AddRDSServiceParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -604,24 +606,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddRDSRequestValidationError{}
+} = AddRDSServiceParamsValidationError{}
 
-// Validate checks the field values on AddRDSResponse with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *AddRDSResponse) Validate() error {
+// Validate checks the field values on RDSServiceResult with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *RDSServiceResult) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddRDSResponse with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in AddRDSResponseMultiError,
-// or nil if none found.
-func (m *AddRDSResponse) ValidateAll() error {
+// ValidateAll checks the field values on RDSServiceResult with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RDSServiceResultMultiError, or nil if none found.
+func (m *RDSServiceResult) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddRDSResponse) validate(all bool) error {
+func (m *RDSServiceResult) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -632,7 +634,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 		switch v := interface{}(m.GetNode()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddRDSResponseValidationError{
+				errors = append(errors, RDSServiceResultValidationError{
 					field:  "Node",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -640,7 +642,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddRDSResponseValidationError{
+				errors = append(errors, RDSServiceResultValidationError{
 					field:  "Node",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -649,7 +651,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetNode()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddRDSResponseValidationError{
+			return RDSServiceResultValidationError{
 				field:  "Node",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -661,7 +663,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 		switch v := interface{}(m.GetRdsExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddRDSResponseValidationError{
+				errors = append(errors, RDSServiceResultValidationError{
 					field:  "RdsExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -669,7 +671,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddRDSResponseValidationError{
+				errors = append(errors, RDSServiceResultValidationError{
 					field:  "RdsExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -678,7 +680,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetRdsExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddRDSResponseValidationError{
+			return RDSServiceResultValidationError{
 				field:  "RdsExporter",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -690,7 +692,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 		switch v := interface{}(m.GetMysql()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddRDSResponseValidationError{
+				errors = append(errors, RDSServiceResultValidationError{
 					field:  "Mysql",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -698,7 +700,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddRDSResponseValidationError{
+				errors = append(errors, RDSServiceResultValidationError{
 					field:  "Mysql",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -707,7 +709,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetMysql()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddRDSResponseValidationError{
+			return RDSServiceResultValidationError{
 				field:  "Mysql",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -719,7 +721,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 		switch v := interface{}(m.GetMysqldExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddRDSResponseValidationError{
+				errors = append(errors, RDSServiceResultValidationError{
 					field:  "MysqldExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -727,7 +729,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddRDSResponseValidationError{
+				errors = append(errors, RDSServiceResultValidationError{
 					field:  "MysqldExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -736,7 +738,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetMysqldExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddRDSResponseValidationError{
+			return RDSServiceResultValidationError{
 				field:  "MysqldExporter",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -748,7 +750,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 		switch v := interface{}(m.GetQanMysqlPerfschema()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddRDSResponseValidationError{
+				errors = append(errors, RDSServiceResultValidationError{
 					field:  "QanMysqlPerfschema",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -756,7 +758,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddRDSResponseValidationError{
+				errors = append(errors, RDSServiceResultValidationError{
 					field:  "QanMysqlPerfschema",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -765,7 +767,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetQanMysqlPerfschema()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddRDSResponseValidationError{
+			return RDSServiceResultValidationError{
 				field:  "QanMysqlPerfschema",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -777,7 +779,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 		switch v := interface{}(m.GetPostgresql()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddRDSResponseValidationError{
+				errors = append(errors, RDSServiceResultValidationError{
 					field:  "Postgresql",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -785,7 +787,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddRDSResponseValidationError{
+				errors = append(errors, RDSServiceResultValidationError{
 					field:  "Postgresql",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -794,7 +796,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetPostgresql()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddRDSResponseValidationError{
+			return RDSServiceResultValidationError{
 				field:  "Postgresql",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -806,7 +808,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 		switch v := interface{}(m.GetPostgresqlExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddRDSResponseValidationError{
+				errors = append(errors, RDSServiceResultValidationError{
 					field:  "PostgresqlExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -814,7 +816,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddRDSResponseValidationError{
+				errors = append(errors, RDSServiceResultValidationError{
 					field:  "PostgresqlExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -823,7 +825,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetPostgresqlExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddRDSResponseValidationError{
+			return RDSServiceResultValidationError{
 				field:  "PostgresqlExporter",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -835,7 +837,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 		switch v := interface{}(m.GetQanPostgresqlPgstatements()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddRDSResponseValidationError{
+				errors = append(errors, RDSServiceResultValidationError{
 					field:  "QanPostgresqlPgstatements",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -843,7 +845,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddRDSResponseValidationError{
+				errors = append(errors, RDSServiceResultValidationError{
 					field:  "QanPostgresqlPgstatements",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -852,7 +854,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetQanPostgresqlPgstatements()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AddRDSResponseValidationError{
+			return RDSServiceResultValidationError{
 				field:  "QanPostgresqlPgstatements",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -861,19 +863,19 @@ func (m *AddRDSResponse) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return AddRDSResponseMultiError(errors)
+		return RDSServiceResultMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddRDSResponseMultiError is an error wrapping multiple validation errors
-// returned by AddRDSResponse.ValidateAll() if the designated constraints
+// RDSServiceResultMultiError is an error wrapping multiple validation errors
+// returned by RDSServiceResult.ValidateAll() if the designated constraints
 // aren't met.
-type AddRDSResponseMultiError []error
+type RDSServiceResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddRDSResponseMultiError) Error() string {
+func (m RDSServiceResultMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -882,11 +884,11 @@ func (m AddRDSResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddRDSResponseMultiError) AllErrors() []error { return m }
+func (m RDSServiceResultMultiError) AllErrors() []error { return m }
 
-// AddRDSResponseValidationError is the validation error returned by
-// AddRDSResponse.Validate if the designated constraints aren't met.
-type AddRDSResponseValidationError struct {
+// RDSServiceResultValidationError is the validation error returned by
+// RDSServiceResult.Validate if the designated constraints aren't met.
+type RDSServiceResultValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -894,22 +896,22 @@ type AddRDSResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddRDSResponseValidationError) Field() string { return e.field }
+func (e RDSServiceResultValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddRDSResponseValidationError) Reason() string { return e.reason }
+func (e RDSServiceResultValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddRDSResponseValidationError) Cause() error { return e.cause }
+func (e RDSServiceResultValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddRDSResponseValidationError) Key() bool { return e.key }
+func (e RDSServiceResultValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddRDSResponseValidationError) ErrorName() string { return "AddRDSResponseValidationError" }
+func (e RDSServiceResultValidationError) ErrorName() string { return "RDSServiceResultValidationError" }
 
 // Error satisfies the builtin error interface
-func (e AddRDSResponseValidationError) Error() string {
+func (e RDSServiceResultValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -921,14 +923,14 @@ func (e AddRDSResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddRDSResponse.%s: %s%s",
+		"invalid %sRDSServiceResult.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddRDSResponseValidationError{}
+var _ error = RDSServiceResultValidationError{}
 
 var _ interface {
 	Field() string
@@ -936,4 +938,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddRDSResponseValidationError{}
+} = RDSServiceResultValidationError{}

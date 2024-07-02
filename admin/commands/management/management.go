@@ -16,23 +16,23 @@
 package management
 
 import (
-	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
+	"github.com/percona/pmm/api/inventory/v1/types"
 )
 
 var (
 	allNodeTypes = map[string]string{
-		"generic":   mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE,
-		"container": mservice.RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE,
-		"remote":    mservice.RegisterNodeBodyNodeTypeNODETYPEREMOTENODE,
+		"generic":   types.NodeTypeGenericNode,
+		"container": types.NodeTypeContainerNode,
+		"remote":    types.NodeTypeRemoteNode,
 	}
 
 	allServiceTypes = map[string]string{
-		"mysql":      mservice.RemoveServiceBodyServiceTypeSERVICETYPEMYSQLSERVICE,
-		"mongodb":    mservice.RemoveServiceBodyServiceTypeSERVICETYPEMONGODBSERVICE,
-		"postgresql": mservice.RemoveServiceBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE,
-		"proxysql":   mservice.RemoveServiceBodyServiceTypeSERVICETYPEPROXYSQLSERVICE,
-		"haproxy":    mservice.RemoveServiceBodyServiceTypeSERVICETYPEHAPROXYSERVICE,
-		"external":   mservice.RemoveServiceBodyServiceTypeSERVICETYPEEXTERNALSERVICE,
+		"mysql":      types.ServiceTypeMySQLService,
+		"mongodb":    types.ServiceTypeMongoDBService,
+		"postgresql": types.ServiceTypePostgreSQLService,
+		"proxysql":   types.ServiceTypeProxySQLService,
+		"haproxy":    types.ServiceTypeHAProxyService,
+		"external":   types.ServiceTypeExternalService,
 	}
 
 	// AllServiceTypesKeys lists all possible service types.

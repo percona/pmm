@@ -60,8 +60,13 @@ ListNodesParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListNodesParams struct {
-	// Body.
-	Body ListNodesBody
+	/* NodeType.
+
+	   Return only Nodes with matching Node type.
+
+	   Default: "NODE_TYPE_UNSPECIFIED"
+	*/
+	NodeType *string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -80,7 +85,16 @@ func (o *ListNodesParams) WithDefaults() *ListNodesParams {
 //
 // All values with no default are reset to their zero value.
 func (o *ListNodesParams) SetDefaults() {
-	// no default values defined for this parameter
+	nodeTypeDefault := string("NODE_TYPE_UNSPECIFIED")
+
+	val := ListNodesParams{
+		NodeType: &nodeTypeDefault,
+	}
+
+	val.timeout = o.timeout
+	val.Context = o.Context
+	val.HTTPClient = o.HTTPClient
+	*o = val
 }
 
 // WithTimeout adds the timeout to the list nodes params
@@ -116,15 +130,15 @@ func (o *ListNodesParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the list nodes params
-func (o *ListNodesParams) WithBody(body ListNodesBody) *ListNodesParams {
-	o.SetBody(body)
+// WithNodeType adds the nodeType to the list nodes params
+func (o *ListNodesParams) WithNodeType(nodeType *string) *ListNodesParams {
+	o.SetNodeType(nodeType)
 	return o
 }
 
-// SetBody adds the body to the list nodes params
-func (o *ListNodesParams) SetBody(body ListNodesBody) {
-	o.Body = body
+// SetNodeType adds the nodeType to the list nodes params
+func (o *ListNodesParams) SetNodeType(nodeType *string) {
+	o.NodeType = nodeType
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,8 +147,21 @@ func (o *ListNodesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Reg
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+
+	if o.NodeType != nil {
+
+		// query param node_type
+		var qrNodeType string
+
+		if o.NodeType != nil {
+			qrNodeType = *o.NodeType
+		}
+		qNodeType := qrNodeType
+		if qNodeType != "" {
+			if err := r.SetQueryParam("node_type", qNodeType); err != nil {
+				return err
+			}
+		}
 	}
 
 	if len(res) > 0 {

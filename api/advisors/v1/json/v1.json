@@ -15,289 +15,14 @@
     "version": "v1"
   },
   "paths": {
-    "/v1/advisors/Change": {
-      "post": {
-        "description": "Enables/disables advisor checks or changes their exec interval.",
-        "tags": [
-          "AdvisorService"
-        ],
-        "summary": "Change Advisor Checks",
-        "operationId": "ChangeAdvisorChecks",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "params": {
-                  "type": "array",
-                  "items": {
-                    "description": "ChangeAdvisorCheckParams specifies a single check parameters.",
-                    "type": "object",
-                    "properties": {
-                      "enable": {
-                        "type": "boolean",
-                        "x-nullable": true,
-                        "x-order": 1
-                      },
-                      "interval": {
-                        "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
-                        "type": "string",
-                        "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                        "enum": [
-                          "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                          "ADVISOR_CHECK_INTERVAL_STANDARD",
-                          "ADVISOR_CHECK_INTERVAL_FREQUENT",
-                          "ADVISOR_CHECK_INTERVAL_RARE"
-                        ],
-                        "x-order": 2
-                      },
-                      "name": {
-                        "description": "The name of the check to change.",
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/advisors/FailedChecks": {
-      "post": {
-        "description": "Returns the latest check results for a given service.",
-        "tags": [
-          "AdvisorService"
-        ],
-        "summary": "Get Failed Checks",
-        "operationId": "GetFailedChecks",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "page_params": {
-                  "description": "PageParams represents page request parameters for pagination.",
-                  "type": "object",
-                  "properties": {
-                    "index": {
-                      "description": "Index of the requested page, starts from 0.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 1
-                    },
-                    "page_size": {
-                      "description": "Maximum number of results per page.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 1
-                },
-                "service_id": {
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "page_totals": {
-                  "description": "PageTotals represents total values for pagination.",
-                  "type": "object",
-                  "properties": {
-                    "total_items": {
-                      "description": "Total number of results.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "total_pages": {
-                      "description": "Total number of pages.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 1
-                },
-                "results": {
-                  "type": "array",
-                  "items": {
-                    "description": "CheckResult represents the check results for a given service.",
-                    "type": "object",
-                    "properties": {
-                      "check_name": {
-                        "type": "string",
-                        "title": "Name of the check that failed",
-                        "x-order": 7
-                      },
-                      "description": {
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "labels": {
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        },
-                        "x-order": 3
-                      },
-                      "read_more_url": {
-                        "description": "URL containing information on how to resolve an issue detected by an Advisor check.",
-                        "type": "string",
-                        "x-order": 4
-                      },
-                      "service_id": {
-                        "description": "ID of the monitored service on which the check ran.",
-                        "type": "string",
-                        "x-order": 6
-                      },
-                      "service_name": {
-                        "description": "Name of the monitored service on which the check ran.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "severity": {
-                        "description": "Severity represents severity level of the check result or alert.",
-                        "type": "string",
-                        "default": "SEVERITY_UNSPECIFIED",
-                        "enum": [
-                          "SEVERITY_UNSPECIFIED",
-                          "SEVERITY_EMERGENCY",
-                          "SEVERITY_ALERT",
-                          "SEVERITY_CRITICAL",
-                          "SEVERITY_ERROR",
-                          "SEVERITY_WARNING",
-                          "SEVERITY_NOTICE",
-                          "SEVERITY_INFO",
-                          "SEVERITY_DEBUG"
-                        ],
-                        "x-order": 2
-                      },
-                      "silenced": {
-                        "type": "boolean",
-                        "title": "Silence status of the check result",
-                        "x-order": 8
-                      },
-                      "summary": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/advisors/List": {
-      "post": {
+    "/v1/advisors": {
+      "get": {
         "description": "List advisors available to the user.",
         "tags": [
           "AdvisorService"
         ],
         "summary": "List advisors",
         "operationId": "ListAdvisors",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -429,24 +154,14 @@
         }
       }
     },
-    "/v1/advisors/ListChecks": {
-      "post": {
+    "/v1/advisors/checks": {
+      "get": {
         "description": "List advisor checks available to the user.",
         "tags": [
           "AdvisorService"
         ],
         "summary": "List advisor checks",
         "operationId": "ListAdvisorChecks",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -543,24 +258,329 @@
         }
       }
     },
-    "/v1/advisors/ListFailedServices": {
-      "post": {
-        "description": "Returns a list of services with failed checks and a summary of check results.",
+    "/v1/advisors/checks/failed": {
+      "get": {
+        "description": "Returns the latest check results for a given service.",
         "tags": [
           "AdvisorService"
         ],
-        "summary": "List Failed Services",
-        "operationId": "ListFailedServices",
+        "summary": "Get Failed Checks",
+        "operationId": "GetFailedChecks",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int32",
+            "description": "Maximum number of results per page.",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int32",
+            "description": "Index of the requested page, starts from 0.",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Service ID.",
+            "name": "service_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "results": {
+                  "type": "array",
+                  "title": "Check results",
+                  "items": {
+                    "description": "CheckResult represents the check results for a given service.",
+                    "type": "object",
+                    "properties": {
+                      "check_name": {
+                        "type": "string",
+                        "title": "Name of the check that failed",
+                        "x-order": 7
+                      },
+                      "description": {
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "labels": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 3
+                      },
+                      "read_more_url": {
+                        "description": "URL containing information on how to resolve an issue detected by an Advisor check.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "service_id": {
+                        "description": "ID of the monitored service on which the check ran.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "service_name": {
+                        "description": "Name of the monitored service on which the check ran.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "severity": {
+                        "description": "Severity represents severity level of the check result or alert.",
+                        "type": "string",
+                        "default": "SEVERITY_UNSPECIFIED",
+                        "enum": [
+                          "SEVERITY_UNSPECIFIED",
+                          "SEVERITY_EMERGENCY",
+                          "SEVERITY_ALERT",
+                          "SEVERITY_CRITICAL",
+                          "SEVERITY_ERROR",
+                          "SEVERITY_WARNING",
+                          "SEVERITY_NOTICE",
+                          "SEVERITY_INFO",
+                          "SEVERITY_DEBUG"
+                        ],
+                        "x-order": 2
+                      },
+                      "silenced": {
+                        "type": "boolean",
+                        "title": "Silence status of the check result",
+                        "x-order": 8
+                      },
+                      "summary": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    }
+                  },
+                  "x-order": 2
+                },
+                "total_items": {
+                  "description": "Total number of results.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "total_pages": {
+                  "description": "Total number of pages.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/advisors/checks:batchChange": {
+      "post": {
+        "description": "Enables/disables advisor checks or changes their exec interval.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "Change Advisor Checks",
+        "operationId": "ChangeAdvisorChecks",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "params": {
+                  "type": "array",
+                  "items": {
+                    "description": "ChangeAdvisorCheckParams specifies a single check parameters.",
+                    "type": "object",
+                    "properties": {
+                      "enable": {
+                        "type": "boolean",
+                        "x-nullable": true,
+                        "x-order": 1
+                      },
+                      "interval": {
+                        "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
+                        "type": "string",
+                        "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                        "enum": [
+                          "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                          "ADVISOR_CHECK_INTERVAL_STANDARD",
+                          "ADVISOR_CHECK_INTERVAL_FREQUENT",
+                          "ADVISOR_CHECK_INTERVAL_RARE"
+                        ],
+                        "x-order": 2
+                      },
+                      "name": {
+                        "description": "The name of the check to change.",
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/advisors/checks:start": {
+      "post": {
+        "description": "Executes Advisor checks and returns when all checks are executed. All available checks will be started if check names aren't specified.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "Start Advisor Checks",
+        "operationId": "StartAdvisorChecks",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "names": {
+                  "description": "Names of the checks that should be started.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/advisors/failedServices": {
+      "get": {
+        "description": "Returns a list of services with failed checks and a summary of check results.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "List Failed Services",
+        "operationId": "ListFailedServices",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -634,75 +654,6 @@
                   "x-order": 0
                 }
               }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/advisors/StartChecks": {
-      "post": {
-        "description": "Executes Advisor checks and returns when all checks are executed. All available checks will be started if check names aren't specified.",
-        "tags": [
-          "AdvisorService"
-        ],
-        "summary": "Start Advisor Checks",
-        "operationId": "StartAdvisorChecks",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "names": {
-                  "description": "Names of the checks that should be started.",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
             }
           },
           "default": {

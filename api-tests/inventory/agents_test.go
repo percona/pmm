@@ -30,6 +30,7 @@ import (
 	"github.com/percona/pmm/api/inventory/v1/json/client"
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	"github.com/percona/pmm/api/inventory/v1/types"
 )
 
 // AgentStatusUnknown means agent is not connected and we don't know anything about its status.
@@ -135,7 +136,7 @@ func TestAgents(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, nodeExporter)
 		nodeExporterID := nodeExporter.Payload.NodeExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, nodeExporterID)
@@ -143,8 +144,8 @@ func TestAgents(t *testing.T) {
 		// Filter by pmm agent ID.
 		res, err := client.Default.AgentsService.ListAgents(
 			&agents.ListAgentsParams{
-				Body:    agents.ListAgentsBody{PMMAgentID: pmmAgentID},
-				Context: pmmapitests.Context,
+				PMMAgentID: pointer.ToString(pmmAgentID),
+				Context:    pmmapitests.Context,
 			})
 		require.NoError(t, err)
 		require.NotNil(t, res)
@@ -156,7 +157,7 @@ func TestAgents(t *testing.T) {
 		// Filter by node ID.
 		res, err = client.Default.AgentsService.ListAgents(
 			&agents.ListAgentsParams{
-				Body:    agents.ListAgentsBody{NodeID: nodeID},
+				NodeID:  pointer.ToString(nodeID),
 				Context: pmmapitests.Context,
 			})
 		require.NoError(t, err)
@@ -169,8 +170,8 @@ func TestAgents(t *testing.T) {
 		// Filter by service ID.
 		res, err = client.Default.AgentsService.ListAgents(
 			&agents.ListAgentsParams{
-				Body:    agents.ListAgentsBody{ServiceID: serviceID},
-				Context: pmmapitests.Context,
+				ServiceID: pointer.ToString(serviceID),
+				Context:   pmmapitests.Context,
 			})
 		require.NoError(t, err)
 		require.NotNil(t, res)
@@ -182,8 +183,8 @@ func TestAgents(t *testing.T) {
 		// Filter by service ID.
 		res, err = client.Default.AgentsService.ListAgents(
 			&agents.ListAgentsParams{
-				Body:    agents.ListAgentsBody{AgentType: pointer.ToString(agents.ListAgentsBodyAgentTypeAGENTTYPEMYSQLDEXPORTER)},
-				Context: pmmapitests.Context,
+				AgentType: pointer.ToString(types.AgentTypeMySQLdExporter),
+				Context:   pmmapitests.Context,
 			})
 		require.NoError(t, err)
 		require.NotNil(t, res)
@@ -206,12 +207,10 @@ func TestAgents(t *testing.T) {
 
 		res, err := client.Default.AgentsService.ListAgents(
 			&agents.ListAgentsParams{
-				Body: agents.ListAgentsBody{
-					PMMAgentID: pmmAgentID,
-					NodeID:     genericNodeID,
-					ServiceID:  "some-service-id",
-				},
-				Context: pmmapitests.Context,
+				PMMAgentID: pointer.ToString(pmmAgentID),
+				NodeID:     pointer.ToString(genericNodeID),
+				ServiceID:  pointer.ToString("some-service-id"),
+				Context:    pmmapitests.Context,
 			})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "expected at most one param: pmm_agent_id, node_id or service_id")
 		assert.Nil(t, res)
@@ -270,10 +269,10 @@ func TestPMMAgent(t *testing.T) {
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
-				Body:    agents.GetAgentBody{AgentID: agentID},
+				AgentID: agentID,
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.GetAgentOK{
 			Payload: &agents.GetAgentOKBody{
 				PMMAgent: &agents.GetAgentOKBodyPMMAgent{
@@ -285,13 +284,11 @@ func TestPMMAgent(t *testing.T) {
 		}, getAgentRes)
 
 		params := &agents.RemoveAgentParams{
-			Body: agents.RemoveAgentBody{
-				AgentID: agentID,
-			},
+			AgentID: agentID,
 			Context: context.Background(),
 		}
 		removeAgentOK, err := client.Default.AgentsService.RemoveAgent(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, removeAgentOK)
 	})
 
@@ -354,22 +351,20 @@ func TestPMMAgent(t *testing.T) {
 		mySqldExporterID := mySqldExporter.MysqldExporter.AgentID
 
 		params := &agents.RemoveAgentParams{
-			Body: agents.RemoveAgentBody{
-				AgentID: pmmAgentID,
-			},
+			AgentID: pmmAgentID,
 			Context: context.Background(),
 		}
 		res, err := client.Default.AgentsService.RemoveAgent(params)
 		assert.Nil(t, res)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `pmm-agent with ID %q has agents.`, pmmAgentID)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `pmm-agent with ID %s has agents.`, pmmAgentID)
 
 		// Check that agents aren't removed.
 		getAgentRes, err := client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
-				Body:    agents.GetAgentBody{AgentID: pmmAgentID},
+				AgentID: pmmAgentID,
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.GetAgentOK{
 			Payload: &agents.GetAgentOKBody{
 				PMMAgent: &agents.GetAgentOKBodyPMMAgent{
@@ -382,12 +377,10 @@ func TestPMMAgent(t *testing.T) {
 
 		listAgentsOK, err := client.Default.AgentsService.ListAgents(
 			&agents.ListAgentsParams{
-				Body: agents.ListAgentsBody{
-					PMMAgentID: pmmAgentID,
-				},
-				Context: pmmapitests.Context,
+				PMMAgentID: pointer.ToString(pmmAgentID),
+				Context:    pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyNodeExporterItems0{
 			{
 				PMMAgentID:         pmmAgentID,
@@ -416,32 +409,28 @@ func TestPMMAgent(t *testing.T) {
 
 		// Remove with force flag.
 		params = &agents.RemoveAgentParams{
-			Body: agents.RemoveAgentBody{
-				AgentID: pmmAgentID,
-				Force:   true,
-			},
+			AgentID: pmmAgentID,
+			Force:   pointer.ToBool(true),
 			Context: context.Background(),
 		}
 		res, err = client.Default.AgentsService.RemoveAgent(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, res)
 
 		// Check that agents are removed.
 		getAgentRes, err = client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
-				Body:    agents.GetAgentBody{AgentID: pmmAgentID},
+				AgentID: pmmAgentID,
 				Context: pmmapitests.Context,
 			})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID %q not found.", pmmAgentID)
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID %s not found.", pmmAgentID)
 		assert.Nil(t, getAgentRes)
 
 		listAgentsOK, err = client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			Body: agents.ListAgentsBody{
-				PMMAgentID: pmmAgentID,
-			},
-			Context: pmmapitests.Context,
+			PMMAgentID: pointer.ToString(pmmAgentID),
+			Context:    pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID %q not found.", pmmAgentID)
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID %s not found.", pmmAgentID)
 		assert.Nil(t, listAgentsOK)
 	})
 
@@ -450,21 +439,18 @@ func TestPMMAgent(t *testing.T) {
 
 		agentID := "not-exist-pmm-agent"
 		params := &agents.RemoveAgentParams{
-			Body: agents.RemoveAgentBody{
-				AgentID: agentID,
-			},
+			AgentID: agentID,
 			Context: context.Background(),
 		}
 		res, err := client.Default.AgentsService.RemoveAgent(params)
 		assert.Nil(t, res)
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, `Agent with ID %q not found.`, agentID)
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, `Agent with ID %s not found.`, agentID)
 	})
 
 	t.Run("Remove with empty params", func(t *testing.T) {
 		t.Parallel()
 
 		removeResp, err := client.Default.AgentsService.RemoveAgent(&agents.RemoveAgentParams{
-			Body:    agents.RemoveAgentBody{},
 			Context: context.Background(),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid RemoveAgentRequest.AgentId: value length must be at least 1 runes")
@@ -476,10 +462,8 @@ func TestPMMAgent(t *testing.T) {
 
 		removeResp, err := client.Default.AgentsService.RemoveAgent(
 			&agents.RemoveAgentParams{
-				Body: agents.RemoveAgentBody{
-					AgentID: "pmm-server",
-					Force:   true,
-				},
+				AgentID: "pmm-server",
+				Force:   pointer.ToBool(true),
 				Context: context.Background(),
 			})
 		pmmapitests.AssertAPIErrorf(t, err, 403, codes.PermissionDenied, "pmm-agent on PMM Server can't be removed.")
@@ -532,7 +516,7 @@ func TestQanAgentExporter(t *testing.T) {
 		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-			Body:    agents.GetAgentBody{AgentID: agentID},
+			AgentID: agentID,
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -555,18 +539,16 @@ func TestQanAgentExporter(t *testing.T) {
 		// Test change API.
 		changeQANMySQLPerfSchemaAgentOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANMysqlPerfschemaAgent: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgent{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon{
-							Enable:       pointer.ToBool(false),
-							CustomLabels: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonCustomLabels{},
-						},
+						Enable:       pointer.ToBool(false),
+						CustomLabels: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				QANMysqlPerfschemaAgent: &agents.ChangeAgentOKBodyQANMysqlPerfschemaAgent{
@@ -584,22 +566,20 @@ func TestQanAgentExporter(t *testing.T) {
 
 		changeQANMySQLPerfSchemaAgentOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANMysqlPerfschemaAgent: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgent{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommon{
-							Enable: pointer.ToBool(true),
-							CustomLabels: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCommonCustomLabels{
-								Values: map[string]string{
-									"new_label": "QANMysqlPerfschemaAgent",
-								},
+						Enable: pointer.ToBool(true),
+						CustomLabels: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCustomLabels{
+							Values: map[string]string{
+								"new_label": "QANMysqlPerfschemaAgent",
 							},
 						},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				QANMysqlPerfschemaAgent: &agents.ChangeAgentOKBodyQANMysqlPerfschemaAgent{
@@ -742,7 +722,7 @@ func TestQanAgentExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID \"pmm-not-exist-server\" not found.")
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID pmm-not-exist-server not found.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANMysqlPerfschemaAgent.AgentID)
 		}
@@ -795,7 +775,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
-				Body:    agents.GetAgentBody{AgentID: agentID},
+				AgentID: agentID,
 				Context: pmmapitests.Context,
 			})
 		require.NoError(t, err)
@@ -818,18 +798,16 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		// Test change API.
 		changeQANPostgreSQLPgStatementsAgentOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANPostgresqlPgstatementsAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon{
-							Enable:       pointer.ToBool(false),
-							CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonCustomLabels{},
-						},
+						Enable:       pointer.ToBool(false),
+						CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				QANPostgresqlPgstatementsAgent: &agents.ChangeAgentOKBodyQANPostgresqlPgstatementsAgent{
@@ -847,22 +825,20 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 
 		changeQANPostgreSQLPgStatementsAgentOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANPostgresqlPgstatementsAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommon{
-							Enable: pointer.ToBool(true),
-							CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCommonCustomLabels{
-								Values: map[string]string{
-									"new_label": "QANPostgreSQLPgStatementsAgent",
-								},
+						Enable: pointer.ToBool(true),
+						CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCustomLabels{
+							Values: map[string]string{
+								"new_label": "QANPostgreSQLPgStatementsAgent",
 							},
 						},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				QANPostgresqlPgstatementsAgent: &agents.ChangeAgentOKBodyQANPostgresqlPgstatementsAgent{
@@ -1005,7 +981,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID \"pmm-not-exist-server\" not found.")
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID pmm-not-exist-server not found.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANPostgresqlPgstatementsAgent.AgentID)
 		}
@@ -1057,7 +1033,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-			Body:    agents.GetAgentBody{AgentID: agentID},
+			AgentID: agentID,
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -1081,18 +1057,16 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		// Test change API.
 		changeQANPostgreSQLPgStatMonitorAgentOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon{
-							Enable:       pointer.ToBool(false),
-							CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonCustomLabels{},
-						},
+						Enable:       pointer.ToBool(false),
+						CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentOKBodyQANPostgresqlPgstatmonitorAgent{
@@ -1110,22 +1084,20 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 
 		changeQANPostgreSQLPgStatMonitorAgentOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommon{
-							Enable: pointer.ToBool(true),
-							CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCommonCustomLabels{
-								Values: map[string]string{
-									"new_label": "QANPostgreSQLPgStatMonitorAgent",
-								},
+						Enable: pointer.ToBool(true),
+						CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCustomLabels{
+							Values: map[string]string{
+								"new_label": "QANPostgreSQLPgStatMonitorAgent",
 							},
 						},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentOKBodyQANPostgresqlPgstatmonitorAgent{
@@ -1189,7 +1161,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
-				Body:    agents.GetAgentBody{AgentID: agentID},
+				AgentID: agentID,
 				Context: pmmapitests.Context,
 			})
 		require.NoError(t, err)
@@ -1334,7 +1306,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID \"pmm-not-exist-server\" not found.")
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID pmm-not-exist-server not found.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANPostgresqlPgstatmonitorAgent.AgentID)
 		}
@@ -1344,7 +1316,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 func TestMetricsResolutionsChange(t *testing.T) {
 	t.Parallel()
 
-	genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+	genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Generic node")).NodeID
 	require.NotEmpty(t, genericNodeID)
 	defer pmmapitests.RemoveNodes(t, genericNodeID)
 
@@ -1352,11 +1324,13 @@ func TestMetricsResolutionsChange(t *testing.T) {
 	nodeID := node.Remote.NodeID
 	defer pmmapitests.RemoveNodes(t, nodeID)
 
-	service := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
-		NodeID:      genericNodeID,
-		Address:     "localhost",
-		Port:        5432,
-		ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for PostgresExporter test"),
+	service := addService(t, services.AddServiceBody{
+		Postgresql: &services.AddServiceParamsBodyPostgresql{
+			NodeID:      genericNodeID,
+			Address:     "localhost",
+			Port:        5432,
+			ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for PostgresExporter test"),
+		},
 	})
 	serviceID := service.Postgresql.ServiceID
 	defer pmmapitests.RemoveServices(t, serviceID)
@@ -1365,138 +1339,140 @@ func TestMetricsResolutionsChange(t *testing.T) {
 	pmmAgentID := pmmAgent.PMMAgent.AgentID
 	defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-	PostgresExporter := addPostgresExporter(t, agents.AddPostgresExporterBody{
+	res, err := client.Default.AgentsService.AddAgent(
+		&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
+					ServiceID:  serviceID,
+					Username:   "username",
+					Password:   "password",
+					PMMAgentID: pmmAgentID,
+					CustomLabels: map[string]string{
+						"custom_label_postgres_exporter": "postgres_exporter",
+					},
+					SkipConnectionCheck: true,
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+	require.NoError(t, err)
+	agentID := res.Payload.PostgresExporter.AgentID
+	defer pmmapitests.RemoveAgents(t, agentID)
+
+	getAgentRes, err := client.Default.AgentsService.GetAgent(
+		&agents.GetAgentParams{
+			AgentID: agentID,
+			Context: pmmapitests.Context,
+		})
+	require.NoError(t, err)
+	assert.Equal(t, &agents.GetAgentOKBodyPostgresExporter{
+		AgentID:    agentID,
 		ServiceID:  serviceID,
 		Username:   "username",
-		Password:   "password",
 		PMMAgentID: pmmAgentID,
 		CustomLabels: map[string]string{
 			"custom_label_postgres_exporter": "postgres_exporter",
 		},
-
-		SkipConnectionCheck: true,
-	})
-	agentID := PostgresExporter.PostgresExporter.AgentID
-	defer pmmapitests.RemoveAgents(t, agentID)
-
-	getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
-		Body:    agents.GetAgentBody{AgentID: agentID},
-		Context: pmmapitests.Context,
-	})
-	require.NoError(t, err)
-	assert.Equal(t, &agents.GetAgentOK{
-		Payload: &agents.GetAgentOKBody{
-			PostgresExporter: &agents.GetAgentOKBodyPostgresExporter{
-				AgentID:    agentID,
-				ServiceID:  serviceID,
-				Username:   "username",
-				PMMAgentID: pmmAgentID,
-				CustomLabels: map[string]string{
-					"custom_label_postgres_exporter": "postgres_exporter",
-				},
-				Status: &AgentStatusUnknown,
-			},
-		},
-	}, getAgentRes)
+		Status:             &AgentStatusUnknown,
+		LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+		DisabledCollectors: []string{},
+	}, getAgentRes.Payload.PostgresExporter)
 
 	// Change metrics resolutions
-	changePostgresExporterOK, err := client.Default.Agents.ChangePostgresExporter(&agents.ChangePostgresExporterParams{
-		Body: agents.ChangePostgresExporterBody{
+	changePostgresExporterOK, err := client.Default.AgentsService.ChangeAgent(
+		&agents.ChangeAgentParams{
 			AgentID: agentID,
-			Common: &agents.ChangePostgresExporterParamsBodyCommon{
-				MetricsResolutions: &agents.ChangePostgresExporterParamsBodyCommonMetricsResolutions{
-					Hr: "600s",
-					Mr: "300s",
-					Lr: "100s",
+			Body: agents.ChangeAgentBody{
+				PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
+					MetricsResolutions: &agents.ChangeAgentParamsBodyPostgresExporterMetricsResolutions{
+						Hr: "600s",
+						Mr: "300s",
+						Lr: "100s",
+					},
 				},
 			},
-		},
-		Context: pmmapitests.Context,
-	})
+			Context: pmmapitests.Context,
+		})
 	require.NoError(t, err)
-	assert.Equal(t, &agents.ChangePostgresExporterOK{
-		Payload: &agents.ChangePostgresExporterOKBody{
-			PostgresExporter: &agents.ChangePostgresExporterOKBodyPostgresExporter{
-				AgentID:    agentID,
-				ServiceID:  serviceID,
-				Username:   "username",
-				PMMAgentID: pmmAgentID,
-				CustomLabels: map[string]string{
-					"custom_label_postgres_exporter": "postgres_exporter",
-				},
-				Status: &AgentStatusUnknown,
-				MetricsResolutions: &agents.ChangePostgresExporterOKBodyPostgresExporterMetricsResolutions{
-					Hr: "600s",
-					Mr: "300s",
-					Lr: "100s",
-				},
-			},
+	assert.Equal(t, &agents.ChangeAgentOKBodyPostgresExporter{
+		AgentID:    agentID,
+		ServiceID:  serviceID,
+		Username:   "username",
+		PMMAgentID: pmmAgentID,
+		CustomLabels: map[string]string{
+			"custom_label_postgres_exporter": "postgres_exporter",
 		},
-	}, changePostgresExporterOK)
+		Status:             &AgentStatusUnknown,
+		LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+		DisabledCollectors: []string{},
+		MetricsResolutions: &agents.ChangeAgentOKBodyPostgresExporterMetricsResolutions{
+			Hr: "600s",
+			Mr: "300s",
+			Lr: "100s",
+		},
+	}, changePostgresExporterOK.Payload.PostgresExporter)
 
 	// Reset part of metrics resolutions
-	changePostgresExporterOK, err = client.Default.Agents.ChangePostgresExporter(&agents.ChangePostgresExporterParams{
-		Body: agents.ChangePostgresExporterBody{
+	changePostgresExporterOK, err = client.Default.AgentsService.ChangeAgent(
+		&agents.ChangeAgentParams{
 			AgentID: agentID,
-			Common: &agents.ChangePostgresExporterParamsBodyCommon{
-				MetricsResolutions: &agents.ChangePostgresExporterParamsBodyCommonMetricsResolutions{
-					Hr: "600s",
-					Mr: "300s",
-					Lr: "0s",
+			Body: agents.ChangeAgentBody{
+				PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
+					MetricsResolutions: &agents.ChangeAgentParamsBodyPostgresExporterMetricsResolutions{
+						Hr: "600s",
+						Mr: "300s",
+						Lr: "0s",
+					},
 				},
 			},
-		},
-		Context: pmmapitests.Context,
-	})
+			Context: pmmapitests.Context,
+		})
 	require.NoError(t, err)
-	assert.Equal(t, &agents.ChangePostgresExporterOK{
-		Payload: &agents.ChangePostgresExporterOKBody{
-			PostgresExporter: &agents.ChangePostgresExporterOKBodyPostgresExporter{
-				AgentID:    agentID,
-				ServiceID:  serviceID,
-				Username:   "username",
-				PMMAgentID: pmmAgentID,
-				CustomLabels: map[string]string{
-					"custom_label_postgres_exporter": "postgres_exporter",
-				},
-				Status: &AgentStatusUnknown,
-				MetricsResolutions: &agents.ChangePostgresExporterOKBodyPostgresExporterMetricsResolutions{
-					Hr: "600s",
-					Mr: "300s",
-				},
-			},
+	assert.Equal(t, &agents.ChangeAgentOKBodyPostgresExporter{
+		AgentID:    agentID,
+		ServiceID:  serviceID,
+		Username:   "username",
+		PMMAgentID: pmmAgentID,
+		CustomLabels: map[string]string{
+			"custom_label_postgres_exporter": "postgres_exporter",
 		},
-	}, changePostgresExporterOK)
+		Status:             &AgentStatusUnknown,
+		LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+		DisabledCollectors: []string{},
+		MetricsResolutions: &agents.ChangeAgentOKBodyPostgresExporterMetricsResolutions{
+			Hr: "600s",
+			Mr: "300s",
+		},
+	}, changePostgresExporterOK.Payload.PostgresExporter)
 
 	// Change part of metrics resolutions
-	changePostgresExporterOK, err = client.Default.Agents.ChangePostgresExporter(&agents.ChangePostgresExporterParams{
-		Body: agents.ChangePostgresExporterBody{
+	changePostgresExporterOK, err = client.Default.AgentsService.ChangeAgent(
+		&agents.ChangeAgentParams{
 			AgentID: agentID,
-			Common: &agents.ChangePostgresExporterParamsBodyCommon{
-				MetricsResolutions: &agents.ChangePostgresExporterParamsBodyCommonMetricsResolutions{
-					Hr: "500s",
+			Body: agents.ChangeAgentBody{
+				PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
+					MetricsResolutions: &agents.ChangeAgentParamsBodyPostgresExporterMetricsResolutions{
+						Hr: "500s",
+					},
 				},
 			},
-		},
-		Context: pmmapitests.Context,
-	})
+			Context: pmmapitests.Context,
+		})
 	require.NoError(t, err)
-	assert.Equal(t, &agents.ChangePostgresExporterOK{
-		Payload: &agents.ChangePostgresExporterOKBody{
-			PostgresExporter: &agents.ChangePostgresExporterOKBodyPostgresExporter{
-				AgentID:    agentID,
-				ServiceID:  serviceID,
-				Username:   "username",
-				PMMAgentID: pmmAgentID,
-				CustomLabels: map[string]string{
-					"custom_label_postgres_exporter": "postgres_exporter",
-				},
-				Status: &AgentStatusUnknown,
-				MetricsResolutions: &agents.ChangePostgresExporterOKBodyPostgresExporterMetricsResolutions{
-					Hr: "500s",
-					Mr: "300s",
-				},
-			},
+	assert.Equal(t, &agents.ChangeAgentOKBodyPostgresExporter{
+		AgentID:    agentID,
+		ServiceID:  serviceID,
+		Username:   "username",
+		PMMAgentID: pmmAgentID,
+		CustomLabels: map[string]string{
+			"custom_label_postgres_exporter": "postgres_exporter",
 		},
-	}, changePostgresExporterOK)
+		Status:             &AgentStatusUnknown,
+		LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+		DisabledCollectors: []string{},
+		MetricsResolutions: &agents.ChangeAgentOKBodyPostgresExporterMetricsResolutions{
+			Hr: "500s",
+			Mr: "300s",
+		},
+	}, changePostgresExporterOK.Payload.PostgresExporter)
 }
