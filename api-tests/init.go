@@ -203,7 +203,7 @@ func init() {
 	// do not run tests if server is not available
 	_, err = serverClient.Default.ServerService.Readiness(nil)
 	if err != nil {
-		panic(err)
+		logrus.Fatalf("Failed to pass the server readiness probe: %s", err)
 	}
 }
 

@@ -419,7 +419,7 @@ func TestRemoveHAProxy(t *testing.T) {
 			defer pmmapitests.RemoveServices(t, serviceID)
 		}
 
-		// Check that the service removed with agents.
+		// Check that the service was removed with agents.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context:   pmmapitests.Context,
 			ServiceID: pointer.ToString(serviceID),

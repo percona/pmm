@@ -140,7 +140,7 @@ func TestSetup(t *testing.T) {
 			"swagger/":    301,
 
 			"v1/server/readyz":      200,
-			"v1/server/AWSInstance": 501, // It must accept a parameter
+			"v1/server/AWSInstance": 400, // It must accept a parameter
 			"v1/server/version":     401, // Grafana authentication required
 		}
 		for path, code := range paths {

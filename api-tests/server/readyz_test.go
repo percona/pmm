@@ -34,7 +34,6 @@ func TestReadyz(t *testing.T) {
 		"v1/server/readyz",
 	}
 	for _, path := range paths {
-		path := path
 		t.Run(path, func(t *testing.T) {
 			t.Parallel()
 
@@ -46,8 +45,6 @@ func TestReadyz(t *testing.T) {
 			uri := baseURL.ResolveReference(&url.URL{
 				Path: path,
 			})
-
-			t.Logf("URI: %s", uri)
 
 			req, _ := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 			resp, err := http.DefaultClient.Do(req)
