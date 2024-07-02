@@ -1075,7 +1075,7 @@ func EncryptDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams, itemsTo
 	if err != nil {
 		return err
 	}
-	alreadyEncrypted := map[string]bool{}
+	alreadyEncrypted := make(map[string]bool)
 	for _, v := range settings.EncryptedItems {
 		alreadyEncrypted[v] = true
 	}
