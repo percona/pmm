@@ -83,39 +83,20 @@ Run the example codes below in a `mongo` session to:
 
 ### Permissions for advanced metrics
 
-To fetch advanced metrics, use the following to provide additional privileges to an existing PMM user:
-
-```json
-{
-resource : {
-    db : "",
-    collection : "system.profile"
-    },
-actions : [
-    "collStats",
-    "dbStats",
-    "indexStats"
-   ]
-}
-```
-
-If the role `explainRole` already exists, then you can use the following command to provide additional privileges:
+To fetch advanced metrics like usage statistics for collection and indexes, use the following to provide additional privileges to an existing PMM user:
 
 ```{.javascript data-prompt=">"}
- db.runCommand({
-    grantPrivilegesToRole: "explainRole",
-    privileges: [{
-        "resource": {
-            "db": "",
-            "collection": "system.profile"
-        },
-        "actions": [
-            "indexStats",
-            "dbStats",
-            "collStats"
-        ]
-    }]
-})
+db.getSiblingDB("admin").updateRole(
+  "explainRole",
+  {
+    privileges: [
+      {
+        resource: { db: "", collection: "" },
+        actions: ["collStats", "dbStats", "indexStats"]
+      }
+    ]
+  }
+)
 ```
 
 ## Profiling

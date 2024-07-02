@@ -188,7 +188,7 @@ nav:
         - install-pmm/install-pmm-server/baremetal/helm/index.md
         - install-pmm/install-pmm-server/baremetal/helm/backup_container_helm.md
         - install-pmm/install-pmm-server/baremetal/helm/restore_container_helm.md            
-      - AWS marketplace:
+      - AWS Marketplace:
         - install-pmm/install-pmm-server/aws/aws.md
         - install-pmm/install-pmm-server/aws/limit_access.md
         - install-pmm/install-pmm-server/aws/settings.md
@@ -196,14 +196,14 @@ nav:
         - install-pmm/install-pmm-server/aws/back_pmm_server.md
         - install-pmm/install-pmm-server/aws/restore_pmm_server.md
         - install-pmm/install-pmm-server/aws/remove_pmm_server.md
-    - Set up PMM client:
-      - Install PMM client:
+    - Set up PMM Client:
+      - Install PMM Client:
         - install-pmm/install-pmm-client/index.md
         - install-pmm/install-pmm-client/prerequisites.md
-        - Percona Repositories: install-pmm/install-pmm-client/package_manager.md          
+        - Percona repositories: install-pmm/install-pmm-client/package_manager.md          
         - Images: install-pmm/install-pmm-client/docker.md
         - Manual binaries: install-pmm/install-pmm-client/binary_package.md          
-        - Register client node: install-pmm/register-client-node/index.md 
+        - Register Client node: install-pmm/register-client-node/index.md 
         - Add services to PMM: 
           - install-pmm/install-pmm-client/connect-database/index.md
           - MySQL: install-pmm/install-pmm-client/connect-database/mysql.md
@@ -233,7 +233,7 @@ nav:
       - pmm-upgrade/upgrade_from_pmm_1.md
       - pmm-upgrade/upgrade_aws.md
   - Uninstall:
-    - Uninstall PMM client: 
+    - Uninstall PMM Client: 
       - Docker: uninstall-pmm/uninstall_docker.md
       - Helm: uninstall-pmm/uninstall_helm.md 
       - Package manager: uninstall-pmm/uninstall_package_manager.md
