@@ -102,7 +102,7 @@ func (e *Encryption) EncryptItems(ctx context.Context, db *sql.DB, tables []Tabl
 	defer tx.Rollback() //nolint:errcheck
 
 	for _, table := range tables {
-		res, err := table.Read(tx)
+		res, err := table.read(tx)
 		if err != nil {
 			return err
 		}
@@ -183,7 +183,7 @@ func (e *Encryption) DecryptItems(ctx context.Context, db *sql.DB, tables []Tabl
 	defer tx.Rollback() //nolint:errcheck
 
 	for _, table := range tables {
-		res, err := table.Read(tx)
+		res, err := table.read(tx)
 		if err != nil {
 			return err
 		}

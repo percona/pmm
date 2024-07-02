@@ -117,7 +117,7 @@ func (e *Encryption) saveKeyToFile() error {
 	return os.WriteFile(e.Path, []byte(e.Key), 0o644) //nolint:gosec
 }
 
-func (table Table) ColumnsList() []string {
+func (table Table) columnsList() []string {
 	res := []string{}
 	for _, c := range table.Columns {
 		res = append(res, c.Name)
@@ -126,9 +126,8 @@ func (table Table) ColumnsList() []string {
 	return res
 }
 
-// Read returns query and it's values based on input.
-func (table Table) Read(tx *sql.Tx) (*QueryValues, error) {
-	what := slices.Concat(table.Identificators, table.ColumnsList())
+func (table Table) read(tx *sql.Tx) (*QueryValues, error) {
+	what := slices.Concat(table.Identificators, table.columnsList())
 	query := fmt.Sprintf("SELECT %s FROM %s", strings.Join(what, ", "), table.Name) //nolint:gosec
 	rows, err := tx.Query(query)
 	if err != nil {
