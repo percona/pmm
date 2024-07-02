@@ -21,6 +21,8 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
+	"slices"
+	"strings"
 
 	"github.com/google/tink/go/aead"
 	"github.com/google/tink/go/insecurecleartextkeyset"
@@ -113,4 +115,64 @@ func (e *Encryption) generateKey() error {
 
 func (e *Encryption) saveKeyToFile() error {
 	return os.WriteFile(e.Path, []byte(e.Key), 0o644) //nolint:gosec
+}
+
+func (table Table) ColumnsList() []string {
+	res := []string{}
+	for _, c := range table.Columns {
+		res = append(res, c.Name)
+	}
+
+	return res
+}
+
+// Read returns query and it's values based on input.
+func (table Table) Read(tx *sql.Tx) (*QueryValues, error) {
+	what := slices.Concat(table.Identificators, table.ColumnsList())
+	query := fmt.Sprintf("SELECT %s FROM %s", strings.Join(what, ", "), table.Name) //nolint:gosec
+	rows, err := tx.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	q := &QueryValues{}
+	for rows.Next() {
+		row, err := prepareRowPointers(rows)
+		if err != nil {
+			return nil, err
+		}
+		err = rows.Scan(row...)
+		if err != nil {
+			return nil, err
+		}
+
+		i := 1
+		set := []string{}
+		setValues := []any{}
+		for k, v := range row[len(table.Identificators):] {
+			set = append(set, fmt.Sprintf("%s = $%d", table.Columns[k].Name, i))
+			setValues = append(setValues, v)
+			i++
+		}
+		setSQL := fmt.Sprintf("SET %s", strings.Join(set, ", "))
+		q.SetValues = append(q.SetValues, setValues)
+
+		where := []string{}
+		whereValues := []any{}
+		for k, id := range table.Identificators {
+			where = append(where, fmt.Sprintf("%s = $%d", id, i))
+			whereValues = append(whereValues, row[k])
+			i++
+		}
+		whereSQL := fmt.Sprintf("WHERE %s", strings.Join(where, " AND "))
+		q.WhereValues = append(q.WhereValues, whereValues)
+
+		q.Query = fmt.Sprintf("UPDATE %s %s %s", table.Name, setSQL, whereSQL)
+	}
+	err = rows.Close() //nolint:sqlclosecheck
+	if err != nil {
+		return nil, err
+	}
+
+	return q, nil
 }

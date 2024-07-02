@@ -85,25 +85,20 @@ func SetupDB(tb testing.TB, db *sql.DB, setupFixtures models.SetupFixturesMode, 
 	_, err := models.SetupDB(ctx, db, params)
 	require.NoError(tb, err)
 
-	itemsToEncrypt := []encryption.Database{
+	itemsToEncrypt := []encryption.Table{
 		{
-			Database: testDatabase,
-			Tables: []encryption.Table{
-				{
-					Table:          "agents",
-					Identificators: []string{"agent_id"},
-					Columns: []encryption.Column{
-						{Column: "username"},
-						{Column: "password"},
-						{Column: "agent_password"},
-						{Column: "aws_access_key"},
-						{Column: "aws_secret_key "},
-						{Column: "mysql_options", CustomHandler: models.EncryptMySQLOptionsHandler},
-						{Column: "postgresql_options", CustomHandler: models.EncryptPostgreSQLOptionsHandler},
-						{Column: "mongo_db_tls_options", CustomHandler: models.EncryptMongoDBOptionsHandler},
-						{Column: "azure_options", CustomHandler: models.EncryptAzureOptionsHandler},
-					},
-				},
+			Name:           "agents",
+			Identificators: []string{"agent_id"},
+			Columns: []encryption.Column{
+				{Name: "username"},
+				{Name: "password"},
+				{Name: "agent_password"},
+				{Name: "aws_access_key"},
+				{Name: "aws_secret_key "},
+				{Name: "mysql_options", CustomHandler: models.EncryptMySQLOptionsHandler},
+				{Name: "postgresql_options", CustomHandler: models.EncryptPostgreSQLOptionsHandler},
+				{Name: "mongo_db_tls_options", CustomHandler: models.EncryptMongoDBOptionsHandler},
+				{Name: "azure_options", CustomHandler: models.EncryptAzureOptionsHandler},
 			},
 		},
 	}

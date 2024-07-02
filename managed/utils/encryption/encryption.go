@@ -18,6 +18,7 @@ package encryption
 
 import (
 	"context"
+	"database/sql"
 	"encoding/base64"
 	"fmt"
 	"os"
@@ -84,71 +85,59 @@ func (e *Encryption) Encrypt(secret string) (string, error) {
 }
 
 // EncryptItems is wrapper around DefaultEncryption.EncryptItems.
-func EncryptItems(ctx context.Context, c *DatabaseConnection, items []Database) ([]string, error) {
-	return DefaultEncryption.EncryptItems(ctx, c, items)
+func EncryptItems(ctx context.Context, db *sql.DB, tables []Table) error {
+	return DefaultEncryption.EncryptItems(ctx, db, tables)
 }
 
 // EncryptItems will encrypt all columns provided in DB connection.
-func (e *Encryption) EncryptItems(ctx context.Context, c *DatabaseConnection, items []Database) ([]string, error) {
-	if len(items) == 0 {
-		return nil, errors.New("DB Connection: Database target tables/columns not defined")
+func (e *Encryption) EncryptItems(ctx context.Context, db *sql.DB, tables []Table) error {
+	if len(tables) == 0 {
+		return errors.New("target tables/columns not defined")
 	}
 
-	encryptedItems := []string{}
-	for _, item := range items {
-		c.DBName = item.Database
-		db, err := c.Connect()
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback() //nolint:errcheck
+
+	for _, table := range tables {
+		res, err := table.Read(tx)
 		if err != nil {
-			return encryptedItems, err
+			return err
 		}
-		defer db.Close() //nolint:errcheck
 
-		tx, err := db.BeginTx(ctx, nil)
-		if err != nil {
-			return encryptedItems, err
-		}
-		defer tx.Rollback() //nolint:errcheck
-
-		for _, table := range item.Tables {
-			res, err := table.Read(tx)
-			if err != nil {
-				return encryptedItems, err
-			}
-
-			for k, v := range res.SetValues {
-				for i, val := range v {
-					var encrypted any
-					var err error
-					switch table.Columns[i].CustomHandler {
-					case nil:
-						encrypted, err = encryptColumnStringHandler(e, val)
-					default:
-						encrypted, err = table.Columns[i].CustomHandler(e, val)
-					}
-
-					if err != nil {
-						return encryptedItems, err
-					}
-					res.SetValues[k][i] = encrypted
+		for k, v := range res.SetValues {
+			for i, val := range v {
+				var encrypted any
+				var err error
+				switch table.Columns[i].CustomHandler {
+				case nil:
+					encrypted, err = encryptColumnStringHandler(e, val)
+				default:
+					encrypted, err = table.Columns[i].CustomHandler(e, val)
 				}
-				data := slices.Concat([]any{}, v)
-				data = slices.Concat(data, res.WhereValues[k])
-				_, err := tx.Exec(res.Query, data...)
+
 				if err != nil {
-					return encryptedItems, err
+					return err
 				}
+				res.SetValues[k][i] = encrypted
+			}
+			data := slices.Concat([]any{}, v)
+			data = slices.Concat(data, res.WhereValues[k])
+			_, err := tx.Exec(res.Query, data...)
+			if err != nil {
+				return err
 			}
 		}
-
-		err = tx.Commit()
-		if err != nil {
-			return encryptedItems, err
-		}
-
-		encryptedItems = slices.Concat(encryptedItems, item.List())
 	}
 
-	return encryptedItems, nil
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Decrypt is wrapper around DefaultEncryption.Decrypt.
@@ -177,69 +166,57 @@ func (e *Encryption) Decrypt(cipherText string) (string, error) {
 }
 
 // DecryptItems is wrapper around DefaultEncryption.DecryptItems.
-func DecryptItems(ctx context.Context, c *DatabaseConnection, items []Database) ([]string, error) {
-	return DefaultEncryption.DecryptItems(ctx, c, items)
+func DecryptItems(ctx context.Context, db *sql.DB, tables []Table) error {
+	return DefaultEncryption.DecryptItems(ctx, db, tables)
 }
 
 // DecryptItems will decrypt all columns provided in DB connection.
-func (e *Encryption) DecryptItems(ctx context.Context, c *DatabaseConnection, items []Database) ([]string, error) {
-	if len(items) == 0 {
-		return nil, errors.New("DB Connection: Database target tables/columns not defined")
+func (e *Encryption) DecryptItems(ctx context.Context, db *sql.DB, tables []Table) error {
+	if len(tables) == 0 {
+		return errors.New("target tables/columns not defined")
 	}
 
-	decryptedItems := []string{}
-	for _, item := range items {
-		c.DBName = item.Database
-		db, err := c.Connect()
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback() //nolint:errcheck
+
+	for _, table := range tables {
+		res, err := table.Read(tx)
 		if err != nil {
-			return decryptedItems, err
+			return err
 		}
-		defer db.Close() //nolint:errcheck
 
-		tx, err := db.BeginTx(ctx, nil)
-		if err != nil {
-			return decryptedItems, err
-		}
-		defer tx.Rollback() //nolint:errcheck
-
-		for _, table := range item.Tables {
-			res, err := table.Read(tx)
-			if err != nil {
-				return decryptedItems, err
-			}
-
-			for k, v := range res.SetValues {
-				for i, val := range v {
-					var decrypted any
-					var err error
-					switch table.Columns[i].CustomHandler {
-					case nil:
-						decrypted, err = decryptColumnStringHandler(e, val)
-					default:
-						decrypted, err = table.Columns[i].CustomHandler(e, val)
-					}
-
-					if err != nil {
-						return decryptedItems, err
-					}
-					res.SetValues[k][i] = decrypted
+		for k, v := range res.SetValues {
+			for i, val := range v {
+				var decrypted any
+				var err error
+				switch table.Columns[i].CustomHandler {
+				case nil:
+					decrypted, err = decryptColumnStringHandler(e, val)
+				default:
+					decrypted, err = table.Columns[i].CustomHandler(e, val)
 				}
-				data := slices.Concat([]any{}, v)
-				data = slices.Concat(data, res.WhereValues[k])
-				_, err := tx.Exec(res.Query, data...)
+
 				if err != nil {
-					return decryptedItems, err
+					return err
 				}
+				res.SetValues[k][i] = decrypted
+			}
+			data := slices.Concat([]any{}, v)
+			data = slices.Concat(data, res.WhereValues[k])
+			_, err := tx.Exec(res.Query, data...)
+			if err != nil {
+				return err
 			}
 		}
-
-		err = tx.Commit()
-		if err != nil {
-			return decryptedItems, err
-		}
-
-		decryptedItems = slices.Concat(decryptedItems, item.List())
 	}
 
-	return decryptedItems, nil
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

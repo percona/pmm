@@ -1070,7 +1070,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 }
 
 // EncryptDB encrypt all provided columns in specific database and table.
-func EncryptDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams, itemsToEncrypt []encryption.Database) error {
+func EncryptDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams, itemsToEncrypt []encryption.Table) error {
 	settings, err := GetSettings(sqlDB)
 	if err != nil {
 		return err
@@ -1080,66 +1080,30 @@ func EncryptDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams, itemsTo
 		alreadyEncrypted[v] = true
 	}
 
-	c, err := connectionFromSetupDBParams(params)
-	if err != nil {
-		return err
+	notEncrypted := []encryption.Table{}
+	newlyEncrypted := []string{}
+	for _, table := range itemsToEncrypt {
+		dbWithTable := fmt.Sprintf("%s.%s", params.Name, table.Name)
+		if alreadyEncrypted[dbWithTable] {
+			continue
+		}
+
+		notEncrypted = append(notEncrypted, table)
+		newlyEncrypted = append(newlyEncrypted, dbWithTable)
 	}
 
-	notEncrypted := []encryption.Database{}
-	for _, item := range itemsToEncrypt {
-		database := encryption.Database{
-			Database: item.Database,
-		}
-		for _, table := range item.Tables {
-			dbWithTable := fmt.Sprintf("%s.%s", item.Database, table.Table)
-			if alreadyEncrypted[dbWithTable] {
-				continue
-			}
-
-			database.Tables = append(database.Tables, table)
-		}
-
-		if len(database.Tables) != 0 {
-			notEncrypted = append(notEncrypted, database)
-		}
-	}
-
-	newlyEncryptedItems, err := encryption.EncryptItems(ctx, c, notEncrypted)
+	err = encryption.EncryptItems(ctx, sqlDB, notEncrypted)
 	if err != nil {
 		return err
 	}
 	_, err = UpdateSettings(sqlDB, &ChangeSettingsParams{
-		EncryptedItems: slices.Concat(settings.EncryptedItems, newlyEncryptedItems),
+		EncryptedItems: slices.Concat(settings.EncryptedItems, newlyEncrypted),
 	})
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func connectionFromSetupDBParams(params SetupDBParams) (*encryption.DatabaseConnection, error) {
-	host, p, err := net.SplitHostPort(params.Address)
-	if err != nil {
-		return nil, err
-	}
-	port, err := strconv.ParseInt(p, 10, 16)
-	if err != nil {
-		return nil, err
-	}
-
-	c := &encryption.DatabaseConnection{
-		Host:        host,
-		Port:        int16(port),
-		User:        params.Username,
-		Password:    params.Password,
-		SSLMode:     params.SSLMode,
-		SSLCAPath:   params.SSLCAPath,
-		SSLKeyPath:  params.SSLKeyPath,
-		SSLCertPath: params.SSLCertPath,
-	}
-
-	return c, nil
 }
 
 // checkVersion checks minimal required PostgreSQL server version.
