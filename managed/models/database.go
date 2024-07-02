@@ -1092,6 +1092,10 @@ func EncryptDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams, itemsTo
 		newlyEncrypted = append(newlyEncrypted, dbWithTable)
 	}
 
+	if len(notEncrypted) == 0 {
+		return nil
+	}
+
 	err = encryption.EncryptItems(ctx, sqlDB, notEncrypted)
 	if err != nil {
 		return err
