@@ -18,6 +18,7 @@ on:
       - "managed/**"
       - "qan-api2/**"
       - "vmproxy/**"
+      - "ui/**"
 
 jobs:
   build:

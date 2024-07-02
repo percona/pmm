@@ -19,6 +19,7 @@ on:
       - "qan-api2/**"
       - "update/**"
       - "vmproxy/**"
+      - "ui/**"
 
 jobs:
   test:
