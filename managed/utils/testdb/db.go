@@ -32,7 +32,7 @@ import (
 )
 
 const (
-	username, password = "postgres", ""
+	username, password = "pmm-agent", "pmm-agent-password"
 	testDatabase       = "pmm-managed-dev"
 )
 
@@ -85,6 +85,7 @@ func SetupDB(tb testing.TB, db *sql.DB, setupFixtures models.SetupFixturesMode, 
 		MigrationVersion: migrationVersion,
 	}
 
+	// TODO
 	columnsToEncrypt := []encryption.Column{
 		{Name: "username"},
 		{Name: "password"},

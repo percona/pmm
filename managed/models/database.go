@@ -1071,6 +1071,10 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams, itemsToEn
 
 // EncryptDB encrypt all provided columns in specific database and table.
 func EncryptDB(tx *reform.TX, params SetupDBParams, itemsToEncrypt []encryption.Table) error {
+	if len(itemsToEncrypt) == 0 {
+		return nil
+	}
+
 	settings, err := GetSettings(tx)
 	if err != nil {
 		return err
@@ -1083,13 +1087,18 @@ func EncryptDB(tx *reform.TX, params SetupDBParams, itemsToEncrypt []encryption.
 	notEncrypted := []encryption.Table{}
 	newlyEncrypted := []string{}
 	for _, table := range itemsToEncrypt {
-		dbWithTable := fmt.Sprintf("%s.%s", params.Name, table.Name)
-		if alreadyEncrypted[dbWithTable] {
-			continue
-		}
+		columns := []encryption.Column{}
+		for _, column := range table.Columns {
+			dbTableColumn := fmt.Sprintf("%s.%s.%s", params.Name, table.Name, column.Name)
+			if alreadyEncrypted[dbTableColumn] {
+				continue
+			}
 
+			columns = append(columns, column)
+			newlyEncrypted = append(newlyEncrypted, dbTableColumn)
+		}
+		table.Columns = columns
 		notEncrypted = append(notEncrypted, table)
-		newlyEncrypted = append(newlyEncrypted, dbWithTable)
 	}
 
 	if len(notEncrypted) == 0 {

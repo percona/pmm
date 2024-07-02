@@ -932,6 +932,13 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		DisabledCollectors:             params.DisableCollectors,
 		LogLevel:                       pointer.ToStringOrNil(params.LogLevel),
 	}
+
+	// TODO
+	// settings, err := GetSettings(q)
+	// if err != nil {
+	// 	return err
+	// }
+
 	EncryptAgent(row)
 
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {

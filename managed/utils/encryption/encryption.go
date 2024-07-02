@@ -28,7 +28,7 @@ import (
 )
 
 // DefaultEncryptionKeyPath contains default PMM encryption key path.
-const DefaultEncryptionKeyPath = "/srv/pmm-encryption.key"
+const DefaultEncryptionKeyPath = "/Users/jiri.ctvrtka/pmm-encryption.key"
 
 var (
 	// ErrEncryptionNotInitialized is error in case of encryption is not initialized.
@@ -91,7 +91,7 @@ func EncryptItems(tx *reform.TX, tables []Table) error {
 // EncryptItems will encrypt all columns provided in DB connection.
 func (e *Encryption) EncryptItems(tx *reform.TX, tables []Table) error {
 	if len(tables) == 0 {
-		return errors.New("target tables/columns not defined")
+		return nil
 	}
 
 	for _, table := range tables {
@@ -161,7 +161,7 @@ func DecryptItems(tx *reform.TX, tables []Table) error {
 // DecryptItems will decrypt all columns provided in DB connection.
 func (e *Encryption) DecryptItems(tx *reform.TX, tables []Table) error {
 	if len(tables) == 0 {
-		return errors.New("target tables/columns not defined")
+		return nil
 	}
 
 	for _, table := range tables {
