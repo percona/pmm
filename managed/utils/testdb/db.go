@@ -90,13 +90,6 @@ func SetupDB(tb testing.TB, db *sql.DB, setupFixtures models.SetupFixturesMode, 
 			Columns: []encryption.Column{
 				{Name: "username"},
 				{Name: "password"},
-				{Name: "agent_password"},
-				{Name: "aws_access_key"},
-				{Name: "aws_secret_key "},
-				{Name: "mysql_options", CustomHandler: models.EncryptMySQLOptionsHandler},
-				{Name: "postgresql_options", CustomHandler: models.EncryptPostgreSQLOptionsHandler},
-				{Name: "mongo_db_tls_options", CustomHandler: models.EncryptMongoDBOptionsHandler},
-				{Name: "azure_options", CustomHandler: models.EncryptAzureOptionsHandler},
 			},
 		},
 	}
