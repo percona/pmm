@@ -536,7 +536,7 @@ func TestSettings(t *testing.T) {
 					Context: pmmapitests.Context,
 				})
 				require.NoError(t, err)
-				assert.Empty(t, res)
+				assert.Equal(t, sshKey, res.Payload.Settings.SSHKey)
 			})
 
 			t.Run("OK", func(t *testing.T) {
