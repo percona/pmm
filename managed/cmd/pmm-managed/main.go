@@ -104,6 +104,7 @@ import (
 	"github.com/percona/pmm/managed/services/victoriametrics"
 	"github.com/percona/pmm/managed/services/vmalert"
 	"github.com/percona/pmm/managed/utils/clean"
+	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
@@ -615,8 +616,36 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 		if err == nil {
 			return
 		}
-
 		l.Warnf("Failed to migrate database: %s.", err)
+		time.Sleep(time.Second)
+
+		itemsToEncrypt := []encryption.Database{
+			{
+				Database: "pmm-managed",
+				Tables: []encryption.Table{
+					{
+						Table:          "agents",
+						Identificators: []string{"agent_id"},
+						Columns: []encryption.Column{
+							{Column: "username"},
+							{Column: "password"},
+							{Column: "agent_password"},
+							{Column: "aws_access_key"},
+							{Column: "aws_secret_key "},
+							{Column: "mysql_options", CustomHandler: models.EncryptMySQLOptionsHandler},
+							{Column: "postgresql_options", CustomHandler: models.EncryptPostgreSQLOptionsHandler},
+							{Column: "mongo_db_tls_options", CustomHandler: models.EncryptMongoDBOptionsHandler},
+							{Column: "azure_options", CustomHandler: models.EncryptAzureOptionsHandler},
+						},
+					},
+				},
+			},
+		}
+		l.Infof("Encrypting database...")
+		if err := models.EncryptDB(context.TODO(), sqlDB, params, itemsToEncrypt); err != nil {
+			return
+		}
+		l.Warnf("Failed to encrypt database: %s.", err)
 		time.Sleep(time.Second)
 	}
 }

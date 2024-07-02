@@ -57,7 +57,8 @@ func TestEncryption(t *testing.T) {
 			},
 		},
 	}
-	require.NoError(t, encryption.EncryptDB(ctx, c, itemsToEncrypt))
+	_, err = encryption.EncryptItems(ctx, c, itemsToEncrypt)
+	require.NoError(t, err)
 
 	itemsToDecrypt := []encryption.Database{
 		{
@@ -74,5 +75,6 @@ func TestEncryption(t *testing.T) {
 			},
 		},
 	}
-	require.NoError(t, encryption.DecryptDB(ctx, c, itemsToDecrypt))
+	_, err = encryption.DecryptItems(ctx, c, itemsToDecrypt)
+	require.NoError(t, err)
 }

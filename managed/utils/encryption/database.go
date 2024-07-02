@@ -41,22 +41,36 @@ func (c DatabaseConnection) Connect() (*sql.DB, error) {
 
 // DSN returns formatted connection string to PG.
 func (c DatabaseConnection) DSN() string {
-	if c.SSLMode == "" {
-		c.SSLMode = "disable"
+	if c.DBName == "" {
+		c.DBName = "postgres"
 	}
 
 	if c.Password != "" {
 		c.Password = fmt.Sprintf("password=%s", c.Password)
 	}
 
+	if c.SSLMode == "" {
+		c.SSLMode = "disable"
+	}
+
 	return fmt.Sprintf("host=%s port=%d dbname=%s user=%s %s sslmode=%s sslrootcert=%s sslkey=%s sslcert=%s",
 		c.Host, c.Port, c.DBName, c.User, c.Password, c.SSLMode, c.SSLCAPath, c.SSLKeyPath, c.SSLCertPath)
 }
 
-// ColumnsList returns array of table columns.
-func (item Table) ColumnsList() []string {
+// List returns list of database and tables in database.table format.
+func (db Database) List() []string {
+	var list []string
+	for _, table := range db.Tables {
+		list = append(list, fmt.Sprintf("%s.%s", db.Database, table.Table))
+	}
+
+	return list
+}
+
+// ColumnsList returns list of table columns.
+func (table Table) ColumnsList() []string {
 	res := []string{}
-	for _, c := range item.Columns {
+	for _, c := range table.Columns {
 		res = append(res, c.Column)
 	}
 

@@ -83,35 +83,36 @@ func (e *Encryption) Encrypt(secret string) (string, error) {
 	return base64.StdEncoding.EncodeToString(cipherText), nil
 }
 
-// EncryptDB is wrapper around DefaultEncryption.EncryptDB.
-func EncryptDB(ctx context.Context, c *DatabaseConnection, items []Database) error {
-	return DefaultEncryption.EncryptDB(ctx, c, items)
+// EncryptItems is wrapper around DefaultEncryption.EncryptItems.
+func EncryptItems(ctx context.Context, c *DatabaseConnection, items []Database) ([]string, error) {
+	return DefaultEncryption.EncryptItems(ctx, c, items)
 }
 
-// EncryptDB will encrypt all columns provided in DB connection.
-func (e *Encryption) EncryptDB(ctx context.Context, c *DatabaseConnection, items []Database) error {
+// EncryptItems will encrypt all columns provided in DB connection.
+func (e *Encryption) EncryptItems(ctx context.Context, c *DatabaseConnection, items []Database) ([]string, error) {
 	if len(items) == 0 {
-		return errors.New("DB Connection: Database target tables/columns not defined")
+		return nil, errors.New("DB Connection: Database target tables/columns not defined")
 	}
 
+	encryptedItems := []string{}
 	for _, item := range items {
 		c.DBName = item.Database
 		db, err := c.Connect()
 		if err != nil {
-			return err
+			return encryptedItems, err
 		}
 		defer db.Close() //nolint:errcheck
 
 		tx, err := db.BeginTx(ctx, nil)
 		if err != nil {
-			return err
+			return encryptedItems, err
 		}
 		defer tx.Rollback() //nolint:errcheck
 
 		for _, table := range item.Tables {
 			res, err := table.Read(tx)
 			if err != nil {
-				return err
+				return encryptedItems, err
 			}
 
 			for k, v := range res.SetValues {
@@ -126,7 +127,7 @@ func (e *Encryption) EncryptDB(ctx context.Context, c *DatabaseConnection, items
 					}
 
 					if err != nil {
-						return err
+						return encryptedItems, err
 					}
 					res.SetValues[k][i] = encrypted
 				}
@@ -134,18 +135,20 @@ func (e *Encryption) EncryptDB(ctx context.Context, c *DatabaseConnection, items
 				data = slices.Concat(data, res.WhereValues[k])
 				_, err := tx.Exec(res.Query, data...)
 				if err != nil {
-					return err
+					return encryptedItems, err
 				}
 			}
 		}
 
 		err = tx.Commit()
 		if err != nil {
-			return err
+			return encryptedItems, err
 		}
+
+		encryptedItems = slices.Concat(encryptedItems, item.List())
 	}
 
-	return nil
+	return encryptedItems, nil
 }
 
 // Decrypt is wrapper around DefaultEncryption.Decrypt.
@@ -173,35 +176,36 @@ func (e *Encryption) Decrypt(cipherText string) (string, error) {
 	return string(secret), nil
 }
 
-// DecryptDB is wrapper around DefaultEncryption.DecryptDB.
-func DecryptDB(ctx context.Context, c *DatabaseConnection, items []Database) error {
-	return DefaultEncryption.DecryptDB(ctx, c, items)
+// DecryptItems is wrapper around DefaultEncryption.DecryptItems.
+func DecryptItems(ctx context.Context, c *DatabaseConnection, items []Database) ([]string, error) {
+	return DefaultEncryption.DecryptItems(ctx, c, items)
 }
 
-// DecryptDB will decrypt all columns provided in DB connection.
-func (e *Encryption) DecryptDB(ctx context.Context, c *DatabaseConnection, items []Database) error {
+// DecryptItems will decrypt all columns provided in DB connection.
+func (e *Encryption) DecryptItems(ctx context.Context, c *DatabaseConnection, items []Database) ([]string, error) {
 	if len(items) == 0 {
-		return errors.New("DB Connection: Database target tables/columns not defined")
+		return nil, errors.New("DB Connection: Database target tables/columns not defined")
 	}
 
+	decryptedItems := []string{}
 	for _, item := range items {
 		c.DBName = item.Database
 		db, err := c.Connect()
 		if err != nil {
-			return err
+			return decryptedItems, err
 		}
 		defer db.Close() //nolint:errcheck
 
 		tx, err := db.BeginTx(ctx, nil)
 		if err != nil {
-			return err
+			return decryptedItems, err
 		}
 		defer tx.Rollback() //nolint:errcheck
 
 		for _, table := range item.Tables {
 			res, err := table.Read(tx)
 			if err != nil {
-				return err
+				return decryptedItems, err
 			}
 
 			for k, v := range res.SetValues {
@@ -216,7 +220,7 @@ func (e *Encryption) DecryptDB(ctx context.Context, c *DatabaseConnection, items
 					}
 
 					if err != nil {
-						return err
+						return decryptedItems, err
 					}
 					res.SetValues[k][i] = decrypted
 				}
@@ -224,16 +228,18 @@ func (e *Encryption) DecryptDB(ctx context.Context, c *DatabaseConnection, items
 				data = slices.Concat(data, res.WhereValues[k])
 				_, err := tx.Exec(res.Query, data...)
 				if err != nil {
-					return err
+					return decryptedItems, err
 				}
 			}
 		}
 
 		err = tx.Commit()
 		if err != nil {
-			return err
+			return decryptedItems, err
 		}
+
+		decryptedItems = slices.Concat(decryptedItems, item.List())
 	}
 
-	return nil
+	return decryptedItems, nil
 }

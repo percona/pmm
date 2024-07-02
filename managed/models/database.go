@@ -27,17 +27,17 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 
 	"github.com/lib/pq"
+	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
-
-	"github.com/percona/pmm/managed/utils/encryption"
 )
 
 const (
@@ -1065,20 +1065,63 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, err
 	}
 
+	return db, nil
+}
+
+// EncryptDB encrypt all provided columns in specific database and table.
+func EncryptDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams, itemsToEncrypt []encryption.Database) error {
 	settings, err := GetSettings(sqlDB)
 	if err != nil {
-		return nil, err
+		return err
+	}
+	alreadyEncrypted := map[string]bool{}
+	for _, v := range settings.EncryptedItems {
+		alreadyEncrypted[v] = true
 	}
 
-	if len(settings.EncryptedItems) != 0 {
-		return db, nil
+	c, err := connectionFromSetupDBParams(params)
+	if err != nil {
+		return err
 	}
 
+	notEncrypted := []encryption.Database{}
+	for _, item := range itemsToEncrypt {
+		database := encryption.Database{
+			Database: item.Database,
+		}
+		for _, table := range item.Tables {
+			dbWithTable := fmt.Sprintf("%s.%s", item.Database, table.Table)
+			if alreadyEncrypted[dbWithTable] {
+				continue
+			}
+
+			database.Tables = append(database.Tables, table)
+		}
+
+		if len(database.Tables) != 0 {
+			notEncrypted = append(notEncrypted, database)
+		}
+	}
+
+	newlyEncryptedItems, err := encryption.EncryptItems(ctx, c, notEncrypted)
+	if err != nil {
+		return err
+	}
+	_, err = UpdateSettings(sqlDB, &ChangeSettingsParams{
+		EncryptedItems: slices.Concat(settings.EncryptedItems, newlyEncryptedItems),
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func connectionFromSetupDBParams(params SetupDBParams) (*encryption.DatabaseConnection, error) {
 	host, p, err := net.SplitHostPort(params.Address)
 	if err != nil {
 		return nil, err
 	}
-
 	port, err := strconv.ParseInt(p, 10, 16)
 	if err != nil {
 		return nil, err
@@ -1095,41 +1138,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		SSLCertPath: params.SSLCertPath,
 	}
 
-	itemsToEncrypt := []encryption.Database{
-		{
-			Database: "pmm-managed",
-			Tables: []encryption.Table{
-				{
-					Table:          "agents",
-					Identificators: []string{"agent_id"},
-					Columns: []encryption.Column{
-						{Column: "username"},
-						{Column: "password"},
-						{Column: "agent_password"},
-						{Column: "aws_access_key"},
-						{Column: "aws_secret_key "},
-						{Column: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler},
-						{Column: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler},
-						{Column: "mongo_db_tls_options", CustomHandler: EncryptMongoDBOptionsHandler},
-						{Column: "azure_options", CustomHandler: EncryptAzureOptionsHandler},
-					},
-				},
-			},
-		},
-	}
-
-	if err := encryption.EncryptDB(ctx, c, itemsToEncrypt); err != nil {
-		return nil, err
-	}
-
-	_, err = UpdateSettings(sqlDB, &ChangeSettingsParams{
-		EncryptedItems: []string{"pmm-managed.agents"},
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return db, nil
+	return c, nil
 }
 
 // checkVersion checks minimal required PostgreSQL server version.
