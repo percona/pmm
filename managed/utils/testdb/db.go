@@ -26,6 +26,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/encryption"
 )
 
 const (
@@ -81,7 +82,26 @@ func SetupDB(tb testing.TB, db *sql.DB, setupFixtures models.SetupFixturesMode, 
 		SetupFixtures:    setupFixtures,
 		MigrationVersion: migrationVersion,
 	}
-	_, err := models.SetupDB(ctx, db, params)
+
+	itemsToEncrypt := []encryption.Table{
+		{
+			Name:           "agents",
+			Identificators: []string{"agent_id"},
+			Columns: []encryption.Column{
+				{Name: "username"},
+				{Name: "password"},
+				{Name: "agent_password"},
+				{Name: "aws_access_key"},
+				{Name: "aws_secret_key "},
+				{Name: "mysql_options", CustomHandler: models.EncryptMySQLOptionsHandler},
+				{Name: "postgresql_options", CustomHandler: models.EncryptPostgreSQLOptionsHandler},
+				{Name: "mongo_db_tls_options", CustomHandler: models.EncryptMongoDBOptionsHandler},
+				{Name: "azure_options", CustomHandler: models.EncryptAzureOptionsHandler},
+			},
+		},
+	}
+
+	_, err := models.SetupDB(ctx, db, params, itemsToEncrypt)
 	require.NoError(tb, err)
 }
 

@@ -1042,7 +1042,7 @@ type SetupDBParams struct {
 }
 
 // SetupDB checks minimal required PostgreSQL version and runs database migrations. Optionally creates database and adds initial data.
-func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.DB, error) {
+func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams, itemsToEncrypt []encryption.Table) (*reform.DB, error) {
 	var logger reform.Logger
 	if params.Logf != nil {
 		logger = reform.NewPrintfLogger(params.Logf)
@@ -1066,16 +1066,6 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, err
 	}
 
-	itemsToEncrypt := []encryption.Table{
-		{
-			Name:           "agents",
-			Identificators: []string{"agent_id"},
-			Columns: []encryption.Column{
-				{Name: "username"},
-				{Name: "password"},
-			},
-		},
-	}
 	err := EncryptDB(ctx, sqlDB, params, itemsToEncrypt)
 	if err != nil {
 		return nil, err
