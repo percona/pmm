@@ -29,11 +29,10 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	backuppb "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/backup/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/scheduler"
@@ -116,7 +115,7 @@ func TestStartBackup(t *testing.T) {
 					LocationId:    "locationID",
 					Name:          "name",
 					Description:   "description",
-					DataModel:     backuppb.DataModel_PHYSICAL,
+					DataModel:     backuppb.DataModel_DATA_MODEL_PHYSICAL,
 					RetryInterval: nil,
 					Retries:       0,
 				})
@@ -165,7 +164,7 @@ func TestStartBackup(t *testing.T) {
 				Description:   "description",
 				RetryInterval: nil,
 				Retries:       0,
-				DataModel:     backuppb.DataModel_PHYSICAL,
+				DataModel:     backuppb.DataModel_DATA_MODEL_PHYSICAL,
 			})
 			require.NoError(t, err)
 		})
@@ -228,7 +227,7 @@ func TestStartBackup(t *testing.T) {
 						Name:      test.BackupName,
 						Folder:    test.Folder,
 						ServiceId: *agent.ServiceID,
-						DataModel: backuppb.DataModel_LOGICAL,
+						DataModel: backuppb.DataModel_DATA_MODEL_LOGICAL,
 					})
 					if test.ErrString != "" {
 						assert.Nil(t, res)
@@ -342,8 +341,8 @@ func TestScheduledBackups(t *testing.T) {
 				Name:           "schedule_change",
 				Description:    t.Name(),
 				Enabled:        true,
-				Mode:           backuppb.BackupMode_SNAPSHOT,
-				DataModel:      backuppb.DataModel_PHYSICAL,
+				Mode:           backuppb.BackupMode_BACKUP_MODE_SNAPSHOT,
+				DataModel:      backuppb.DataModel_DATA_MODEL_PHYSICAL,
 				Retries:        maxRetriesAttempts - 1,
 				RetryInterval:  durationpb.New(maxRetryInterval),
 			}
@@ -366,12 +365,12 @@ func TestScheduledBackups(t *testing.T) {
 
 			changeReq := &backuppb.ChangeScheduledBackupRequest{
 				ScheduledBackupId: task.ID,
-				Enabled:           wrapperspb.Bool(false),
-				CronExpression:    wrapperspb.String("2 * * * *"),
+				Enabled:           pointer.ToBool(false),
+				CronExpression:    pointer.ToString("2 * * * *"),
 				StartTime:         timestamppb.New(time.Now()),
-				Name:              wrapperspb.String("test"),
-				Description:       wrapperspb.String("test"),
-				Retries:           wrapperspb.UInt32(0),
+				Name:              pointer.ToString("test"),
+				Description:       pointer.ToString("test"),
+				Retries:           pointer.ToUint32(0),
 				RetryInterval:     durationpb.New(time.Second),
 			}
 			_, err = backupSvc.ChangeScheduledBackup(ctx, changeReq)
@@ -380,11 +379,11 @@ func TestScheduledBackups(t *testing.T) {
 			task, err = models.FindScheduledTaskByID(db.Querier, res.ScheduledBackupId)
 			require.NoError(t, err)
 			data = task.Data.MySQLBackupTask
-			assert.Equal(t, changeReq.CronExpression.GetValue(), task.CronExpression)
-			assert.Equal(t, changeReq.Enabled.GetValue(), !task.Disabled)
-			assert.Equal(t, changeReq.Name.GetValue(), data.Name)
-			assert.Equal(t, changeReq.Description.GetValue(), data.Description)
-			assert.Equal(t, changeReq.Retries.GetValue(), data.Retries)
+			assert.Equal(t, *changeReq.CronExpression, task.CronExpression)
+			assert.Equal(t, *changeReq.Enabled, !task.Disabled)
+			assert.Equal(t, *changeReq.Name, data.Name)
+			assert.Equal(t, *changeReq.Description, data.Description)
+			assert.Equal(t, *changeReq.Retries, data.Retries)
 			assert.Equal(t, changeReq.RetryInterval.AsDuration(), data.RetryInterval)
 		})
 
@@ -451,8 +450,8 @@ func TestScheduledBackups(t *testing.T) {
 				Description:   "description",
 				RetryInterval: durationpb.New(maxRetryInterval),
 				Retries:       maxRetriesAttempts,
-				DataModel:     backuppb.DataModel_PHYSICAL,
-				Mode:          backuppb.BackupMode_PITR,
+				DataModel:     backuppb.DataModel_DATA_MODEL_PHYSICAL,
+				Mode:          backuppb.BackupMode_BACKUP_MODE_PITR,
 			})
 			require.Error(t, err)
 			tests.AssertGRPCErrorRE(t, codes.InvalidArgument, "PITR is only supported for logical backups", err)
@@ -470,8 +469,8 @@ func TestScheduledBackups(t *testing.T) {
 				Description:   "description",
 				RetryInterval: durationpb.New(maxRetryInterval),
 				Retries:       maxRetriesAttempts,
-				DataModel:     backuppb.DataModel_PHYSICAL,
-				Mode:          backuppb.BackupMode_SNAPSHOT,
+				DataModel:     backuppb.DataModel_DATA_MODEL_PHYSICAL,
+				Mode:          backuppb.BackupMode_BACKUP_MODE_SNAPSHOT,
 			})
 			require.NoError(t, err)
 		})

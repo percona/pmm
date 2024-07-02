@@ -27,7 +27,7 @@ jobs:
       - name: Configure git for private modules
         env:
           ROBOT_TOKEN: ${{ secrets.ROBOT_TOKEN }}
-        run: git config --global url."https://percona-platform-robot:${ROBOT_TOKEN}@github.com".insteadOf "https://github.com"
+        run: echo "machine github.com login percona-robot password ${{ secrets.ROBOT_TOKEN }}" > $HOME/.netrc
 
       - name: Set up Go release
         if: matrix.go.version != 'tip'

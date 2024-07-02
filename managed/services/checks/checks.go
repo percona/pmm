@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package checks provides security checks functionality.
+// Package checks provides advisor checks functionality.
 package checks
 
 import (
@@ -41,7 +41,7 @@ import (
 	"golang.org/x/sync/errgroup"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/envvars"
@@ -189,13 +189,13 @@ func (s *Service) Run(ctx context.Context) {
 		return
 	}
 
-	s.rareTicker = time.NewTicker(settings.SaaS.STTCheckIntervals.RareInterval)
+	s.rareTicker = time.NewTicker(settings.SaaS.AdvisorRunIntervals.RareInterval)
 	defer s.rareTicker.Stop()
 
-	s.standardTicker = time.NewTicker(settings.SaaS.STTCheckIntervals.StandardInterval)
+	s.standardTicker = time.NewTicker(settings.SaaS.AdvisorRunIntervals.StandardInterval)
 	defer s.standardTicker.Stop()
 
-	s.frequentTicker = time.NewTicker(settings.SaaS.STTCheckIntervals.FrequentInterval)
+	s.frequentTicker = time.NewTicker(settings.SaaS.AdvisorRunIntervals.FrequentInterval)
 	defer s.frequentTicker.Stop()
 
 	// delay for the first run to allow all agents to connect
@@ -246,20 +246,6 @@ func (s *Service) runChecksLoop(ctx context.Context) {
 	}
 }
 
-// GetSecurityCheckResults returns the results of the advisors checks that were run. It returns services.ErrAdvisorsDisabled if advisors checks are disabled.
-func (s *Service) GetSecurityCheckResults() ([]services.CheckResult, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if settings.SaaS.STTDisabled {
-		return nil, services.ErrAdvisorsDisabled
-	}
-
-	return s.alertsRegistry.getCheckResults(""), nil
-}
-
 // GetChecksResults returns the failed checks for a given service.
 func (s *Service) GetChecksResults(_ context.Context, serviceID string) ([]services.CheckResult, error) {
 	settings, err := models.GetSettings(s.db)
@@ -267,7 +253,7 @@ func (s *Service) GetChecksResults(_ context.Context, serviceID string) ([]servi
 		return nil, err
 	}
 
-	if settings.SaaS.STTDisabled {
+	if !settings.IsAdvisorsEnabled() {
 		return nil, services.ErrAdvisorsDisabled
 	}
 
@@ -282,7 +268,7 @@ func (s *Service) runChecksGroup(ctx context.Context, intervalGroup check.Interv
 		return errors.WithStack(err)
 	}
 
-	if settings.SaaS.STTDisabled {
+	if !settings.IsAdvisorsEnabled() {
 		return services.ErrAdvisorsDisabled
 	}
 
@@ -298,7 +284,7 @@ func (s *Service) StartChecks(checkNames []string) error {
 		return errors.WithStack(err)
 	}
 
-	if settings.SaaS.STTDisabled {
+	if !settings.IsAdvisorsEnabled() {
 		return services.ErrAdvisorsDisabled
 	}
 
@@ -399,7 +385,7 @@ func (s *Service) GetDisabledChecks() ([]string, error) {
 		return nil, err
 	}
 
-	return settings.SaaS.DisabledSTTChecks, nil
+	return settings.SaaS.DisabledAdvisors, nil
 }
 
 // DisableChecks disables checks with provided names.
@@ -420,7 +406,7 @@ func (s *Service) DisableChecks(checkNames []string) error {
 	}
 
 	errTx := s.db.InTransaction(func(tx *reform.TX) error {
-		params := models.ChangeSettingsParams{DisableSTTChecks: checkNames}
+		params := models.ChangeSettingsParams{DisableAdvisorChecks: checkNames}
 		_, err := models.UpdateSettings(tx.Querier, &params)
 		return err
 	})
@@ -438,7 +424,7 @@ func (s *Service) EnableChecks(checkNames []string) error {
 	}
 
 	err := s.db.InTransaction(func(tx *reform.TX) error {
-		params := models.ChangeSettingsParams{EnableSTTChecks: checkNames}
+		params := models.ChangeSettingsParams{EnableAdvisorChecks: checkNames}
 		_, err := models.UpdateSettings(tx.Querier, &params)
 		return err
 	})
@@ -1145,7 +1131,7 @@ func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery c
 		return "", errors.WithStack(err)
 	}
 
-	b, err := agentpb.MarshalActionQuerySQLResult(columns, dataRows)
+	b, err := agentv1.MarshalActionQuerySQLResult(columns, dataRows)
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
@@ -1174,7 +1160,7 @@ func convertVMValue(value model.Value) ([]byte, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	res, err := agentpb.MarshalActionQueryDocsResult(data)
+	res, err := agentv1.MarshalActionQueryDocsResult(data)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -1196,7 +1182,7 @@ WHERE datallowconn = true AND datistemplate = false AND has_database_privilege(c
 		return nil, errors.Wrap(err, "failed to decode database discovery results")
 	}
 
-	data, err := agentpb.UnmarshalActionQueryResult(dec)
+	data, err := agentv1.UnmarshalActionQueryResult(dec)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal database discovery results")
 	}
@@ -1453,7 +1439,7 @@ func (s *Service) downloadAdvisors(ctx context.Context) ([]check.Advisor, error)
 		return nil, err
 	}
 
-	if settings.Telemetry.Disabled {
+	if !settings.IsTelemetryEnabled() {
 		s.l.Debug("Advisors downloading skipped due to disabled telemetry.")
 		return nil, nil
 	}

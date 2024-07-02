@@ -1,0 +1,447 @@
+syntax = "proto3";
+
+package actions.v1;
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+
+// ActionType represents Action type.
+enum ActionType {
+  ACTION_TYPE_UNSPECIFIED = 0;
+  ACTION_TYPE_MYSQL_EXPLAIN = 1;
+  ACTION_TYPE_MYSQL_SHOW_CREATE_TABLE = 2;
+  ACTION_TYPE_MYSQL_SHOW_TABLE_STATUS = 3;
+  ACTION_TYPE_MYSQL_SHOW_INDEX = 4;
+  ACTION_TYPE_POSTGRESQL_SHOW_CREATE_TABLE = 5;
+  ACTION_TYPE_POSTGRESQL_SHOW_INDEX = 6;
+  ACTION_TYPE_MONGODB_EXPLAIN = 7;
+  ACTION_TYPE_PT_SUMMARY = 8;
+  ACTION_TYPE_PT_MYSQL_SUMMARY = 9;
+  ACTION_TYPE_PT_PG_SUMMARY = 10;
+  ACTION_TYPE_PT_MONGODB_SUMMARY = 11;
+}
+
+message GetActionRequest {
+  // Unique Action ID.
+  string action_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message GetActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where this Action is running / was run.
+  string pmm_agent_id = 2;
+  // Current Action output; may be partial if Action is still running.
+  string output = 3;
+  // True if Action is finished.
+  bool done = 4;
+  // Error message if Action failed.
+  string error = 5;
+}
+
+message StartMySQLExplainActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action. Required.
+  string service_id = 2 [(validate.rules).string.min_len = 1];
+
+  // Query ID of query.
+  string query_id = 4;
+  // Array of placeholder values
+  repeated string placeholders = 5;
+  // Database name. Required if it can't be deduced from the query ID.
+  string database = 6;
+}
+
+message StartMySQLExplainActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
+message StartMySQLExplainJSONActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action. Required.
+  string service_id = 2 [(validate.rules).string.min_len = 1];
+
+  // Query ID of query.
+  string query_id = 4;
+  // Array of placeholder values
+  repeated string placeholders = 5;
+  // Database name. Required if it can't be deduced from the query ID.
+  string database = 6;
+}
+
+message StartMySQLExplainJSONActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
+message StartMySQLExplainTraditionalJSONActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action. Required.
+  string service_id = 2 [(validate.rules).string.min_len = 1];
+  // Query ID of query.
+  string query_id = 4;
+  // Array of placeholder values
+  repeated string placeholders = 5;
+  // Database name. Required if it can't be deduced from the query ID.
+  string database = 6;
+}
+
+message StartMySQLExplainTraditionalJSONActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
+message StartMySQLShowCreateTableActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action. Required.
+  string service_id = 2 [(validate.rules).string.min_len = 1];
+  // Table name. Required. May additionally contain a database name.
+  string table_name = 3 [(validate.rules).string.min_len = 1];
+  // Database name. Required if not given in the table_name field.
+  string database = 4;
+}
+
+message StartMySQLShowCreateTableActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
+message StartMySQLShowTableStatusActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action. Required.
+  string service_id = 2 [(validate.rules).string.min_len = 1];
+  // Table name. Required. May additionally contain a database name.
+  string table_name = 3 [(validate.rules).string.min_len = 1];
+  // Database name. Required if not given in the table_name field.
+  string database = 4;
+}
+
+message StartMySQLShowTableStatusActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
+message StartMySQLShowIndexActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action. Required.
+  string service_id = 2 [(validate.rules).string.min_len = 1];
+  // Table name. Required. May additionally contain a database name.
+  string table_name = 3 [(validate.rules).string.min_len = 1];
+  // Database name. Required if not given in the table_name field.
+  string database = 4;
+}
+
+message StartMySQLShowIndexActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
+message StartPostgreSQLShowCreateTableActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action. Required.
+  string service_id = 2 [(validate.rules).string.min_len = 1];
+  // Table name. Required. May additionally contain a database name.
+  string table_name = 3 [(validate.rules).string.min_len = 1];
+  // Database name. Required if not given in the table_name field.
+  string database = 4;
+}
+
+message StartPostgreSQLShowCreateTableActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
+message StartPostgreSQLShowIndexActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action. Required.
+  string service_id = 2 [(validate.rules).string.min_len = 1];
+  // Table name. Required. May additionally contain a database name.
+  string table_name = 3 [(validate.rules).string.min_len = 1];
+  // Database name. Required if not given in the table_name field.
+  string database = 4;
+}
+
+message StartPostgreSQLShowIndexActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
+message StartMongoDBExplainActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action. Required.
+  string service_id = 2 [(validate.rules).string.min_len = 1];
+  // Query. Required.
+  string query = 3 [(validate.rules).string.min_len = 1];
+}
+
+message StartMongoDBExplainActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
+message StartPTSummaryActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Node ID for this Action.
+  string node_id = 2;
+}
+
+message StartPTSummaryActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
+// Message to prepare pt-pg-summary data
+message StartPTPgSummaryActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action.
+  string service_id = 2;
+}
+
+// Message to retrieve the prepared pt-pg-summary data
+message StartPTPgSummaryActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
+// Message to prepare pt-mongodb-summary data
+message StartPTMongoDBSummaryActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action.
+  string service_id = 2;
+}
+
+// Message to retrieve the prepared pt-mongodb-summary data
+message StartPTMongoDBSummaryActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
+// Message to prepare pt-mysql-summary data
+message StartPTMySQLSummaryActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action.
+  string service_id = 2;
+}
+
+// Message to retrieve the prepared pt-mysql-summary data
+message StartPTMySQLSummaryActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
+message CancelActionRequest {
+  // Unique Action ID. Required.
+  string action_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message CancelActionResponse {}
+
+// Actions service provides public Management API methods for Actions.
+service ActionsService {
+  // GetAction gets result of a given Action.
+  rpc GetAction(GetActionRequest) returns (GetActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/actions/Get"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Action"
+      description: "Gets the result of a given Action."
+    };
+  }
+  // StartMySQLExplainAction starts MySQL EXPLAIN Action with traditional output.
+  rpc StartMySQLExplainAction(StartMySQLExplainActionRequest) returns (StartMySQLExplainActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/actions/StartMySQLExplain"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start 'MySQL EXPLAIN' Action"
+      description: "Starts 'MySQL EXPLAIN' Action with traditional output."
+    };
+  }
+  // StartMySQLExplainJSONAction starts MySQL EXPLAIN Action with JSON output.
+  rpc StartMySQLExplainJSONAction(StartMySQLExplainJSONActionRequest) returns (StartMySQLExplainJSONActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/actions/StartMySQLExplainJSON"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start 'MySQL EXPLAIN JSON' Action"
+      description: "Starts 'MySQL EXPLAIN' Action with JSON output."
+    };
+  }
+  // StartMySQLExplainTraditionalJSONAction starts MySQL EXPLAIN Action with traditional JSON output.
+  rpc StartMySQLExplainTraditionalJSONAction(StartMySQLExplainTraditionalJSONActionRequest) returns (StartMySQLExplainTraditionalJSONActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/actions/StartMySQLExplainTraditionalJSON"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start 'MySQL EXPLAIN Traditional JSON' Action"
+      description: "Starts 'MySQL EXPLAIN' Action with traditional JSON output."
+    };
+  }
+  // StartMySQLShowCreateTableAction starts MySQL SHOW CREATE TABLE Action.
+  rpc StartMySQLShowCreateTableAction(StartMySQLShowCreateTableActionRequest) returns (StartMySQLShowCreateTableActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/actions/StartMySQLShowCreateTable"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start 'MySQL SHOW CREATE TABLE' Action"
+      description: "Starts 'MySQL SHOW CREATE TABLE' Action."
+    };
+  }
+  // StartMySQLShowTableStatusAction starts MySQL SHOW TABLE STATUS Action.
+  rpc StartMySQLShowTableStatusAction(StartMySQLShowTableStatusActionRequest) returns (StartMySQLShowTableStatusActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/actions/StartMySQLShowTableStatus"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start 'MySQL SHOW TABLE STATUS' Action"
+      description: "Starts 'MySQL SHOW TABLE STATUS' Action."
+    };
+  }
+  // StartMySQLShowIndexAction starts MySQL SHOW INDEX Action.
+  rpc StartMySQLShowIndexAction(StartMySQLShowIndexActionRequest) returns (StartMySQLShowIndexActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/actions/StartMySQLShowIndex"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start 'MySQL SHOW INDEX' Action"
+      description: "Starts 'MySQL SHOW INDEX' Action."
+    };
+  }
+  // StartPostgreSQLShowCreateTableAction starts PostgreSQL SHOW CREATE TABLE Action.
+  rpc StartPostgreSQLShowCreateTableAction(StartPostgreSQLShowCreateTableActionRequest) returns (StartPostgreSQLShowCreateTableActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/actions/StartPostgreSQLShowCreateTable"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start 'PostgreSQL SHOW CREATE TABLE' Action"
+      description: "Starts 'PostgreSQL SHOW CREATE TABLE' Action."
+    };
+  }
+  // StartPostgreSQLShowIndexAction starts PostgreSQL SHOW INDEX Action.
+  rpc StartPostgreSQLShowIndexAction(StartPostgreSQLShowIndexActionRequest) returns (StartPostgreSQLShowIndexActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/actions/StartPostgreSQLShowIndex"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start 'PostgreSQL SHOW INDEX' Action"
+      description: "Starts 'PostgreSQL SHOW INDEX' Action."
+    };
+  }
+  // StartMongoDBExplainAction starts MongoDB EXPLAIN Action.
+  rpc StartMongoDBExplainAction(StartMongoDBExplainActionRequest) returns (StartMongoDBExplainActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/actions/StartMongoDBExplain"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start 'MongoDB EXPLAIN' Action"
+      description: "Starts 'MongoDB EXPLAIN' Action."
+    };
+  }
+  // StartPTSummaryAction starts pt-summary Action.
+  rpc StartPTSummaryAction(StartPTSummaryActionRequest) returns (StartPTSummaryActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/actions/StartPTSummary"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start 'PT Summary' Action"
+      description: "Starts 'Percona Toolkit Summary' Action."
+    };
+  }
+  // StartPTPgSummaryAction starts pt-pg-summary Action.
+  rpc StartPTPgSummaryAction(StartPTPgSummaryActionRequest) returns (StartPTPgSummaryActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/actions/StartPTPgSummary"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start 'PT PostgreSQL Summary' Action"
+      description: "Starts 'Percona Toolkit PostgreSQL Summary' Action."
+    };
+  }
+  // StartPTMongoDBSummaryAction starts pt-mongodb-summary Action.
+  rpc StartPTMongoDBSummaryAction(StartPTMongoDBSummaryActionRequest) returns (StartPTMongoDBSummaryActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/actions/StartPTMongoDBSummary"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start 'PT MongoDB Summary' Action"
+      description: "Starts 'Percona Toolkit MongoDB Summary' Action."
+    };
+  }
+  // StartPTMySQLSummaryAction starts pt-mysql-summary Action.
+  rpc StartPTMySQLSummaryAction(StartPTMySQLSummaryActionRequest) returns (StartPTMySQLSummaryActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/actions/StartPTMySQLSummary"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start 'PT MySQL Summary' Action"
+      description: "Starts 'Percona Toolkit MySQL Summary' Action."
+    };
+  }
+  // CancelAction stops an Action.
+  rpc CancelAction(CancelActionRequest) returns (CancelActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/actions/Cancel"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Cancel Action"
+      description: "Stops an Action."
+    };
+  }
+}

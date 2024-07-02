@@ -25,7 +25,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/agent/utils/tests"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 func TestPostgreSQLShowIndex(t *testing.T) {
@@ -38,7 +38,7 @@ func TestPostgreSQLShowIndex(t *testing.T) {
 	t.Run("Default", func(t *testing.T) {
 		t.Parallel()
 
-		params := &agentpb.StartActionRequest_PostgreSQLShowIndexParams{
+		params := &agentv1.StartActionRequest_PostgreSQLShowIndexParams{
 			Dsn:   dsn,
 			Table: "city",
 		}
@@ -66,7 +66,7 @@ func TestPostgreSQLShowIndex(t *testing.T) {
 	t.Run("WithSchemaName", func(t *testing.T) {
 		t.Parallel()
 
-		params := &agentpb.StartActionRequest_PostgreSQLShowIndexParams{
+		params := &agentv1.StartActionRequest_PostgreSQLShowIndexParams{
 			Dsn:   dsn,
 			Table: "public.city",
 		}

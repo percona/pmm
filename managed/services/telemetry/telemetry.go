@@ -32,7 +32,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/serverpb"
+	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/platform"
 )
@@ -53,7 +53,7 @@ type Service struct {
 	dsRegistry          DataSourceLocator
 	pmmVersion          string
 	os                  string
-	sDistributionMethod serverpb.DistributionMethod
+	sDistributionMethod serverv1.DistributionMethod
 	tDistributionMethod pmmv1.DistributionMethod
 	sendCh              chan *pmmv1.ServerMetric
 	dataSourcesMap      map[DataSourceName]DataSource
@@ -128,7 +128,7 @@ func (s *Service) Run(ctx context.Context) {
 			s.l.Debugf("Failed to retrieve settings: %s.", err)
 			return
 		}
-		if settings.Telemetry.Disabled {
+		if !settings.IsTelemetryEnabled() {
 			s.l.Info("Disabled via settings.")
 			return
 		}
@@ -162,7 +162,7 @@ func (s *Service) Run(ctx context.Context) {
 }
 
 // DistributionMethod returns PMM Server distribution method where this pmm-managed runs.
-func (s *Service) DistributionMethod() serverpb.DistributionMethod {
+func (s *Service) DistributionMethod() serverv1.DistributionMethod {
 	return s.sDistributionMethod
 }
 

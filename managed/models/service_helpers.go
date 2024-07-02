@@ -264,7 +264,7 @@ func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSSe
 		return nil, status.Errorf(codes.InvalidArgument, "Unknown service type: %q.", serviceType)
 	}
 
-	id := "/service_id/" + uuid.New().String()
+	id := uuid.New().String()
 	if err := checkServiceUniqueID(q, id); err != nil {
 		return nil, err
 	}

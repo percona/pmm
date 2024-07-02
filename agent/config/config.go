@@ -39,6 +39,7 @@ import (
 const (
 	pathBaseDefault = "/usr/local/percona/pmm"
 	agentTmpPath    = "tmp" // temporary directory to keep exporters' config files, relative to pathBase
+	agentPrefix     = "/agent_id/"
 )
 
 // Server represents PMM Server configuration.
@@ -196,6 +197,10 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 		}
 
 		// set default values
+		if strings.HasPrefix(cfg.ID, agentPrefix) {
+			l.Warnf("The agent ID '%s' contains a legacy prefix '%s'. It will be used without it.", cfg.ID, agentPrefix)
+			cfg.ID, _ = strings.CutPrefix(cfg.ID, agentPrefix)
+		}
 		if cfg.ListenAddress == "" {
 			cfg.ListenAddress = "127.0.0.1"
 		}
@@ -346,7 +351,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_CONFIG_FILE").PlaceHolder("</path/to/pmm-agent.yaml>").String()
 
 	app.Flag("id", "ID of this pmm-agent [PMM_AGENT_ID]").
-		Envar("PMM_AGENT_ID").PlaceHolder("</agent_id/...>").StringVar(&cfg.ID)
+		Envar("PMM_AGENT_ID").StringVar(&cfg.ID)
 	app.Flag("listen-address", "Agent local API address [PMM_AGENT_LISTEN_ADDRESS]").
 		Envar("PMM_AGENT_LISTEN_ADDRESS").StringVar(&cfg.ListenAddress)
 	app.Flag("listen-port", "Agent local API port [PMM_AGENT_LISTEN_PORT]").
@@ -456,7 +461,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 
 	var defaultMachineID string
 	if nodeinfo.MachineID != "" {
-		defaultMachineID = "/machine_id/" + nodeinfo.MachineID
+		defaultMachineID = nodeinfo.MachineID
 	}
 	setupCmd.Flag("machine-id", "Node machine-id (default is autodetected) [PMM_AGENT_SETUP_MACHINE_ID]").Default(defaultMachineID).
 		Envar("PMM_AGENT_SETUP_MACHINE_ID").StringVar(&cfg.Setup.MachineID)

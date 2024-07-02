@@ -19,8 +19,8 @@ import (
 	"strconv"
 
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 var addAgentMysqldExporterResultT = commands.ParseTemplate(`
@@ -41,8 +41,8 @@ Tablestat collectors  : {{ .TablestatStatus }}
 `)
 
 type addAgentMysqldExporterResult struct {
-	Agent      *agents.AddMySQLdExporterOKBodyMysqldExporter `json:"mysqld_exporter"`
-	TableCount int32                                         `json:"table_count,omitempty"`
+	Agent      *agents.AddAgentOKBodyMysqldExporter `json:"mysqld_exporter"`
+	TableCount int32                                `json:"table_count,omitempty"`
 }
 
 func (res *addAgentMysqldExporterResult) Result() {}
@@ -126,35 +126,37 @@ func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &agents.AddMySQLdExporterParams{
-		Body: agents.AddMySQLdExporterBody{
-			PMMAgentID:                cmd.PMMAgentID,
-			ServiceID:                 cmd.ServiceID,
-			Username:                  cmd.Username,
-			Password:                  cmd.Password,
-			AgentPassword:             cmd.AgentPassword,
-			CustomLabels:              customLabels,
-			SkipConnectionCheck:       cmd.SkipConnectionCheck,
-			TLS:                       cmd.TLS,
-			TLSSkipVerify:             cmd.TLSSkipVerify,
-			TLSCa:                     tlsCa,
-			TLSCert:                   tlsCert,
-			TLSKey:                    tlsKey,
-			TablestatsGroupTableLimit: cmd.TablestatsGroupTableLimit,
-			PushMetrics:               cmd.PushMetrics,
-			ExposeExporter:            cmd.ExposeExporter,
-			DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
-			LogLevel:                  &cmd.LogLevel,
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			MysqldExporter: &agents.AddAgentParamsBodyMysqldExporter{
+				PMMAgentID:                cmd.PMMAgentID,
+				ServiceID:                 cmd.ServiceID,
+				Username:                  cmd.Username,
+				Password:                  cmd.Password,
+				AgentPassword:             cmd.AgentPassword,
+				CustomLabels:              customLabels,
+				SkipConnectionCheck:       cmd.SkipConnectionCheck,
+				TLS:                       cmd.TLS,
+				TLSSkipVerify:             cmd.TLSSkipVerify,
+				TLSCa:                     tlsCa,
+				TLSCert:                   tlsCert,
+				TLSKey:                    tlsKey,
+				TablestatsGroupTableLimit: cmd.TablestatsGroupTableLimit,
+				PushMetrics:               cmd.PushMetrics,
+				ExposeExporter:            cmd.ExposeExporter,
+				DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
+				LogLevel:                  &cmd.LogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddMySQLdExporter(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}
 	return &addAgentMysqldExporterResult{
 		Agent:      resp.Payload.MysqldExporter,
-		TableCount: resp.Payload.TableCount,
+		TableCount: resp.Payload.MysqldExporter.TableCount,
 	}, nil
 }

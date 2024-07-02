@@ -5,9 +5,9 @@ Below is a list of affected variables and their new names.
 | PMM 2                                         | PMM 3                                      | Comments                                                     |
 |-----------------------------------------------|--------------------------------------------|--------------------------------------------------------------|
 | `DATA_RETENTION`                              | `PMM_DATA_RETENTION`                       |                                                              |
-| `DISABLE_ALERTING`                            | `PMM_DISABLE_ALERTING`                     |                                                              |
-| `DISABLE_UPDATES`                             | `PMM_DISABLE_UPDATES`                      |                                                              |
-| `DISABLE_TELEMETRY`                           | `PMM_DISABLE_TELEMETRY`                    |                                                              |
+| `DISABLE_ALERTING`                            | `PMM_ENABLE_ALERTING`                      |                                                              |
+| `DISABLE_UPDATES`                             | `PMM_ENABLE_UPDATES`                       |                                                              |
+| `DISABLE_TELEMETRY`                           | `PMM_ENABLE_TELEMETRY`                     |                                                              |
 | `PERCONA_PLATFORM_API_TIMEOUT`                | `PMM_DEV_PERCONA_PLATFORM_API_TIMEOUT`     |                                                              |
 | `DISABLE_BACKUP_MANAGEMENT`                   | `PMM_DISABLE_BACKUP_MANAGEMENT`            |                                                              |
 | `ENABLE_AZUREDISCOVER`                        | `PMM_ENABLE_AZURE_DISCOVER`                |                                                              |

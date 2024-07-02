@@ -21,10 +21,10 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/helpers"
-	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/node"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 type unregisterResult struct {
@@ -66,7 +66,7 @@ func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 		}
 
 		nodeID = status.NodeID
-		node, err := inventoryClient.Default.Nodes.GetNode(&nodes.GetNodeParams{
+		node, err := client.Default.NodesService.GetNode(&nodes.GetNodeParams{
 			Context: commands.Ctx,
 			Body: nodes.GetNodeBody{
 				NodeID: nodeID,
@@ -81,15 +81,16 @@ func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &node.UnregisterNodeParams{
-		Body: node.UnregisterNodeBody{
+	params := &mservice.UnregisterNodeParams{
+		Body: mservice.UnregisterNodeBody{
 			NodeID: nodeID,
 			Force:  cmd.Force,
 		},
 		Context: commands.Ctx,
 	}
 
-	res, err := client.Default.Node.UnregisterNode(params)
+	// _, err = client.Default.NodesService.RemoveNode(params)
+	res, err := managementClient.Default.ManagementService.UnregisterNode(params)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +106,7 @@ func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 }
 
 func nodeIDFromNodeName(nodeName string) (string, error) {
-	listNodes, err := inventoryClient.Default.Nodes.ListNodes(nil)
+	listNodes, err := client.Default.NodesService.ListNodes(nil)
 	if err != nil {
 		return "", err
 	}

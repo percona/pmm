@@ -28,8 +28,8 @@ import (
 	"google.golang.org/grpc"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/agentpb"
-	qanpb "github.com/percona/pmm/api/qanpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/stringset"
 )
@@ -37,7 +37,7 @@ import (
 // Client represents qan-api client for data collection.
 type Client struct {
 	c   qanCollectorClient
-	odc qanpb.ObjectDetailsClient
+	qsc qanpb.QANServiceClient
 	db  *reform.DB
 	l   *logrus.Entry
 }
@@ -45,15 +45,15 @@ type Client struct {
 // NewClient returns new client for given gRPC connection.
 func NewClient(cc *grpc.ClientConn, db *reform.DB) *Client {
 	return &Client{
-		c:   qanpb.NewCollectorClient(cc),
-		odc: qanpb.NewObjectDetailsClient(cc),
+		c:   qanpb.NewCollectorServiceClient(cc),
+		qsc: qanpb.NewQANServiceClient(cc),
 		db:  db,
 		l:   logrus.WithField("component", "qan"),
 	}
 }
 
 // collectAgents returns Agents referenced by metricsBuckets.
-func collectAgents(q *reform.Querier, metricsBuckets []*agentpb.MetricsBucket) (map[string]*models.Agent, error) {
+func collectAgents(q *reform.Querier, metricsBuckets []*agentv1.MetricsBucket) (map[string]*models.Agent, error) {
 	agentIDs := make(map[string]struct{})
 	for _, m := range metricsBuckets {
 		if id := m.Common.AgentId; id != "" {
@@ -114,11 +114,11 @@ func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error
 		Query:     query,
 	}
 	c.l.Debugf("%+v", qanReq)
-	resp, err := c.odc.QueryExists(ctx, qanReq)
+	resp, err := c.qsc.QueryExists(ctx, qanReq)
 	if err != nil {
 		return err
 	}
-	if !resp.Value {
+	if !resp.Exists {
 		return fmt.Errorf("given query is not valid")
 	}
 
@@ -127,13 +127,13 @@ func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error
 
 // ExplainFingerprintByQueryID get query for given query ID.
 // This avoid receiving custom queries.
-func (c *Client) ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDReply, error) {
+func (c *Client) ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDResponse, error) {
 	qanReq := &qanpb.ExplainFingerprintByQueryIDRequest{
 		Serviceid: serviceID,
 		QueryId:   queryID,
 	}
 	c.l.Debugf("%+v", qanReq)
-	res, err := c.odc.ExplainFingerprintByQueryID(ctx, qanReq)
+	res, err := c.qsc.ExplainFingerprintByQueryID(ctx, qanReq)
 	if err != nil {
 		return res, err
 	}
@@ -142,13 +142,13 @@ func (c *Client) ExplainFingerprintByQueryID(ctx context.Context, serviceID, que
 }
 
 // SchemaByQueryID returns schema for given queryID and serviceID.
-func (c *Client) SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.SchemaByQueryIDReply, error) {
+func (c *Client) SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.SchemaByQueryIDResponse, error) {
 	qanReq := &qanpb.SchemaByQueryIDRequest{
 		ServiceId: serviceID,
 		QueryId:   queryID,
 	}
 	c.l.Debugf("%+v", qanReq)
-	res, err := c.odc.SchemaByQueryID(ctx, qanReq)
+	res, err := c.qsc.SchemaByQueryID(ctx, qanReq)
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +157,7 @@ func (c *Client) SchemaByQueryID(ctx context.Context, serviceID, queryID string)
 }
 
 // Collect adds labels to the data from pmm-agent and sends it to qan-api.
-func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsBucket) error {
+func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsBucket) error {
 	start := time.Now()
 	defer func() {
 		if dur := time.Since(start); dur > time.Second {
@@ -226,7 +226,6 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 			PeriodStartUnixSecs:  m.Common.PeriodStartUnixSecs,
 			PeriodLengthSecs:     m.Common.PeriodLengthSecs,
 			Example:              m.Common.Example,
-			ExampleFormat:        convertExampleFormat(m.Common.ExampleFormat), //nolint:staticcheck
 			ExampleType:          convertExampleType(m.Common.ExampleType),
 			IsTruncated:          m.Common.IsTruncated,
 			NumQueriesWithErrors: m.Common.NumQueriesWithErrors,
@@ -318,34 +317,22 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 	return nil
 }
 
-//nolint:staticcheck
-func convertExampleFormat(exampleFormat agentpb.ExampleFormat) qanpb.ExampleFormat {
-	switch exampleFormat {
-	case agentpb.ExampleFormat_EXAMPLE:
-		return qanpb.ExampleFormat_EXAMPLE
-	case agentpb.ExampleFormat_FINGERPRINT:
-		return qanpb.ExampleFormat_FINGERPRINT
-	default:
-		return qanpb.ExampleFormat_EXAMPLE_FORMAT_INVALID
-	}
-}
-
-func convertExampleType(exampleType agentpb.ExampleType) qanpb.ExampleType {
+func convertExampleType(exampleType agentv1.ExampleType) qanpb.ExampleType {
 	switch exampleType {
-	case agentpb.ExampleType_RANDOM:
-		return qanpb.ExampleType_RANDOM
-	case agentpb.ExampleType_SLOWEST:
-		return qanpb.ExampleType_SLOWEST
-	case agentpb.ExampleType_FASTEST:
-		return qanpb.ExampleType_FASTEST
-	case agentpb.ExampleType_WITH_ERROR:
-		return qanpb.ExampleType_WITH_ERROR
+	case agentv1.ExampleType_EXAMPLE_TYPE_RANDOM:
+		return qanpb.ExampleType_EXAMPLE_TYPE_RANDOM
+	case agentv1.ExampleType_EXAMPLE_TYPE_SLOWEST:
+		return qanpb.ExampleType_EXAMPLE_TYPE_SLOWEST
+	case agentv1.ExampleType_EXAMPLE_TYPE_FASTEST:
+		return qanpb.ExampleType_EXAMPLE_TYPE_FASTEST
+	case agentv1.ExampleType_EXAMPLE_TYPE_WITH_ERROR:
+		return qanpb.ExampleType_EXAMPLE_TYPE_WITH_ERROR
 	default:
-		return qanpb.ExampleType_EXAMPLE_TYPE_INVALID
+		return qanpb.ExampleType_EXAMPLE_TYPE_UNSPECIFIED
 	}
 }
 
-func fillMySQL(mb *qanpb.MetricsBucket, bm *agentpb.MetricsBucket_MySQL) {
+func fillMySQL(mb *qanpb.MetricsBucket, bm *agentv1.MetricsBucket_MySQL) {
 	mb.MLockTimeCnt = bm.MLockTimeCnt
 	mb.MLockTimeSum = bm.MLockTimeSum
 	mb.MLockTimeMin = bm.MLockTimeMin
@@ -494,7 +481,7 @@ func fillMySQL(mb *qanpb.MetricsBucket, bm *agentpb.MetricsBucket_MySQL) {
 	mb.MNoGoodIndexUsedSum = bm.MNoGoodIndexUsedSum
 }
 
-func fillMongoDB(mb *qanpb.MetricsBucket, bm *agentpb.MetricsBucket_MongoDB) {
+func fillMongoDB(mb *qanpb.MetricsBucket, bm *agentv1.MetricsBucket_MongoDB) {
 	mb.MDocsReturnedCnt = bm.MDocsReturnedCnt
 	mb.MDocsReturnedSum = bm.MDocsReturnedSum
 	mb.MDocsReturnedMin = bm.MDocsReturnedMin
@@ -514,7 +501,7 @@ func fillMongoDB(mb *qanpb.MetricsBucket, bm *agentpb.MetricsBucket_MongoDB) {
 	mb.MDocsScannedP99 = bm.MDocsScannedP99
 }
 
-func fillPostgreSQL(mb *qanpb.MetricsBucket, bp *agentpb.MetricsBucket_PostgreSQL) {
+func fillPostgreSQL(mb *qanpb.MetricsBucket, bp *agentv1.MetricsBucket_PostgreSQL) {
 	mb.MRowsSentCnt = bp.MRowsCnt
 	mb.MRowsSentSum = bp.MRowsSum
 
@@ -578,7 +565,7 @@ func fillPostgreSQL(mb *qanpb.MetricsBucket, bp *agentpb.MetricsBucket_PostgreSQ
 	mb.HistogramItems = convertHistogramItems(bp.HistogramItems)
 }
 
-func convertHistogramItems(items []*agentpb.HistogramItem) []string {
+func convertHistogramItems(items []*agentv1.HistogramItem) []string {
 	res := []string{}
 	for _, v := range items {
 		item := &qanpb.HistogramItem{

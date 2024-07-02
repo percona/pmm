@@ -16,8 +16,8 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 var addServiceMySQLResultT = commands.ParseTemplate(`
@@ -38,7 +38,7 @@ Custom labels  : {{ .Service.CustomLabels }}
 `)
 
 type addServiceMySQLResult struct {
-	Service *services.AddMySQLServiceOKBodyMysql `json:"mysql"`
+	Service *services.AddServiceOKBodyMysql `json:"mysql"`
 }
 
 func (res *addServiceMySQLResult) Result() {}
@@ -63,25 +63,28 @@ type AddServiceMySQLCommand struct {
 // RunCmd runs the command for AddServiceMySQLCommand.
 func (cmd *AddServiceMySQLCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-	params := &services.AddMySQLServiceParams{
-		Body: services.AddMySQLServiceBody{
-			ServiceName:    cmd.ServiceName,
-			NodeID:         cmd.NodeID,
-			Socket:         cmd.Socket,
-			Address:        cmd.Address,
-			Port:           cmd.Port,
-			Environment:    cmd.Environment,
-			Cluster:        cmd.Cluster,
-			ReplicationSet: cmd.ReplicationSet,
-			CustomLabels:   customLabels,
+	params := &services.AddServiceParams{
+		Body: services.AddServiceBody{
+			Mysql: &services.AddServiceParamsBodyMysql{
+				ServiceName:    cmd.ServiceName,
+				NodeID:         cmd.NodeID,
+				Socket:         cmd.Socket,
+				Address:        cmd.Address,
+				Port:           cmd.Port,
+				Environment:    cmd.Environment,
+				Cluster:        cmd.Cluster,
+				ReplicationSet: cmd.ReplicationSet,
+				CustomLabels:   customLabels,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Services.AddMySQLService(params)
+	resp, err := client.Default.ServicesService.AddService(params)
 	if err != nil {
 		return nil, err
 	}
+
 	return &addServiceMySQLResult{
 		Service: resp.Payload.Mysql,
 	}, nil

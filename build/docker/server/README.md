@@ -25,9 +25,9 @@ You can use these environment variables (-e VAR) when running the Docker image.
 
 | Variable                     | Description                                                                                                                 |
 |------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
-| PMM_DISABLE_UPDATES          | Disable automatic updates                                                                                                   |
-| PMM_DISABLE_TELEMETRY        | Disable built-in telemetry and disable STT if telemetry is disabled                                                         |
-| PMM_DISABLE_ALERTING         | Disable Percona alerting                                                                                                    |
+| PMM_ENABLE_UPDATES          | Disable automatic updates                                                                                                   |
+| PMM_ENABLE_TELEMETRY        | Disable built-in telemetry and disable STT if telemetry is disabled                                                         |
+| PMM_ENABLE_ALERTING         | Disable Percona alerting                                                                                                    |
 | PMM_METRICS_RESOLUTION       | High metrics resolution in seconds                                                                                          |
 | PMM_METRICS_RESOLUTION_HR    | High metrics resolution (same as above)                                                                                     |
 | PMM_METRICS_RESOLUTION_MR    | Medium metrics resolution in seconds                                                                                        |

@@ -29,7 +29,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents/channel"
 	"github.com/percona/pmm/utils/logger"
@@ -153,12 +153,12 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 	return err == nil
 }
 
-func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, error) {
+func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgentInfo, error) {
 	ctx := stream.Context()
 	l := logger.Get(ctx)
 	r.mConnects.Inc()
 
-	agentMD, err := agentpb.ReceiveAgentConnectMetadata(stream)
+	agentMD, err := agentv1.ReceiveAgentConnectMetadata(stream)
 	if err != nil {
 		return nil, err
 	}
@@ -176,13 +176,13 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	}
 	l.Infof("Connected pmm-agent: %+v.", agentMD)
 
-	serverMD := agentpb.ServerConnectMetadata{
+	serverMD := agentv1.ServerConnectMetadata{
 		AgentRunsOnNodeID: node.NodeID,
 		NodeName:          node.NodeName,
 		ServerVersion:     version.Version,
 	}
 	l.Debugf("Sending metadata: %+v.", serverMD)
-	if err = agentpb.SendServerConnectMetadata(stream, &serverMD); err != nil {
+	if err = agentv1.SendServerConnectMetadata(stream, &serverMD); err != nil {
 		return nil, err
 	}
 
@@ -208,7 +208,7 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	return agent, nil
 }
 
-func (r *Registry) authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (*models.Node, error) {
+func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Querier) (*models.Node, error) {
 	if md.ID == "" {
 		return nil, status.Error(codes.PermissionDenied, "Empty Agent ID.")
 	}
@@ -278,7 +278,7 @@ func (r *Registry) unregister(pmmAgentID, disconnectReason string) *pmmAgentInfo
 func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 	l := logger.Get(ctx)
 	start := time.Now()
-	resp, err := agent.channel.SendAndWaitResponse(&agentpb.Ping{})
+	resp, err := agent.channel.SendAndWaitResponse(&agentv1.Ping{})
 	if err != nil {
 		return err
 	}
@@ -286,7 +286,7 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 		return nil
 	}
 	roundtrip := time.Since(start)
-	agentTime := resp.(*agentpb.Pong).CurrentTime.AsTime() //nolint:forcetypeassert
+	agentTime := resp.(*agentv1.Pong).CurrentTime.AsTime() //nolint:forcetypeassert
 	clockDrift := agentTime.Sub(start) - roundtrip/2
 	if clockDrift < 0 {
 		clockDrift = -clockDrift

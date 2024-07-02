@@ -396,7 +396,7 @@ func TestExporterURL(t *testing.T) {
 				NodeID:    "ExporterNodeID",
 				NodeType:  models.ContainerNodeType,
 				NodeName:  "Node for Exporter",
-				MachineID: pointer.ToString("/machine_id/ExporterNode"),
+				MachineID: pointer.ToString("ExporterNode"),
 				Address:   "172.20.0.4",
 			},
 

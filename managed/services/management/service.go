@@ -23,34 +23,51 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
 
-// ServiceService represents service for working with services.
-type ServiceService struct {
-	db    *reform.DB
-	r     agentsRegistry
-	state agentsStateUpdater
-	vmdb  prometheusService
+// ManagementService allows to interact with services.
+type ManagementService struct { //nolint:revive
+	db            *reform.DB
+	r             agentsRegistry
+	state         agentsStateUpdater
+	cc            connectionChecker
+	sib           serviceInfoBroker
+	vmdb          prometheusService
+	vc            versionCache
+	grafanaClient grafanaClient
 
-	managementpb.UnimplementedServiceServer
+	managementv1.UnimplementedManagementServiceServer
 }
 
-// NewServiceService creates ServiceService instance.
-func NewServiceService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService) *ServiceService {
-	return &ServiceService{
-		db:    db,
-		r:     r,
-		state: state,
-		vmdb:  vmdb,
+// NewManagementService creates a ManagementService instance.
+func NewManagementService(
+	db *reform.DB,
+	r agentsRegistry,
+	state agentsStateUpdater,
+	cc connectionChecker,
+	sib serviceInfoBroker,
+	vmdb prometheusService,
+	vc versionCache,
+	grafanaClient grafanaClient,
+) *ManagementService {
+	return &ManagementService{
+		db:            db,
+		r:             r,
+		state:         state,
+		cc:            cc,
+		sib:           sib,
+		vmdb:          vmdb,
+		vc:            vc,
+		grafanaClient: grafanaClient,
 	}
 }
 
 // RemoveService removes Service with Agents.
-func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.RemoveServiceRequest) (*managementpb.RemoveServiceResponse, error) {
+func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1.RemoveServiceRequest) (*managementv1.RemoveServiceResponse, error) {
 	err := s.validateRequest(req)
 	if err != nil {
 		return nil, err
@@ -70,7 +87,7 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 		if err != nil {
 			return err
 		}
-		if req.ServiceType != inventorypb.ServiceType_SERVICE_TYPE_INVALID {
+		if req.ServiceType != inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED {
 			err := s.checkServiceType(service, req.ServiceType)
 			if err != nil {
 				return err
@@ -140,12 +157,22 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 		// It's required to regenerate victoriametrics config file for the agents which aren't run by pmm-agent.
 		s.vmdb.RequestConfigurationUpdate()
 	}
-	return &managementpb.RemoveServiceResponse{}, nil
+	return &managementv1.RemoveServiceResponse{}, nil
 }
 
-func (s *ServiceService) checkServiceType(service *models.Service, serviceType inventorypb.ServiceType) error {
+func (s *ManagementService) checkServiceType(service *models.Service, serviceType inventoryv1.ServiceType) error {
 	if expected, ok := services.ServiceTypes[serviceType]; ok && expected == service.ServiceType {
 		return nil
 	}
 	return status.Error(codes.InvalidArgument, "wrong service type")
+}
+
+func (s *ManagementService) validateRequest(request *managementv1.RemoveServiceRequest) error {
+	if request.ServiceName == "" && request.ServiceId == "" {
+		return status.Error(codes.InvalidArgument, "service_id or service_name expected")
+	}
+	if request.ServiceName != "" && request.ServiceId != "" {
+		return status.Error(codes.InvalidArgument, "service_id or service_name expected; not both")
+	}
+	return nil
 }

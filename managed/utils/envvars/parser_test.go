@@ -21,6 +21,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/percona/pmm/managed/models"
@@ -33,18 +34,18 @@ func TestEnvVarValidator(t *testing.T) {
 		t.Parallel()
 
 		envs := []string{
-			"PMM_DISABLE_UPDATES=True",
-			"PMM_DISABLE_TELEMETRY=True",
+			"PMM_ENABLE_UPDATES=false",
+			"PMM_ENABLE_TELEMETRY=True",
 			"PMM_METRICS_RESOLUTION=5m",
 			"PMM_METRICS_RESOLUTION_MR=5s",
 			"PMM_METRICS_RESOLUTION_LR=1h",
 			"PMM_DATA_RETENTION=72h",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{
-			DataRetention:    72 * time.Hour,
-			DisableTelemetry: true,
-			DisableSTT:       false,
-			DisableUpdates:   true,
+			DataRetention:   72 * time.Hour,
+			EnableTelemetry: pointer.ToBool(true),
+			EnableUpdates:   pointer.ToBool(false),
+			EnableAdvisors:  nil,
 			MetricsResolutions: models.MetricsResolutions{
 				HR: 5 * time.Minute,
 				MR: 5 * time.Second,
@@ -117,10 +118,10 @@ func TestEnvVarValidator(t *testing.T) {
 		t.Parallel()
 
 		envs := []string{
-			"PMM_DISABLE_UPDATES",
-			"PMM_DISABLE_TELEMETRY",
-			"PMM_DISABLE_UPDATES=5",
-			"PMM_DISABLE_TELEMETRY=X",
+			"PMM_ENABLE_UPDATES",
+			"PMM_ENABLE_TELEMETRY",
+			"PMM_ENABLE_UPDATES=5",
+			"PMM_ENABLE_TELEMETRY=X",
 			"PMM_METRICS_RESOLUTION=5f",
 			"PMM_METRICS_RESOLUTION_MR=s5",
 			"PMM_METRICS_RESOLUTION_LR=1hour",
@@ -129,10 +130,10 @@ func TestEnvVarValidator(t *testing.T) {
 		expectedEnvVars := &models.ChangeSettingsParams{}
 
 		expectedErrs := []error{
-			fmt.Errorf(`failed to parse environment variable "PMM_DISABLE_UPDATES"`),
-			fmt.Errorf(`failed to parse environment variable "PMM_DISABLE_TELEMETRY"`),
-			fmt.Errorf(`invalid value "5" for environment variable "PMM_DISABLE_UPDATES"`),
-			fmt.Errorf(`invalid value "x" for environment variable "PMM_DISABLE_TELEMETRY"`),
+			fmt.Errorf(`failed to parse environment variable "PMM_ENABLE_UPDATES"`),
+			fmt.Errorf(`failed to parse environment variable "PMM_ENABLE_TELEMETRY"`),
+			fmt.Errorf(`invalid value "5" for environment variable "PMM_ENABLE_UPDATES"`),
+			fmt.Errorf(`invalid value "x" for environment variable "PMM_ENABLE_TELEMETRY"`),
 			fmt.Errorf(`environment variable "PMM_METRICS_RESOLUTION=5f" has invalid duration 5f`),
 			fmt.Errorf(`environment variable "PMM_METRICS_RESOLUTION_MR=s5" has invalid duration s5`),
 			fmt.Errorf(`environment variable "PMM_METRICS_RESOLUTION_LR=1hour" has invalid duration 1hour`),
@@ -140,8 +141,8 @@ func TestEnvVarValidator(t *testing.T) {
 		}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
-		assert.Equal(t, gotEnvVars, expectedEnvVars)
-		assert.Equal(t, gotErrs, expectedErrs)
+		assert.Equal(t, expectedEnvVars, gotEnvVars)
+		assert.Equal(t, expectedErrs, gotErrs)
 		assert.Nil(t, gotWarns)
 	})
 
@@ -158,12 +159,12 @@ func TestEnvVarValidator(t *testing.T) {
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 		expectedWarns := []string{
-			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
-			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
-			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
-			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
-			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
-			`PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables are NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables are NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables are NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables are NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables are NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
+			`PERCONA_* env variables are NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation`,
 		}
 
 		gotEnvVars, _, gotWarns := ParseEnvVars(envs)

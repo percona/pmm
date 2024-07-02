@@ -1,0 +1,8 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "PMM Actions API",
+    "version": "v1"
+  },
+  "schemes": ["https", "http"]
+}

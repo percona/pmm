@@ -5,6 +5,8 @@ init:           ## Installs development tools
 
 build:
 	go install -v ./...
+	go test -c -v ./alerting
+	go test -c -v ./backup
 	go test -c -v ./inventory
 	go test -c -v ./management
 	go test -c -v ./server

@@ -32,7 +32,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	backuppb "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/backup/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/utils/testdb"
@@ -101,7 +101,7 @@ func TestListPitrTimeranges(t *testing.T) {
 	})
 
 	t.Run("fails for invalid artifact ID", func(t *testing.T) {
-		unknownID := "artifact_id/" + uuid.New().String()
+		unknownID := uuid.New().String()
 		response, err := artifactsService.ListPitrTimeranges(ctx, &backuppb.ListPitrTimerangesRequest{
 			ArtifactId: unknownID,
 		})

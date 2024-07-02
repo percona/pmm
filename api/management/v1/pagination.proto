@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package management.v1;
+
+import "validate/validate.proto";
+
+// PageParams represents page request parameters for pagination.
+message PageParams {
+  // Maximum number of results per page.
+  int32 page_size = 1 [(validate.rules).int32.gt = 0];
+  // Index of the requested page, starts from 0.
+  int32 index = 2 [(validate.rules).int32.gt = -1];
+}
+
+// PageTotals represents total values for pagination.
+message PageTotals {
+  // Total number of results.
+  int32 total_items = 1;
+  // Total number of pages.
+  int32 total_pages = 2;
+}

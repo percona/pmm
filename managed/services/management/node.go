@@ -20,45 +20,22 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/auth"
 )
 
-// NodeService represents service for working with nodes.
-type NodeService struct {
-	db    *reform.DB
-	ap    authProvider
-	l     *logrus.Entry
-	r     agentsRegistry
-	state agentsStateUpdater
-	vmdb  prometheusService
-}
+// RegisterNode performs the registration of a new node.
+func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) {
+	res := &managementv1.RegisterNodeResponse{}
 
-// NewNodeService creates NodeService instance.
-func NewNodeService(db *reform.DB, ap authProvider, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService) *NodeService {
-	return &NodeService{
-		db:    db,
-		ap:    ap,
-		r:     r,
-		state: state,
-		vmdb:  vmdb,
-		l:     logrus.WithField("component", "node"),
-	}
-}
-
-// Register do registration of the new node.
-func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNodeRequest) (*managementpb.RegisterNodeResponse, error) {
-	res := &managementpb.RegisterNodeResponse{}
-
-	e := s.db.InTransaction(func(tx *reform.TX) error {
+	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		node, err := models.FindNodeByName(tx.Querier, req.NodeName)
 		switch status.Code(err) { //nolint:exhaustive
 		case codes.OK:
@@ -112,9 +89,9 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 			return err
 		}
 		switch n := n.(type) {
-		case *inventorypb.GenericNode:
+		case *inventoryv1.GenericNode:
 			res.GenericNode = n
-		case *inventorypb.ContainerNode:
+		case *inventoryv1.ContainerNode:
 			res.ContainerNode = n
 		default:
 			return status.Errorf(codes.InvalidArgument, "Unsupported Node type %q.", req.NodeType)
@@ -129,7 +106,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		if err != nil {
 			return err
 		}
-		res.PmmAgent = a.(*inventorypb.PMMAgent) //nolint:forcetypeassert
+		res.PmmAgent = a.(*inventoryv1.PMMAgent) //nolint:forcetypeassert
 		_, err = models.
 			CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil, isPushMode(req.MetricsMode), req.ExposeExporter,
 				req.DisableCollectors, pointer.ToStringOrNil(req.AgentPassword), "")
@@ -144,7 +121,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 	if token != "" {
 		res.Token = token
 	} else {
-		_, res.Token, e = s.ap.CreateServiceAccount(ctx, req.NodeName, req.Reregister)
+		_, res.Token, e = s.grafanaClient.CreateServiceAccount(ctx, req.NodeName, req.Reregister)
 		if e != nil {
 			return nil, e
 		}
@@ -154,7 +131,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 }
 
 // Unregister do unregistration of the node.
-func (s *NodeService) Unregister(ctx context.Context, req *managementpb.UnregisterNodeRequest) (*managementpb.UnregisterNodeResponse, error) {
+func (s *ManagementService) Unregister(ctx context.Context, req *managementv1.UnregisterNodeRequest) (*managementv1.UnregisterNodeResponse, error) {
 	idsToKick := make(map[string]struct{})
 	idsToSetState := make(map[string]struct{})
 
@@ -211,15 +188,16 @@ func (s *NodeService) Unregister(ctx context.Context, req *managementpb.Unregist
 		s.vmdb.RequestConfigurationUpdate()
 	}
 
-	warning, err := s.ap.DeleteServiceAccount(ctx, node.NodeName, req.Force)
+	warning, err := s.grafanaClient.DeleteServiceAccount(ctx, node.NodeName, req.Force)
 	if err != nil {
-		s.l.WithError(err).Error("deleting service account")
-		return &managementpb.UnregisterNodeResponse{
+		// TODO: need to pass the logger to the service
+		// s.l.WithError(err).Error("deleting service account")
+		return &managementv1.UnregisterNodeResponse{ //nolint:nilerr
 			Warning: err.Error(),
 		}, nil
 	}
 
-	return &managementpb.UnregisterNodeResponse{
+	return &managementv1.UnregisterNodeResponse{
 		Warning: warning,
 	}, nil
 }

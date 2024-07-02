@@ -27,8 +27,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/percona/pmm/api/agentpb"
-	backuppb "github.com/percona/pmm/api/managementpb/backup"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	backuppb "github.com/percona/pmm/api/backup/v1"
 )
 
 const (
@@ -99,11 +99,11 @@ func (j *MySQLBackupJob) Run(ctx context.Context, send Send) error {
 		return res
 	}
 
-	send(&agentpb.JobResult{
+	send(&agentv1.JobResult{
 		JobId:     j.id,
 		Timestamp: timestamppb.Now(),
-		Result: &agentpb.JobResult_MysqlBackup{
-			MysqlBackup: &agentpb.JobResult_MySQLBackup{
+		Result: &agentv1.JobResult_MysqlBackup{
+			MysqlBackup: &agentv1.JobResult_MySQLBackup{
 				Metadata: &backuppb.Metadata{
 					FileList: mysqlArtifactFiles(j.name),
 				},

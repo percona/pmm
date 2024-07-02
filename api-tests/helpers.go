@@ -28,12 +28,12 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
-	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/node"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 // ErrorResponse represents the response structure for error scenarios.
@@ -142,15 +142,15 @@ func UnregisterNodes(t TestingT, nodeIDs ...string) {
 	t.Helper()
 
 	for _, nodeID := range nodeIDs {
-		params := &node.UnregisterNodeParams{
-			Body: node.UnregisterNodeBody{
+		params := &mservice.UnregisterNodeParams{
+			Body: mservice.UnregisterNodeBody{
 				NodeID: nodeID,
 				Force:  true,
 			},
 			Context: context.Background(),
 		}
 
-		res, err := client.Default.Node.UnregisterNode(params)
+		res, err := managementClient.Default.ManagementService.UnregisterNode(params)
 		require.NoError(t, err)
 		assert.NotNil(t, res)
 		assert.NotNil(t, res.Payload)
@@ -169,7 +169,7 @@ func RemoveNodes(t TestingT, nodeIDs ...string) {
 			},
 			Context: context.Background(),
 		}
-		res, err := inventoryClient.Default.Nodes.RemoveNode(params)
+		res, err := client.Default.NodesService.RemoveNode(params)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 	}
@@ -187,7 +187,7 @@ func RemoveServices(t TestingT, serviceIDs ...string) {
 			},
 			Context: context.Background(),
 		}
-		res, err := inventoryClient.Default.Services.RemoveService(params)
+		res, err := client.Default.ServicesService.RemoveService(params)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 	}
@@ -204,24 +204,26 @@ func RemoveAgents(t TestingT, agentIDs ...string) {
 			},
 			Context: context.Background(),
 		}
-		res, err := inventoryClient.Default.Agents.RemoveAgent(params)
+		res, err := client.Default.AgentsService.RemoveAgent(params)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 	}
 }
 
 // AddGenericNode adds a generic node.
-func AddGenericNode(t TestingT, nodeName string) *nodes.AddGenericNodeOKBodyGeneric {
+func AddGenericNode(t TestingT, nodeName string) *nodes.AddNodeOKBodyGeneric {
 	t.Helper()
 
-	params := &nodes.AddGenericNodeParams{
-		Body: nodes.AddGenericNodeBody{
-			NodeName: nodeName,
-			Address:  "10.10.10.10",
+	params := &nodes.AddNodeParams{
+		Body: nodes.AddNodeBody{
+			Generic: &nodes.AddNodeParamsBodyGeneric{
+				NodeName: nodeName,
+				Address:  "10.10.10.10",
+			},
 		},
 		Context: Context,
 	}
-	res, err := inventoryClient.Default.Nodes.AddGenericNode(params)
+	res, err := client.Default.NodesService.AddNode(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 	require.NotNil(t, res.Payload)
@@ -230,17 +232,19 @@ func AddGenericNode(t TestingT, nodeName string) *nodes.AddGenericNodeOKBodyGene
 }
 
 // AddRemoteNode adds a remote node.
-func AddRemoteNode(t TestingT, nodeName string) *nodes.AddRemoteNodeOKBody {
+func AddRemoteNode(t TestingT, nodeName string) *nodes.AddNodeOKBody {
 	t.Helper()
 
-	params := &nodes.AddRemoteNodeParams{
-		Body: nodes.AddRemoteNodeBody{
-			NodeName: nodeName,
-			Address:  "10.10.10.10",
+	params := &nodes.AddNodeParams{
+		Body: nodes.AddNodeBody{
+			Remote: &nodes.AddNodeParamsBodyRemote{
+				NodeName: nodeName,
+				Address:  "10.10.10.10",
+			},
 		},
 		Context: Context,
 	}
-	res, err := inventoryClient.Default.Nodes.AddRemoteNode(params)
+	res, err := client.Default.NodesService.AddNode(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
@@ -255,7 +259,7 @@ func AddNode(t TestingT, nodeBody *nodes.AddNodeBody) *nodes.AddNodeOKBody {
 		Context: Context,
 	}
 
-	res, err := inventoryClient.Default.Nodes.AddNode(params)
+	res, err := client.Default.NodesService.AddNode(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 
@@ -263,12 +267,14 @@ func AddNode(t TestingT, nodeBody *nodes.AddNodeBody) *nodes.AddNodeOKBody {
 }
 
 // AddPMMAgent adds a PMM agent.
-func AddPMMAgent(t TestingT, nodeID string) *agents.AddPMMAgentOKBody {
+func AddPMMAgent(t TestingT, nodeID string) *agents.AddAgentOKBody {
 	t.Helper()
 
-	res, err := inventoryClient.Default.Agents.AddPMMAgent(&agents.AddPMMAgentParams{
-		Body: agents.AddPMMAgentBody{
-			RunsOnNodeID: nodeID,
+	res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			PMMAgent: &agents.AddAgentParamsBodyPMMAgent{
+				RunsOnNodeID: nodeID,
+			},
 		},
 		Context: Context,
 	})
