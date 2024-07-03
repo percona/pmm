@@ -63,6 +63,7 @@ func agentEncryption(q *reform.Querier, agent *Agent, handler func(string) (stri
 	if check(encrypted, "username") && agent.Username != nil {
 		username, err := handler(*agent.Username)
 		if err != nil {
+			logrus.Debugln(username)
 			logrus.Warning(err)
 		}
 		agent.Username = &username
@@ -71,6 +72,7 @@ func agentEncryption(q *reform.Querier, agent *Agent, handler func(string) (stri
 	if check(encrypted, "password") && agent.Password != nil {
 		password, err := handler(*agent.Password)
 		if err != nil {
+			logrus.Debugln(password)
 			logrus.Warning(err)
 		}
 		agent.Password = &password
@@ -79,6 +81,7 @@ func agentEncryption(q *reform.Querier, agent *Agent, handler func(string) (stri
 	if check(encrypted, "agent_password") && agent.AgentPassword != nil {
 		agentPassword, err := handler(*agent.AgentPassword)
 		if err != nil {
+			logrus.Debugln(agentPassword)
 			logrus.Warning(err)
 		}
 		agent.AgentPassword = &agentPassword
@@ -87,6 +90,7 @@ func agentEncryption(q *reform.Querier, agent *Agent, handler func(string) (stri
 	if check(encrypted, "aws_access_key") && agent.AWSAccessKey != nil {
 		awsAccessKey, err := handler(*agent.AWSAccessKey)
 		if err != nil {
+			logrus.Debugln(awsAccessKey)
 			logrus.Warning(err)
 		}
 		agent.AWSAccessKey = &awsAccessKey
@@ -95,6 +99,7 @@ func agentEncryption(q *reform.Querier, agent *Agent, handler func(string) (stri
 	if check(encrypted, "aws_secret_key") && agent.AWSSecretKey != nil {
 		awsSecretKey, err := handler(*agent.AWSSecretKey)
 		if err != nil {
+			logrus.Debugln(awsSecretKey)
 			logrus.Warning(err)
 		}
 		agent.AWSSecretKey = &awsSecretKey
@@ -103,14 +108,17 @@ func agentEncryption(q *reform.Querier, agent *Agent, handler func(string) (stri
 	if check(encrypted, "mysql_options") && agent.MySQLOptions != nil {
 		agent.MySQLOptions.TLSCa, err = handler(agent.MySQLOptions.TLSCa)
 		if err != nil {
+			logrus.Debugln(agent.MySQLOptions.TLSCa)
 			logrus.Warning(err)
 		}
 		agent.MySQLOptions.TLSCert, err = handler(agent.MySQLOptions.TLSCert)
 		if err != nil {
+			logrus.Debugln(agent.MySQLOptions.TLSCert)
 			logrus.Warning(err)
 		}
 		agent.MySQLOptions.TLSKey, err = handler(agent.MySQLOptions.TLSKey)
 		if err != nil {
+			logrus.Debugln(agent.MySQLOptions.TLSKey)
 			logrus.Warning(err)
 		}
 	}
@@ -118,14 +126,17 @@ func agentEncryption(q *reform.Querier, agent *Agent, handler func(string) (stri
 	if check(encrypted, "postgresql_options") && agent.PostgreSQLOptions != nil {
 		agent.PostgreSQLOptions.SSLCa, err = handler(agent.PostgreSQLOptions.SSLCa)
 		if err != nil {
+			logrus.Debugln(agent.PostgreSQLOptions.SSLCa)
 			logrus.Warning(err)
 		}
 		agent.PostgreSQLOptions.SSLCert, err = handler(agent.PostgreSQLOptions.SSLCert)
 		if err != nil {
+			logrus.Debugln(agent.PostgreSQLOptions.SSLCert)
 			logrus.Warning(err)
 		}
 		agent.PostgreSQLOptions.SSLKey, err = handler(agent.PostgreSQLOptions.SSLKey)
 		if err != nil {
+			logrus.Debugln(agent.PostgreSQLOptions.SSLKey)
 			logrus.Warning(err)
 		}
 	}
@@ -133,14 +144,17 @@ func agentEncryption(q *reform.Querier, agent *Agent, handler func(string) (stri
 	if check(encrypted, "mongo_db_tls_options") && agent.MongoDBOptions != nil {
 		agent.MongoDBOptions.TLSCa, err = handler(agent.MongoDBOptions.TLSCa)
 		if err != nil {
+			logrus.Debugln(agent.MongoDBOptions.TLSCa)
 			logrus.Warning(err)
 		}
 		agent.MongoDBOptions.TLSCertificateKey, err = handler(agent.MongoDBOptions.TLSCertificateKey)
 		if err != nil {
+			logrus.Debugln(agent.MongoDBOptions.TLSCertificateKey)
 			logrus.Warning(err)
 		}
 		agent.MongoDBOptions.TLSCertificateKeyFilePassword, err = handler(agent.MongoDBOptions.TLSCertificateKeyFilePassword)
 		if err != nil {
+			logrus.Debugln(agent.MongoDBOptions.TLSCertificateKeyFilePassword)
 			logrus.Warning(err)
 		}
 	}
@@ -148,18 +162,22 @@ func agentEncryption(q *reform.Querier, agent *Agent, handler func(string) (stri
 	if check(encrypted, "azure_options") && agent.AzureOptions != nil {
 		agent.AzureOptions.ClientID, err = handler(agent.AzureOptions.ClientID)
 		if err != nil {
+			logrus.Debugln(agent.AzureOptions.ClientID)
 			logrus.Warning(err)
 		}
 		agent.AzureOptions.ClientSecret, err = handler(agent.AzureOptions.ClientSecret)
 		if err != nil {
+			logrus.Debugln(agent.AzureOptions.ClientSecret)
 			logrus.Warning(err)
 		}
 		agent.AzureOptions.SubscriptionID, err = handler(agent.AzureOptions.SubscriptionID)
 		if err != nil {
+			logrus.Debugln(agent.AzureOptions.SubscriptionID)
 			logrus.Warning(err)
 		}
 		agent.AzureOptions.TenantID, err = handler(agent.AzureOptions.TenantID)
 		if err != nil {
+			logrus.Debugln(agent.AzureOptions.TenantID)
 			logrus.Warning(err)
 		}
 	}
