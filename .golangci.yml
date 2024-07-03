@@ -100,6 +100,7 @@ linters:
     - maligned         # deprecated
     - nlreturn         # too annoying
     - nosnakecase      # deprecated
+    - protogetter      # mostly useless
     - rowserrcheck     # disabled because of generics
     - scopelint        # too many false positives
     - structcheck      # replaced by unused
