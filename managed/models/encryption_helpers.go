@@ -18,166 +18,142 @@ package models
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 
 	"github.com/sirupsen/logrus"
-	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/utils/encryption"
 )
 
-func agentColumnPath(column string) string {
-	prefix := "pmm-managed.agents."
-	return fmt.Sprintf("%s%s", prefix, column)
-}
-
-func isEncrypted(encrypted map[string]bool, column string) bool {
-	return encrypted[agentColumnPath(column)]
-}
-
-func notEncrypted(encrypted map[string]bool, column string) bool {
-	return !encrypted[agentColumnPath(column)]
-}
-
 // EncryptAgent encrypt agent.
-func EncryptAgent(q *reform.Querier, agent *Agent) {
-	agentEncryption(q, agent, encryption.Encrypt, notEncrypted)
+func EncryptAgent(agent *Agent) {
+	agentEncryption(agent, encryption.Encrypt)
 }
 
 // DecryptAgent decrypt agent.
-func DecryptAgent(q *reform.Querier, agent *Agent) {
-	agentEncryption(q, agent, encryption.Decrypt, isEncrypted)
+func DecryptAgent(agent *Agent) {
+	agentEncryption(agent, encryption.Decrypt)
 }
 
-func agentEncryption(q *reform.Querier, agent *Agent, handler func(string) (string, error), check func(encrypted map[string]bool, column string) bool) { //nolint:cyclop
-	settings, err := GetSettings(q)
-	if err != nil {
-		logrus.Warning(err)
-		return
-	}
-	encrypted := make(map[string]bool)
-	for _, v := range settings.EncryptedItems {
-		encrypted[v] = true
-	}
-
-	if check(encrypted, "username") && agent.Username != nil {
+func agentEncryption(agent *Agent, handler func(string) (string, error)) {
+	if agent.Username != nil {
 		username, err := handler(*agent.Username)
 		if err != nil {
-			logrus.Debugln(username)
+			logrus.Debugf("username:%s", username)
 			logrus.Warning(err)
 		}
 		agent.Username = &username
 	}
 
-	if check(encrypted, "password") && agent.Password != nil {
+	if agent.Password != nil {
 		password, err := handler(*agent.Password)
 		if err != nil {
-			logrus.Debugln(password)
+			logrus.Debugf("password:%s", password)
 			logrus.Warning(err)
 		}
 		agent.Password = &password
 	}
 
-	if check(encrypted, "agent_password") && agent.AgentPassword != nil {
+	if agent.AgentPassword != nil {
 		agentPassword, err := handler(*agent.AgentPassword)
 		if err != nil {
-			logrus.Debugln(agentPassword)
+			logrus.Debugf("agent_password:%s", agentPassword)
 			logrus.Warning(err)
 		}
 		agent.AgentPassword = &agentPassword
 	}
 
-	if check(encrypted, "aws_access_key") && agent.AWSAccessKey != nil {
+	if agent.AWSAccessKey != nil {
 		awsAccessKey, err := handler(*agent.AWSAccessKey)
 		if err != nil {
-			logrus.Debugln(awsAccessKey)
+			logrus.Debugf("aws_access_key:%s", awsAccessKey)
 			logrus.Warning(err)
 		}
 		agent.AWSAccessKey = &awsAccessKey
 	}
 
-	if check(encrypted, "aws_secret_key") && agent.AWSSecretKey != nil {
+	if agent.AWSSecretKey != nil {
 		awsSecretKey, err := handler(*agent.AWSSecretKey)
 		if err != nil {
-			logrus.Debugln(awsSecretKey)
+			logrus.Debugf("aws_secret_key:%s", awsSecretKey)
 			logrus.Warning(err)
 		}
 		agent.AWSSecretKey = &awsSecretKey
 	}
 
-	if check(encrypted, "mysql_options") && agent.MySQLOptions != nil {
+	var err error
+	if agent.MySQLOptions != nil {
 		agent.MySQLOptions.TLSCa, err = handler(agent.MySQLOptions.TLSCa)
 		if err != nil {
-			logrus.Debugln(agent.MySQLOptions.TLSCa)
+			logrus.Debugf("mysql_options.tls_ca:%s", agent.MySQLOptions.TLSCa)
 			logrus.Warning(err)
 		}
 		agent.MySQLOptions.TLSCert, err = handler(agent.MySQLOptions.TLSCert)
 		if err != nil {
-			logrus.Debugln(agent.MySQLOptions.TLSCert)
+			logrus.Debugf("mysql_options.tls_cert:%s", agent.MySQLOptions.TLSCert)
 			logrus.Warning(err)
 		}
 		agent.MySQLOptions.TLSKey, err = handler(agent.MySQLOptions.TLSKey)
 		if err != nil {
-			logrus.Debugln(agent.MySQLOptions.TLSKey)
+			logrus.Debugf("mysql_options.tls_key:%s", agent.MySQLOptions.TLSKey)
 			logrus.Warning(err)
 		}
 	}
 
-	if check(encrypted, "postgresql_options") && agent.PostgreSQLOptions != nil {
+	if agent.PostgreSQLOptions != nil {
 		agent.PostgreSQLOptions.SSLCa, err = handler(agent.PostgreSQLOptions.SSLCa)
 		if err != nil {
-			logrus.Debugln(agent.PostgreSQLOptions.SSLCa)
+			logrus.Debugf("postgresql_options.ssl_ca:%s", agent.PostgreSQLOptions.SSLCa)
 			logrus.Warning(err)
 		}
 		agent.PostgreSQLOptions.SSLCert, err = handler(agent.PostgreSQLOptions.SSLCert)
 		if err != nil {
-			logrus.Debugln(agent.PostgreSQLOptions.SSLCert)
+			logrus.Debugf("postgresql_options.ssl_cert:%s", agent.PostgreSQLOptions.SSLCert)
 			logrus.Warning(err)
 		}
 		agent.PostgreSQLOptions.SSLKey, err = handler(agent.PostgreSQLOptions.SSLKey)
 		if err != nil {
-			logrus.Debugln(agent.PostgreSQLOptions.SSLKey)
+			logrus.Debugf("postgresql_options.ssl_key:%s", agent.PostgreSQLOptions.SSLKey)
 			logrus.Warning(err)
 		}
 	}
 
-	if check(encrypted, "mongo_db_tls_options") && agent.MongoDBOptions != nil {
+	if agent.MongoDBOptions != nil {
 		agent.MongoDBOptions.TLSCa, err = handler(agent.MongoDBOptions.TLSCa)
 		if err != nil {
-			logrus.Debugln(agent.MongoDBOptions.TLSCa)
+			logrus.Debugf("mongo_db_tls_options.tls_ca:%s", agent.MongoDBOptions.TLSCa)
 			logrus.Warning(err)
 		}
 		agent.MongoDBOptions.TLSCertificateKey, err = handler(agent.MongoDBOptions.TLSCertificateKey)
 		if err != nil {
-			logrus.Debugln(agent.MongoDBOptions.TLSCertificateKey)
+			logrus.Debugf("mongo_db_tls_options.tls_certificate_key:%s", agent.MongoDBOptions.TLSCertificateKey)
 			logrus.Warning(err)
 		}
 		agent.MongoDBOptions.TLSCertificateKeyFilePassword, err = handler(agent.MongoDBOptions.TLSCertificateKeyFilePassword)
 		if err != nil {
-			logrus.Debugln(agent.MongoDBOptions.TLSCertificateKeyFilePassword)
+			logrus.Debugf("mongo_db_tls_options.tls_certificate_key_file_password:%s", agent.MongoDBOptions.TLSCertificateKeyFilePassword)
 			logrus.Warning(err)
 		}
 	}
 
-	if check(encrypted, "azure_options") && agent.AzureOptions != nil {
+	if agent.AzureOptions != nil {
 		agent.AzureOptions.ClientID, err = handler(agent.AzureOptions.ClientID)
 		if err != nil {
-			logrus.Debugln(agent.AzureOptions.ClientID)
+			logrus.Debugf("azure_options.client_id:%s", agent.AzureOptions.ClientID)
 			logrus.Warning(err)
 		}
 		agent.AzureOptions.ClientSecret, err = handler(agent.AzureOptions.ClientSecret)
 		if err != nil {
-			logrus.Debugln(agent.AzureOptions.ClientSecret)
+			logrus.Debugf("azure_options.client_secret:%s", agent.AzureOptions.ClientSecret)
 			logrus.Warning(err)
 		}
 		agent.AzureOptions.SubscriptionID, err = handler(agent.AzureOptions.SubscriptionID)
 		if err != nil {
-			logrus.Debugln(agent.AzureOptions.SubscriptionID)
+			logrus.Debugf("azure_options.subscription_id:%s", agent.AzureOptions.SubscriptionID)
 			logrus.Warning(err)
 		}
 		agent.AzureOptions.TenantID, err = handler(agent.AzureOptions.TenantID)
 		if err != nil {
-			logrus.Debugln(agent.AzureOptions.TenantID)
+			logrus.Debugf("azure_options.tenant_id:%s", agent.AzureOptions.TenantID)
 			logrus.Warning(err)
 		}
 	}
