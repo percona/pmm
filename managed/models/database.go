@@ -1097,6 +1097,10 @@ func EncryptDB(tx *reform.TX, params SetupDBParams, itemsToEncrypt []encryption.
 			columns = append(columns, column)
 			newlyEncrypted = append(newlyEncrypted, dbTableColumn)
 		}
+		if len(columns) == 0 {
+			continue
+		}
+
 		table.Columns = columns
 		notEncrypted = append(notEncrypted, table)
 	}
