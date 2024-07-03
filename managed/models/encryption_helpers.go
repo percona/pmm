@@ -18,24 +18,49 @@ package models
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 
 	"github.com/sirupsen/logrus"
+	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/utils/encryption"
 )
 
+func agentColumnPath(column string) string {
+	prefix := "pmm-managed.agents."
+	return fmt.Sprintf("%s%s", prefix, column)
+}
+
+func isEncrypted(encrypted map[string]bool, column string) bool {
+	return encrypted[agentColumnPath(column)]
+}
+
+func notEncrypted(encrypted map[string]bool, column string) bool {
+	return !encrypted[agentColumnPath(column)]
+}
+
 // EncryptAgent encrypt agent.
-func EncryptAgent(agent *Agent) {
-	agentEncryption(agent, encryption.Encrypt)
+func EncryptAgent(q *reform.Querier, agent *Agent) {
+	agentEncryption(q, agent, encryption.Encrypt, notEncrypted)
 }
 
 // DecryptAgent decrypt agent.
-func DecryptAgent(agent *Agent) {
-	agentEncryption(agent, encryption.Decrypt)
+func DecryptAgent(q *reform.Querier, agent *Agent) {
+	agentEncryption(q, agent, encryption.Decrypt, isEncrypted)
 }
 
-func agentEncryption(agent *Agent, handler func(string) (string, error)) {
-	if agent.Username != nil {
+func agentEncryption(q *reform.Querier, agent *Agent, handler func(string) (string, error), check func(encrypted map[string]bool, column string) bool) {
+	settings, err := GetSettings(q)
+	if err != nil {
+		logrus.Warning(err)
+		return
+	}
+	encrypted := make(map[string]bool)
+	for _, v := range settings.EncryptedItems {
+		encrypted[v] = true
+	}
+
+	if check(encrypted, "username") && agent.Username != nil {
 		username, err := handler(*agent.Username)
 		if err != nil {
 			logrus.Warning(err)
@@ -43,7 +68,7 @@ func agentEncryption(agent *Agent, handler func(string) (string, error)) {
 		agent.Username = &username
 	}
 
-	if agent.Password != nil {
+	if check(encrypted, "password") && agent.Password != nil {
 		password, err := handler(*agent.Password)
 		if err != nil {
 			logrus.Warning(err)
@@ -51,7 +76,7 @@ func agentEncryption(agent *Agent, handler func(string) (string, error)) {
 		agent.Password = &password
 	}
 
-	if agent.AgentPassword != nil {
+	if check(encrypted, "agent_password") && agent.AgentPassword != nil {
 		agentPassword, err := handler(*agent.AgentPassword)
 		if err != nil {
 			logrus.Warning(err)
@@ -59,7 +84,7 @@ func agentEncryption(agent *Agent, handler func(string) (string, error)) {
 		agent.AgentPassword = &agentPassword
 	}
 
-	if agent.AWSAccessKey != nil {
+	if check(encrypted, "aws_access_key") && agent.AWSAccessKey != nil {
 		awsAccessKey, err := handler(*agent.AWSAccessKey)
 		if err != nil {
 			logrus.Warning(err)
@@ -67,7 +92,7 @@ func agentEncryption(agent *Agent, handler func(string) (string, error)) {
 		agent.AWSAccessKey = &awsAccessKey
 	}
 
-	if agent.AWSSecretKey != nil {
+	if check(encrypted, "aws_secret_key") && agent.AWSSecretKey != nil {
 		awsSecretKey, err := handler(*agent.AWSSecretKey)
 		if err != nil {
 			logrus.Warning(err)
@@ -75,8 +100,7 @@ func agentEncryption(agent *Agent, handler func(string) (string, error)) {
 		agent.AWSSecretKey = &awsSecretKey
 	}
 
-	var err error
-	if agent.MySQLOptions != nil {
+	if check(encrypted, "mysql_options") && agent.MySQLOptions != nil {
 		agent.MySQLOptions.TLSCa, err = handler(agent.MySQLOptions.TLSCa)
 		if err != nil {
 			logrus.Warning(err)
@@ -91,7 +115,7 @@ func agentEncryption(agent *Agent, handler func(string) (string, error)) {
 		}
 	}
 
-	if agent.PostgreSQLOptions != nil {
+	if check(encrypted, "postgresql_options") && agent.PostgreSQLOptions != nil {
 		agent.PostgreSQLOptions.SSLCa, err = handler(agent.PostgreSQLOptions.SSLCa)
 		if err != nil {
 			logrus.Warning(err)
@@ -106,7 +130,7 @@ func agentEncryption(agent *Agent, handler func(string) (string, error)) {
 		}
 	}
 
-	if agent.MongoDBOptions != nil {
+	if check(encrypted, "mongo_db_tls_options") && agent.MongoDBOptions != nil {
 		agent.MongoDBOptions.TLSCa, err = handler(agent.MongoDBOptions.TLSCa)
 		if err != nil {
 			logrus.Warning(err)
@@ -121,7 +145,7 @@ func agentEncryption(agent *Agent, handler func(string) (string, error)) {
 		}
 	}
 
-	if agent.AzureOptions != nil {
+	if check(encrypted, "azure_options") && agent.AzureOptions != nil {
 		agent.AzureOptions.ClientID, err = handler(agent.AzureOptions.ClientID)
 		if err != nil {
 			logrus.Warning(err)

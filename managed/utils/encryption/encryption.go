@@ -28,7 +28,7 @@ import (
 )
 
 // DefaultEncryptionKeyPath contains default PMM encryption key path.
-const DefaultEncryptionKeyPath = "/Users/jiri.ctvrtka/pmm-encryption.key"
+const DefaultEncryptionKeyPath = "/srv/pmm-encryption.key"
 
 var (
 	// ErrEncryptionNotInitialized is error in case of encryption is not initialized.

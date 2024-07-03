@@ -32,7 +32,7 @@ import (
 )
 
 const (
-	username, password = "pmm-agent", "pmm-agent-password"
+	username, password = "postgres", ""
 	testDatabase       = "pmm-managed-dev"
 )
 
