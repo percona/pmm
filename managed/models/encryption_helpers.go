@@ -49,7 +49,7 @@ func DecryptAgent(q *reform.Querier, agent *Agent) {
 	agentEncryption(q, agent, encryption.Decrypt, isEncrypted)
 }
 
-func agentEncryption(q *reform.Querier, agent *Agent, handler func(string) (string, error), check func(encrypted map[string]bool, column string) bool) {
+func agentEncryption(q *reform.Querier, agent *Agent, handler func(string) (string, error), check func(encrypted map[string]bool, column string) bool) { //nolint:cyclop
 	settings, err := GetSettings(q)
 	if err != nil {
 		logrus.Warning(err)
