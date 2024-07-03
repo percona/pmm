@@ -3,12 +3,23 @@ title: Logs
 slug: "logs"
 category: 626badcabbc59c02acc1a540
 ---
+Download the logs and components configuration to troubleshoot any issues with the PMM Server.
 
-Sometimes users need to troubleshoot an issue. PMM Server offers an ability to download the logs as well as configuration of its components. 
+## Accessing logs
 
-You can download the logs either by calling this endpoint or by visiting a dedicated URL (ex: https://pmmdemo.percona.com/logs.zip) or via the **Settings UI** as explained in the [Troubleshooting](https://docs.percona.com/percona-monitoring-and-management/how-to/troubleshoot.html#client-server-connections) section of our docs.
+PMM Server provides two ways to retrieve logs:
 
-The structure of the logs is as follows:
+1. **Download Server Diagnostics** endpoint: This endpoint allows customization for each log file returned via the `line-count` parameter in the URL. For example:
+   - Default 50,000 lines: `https://<pmm-server>/logs.zip`
+   - Custom number of lines: `https://<pmm-server>/logs.zip?line-count=10000`
+   - Unlimited, full log: `https://<pmm-server>/logs.zip?line-count=-1`
+   
+2. **Settings** option on the UI: For detailed instructions, see the [Troubleshooting](https://docs.percona.com/percona-monitoring-and-management/how-to/troubleshoot.html#client-server-connections) section in the product documentation.
+
+## Log structure
+
+The downloaded logs package contains the following structure:
+
 [block:code]
 {
   "codes": [
