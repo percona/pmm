@@ -337,28 +337,9 @@ User activity, individual table and index access details are shown on the [MySQL
 
 ## Add service
 
-When you have configured your database server, you can add a MySQL service with the user interface or on the command line.
-
-When adding a service with the command line, you must use the `pmm-admin --query-source=SOURCE` option to match the source you've chosen and configured the database server for.
-
-With the PMM user interface, you select **Use performance schema**, or deselect it to use **slow query log**.
-
-### With the user interface
-
-To add a service using the UI:
-{.power-number}
-
-1. Select <i class="uil uil-cog"></i> **Configuration** → {{icon.inventory}} **Inventory** → {{icon.addinstance}} **Add Service**.
-
-2. Select **MySQL -- Add a remote instance**.
-
-3. Enter or select values for the fields.
-
-4. Click **Add service**.
-
-![!](../../../_images/PMM_Add_Instance_MySQL.jpg)
-
-If your MySQL instance is configured to use TLS, click on the *Use TLS for database connections* check box and fill in your TLS certificates and key.
+There are two ways to install  PMM Client  for monitoring your MySQL database:
+1. [By Installing PMM Client locally] - This option collects both database and OS/host metrics, allowing for more effective comparison between the two and better problem identification.
+2. [As a remote instance] - This option should be used when it is not possible to install PMM Client on the Database node. It will not provide OS/Node metrics in PMM.
 
 ![!](../../../_images/PMM_Add_Instance_MySQL_TLS.jpg)
 
