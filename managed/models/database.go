@@ -31,6 +31,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/AlekSi/pointer"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -1042,7 +1043,7 @@ type SetupDBParams struct {
 }
 
 // SetupDB checks minimal required PostgreSQL version and runs database migrations. Optionally creates database and adds initial data.
-func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams, itemsToEncrypt []encryption.Table) (*reform.DB, error) {
+func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.DB, error) {
 	var logger reform.Logger
 	if params.Logf != nil {
 		logger = reform.NewPrintfLogger(params.Logf)
@@ -1060,6 +1061,43 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams, itemsToEn
 
 	if errCV != nil {
 		return nil, errCV
+	}
+
+	columnsToEncrypt := []encryption.Column{
+		{Name: "username"},
+		{Name: "password"},
+	}
+	if pointer.GetInt(params.MigrationVersion) >= 9 {
+		columnsToEncrypt = slices.Concat(
+			columnsToEncrypt, []encryption.Column{{Name: "aws_access_key"}, {Name: "aws_secret_key "}})
+	}
+	if pointer.GetInt(params.MigrationVersion) >= 25 {
+		columnsToEncrypt = append(
+			columnsToEncrypt, encryption.Column{Name: "mongo_db_tls_options", CustomHandler: EncryptMongoDBOptionsHandler})
+	}
+	if pointer.GetInt(params.MigrationVersion) >= 31 {
+		columnsToEncrypt = append(
+			columnsToEncrypt, encryption.Column{Name: "azure_options", CustomHandler: EncryptAzureOptionsHandler})
+	}
+	if pointer.GetInt(params.MigrationVersion) >= 36 {
+		columnsToEncrypt = append(
+			columnsToEncrypt, encryption.Column{Name: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler})
+	}
+	if pointer.GetInt(params.MigrationVersion) >= 41 {
+		columnsToEncrypt = append(
+			columnsToEncrypt, encryption.Column{Name: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler})
+	}
+	if pointer.GetInt(params.MigrationVersion) >= 42 {
+		columnsToEncrypt = append(
+			columnsToEncrypt, encryption.Column{Name: "agent_password"})
+	}
+
+	itemsToEncrypt := []encryption.Table{
+		{
+			Name:           "agents",
+			Identificators: []string{"agent_id"},
+			Columns:        columnsToEncrypt,
+		},
 	}
 
 	if err := migrateDB(db, params, itemsToEncrypt); err != nil {

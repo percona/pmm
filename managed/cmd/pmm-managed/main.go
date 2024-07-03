@@ -104,7 +104,6 @@ import (
 	"github.com/percona/pmm/managed/services/victoriametrics"
 	"github.com/percona/pmm/managed/services/vmalert"
 	"github.com/percona/pmm/managed/utils/clean"
-	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
@@ -612,26 +611,8 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 		default:
 		}
 
-		itemsToEncrypt := []encryption.Table{
-			{
-				Name:           "agents",
-				Identificators: []string{"agent_id"},
-				Columns: []encryption.Column{
-					{Name: "username"},
-					{Name: "password"},
-					{Name: "agent_password"},
-					{Name: "aws_access_key"},
-					{Name: "aws_secret_key"},
-					{Name: "mysql_options", CustomHandler: models.EncryptMySQLOptionsHandler},
-					{Name: "postgresql_options", CustomHandler: models.EncryptPostgreSQLOptionsHandler},
-					{Name: "mongo_db_tls_options", CustomHandler: models.EncryptMongoDBOptionsHandler},
-					{Name: "azure_options", CustomHandler: models.EncryptAzureOptionsHandler},
-				},
-			},
-		}
-
 		l.Infof("Migrating database...")
-		_, err := models.SetupDB(timeoutCtx, sqlDB, params, itemsToEncrypt)
+		_, err := models.SetupDB(timeoutCtx, sqlDB, params)
 		if err == nil {
 			return
 		}

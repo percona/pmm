@@ -20,15 +20,12 @@ import (
 	"context"
 	"database/sql"
 	"math/rand"
-	"slices"
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/encryption"
 )
 
 const (
@@ -85,45 +82,7 @@ func SetupDB(tb testing.TB, db *sql.DB, setupFixtures models.SetupFixturesMode, 
 		MigrationVersion: migrationVersion,
 	}
 
-	// TODO
-	columnsToEncrypt := []encryption.Column{
-		{Name: "username"},
-		{Name: "password"},
-	}
-	if pointer.GetInt(migrationVersion) >= 9 {
-		columnsToEncrypt = slices.Concat(
-			columnsToEncrypt, []encryption.Column{{Name: "aws_access_key"}, {Name: "aws_secret_key "}})
-	}
-	if pointer.GetInt(migrationVersion) >= 25 {
-		columnsToEncrypt = append(
-			columnsToEncrypt, encryption.Column{Name: "mongo_db_tls_options", CustomHandler: models.EncryptMongoDBOptionsHandler})
-	}
-	if pointer.GetInt(migrationVersion) >= 31 {
-		columnsToEncrypt = append(
-			columnsToEncrypt, encryption.Column{Name: "azure_options", CustomHandler: models.EncryptAzureOptionsHandler})
-	}
-	if pointer.GetInt(migrationVersion) >= 36 {
-		columnsToEncrypt = append(
-			columnsToEncrypt, encryption.Column{Name: "mysql_options", CustomHandler: models.EncryptMySQLOptionsHandler})
-	}
-	if pointer.GetInt(migrationVersion) >= 41 {
-		columnsToEncrypt = append(
-			columnsToEncrypt, encryption.Column{Name: "postgresql_options", CustomHandler: models.EncryptPostgreSQLOptionsHandler})
-	}
-	if pointer.GetInt(migrationVersion) >= 42 {
-		columnsToEncrypt = append(
-			columnsToEncrypt, encryption.Column{Name: "agent_password"})
-	}
-
-	itemsToEncrypt := []encryption.Table{
-		{
-			Name:           "agents",
-			Identificators: []string{"agent_id"},
-			Columns:        columnsToEncrypt,
-		},
-	}
-
-	_, err := models.SetupDB(ctx, db, params, itemsToEncrypt)
+	_, err := models.SetupDB(ctx, db, params)
 	require.NoError(tb, err)
 }
 
