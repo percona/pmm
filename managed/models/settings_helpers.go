@@ -106,7 +106,7 @@ type ChangeSettingsParams struct {
 	// DefaultRoleID sets a default role to be assigned to new users.
 	DefaultRoleID int
 
-	// List of tables in format db.table to be encrypted.
+	// List of items in format 'db.table.column' to be encrypted.
 	EncryptedItems []string
 }
 

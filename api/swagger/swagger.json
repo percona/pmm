@@ -420,7 +420,7 @@
                       "x-order": 16
                     },
                     "encrypted_items": {
-                      "description": "Contains all already encrypted tables in format db.table.",
+                      "description": "Contains all already encrypted tables in format 'db.table.column'.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -621,7 +621,7 @@
                       "x-order": 16
                     },
                     "encrypted_items": {
-                      "description": "Contains all already encrypted tables in format db.table.",
+                      "description": "Contains all already encrypted tables in format 'db.table.column'.",
                       "type": "array",
                       "items": {
                         "type": "string"

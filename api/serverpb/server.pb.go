@@ -1031,7 +1031,7 @@ type Settings struct {
 	EnableAccessControl bool `protobuf:"varint,21,opt,name=enable_access_control,json=enableAccessControl,proto3" json:"enable_access_control,omitempty"`
 	// Default Access Control role ID for new users.
 	DefaultRoleId uint32 `protobuf:"varint,22,opt,name=default_role_id,json=defaultRoleId,proto3" json:"default_role_id,omitempty"`
-	// Contains all already encrypted tables in format db.table.
+	// Contains all already encrypted tables in format 'db.table.column'.
 	EncryptedItems []string `protobuf:"bytes,23,rep,name=encrypted_items,json=encryptedItems,proto3" json:"encrypted_items,omitempty"`
 }
 

@@ -101,7 +101,7 @@ type Settings struct {
 		Enabled bool `json:"enabled"`
 	} `json:"access_control"`
 
-	// Contains all already encrypted tables in format db.table.
+	// Contains all already encrypted tables in format 'db.table.column'.
 	EncryptedItems []string `json:"encrypted_items"`
 }
 

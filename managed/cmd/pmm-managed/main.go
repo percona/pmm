@@ -610,12 +610,12 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 			l.Fatalf("Could not migrate DB: timeout")
 		default:
 		}
-
 		l.Infof("Migrating database...")
 		_, err := models.SetupDB(timeoutCtx, sqlDB, params)
 		if err == nil {
 			return
 		}
+
 		l.Warnf("Failed to migrate database: %s.", err)
 		time.Sleep(time.Second)
 	}

@@ -47,7 +47,6 @@ func prepareRowPointers(rows *sql.Rows) ([]any, error) {
 		case "VARCHAR", "JSONB":
 			row = append(row, &sql.NullString{})
 		default:
-			// TODO support more identificators types
 			return nil, fmt.Errorf("unsupported identificator type %s", t)
 		}
 	}
