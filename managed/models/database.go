@@ -1069,7 +1069,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 
 	if params.MigrationVersion == nil || *params.MigrationVersion >= 9 {
 		columnsToEncrypt = slices.Concat(
-			columnsToEncrypt, []encryption.Column{{Name: "aws_access_key"}, {Name: "aws_secret_key "}})
+			columnsToEncrypt, []encryption.Column{{Name: "aws_access_key"}, {Name: "aws_secret_key"}})
 	}
 	if params.MigrationVersion == nil || *params.MigrationVersion >= 25 {
 		columnsToEncrypt = append(
