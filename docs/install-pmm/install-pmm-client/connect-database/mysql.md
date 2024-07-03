@@ -403,6 +403,28 @@ Add the database server as a service using one of these example commands. If suc
     pmm-admin add mysql --environment=test --custom-labels='source=slowlog'  --username=root --password=password --query-source=slowlog MySQLSlowLog localhost:3306
     ```
 
+### Install PMM Client as a remote instance
+
+1. Select <i class="uil uil-cog"></i> **Configuration > {{icon.inventory}} Inventory >{{icon.addinstance}} Add Service**.
+
+2. Choose **MySQL > Add a remote instance**.
+
+3. Complete the required fields.
+
+4. Click **Add service**.
+
+![!](../../_images/PMM_Add_Instance_MySQL.png)
+
+#### For MySQL instances using TLS
+
+If your MySQL instance is configured to use TLS: 
+
+1. Click on the **Use TLS for database connections** check box.
+2. Fill in your TLS certificates and key.
+
+![!](../../_images/PMM_Add_Instance_MySQL_TLS.png)
+
+
 ## Check the service
 
 ### PMM user interface
