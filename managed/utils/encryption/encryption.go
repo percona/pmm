@@ -48,9 +48,11 @@ func New(keyPath string) *Encryption {
 		err = e.generateKey()
 		if err != nil {
 			logrus.Errorf("Encryption: %v", err)
+			os.Exit(1)
 		}
 	case err != nil:
 		logrus.Errorf("Encryption: %v", err)
+		os.Exit(1)
 	default:
 		e.Key = string(bytes)
 	}
