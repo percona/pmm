@@ -198,6 +198,8 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		if err = q.Update(agent); err != nil {
 			return errors.Wrap(err, "failed to update table count")
 		}
+		models.DecryptAgent(agent)
+
 		return updateServiceVersion(ctx, q, resp, service)
 	case models.PostgreSQLServiceType:
 		if agent.PostgreSQLOptions == nil {
@@ -223,6 +225,8 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		if err = q.Update(agent); err != nil {
 			return errors.Wrap(err, "failed to update database count")
 		}
+		models.DecryptAgent(agent)
+
 		return updateServiceVersion(ctx, q, resp, service)
 	case models.MongoDBServiceType,
 		models.ProxySQLServiceType:
