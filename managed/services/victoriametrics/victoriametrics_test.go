@@ -43,7 +43,7 @@ func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL())
 	check.NoError(err)
 	svc, err := NewVictoriaMetrics(configPath, db, vmParams)
 	check.NoError(err)

@@ -32,6 +32,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 	"gopkg.in/yaml.v3"
 
+	"github.com/percona/pmm/utils/iputils"
 	"github.com/percona/pmm/utils/nodeinfo"
 	"github.com/percona/pmm/version"
 )
@@ -197,7 +198,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 
 		// set default values
 		if cfg.ListenAddress == "" {
-			cfg.ListenAddress = "127.0.0.1"
+			cfg.ListenAddress = iputils.GetLoopbackAddress()
 		}
 		if cfg.ListenPort == 0 {
 			cfg.ListenPort = 7777

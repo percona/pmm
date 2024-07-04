@@ -33,6 +33,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/utils/iputils"
 	"github.com/percona/pmm/version"
 )
 
@@ -569,7 +570,7 @@ func (s *Agent) ExporterURL(q *reform.Querier) (string, error) {
 	username := pointer.GetString(s.Username)
 	password := pointer.GetString(s.Password)
 
-	host := "127.0.0.1"
+	host := iputils.GetLoopbackAddress()
 	if !s.PushMetrics {
 		node, err := FindNodeByID(q, *s.RunsOnNodeID)
 		if err != nil {

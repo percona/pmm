@@ -16,10 +16,13 @@
 package models
 
 import (
+	"fmt"
+	"net"
 	"net/url"
 	"os"
 	"strings"
 
+	"github.com/percona/pmm/utils/iputils"
 	config "github.com/percona/promconfig"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
@@ -29,9 +32,12 @@ const (
 	// BasePrometheusConfigPath - basic path with prometheus config,
 	// that user can mount to container.
 	BasePrometheusConfigPath = "/srv/prometheus/prometheus.base.yml"
-	// VMBaseURL is the base URL for VictoriaMetrics.
-	VMBaseURL = "http://127.0.0.1:9090/prometheus/"
 )
+
+// VMBaseURL is the base URL for VictoriaMetrics.
+func VMBaseURL() string {
+	return fmt.Sprintf("http://%s/prometheus/", net.JoinHostPort(iputils.GetLoopbackAddress(), "9090"))
+}
 
 // VictoriaMetricsParams - defines flags and settings for victoriametrics.
 type VictoriaMetricsParams struct {
@@ -103,7 +109,8 @@ func (vmp *VictoriaMetricsParams) loadVMAlertParams() error {
 
 // ExternalVM returns true if VictoriaMetrics is configured to run externally.
 func (vmp *VictoriaMetricsParams) ExternalVM() bool {
-	return vmp.url.Hostname() != "127.0.0.1"
+	hostname := vmp.url.Hostname()
+	return hostname != iputils.GetLoopbackAddress()
 }
 
 // URL returns the base URL for VictoriaMetrics.

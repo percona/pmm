@@ -16,6 +16,7 @@ package management
 
 import (
 	"fmt"
+	"net"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -24,6 +25,7 @@ import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	mongodb "github.com/percona/pmm/api/managementpb/json/client/mongo_db"
+	"github.com/percona/pmm/utils/iputils"
 )
 
 const (
@@ -54,7 +56,7 @@ func (res *addMongoDBResult) String() string {
 //nolint:lll
 type AddMongoDBCommand struct {
 	ServiceName       string `name:"name" arg:"" default:"${hostname}-mongodb" help:"Service name (autodetected default: ${hostname}-mongodb)"`
-	Address           string `arg:"" optional:"" help:"MongoDB address and port (default: 127.0.0.1:27017)"`
+	Address           string `arg:"" optional:"" help:"MongoDB address and port (default: 127.0.0.1:27017  (ipv6: [::1]:27017))"`
 	Socket            string `help:"Path to socket"`
 	NodeID            string `help:"Node ID (default is autodetected)"`
 	PMMAgentID        string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
@@ -100,7 +102,7 @@ func (cmd *AddMongoDBCommand) GetAddress() string {
 
 // GetDefaultAddress returns the default address for AddMongoDBCommand.
 func (cmd *AddMongoDBCommand) GetDefaultAddress() string {
-	return "127.0.0.1:27017"
+	return net.JoinHostPort(iputils.GetLoopbackAddress(), "27017")
 }
 
 // GetSocket returns the socket for AddMongoDBCommand.

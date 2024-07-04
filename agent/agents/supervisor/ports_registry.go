@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"net"
 	"sync"
+
+	"github.com/percona/pmm/utils/iputils"
 )
 
 var (
@@ -67,7 +69,7 @@ func (r *portsRegistry) Reserve() (uint16, error) {
 			continue
 		}
 
-		l, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
+		l, err := net.Listen("tcp", net.JoinHostPort(iputils.GetLoopbackAddress(), fmt.Sprintf("%d", port)))
 		if l != nil {
 			_ = l.Close()
 		}
@@ -92,7 +94,7 @@ func (r *portsRegistry) Release(port uint16) error {
 		return errPortNotReserved
 	}
 
-	l, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
+	l, err := net.Listen("tcp", net.JoinHostPort(iputils.GetLoopbackAddress(), fmt.Sprintf("%d", port)))
 	if l != nil {
 		_ = l.Close()
 	}

@@ -1,4 +1,8 @@
 ---
+- name: Determine files directory
+  set_fact:
+    files_dir: "{{ 'files_ipv6' if IPV6ONLY == 'true' else 'files' }}"
+
 - name: Create grafana directory
   file:
     path: "{{ item }}"
@@ -17,7 +21,7 @@
 
 - name: Copy new version of grafana.ini
   copy:
-    src: grafana.ini
+    src: "{{ files_dir }}/grafana.ini"
     dest: /etc/grafana/grafana.ini
     owner: grafana
     group: grafana
@@ -72,7 +76,7 @@
 
 - name: Copy grafana provisioning files
   copy:
-    src: "{{ item }}.yml"
+    src: "{{ files_dir }}/{{ item }}.yml"
     dest: "/usr/share/grafana/conf/provisioning/{{ item }}/default.yml"
     owner: grafana
     group: grafana

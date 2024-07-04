@@ -3,6 +3,8 @@
 - hosts: localhost
   become: true
   gather_facts: true
+  vars:
+    IPV6ONLY: "{{ lookup('env','PMM_IPV6ONLY') }}"
   tasks:
     - name: Run initialization role
       include_role:

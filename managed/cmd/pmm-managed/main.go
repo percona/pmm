@@ -114,6 +114,7 @@ import (
 	"github.com/percona/pmm/managed/utils/interceptors"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
 	pmmerrors "github.com/percona/pmm/utils/errors"
+	"github.com/percona/pmm/utils/iputils"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
@@ -696,22 +697,26 @@ func main() { //nolint:cyclop,maintidx
 	kingpin.Version(version.FullInfo())
 	kingpin.HelpFlag.Short('h')
 
+	ipv6only := kingpin.Flag("ipv6only", "Enable ipv6").
+		Envar("PMM_IPV6ONLY").
+		Bool()
+
 	victoriaMetricsURLF := kingpin.Flag("victoriametrics-url", "VictoriaMetrics base URL").Envar("PMM_VM_URL").
-		Default(models.VMBaseURL).String()
+		Default(models.VMBaseURL()).String()
 	victoriaMetricsVMAlertURLF := kingpin.Flag("victoriametrics-vmalert-url", "VictoriaMetrics VMAlert base URL").Envar("PMM_VM_ALERT_URL").
-		Default("http://127.0.0.1:8880/").String()
+		Default(fmt.Sprintf("http://%s/", net.JoinHostPort(iputils.GetLoopbackAddress(), "8880"))).String()
 	victoriaMetricsConfigF := kingpin.Flag("victoriametrics-config", "VictoriaMetrics scrape configuration file path").
 		Default("/etc/victoriametrics-promscrape.yml").String()
 
-	grafanaAddrF := kingpin.Flag("grafana-addr", "Grafana HTTP API address").Default("127.0.0.1:3000").String()
-	qanAPIAddrF := kingpin.Flag("qan-api-addr", "QAN API gRPC API address").Default("127.0.0.1:9911").String()
-	dbaasControllerAPIAddrF := kingpin.Flag("dbaas-controller-api-addr", "DBaaS Controller gRPC API address").Default("127.0.0.1:20201").String()
+	grafanaAddrF := kingpin.Flag("grafana-addr", "Grafana HTTP API address").Default(net.JoinHostPort(iputils.GetLoopbackAddress(), "3000")).String()
+	qanAPIAddrF := kingpin.Flag("qan-api-addr", "QAN API gRPC API address").Default(net.JoinHostPort(iputils.GetLoopbackAddress(), "9911")).String()
+	dbaasControllerAPIAddrF := kingpin.Flag("dbaas-controller-api-addr", "DBaaS Controller gRPC API address").Default(net.JoinHostPort(iputils.GetLoopbackAddress(), "20201")).String()
 
 	versionServiceAPIURLF := kingpin.Flag("version-service-api-url", "Version Service API URL").
 		Default("https://check.percona.com/versions/v1").Envar("PERCONA_TEST_VERSION_SERVICE_URL").String()
 
 	postgresAddrF := kingpin.Flag("postgres-addr", "PostgreSQL address").
-		Default(models.DefaultPostgreSQLAddr).
+		Default(models.DefaultPostgreSQLAddr()).
 		Envar("PERCONA_TEST_POSTGRES_ADDR").
 		String()
 	postgresDBNameF := kingpin.Flag("postgres-name", "PostgreSQL database name").
@@ -775,9 +780,19 @@ func main() { //nolint:cyclop,maintidx
 	traceF := kingpin.Flag("trace", "[DEPRECATED] Enable trace logging (implies debug)").Envar("PMM_TRACE").Bool()
 
 	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE").String()
-	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PERCONA_TEST_PMM_CLICKHOUSE_ADDR").String()
+	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default(net.JoinHostPort(iputils.GetLoopbackAddress(), "9000")).Envar("PERCONA_TEST_PMM_CLICKHOUSE_ADDR").String()
 
 	kingpin.Parse()
+
+	if *ipv6only {
+		*victoriaMetricsURLF = iputils.ConvertLocalhostIPv4ToIPv6URL(*victoriaMetricsURLF)
+		*victoriaMetricsVMAlertURLF = iputils.ConvertLocalhostIPv4ToIPv6URL(*victoriaMetricsVMAlertURLF)
+		*grafanaAddrF = iputils.ConvertLocalhostIPv4ToIPv6URL(*grafanaAddrF)
+		*qanAPIAddrF = iputils.ConvertLocalhostIPv4ToIPv6URL(*qanAPIAddrF)
+		*dbaasControllerAPIAddrF = iputils.ConvertLocalhostIPv4ToIPv6URL(*dbaasControllerAPIAddrF)
+		*postgresAddrF = iputils.ConvertLocalhostIPv4ToIPv6URL(*postgresAddrF)
+		*clickhouseAddrF = iputils.ConvertLocalhostIPv4ToIPv6URL(*clickhouseAddrF)
+	}
 
 	logger.SetupGlobalLogger()
 

@@ -27,6 +27,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
+	"github.com/percona/pmm/admin/pkg/iputils"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -92,6 +93,9 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			// skip default environment variables
 			continue
 		case "PMM_DEBUG", "PMM_TRACE":
+			// skip cross-component environment variables that are already handled by kingpin
+			continue
+		case "PMM_IPV6ONLY":
 			// skip cross-component environment variables that are already handled by kingpin
 			continue
 		case "PERCONA_TEST_VERSION_SERVICE_URL":
@@ -319,7 +323,7 @@ func GetPlatformPublicKeys() []string {
 
 // GetInterfaceToBind retrieves the network interface to bind based on environment variables.
 func GetInterfaceToBind() string {
-	return GetEnv(evnInterfaceToBind, "127.0.0.1")
+	return GetEnv(evnInterfaceToBind, iputils.GetLoopbackAddress())
 }
 
 // GetEnv returns env with fallback option.

@@ -53,6 +53,7 @@ import (
 	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"
 	pmmerrors "github.com/percona/pmm/utils/errors"
+	"github.com/percona/pmm/utils/iputils"
 	"github.com/percona/pmm/version"
 )
 
@@ -107,7 +108,7 @@ func (s *Server) Run(ctx context.Context, reloadCh chan bool) {
 
 	// Get random free port for gRPC server.
 	// If we can't get one, panic since everything is seriously broken.
-	l, err := net.Listen("tcp", "127.0.0.1:0")
+	l, err := net.Listen("tcp", net.JoinHostPort(iputils.GetLoopbackAddress(), "0"))
 	if err != nil {
 		s.l.Panic(err)
 	}
