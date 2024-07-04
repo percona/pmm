@@ -6,22 +6,24 @@ import { useAuth } from 'contexts/auth';
 export const Main = () => {
   const { isLoading } = useAuth();
 
+  if (isLoading) {
+    return (
+      <Stack
+        alignItems="center"
+        justifyContent="center"
+        sx={{
+          padding: 10,
+        }}
+      >
+        <CircularProgress data-testid="pmm-loading-indicator" />
+      </Stack>
+    );
+  }
+
   return (
     <Stack>
       <AppBar />
-      {isLoading ? (
-        <Stack
-          alignItems="center"
-          justifyContent="center"
-          sx={{
-            padding: 10,
-          }}
-        >
-          <CircularProgress data-testid="pmm-loading-indicator" />
-        </Stack>
-      ) : (
-        <Outlet />
-      )}
+      <Outlet />
     </Stack>
   );
 };
