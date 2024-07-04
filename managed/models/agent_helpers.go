@@ -651,7 +651,7 @@ func CreateNodeExporter(q *reform.Querier,
 	}
 	encryptedAgent := EncryptAgent(*row)
 
-	if err := row.SetCustomLabels(customLabels); err != nil {
+	if err := encryptedAgent.SetCustomLabels(customLabels); err != nil {
 		return nil, err
 	}
 	if err := q.Insert(&encryptedAgent); err != nil {
@@ -739,7 +739,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 	}
 	encryptedAgent := EncryptAgent(*row)
 
-	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
+	if err := encryptedAgent.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}
 	if err := q.Insert(&encryptedAgent); err != nil {
@@ -933,7 +933,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	}
 	encryptedAgent := EncryptAgent(*row)
 
-	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
+	if err := encryptedAgent.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}
 	if err := q.Insert(&encryptedAgent); err != nil {
