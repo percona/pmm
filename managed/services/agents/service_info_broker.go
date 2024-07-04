@@ -198,6 +198,8 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		if err = q.Update(&encryptedAgent); err != nil {
 			return errors.Wrap(err, "failed to update table count")
 		}
+		decryptedAgent := models.DecryptAgent(encryptedAgent)
+		agent = &decryptedAgent
 
 		return updateServiceVersion(ctx, q, resp, service)
 	case models.PostgreSQLServiceType:
@@ -224,6 +226,8 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		if err = q.Update(&encryptedAgent); err != nil {
 			return errors.Wrap(err, "failed to update database count")
 		}
+		decryptedAgent := models.DecryptAgent(encryptedAgent)
+		agent = &decryptedAgent
 
 		return updateServiceVersion(ctx, q, resp, service)
 	case models.MongoDBServiceType,
