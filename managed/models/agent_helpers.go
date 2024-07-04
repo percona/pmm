@@ -658,7 +658,9 @@ func CreateNodeExporter(q *reform.Querier,
 		return nil, errors.WithStack(err)
 	}
 
-	return row, nil
+	decryptedAgent := DecryptAgent(encryptedAgent)
+
+	return &decryptedAgent, nil
 }
 
 // CreateExternalExporterParams params for add external exporter.
@@ -744,7 +746,9 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		return nil, errors.WithStack(err)
 	}
 
-	return row, nil
+	decryptedAgent := DecryptAgent(encryptedAgent)
+
+	return &decryptedAgent, nil
 }
 
 // CreateAgentParams params for add common exporter.
@@ -936,7 +940,9 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		return nil, errors.WithStack(err)
 	}
 
-	return row, nil
+	decryptedAgent := DecryptAgent(encryptedAgent)
+
+	return &decryptedAgent, nil
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
