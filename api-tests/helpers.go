@@ -22,6 +22,7 @@ import (
 	"math"
 	"math/big"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/AlekSi/pointer"
@@ -58,7 +59,7 @@ func TestString(t TestingT, name string) string {
 	n, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt32))
 	require.NoError(t, err)
 
-	return fmt.Sprintf("pmm-api-tests/%s/%s/%s/%d", Hostname, t.Name(), name, n)
+	return strings.ReplaceAll(fmt.Sprintf("pmm-api-tests-%s-%s-%s-%d", Hostname, t.Name(), name, n), "/", "-")
 }
 
 // AssertAPIErrorf check that actual API error equals expected.

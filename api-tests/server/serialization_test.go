@@ -28,13 +28,13 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/server/v1/json/client/server_service"
+	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
 // This test checks if all (even empty) fields are present in json responses.
 func TestSerialization(t *testing.T) {
 	// Get json filed names from settings model
-	var settings server_service.GetSettingsOKBodySettings
+	var settings server.GetSettingsOKBodySettings
 	jsonFields := extractJSONTagNames(settings)
 	require.NotEmpty(t, jsonFields)
 
@@ -57,7 +57,7 @@ func TestSerialization(t *testing.T) {
 	err = json.Unmarshal(b, &data)
 	require.NoError(t, err)
 
-	// Check if all expected fields present in the json response.
+	// Check if all expected fields are present in the json response.
 	for _, field := range jsonFields {
 		assert.Contains(t, data["settings"], field)
 	}

@@ -485,17 +485,17 @@ func TestServiceAccountPermissions(t *testing.T) {
 		method   string
 		userCase []userCase
 	}{
-		{name: "settings", url: "/v1/Settings/Get", method: "POST", userCase: []userCase{
+		{name: "settings", url: "/v1/server/settings", method: "GET", userCase: []userCase{
 			{userType: "default", statusCode: 401},
 			{userType: "viewer", serviceToken: viewerToken, statusCode: 401},
 			{userType: "editor", serviceToken: editorToken, statusCode: 401},
 			{userType: "admin", serviceToken: adminToken, statusCode: 200},
 		}},
-		{name: "platform-connect", url: "/v1/Platform/Connect", method: "POST", userCase: []userCase{
+		{name: "platform-connect", url: "/v1/platform:connect", method: "POST", userCase: []userCase{
 			{userType: "default", statusCode: 401},
 			{userType: "viewer", serviceToken: viewerToken, statusCode: 401},
 			{userType: "editor", serviceToken: editorToken, statusCode: 401},
-			{userType: "admin", serviceToken: adminToken, statusCode: 400}, // We send bad request, but have access to endpoint
+			{userType: "admin", serviceToken: adminToken, statusCode: 400}, // We are sending a bad request, but we still have access to the endpoint
 		}},
 	}
 
