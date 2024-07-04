@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren, useEffect } from 'react';
+import { FC, PropsWithChildren, useMemo } from 'react';
 import { AuthContext } from './auth.context';
 import { useQuery } from '@tanstack/react-query';
 import { rotateToken } from 'api/auth';
@@ -13,14 +13,15 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
     refetchIntervalInBackground: true,
     retry: false,
   });
-
-  useEffect(() => {
+  const shouldRedirectToLogin = useMemo(() => {
     const response = (error as AxiosError)?.response;
-
-    if (response?.status === HttpStatusCode.Unauthorized) {
-      redirectToLogin();
-    }
+    return response?.status === HttpStatusCode.Unauthorized;
   }, [error]);
+
+  if (shouldRedirectToLogin) {
+    redirectToLogin();
+    return null;
+  }
 
   return (
     <AuthContext.Provider value={{ isLoading }}>

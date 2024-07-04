@@ -1,3 +1,5 @@
+import { PMM_LOGIN_URL } from 'constants';
+
 export const getSessionExpiry = () => {
   const expiryCookie = getSessionExpiryCookie();
 
@@ -33,5 +35,5 @@ export const getSessionExpiryCookie = () =>
     .find((row) => row.startsWith('grafana_session_expiry='));
 
 export const redirectToLogin = () => {
-  window.location.replace('/graph/login');
+  window.location.replace(PMM_LOGIN_URL);
 };
