@@ -25,16 +25,16 @@ import (
 )
 
 // EncryptAgent encrypt agent.
-func EncryptAgent(agent *Agent) {
-	agentEncryption(agent, encryption.Encrypt)
+func EncryptAgent(agent Agent) Agent {
+	return agentEncryption(agent, encryption.Encrypt)
 }
 
 // DecryptAgent decrypt agent.
-func DecryptAgent(agent *Agent) {
-	agentEncryption(agent, encryption.Decrypt)
+func DecryptAgent(agent Agent) Agent {
+	return agentEncryption(agent, encryption.Decrypt)
 }
 
-func agentEncryption(agent *Agent, handler func(string) (string, error)) {
+func agentEncryption(agent Agent, handler func(string) (string, error)) Agent {
 	if agent.Username != nil {
 		username, err := handler(*agent.Username)
 		if err != nil {
@@ -139,6 +139,8 @@ func agentEncryption(agent *Agent, handler func(string) (string, error)) {
 			logrus.Warning(err)
 		}
 	}
+
+	return agent
 }
 
 // EncryptMySQLOptionsHandler returns encrypted MySQL Options.
