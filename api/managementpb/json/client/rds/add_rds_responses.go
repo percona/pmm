@@ -147,6 +147,9 @@ type AddRDSBody struct {
 	// Enum: [DISCOVER_RDS_ENGINE_INVALID DISCOVER_RDS_MYSQL DISCOVER_RDS_POSTGRESQL]
 	Engine *string `json:"engine,omitempty"`
 
+	// PMM Agent ID.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
 	// Unique across all Nodes user-defined name. Defaults to AWS instance ID.
 	NodeName string `json:"node_name,omitempty"`
 

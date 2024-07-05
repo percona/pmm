@@ -245,6 +245,11 @@ func (s *RDSService) DiscoverRDS(ctx context.Context, req *managementpb.Discover
 func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest) (*managementpb.AddRDSResponse, error) { //nolint:cyclop,maintidx
 	res := &managementpb.AddRDSResponse{}
 
+	pmmAgentID := models.PMMServerAgentID
+	if req.GetPmmAgentId() != "" {
+		pmmAgentID = req.GetPmmAgentId()
+	}
+
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		// tweak according to API docs
 		if req.NodeName == "" {
@@ -281,10 +286,15 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 		}
 		res.Node = invNode.(*inventorypb.RemoteRDSNode) //nolint:forcetypeassert
 
+		metricsMode, err := supportedMetricsMode(tx.Querier, req.MetricsMode, pmmAgentID)
+		if err != nil {
+			return err
+		}
+
 		// add RDSExporter Agent
 		if req.RdsExporter {
 			rdsExporter, err := models.CreateAgent(tx.Querier, models.RDSExporterType, &models.CreateAgentParams{
-				PMMAgentID:                 models.PMMServerAgentID,
+				PMMAgentID:                 pmmAgentID,
 				NodeID:                     node.NodeID,
 				AWSAccessKey:               req.AwsAccessKey,
 				AWSSecretKey:               req.AwsSecretKey,
@@ -323,20 +333,16 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			}
 			res.Mysql = invService.(*inventorypb.MySQLService) //nolint:forcetypeassert
 
-			_, err = supportedMetricsMode(tx.Querier, req.MetricsMode, models.PMMServerAgentID)
-			if err != nil {
-				return err
-			}
-
 			// add MySQL Exporter
 			mysqldExporter, err := models.CreateAgent(tx.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
-				PMMAgentID:                     models.PMMServerAgentID,
+				PMMAgentID:                     pmmAgentID,
 				ServiceID:                      service.ServiceID,
 				Username:                       req.Username,
 				Password:                       req.Password,
 				TLS:                            req.Tls,
 				TLSSkipVerify:                  req.TlsSkipVerify,
 				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
+				PushMetrics:                    isPushMode(metricsMode),
 			})
 			if err != nil {
 				return err
@@ -361,7 +367,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			// add MySQL PerfSchema QAN Agent
 			if req.QanMysqlPerfschema {
 				qanAgent, err := models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, &models.CreateAgentParams{
-					PMMAgentID:              models.PMMServerAgentID,
+					PMMAgentID:              pmmAgentID,
 					ServiceID:               service.ServiceID,
 					Username:                req.Username,
 					Password:                req.Password,
@@ -404,14 +410,9 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			}
 			res.Postgresql = invService.(*inventorypb.PostgreSQLService) //nolint:forcetypeassert
 
-			_, err = supportedMetricsMode(tx.Querier, req.MetricsMode, models.PMMServerAgentID)
-			if err != nil {
-				return err
-			}
-
 			// add PostgreSQL Exporter
 			postgresExporter, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, &models.CreateAgentParams{
-				PMMAgentID:                     models.PMMServerAgentID,
+				PMMAgentID:                     pmmAgentID,
 				ServiceID:                      service.ServiceID,
 				Username:                       req.Username,
 				Password:                       req.Password,
@@ -422,6 +423,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 					AutoDiscoveryLimit:     req.AutoDiscoveryLimit,
 					MaxExporterConnections: req.MaxPostgresqlExporterConnections,
 				},
+				PushMetrics: isPushMode(metricsMode),
 			})
 			if err != nil {
 				return err
@@ -444,7 +446,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			// add PostgreSQL Pgstatements QAN Agent
 			if req.QanPostgresqlPgstatements {
 				qanAgent, err := models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, &models.CreateAgentParams{
-					PMMAgentID:              models.PMMServerAgentID,
+					PMMAgentID:              pmmAgentID,
 					ServiceID:               service.ServiceID,
 					Username:                req.Username,
 					Password:                req.Password,
@@ -472,6 +474,6 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 		return nil, e
 	}
 
-	s.state.RequestStateUpdate(ctx, models.PMMServerAgentID)
+	s.state.RequestStateUpdate(ctx, pmmAgentID)
 	return res, nil
 }

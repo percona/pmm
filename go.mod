@@ -9,7 +9,7 @@ toolchain go1.22.2
 
 replace github.com/grpc-ecosystem/go-grpc-prometheus => github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20230116133345-3487748d4592
 
-replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.20.5-percona
+replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.20.8-percona
 
 replace gopkg.in/alecthomas/kingpin.v2 => github.com/Percona-Lab/kingpin v2.2.6-percona+incompatible
 
