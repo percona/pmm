@@ -15,7 +15,7 @@ sed -i '/nodocs/d' /etc/yum.conf
 
 # enable experimental repository with latest development packages
 sed -i'' -e 's^/release/^/experimental/^' /etc/yum.repos.d/pmm2-server.repo
-percona-release enable original testing
+percona-release enable pmm2-client testing
 
 RHEL=$(rpm --eval '%{rhel}')
 if [ "$RHEL" = "7" ]; then
