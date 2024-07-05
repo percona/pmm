@@ -279,7 +279,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 
 		for awsAccessKey, exporters := range groupedRdsExporters {
 			// TODO: split by 50 exporters per group
-			groupID := u.r.roster.add(agent.id, awsAccessKey, exporters)
+			groupID := u.r.roster.add(agent.id, rdsPrefix+awsAccessKey, exporters)
 			c, err := rdsExporterConfig(exporters, redactMode, pmmAgentVersion)
 			if err != nil {
 				return err

@@ -59,7 +59,7 @@ func TestRoster(t *testing.T) {
 		}
 
 		const expected = "pmm-server/rds"
-		groupID := r.add("pmm-server", rdsGroup, exporters)
+		groupID := r.add("pmm-server", rdsPrefix, exporters)
 		assert.Equal(t, expected, groupID)
 
 		PMMAgentID, agentIDs, err := r.get(groupID)
@@ -96,7 +96,7 @@ func TestRoster(t *testing.T) {
 
 		const expectedGroupID = "pmm-server/rds"
 		PMMAgentID := "pmm-server"
-		groupID := r.add(PMMAgentID, rdsGroup, exporters)
+		groupID := r.add(PMMAgentID, rdsPrefix, exporters)
 		assert.Equal(t, expectedGroupID, groupID)
 
 		r.clear(PMMAgentID)

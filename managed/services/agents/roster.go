@@ -26,11 +26,8 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-type agentGroup string
-
 const (
-	rdsGroup  = agentGroup("rds")
-	rdsSuffix = string("/" + rdsGroup)
+	rdsPrefix = "rds/"
 )
 
 // roster groups several Agent IDs from an Inventory model to a single Group ID, as seen by pmm-agent.
