@@ -37,9 +37,9 @@ type DatabaseConnection struct {
 
 // Table represents table name, it's identificators and columns to be encrypted/decrypted.
 type Table struct {
-	Name           string
+	Name        string
 	Identifiers []string
-	Columns        []Column
+	Columns     []Column
 }
 
 // Column represents column name and column's custom handler (if needed).

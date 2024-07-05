@@ -1094,9 +1094,9 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 
 	itemsToEncrypt := []encryption.Table{
 		{
-			Name:           "agents",
-			Identificators: []string{"agent_id"},
-			Columns:        columnsToEncrypt,
+			Name:        "agents",
+			Identifiers: []string{"agent_id"},
+			Columns:     columnsToEncrypt,
 		},
 	}
 
