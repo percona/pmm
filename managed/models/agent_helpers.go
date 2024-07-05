@@ -229,8 +229,7 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 
 	agents := make([]*Agent, len(structs))
 	for i, s := range structs {
-		agent := s.(*Agent) //nolint:forcetypeassert
-		decryptedAgent := DecryptAgent(*agent)
+		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
 		agents[i] = &decryptedAgent
 	}
 
@@ -275,8 +274,7 @@ func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 
 	res := make([]*Agent, len(structs))
 	for i, s := range structs {
-		agent := s.(*Agent) //nolint:forcetypeassert
-		decryptedAgent := DecryptAgent(*agent)
+		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
 		res[i] = &decryptedAgent
 	}
 	return res, nil
@@ -328,8 +326,7 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 
 	res := make([]*Agent, len(structs))
 	for i, s := range structs {
-		agent := s.(*Agent) //nolint:forcetypeassert
-		decryptedAgent := DecryptAgent(*agent)
+		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
 		res[i] = &decryptedAgent
 	}
 
@@ -357,8 +354,7 @@ func FindPMMAgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, err
 
 	res := make([]*Agent, 0, len(structs))
 	for _, str := range structs {
-		row := str.(*Agent) //nolint:forcetypeassert
-		decryptedAgent := DecryptAgent(*row)
+		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
 		res = append(res, &decryptedAgent)
 	}
 
@@ -403,8 +399,7 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	}
 	res := make([]*Agent, 0, len(pmmAgentRecords))
 	for _, str := range pmmAgentRecords {
-		row := str.(*Agent) //nolint:forcetypeassert
-		decryptedAgent := DecryptAgent(*row)
+		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
 		res = append(res, &decryptedAgent)
 	}
 
@@ -486,8 +481,7 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 
 	res := make([]*Agent, len(allAgents))
 	for i, s := range allAgents {
-		agent := s.(*Agent) //nolint:forcetypeassert
-		decryptedAgent := DecryptAgent(*agent)
+		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
 		res[i] = &decryptedAgent
 	}
 	return res, nil
