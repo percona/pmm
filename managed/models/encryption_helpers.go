@@ -77,10 +77,6 @@ func agentEncryption(agent Agent, handler func(string) (string, error)) Agent {
 
 	var err error
 	if agent.MySQLOptions != nil {
-		agent.MySQLOptions.TLSCa, err = handler(agent.MySQLOptions.TLSCa)
-		if err != nil {
-			logrus.Warning(err)
-		}
 		agent.MySQLOptions.TLSCert, err = handler(agent.MySQLOptions.TLSCert)
 		if err != nil {
 			logrus.Warning(err)
@@ -92,10 +88,6 @@ func agentEncryption(agent Agent, handler func(string) (string, error)) Agent {
 	}
 
 	if agent.PostgreSQLOptions != nil {
-		agent.PostgreSQLOptions.SSLCa, err = handler(agent.PostgreSQLOptions.SSLCa)
-		if err != nil {
-			logrus.Warning(err)
-		}
 		agent.PostgreSQLOptions.SSLCert, err = handler(agent.PostgreSQLOptions.SSLCert)
 		if err != nil {
 			logrus.Warning(err)
@@ -107,10 +99,6 @@ func agentEncryption(agent Agent, handler func(string) (string, error)) Agent {
 	}
 
 	if agent.MongoDBOptions != nil {
-		agent.MongoDBOptions.TLSCa, err = handler(agent.MongoDBOptions.TLSCa)
-		if err != nil {
-			logrus.Warning(err)
-		}
 		agent.MongoDBOptions.TLSCertificateKey, err = handler(agent.MongoDBOptions.TLSCertificateKey)
 		if err != nil {
 			logrus.Warning(err)
