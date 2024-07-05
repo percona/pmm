@@ -18,7 +18,6 @@ package encryption
 
 import (
 	"encoding/base64"
-	"fmt"
 	"os"
 	"slices"
 
@@ -143,7 +142,7 @@ func (e *Encryption) Decrypt(cipherText string) (string, error) {
 	}
 	decoded, err := base64.StdEncoding.DecodeString(cipherText)
 	if err != nil {
-		return cipherText, fmt.Errorf("value %s is probably not encrypted, error: %w", cipherText, err)
+		return cipherText, err
 	}
 	secret, err := e.Primitive.Decrypt(decoded, []byte(""))
 	if err != nil {
