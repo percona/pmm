@@ -1107,7 +1107,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 	return db, nil
 }
 
-// EncryptDB encrypt all provided columns in specific database and table.
+// EncryptDB encrypts a set of columns in a specific database and table.
 func EncryptDB(tx *reform.TX, params SetupDBParams, itemsToEncrypt []encryption.Table) error {
 	if len(itemsToEncrypt) == 0 {
 		return nil

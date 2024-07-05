@@ -24,7 +24,7 @@ type Encryption struct {
 	Primitive tink.AEAD
 }
 
-// DatabaseConnection represents DB connection and it's encrypted items.
+// DatabaseConnection represents DB connection and its encrypted items.
 type DatabaseConnection struct {
 	Host, User, Password string
 	Port                 int16
@@ -38,7 +38,7 @@ type DatabaseConnection struct {
 // Table represents table name, it's identificators and columns to be encrypted/decrypted.
 type Table struct {
 	Name           string
-	Identificators []string
+	Identifiers []string
 	Columns        []Column
 }
 

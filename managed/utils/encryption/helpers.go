@@ -163,7 +163,7 @@ func (table Table) read(tx *reform.TX) (*QueryValues, error) {
 			whereValues = append(whereValues, row[k])
 			i++
 		}
-		whereSQL := fmt.Sprintf("WHERE %s", strings.Join(where, " AND "))
+		whereSQL := "WHERE " + strings.Join(where, " AND ")
 		q.WhereValues = append(q.WhereValues, whereValues)
 
 		q.Query = fmt.Sprintf("UPDATE %s %s %s", table.Name, setSQL, whereSQL)

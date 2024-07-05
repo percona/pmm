@@ -36,7 +36,7 @@ var (
 	DefaultEncryption = New(DefaultEncryptionKeyPath)
 )
 
-// New create encryption, if key on path doesnt exists will be generated.
+// New creates an encryption; if key on path doesn't exist, it will be generated.
 func New(keyPath string) *Encryption {
 	e := &Encryption{}
 	e.Path = keyPath
