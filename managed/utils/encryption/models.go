@@ -35,7 +35,7 @@ type DatabaseConnection struct {
 	SSLCertPath          string
 }
 
-// Table represents table name, it's identificators and columns to be encrypted/decrypted.
+// Table represents table name, it's identifiers and columns to be encrypted/decrypted.
 type Table struct {
 	Name        string
 	Identifiers []string

@@ -127,7 +127,7 @@ func (table Table) columnsList() []string {
 }
 
 func (table Table) read(tx *reform.TX) (*QueryValues, error) {
-	what := slices.Concat(table.Identificators, table.columnsList())
+	what := slices.Concat(table.Identifiers, table.columnsList())
 	query := fmt.Sprintf("SELECT %s FROM %s", strings.Join(what, ", "), table.Name)
 	rows, err := tx.Query(query)
 	if err != nil {
@@ -148,7 +148,7 @@ func (table Table) read(tx *reform.TX) (*QueryValues, error) {
 		i := 1
 		set := []string{}
 		setValues := []any{}
-		for k, v := range row[len(table.Identificators):] {
+		for k, v := range row[len(table.Identifiers):] {
 			set = append(set, fmt.Sprintf("%s = $%d", table.Columns[k].Name, i))
 			setValues = append(setValues, v)
 			i++
@@ -158,7 +158,7 @@ func (table Table) read(tx *reform.TX) (*QueryValues, error) {
 
 		where := []string{}
 		whereValues := []any{}
-		for k, id := range table.Identificators {
+		for k, id := range table.Identifiers {
 			where = append(where, fmt.Sprintf("%s = $%d", id, i))
 			whereValues = append(whereValues, row[k])
 			i++
