@@ -46,17 +46,17 @@ func New(keyPath string) *Encryption {
 	case os.IsNotExist(err):
 		err = e.generateKey()
 		if err != nil {
-			logrus.Errorf("Encryption: %v", err)
+			logrus.Panicf("Encryption: %v", err)
 		}
 	case err != nil:
-		logrus.Errorf("Encryption: %v", err)
+		logrus.Panicf("Encryption: %v", err)
 	default:
 		e.Key = string(bytes)
 	}
 
 	primitive, err := e.getPrimitive()
 	if err != nil {
-		logrus.Errorf("Encryption: %v", err)
+		logrus.Panicf("Encryption: %v", err)
 	}
 	e.Primitive = primitive
 
