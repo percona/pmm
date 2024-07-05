@@ -16,9 +16,8 @@ PMM Server offers two primary methods to access and download logs:
    - Custom number of lines: `https://<pmm-server>/logs.zip?line-count=10000`
    - Unlimited, full log: `https://<pmm-server>/logs.zip?line-count=-1`PMM-13054
 3. Through the UI, by selecting the **Help > PMM Logs** option from the main menu.
-
-If you need to share logs with Percona Support via an SFTP server, you can also use the **PMM Dump** option from the Help menu to generate a compressed tarball file containing a comprehensive export of your PMM metrics and QAN data.
-For more information, see [Export PMM data with PMM Dump](https://docs.percona.com/percona-monitoring-and-management/how-to/PMM_dump.html) topic in the product documentation.
+  If you need to share logs with Percona Support via an SFTP server, you can also use the **PMM Dump** option from the Help menu to generate a compressed tarball file containing a comprehensive export of your PMM metrics and QAN data.
+  For more information, see [Export PMM data with PMM Dump](https://docs.percona.com/percona-monitoring-and-management/how-to/PMM_dump.html) topic in the product documentation.
 
 ## Log structure
 
