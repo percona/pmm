@@ -16,9 +16,9 @@
 package agents
 
 import (
-	"github.com/AlekSi/pointer"
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
