@@ -16,6 +16,7 @@
 package agents
 
 import (
+	"github.com/AlekSi/pointer"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -53,13 +54,15 @@ func TestRoster(t *testing.T) {
 			NodeID:   "node1",
 			NodeType: models.GenericNodeType,
 		}
+		awsAccessKey := "aws"
 		exporters[node] = &models.Agent{
-			AgentID:   "agent1",
-			AgentType: models.RDSExporterType,
+			AgentID:      "agent1",
+			AgentType:    models.RDSExporterType,
+			AWSAccessKey: pointer.ToString(awsAccessKey),
 		}
 
-		const expected = "pmm-server/rds"
-		groupID := r.add("pmm-server", rdsPrefix, exporters)
+		const expected = "pmm-server:rds/aws"
+		groupID := r.add("pmm-server", rdsPrefix+awsAccessKey, exporters)
 		assert.Equal(t, expected, groupID)
 
 		PMMAgentID, agentIDs, err := r.get(groupID)
@@ -72,7 +75,7 @@ func TestRoster(t *testing.T) {
 		r, teardown := setup(t)
 		defer teardown(t)
 
-		const groupID = "pmm-server/rds"
+		const groupID = "pmm-server:rds/AWSAccessKey"
 
 		PMMAgentID, agentIDs, err := r.get(groupID)
 		require.NoError(t, err)
@@ -89,14 +92,16 @@ func TestRoster(t *testing.T) {
 			NodeID:   "node1",
 			NodeType: models.GenericNodeType,
 		}
+		awsAccessKey := "aws"
 		exporters[node] = &models.Agent{
-			AgentID:   "agent1",
-			AgentType: models.RDSExporterType,
+			AgentID:      "agent1",
+			AgentType:    models.RDSExporterType,
+			AWSAccessKey: pointer.ToString(awsAccessKey),
 		}
 
-		const expectedGroupID = "pmm-server/rds"
+		const expectedGroupID = "pmm-server:rds/aws"
 		PMMAgentID := "pmm-server"
-		groupID := r.add(PMMAgentID, rdsPrefix, exporters)
+		groupID := r.add(PMMAgentID, rdsPrefix+awsAccessKey, exporters)
 		assert.Equal(t, expectedGroupID, groupID)
 
 		r.clear(PMMAgentID)

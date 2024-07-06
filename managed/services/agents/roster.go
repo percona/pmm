@@ -85,7 +85,8 @@ func (r *roster) get(groupID string) (string, []string, error) {
 			agentIDs = []string{PMMAgentID}
 		} else {
 			rdsExporterType := models.RDSExporterType
-			filters := models.AgentFilters{PMMAgentID: PMMAgentID, AgentType: &rdsExporterType, AWSAccessKey: parts[1]}
+			awsAccessKey := strings.TrimPrefix(parts[1], rdsPrefix)
+			filters := models.AgentFilters{PMMAgentID: PMMAgentID, AgentType: &rdsExporterType, AWSAccessKey: awsAccessKey}
 			agents, err := models.FindAgents(r.db.Querier, filters)
 			if err != nil {
 				return "", nil, err
@@ -106,7 +107,7 @@ func (r *roster) clear(pmmAgentID string) {
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
-	prefix := pmmAgentID + "/"
+	prefix := pmmAgentID + ":"
 	var toDelete []string
 	for groupID := range r.m {
 		if strings.HasPrefix(groupID, prefix) {
