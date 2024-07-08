@@ -14,9 +14,7 @@ main() {
         set -o errexit
         set -o xtrace
 
-        RHEL=$(rpm --eval '%{rhel}')
-        echo "RHEL version: $RHEL"
-        if [ "$RHEL" = "7" ]; then
+        if [ "${IMAGE}" = "centos:7" ]; then
             # disable fastestmirror plugin, which mostly fails due to CentOS 7 being EOL
             sed -i 's/enabled=1/enabled=0/g' /etc/yum/pluginconf.d/fastestmirror.conf
 
