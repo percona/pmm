@@ -109,7 +109,7 @@ build() {
             echo \"repo_name: ${repo_name}\"
             echo \"rpm_verison: ${rpm_version}\"
 
-            if grep -q "CentOS Linux 7" /etc/os-release; then
+            if grep -q \"CentOS Linux 7\" /etc/os-release; then
                 # disable fastestmirror plugin, which mostly fails due to CentOS 7 being EOL
                 sed -i 's/enabled=1/enabled=0/g' /etc/yum/pluginconf.d/fastestmirror.conf
 
