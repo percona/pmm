@@ -338,74 +338,33 @@ User activity, individual table and index access details are shown on the [MySQL
 ## Add service
 
 There are two ways to install  PMM Client  for monitoring your MySQL database:
-1. [By Installing PMM Client locally] - This option collects both database and OS/host metrics, allowing for more effective comparison between the two and better problem identification.
-2. [As a remote instance] - This option should be used when it is not possible to install PMM Client on the Database node. It will not provide OS/Node metrics in PMM.
 
-![!](../../../_images/PMM_Add_Instance_MySQL_TLS.jpg)
+1. [Local installation](#Install-PMM-Client locally): Installs PMM Client directly on the database node, collecting both database and OS/host metrics. This option enables more effective comparison and problem identification.
+2. [Remote instance](#Install-PMM-Client-as-a-remote-instance): Use when local installation isn't possible. This method doesn't provide OS/Node metrics in PMM.
 
-### On the command line
 
-Add the database server as a service using one of these example commands. If successful, PMM Client will print `MySQL Service added` with the service's ID and name. Use the `--environment` and `-custom-labels` options to set tags for the service to help identify them.
+### Install PMM Client locally
 
-??? info "Examples"
+Add the MySQL server as a service using one of the following example commands. 
+Upon successful addition, PMM Client will display "MySQL Service added" along with the service's ID and name. 
 
-    #### TLS connection
+Use `--environment` and `--custom-labels` options to set identifying tags for the service.
 
-    ```sh
-    pmm-admin add mysql --username=user --password=pass --tls --tls-skip-verify --tls-ca=pathtoca.pem --tls-cert=pathtocert.pem --tls-key=pathtocertkey.pem --server-url=http://admin:admin@127.0.0.1 --query-source=perfschema name localhost:3306
-    ```
+```sh
+pmm-admin add mysql --username=pmm --password=<your_password> MYSQL_SERVICE_NAME
+```
 
-    #### Slow query log
+### Example configurations
 
-    Default query source (`slowlog`), service name (`{node name}-mysql`), and service address/port (`127.0.0.1:3306`), with database server account `pmm` and password `pass`.
+#### TLS connection
 
-    ```sh
-    pmm-admin add mysql --username=pmm --password=pass
-    ```
-
-    Slow query log source and log size limit (1 gigabyte), service name (`MYSQL_NODE`) and service address/port (`191.168.1.123:3306`).
-
-    ```sh
-    pmm-admin add mysql --query-source=slowlog --size-slow-logs=1GiB --username=pmm --password=pass MYSQL_NODE 192.168.1.123:3306
-    ```
-
-    Slow query log source, disabled log management (use [`logrotate`][LOGROTATE] or some other log management tool), service name (`MYSQL_NODE`) and service address/port (`191.168.1.123:3306`).
-
-    ```sh
-    pmm-admin add mysql --query-source=slowlog --size-slow-logs=-1GiB --username=pmm --password=pass MYSQL_NODE 192.168.1.123:3306
-    ```
-
-    Default query source (`slowlog`), service name (`{node}-mysql`), connect via socket.
-
-    ```sh
-    pmm-admin add mysql --username=pmm --password=pass --socket=/var/run/mysqld/mysqld.sock
-    ```
-
-    #### Performance Schema
-
-    Performance schema query source, service name (`MYSQL_NODE`) and default service address/port (`127.0.0.1:3306`).
-
-    ```sh
-    pmm-admin add mysql --query-source=perfschema --username=pmm --password=pass MYSQL_NODE
-    ```
-
-    Performance schema query source, service name (`MYSQL_NODE`) and default service address/port (`127.0.0.1:3306`) specified with flags.
-
-    ```sh
-    pmm-admin add mysql --query-source=perfschema --username=pmm --password=pass --service-name=MYSQL_NODE --host=127.0.0.1 --port=3306
-    ```
-
-    #### Identifying services
-
-    Default query source (`slowlog`), environment labeled `test`, custom labels setting `source` to `slowlog`. (This example uses positional parameters for service name and service address.)
-
-    ```sh
-    pmm-admin add mysql --environment=test --custom-labels='source=slowlog'  --username=root --password=password --query-source=slowlog MySQLSlowLog localhost:3306
-    ```
+```sh 
+pmm-admin add mysql --environment=test --custom-labels='source=slowlog'  --username=root --password=password --query-source=slowlog MySQLSlowLog localhost:3306
+```
 
 ### Install PMM Client as a remote instance
 
-1. Select <i class="uil uil-cog"></i> **Configuration > {{icon.inventory}} Inventory >{{icon.addinstance}} Add Service**.
+1. Select <i class="uil uil-cog"></i> ** PMM Configuration > PMM Inventory > {{icon.addinstance}} Add Service**.
 
 2. Choose **MySQL > Add a remote instance**.
 
@@ -424,7 +383,6 @@ If your MySQL instance is configured to use TLS:
 
 ![!](../../_images/PMM_Add_Instance_MySQL_TLS.png)
 
-
 ## Check the service
 
 ### PMM user interface
@@ -433,7 +391,7 @@ To check the service with the UI:
 {.power-number}
 
 
-1. Select <i class="uil uil-cog"></i> **Configuration** → {{icon.inventory}} **Inventory**.
+1. Select <i class="uil uil-cog"></i> **PMM Configuration > PMM Inventory**.
 2. In the **Services** tab, verify the **Service name**, **Addresses**, and any other relevant information in the form.
 3. In the **Options** column, expand the **Details** section and check that the Agents are using the desired data source.
 
