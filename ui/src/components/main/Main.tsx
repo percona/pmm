@@ -1,12 +1,12 @@
 import { CircularProgress, Stack } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import { AppBar } from '../app-bar/AppBar';
-import { useAuth } from 'contexts/auth';
+import { useBootstrap } from 'hooks/utils/useBootstrap';
 
 export const Main = () => {
-  const { isLoading } = useAuth();
+  const { isReady } = useBootstrap();
 
-  if (isLoading) {
+  if (!isReady) {
     return (
       <Stack
         alignItems="center"
