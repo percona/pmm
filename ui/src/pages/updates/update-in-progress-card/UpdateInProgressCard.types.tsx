@@ -1,6 +1,6 @@
-import { UpdateStatus, VersionInfo } from 'types/updates.types';
+import { CurrentInfo, LatestInfo, UpdateStatus } from 'types/updates.types';
 
 export interface UpdateInProgressCardProps {
-  versionInfo: VersionInfo;
+  versionInfo: CurrentInfo & LatestInfo;
   status: UpdateStatus;
 }
