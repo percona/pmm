@@ -18,8 +18,13 @@ export const Page: FC<PageProps> = ({ title, children }) => {
   return (
     <Stack
       sx={{
-        width: 800,
-        py: 3,
+        width: {
+          sm: 800,
+          xs: 'auto',
+        },
+        p: {
+          xs: 2,
+        },
         mx: 'auto',
         gap: 3,
       }}
