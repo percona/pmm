@@ -55,7 +55,7 @@
     name: "*"
     state: latest
     exclude: "ansible*"
-    disablerepo: pmm2-client
+    disablerepo: pmm2-server
 
 - name: Packages                   | Update OS EL9
   when:
