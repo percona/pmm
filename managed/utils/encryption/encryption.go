@@ -39,7 +39,12 @@ var (
 // New creates an encryption; if key on path doesn't exist, it will be generated.
 func New(keyPath string) *Encryption {
 	e := &Encryption{}
-	e.Path = keyPath
+	customKeyPath := os.Getenv("PMM_ENCRYPTION_KEY_PATH")
+	if customKeyPath != "" {
+		e.Path = customKeyPath
+	} else {
+		e.Path = keyPath
+	}
 
 	bytes, err := os.ReadFile(e.Path)
 	switch {
