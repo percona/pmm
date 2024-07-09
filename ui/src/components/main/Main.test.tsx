@@ -16,7 +16,7 @@ describe('Main', () => {
     expect(screen.queryByTestId('pmm-loading-indicator')).toBeDefined();
   });
 
-  it('doesnt show loading', () => {
+  it("doesn't show loading", () => {
     render(
       <TestWrapper>
         <AuthContext.Provider value={{ isLoading: false }}>

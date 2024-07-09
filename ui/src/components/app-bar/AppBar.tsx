@@ -9,7 +9,7 @@ import {
 import { Link as RouterLink } from 'react-router-dom';
 import { HelpFilledIcon, PmmRoundedIcon } from 'icons';
 import { Breadcrumbs } from 'components/breadcrumbs';
-import { PMM_HOME_URL } from 'constants';
+import { PMM_HOME_URL, PMM_SUPPORT_URL } from 'constants';
 import { Messages } from './AppBar.messages';
 
 export const AppBar = () => (
@@ -40,7 +40,14 @@ export const AppBar = () => (
         >
           <Stack gap={1} direction="row" alignItems="center">
             <HelpFilledIcon />
-            <Typography>{Messages.support}</Typography>
+            <Link
+              href={PMM_SUPPORT_URL}
+              color="inherit"
+              underline="hover"
+              data-testid="appbar-pmm-link"
+            >
+              <Typography>{Messages.support}</Typography>
+            </Link>
           </Stack>
         </Link>
       </Box>
