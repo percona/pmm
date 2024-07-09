@@ -6,7 +6,6 @@ import {
   Link,
   Stack,
 } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
 import { HelpFilledIcon, PmmRoundedIcon } from 'icons';
 import { Breadcrumbs } from 'components/breadcrumbs';
 import { PMM_HOME_URL, PMM_SUPPORT_URL } from 'constants';
