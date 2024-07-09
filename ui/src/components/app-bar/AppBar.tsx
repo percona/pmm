@@ -32,22 +32,16 @@ export const AppBar = () => (
       <Breadcrumbs />
       <Box sx={{ ml: 'auto' }}>
         <Link
-          to="/"
-          component={RouterLink}
+          href={PMM_SUPPORT_URL}
+          target="_blank"
+          rel="noopener noreferrer"
           color="inherit"
           underline="hover"
           data-testid="appbar-support-link"
         >
           <Stack gap={1} direction="row" alignItems="center">
             <HelpFilledIcon />
-            <Link
-              href={PMM_SUPPORT_URL}
-              color="inherit"
-              underline="hover"
-              data-testid="appbar-pmm-link"
-            >
-              <Typography>{Messages.support}</Typography>
-            </Link>
+            <Typography>{Messages.support}</Typography>
           </Stack>
         </Link>
       </Box>
