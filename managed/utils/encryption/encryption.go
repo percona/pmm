@@ -63,7 +63,7 @@ func New(keyPath string) *Encryption {
 	return e
 }
 
-// Encrypt is wrapper around DefaultEncryption.Encrypt.
+// Encrypt is a wrapper around DefaultEncryption.Encrypt.
 func Encrypt(secret string) (string, error) {
 	return DefaultEncryption.Encrypt(secret)
 }
@@ -82,7 +82,7 @@ func (e *Encryption) Encrypt(secret string) (string, error) {
 	return base64.StdEncoding.EncodeToString(cipherText), nil
 }
 
-// EncryptItems is wrapper around DefaultEncryption.EncryptItems.
+// EncryptItems is a wrapper around DefaultEncryption.EncryptItems.
 func EncryptItems(tx *reform.TX, tables []Table) error {
 	return DefaultEncryption.EncryptItems(tx, tables)
 }
