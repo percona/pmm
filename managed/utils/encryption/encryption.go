@@ -82,7 +82,7 @@ func (e *Encryption) Encrypt(secret string) (string, error) {
 	return base64.StdEncoding.EncodeToString(cipherText), nil
 }
 
-// EncryptItems is wrapper around DefaultEncryption.EncryptItems.
+// EncryptItems is a wrapper around DefaultEncryption.EncryptItems.
 func EncryptItems(tx *reform.TX, tables []Table) error {
 	return DefaultEncryption.EncryptItems(tx, tables)
 }
