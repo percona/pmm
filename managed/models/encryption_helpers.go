@@ -153,10 +153,6 @@ func mySQLOptionsHandler(val any, handler func(string) (string, error)) (any, er
 		return nil, err
 	}
 
-	o.TLSCa, err = handler(o.TLSCa)
-	if err != nil {
-		return nil, err
-	}
 	o.TLSCert, err = handler(o.TLSCert)
 	if err != nil {
 		return nil, err
@@ -196,10 +192,6 @@ func postgreSQLOptionsHandler(val any, handler func(string) (string, error)) (an
 		return nil, err
 	}
 
-	o.SSLCa, err = handler(o.SSLCa)
-	if err != nil {
-		return nil, err
-	}
 	o.SSLCert, err = handler(o.SSLCert)
 	if err != nil {
 		return nil, err
@@ -239,10 +231,6 @@ func mongoDBOptionsHandler(val any, handler func(string) (string, error)) (any, 
 		return nil, err
 	}
 
-	o.TLSCa, err = handler(o.TLSCa)
-	if err != nil {
-		return nil, err
-	}
 	o.TLSCertificateKey, err = handler(o.TLSCertificateKey)
 	if err != nil {
 		return nil, err
