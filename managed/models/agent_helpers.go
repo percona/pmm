@@ -643,15 +643,14 @@ func CreateNodeExporter(q *reform.Querier,
 		LogLevel:           pointer.ToStringOrNil(logLevel),
 		ExposeExporter:     exposeExporter,
 	}
-	encryptedAgent := EncryptAgent(*row)
-
-	if err := encryptedAgent.SetCustomLabels(customLabels); err != nil {
+	if err := row.SetCustomLabels(customLabels); err != nil {
 		return nil, err
 	}
+
+	encryptedAgent := EncryptAgent(*row)
 	if err := q.Insert(&encryptedAgent); err != nil {
 		return nil, errors.WithStack(err)
 	}
-
 	decryptedAgent := DecryptAgent(encryptedAgent)
 
 	return &decryptedAgent, nil
@@ -731,15 +730,14 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		ListenPort:    pointer.ToUint16(uint16(params.ListenPort)),
 		PushMetrics:   params.PushMetrics,
 	}
-	encryptedAgent := EncryptAgent(*row)
-
-	if err := encryptedAgent.SetCustomLabels(params.CustomLabels); err != nil {
+	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}
+
+	encryptedAgent := EncryptAgent(*row)
 	if err := q.Insert(&encryptedAgent); err != nil {
 		return nil, errors.WithStack(err)
 	}
-
 	decryptedAgent := DecryptAgent(encryptedAgent)
 
 	return &decryptedAgent, nil
@@ -925,15 +923,14 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		DisabledCollectors:             params.DisableCollectors,
 		LogLevel:                       pointer.ToStringOrNil(params.LogLevel),
 	}
-	encryptedAgent := EncryptAgent(*row)
-
-	if err := encryptedAgent.SetCustomLabels(params.CustomLabels); err != nil {
+	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}
+
+	encryptedAgent := EncryptAgent(*row)
 	if err := q.Insert(&encryptedAgent); err != nil {
 		return nil, errors.WithStack(err)
 	}
-
 	decryptedAgent := DecryptAgent(encryptedAgent)
 
 	return &decryptedAgent, nil
