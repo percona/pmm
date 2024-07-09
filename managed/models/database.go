@@ -1063,9 +1063,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 	}
 
 	columnsToEncrypt := []encryption.Column{
-		{Name: "username"},
 		{Name: "password"},
-		{Name: "aws_access_key"}, {Name: "aws_secret_key"},
 		{Name: "mongo_db_tls_options", CustomHandler: EncryptMongoDBOptionsHandler},
 		{Name: "azure_options", CustomHandler: EncryptAzureOptionsHandler},
 		{Name: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler},
