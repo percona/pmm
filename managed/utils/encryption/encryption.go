@@ -63,7 +63,7 @@ func New(keyPath string) *Encryption {
 	return e
 }
 
-// Encrypt is wrapper around DefaultEncryption.Encrypt.
+// Encrypt is a wrapper around DefaultEncryption.Encrypt.
 func Encrypt(secret string) (string, error) {
 	return DefaultEncryption.Encrypt(secret)
 }
