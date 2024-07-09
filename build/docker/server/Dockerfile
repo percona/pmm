@@ -16,8 +16,9 @@ WORKDIR /opt
 # Disable fastestmirror plugin and update repo URLs
 RUN sed -i 's/enabled=1/enabled=0/g' /etc/yum/pluginconf.d/fastestmirror.conf && \
     sed -i -e 's/^\(mirrorlist\)/#\1/g' /etc/yum.repos.d/CentOS-Base.repo && \
-    sed -i -e 's/^#baseurl.*/baseurl=http:\/\/vault.centos.org\/centos\/\$releasever\/os\/\$basearch\//g' /etc/yum.repos.d/CentOS-Base.repo && \
+    sed -i -e 's/^#baseurl.*/baseurl=http:\/\/vault.centos.org\/centos\/\$releasever\/os\/\$basearch\//g' /etc/yum.repos.d/CentOS-Base.repo
 
+# Install EPEL repository and Ansible
 RUN yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
     yum -y install ansible
 
