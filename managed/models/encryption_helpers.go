@@ -77,67 +77,55 @@ func agentEncryption(agent Agent, handler func(string) (string, error)) Agent {
 
 	var err error
 	if agent.MySQLOptions != nil {
-		options := &MySQLOptions{}
-		*options = *agent.MySQLOptions
-		options.TLSCert, err = handler(agent.MySQLOptions.TLSCert)
+		agent.MySQLOptions.TLSCert, err = handler(agent.MySQLOptions.TLSCert)
 		if err != nil {
 			logrus.Warning(err)
 		}
-		options.TLSKey, err = handler(agent.MySQLOptions.TLSKey)
+		agent.MySQLOptions.TLSKey, err = handler(agent.MySQLOptions.TLSKey)
 		if err != nil {
 			logrus.Warning(err)
 		}
-		agent.MySQLOptions = options
 	}
 
 	if agent.PostgreSQLOptions != nil {
-		options := &PostgreSQLOptions{}
-		*options = *agent.PostgreSQLOptions
-		options.SSLCert, err = handler(agent.PostgreSQLOptions.SSLCert)
+		agent.PostgreSQLOptions.SSLCert, err = handler(agent.PostgreSQLOptions.SSLCert)
 		if err != nil {
 			logrus.Warning(err)
 		}
-		options.SSLKey, err = handler(agent.PostgreSQLOptions.SSLKey)
+		agent.PostgreSQLOptions.SSLKey, err = handler(agent.PostgreSQLOptions.SSLKey)
 		if err != nil {
 			logrus.Warning(err)
 		}
-		agent.PostgreSQLOptions = options
 	}
 
 	if agent.MongoDBOptions != nil {
-		options := &MongoDBOptions{}
-		*options = *agent.MongoDBOptions
-		options.TLSCertificateKey, err = handler(agent.MongoDBOptions.TLSCertificateKey)
+		agent.MongoDBOptions.TLSCertificateKey, err = handler(agent.MongoDBOptions.TLSCertificateKey)
 		if err != nil {
 			logrus.Warning(err)
 		}
-		options.TLSCertificateKeyFilePassword, err = handler(agent.MongoDBOptions.TLSCertificateKeyFilePassword)
+		agent.MongoDBOptions.TLSCertificateKeyFilePassword, err = handler(agent.MongoDBOptions.TLSCertificateKeyFilePassword)
 		if err != nil {
 			logrus.Warning(err)
 		}
-		agent.MongoDBOptions = options
 	}
 
 	if agent.AzureOptions != nil {
-		options := &AzureOptions{}
-		*options = *agent.AzureOptions
-		options.ClientID, err = handler(agent.AzureOptions.ClientID)
+		agent.AzureOptions.ClientID, err = handler(agent.AzureOptions.ClientID)
 		if err != nil {
 			logrus.Warning(err)
 		}
-		options.ClientSecret, err = handler(agent.AzureOptions.ClientSecret)
+		agent.AzureOptions.ClientSecret, err = handler(agent.AzureOptions.ClientSecret)
 		if err != nil {
 			logrus.Warning(err)
 		}
-		options.SubscriptionID, err = handler(agent.AzureOptions.SubscriptionID)
+		agent.AzureOptions.SubscriptionID, err = handler(agent.AzureOptions.SubscriptionID)
 		if err != nil {
 			logrus.Warning(err)
 		}
-		options.TenantID, err = handler(agent.AzureOptions.TenantID)
+		agent.AzureOptions.TenantID, err = handler(agent.AzureOptions.TenantID)
 		if err != nil {
 			logrus.Warning(err)
 		}
-		agent.AzureOptions = options
 	}
 
 	return agent
