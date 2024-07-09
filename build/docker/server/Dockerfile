@@ -17,9 +17,9 @@ WORKDIR /opt
 RUN sed -i 's/enabled=1/enabled=0/g' /etc/yum/pluginconf.d/fastestmirror.conf && \
     sed -i -e 's/^\(mirrorlist\)/#\1/g' /etc/yum.repos.d/CentOS-Base.repo && \
     sed -i -e 's/^#baseurl.*/baseurl=http:\/\/vault.centos.org\/centos\/\$releasever\/os\/\$basearch\//g' /etc/yum.repos.d/CentOS-Base.repo && \
-    cat /etc/yum.repos.d/CentOS-Base.repo
 
-RUN yum -y install epel-release && yum -y install ansible
+RUN yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
+    yum -y install ansible
 
 COPY RPMS /tmp/RPMS
 COPY gitCommit /tmp/gitCommit
