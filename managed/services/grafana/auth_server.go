@@ -51,6 +51,7 @@ var rules = map[string]role{
 	"/inventory.":                               admin,
 	"/management.":                              admin,
 	"/actions.":                                 viewer,
+	"/advisors.v1.":                             editor,
 	"/server.v1.ServerService/CheckUpdates":     viewer,
 	"/server.v1.ServerService/UpdateStatus":     none,  // special token-based auth
 	"/server.v1.ServerService/AWSInstanceCheck": none,  // special case - used before Grafana can be accessed
@@ -60,10 +61,10 @@ var rules = map[string]role{
 	"/qan.v1.QANService.":                       viewer,
 
 	"/v1/alerting":                    viewer,
+	"/v1/advisors/":                   editor,
+	"/v1/advisors/checks:":            editor,
 	"/v1/actions/":                    viewer,
-	"/v1/actions:startServiceAction":  viewer,
-	"/v1/actions:startNodeAction":     viewer,
-	"/v1/actions:cancelAction":        viewer,
+	"/v1/actions:":                    viewer,
 	"/v1/backups":                     admin,
 	"/v1/dump":                        admin,
 	"/v1/accesscontrol":               admin,
@@ -455,7 +456,7 @@ func (s *AuthServer) mustSetup(rw http.ResponseWriter, req *http.Request, l *log
 	return false
 }
 
-// nextPrefix returns path's prefix, stopping on slashes and dots:
+// nextPrefix returns path's prefix, stopping on slashes, dots, and colons, e.g.:
 // /inventory.Nodes/ListNodes -> /inventory.Nodes/ -> /inventory.Nodes -> /inventory. -> /inventory -> /
 // /v1/inventory/Nodes/List -> /v1/inventory/Nodes/ -> /v1/inventory/Nodes -> /v1/inventory/ -> /v1/inventory -> /v1/ -> /v1 -> /
 // That works for both gRPC and JSON URLs.
@@ -470,6 +471,10 @@ func nextPrefix(path string) string {
 	}
 
 	if t := strings.TrimRight(path, "/"); t != path {
+		return t
+	}
+
+	if t := strings.TrimRight(path, ":"); t != path {
 		return t
 	}
 

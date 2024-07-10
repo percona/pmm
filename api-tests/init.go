@@ -36,6 +36,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
+	advisorsClient "github.com/percona/pmm/api/advisors/v1/json/client"
 	alertingClient "github.com/percona/pmm/api/alerting/v1/json/client"
 	backupsClient "github.com/percona/pmm/api/backup/v1/json/client"
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
@@ -199,6 +200,7 @@ func init() {
 	backupsClient.Default = backupsClient.New(transport, nil)
 	platformClient.Default = platformClient.New(transport, nil)
 	alertingClient.Default = alertingClient.New(transport, nil)
+	advisorsClient.Default = advisorsClient.New(transport, nil)
 
 	// do not run tests if server is not available
 	_, err = serverClient.Default.ServerService.Readiness(nil)

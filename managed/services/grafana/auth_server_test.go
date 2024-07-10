@@ -214,6 +214,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 
 		"/v1/inventory/nodes":               admin,
 		"/v1/actions:startServiceAction":    viewer,
+		"/v1/advisors":                      editor,
 		"/v1/management/services":           admin,
 		"/v1/management/agents":             admin,
 		"/v1/server/updates":                viewer,
