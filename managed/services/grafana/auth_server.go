@@ -61,7 +61,7 @@ var rules = map[string]role{
 	"/qan.v1.QANService.":                       viewer,
 
 	"/v1/alerting":                    viewer,
-	"/v1/advisors/":                   editor,
+	"/v1/advisors":                    editor,
 	"/v1/advisors/checks:":            editor,
 	"/v1/actions/":                    viewer,
 	"/v1/actions:":                    viewer,
@@ -95,11 +95,8 @@ var rules = map[string]role{
 	"/v1/version":        viewer, // TODO: remove before v3 GA
 	"/v1/server/version": viewer,
 
-	"/v1/qan":                    viewer,
-	"/v1/qan:getMetrics":         viewer,
-	"/v1/qan:getLabels":          viewer,
-	"/v1/qan:getHistogram":       viewer,
-	"/v1/qan:explainFingerprint": viewer,
+	"/v1/qan":  viewer,
+	"/v1/qan:": viewer,
 
 	// mustSetupRules group
 	"/prometheus":      admin,
@@ -478,7 +475,7 @@ func nextPrefix(path string) string {
 		return t
 	}
 
-	i := strings.LastIndexAny(path, "/.")
+	i := strings.LastIndexAny(path, "/.:")
 	return path[:i+1]
 }
 
