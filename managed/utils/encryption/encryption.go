@@ -78,7 +78,9 @@ func (e *Encryption) Encrypt(secret string) (string, error) {
 	if e == nil || e.Primitive == nil {
 		return secret, ErrEncryptionNotInitialized
 	}
-
+	if secret == "" {
+		return secret, nil
+	}
 	cipherText, err := e.Primitive.Encrypt([]byte(secret), []byte(""))
 	if err != nil {
 		return secret, err

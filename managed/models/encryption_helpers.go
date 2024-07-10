@@ -51,6 +51,14 @@ func agentEncryption(agent Agent, handler func(string) (string, error)) Agent {
 		agent.AgentPassword = &agentPassword
 	}
 
+	if agent.AWSSecretKey != nil {
+		awsSecretKey, err := handler(*agent.AWSSecretKey)
+		if err != nil {
+			logrus.Warning(err)
+		}
+		agent.AWSSecretKey = &awsSecretKey
+	}
+
 	var err error
 	if agent.MySQLOptions != nil {
 		agent.MySQLOptions.TLSCert, err = handler(agent.MySQLOptions.TLSCert)
