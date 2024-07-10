@@ -38,8 +38,8 @@ type collectorArgs struct {
 var (
 	// New MongoDB Exporter will be released with PMM agent v2.10.0.
 	newMongoExporterPMMVersion = version.MustParse("2.9.99")
-	v2_24_99                   = version.MustParse("2.24.99")
-	v2_25_99                   = version.MustParse("2.25.99")
+	v2_25_0                    = version.MustParse("2.25.0-0")
+	v2_26_0                    = version.MustParse("2.26.0-0")
 	v2_41_1                    = version.MustParse("2.41.1-0")
 )
 
@@ -55,33 +55,12 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 	// Starting with PMM 2.25.0, we change the discovering-mode making it to discover all databases.
 	// Until now, discovering mode was not working properly and was enabled only if mongodb.collstats-colls=
 	// was specified in the command line.
+	// Starting with PMM 2.26.0, we disabled all collectors by default and added flags to enable them.
 	// Starting with PMM 2.41.1 we added shards collector.
-	switch {
-	case !pmmAgentVersion.Less(v2_41_1): // >= 2.41.1
-		args = v226Args(exporter, tdp, listenAddress)
-
-		if exporter.MongoDBOptions != nil && exporter.MongoDBOptions.EnableAllCollectors {
-			args = append(args, "--collector.shards")
-		}
-	case !pmmAgentVersion.Less(v2_25_99): // >= 2.26
-		args = v226Args(exporter, tdp, listenAddress)
-	case !pmmAgentVersion.Less(v2_24_99): // >= 2.25
-		args = v225Args(exporter, tdp, listenAddress)
-	case !pmmAgentVersion.Less(newMongoExporterPMMVersion): // >= 2.10
-		args = []string{
-			"--mongodb.global-conn-pool",
-			"--compatible-mode",
-			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
-		}
-	default:
-		args = []string{
-			"--collect.collection",
-			"--collect.database",
-			"--collect.topmetrics",
-			"--no-collect.connpoolstats",
-			"--no-collect.indexusage",
-			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
-		}
+	if pmmAgentVersion.Less(v2_26_0) {
+		args = oldPMMAgentArgs(exporter, tdp, listenAddress, pmmAgentVersion)
+	} else {
+		args = v226Args(exporter, tdp, listenAddress, pmmAgentVersion)
 	}
 
 	args = collectors.FilterOutCollectors("--collect.", args, exporter.DisabledCollectors)
@@ -99,7 +78,7 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 		database = exporter.MongoDBOptions.AuthenticationDatabase
 	}
 	env := []string{
-		fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: database}, tdp)),
+		fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: database}, tdp, pmmAgentVersion)),
 	}
 
 	res := &agentpb.SetStateRequest_AgentProcess{
@@ -122,7 +101,31 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 	return res, nil
 }
 
-func v226Args(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress string) []string {
+func oldPMMAgentArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress string, pmmAgentVersion *version.Parsed) []string {
+	var args []string
+	switch {
+	case !pmmAgentVersion.Less(v2_25_0): // >= 2.25
+		args = v225Args(exporter, tdp, listenAddress)
+	case !pmmAgentVersion.Less(newMongoExporterPMMVersion): // >= 2.10
+		args = []string{
+			"--mongodb.global-conn-pool",
+			"--compatible-mode",
+			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right, //nolint:goconst
+		}
+	default:
+		args = []string{
+			"--collect.collection",
+			"--collect.database",
+			"--collect.topmetrics",
+			"--no-collect.connpoolstats",
+			"--no-collect.indexusage",
+			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
+		}
+	}
+	return args
+}
+
+func v226Args(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress string, pmmAgentVersion *version.Parsed) []string {
 	collectAll := false
 	if exporter.MongoDBOptions != nil {
 		collectAll = exporter.MongoDBOptions.EnableAllCollectors
@@ -134,6 +137,13 @@ func v226Args(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress s
 	}
 
 	collectors := defaultCollectors(collectAll)
+
+	if !pmmAgentVersion.Less(v2_41_1) { // >= 2.41.1
+		collectors["shards"] = collectorArgs{
+			enabled:     collectAll,
+			enableParam: "--collector.shards",
+		}
+	}
 
 	for _, collector := range exporter.DisabledCollectors {
 		col, ok := collectors[strings.ToLower(collector)]
@@ -260,11 +270,11 @@ func defaultCollectors(collectAll bool) map[string]collectorArgs {
 }
 
 // qanMongoDBProfilerAgentConfig returns desired configuration of qan-mongodb-profiler-agent built-in agent.
-func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
+func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentpb.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type:                 inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT,
-		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil),
+		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
 		DisableQueryExamples: agent.QueryExamplesDisabled,
 		MaxQueryLength:       agent.MaxQueryLength,
 		TextFiles: &agentpb.TextFiles{

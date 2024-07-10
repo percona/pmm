@@ -14,12 +14,3 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package supervisord
-
-import "net/url"
-
-// victoriaMetricsParams is a subset of methods of models.VMParams used by this package.
-// We use it instead of real type to avoid dependency cycle.
-type victoriaMetricsParams interface {
-	ExternalVM() bool
-	URLFor(path string) (*url.URL, error)
-}

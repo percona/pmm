@@ -398,10 +398,12 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		require.Len(t, buckets, 1)
 
 		var fingerprint string
+		tables := []string{tableName}
+
 		switch engineVersion {
 		case "9.4", "9.5", "9.6":
 			fingerprint = fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (?, ?, ?, ?)`, tableName)
-
+			tables = []string{}
 		default:
 			fingerprint = fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)`, tableName)
 		}
@@ -412,7 +414,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				Queryid:             actual.Common.Queryid,
 				Fingerprint:         fingerprint,
 				Database:            "pmm-agent",
-				Tables:              []string{tableName},
+				Tables:              tables,
 				Comments:            map[string]string{"controller": "test"},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",
