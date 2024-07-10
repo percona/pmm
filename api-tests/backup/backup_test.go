@@ -86,7 +86,7 @@ func TestScheduleBackup(t *testing.T) {
 				},
 			})
 		require.NoError(t, err)
-		mongo2ID := mongo2Resp.Payload.Postgresql.Service.ServiceID
+		mongo2ID := mongo2Resp.Payload.Mongodb.Service.ServiceID
 		defer pmmapitests.RemoveServices(t, mongo2ID)
 
 		resp, err := backupClient.Default.LocationsService.AddLocation(&locations.AddLocationParams{
