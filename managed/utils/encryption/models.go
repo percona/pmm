@@ -24,17 +24,6 @@ type Encryption struct {
 	Primitive tink.AEAD
 }
 
-// DatabaseConnection represents DB connection and its encrypted items.
-type DatabaseConnection struct {
-	Host, User, Password string
-	Port                 int16
-	DBName               string
-	SSLMode              string
-	SSLCAPath            string
-	SSLKeyPath           string
-	SSLCertPath          string
-}
-
 // Table represents table name, it's identifiers and columns to be encrypted/decrypted.
 type Table struct {
 	Name        string
