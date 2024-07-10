@@ -17,7 +17,6 @@ package helpers
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/pkg/errors"
 
@@ -31,7 +30,6 @@ var errNoNode = errors.New("no node available")
 // HAProxyMinPMMServerVersion contains minimum version for running HAProxy.
 const (
 	haProxyMinPMMServerVersion = "2.15.0"
-	serviceIDPrefix            = "/service_id"
 )
 
 // ServerVersionLessThan return if provided version is lower than server version.
@@ -95,9 +93,4 @@ func IsOnPmmServer() (bool, error) {
 	}
 
 	return status.NodeID == "pmm-server", nil
-}
-
-// StripServiceIDPrefix removes the prefix from the service ID if present.
-func StripServiceIDPrefix(serviceID string) string {
-	return strings.TrimPrefix(serviceID, serviceIDPrefix)
 }

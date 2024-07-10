@@ -20,7 +20,6 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/admin/helpers"
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 	"github.com/percona/pmm/api/management/v1/json/client"
@@ -96,7 +95,7 @@ func (cmd *RemoveCommand) RunCmd() (commands.Result, error) {
 	}
 
 	params := &mservice.RemoveServiceParams{
-		ServiceID:   helpers.StripServiceIDPrefix(serviceID),
+		ServiceID:   serviceID,
 		ServiceType: cmd.serviceType(),
 		Context:     commands.Ctx,
 	}
