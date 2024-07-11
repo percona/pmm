@@ -81,6 +81,9 @@ jobs:
       - name: Update binaries
         run: docker exec -i pmm-server make run-managed-ci run-agent run-vmproxy
 
+      - name: Refresh yum cache for tests
+        run: docker exec -i pmm-server yum --verbose info updates pmm-managed
+
       - name: Run tests
         run: docker exec -i pmm-server make -C managed test-cover
 
