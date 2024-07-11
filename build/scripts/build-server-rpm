@@ -114,7 +114,7 @@ build() {
                 sudo sed -i 's/enabled=1/enabled=0/g' /etc/yum/pluginconf.d/fastestmirror.conf
 
                 sudo sed -i -e 's/^\(mirrorlist\)/#\1/g' /etc/yum.repos.d/CentOS-Base.repo
-                sueo sed -i -e 's|^#baseurl.*|baseurl=http://vault.centos.org/centos/\$releasever/os/\$basearch/|g' /etc/yum.repos.d/CentOS-Base.repo
+                sudo sed -i -e 's|^#baseurl.*|baseurl=http://vault.centos.org/centos/\$releasever/os/\$basearch/|g' /etc/yum.repos.d/CentOS-Base.repo
             fi
 
             sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
