@@ -77,12 +77,8 @@ var rules = map[string]role{
 	"/v1/server/updates:start":        admin,
 	"/v1/server/updates:getStatus":    none, // special token-based auth
 	"/v1/server/settings":             admin,
-	"/v1/platform:connect":            admin,
-	"/v1/platform:disconnect":         admin,
-	"/v1/platform/organization/":      viewer,
-	"/v1/platform/contact":            viewer,
-	"/v1/platform/server":             viewer,
-	"/v1/platform/user":               viewer,
+	"/v1/platform:":                   admin,
+	"/v1/platform/":                   viewer,
 	"/v1/users":                       viewer,
 
 	// must be available without authentication for health checking
