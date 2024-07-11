@@ -32,6 +32,8 @@ import (
 )
 
 func TestPlatform(t *testing.T) {
+	t.Skip("Skip until we have the environment ready.")
+
 	client := platformClient.Default.PlatformService
 	serverClient := serverClient.Default.ServerService
 
