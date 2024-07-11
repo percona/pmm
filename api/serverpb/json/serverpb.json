@@ -338,14 +338,6 @@
                       "type": "boolean",
                       "x-order": 15
                     },
-                    "encrypted_items": {
-                      "description": "Contains all encrypted tables in format 'db.table.column'.",
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "x-order": 17
-                    },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
                       "type": "object",
@@ -538,14 +530,6 @@
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
                       "x-order": 15
-                    },
-                    "encrypted_items": {
-                      "description": "Contains all encrypted tables in format 'db.table.column'.",
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "x-order": 17
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",

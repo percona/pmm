@@ -169,8 +169,6 @@ message Settings {
   bool enable_access_control = 21;
   // Default Access Control role ID for new users.
   uint32 default_role_id = 22;
-  // Contains all encrypted tables in format 'db.table.column'.
-  repeated string encrypted_items = 23;
 }
 
 message GetSettingsRequest {}

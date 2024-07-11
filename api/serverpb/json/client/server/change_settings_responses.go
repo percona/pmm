@@ -700,9 +700,6 @@ type ChangeSettingsOKBodySettings struct {
 	// Default Access Control role ID for new users.
 	DefaultRoleID int64 `json:"default_role_id,omitempty"`
 
-	// Contains all encrypted tables in format 'db.table.column'.
-	EncryptedItems []string `json:"encrypted_items"`
-
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
 
