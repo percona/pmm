@@ -309,7 +309,7 @@ func (s *ChecksAPIService) ChangeAdvisorChecks(_ context.Context, req *advisorsv
 		if check.Interval != advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED {
 			interval, err := convertAPIInterval(check.Interval)
 			if err != nil {
-				return nil, errors.Wrap(err, "failed to change advisor check interval")
+				return nil, err
 			}
 			changeIntervalParams[check.Name] = interval
 		}

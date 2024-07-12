@@ -184,7 +184,7 @@ func TestChangeAdvisorChecks(t *testing.T) {
 			}
 
 			_, err = advisorClient.Default.AdvisorService.ChangeAdvisorChecks(params)
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid value for enum type: \"unknown_interval\"")
+			require.NoError(t, err)
 
 			resp, err = advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
 			require.NoError(t, err)

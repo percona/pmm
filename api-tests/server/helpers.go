@@ -24,6 +24,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
+	advisorsv1 "github.com/percona/pmm/api/advisors/v1"
 	advisorClient "github.com/percona/pmm/api/advisors/v1/json/client"
 	advisor "github.com/percona/pmm/api/advisors/v1/json/client/advisor_service"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
@@ -89,7 +90,7 @@ func restoreCheckIntervalDefaults(t *testing.T) {
 				Params: []*advisor.ChangeAdvisorChecksParamsBodyParamsItems0{
 					{
 						Name:     check.Name,
-						Interval: pointer.ToString(advisor.ChangeAdvisorChecksParamsBodyParamsItems0IntervalADVISORCHECKINTERVALSTANDARD),
+						Interval: pointer.ToString(advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD.String()),
 					},
 				},
 			},
