@@ -579,7 +579,7 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 	j, err := json.Marshal(authHeaders)
 	if err != nil {
 		l.Warnf("%s", err)
-		return nil, &authError{code: codes.Internal, message: "Internal server error."}
+		return nil, &authError{code: codes.Internal, message: "Error marshalling headers."}
 	}
 	hash := base64.StdEncoding.EncodeToString(j)
 	s.rw.RLock()
@@ -616,7 +616,7 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 			}
 			return nil, &authError{code: code, message: cErr.ErrorMessage}
 		}
-		return nil, &authError{code: codes.Internal, message: "Internal server error."}
+		return nil, &authError{code: codes.Internal, message: err.Error()}
 	}
 	s.rw.Lock()
 	s.cache[hash] = cacheItem{
