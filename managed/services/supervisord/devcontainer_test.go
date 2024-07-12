@@ -63,6 +63,9 @@ func TestDevContainer(t *testing.T) {
 
 		res, resT := checker.checkResult(ctx)
 
+		require.NotNil(t, res)
+		require.NotNil(t, res.Installed)
+
 		assert.True(t, strings.HasPrefix(res.Installed.Version, "2."))
 		assert.WithinDuration(t, time.Now(), resT, time.Second)
 		installedFullVersion, _ := normalizeFullversion(&res.Installed)
