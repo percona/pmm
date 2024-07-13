@@ -16,9 +16,13 @@
 package alerting
 
 import (
-	"context"
+	"bytes"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"testing"
@@ -26,34 +30,52 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
+	gapi "github.com/grafana/grafana-api-golang-client"
 	"github.com/percona-platform/saas/pkg/alert"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"gopkg.in/yaml.v3"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
 	alertingClient "github.com/percona/pmm/api/alerting/v1/json/client"
 	alerting "github.com/percona/pmm/api/alerting/v1/json/client/alerting_service"
-	"github.com/percona/pmm/managed/services/grafana"
 )
 
 // Note: Even though the Alerting service checks for alerting enabled or disabled before returning results
 // we don't enable or disable Alerting explicitly in our tests since it is enabled by default through
-// PMM_DISABLE_ALERTING env var.
+// PMM_ENABLE_ALERTING env var.
 func TestRulesAPI(t *testing.T) {
 	t.Parallel()
+	const foldersAPI = "http://127.0.0.1/graph/api/folders"
 	client := alertingClient.Default.AlertingService
 
 	// Create grafana folder for test alert rules
-	grafanaClient := grafana.NewClient("127.0.0.1:3000")
-	ctx := metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{"Authorization": "Basic " + base64.StdEncoding.EncodeToString([]byte("admin:admin"))}))
-	folder, err := grafanaClient.CreateFolder(ctx, "test-folder-"+uuid.NewString())
+	b, err := json.Marshal(gapi.Folder{Title: "test-folder-" + uuid.NewString()})
+	require.NoError(t, err)
+
+	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, foldersAPI, bytes.NewReader(b))
+	require.NoError(t, err)
+
+	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte("admin:admin")))
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	defer res.Body.Close() //nolint:errcheck
+
+	b, err = io.ReadAll(res.Body)
+	require.NoError(t, err)
+
+	var folder gapi.Folder
+	err = json.Unmarshal(b, &folder)
 	require.NoError(t, err)
 
 	t.Cleanup(func() {
-		assert.NoError(t, grafanaClient.DeleteFolder(ctx, folder.UID, true))
+		query := make(url.Values, 1)
+		query.Set("forceDeleteRules", "true")
+		_, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodDelete, fmt.Sprintf("%s/%s?%s", foldersAPI, folder.UID, query.Encode()), nil)
+		require.NoError(t, err)
 	})
 
 	dummyFilter := &alerting.CreateRuleParamsBodyFiltersItems0{
@@ -645,7 +667,7 @@ func createAlertRuleParams(templateName, folderUID string, filter *alerting.Crea
 func createTemplate(t *testing.T) string {
 	t.Helper()
 
-	b, err := os.ReadFile("../../testdata/alerting/template.yaml")
+	b, err := os.ReadFile("../testdata/alerting/template.yaml")
 	require.NoError(t, err)
 
 	templateName := uuid.New().String()
