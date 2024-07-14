@@ -157,6 +157,5 @@ func PMMRoutingErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshale
 		Err:        status.Error(codes.NotFound, msg),
 	}
 
-	// runtime.DefaultHTTPErrorHandler(ctx, mux, marshaler, w, r, err)
-	PMMHTTPErrorHandler(ctx, mux, marshaler, w, r, err)
+	runtime.DefaultHTTPErrorHandler(ctx, mux, marshaler, w, r, err)
 }
