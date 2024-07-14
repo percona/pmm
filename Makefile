@@ -8,7 +8,7 @@ endif
 
 env-up: 							## Start devcontainer
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose up -d
+	docker compose up -d --wait --wait-timeout 100
 
 env-up-rebuild: env-update-image	## Rebuild and start devcontainer. Useful for custom $PMM_SERVER_IMAGE
 	COMPOSE_PROFILES=$(PROFILES) \

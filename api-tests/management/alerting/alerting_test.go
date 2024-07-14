@@ -41,7 +41,7 @@ import (
 
 // Note: Even though the Alerting service checks for alerting enabled or disabled before returning results
 // we don't enable or disable Alerting explicit in our tests since it is enabled by default through
-// DISABLE_ALERTING env var.
+// PMM_DISABLE_ALERTING env var.
 func TestRulesAPI(t *testing.T) {
 	t.Parallel()
 	client := alertingClient.Default.Alerting
@@ -580,7 +580,7 @@ func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates
 				value, err := expectedParam.GetValueForFloat()
 				require.NoError(t, err)
 				assert.True(t, param.Float.HasDefault)
-				assert.Equal(t, value, param.Float.Default)
+				assert.Equal(t, value, param.Float.Default) //nolint:testifylint
 			}
 
 			if len(expectedParam.Range) != 0 {
@@ -588,8 +588,8 @@ func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates
 				require.NoError(t, err)
 				assert.True(t, param.Float.HasMax)
 				assert.True(t, param.Float.HasMin)
-				assert.Equal(t, min, param.Float.Min)
-				assert.Equal(t, max, param.Float.Max)
+				assert.Equal(t, min, param.Float.Min) //nolint:testifylint
+				assert.Equal(t, max, param.Float.Max) //nolint:testifylint
 			}
 
 			assert.Nil(t, param.Bool)

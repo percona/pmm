@@ -137,17 +137,18 @@ const (
 
 var pprofSemaphore = semaphore.NewWeighted(1)
 
-func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
+func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 	l := logrus.WithField("component", "logs.zip")
 
 	mux.HandleFunc("/logs.zip", func(rw http.ResponseWriter, req *http.Request) {
+		var lineCount int64
 		contextTimeout := defaultContextTimeout
 		// increase context timeout if pprof query parameter exist in request
 		pprofQueryParameter, err := strconv.ParseBool(req.FormValue("pprof"))
 		if err != nil {
 			l.Debug("Unable to read 'pprof' query param. Using default: pprof=false")
 		}
-		var pprofConfig *supervisord.PprofConfig
+		var pprofConfig *server.PprofConfig
 		if pprofQueryParameter {
 			if !pprofSemaphore.TryAcquire(1) {
 				rw.WriteHeader(http.StatusLocked)
@@ -160,11 +161,22 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 			defer pprofSemaphore.Release(1)
 
 			contextTimeout += pProfProfileDuration + pProfTraceDuration
-			pprofConfig = &supervisord.PprofConfig{
+			pprofConfig = &server.PprofConfig{
 				ProfileDuration: pProfProfileDuration,
 				TraceDuration:   pProfTraceDuration,
 			}
 		}
+
+		lc := req.FormValue("line-count")
+		if lc != "" {
+			lineCount, err = strconv.ParseInt(lc, 10, 32)
+			if err != nil {
+				l.Error(err)
+				http.Error(rw, fmt.Sprintf("Unable to parse line-count parameter: %s", err), http.StatusBadRequest)
+				return
+			}
+		}
+
 		// fail-safe
 		ctx, cancel := context.WithTimeout(req.Context(), contextTimeout)
 		defer cancel()
@@ -175,7 +187,7 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 		rw.Header().Set(`Content-Disposition`, `attachment; filename="`+filename+`"`)
 
 		ctx = logger.Set(ctx, "logs")
-		if err := logs.Zip(ctx, rw, pprofConfig); err != nil {
+		if err := logs.Zip(ctx, rw, pprofConfig, int(lineCount)); err != nil {
 			l.Errorf("%+v", err)
 		}
 	})
@@ -263,7 +275,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc, mgmtServices))
 	inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
-	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient)
+	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient, deps.agentsRegistry, deps.agentsStateUpdater,
+		deps.vmdb)
 	agentSvc := management.NewAgentService(deps.db, deps.agentsRegistry)
 	serviceSvc := management.NewServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
 	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.versionCache)
@@ -334,7 +347,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 }
 
 type http1ServerDeps struct {
-	logs       *supervisord.Logs
+	logs       *server.Logs
 	authServer *grafana.AuthServer
 }
 
@@ -357,7 +370,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	}
 
 	// FIXME make that a default behavior: https://jira.percona.com/browse/PMM-6722
-	if nicer, _ := strconv.ParseBool(os.Getenv("PERCONA_TEST_NICER_API")); nicer {
+	if nicer, _ := strconv.ParseBool(os.Getenv("PMM_NICER_API")); nicer {
 		l.Warn("Enabling nicer API with default/zero values in response.")
 		marshaller.EmitUnpopulated = true
 	}
@@ -658,32 +671,32 @@ func main() { //nolint:cyclop,maintidx
 
 	postgresAddrF := kingpin.Flag("postgres-addr", "PostgreSQL address").
 		Default(models.DefaultPostgreSQLAddr).
-		Envar("PERCONA_TEST_POSTGRES_ADDR").
+		Envar("PMM_POSTGRES_ADDR").
 		String()
 	postgresDBNameF := kingpin.Flag("postgres-name", "PostgreSQL database name").
 		Default("pmm-managed").
-		Envar("PERCONA_TEST_POSTGRES_DBNAME").
+		Envar("PMM_POSTGRES_DBNAME").
 		String()
 	postgresDBUsernameF := kingpin.Flag("postgres-username", "PostgreSQL database username").
 		Default("pmm-managed").
-		Envar("PERCONA_TEST_POSTGRES_USERNAME").
+		Envar("PMM_POSTGRES_USERNAME").
 		String()
 	postgresSSLModeF := kingpin.Flag("postgres-ssl-mode", "PostgreSQL SSL mode").
 		Default(models.DisableSSLMode).
-		Envar("PERCONA_TEST_POSTGRES_SSL_MODE").
+		Envar("PMM_POSTGRES_SSL_MODE").
 		Enum(models.DisableSSLMode, models.RequireSSLMode, models.VerifyCaSSLMode, models.VerifyFullSSLMode)
 	postgresSSLCAPathF := kingpin.Flag("postgres-ssl-ca-path", "PostgreSQL SSL CA root certificate path").
-		Envar("PERCONA_TEST_POSTGRES_SSL_CA_PATH").
+		Envar("PMM_POSTGRES_SSL_CA_PATH").
 		String()
 	postgresDBPasswordF := kingpin.Flag("postgres-password", "PostgreSQL database password").
 		Default("pmm-managed").
-		Envar("PERCONA_TEST_POSTGRES_DBPASSWORD").
+		Envar("PMM_POSTGRES_DBPASSWORD").
 		String()
 	postgresSSLKeyPathF := kingpin.Flag("postgres-ssl-key-path", "PostgreSQL SSL key path").
-		Envar("PERCONA_TEST_POSTGRES_SSL_KEY_PATH").
+		Envar("PMM_POSTGRES_SSL_KEY_PATH").
 		String()
 	postgresSSLCertPathF := kingpin.Flag("postgres-ssl-cert-path", "PostgreSQL SSL certificate path").
-		Envar("PERCONA_TEST_POSTGRES_SSL_CERT_PATH").
+		Envar("PMM_POSTGRES_SSL_CERT_PATH").
 		String()
 
 	haEnabled := kingpin.Flag("ha-enable", "Enable HA").
@@ -720,8 +733,10 @@ func main() { //nolint:cyclop,maintidx
 	debugF := kingpin.Flag("debug", "Enable debug logging").Envar("PMM_DEBUG").Bool()
 	traceF := kingpin.Flag("trace", "[DEPRECATED] Enable trace logging (implies debug)").Envar("PMM_TRACE").Bool()
 
-	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE").String()
-	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PERCONA_TEST_PMM_CLICKHOUSE_ADDR").String()
+	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PMM_CLICKHOUSE_DATABASE").String()
+	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
+
+	watchtowerHostF := kingpin.Flag("watchtower-host", "Watchtower host").Default("http://watchtower:8080").Envar("PMM_WATCHTOWER_HOST").URL()
 
 	kingpin.Parse()
 
@@ -873,13 +888,12 @@ func main() { //nolint:cyclop,maintidx
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
 	serviceInfoBroker := agents.NewServiceInfoBroker(agentsRegistry)
 
-	pmmUpdateCheck := supervisord.NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker"))
+	updater := server.NewUpdater(*watchtowerHostF, gRPCMessageMaxSize)
 
-	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck, vmParams)
+	logs := server.NewLogs(version.FullInfo(), updater, vmParams)
 
 	supervisord := supervisord.New(
 		*supervisordConfigDirF,
-		pmmUpdateCheck,
 		&models.Params{
 			VMParams: vmParams,
 			PGParams: &models.PGParams{
@@ -893,8 +907,7 @@ func main() { //nolint:cyclop,maintidx
 				SSLCertPath: *postgresSSLCertPathF,
 			},
 			HAParams: haParams,
-		},
-		gRPCMessageMaxSize)
+		})
 
 	haService.AddLeaderService(ha.NewStandardService("pmm-agent-runner", func(ctx context.Context) error {
 		return supervisord.StartSupervisedService("pmm-agent")
@@ -981,6 +994,7 @@ func main() { //nolint:cyclop,maintidx
 		AwsInstanceChecker:   awsInstanceChecker,
 		GrafanaClient:        grafanaClient,
 		VMAlertExternalRules: externalRules,
+		Updater:              updater,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -1080,6 +1094,12 @@ func main() { //nolint:cyclop,maintidx
 	go func() {
 		defer wg.Done()
 		supervisord.Run(ctx)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		updater.Run(ctx)
 	}()
 
 	wg.Add(1)

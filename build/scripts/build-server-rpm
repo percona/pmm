@@ -123,6 +123,8 @@ build() {
         volume_mounts+=" -v ${root_dir}/go-path:/home/builder/go/pkg/mod"
     fi
 
+    sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
+
     echo "Start building Server RPMs..."
     echo "spec_name: ${spec_name}"
     echo "repo_name: ${repo_name}"

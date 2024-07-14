@@ -60,6 +60,7 @@ type Server struct {
 	awsInstanceChecker   *AWSInstanceChecker
 	grafanaClient        grafanaClient
 	haService            haService
+	updater              *Updater
 
 	l *logrus.Entry
 
@@ -91,6 +92,7 @@ type Params struct {
 	TelemetryService     telemetryService
 	AwsInstanceChecker   *AWSInstanceChecker
 	GrafanaClient        grafanaClient
+	Updater              *Updater
 }
 
 // NewServer returns new server for Server service.
@@ -113,6 +115,7 @@ func NewServer(params *Params) (*Server, error) {
 		telemetryService:     params.TelemetryService,
 		awsInstanceChecker:   params.AwsInstanceChecker,
 		grafanaClient:        params.GrafanaClient,
+		updater:              params.Updater,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
 		envSettings:          &models.ChangeSettingsParams{},
@@ -186,15 +189,14 @@ func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 		res.Managed.Timestamp = timestamppb.New(t)
 	}
 
-	if v := s.supervisord.InstalledPMMVersion(ctx); v != nil {
-		res.Version = v.Version
-		res.Server = &serverpb.VersionInfo{
-			Version:     v.Version,
-			FullVersion: v.FullVersion,
-		}
-		if v.BuildTime != nil {
-			res.Server.Timestamp = timestamppb.New(*v.BuildTime)
-		}
+	v := s.updater.InstalledPMMVersion()
+	res.Version = v.Version
+	res.Server = &serverpb.VersionInfo{
+		Version:     v.Version,
+		FullVersion: v.FullVersion,
+	}
+	if v.BuildTime != nil {
+		res.Server.Timestamp = timestamppb.New(*v.BuildTime)
 	}
 
 	return res, nil
@@ -232,25 +234,6 @@ func (s *Server) LeaderHealthCheck(ctx context.Context, req *serverpb.LeaderHeal
 	return nil, status.Error(codes.FailedPrecondition, "this PMM Server isn't the leader")
 }
 
-func (s *Server) onlyInstalledVersionResponse(ctx context.Context) *serverpb.CheckUpdatesResponse {
-	v := s.supervisord.InstalledPMMVersion(ctx)
-	r := &serverpb.CheckUpdatesResponse{
-		Installed: &serverpb.VersionInfo{
-			Version:     v.Version,
-			FullVersion: v.FullVersion,
-		},
-	}
-
-	if v.BuildTime != nil {
-		t := v.BuildTime.UTC().Truncate(24 * time.Hour) // return only date
-		r.Installed.Timestamp = timestamppb.New(t)
-	}
-
-	r.LastCheck = timestamppb.New(time.Now())
-
-	return r
-}
-
 // CheckUpdates checks PMM Server updates availability.
 func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesRequest) (*serverpb.CheckUpdatesResponse, error) {
 	s.envRW.RLock()
@@ -258,16 +241,23 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 	s.envRW.RUnlock()
 
 	if req.OnlyInstalledVersion {
-		return s.onlyInstalledVersionResponse(ctx), nil
+		installedPMMVersion := s.updater.InstalledPMMVersion()
+		return &serverpb.CheckUpdatesResponse{
+			Installed: &serverpb.VersionInfo{
+				Version:     installedPMMVersion.Version,
+				FullVersion: installedPMMVersion.FullVersion,
+				Timestamp:   timestamppb.New(*installedPMMVersion.BuildTime),
+			},
+		}, nil
 	}
 
 	if req.Force {
-		if err := s.supervisord.ForceCheckUpdates(ctx); err != nil {
+		if err := s.updater.ForceCheckUpdates(ctx); err != nil {
 			return nil, err
 		}
 	}
 
-	v, lastCheck := s.supervisord.LastCheckUpdatesResult(ctx)
+	v, lastCheck := s.updater.LastCheckUpdatesResult(ctx)
 	if v == nil {
 		return nil, status.Error(codes.Unavailable, "failed to check for updates")
 	}
@@ -276,12 +266,13 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 		Installed: &serverpb.VersionInfo{
 			Version:     v.Installed.Version,
 			FullVersion: v.Installed.FullVersion,
+			Timestamp:   timestamppb.New(*v.Installed.BuildTime),
 		},
-		Latest: &serverpb.VersionInfo{
-			Version:     v.Latest.Version,
-			FullVersion: v.Latest.FullVersion,
+		Latest: &serverpb.DockerVersionInfo{
+			Version: v.Latest.Version.String(),
+			Tag:     v.Latest.DockerImage,
 		},
-		UpdateAvailable: v.UpdateAvailable,
+		UpdateAvailable: v.Latest.DockerImage != "",
 		LatestNewsUrl:   v.LatestNewsURL,
 	}
 
@@ -296,7 +287,7 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 		res.Installed.Timestamp = timestamppb.New(t)
 	}
 
-	if v.Latest.BuildTime != nil {
+	if v.Latest.DockerImage != "" {
 		t := v.Latest.BuildTime.UTC().Truncate(24 * time.Hour) // return only date
 		res.Latest.Timestamp = timestamppb.New(t)
 	}
@@ -311,22 +302,32 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 	s.envRW.RUnlock()
 
 	if updatesDisabled {
-		return nil, status.Error(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
+		return nil, status.Error(codes.FailedPrecondition, "Updates are disabled via PMM_DISABLE_UPDATES environment variable.")
 	}
 
-	offset, err := s.supervisord.StartUpdate()
+	newImage := req.GetNewImage()
+	if newImage == "" {
+		latest, err := s.updater.latest(ctx)
+		if err != nil {
+			s.l.WithError(err).Error("Failed to get latest version")
+			newImage = defaultLatestPMMImage
+		} else {
+			newImage = latest.DockerImage
+		}
+	}
+	err := s.updater.StartUpdate(ctx, newImage)
 	if err != nil {
 		return nil, err
 	}
 
 	authToken := uuid.New().String()
-	if err = s.writeUpdateAuthToken(authToken); err != nil {
+	if err := s.writeUpdateAuthToken(authToken); err != nil {
 		return nil, err
 	}
 
 	return &serverpb.StartUpdateResponse{
 		AuthToken: authToken,
-		LogOffset: offset,
+		LogOffset: 0,
 	}, nil
 }
 
@@ -347,13 +348,13 @@ func (s *Server) UpdateStatus(ctx context.Context, req *serverpb.UpdateStatusReq
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 	for ctx.Err() == nil {
-		done = !s.supervisord.UpdateRunning()
+		done = !s.updater.IsRunning()
 		if done {
 			// give supervisord a second to flush logs to file
 			time.Sleep(time.Second)
 		}
 
-		lines, newOffset, err = s.supervisord.UpdateLog(req.LogOffset)
+		lines, newOffset, err = s.updater.UpdateLog(req.GetLogOffset())
 		if err != nil {
 			s.l.Warn(err)
 		}
@@ -485,12 +486,12 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 	// check request parameters compatibility with environment variables
 
 	if req.EnableUpdates && s.envSettings.DisableUpdates {
-		return status.Error(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
+		return status.Error(codes.FailedPrecondition, "Updates are disabled via PMM_DISABLE_UPDATES environment variable.")
 	}
 
 	// ignore req.DisableTelemetry and req.DisableStt even if they are present since that will not change anything
 	if req.EnableTelemetry && s.envSettings.DisableTelemetry {
-		return status.Error(codes.FailedPrecondition, "Telemetry is disabled via DISABLE_TELEMETRY environment variable.")
+		return status.Error(codes.FailedPrecondition, "Telemetry is disabled via PMM_DISABLE_TELEMETRY environment variable.")
 	}
 
 	// ignore req.EnableAlerting even if they are present since that will not change anything
@@ -500,23 +501,23 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 
 	// ignore req.DisableAzurediscover even if they are present since that will not change anything
 	if req.DisableAzurediscover && s.envSettings.EnableAzurediscover {
-		return status.Error(codes.FailedPrecondition, "Azure Discover is enabled via ENABLE_AZUREDISCOVER environment variable.")
+		return status.Error(codes.FailedPrecondition, "Azure Discover is enabled via PMM_ENABLE_AZURE_DISCOVER environment variable.")
 	}
 
 	if !canUpdateDurationSetting(metricsRes.GetHr().AsDuration(), s.envSettings.MetricsResolutions.HR) {
-		return status.Error(codes.FailedPrecondition, "High resolution for metrics is set via METRICS_RESOLUTION_HR (or METRICS_RESOLUTION) environment variable.")
+		return status.Error(codes.FailedPrecondition, "High resolution for metrics is set via PMM_METRICS_RESOLUTION_HR (or PMM_METRICS_RESOLUTION) environment variable.") //nolint:lll
 	}
 
 	if !canUpdateDurationSetting(metricsRes.GetMr().AsDuration(), s.envSettings.MetricsResolutions.MR) {
-		return status.Error(codes.FailedPrecondition, "Medium resolution for metrics is set via METRICS_RESOLUTION_MR environment variable.")
+		return status.Error(codes.FailedPrecondition, "Medium resolution for metrics is set via PMM_METRICS_RESOLUTION_MR environment variable.")
 	}
 
 	if !canUpdateDurationSetting(metricsRes.GetLr().AsDuration(), s.envSettings.MetricsResolutions.LR) {
-		return status.Error(codes.FailedPrecondition, "Low resolution for metrics is set via METRICS_RESOLUTION_LR environment variable.")
+		return status.Error(codes.FailedPrecondition, "Low resolution for metrics is set via PMM_METRICS_RESOLUTION_LR environment variable.")
 	}
 
 	if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
-		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via DATA_RETENTION environment variable.")
+		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via PMM_DATA_RETENTION environment variable.")
 	}
 
 	return nil

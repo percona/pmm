@@ -953,6 +953,9 @@ var databaseSchema = [][]string{
 			PRIMARY KEY (dump_id, chunk_id)
 		)`,
 	},
+	88: {
+		`ALTER TABLE agents ADD COLUMN metrics_resolutions JSONB`,
+	},
 	100: {
 		`DROP TABLE kubernetes_clusters`,
 	},

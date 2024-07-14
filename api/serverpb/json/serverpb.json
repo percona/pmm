@@ -720,22 +720,21 @@
                   "x-order": 4
                 },
                 "latest": {
-                  "description": "VersionInfo describes component version, or PMM Server as a whole.",
                   "type": "object",
                   "properties": {
-                    "full_version": {
-                      "description": "Full version for debugging.",
+                    "tag": {
+                      "description": "Docker image tag.",
                       "type": "string",
                       "x-order": 1
                     },
                     "timestamp": {
-                      "description": "Build or release date.",
+                      "description": "Release date.",
                       "type": "string",
                       "format": "date-time",
                       "x-order": 2
                     },
                     "version": {
-                      "description": "User-visible version.",
+                      "description": "PMM Version.",
                       "type": "string",
                       "x-order": 0
                     }
@@ -805,7 +804,13 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "new_image": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           }
         ],
