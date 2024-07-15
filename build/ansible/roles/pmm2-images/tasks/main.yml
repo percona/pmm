@@ -175,7 +175,7 @@
     name:
       - pmm2-client
     state: installed
-    enablerepo: {{ pmm_client_repo_name }}
+    enablerepo: "{{ pmm_client_repo_name }}"
 
 - name: Disable pmm-agent service | Disable pmm-agent
   when: ansible_virtualization_type != "docker"
