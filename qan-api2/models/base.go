@@ -20,7 +20,7 @@ import (
 	"time"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
-	qanpb "github.com/percona/pmm/api/qan/v1"
+	qanv1 "github.com/percona/pmm/api/qan/v1"
 )
 
 const queryTimeout = 30 * time.Second
@@ -90,7 +90,7 @@ var sparklinePointAllFields = []string{
 	"m_plan_time_sum_per_sec",
 }
 
-func getPointFieldsList(point *qanpb.Point, fields []string) []interface{} {
+func getPointFieldsList(point *qanv1.Point, fields []string) []interface{} {
 	sparklinePointValuesMap := map[string]interface{}{
 		"point":                                &point.Point,
 		"timestamp":                            &point.Timestamp,
@@ -364,4 +364,20 @@ func agentTypeToClickHouseEnum(agentType inventoryv1.AgentType) string {
 		return val
 	}
 	return agentTypes[inventoryv1.AgentType_AGENT_TYPE_UNSPECIFIED]
+}
+
+func exampleTypeToClickHouseEnum(exampleType qanv1.ExampleType) string {
+	// String representation of example type. Keys must match the ones in pmm-managed, while values map to the clickhouse enum.
+	exampleTypes := map[qanv1.ExampleType]string{
+		qanv1.ExampleType_EXAMPLE_TYPE_UNSPECIFIED: "EXAMPLE_TYPE_INVALID",
+		qanv1.ExampleType_EXAMPLE_TYPE_RANDOM:      "RANDOM",
+		qanv1.ExampleType_EXAMPLE_TYPE_SLOWEST:     "SLOWEST",
+		qanv1.ExampleType_EXAMPLE_TYPE_FASTEST:     "FASTEST",
+		qanv1.ExampleType_EXAMPLE_TYPE_WITH_ERROR:  "WITH_ERROR",
+	}
+
+	if val, ok := exampleTypes[exampleType]; ok {
+		return val
+	}
+	return exampleTypes[qanv1.ExampleType_EXAMPLE_TYPE_UNSPECIFIED]
 }

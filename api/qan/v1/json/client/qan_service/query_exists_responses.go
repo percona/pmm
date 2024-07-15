@@ -58,7 +58,7 @@ type QueryExistsOK struct {
 }
 
 func (o *QueryExistsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/ObjectDetails/QueryExists][%d] queryExistsOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/qan/query:exists][%d] queryExistsOk  %+v", 200, o.Payload)
 }
 
 func (o *QueryExistsOK) GetPayload() *QueryExistsOKBody {
@@ -100,7 +100,7 @@ func (o *QueryExistsDefault) Code() int {
 }
 
 func (o *QueryExistsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/ObjectDetails/QueryExists][%d] QueryExists default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/qan/query:exists][%d] QueryExists default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *QueryExistsDefault) GetPayload() *QueryExistsDefaultBody {

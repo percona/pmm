@@ -180,7 +180,7 @@ func TestService_GetFilters(t *testing.T) {
 				rm: tt.fields.rm,
 				mm: tt.fields.mm,
 			}
-			got, err := s.Get(context.TODO(), tt.in)
+			got, err := s.GetFilteredMetricsNames(context.TODO(), tt.in)
 			if (err != nil) != tt.wantErr {
 				assert.Errorf(t, err, "Service.GetFilters() error = %v, wantErr %v", err, tt.wantErr)
 			}

@@ -59,7 +59,7 @@ type GetReportOK struct {
 }
 
 func (o *GetReportOK) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/GetReport][%d] getReportOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/qan/metrics:getReport][%d] getReportOk  %+v", 200, o.Payload)
 }
 
 func (o *GetReportOK) GetPayload() *GetReportOKBody {
@@ -101,7 +101,7 @@ func (o *GetReportDefault) Code() int {
 }
 
 func (o *GetReportDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/GetReport][%d] GetReport default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/qan/metrics:getReport][%d] GetReport default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetReportDefault) GetPayload() *GetReportDefaultBody {

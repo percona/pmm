@@ -58,7 +58,7 @@ type AddNodeOK struct {
 }
 
 func (o *AddNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/Add][%d] addNodeOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/nodes][%d] addNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *AddNodeOK) GetPayload() *AddNodeOKBody {
@@ -100,7 +100,7 @@ func (o *AddNodeDefault) Code() int {
 }
 
 func (o *AddNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/Add][%d] AddNode default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/nodes][%d] AddNode default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddNodeDefault) GetPayload() *AddNodeDefaultBody {

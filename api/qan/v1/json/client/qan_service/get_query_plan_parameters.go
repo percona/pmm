@@ -60,11 +60,8 @@ GetQueryPlanParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type GetQueryPlanParams struct {
-	/* Body.
-
-	   GetQueryPlanRequest defines filtering by queryid.
-	*/
-	Body GetQueryPlanBody
+	// Queryid.
+	Queryid string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -119,15 +116,15 @@ func (o *GetQueryPlanParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the get query plan params
-func (o *GetQueryPlanParams) WithBody(body GetQueryPlanBody) *GetQueryPlanParams {
-	o.SetBody(body)
+// WithQueryid adds the queryid to the get query plan params
+func (o *GetQueryPlanParams) WithQueryid(queryid string) *GetQueryPlanParams {
+	o.SetQueryid(queryid)
 	return o
 }
 
-// SetBody adds the body to the get query plan params
-func (o *GetQueryPlanParams) SetBody(body GetQueryPlanBody) {
-	o.Body = body
+// SetQueryid adds the queryid to the get query plan params
+func (o *GetQueryPlanParams) SetQueryid(queryid string) {
+	o.Queryid = queryid
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -136,7 +133,9 @@ func (o *GetQueryPlanParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
+
+	// path param queryid
+	if err := r.SetPathParam("queryid", o.Queryid); err != nil {
 		return err
 	}
 

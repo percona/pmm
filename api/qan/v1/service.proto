@@ -23,7 +23,7 @@ service QANService {
   // GetReport returns a list of metrics grouped by queryid or other dimensions.
   rpc GetReport(GetReportRequest) returns (GetReportResponse) {
     option (google.api.http) = {
-      post: "/v1/qan/GetReport"
+      post: "/v1/qan/metrics:getReport"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -34,7 +34,7 @@ service QANService {
   // Get provides a map of metrics names.
   rpc GetFilteredMetricsNames(GetFilteredMetricsNamesRequest) returns (GetFilteredMetricsNamesResponse) {
     option (google.api.http) = {
-      post: "/v1/qan/Filters/Get"
+      post: "/v1/qan/metrics:getFilters"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -45,7 +45,7 @@ service QANService {
   // GetMetricsNames provides a map of metrics names.
   rpc GetMetricsNames(GetMetricsNamesRequest) returns (GetMetricsNamesResponse) {
     option (google.api.http) = {
-      post: "/v1/qan/GetMetricsNames"
+      post: "/v1/qan/metrics:getNames"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -56,7 +56,7 @@ service QANService {
   // GetMetrics returns a map of metrics for specific filtering.
   rpc GetMetrics(GetMetricsRequest) returns (GetMetricsResponse) {
     option (google.api.http) = {
-      post: "/v1/qan/ObjectDetails/GetMetrics"
+      post: "/v1/qan:getMetrics"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -64,21 +64,10 @@ service QANService {
       description: "Provides a map of metrics for specific filtering."
     };
   }
-  // GetQueryExample returns a list of query examples.
-  rpc GetQueryExample(GetQueryExampleRequest) returns (GetQueryExampleResponse) {
-    option (google.api.http) = {
-      post: "/v1/qan/ObjectDetails/GetQueryExample"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Get Query Example"
-      description: "Provides a list of query examples."
-    };
-  }
   // GetLabels return a list of labels for object details.
   rpc GetLabels(GetLabelsRequest) returns (GetLabelsResponse) {
     option (google.api.http) = {
-      post: "/v1/qan/ObjectDetails/GetLabels"
+      post: "/v1/qan:getLabels"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -86,21 +75,10 @@ service QANService {
       description: "Provides a list of labels for object details."
     };
   }
-  // GetQueryPlan returns a query plan and plan id for specific filtering.
-  rpc GetQueryPlan(GetQueryPlanRequest) returns (GetQueryPlanResponse) {
-    option (google.api.http) = {
-      post: "/v1/qan/ObjectDetails/GetQueryPlan"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Get Query Plan"
-      description: "Provides a query plan and plan id for specific filtering."
-    };
-  }
   // GetHistogram returns histogram items for specific filtering.
   rpc GetHistogram(GetHistogramRequest) returns (GetHistogramResponse) {
     option (google.api.http) = {
-      post: "/v1/qan/ObjectDetails/GetHistogram"
+      post: "/v1/qan:getHistogram"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -108,21 +86,10 @@ service QANService {
       description: "Provides histogram items for specific filtering."
     };
   }
-  // QueryExists checks if query exists in clickhouse.
-  rpc QueryExists(QueryExistsRequest) returns (QueryExistsResponse) {
-    option (google.api.http) = {
-      post: "/v1/qan/ObjectDetails/QueryExists"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Check Query Existence"
-      description: "Checks if query exists in clickhouse."
-    };
-  }
   // ExplainFingerprintByQueryID returns an explain fingerprint for given query ID.
   rpc ExplainFingerprintByQueryID(ExplainFingerprintByQueryIDRequest) returns (ExplainFingerprintByQueryIDResponse) {
     option (google.api.http) = {
-      post: "/v1/qan/ObjectDetails/ExplainFingerprintByQueryID"
+      post: "/v1/qan:explainFingerprint"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -130,15 +97,45 @@ service QANService {
       description: "Provides an explain fingerprint for given query ID."
     };
   }
+  // GetQueryPlan returns a query plan and plan id for specific filtering.
+  rpc GetQueryPlan(GetQueryPlanRequest) returns (GetQueryPlanResponse) {
+    option (google.api.http) = {get: "/v1/qan/query/{queryid}/plan"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Query Plan"
+      description: "Provides a query plan and plan id for specific filtering."
+    };
+  }
+  // QueryExists checks if query exists in clickhouse.
+  rpc QueryExists(QueryExistsRequest) returns (QueryExistsResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/query:exists"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Check Query Existence"
+      description: "Checks if query exists in clickhouse."
+    };
+  }
   // SchemaByQueryID returns the schema for a given queryID and serviceID.
   rpc SchemaByQueryID(SchemaByQueryIDRequest) returns (SchemaByQueryIDResponse) {
     option (google.api.http) = {
-      post: "/v1/qan/ObjectDetails/SchemaByQueryID"
+      post: "/v1/qan/query:getSchema"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Schema"
       description: "Provides the schema for a given queryID and serviceID."
+    };
+  }
+  // GetQueryExample returns a list of query examples.
+  rpc GetQueryExample(GetQueryExampleRequest) returns (GetQueryExampleResponse) {
+    option (google.api.http) = {
+      post: "/v1/qan/query:getExample"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Query Example"
+      description: "Provides a list of query examples."
     };
   }
 }

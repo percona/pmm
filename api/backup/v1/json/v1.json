@@ -15,93 +15,14 @@
     "version": "v1beta1"
   },
   "paths": {
-    "/v1/backup/Artifacts/Delete": {
-      "post": {
+    "/v1/backups/artifacts": {
+      "get": {
+        "description": "Return a list of backup artifacts.",
         "tags": [
-          "ArtifactsService"
+          "BackupService"
         ],
-        "summary": "DeleteArtifact deletes specified artifact.",
-        "operationId": "DeleteArtifact",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "artifact_id": {
-                  "description": "Machine-readable artifact ID.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "remove_files": {
-                  "description": "Removes all the backup files associated with artifact if flag is set.",
-                  "type": "boolean",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/backup/Artifacts/List": {
-      "post": {
-        "tags": [
-          "ArtifactsService"
-        ],
-        "summary": "ListArtifacts returns a list of all backup artifacts.",
+        "summary": "List artifacts",
         "operationId": "ListArtifacts",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -294,28 +215,85 @@
         }
       }
     },
-    "/v1/backup/Artifacts/ListPITRTimeranges": {
-      "post": {
+    "/v1/backups/artifacts/{artifact_id}": {
+      "delete": {
+        "description": "Deletes an artifact.",
         "tags": [
-          "ArtifactsService"
+          "BackupService"
         ],
-        "summary": "ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location",
-        "operationId": "ListPitrTimeranges",
+        "summary": "Delete Artifact",
+        "operationId": "DeleteArtifact",
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
-            "required": true,
+            "type": "string",
+            "description": "Machine-readable artifact ID.",
+            "name": "artifact_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "Removes all the backup files associated with artifact if flag is set.",
+            "name": "remove_files",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
-                "artifact_id": {
-                  "description": "Artifact ID represents artifact whose location has PITR timeranges to be retrieved.",
-                  "type": "string",
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
                   "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/v1/backups/artifacts/{artifact_id}/pitr-timeranges": {
+      "get": {
+        "description": "Return a list of available MongoDB point-in-time-recovery timeranges.",
+        "tags": [
+          "BackupService"
+        ],
+        "summary": "List PITR Timeranges",
+        "operationId": "ListPitrTimeranges",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Artifact ID represents artifact whose location has PITR timeranges to be retrieved.",
+            "name": "artifact_id",
+            "in": "path",
+            "required": true
           }
         ],
         "responses": {
@@ -382,14 +360,122 @@
         }
       }
     },
-    "/v1/backup/Backups/ChangeScheduled": {
-      "post": {
-        "description": "Change a scheduled backup.",
+    "/v1/backups/locations": {
+      "get": {
+        "description": "List backup locations.",
         "tags": [
-          "BackupsService"
+          "LocationsService"
         ],
-        "summary": "Change a Scheduled Backup",
-        "operationId": "ChangeScheduledBackup",
+        "summary": "List Backup Locations",
+        "operationId": "ListLocations",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "locations": {
+                  "type": "array",
+                  "items": {
+                    "description": "Location represents single Backup Location.",
+                    "type": "object",
+                    "properties": {
+                      "description": {
+                        "type": "string",
+                        "title": "Short description",
+                        "x-order": 2
+                      },
+                      "filesystem_config": {
+                        "description": "FilesystemLocationConfig represents file system location config.",
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string",
+                            "x-order": 0
+                          }
+                        },
+                        "x-order": 3
+                      },
+                      "location_id": {
+                        "description": "Machine-readable ID.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "name": {
+                        "type": "string",
+                        "title": "Location name",
+                        "x-order": 1
+                      },
+                      "s3_config": {
+                        "description": "S3LocationConfig represents S3 bucket configuration.",
+                        "type": "object",
+                        "properties": {
+                          "access_key": {
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "bucket_name": {
+                            "type": "string",
+                            "x-order": 3
+                          },
+                          "endpoint": {
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "secret_key": {
+                            "type": "string",
+                            "x-order": 2
+                          }
+                        },
+                        "x-order": 4
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Add a backup location.",
+        "tags": [
+          "LocationsService"
+        ],
+        "summary": "Add a Backup Location",
+        "operationId": "AddLocation",
         "parameters": [
           {
             "name": "body",
@@ -398,57 +484,323 @@
             "schema": {
               "type": "object",
               "properties": {
-                "cron_expression": {
-                  "description": "How often backup should be run in cron format.",
-                  "type": "string",
-                  "x-nullable": true,
-                  "x-order": 2
-                },
                 "description": {
-                  "description": "Human-readable description.",
                   "type": "string",
-                  "x-nullable": true,
-                  "x-order": 5
-                },
-                "enabled": {
-                  "type": "boolean",
-                  "x-nullable": true,
                   "x-order": 1
                 },
+                "filesystem_config": {
+                  "description": "FilesystemLocationConfig represents file system location config.",
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 2
+                },
                 "name": {
-                  "description": "Name of backup.",
                   "type": "string",
-                  "x-nullable": true,
-                  "x-order": 4
-                },
-                "retention": {
-                  "description": "How many artifacts keep. 0 - unlimited.",
-                  "type": "integer",
-                  "format": "int64",
-                  "x-nullable": true,
-                  "x-order": 8
-                },
-                "retries": {
-                  "description": "How many times to retry a failed backup before giving up.",
-                  "type": "integer",
-                  "format": "int64",
-                  "x-nullable": true,
-                  "x-order": 6
-                },
-                "retry_interval": {
-                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
-                  "type": "string",
-                  "x-order": 7
-                },
-                "scheduled_backup_id": {
-                  "type": "string",
+                  "title": "Location name",
                   "x-order": 0
                 },
-                "start_time": {
-                  "description": "First backup wouldn't happen before this time.",
-                  "type": "string",
-                  "format": "date-time",
+                "s3_config": {
+                  "description": "S3LocationConfig represents S3 bucket configuration.",
+                  "type": "object",
+                  "properties": {
+                    "access_key": {
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "bucket_name": {
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "endpoint": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "secret_key": {
+                      "type": "string",
+                      "x-order": 2
+                    }
+                  },
                   "x-order": 3
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "location_id": {
+                  "description": "Machine-readable ID.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/backups/locations/{location_id}": {
+      "put": {
+        "description": "Change a backup location.",
+        "tags": [
+          "LocationsService"
+        ],
+        "summary": "Change a Backup Location",
+        "operationId": "ChangeLocation",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Machine-readable ID.",
+            "name": "location_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "description": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "filesystem_config": {
+                  "description": "FilesystemLocationConfig represents file system location config.",
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 2
+                },
+                "name": {
+                  "type": "string",
+                  "title": "Location name",
+                  "x-order": 0
+                },
+                "s3_config": {
+                  "description": "S3LocationConfig represents S3 bucket configuration.",
+                  "type": "object",
+                  "properties": {
+                    "access_key": {
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "bucket_name": {
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "endpoint": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "secret_key": {
+                      "type": "string",
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Remove a backup location.",
+        "tags": [
+          "LocationsService"
+        ],
+        "summary": "Remove a Scheduled Backup",
+        "operationId": "RemoveLocation",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Machine-readable ID.",
+            "name": "location_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "Force mode",
+            "name": "force",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/backups/locations:testConfig": {
+      "post": {
+        "description": "Test a backup location and credentials.",
+        "tags": [
+          "LocationsService"
+        ],
+        "summary": "Test a Backup Location and Credentials",
+        "operationId": "TestLocationConfig",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "filesystem_config": {
+                  "description": "FilesystemLocationConfig represents file system location config.",
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 0
+                },
+                "s3_config": {
+                  "description": "S3LocationConfig represents S3 bucket configuration.",
+                  "type": "object",
+                  "properties": {
+                    "access_key": {
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "bucket_name": {
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "endpoint": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "secret_key": {
+                      "type": "string",
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 1
                 }
               }
             }
@@ -495,42 +847,174 @@
         }
       }
     },
-    "/v1/backup/Backups/GetLogs": {
-      "post": {
-        "description": "Get logs from the underlying tools for a backup/restore job.",
+    "/v1/backups/restores": {
+      "get": {
+        "description": "List all backup restore history items",
         "tags": [
-          "BackupsService"
+          "RestoreService"
         ],
-        "summary": "Get Logs",
-        "operationId": "GetLogs",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
+        "summary": "List Restore History",
+        "operationId": "ListRestores",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
-                "artifact_id": {
-                  "type": "string",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "description": "RestoreHistoryItem represents single backup restore item.",
+                    "type": "object",
+                    "properties": {
+                      "artifact_id": {
+                        "description": "ID of the artifact used for restore.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "data_model": {
+                        "description": "DataModel is a model used for performing a backup.",
+                        "type": "string",
+                        "default": "DATA_MODEL_UNSPECIFIED",
+                        "enum": [
+                          "DATA_MODEL_UNSPECIFIED",
+                          "DATA_MODEL_PHYSICAL",
+                          "DATA_MODEL_LOGICAL"
+                        ],
+                        "x-order": 8
+                      },
+                      "finished_at": {
+                        "description": "Restore finish time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 11
+                      },
+                      "location_id": {
+                        "description": "Machine-readable location ID.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "location_name": {
+                        "description": "Location name.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "name": {
+                        "description": "Artifact name used for restore.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "pitr_timestamp": {
+                        "description": "PITR timestamp is filled for PITR restores, empty otherwise.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 12
+                      },
+                      "restore_id": {
+                        "description": "Machine-readable restore id.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_id": {
+                        "description": "Machine-readable service ID.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "service_name": {
+                        "description": "Service name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "started_at": {
+                        "description": "Restore start time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 10
+                      },
+                      "status": {
+                        "description": "RestoreStatus shows the current status of execution of restore.",
+                        "type": "string",
+                        "default": "RESTORE_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "RESTORE_STATUS_UNSPECIFIED",
+                          "RESTORE_STATUS_IN_PROGRESS",
+                          "RESTORE_STATUS_SUCCESS",
+                          "RESTORE_STATUS_ERROR"
+                        ],
+                        "x-order": 9
+                      },
+                      "vendor": {
+                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
+                        "type": "string",
+                        "x-order": 3
+                      }
+                    }
+                  },
                   "x-order": 0
-                },
-                "limit": {
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 2
-                },
-                "offset": {
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 1
-                },
-                "restore_id": {
-                  "type": "string",
-                  "x-order": 3
                 }
               }
             }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/backups/restores/{restore_id}/logs": {
+      "get": {
+        "description": "Get logs from the underlying tools for a restore job",
+        "tags": [
+          "RestoreService"
+        ],
+        "summary": "Get Logs",
+        "operationId": "GetLogsMixin5",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "restore_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "offset",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "limit",
+            "in": "query"
           }
         ],
         "responses": {
@@ -599,14 +1083,14 @@
         }
       }
     },
-    "/v1/backup/Backups/ListArtifactCompatibleServices": {
+    "/v1/backups/restores:start": {
       "post": {
-        "description": "List services that are compatible with the backup artifact.",
+        "description": "Could return the Error message in the details containing specific ErrorCode indicating failure reason:\nERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service\nERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud\nERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup\nERROR_CODE_INCOMPATIBLE_TARGET_MYSQL - target MySQL version is not compatible with the artifact for performing a restore of the backup",
         "tags": [
-          "BackupsService"
+          "RestoreService"
         ],
-        "summary": "List Compatible Services",
-        "operationId": "ListArtifactCompatibleServices",
+        "summary": "Restore from a Backup",
+        "operationId": "RestoreBackup",
         "parameters": [
           {
             "name": "body",
@@ -616,12 +1100,262 @@
               "type": "object",
               "properties": {
                 "artifact_id": {
-                  "description": "Artifact id used to determine restore compatibility.",
+                  "description": "Artifact id to restore.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "pitr_timestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Timestamp of PITR to restore to",
+                  "x-order": 2
+                },
+                "service_id": {
+                  "description": "Service identifier where backup should be restored.",
                   "type": "string",
                   "x-order": 0
                 }
               }
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "restore_id": {
+                  "description": "Unique restore identifier.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/backups/scheduled": {
+      "get": {
+        "description": "List all scheduled backups.",
+        "tags": [
+          "BackupService"
+        ],
+        "summary": "List Scheduled Backups",
+        "operationId": "ListScheduledBackups",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "scheduled_backups": {
+                  "type": "array",
+                  "items": {
+                    "description": "ScheduledBackup represents scheduled task for backup.",
+                    "type": "object",
+                    "properties": {
+                      "cron_expression": {
+                        "description": "How often backup will be run in cron format.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "data_model": {
+                        "description": "DataModel is a model used for performing a backup.",
+                        "type": "string",
+                        "default": "DATA_MODEL_UNSPECIFIED",
+                        "enum": [
+                          "DATA_MODEL_UNSPECIFIED",
+                          "DATA_MODEL_PHYSICAL",
+                          "DATA_MODEL_LOGICAL"
+                        ],
+                        "x-order": 13
+                      },
+                      "description": {
+                        "description": "Description.",
+                        "type": "string",
+                        "x-order": 9
+                      },
+                      "enabled": {
+                        "description": "If scheduling is enabled.",
+                        "type": "boolean",
+                        "x-order": 10
+                      },
+                      "folder": {
+                        "description": "Folder on storage for artifact.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "last_run": {
+                        "description": "Last run.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 16
+                      },
+                      "location_id": {
+                        "description": "Machine-readable location ID.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "location_name": {
+                        "description": "Location name.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "mode": {
+                        "description": "BackupMode specifies backup mode.",
+                        "type": "string",
+                        "default": "BACKUP_MODE_UNSPECIFIED",
+                        "enum": [
+                          "BACKUP_MODE_UNSPECIFIED",
+                          "BACKUP_MODE_SNAPSHOT",
+                          "BACKUP_MODE_INCREMENTAL",
+                          "BACKUP_MODE_PITR"
+                        ],
+                        "x-order": 14
+                      },
+                      "name": {
+                        "description": "Artifact name.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "next_run": {
+                        "description": "Next run.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 17
+                      },
+                      "retention": {
+                        "description": "How many artifacts keep. 0 - unlimited.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 18
+                      },
+                      "retries": {
+                        "description": "How many times to retry a failed backup before giving up.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 11
+                      },
+                      "retry_interval": {
+                        "description": "Delay between each retry. Should have a suffix in JSON: 2s, 1m, 1h.",
+                        "type": "string",
+                        "x-order": 12
+                      },
+                      "scheduled_backup_id": {
+                        "description": "Machine-readable ID.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_id": {
+                        "description": "Machine-readable service ID.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "service_name": {
+                        "description": "Service name.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "start_time": {
+                        "description": "First backup wouldn't happen before this time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 7
+                      },
+                      "vendor": {
+                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
+                        "type": "string",
+                        "x-order": 15
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/backups/{artifact_id}/compatible-services": {
+      "get": {
+        "description": "List services that are compatible with the backup artifact.",
+        "tags": [
+          "BackupService"
+        ],
+        "summary": "List Compatible Services",
+        "operationId": "ListArtifactCompatibleServices",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Artifact id used to determine restore compatibility.",
+            "name": "artifact_id",
+            "in": "path",
+            "required": true
           }
         ],
         "responses": {
@@ -805,22 +1539,32 @@
         }
       }
     },
-    "/v1/backup/Backups/ListScheduled": {
-      "post": {
-        "description": "List all scheduled backups.",
+    "/v1/backups/{artifact_id}/logs": {
+      "get": {
+        "description": "Get logs from the underlying tools for a backup/restore job.",
         "tags": [
-          "BackupsService"
+          "BackupService"
         ],
-        "summary": "List Scheduled Backups",
-        "operationId": "ListScheduledBackups",
+        "summary": "Get Logs",
+        "operationId": "GetLogs",
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
+            "type": "string",
+            "name": "artifact_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "offset",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "limit",
+            "in": "query"
           }
         ],
         "responses": {
@@ -829,124 +1573,24 @@
             "schema": {
               "type": "object",
               "properties": {
-                "scheduled_backups": {
+                "end": {
+                  "type": "boolean",
+                  "x-order": 1
+                },
+                "logs": {
                   "type": "array",
                   "items": {
-                    "description": "ScheduledBackup represents scheduled task for backup.",
+                    "description": "LogChunk represent one chunk of logs.",
                     "type": "object",
                     "properties": {
-                      "cron_expression": {
-                        "description": "How often backup will be run in cron format.",
-                        "type": "string",
-                        "x-order": 6
-                      },
-                      "data_model": {
-                        "description": "DataModel is a model used for performing a backup.",
-                        "type": "string",
-                        "default": "DATA_MODEL_UNSPECIFIED",
-                        "enum": [
-                          "DATA_MODEL_UNSPECIFIED",
-                          "DATA_MODEL_PHYSICAL",
-                          "DATA_MODEL_LOGICAL"
-                        ],
-                        "x-order": 13
-                      },
-                      "description": {
-                        "description": "Description.",
-                        "type": "string",
-                        "x-order": 9
-                      },
-                      "enabled": {
-                        "description": "If scheduling is enabled.",
-                        "type": "boolean",
-                        "x-order": 10
-                      },
-                      "folder": {
-                        "description": "Folder on storage for artifact.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "last_run": {
-                        "description": "Last run.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 16
-                      },
-                      "location_id": {
-                        "description": "Machine-readable location ID.",
-                        "type": "string",
-                        "x-order": 3
-                      },
-                      "location_name": {
-                        "description": "Location name.",
-                        "type": "string",
-                        "x-order": 4
-                      },
-                      "mode": {
-                        "description": "BackupMode specifies backup mode.",
-                        "type": "string",
-                        "default": "BACKUP_MODE_UNSPECIFIED",
-                        "enum": [
-                          "BACKUP_MODE_UNSPECIFIED",
-                          "BACKUP_MODE_SNAPSHOT",
-                          "BACKUP_MODE_INCREMENTAL",
-                          "BACKUP_MODE_PITR"
-                        ],
-                        "x-order": 14
-                      },
-                      "name": {
-                        "description": "Artifact name.",
-                        "type": "string",
-                        "x-order": 8
-                      },
-                      "next_run": {
-                        "description": "Next run.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 17
-                      },
-                      "retention": {
-                        "description": "How many artifacts keep. 0 - unlimited.",
+                      "chunk_id": {
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 18
-                      },
-                      "retries": {
-                        "description": "How many times to retry a failed backup before giving up.",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 11
-                      },
-                      "retry_interval": {
-                        "description": "Delay between each retry. Should have a suffix in JSON: 2s, 1m, 1h.",
-                        "type": "string",
-                        "x-order": 12
-                      },
-                      "scheduled_backup_id": {
-                        "description": "Machine-readable ID.",
-                        "type": "string",
                         "x-order": 0
                       },
-                      "service_id": {
-                        "description": "Machine-readable service ID.",
+                      "data": {
                         "type": "string",
                         "x-order": 1
-                      },
-                      "service_name": {
-                        "description": "Service name.",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "start_time": {
-                        "description": "First backup wouldn't happen before this time.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 7
-                      },
-                      "vendor": {
-                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
-                        "type": "string",
-                        "x-order": 15
                       }
                     }
                   },
@@ -989,14 +1633,71 @@
         }
       }
     },
-    "/v1/backup/Backups/RemoveScheduled": {
-      "post": {
+    "/v1/backups/{scheduled_backup_id}": {
+      "delete": {
         "description": "Remove a scheduled backup.",
         "tags": [
-          "BackupsService"
+          "BackupService"
         ],
         "summary": "Remove a Scheduled Backup",
         "operationId": "RemoveScheduledBackup",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "scheduled_backup_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/backups:changeScheduled": {
+      "put": {
+        "description": "Change a scheduled backup.",
+        "tags": [
+          "BackupService"
+        ],
+        "summary": "Change a Scheduled Backup",
+        "operationId": "ChangeScheduledBackup",
         "parameters": [
           {
             "name": "body",
@@ -1005,9 +1706,57 @@
             "schema": {
               "type": "object",
               "properties": {
+                "cron_expression": {
+                  "description": "How often backup should be run in cron format.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 2
+                },
+                "description": {
+                  "description": "Human-readable description.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 5
+                },
+                "enabled": {
+                  "type": "boolean",
+                  "x-nullable": true,
+                  "x-order": 1
+                },
+                "name": {
+                  "description": "Name of backup.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 4
+                },
+                "retention": {
+                  "description": "How many artifacts keep. 0 - unlimited.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-nullable": true,
+                  "x-order": 8
+                },
+                "retries": {
+                  "description": "How many times to retry a failed backup before giving up.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-nullable": true,
+                  "x-order": 6
+                },
+                "retry_interval": {
+                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
+                  "type": "string",
+                  "x-order": 7
+                },
                 "scheduled_backup_id": {
                   "type": "string",
                   "x-order": 0
+                },
+                "start_time": {
+                  "description": "First backup wouldn't happen before this time.",
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 3
                 }
               }
             }
@@ -1054,95 +1803,11 @@
         }
       }
     },
-    "/v1/backup/Backups/Restore": {
-      "post": {
-        "description": "Could return the Error message in the details containing specific ErrorCode indicating failure reason:\nERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service\nERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud\nERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup\nERROR_CODE_INCOMPATIBLE_TARGET_MYSQL - target MySQL version is not compatible with the artifact for performing a restore of the backup",
-        "tags": [
-          "RestoreService"
-        ],
-        "summary": "Restore from a Backup",
-        "operationId": "RestoreBackup",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "artifact_id": {
-                  "description": "Artifact id to restore.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "pitr_timestamp": {
-                  "type": "string",
-                  "format": "date-time",
-                  "title": "Timestamp of PITR to restore to",
-                  "x-order": 2
-                },
-                "service_id": {
-                  "description": "Service identifier where backup should be restored.",
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "restore_id": {
-                  "description": "Unique restore identifier.",
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/backup/Backups/Schedule": {
+    "/v1/backups:schedule": {
       "post": {
         "description": "Schedule a backup to run at a specified time.",
         "tags": [
-          "BackupsService"
+          "BackupService"
         ],
         "summary": "Schedule a Backup",
         "operationId": "ScheduleBackup",
@@ -1285,11 +1950,11 @@
         }
       }
     },
-    "/v1/backup/Backups/Start": {
+    "/v1/backups:start": {
       "post": {
         "description": "Could return the Error message in the details containing specific ErrorCode indicating failure reason:\nERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service\nERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud\nERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup",
         "tags": [
-          "BackupsService"
+          "BackupService"
         ],
         "summary": "Start a Backup",
         "operationId": "StartBackup",
@@ -1399,667 +2064,11 @@
           }
         }
       }
-    },
-    "/v1/backup/Locations/Add": {
-      "post": {
-        "tags": [
-          "LocationsService"
-        ],
-        "summary": "AddLocation adds backup location.",
-        "operationId": "AddLocation",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "description": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "filesystem_config": {
-                  "description": "FilesystemLocationConfig represents file system location config.",
-                  "type": "object",
-                  "properties": {
-                    "path": {
-                      "type": "string",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 2
-                },
-                "name": {
-                  "type": "string",
-                  "title": "Location name",
-                  "x-order": 0
-                },
-                "s3_config": {
-                  "description": "S3LocationConfig represents S3 bucket configuration.",
-                  "type": "object",
-                  "properties": {
-                    "access_key": {
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "bucket_name": {
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "endpoint": {
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "secret_key": {
-                      "type": "string",
-                      "x-order": 2
-                    }
-                  },
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "location_id": {
-                  "description": "Machine-readable ID.",
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/backup/Locations/Change": {
-      "post": {
-        "tags": [
-          "LocationsService"
-        ],
-        "summary": "ChangeLocation changes backup location.",
-        "operationId": "ChangeLocation",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "description": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "filesystem_config": {
-                  "description": "FilesystemLocationConfig represents file system location config.",
-                  "type": "object",
-                  "properties": {
-                    "path": {
-                      "type": "string",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 3
-                },
-                "location_id": {
-                  "description": "Machine-readable ID.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "name": {
-                  "type": "string",
-                  "title": "Location name",
-                  "x-order": 1
-                },
-                "s3_config": {
-                  "description": "S3LocationConfig represents S3 bucket configuration.",
-                  "type": "object",
-                  "properties": {
-                    "access_key": {
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "bucket_name": {
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "endpoint": {
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "secret_key": {
-                      "type": "string",
-                      "x-order": 2
-                    }
-                  },
-                  "x-order": 4
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/backup/Locations/List": {
-      "post": {
-        "tags": [
-          "LocationsService"
-        ],
-        "summary": "ListLocations returns a list of all backup locations.",
-        "operationId": "ListLocations",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "locations": {
-                  "type": "array",
-                  "items": {
-                    "description": "Location represents single Backup Location.",
-                    "type": "object",
-                    "properties": {
-                      "description": {
-                        "type": "string",
-                        "title": "Short description",
-                        "x-order": 2
-                      },
-                      "filesystem_config": {
-                        "description": "FilesystemLocationConfig represents file system location config.",
-                        "type": "object",
-                        "properties": {
-                          "path": {
-                            "type": "string",
-                            "x-order": 0
-                          }
-                        },
-                        "x-order": 3
-                      },
-                      "location_id": {
-                        "description": "Machine-readable ID.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "name": {
-                        "type": "string",
-                        "title": "Location name",
-                        "x-order": 1
-                      },
-                      "s3_config": {
-                        "description": "S3LocationConfig represents S3 bucket configuration.",
-                        "type": "object",
-                        "properties": {
-                          "access_key": {
-                            "type": "string",
-                            "x-order": 1
-                          },
-                          "bucket_name": {
-                            "type": "string",
-                            "x-order": 3
-                          },
-                          "endpoint": {
-                            "type": "string",
-                            "x-order": 0
-                          },
-                          "secret_key": {
-                            "type": "string",
-                            "x-order": 2
-                          }
-                        },
-                        "x-order": 4
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/backup/Locations/Remove": {
-      "post": {
-        "tags": [
-          "LocationsService"
-        ],
-        "summary": "RemoveLocation removes existing backup location.",
-        "operationId": "RemoveLocation",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "force": {
-                  "type": "boolean",
-                  "title": "Force mode",
-                  "x-order": 1
-                },
-                "location_id": {
-                  "description": "Machine-readable ID.",
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/backup/Locations/TestConfig": {
-      "post": {
-        "tags": [
-          "LocationsService"
-        ],
-        "summary": "TestLocationConfig tests backup location and credentials.",
-        "operationId": "TestLocationConfig",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "filesystem_config": {
-                  "description": "FilesystemLocationConfig represents file system location config.",
-                  "type": "object",
-                  "properties": {
-                    "path": {
-                      "type": "string",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 0
-                },
-                "s3_config": {
-                  "description": "S3LocationConfig represents S3 bucket configuration.",
-                  "type": "object",
-                  "properties": {
-                    "access_key": {
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "bucket_name": {
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "endpoint": {
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "secret_key": {
-                      "type": "string",
-                      "x-order": 2
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/backup/RestoreHistory/List": {
-      "post": {
-        "description": "List all backup restore history items",
-        "tags": [
-          "RestoreService"
-        ],
-        "summary": "List Restore History",
-        "operationId": "ListRestores",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "items": {
-                  "type": "array",
-                  "items": {
-                    "description": "RestoreHistoryItem represents single backup restore item.",
-                    "type": "object",
-                    "properties": {
-                      "artifact_id": {
-                        "description": "ID of the artifact used for restore.",
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "data_model": {
-                        "description": "DataModel is a model used for performing a backup.",
-                        "type": "string",
-                        "default": "DATA_MODEL_UNSPECIFIED",
-                        "enum": [
-                          "DATA_MODEL_UNSPECIFIED",
-                          "DATA_MODEL_PHYSICAL",
-                          "DATA_MODEL_LOGICAL"
-                        ],
-                        "x-order": 8
-                      },
-                      "finished_at": {
-                        "description": "Restore finish time.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 11
-                      },
-                      "location_id": {
-                        "description": "Machine-readable location ID.",
-                        "type": "string",
-                        "x-order": 4
-                      },
-                      "location_name": {
-                        "description": "Location name.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "name": {
-                        "description": "Artifact name used for restore.",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "pitr_timestamp": {
-                        "description": "PITR timestamp is filled for PITR restores, empty otherwise.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 12
-                      },
-                      "restore_id": {
-                        "description": "Machine-readable restore id.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "service_id": {
-                        "description": "Machine-readable service ID.",
-                        "type": "string",
-                        "x-order": 6
-                      },
-                      "service_name": {
-                        "description": "Service name.",
-                        "type": "string",
-                        "x-order": 7
-                      },
-                      "started_at": {
-                        "description": "Restore start time.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 10
-                      },
-                      "status": {
-                        "description": "RestoreStatus shows the current status of execution of restore.",
-                        "type": "string",
-                        "default": "RESTORE_STATUS_UNSPECIFIED",
-                        "enum": [
-                          "RESTORE_STATUS_UNSPECIFIED",
-                          "RESTORE_STATUS_IN_PROGRESS",
-                          "RESTORE_STATUS_SUCCESS",
-                          "RESTORE_STATUS_ERROR"
-                        ],
-                        "x-order": 9
-                      },
-                      "vendor": {
-                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
-                        "type": "string",
-                        "x-order": 3
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "tags": [
     {
-      "name": "ArtifactsService"
-    },
-    {
-      "name": "BackupsService"
+      "name": "BackupService"
     },
     {
       "name": "LocationsService"

@@ -58,7 +58,7 @@ type CancelActionOK struct {
 }
 
 func (o *CancelActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/actions/Cancel][%d] cancelActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/actions:cancelAction][%d] cancelActionOk  %+v", 200, o.Payload)
 }
 
 func (o *CancelActionOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *CancelActionDefault) Code() int {
 }
 
 func (o *CancelActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/actions/Cancel][%d] CancelAction default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/actions:cancelAction][%d] CancelAction default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *CancelActionDefault) GetPayload() *CancelActionDefaultBody {

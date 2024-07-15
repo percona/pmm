@@ -60,8 +60,34 @@ ListAgentsParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListAgentsParams struct {
-	// Body.
-	Body ListAgentsBody
+	/* AgentType.
+
+	   Return only agents of a particular type.
+
+	   Default: "AGENT_TYPE_UNSPECIFIED"
+	*/
+	AgentType *string
+
+	/* NodeID.
+
+	     Return only Agents that provide insights for that Node.
+	Exactly one of these parameters should be present: pmm_agent_id, node_id, service_id.
+	*/
+	NodeID *string
+
+	/* PMMAgentID.
+
+	     Return only Agents started by this pmm-agent.
+	Exactly one of these parameters should be present: pmm_agent_id, node_id, service_id.
+	*/
+	PMMAgentID *string
+
+	/* ServiceID.
+
+	     Return only Agents that provide insights for that Service.
+	Exactly one of these parameters should be present: pmm_agent_id, node_id, service_id.
+	*/
+	ServiceID *string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -80,7 +106,16 @@ func (o *ListAgentsParams) WithDefaults() *ListAgentsParams {
 //
 // All values with no default are reset to their zero value.
 func (o *ListAgentsParams) SetDefaults() {
-	// no default values defined for this parameter
+	agentTypeDefault := string("AGENT_TYPE_UNSPECIFIED")
+
+	val := ListAgentsParams{
+		AgentType: &agentTypeDefault,
+	}
+
+	val.timeout = o.timeout
+	val.Context = o.Context
+	val.HTTPClient = o.HTTPClient
+	*o = val
 }
 
 // WithTimeout adds the timeout to the list agents params
@@ -116,15 +151,48 @@ func (o *ListAgentsParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the list agents params
-func (o *ListAgentsParams) WithBody(body ListAgentsBody) *ListAgentsParams {
-	o.SetBody(body)
+// WithAgentType adds the agentType to the list agents params
+func (o *ListAgentsParams) WithAgentType(agentType *string) *ListAgentsParams {
+	o.SetAgentType(agentType)
 	return o
 }
 
-// SetBody adds the body to the list agents params
-func (o *ListAgentsParams) SetBody(body ListAgentsBody) {
-	o.Body = body
+// SetAgentType adds the agentType to the list agents params
+func (o *ListAgentsParams) SetAgentType(agentType *string) {
+	o.AgentType = agentType
+}
+
+// WithNodeID adds the nodeID to the list agents params
+func (o *ListAgentsParams) WithNodeID(nodeID *string) *ListAgentsParams {
+	o.SetNodeID(nodeID)
+	return o
+}
+
+// SetNodeID adds the nodeId to the list agents params
+func (o *ListAgentsParams) SetNodeID(nodeID *string) {
+	o.NodeID = nodeID
+}
+
+// WithPMMAgentID adds the pMMAgentID to the list agents params
+func (o *ListAgentsParams) WithPMMAgentID(pMMAgentID *string) *ListAgentsParams {
+	o.SetPMMAgentID(pMMAgentID)
+	return o
+}
+
+// SetPMMAgentID adds the pmmAgentId to the list agents params
+func (o *ListAgentsParams) SetPMMAgentID(pMMAgentID *string) {
+	o.PMMAgentID = pMMAgentID
+}
+
+// WithServiceID adds the serviceID to the list agents params
+func (o *ListAgentsParams) WithServiceID(serviceID *string) *ListAgentsParams {
+	o.SetServiceID(serviceID)
+	return o
+}
+
+// SetServiceID adds the serviceId to the list agents params
+func (o *ListAgentsParams) SetServiceID(serviceID *string) {
+	o.ServiceID = serviceID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,8 +201,69 @@ func (o *ListAgentsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+
+	if o.AgentType != nil {
+
+		// query param agent_type
+		var qrAgentType string
+
+		if o.AgentType != nil {
+			qrAgentType = *o.AgentType
+		}
+		qAgentType := qrAgentType
+		if qAgentType != "" {
+			if err := r.SetQueryParam("agent_type", qAgentType); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.NodeID != nil {
+
+		// query param node_id
+		var qrNodeID string
+
+		if o.NodeID != nil {
+			qrNodeID = *o.NodeID
+		}
+		qNodeID := qrNodeID
+		if qNodeID != "" {
+			if err := r.SetQueryParam("node_id", qNodeID); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.PMMAgentID != nil {
+
+		// query param pmm_agent_id
+		var qrPMMAgentID string
+
+		if o.PMMAgentID != nil {
+			qrPMMAgentID = *o.PMMAgentID
+		}
+		qPMMAgentID := qrPMMAgentID
+		if qPMMAgentID != "" {
+			if err := r.SetQueryParam("pmm_agent_id", qPMMAgentID); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.ServiceID != nil {
+
+		// query param service_id
+		var qrServiceID string
+
+		if o.ServiceID != nil {
+			qrServiceID = *o.ServiceID
+		}
+		qServiceID := qrServiceID
+		if qServiceID != "" {
+			if err := r.SetQueryParam("service_id", qServiceID); err != nil {
+				return err
+			}
+		}
 	}
 
 	if len(res) > 0 {

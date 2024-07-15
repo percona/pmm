@@ -32,6 +32,8 @@ import (
 )
 
 func TestPlatform(t *testing.T) {
+	t.Skip("Skip until we have the environment ready.")
+
 	client := platformClient.Default.PlatformService
 	serverClient := serverClient.Default.ServerService
 
@@ -80,7 +82,7 @@ func TestPlatform(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-			pmmapitests.AssertAPIErrorf(t, err, http.StatusBadRequest, codes.InvalidArgument, "invalid field ServerName: value '' must not be an empty string")
+			pmmapitests.AssertAPIErrorf(t, err, http.StatusBadRequest, codes.InvalidArgument, "invalid ConnectRequest.ServerName: value length must be at least 1 runes")
 		})
 
 		t.Run("successful connect and disconnect", func(t *testing.T) {

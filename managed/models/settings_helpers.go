@@ -240,7 +240,7 @@ func lockRoleForChange(tx *reform.TX, roleID int) error {
 }
 
 // ValidateSettings validates settings changes.
-func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
+func ValidateSettings(params *ChangeSettingsParams) error {
 	// TODO: consider refactoring this and the validation for Advisors run intervals
 	checkCases := []struct {
 		dur       time.Duration

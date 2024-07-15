@@ -56,7 +56,7 @@ func (a *Client) ChangeAdvisorChecks(params *ChangeAdvisorChecksParams, opts ...
 	op := &runtime.ClientOperation{
 		ID:                 "ChangeAdvisorChecks",
 		Method:             "POST",
-		PathPattern:        "/v1/advisors/Change",
+		PathPattern:        "/v1/advisors/checks:batchChange",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -94,8 +94,8 @@ func (a *Client) GetFailedChecks(params *GetFailedChecksParams, opts ...ClientOp
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "GetFailedChecks",
-		Method:             "POST",
-		PathPattern:        "/v1/advisors/FailedChecks",
+		Method:             "GET",
+		PathPattern:        "/v1/advisors/checks/failed",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -133,8 +133,8 @@ func (a *Client) ListAdvisorChecks(params *ListAdvisorChecksParams, opts ...Clie
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ListAdvisorChecks",
-		Method:             "POST",
-		PathPattern:        "/v1/advisors/ListChecks",
+		Method:             "GET",
+		PathPattern:        "/v1/advisors/checks",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -172,8 +172,8 @@ func (a *Client) ListAdvisors(params *ListAdvisorsParams, opts ...ClientOption) 
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ListAdvisors",
-		Method:             "POST",
-		PathPattern:        "/v1/advisors/List",
+		Method:             "GET",
+		PathPattern:        "/v1/advisors",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -211,8 +211,8 @@ func (a *Client) ListFailedServices(params *ListFailedServicesParams, opts ...Cl
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ListFailedServices",
-		Method:             "POST",
-		PathPattern:        "/v1/advisors/ListFailedServices",
+		Method:             "GET",
+		PathPattern:        "/v1/advisors/failedServices",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -251,7 +251,7 @@ func (a *Client) StartAdvisorChecks(params *StartAdvisorChecksParams, opts ...Cl
 	op := &runtime.ClientOperation{
 		ID:                 "StartAdvisorChecks",
 		Method:             "POST",
-		PathPattern:        "/v1/advisors/StartChecks",
+		PathPattern:        "/v1/advisors/checks:start",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

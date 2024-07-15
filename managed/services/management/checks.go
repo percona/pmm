@@ -19,6 +19,7 @@ import (
 	"context"
 	"strings"
 
+	"github.com/AlekSi/pointer"
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
@@ -143,15 +144,15 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *advisorsv1.
 		})
 	}
 
-	pageTotals := &managementv1.PageTotals{
-		TotalPages: 1,
-		TotalItems: int32(len(failedChecks)),
+	var pageIndex, pageSize int
+	totalPages := int32(1)
+	totalItems := int32(len(failedChecks))
+
+	if req.PageIndex != nil {
+		pageIndex = int(pointer.GetInt32(req.PageIndex))
 	}
-	var pageIndex int
-	var pageSize int
-	if req.PageParams != nil {
-		pageIndex = int(req.PageParams.Index)
-		pageSize = int(req.PageParams.PageSize)
+	if req.PageSize != nil {
+		pageSize = int(pointer.GetInt32(req.PageSize))
 	}
 
 	from, to := pageIndex*pageSize, (pageIndex+1)*pageSize
@@ -163,13 +164,17 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *advisorsv1.
 	}
 
 	if pageSize > 0 {
-		pageTotals.TotalPages = int32(len(failedChecks) / pageSize)
+		totalPages = int32(len(failedChecks) / pageSize)
 		if len(failedChecks)%pageSize > 0 {
-			pageTotals.TotalPages++
+			totalPages++
 		}
 	}
 
-	return &advisorsv1.GetFailedChecksResponse{Results: failedChecks[from:to], PageTotals: pageTotals}, nil
+	return &advisorsv1.GetFailedChecksResponse{
+		Results:    failedChecks[from:to],
+		TotalItems: totalItems,
+		TotalPages: totalPages,
+	}, nil
 }
 
 // StartAdvisorChecks executes advisor checks and returns when all checks are executed.
@@ -304,7 +309,7 @@ func (s *ChecksAPIService) ChangeAdvisorChecks(_ context.Context, req *advisorsv
 		if check.Interval != advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED {
 			interval, err := convertAPIInterval(check.Interval)
 			if err != nil {
-				return nil, errors.Wrap(err, "failed to change advisor check interval")
+				return nil, err
 			}
 			changeIntervalParams[check.Name] = interval
 		}

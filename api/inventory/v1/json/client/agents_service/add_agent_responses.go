@@ -60,7 +60,7 @@ type AddAgentOK struct {
 }
 
 func (o *AddAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/Add][%d] addAgentOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/agents][%d] addAgentOk  %+v", 200, o.Payload)
 }
 
 func (o *AddAgentOK) GetPayload() *AddAgentOKBody {
@@ -102,7 +102,7 @@ func (o *AddAgentDefault) Code() int {
 }
 
 func (o *AddAgentDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/Add][%d] AddAgent default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/agents][%d] AddAgent default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddAgentDefault) GetPayload() *AddAgentDefaultBody {

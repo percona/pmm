@@ -60,7 +60,7 @@ type RegisterNodeOK struct {
 }
 
 func (o *RegisterNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Node/Register][%d] registerNodeOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/nodes][%d] registerNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *RegisterNodeOK) GetPayload() *RegisterNodeOKBody {
@@ -102,7 +102,7 @@ func (o *RegisterNodeDefault) Code() int {
 }
 
 func (o *RegisterNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Node/Register][%d] RegisterNode default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/nodes][%d] RegisterNode default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *RegisterNodeDefault) GetPayload() *RegisterNodeDefaultBody {
@@ -129,7 +129,7 @@ type RegisterNodeBody struct {
 	// Enum: [NODE_TYPE_UNSPECIFIED NODE_TYPE_GENERIC_NODE NODE_TYPE_CONTAINER_NODE NODE_TYPE_REMOTE_NODE NODE_TYPE_REMOTE_RDS_NODE NODE_TYPE_REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
 
-	// Unique across all Nodes user-defined name.
+	// A user-defined name unique across all Nodes.
 	NodeName string `json:"node_name,omitempty"`
 
 	// Node address (DNS name or IP).

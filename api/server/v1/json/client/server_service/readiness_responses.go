@@ -58,7 +58,7 @@ type ReadinessOK struct {
 }
 
 func (o *ReadinessOK) Error() string {
-	return fmt.Sprintf("[GET /v1/readyz][%d] readinessOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/server/readyz][%d] readinessOk  %+v", 200, o.Payload)
 }
 
 func (o *ReadinessOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *ReadinessDefault) Code() int {
 }
 
 func (o *ReadinessDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/readyz][%d] Readiness default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/server/readyz][%d] Readiness default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ReadinessDefault) GetPayload() *ReadinessDefaultBody {

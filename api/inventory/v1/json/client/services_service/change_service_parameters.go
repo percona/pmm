@@ -63,6 +63,9 @@ type ChangeServiceParams struct {
 	// Body.
 	Body ChangeServiceBody
 
+	// ServiceID.
+	ServiceID string
+
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
@@ -127,6 +130,17 @@ func (o *ChangeServiceParams) SetBody(body ChangeServiceBody) {
 	o.Body = body
 }
 
+// WithServiceID adds the serviceID to the change service params
+func (o *ChangeServiceParams) WithServiceID(serviceID string) *ChangeServiceParams {
+	o.SetServiceID(serviceID)
+	return o
+}
+
+// SetServiceID adds the serviceId to the change service params
+func (o *ChangeServiceParams) SetServiceID(serviceID string) {
+	o.ServiceID = serviceID
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *ChangeServiceParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 	if err := r.SetTimeout(o.timeout); err != nil {
@@ -134,6 +148,11 @@ func (o *ChangeServiceParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 	}
 	var res []error
 	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
+	}
+
+	// path param service_id
+	if err := r.SetPathParam("service_id", o.ServiceID); err != nil {
 		return err
 	}
 

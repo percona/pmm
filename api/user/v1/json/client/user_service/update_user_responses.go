@@ -58,7 +58,7 @@ type UpdateUserOK struct {
 }
 
 func (o *UpdateUserOK) Error() string {
-	return fmt.Sprintf("[PUT /v1/user][%d] updateUserOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[PUT /v1/users/me][%d] updateUserOk  %+v", 200, o.Payload)
 }
 
 func (o *UpdateUserOK) GetPayload() *UpdateUserOKBody {
@@ -100,7 +100,7 @@ func (o *UpdateUserDefault) Code() int {
 }
 
 func (o *UpdateUserDefault) Error() string {
-	return fmt.Sprintf("[PUT /v1/user][%d] UpdateUser default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[PUT /v1/users/me][%d] UpdateUser default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *UpdateUserDefault) GetPayload() *UpdateUserDefaultBody {

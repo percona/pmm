@@ -129,30 +129,6 @@ func local_request_QANService_GetMetrics_0(ctx context.Context, marshaler runtim
 	return msg, metadata, err
 }
 
-func request_QANService_GetQueryExample_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetQueryExampleRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := client.GetQueryExample(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_QANService_GetQueryExample_0(ctx context.Context, marshaler runtime.Marshaler, server QANServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetQueryExampleRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := server.GetQueryExample(ctx, &protoReq)
-	return msg, metadata, err
-}
-
 func request_QANService_GetLabels_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetLabelsRequest
 	var metadata runtime.ServerMetadata
@@ -174,30 +150,6 @@ func local_request_QANService_GetLabels_0(ctx context.Context, marshaler runtime
 	}
 
 	msg, err := server.GetLabels(ctx, &protoReq)
-	return msg, metadata, err
-}
-
-func request_QANService_GetQueryPlan_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetQueryPlanRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := client.GetQueryPlan(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_QANService_GetQueryPlan_0(ctx context.Context, marshaler runtime.Marshaler, server QANServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetQueryPlanRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := server.GetQueryPlan(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -225,30 +177,6 @@ func local_request_QANService_GetHistogram_0(ctx context.Context, marshaler runt
 	return msg, metadata, err
 }
 
-func request_QANService_QueryExists_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryExistsRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := client.QueryExists(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_QANService_QueryExists_0(ctx context.Context, marshaler runtime.Marshaler, server QANServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryExistsRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := server.QueryExists(ctx, &protoReq)
-	return msg, metadata, err
-}
-
 func request_QANService_ExplainFingerprintByQueryID_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ExplainFingerprintByQueryIDRequest
 	var metadata runtime.ServerMetadata
@@ -270,6 +198,80 @@ func local_request_QANService_ExplainFingerprintByQueryID_0(ctx context.Context,
 	}
 
 	msg, err := server.ExplainFingerprintByQueryID(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_QANService_GetQueryPlan_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetQueryPlanRequest
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["queryid"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "queryid")
+	}
+
+	protoReq.Queryid, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "queryid", err)
+	}
+
+	msg, err := client.GetQueryPlan(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_QANService_GetQueryPlan_0(ctx context.Context, marshaler runtime.Marshaler, server QANServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetQueryPlanRequest
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["queryid"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "queryid")
+	}
+
+	protoReq.Queryid, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "queryid", err)
+	}
+
+	msg, err := server.GetQueryPlan(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_QANService_QueryExists_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq QueryExistsRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.QueryExists(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_QANService_QueryExists_0(ctx context.Context, marshaler runtime.Marshaler, server QANServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq QueryExistsRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.QueryExists(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -297,6 +299,30 @@ func local_request_QANService_SchemaByQueryID_0(ctx context.Context, marshaler r
 	return msg, metadata, err
 }
 
+func request_QANService_GetQueryExample_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetQueryExampleRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.GetQueryExample(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_QANService_GetQueryExample_0(ctx context.Context, marshaler runtime.Marshaler, server QANServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetQueryExampleRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.GetQueryExample(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 // RegisterQANServiceHandlerServer registers the http handlers for service QANService to "mux".
 // UnaryRPC     :call QANServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -310,7 +336,7 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/GetReport", runtime.WithHTTPPathPattern("/v1/qan/GetReport"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/GetReport", runtime.WithHTTPPathPattern("/v1/qan/metrics:getReport"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -334,7 +360,7 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/GetFilteredMetricsNames", runtime.WithHTTPPathPattern("/v1/qan/Filters/Get"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/GetFilteredMetricsNames", runtime.WithHTTPPathPattern("/v1/qan/metrics:getFilters"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -358,7 +384,7 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/GetMetricsNames", runtime.WithHTTPPathPattern("/v1/qan/GetMetricsNames"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/GetMetricsNames", runtime.WithHTTPPathPattern("/v1/qan/metrics:getNames"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -382,7 +408,7 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/GetMetrics", runtime.WithHTTPPathPattern("/v1/qan/ObjectDetails/GetMetrics"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/GetMetrics", runtime.WithHTTPPathPattern("/v1/qan:getMetrics"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -398,30 +424,6 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		forward_QANService_GetMetrics_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_QANService_GetQueryExample_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/GetQueryExample", runtime.WithHTTPPathPattern("/v1/qan/ObjectDetails/GetQueryExample"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_QANService_GetQueryExample_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_QANService_GetQueryExample_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
 	mux.Handle("POST", pattern_QANService_GetLabels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -430,7 +432,7 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/GetLabels", runtime.WithHTTPPathPattern("/v1/qan/ObjectDetails/GetLabels"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/GetLabels", runtime.WithHTTPPathPattern("/v1/qan:getLabels"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -446,30 +448,6 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		forward_QANService_GetLabels_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_QANService_GetQueryPlan_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/GetQueryPlan", runtime.WithHTTPPathPattern("/v1/qan/ObjectDetails/GetQueryPlan"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_QANService_GetQueryPlan_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_QANService_GetQueryPlan_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
 	mux.Handle("POST", pattern_QANService_GetHistogram_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -478,7 +456,7 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/GetHistogram", runtime.WithHTTPPathPattern("/v1/qan/ObjectDetails/GetHistogram"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/GetHistogram", runtime.WithHTTPPathPattern("/v1/qan:getHistogram"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -494,30 +472,6 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		forward_QANService_GetHistogram_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_QANService_QueryExists_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/QueryExists", runtime.WithHTTPPathPattern("/v1/qan/ObjectDetails/QueryExists"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_QANService_QueryExists_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_QANService_QueryExists_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
 	mux.Handle("POST", pattern_QANService_ExplainFingerprintByQueryID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -526,7 +480,7 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/ExplainFingerprintByQueryID", runtime.WithHTTPPathPattern("/v1/qan/ObjectDetails/ExplainFingerprintByQueryID"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/ExplainFingerprintByQueryID", runtime.WithHTTPPathPattern("/v1/qan:explainFingerprint"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -542,6 +496,54 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		forward_QANService_ExplainFingerprintByQueryID_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
+	mux.Handle("GET", pattern_QANService_GetQueryPlan_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/GetQueryPlan", runtime.WithHTTPPathPattern("/v1/qan/query/{queryid}/plan"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_QANService_GetQueryPlan_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_QANService_GetQueryPlan_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+
+	mux.Handle("POST", pattern_QANService_QueryExists_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/QueryExists", runtime.WithHTTPPathPattern("/v1/qan/query:exists"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_QANService_QueryExists_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_QANService_QueryExists_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+
 	mux.Handle("POST", pattern_QANService_SchemaByQueryID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -550,7 +552,7 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/SchemaByQueryID", runtime.WithHTTPPathPattern("/v1/qan/ObjectDetails/SchemaByQueryID"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/SchemaByQueryID", runtime.WithHTTPPathPattern("/v1/qan/query:getSchema"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -564,6 +566,30 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_SchemaByQueryID_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+
+	mux.Handle("POST", pattern_QANService_GetQueryExample_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1.QANService/GetQueryExample", runtime.WithHTTPPathPattern("/v1/qan/query:getExample"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_QANService_GetQueryExample_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_QANService_GetQueryExample_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
@@ -612,7 +638,7 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/GetReport", runtime.WithHTTPPathPattern("/v1/qan/GetReport"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/GetReport", runtime.WithHTTPPathPattern("/v1/qan/metrics:getReport"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -633,7 +659,7 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/GetFilteredMetricsNames", runtime.WithHTTPPathPattern("/v1/qan/Filters/Get"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/GetFilteredMetricsNames", runtime.WithHTTPPathPattern("/v1/qan/metrics:getFilters"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -654,7 +680,7 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/GetMetricsNames", runtime.WithHTTPPathPattern("/v1/qan/GetMetricsNames"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/GetMetricsNames", runtime.WithHTTPPathPattern("/v1/qan/metrics:getNames"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -675,7 +701,7 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/GetMetrics", runtime.WithHTTPPathPattern("/v1/qan/ObjectDetails/GetMetrics"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/GetMetrics", runtime.WithHTTPPathPattern("/v1/qan:getMetrics"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -690,34 +716,13 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		forward_QANService_GetMetrics_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_QANService_GetQueryExample_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/GetQueryExample", runtime.WithHTTPPathPattern("/v1/qan/ObjectDetails/GetQueryExample"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_QANService_GetQueryExample_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_QANService_GetQueryExample_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
 	mux.Handle("POST", pattern_QANService_GetLabels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/GetLabels", runtime.WithHTTPPathPattern("/v1/qan/ObjectDetails/GetLabels"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/GetLabels", runtime.WithHTTPPathPattern("/v1/qan:getLabels"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -732,34 +737,13 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		forward_QANService_GetLabels_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_QANService_GetQueryPlan_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/GetQueryPlan", runtime.WithHTTPPathPattern("/v1/qan/ObjectDetails/GetQueryPlan"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_QANService_GetQueryPlan_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_QANService_GetQueryPlan_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
 	mux.Handle("POST", pattern_QANService_GetHistogram_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/GetHistogram", runtime.WithHTTPPathPattern("/v1/qan/ObjectDetails/GetHistogram"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/GetHistogram", runtime.WithHTTPPathPattern("/v1/qan:getHistogram"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -774,34 +758,13 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		forward_QANService_GetHistogram_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_QANService_QueryExists_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/QueryExists", runtime.WithHTTPPathPattern("/v1/qan/ObjectDetails/QueryExists"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_QANService_QueryExists_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_QANService_QueryExists_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
 	mux.Handle("POST", pattern_QANService_ExplainFingerprintByQueryID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/ExplainFingerprintByQueryID", runtime.WithHTTPPathPattern("/v1/qan/ObjectDetails/ExplainFingerprintByQueryID"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/ExplainFingerprintByQueryID", runtime.WithHTTPPathPattern("/v1/qan:explainFingerprint"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -816,13 +779,55 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		forward_QANService_ExplainFingerprintByQueryID_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
+	mux.Handle("GET", pattern_QANService_GetQueryPlan_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/GetQueryPlan", runtime.WithHTTPPathPattern("/v1/qan/query/{queryid}/plan"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_QANService_GetQueryPlan_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_QANService_GetQueryPlan_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+
+	mux.Handle("POST", pattern_QANService_QueryExists_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/QueryExists", runtime.WithHTTPPathPattern("/v1/qan/query:exists"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_QANService_QueryExists_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_QANService_QueryExists_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+
 	mux.Handle("POST", pattern_QANService_SchemaByQueryID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/SchemaByQueryID", runtime.WithHTTPPathPattern("/v1/qan/ObjectDetails/SchemaByQueryID"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/SchemaByQueryID", runtime.WithHTTPPathPattern("/v1/qan/query:getSchema"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -837,31 +842,52 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		forward_QANService_SchemaByQueryID_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
+	mux.Handle("POST", pattern_QANService_GetQueryExample_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1.QANService/GetQueryExample", runtime.WithHTTPPathPattern("/v1/qan/query:getExample"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_QANService_GetQueryExample_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_QANService_GetQueryExample_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+
 	return nil
 }
 
 var (
-	pattern_QANService_GetReport_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "qan", "GetReport"}, ""))
+	pattern_QANService_GetReport_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "qan", "metrics"}, "getReport"))
 
-	pattern_QANService_GetFilteredMetricsNames_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "qan", "Filters", "Get"}, ""))
+	pattern_QANService_GetFilteredMetricsNames_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "qan", "metrics"}, "getFilters"))
 
-	pattern_QANService_GetMetricsNames_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "qan", "GetMetricsNames"}, ""))
+	pattern_QANService_GetMetricsNames_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "qan", "metrics"}, "getNames"))
 
-	pattern_QANService_GetMetrics_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "qan", "ObjectDetails", "GetMetrics"}, ""))
+	pattern_QANService_GetMetrics_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "qan"}, "getMetrics"))
 
-	pattern_QANService_GetQueryExample_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "qan", "ObjectDetails", "GetQueryExample"}, ""))
+	pattern_QANService_GetLabels_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "qan"}, "getLabels"))
 
-	pattern_QANService_GetLabels_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "qan", "ObjectDetails", "GetLabels"}, ""))
+	pattern_QANService_GetHistogram_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "qan"}, "getHistogram"))
 
-	pattern_QANService_GetQueryPlan_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "qan", "ObjectDetails", "GetQueryPlan"}, ""))
+	pattern_QANService_ExplainFingerprintByQueryID_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "qan"}, "explainFingerprint"))
 
-	pattern_QANService_GetHistogram_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "qan", "ObjectDetails", "GetHistogram"}, ""))
+	pattern_QANService_GetQueryPlan_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "qan", "query", "queryid", "plan"}, ""))
 
-	pattern_QANService_QueryExists_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "qan", "ObjectDetails", "QueryExists"}, ""))
+	pattern_QANService_QueryExists_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "qan", "query"}, "exists"))
 
-	pattern_QANService_ExplainFingerprintByQueryID_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "qan", "ObjectDetails", "ExplainFingerprintByQueryID"}, ""))
+	pattern_QANService_SchemaByQueryID_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "qan", "query"}, "getSchema"))
 
-	pattern_QANService_SchemaByQueryID_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "qan", "ObjectDetails", "SchemaByQueryID"}, ""))
+	pattern_QANService_GetQueryExample_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "qan", "query"}, "getExample"))
 )
 
 var (
@@ -873,17 +899,17 @@ var (
 
 	forward_QANService_GetMetrics_0 = runtime.ForwardResponseMessage
 
-	forward_QANService_GetQueryExample_0 = runtime.ForwardResponseMessage
-
 	forward_QANService_GetLabels_0 = runtime.ForwardResponseMessage
-
-	forward_QANService_GetQueryPlan_0 = runtime.ForwardResponseMessage
 
 	forward_QANService_GetHistogram_0 = runtime.ForwardResponseMessage
 
-	forward_QANService_QueryExists_0 = runtime.ForwardResponseMessage
-
 	forward_QANService_ExplainFingerprintByQueryID_0 = runtime.ForwardResponseMessage
 
+	forward_QANService_GetQueryPlan_0 = runtime.ForwardResponseMessage
+
+	forward_QANService_QueryExists_0 = runtime.ForwardResponseMessage
+
 	forward_QANService_SchemaByQueryID_0 = runtime.ForwardResponseMessage
+
+	forward_QANService_GetQueryExample_0 = runtime.ForwardResponseMessage
 )

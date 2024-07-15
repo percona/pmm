@@ -74,7 +74,7 @@ func TestMongoDBExporter(t *testing.T) {
 		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
-			Body:    agents.GetAgentBody{AgentID: agentID},
+			AgentID: agentID,
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -99,18 +99,16 @@ func TestMongoDBExporter(t *testing.T) {
 		// Test change API.
 		changeMongoDBExporterOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyMongodbExporterCommon{
-							Enable:       pointer.ToBool(false),
-							CustomLabels: &agents.ChangeAgentParamsBodyMongodbExporterCommonCustomLabels{},
-						},
+						Enable:       pointer.ToBool(false),
+						CustomLabels: &agents.ChangeAgentParamsBodyMongodbExporterCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				MongodbExporter: &agents.ChangeAgentOKBodyMongodbExporter{
@@ -130,22 +128,20 @@ func TestMongoDBExporter(t *testing.T) {
 
 		changeMongoDBExporterOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyMongodbExporterCommon{
-							Enable: pointer.ToBool(true),
-							CustomLabels: &agents.ChangeAgentParamsBodyMongodbExporterCommonCustomLabels{
-								Values: map[string]string{
-									"new_label": "mongodb_exporter",
-								},
+						Enable: pointer.ToBool(true),
+						CustomLabels: &agents.ChangeAgentParamsBodyMongodbExporterCustomLabels{
+							Values: map[string]string{
+								"new_label": "mongodb_exporter",
 							},
 						},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				MongodbExporter: &agents.ChangeAgentOKBodyMongodbExporter{
@@ -284,7 +280,7 @@ func TestMongoDBExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID \"pmm-not-exist-server\" not found.")
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID pmm-not-exist-server not found.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.MongodbExporter.AgentID)
 		}
@@ -335,7 +331,7 @@ func TestMongoDBExporter(t *testing.T) {
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
-				Body:    agents.GetAgentBody{AgentID: agentID},
+				AgentID: agentID,
 				Context: pmmapitests.Context,
 			})
 		require.NoError(t, err)
@@ -361,17 +357,15 @@ func TestMongoDBExporter(t *testing.T) {
 		// Test change API.
 		changeMongoDBExporterOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyMongodbExporterCommon{
-							EnablePushMetrics: pointer.ToBool(false),
-						},
+						EnablePushMetrics: pointer.ToBool(false),
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				MongodbExporter: &agents.ChangeAgentOKBodyMongodbExporter{
@@ -392,17 +386,15 @@ func TestMongoDBExporter(t *testing.T) {
 
 		changeMongoDBExporterOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyMongodbExporterCommon{
-							EnablePushMetrics: pointer.ToBool(true),
-						},
+						EnablePushMetrics: pointer.ToBool(true),
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				MongodbExporter: &agents.ChangeAgentOKBodyMongodbExporter{

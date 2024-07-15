@@ -58,7 +58,7 @@ type RemoveAgentOK struct {
 }
 
 func (o *RemoveAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/Remove][%d] removeAgentOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[DELETE /v1/inventory/agents/{agent_id}][%d] removeAgentOk  %+v", 200, o.Payload)
 }
 
 func (o *RemoveAgentOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *RemoveAgentDefault) Code() int {
 }
 
 func (o *RemoveAgentDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/Remove][%d] RemoveAgent default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[DELETE /v1/inventory/agents/{agent_id}][%d] RemoveAgent default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *RemoveAgentDefault) GetPayload() *RemoveAgentDefaultBody {
@@ -113,46 +113,6 @@ func (o *RemoveAgentDefault) readResponse(response runtime.ClientResponse, consu
 		return err
 	}
 
-	return nil
-}
-
-/*
-RemoveAgentBody remove agent body
-swagger:model RemoveAgentBody
-*/
-type RemoveAgentBody struct {
-	// agent id
-	AgentID string `json:"agent_id,omitempty"`
-
-	// Remove agent with all dependencies.
-	Force bool `json:"force,omitempty"`
-}
-
-// Validate validates this remove agent body
-func (o *RemoveAgentBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this remove agent body based on context it is used
-func (o *RemoveAgentBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *RemoveAgentBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *RemoveAgentBody) UnmarshalBinary(b []byte) error {
-	var res RemoveAgentBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

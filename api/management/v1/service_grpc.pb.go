@@ -20,18 +20,18 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ManagementService_AddAnnotation_FullMethodName  = "/management.v1.ManagementService/AddAnnotation"
-	ManagementService_RegisterNode_FullMethodName   = "/management.v1.ManagementService/RegisterNode"
-	ManagementService_UnregisterNode_FullMethodName = "/management.v1.ManagementService/UnregisterNode"
-	ManagementService_AddExternal_FullMethodName    = "/management.v1.ManagementService/AddExternal"
-	ManagementService_AddHAProxy_FullMethodName     = "/management.v1.ManagementService/AddHAProxy"
-	ManagementService_AddMySQL_FullMethodName       = "/management.v1.ManagementService/AddMySQL"
-	ManagementService_AddMongoDB_FullMethodName     = "/management.v1.ManagementService/AddMongoDB"
-	ManagementService_AddPostgreSQL_FullMethodName  = "/management.v1.ManagementService/AddPostgreSQL"
-	ManagementService_AddProxySQL_FullMethodName    = "/management.v1.ManagementService/AddProxySQL"
-	ManagementService_DiscoverRDS_FullMethodName    = "/management.v1.ManagementService/DiscoverRDS"
-	ManagementService_AddRDS_FullMethodName         = "/management.v1.ManagementService/AddRDS"
-	ManagementService_RemoveService_FullMethodName  = "/management.v1.ManagementService/RemoveService"
+	ManagementService_AddAnnotation_FullMethodName         = "/management.v1.ManagementService/AddAnnotation"
+	ManagementService_ListAgents_FullMethodName            = "/management.v1.ManagementService/ListAgents"
+	ManagementService_RegisterNode_FullMethodName          = "/management.v1.ManagementService/RegisterNode"
+	ManagementService_UnregisterNode_FullMethodName        = "/management.v1.ManagementService/UnregisterNode"
+	ManagementService_ListNodes_FullMethodName             = "/management.v1.ManagementService/ListNodes"
+	ManagementService_GetNode_FullMethodName               = "/management.v1.ManagementService/GetNode"
+	ManagementService_AddService_FullMethodName            = "/management.v1.ManagementService/AddService"
+	ManagementService_ListServices_FullMethodName          = "/management.v1.ManagementService/ListServices"
+	ManagementService_DiscoverRDS_FullMethodName           = "/management.v1.ManagementService/DiscoverRDS"
+	ManagementService_DiscoverAzureDatabase_FullMethodName = "/management.v1.ManagementService/DiscoverAzureDatabase"
+	ManagementService_AddAzureDatabase_FullMethodName      = "/management.v1.ManagementService/AddAzureDatabase"
+	ManagementService_RemoveService_FullMethodName         = "/management.v1.ManagementService/RemoveService"
 )
 
 // ManagementServiceClient is the client API for ManagementService service.
@@ -40,41 +40,27 @@ const (
 type ManagementServiceClient interface {
 	// AddAnnotation adds an annotation.
 	AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*AddAnnotationResponse, error)
-	// RegisterNode registers a new Node and pmm-agent.
+	// ListAgents returns a list of Agents filtered by service_id or node_id.
+	ListAgents(ctx context.Context, in *ListAgentsRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error)
+	// RegisterNode registers a new Node and a pmm-agent.
 	RegisterNode(ctx context.Context, in *RegisterNodeRequest, opts ...grpc.CallOption) (*RegisterNodeResponse, error)
 	// UnregisterNode unregisters a Node, pmm-agent and removes the service account and its token.
 	UnregisterNode(ctx context.Context, in *UnregisterNodeRequest, opts ...grpc.CallOption) (*UnregisterNodeResponse, error)
-	// AddExternal adds external service and adds external exporter.
-	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
-	AddExternal(ctx context.Context, in *AddExternalRequest, opts ...grpc.CallOption) (*AddExternalResponse, error)
-	// AddHAProxy adds HAProxy service and adds external exporter.
-	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// then adds an "external exporter" agent to inventory.
-	AddHAProxy(ctx context.Context, in *AddHAProxyRequest, opts ...grpc.CallOption) (*AddHAProxyResponse, error)
-	// AddMySQL adds MySQL Service and starts several Agents.
-	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// then adds "mysqld_exporter", and "qan_mysql_perfschema" agents
-	// with provided "pmm_agent_id" and other parameters.
-	AddMySQL(ctx context.Context, in *AddMySQLRequest, opts ...grpc.CallOption) (*AddMySQLResponse, error)
-	// AddMongoDB adds MongoDB Service and starts several Agents.
-	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// then adds "mongodb_exporter", and "qan_mongodb_profiler" agents
-	// with provided "pmm_agent_id" and other parameters.
-	AddMongoDB(ctx context.Context, in *AddMongoDBRequest, opts ...grpc.CallOption) (*AddMongoDBResponse, error)
-	// AddPostgreSQL adds PostgreSQL Service and starts postgres exporter.
-	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// then adds "postgres_exporter" with provided "pmm_agent_id" and other parameters.
-	AddPostgreSQL(ctx context.Context, in *AddPostgreSQLRequest, opts ...grpc.CallOption) (*AddPostgreSQLResponse, error)
-	// AddProxySQL adds ProxySQL Service and starts several Agents.
-	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// then adds "proxysql_exporter" with provided "pmm_agent_id" and other parameters.
-	AddProxySQL(ctx context.Context, in *AddProxySQLRequest, opts ...grpc.CallOption) (*AddProxySQLResponse, error)
+	// ListNode returns a list of nodes.
+	ListNodes(ctx context.Context, in *ListNodesRequest, opts ...grpc.CallOption) (*ListNodesResponse, error)
+	// GetNode returns a single Node by ID.
+	GetNode(ctx context.Context, in *GetNodeRequest, opts ...grpc.CallOption) (*GetNodeResponse, error)
+	// AddService adds a Service and starts several Agents.
+	AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error)
+	// ListServices returns a list of Services with a rich set of properties.
+	ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error)
 	// DiscoverRDS discovers RDS instances.
 	DiscoverRDS(ctx context.Context, in *DiscoverRDSRequest, opts ...grpc.CallOption) (*DiscoverRDSResponse, error)
-	// AddRDS adds RDS instance.
-	AddRDS(ctx context.Context, in *AddRDSRequest, opts ...grpc.CallOption) (*AddRDSResponse, error)
-	// RemoveService removes Service with Agents.
+	// DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
+	DiscoverAzureDatabase(ctx context.Context, in *DiscoverAzureDatabaseRequest, opts ...grpc.CallOption) (*DiscoverAzureDatabaseResponse, error)
+	// AddAzureDatabase adds Azure Database instance.
+	AddAzureDatabase(ctx context.Context, in *AddAzureDatabaseRequest, opts ...grpc.CallOption) (*AddAzureDatabaseResponse, error)
+	// RemoveService removes a Service along with its Agents.
 	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error)
 }
 
@@ -89,6 +75,15 @@ func NewManagementServiceClient(cc grpc.ClientConnInterface) ManagementServiceCl
 func (c *managementServiceClient) AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*AddAnnotationResponse, error) {
 	out := new(AddAnnotationResponse)
 	err := c.cc.Invoke(ctx, ManagementService_AddAnnotation_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managementServiceClient) ListAgents(ctx context.Context, in *ListAgentsRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error) {
+	out := new(ListAgentsResponse)
+	err := c.cc.Invoke(ctx, ManagementService_ListAgents_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -113,54 +108,36 @@ func (c *managementServiceClient) UnregisterNode(ctx context.Context, in *Unregi
 	return out, nil
 }
 
-func (c *managementServiceClient) AddExternal(ctx context.Context, in *AddExternalRequest, opts ...grpc.CallOption) (*AddExternalResponse, error) {
-	out := new(AddExternalResponse)
-	err := c.cc.Invoke(ctx, ManagementService_AddExternal_FullMethodName, in, out, opts...)
+func (c *managementServiceClient) ListNodes(ctx context.Context, in *ListNodesRequest, opts ...grpc.CallOption) (*ListNodesResponse, error) {
+	out := new(ListNodesResponse)
+	err := c.cc.Invoke(ctx, ManagementService_ListNodes_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *managementServiceClient) AddHAProxy(ctx context.Context, in *AddHAProxyRequest, opts ...grpc.CallOption) (*AddHAProxyResponse, error) {
-	out := new(AddHAProxyResponse)
-	err := c.cc.Invoke(ctx, ManagementService_AddHAProxy_FullMethodName, in, out, opts...)
+func (c *managementServiceClient) GetNode(ctx context.Context, in *GetNodeRequest, opts ...grpc.CallOption) (*GetNodeResponse, error) {
+	out := new(GetNodeResponse)
+	err := c.cc.Invoke(ctx, ManagementService_GetNode_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *managementServiceClient) AddMySQL(ctx context.Context, in *AddMySQLRequest, opts ...grpc.CallOption) (*AddMySQLResponse, error) {
-	out := new(AddMySQLResponse)
-	err := c.cc.Invoke(ctx, ManagementService_AddMySQL_FullMethodName, in, out, opts...)
+func (c *managementServiceClient) AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error) {
+	out := new(AddServiceResponse)
+	err := c.cc.Invoke(ctx, ManagementService_AddService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *managementServiceClient) AddMongoDB(ctx context.Context, in *AddMongoDBRequest, opts ...grpc.CallOption) (*AddMongoDBResponse, error) {
-	out := new(AddMongoDBResponse)
-	err := c.cc.Invoke(ctx, ManagementService_AddMongoDB_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *managementServiceClient) AddPostgreSQL(ctx context.Context, in *AddPostgreSQLRequest, opts ...grpc.CallOption) (*AddPostgreSQLResponse, error) {
-	out := new(AddPostgreSQLResponse)
-	err := c.cc.Invoke(ctx, ManagementService_AddPostgreSQL_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *managementServiceClient) AddProxySQL(ctx context.Context, in *AddProxySQLRequest, opts ...grpc.CallOption) (*AddProxySQLResponse, error) {
-	out := new(AddProxySQLResponse)
-	err := c.cc.Invoke(ctx, ManagementService_AddProxySQL_FullMethodName, in, out, opts...)
+func (c *managementServiceClient) ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error) {
+	out := new(ListServicesResponse)
+	err := c.cc.Invoke(ctx, ManagementService_ListServices_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -176,9 +153,18 @@ func (c *managementServiceClient) DiscoverRDS(ctx context.Context, in *DiscoverR
 	return out, nil
 }
 
-func (c *managementServiceClient) AddRDS(ctx context.Context, in *AddRDSRequest, opts ...grpc.CallOption) (*AddRDSResponse, error) {
-	out := new(AddRDSResponse)
-	err := c.cc.Invoke(ctx, ManagementService_AddRDS_FullMethodName, in, out, opts...)
+func (c *managementServiceClient) DiscoverAzureDatabase(ctx context.Context, in *DiscoverAzureDatabaseRequest, opts ...grpc.CallOption) (*DiscoverAzureDatabaseResponse, error) {
+	out := new(DiscoverAzureDatabaseResponse)
+	err := c.cc.Invoke(ctx, ManagementService_DiscoverAzureDatabase_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managementServiceClient) AddAzureDatabase(ctx context.Context, in *AddAzureDatabaseRequest, opts ...grpc.CallOption) (*AddAzureDatabaseResponse, error) {
+	out := new(AddAzureDatabaseResponse)
+	err := c.cc.Invoke(ctx, ManagementService_AddAzureDatabase_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -200,41 +186,27 @@ func (c *managementServiceClient) RemoveService(ctx context.Context, in *RemoveS
 type ManagementServiceServer interface {
 	// AddAnnotation adds an annotation.
 	AddAnnotation(context.Context, *AddAnnotationRequest) (*AddAnnotationResponse, error)
-	// RegisterNode registers a new Node and pmm-agent.
+	// ListAgents returns a list of Agents filtered by service_id or node_id.
+	ListAgents(context.Context, *ListAgentsRequest) (*ListAgentsResponse, error)
+	// RegisterNode registers a new Node and a pmm-agent.
 	RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error)
 	// UnregisterNode unregisters a Node, pmm-agent and removes the service account and its token.
 	UnregisterNode(context.Context, *UnregisterNodeRequest) (*UnregisterNodeResponse, error)
-	// AddExternal adds external service and adds external exporter.
-	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
-	AddExternal(context.Context, *AddExternalRequest) (*AddExternalResponse, error)
-	// AddHAProxy adds HAProxy service and adds external exporter.
-	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// then adds an "external exporter" agent to inventory.
-	AddHAProxy(context.Context, *AddHAProxyRequest) (*AddHAProxyResponse, error)
-	// AddMySQL adds MySQL Service and starts several Agents.
-	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// then adds "mysqld_exporter", and "qan_mysql_perfschema" agents
-	// with provided "pmm_agent_id" and other parameters.
-	AddMySQL(context.Context, *AddMySQLRequest) (*AddMySQLResponse, error)
-	// AddMongoDB adds MongoDB Service and starts several Agents.
-	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// then adds "mongodb_exporter", and "qan_mongodb_profiler" agents
-	// with provided "pmm_agent_id" and other parameters.
-	AddMongoDB(context.Context, *AddMongoDBRequest) (*AddMongoDBResponse, error)
-	// AddPostgreSQL adds PostgreSQL Service and starts postgres exporter.
-	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// then adds "postgres_exporter" with provided "pmm_agent_id" and other parameters.
-	AddPostgreSQL(context.Context, *AddPostgreSQLRequest) (*AddPostgreSQLResponse, error)
-	// AddProxySQL adds ProxySQL Service and starts several Agents.
-	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// then adds "proxysql_exporter" with provided "pmm_agent_id" and other parameters.
-	AddProxySQL(context.Context, *AddProxySQLRequest) (*AddProxySQLResponse, error)
+	// ListNode returns a list of nodes.
+	ListNodes(context.Context, *ListNodesRequest) (*ListNodesResponse, error)
+	// GetNode returns a single Node by ID.
+	GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error)
+	// AddService adds a Service and starts several Agents.
+	AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error)
+	// ListServices returns a list of Services with a rich set of properties.
+	ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error)
 	// DiscoverRDS discovers RDS instances.
 	DiscoverRDS(context.Context, *DiscoverRDSRequest) (*DiscoverRDSResponse, error)
-	// AddRDS adds RDS instance.
-	AddRDS(context.Context, *AddRDSRequest) (*AddRDSResponse, error)
-	// RemoveService removes Service with Agents.
+	// DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
+	DiscoverAzureDatabase(context.Context, *DiscoverAzureDatabaseRequest) (*DiscoverAzureDatabaseResponse, error)
+	// AddAzureDatabase adds Azure Database instance.
+	AddAzureDatabase(context.Context, *AddAzureDatabaseRequest) (*AddAzureDatabaseResponse, error)
+	// RemoveService removes a Service along with its Agents.
 	RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error)
 	mustEmbedUnimplementedManagementServiceServer()
 }
@@ -246,6 +218,10 @@ func (UnimplementedManagementServiceServer) AddAnnotation(context.Context, *AddA
 	return nil, status.Errorf(codes.Unimplemented, "method AddAnnotation not implemented")
 }
 
+func (UnimplementedManagementServiceServer) ListAgents(context.Context, *ListAgentsRequest) (*ListAgentsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListAgents not implemented")
+}
+
 func (UnimplementedManagementServiceServer) RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterNode not implemented")
 }
@@ -254,36 +230,32 @@ func (UnimplementedManagementServiceServer) UnregisterNode(context.Context, *Unr
 	return nil, status.Errorf(codes.Unimplemented, "method UnregisterNode not implemented")
 }
 
-func (UnimplementedManagementServiceServer) AddExternal(context.Context, *AddExternalRequest) (*AddExternalResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddExternal not implemented")
+func (UnimplementedManagementServiceServer) ListNodes(context.Context, *ListNodesRequest) (*ListNodesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListNodes not implemented")
 }
 
-func (UnimplementedManagementServiceServer) AddHAProxy(context.Context, *AddHAProxyRequest) (*AddHAProxyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddHAProxy not implemented")
+func (UnimplementedManagementServiceServer) GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNode not implemented")
 }
 
-func (UnimplementedManagementServiceServer) AddMySQL(context.Context, *AddMySQLRequest) (*AddMySQLResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddMySQL not implemented")
+func (UnimplementedManagementServiceServer) AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddService not implemented")
 }
 
-func (UnimplementedManagementServiceServer) AddMongoDB(context.Context, *AddMongoDBRequest) (*AddMongoDBResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddMongoDB not implemented")
-}
-
-func (UnimplementedManagementServiceServer) AddPostgreSQL(context.Context, *AddPostgreSQLRequest) (*AddPostgreSQLResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddPostgreSQL not implemented")
-}
-
-func (UnimplementedManagementServiceServer) AddProxySQL(context.Context, *AddProxySQLRequest) (*AddProxySQLResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddProxySQL not implemented")
+func (UnimplementedManagementServiceServer) ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListServices not implemented")
 }
 
 func (UnimplementedManagementServiceServer) DiscoverRDS(context.Context, *DiscoverRDSRequest) (*DiscoverRDSResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DiscoverRDS not implemented")
 }
 
-func (UnimplementedManagementServiceServer) AddRDS(context.Context, *AddRDSRequest) (*AddRDSResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddRDS not implemented")
+func (UnimplementedManagementServiceServer) DiscoverAzureDatabase(context.Context, *DiscoverAzureDatabaseRequest) (*DiscoverAzureDatabaseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DiscoverAzureDatabase not implemented")
+}
+
+func (UnimplementedManagementServiceServer) AddAzureDatabase(context.Context, *AddAzureDatabaseRequest) (*AddAzureDatabaseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddAzureDatabase not implemented")
 }
 
 func (UnimplementedManagementServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error) {
@@ -316,6 +288,24 @@ func _ManagementService_AddAnnotation_Handler(srv interface{}, ctx context.Conte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ManagementServiceServer).AddAnnotation(ctx, req.(*AddAnnotationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ManagementService_ListAgents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAgentsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagementServiceServer).ListAgents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ManagementService_ListAgents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagementServiceServer).ListAgents(ctx, req.(*ListAgentsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -356,110 +346,74 @@ func _ManagementService_UnregisterNode_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ManagementService_AddExternal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddExternalRequest)
+func _ManagementService_ListNodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListNodesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ManagementServiceServer).AddExternal(ctx, in)
+		return srv.(ManagementServiceServer).ListNodes(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ManagementService_AddExternal_FullMethodName,
+		FullMethod: ManagementService_ListNodes_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ManagementServiceServer).AddExternal(ctx, req.(*AddExternalRequest))
+		return srv.(ManagementServiceServer).ListNodes(ctx, req.(*ListNodesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ManagementService_AddHAProxy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddHAProxyRequest)
+func _ManagementService_GetNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ManagementServiceServer).AddHAProxy(ctx, in)
+		return srv.(ManagementServiceServer).GetNode(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ManagementService_AddHAProxy_FullMethodName,
+		FullMethod: ManagementService_GetNode_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ManagementServiceServer).AddHAProxy(ctx, req.(*AddHAProxyRequest))
+		return srv.(ManagementServiceServer).GetNode(ctx, req.(*GetNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ManagementService_AddMySQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddMySQLRequest)
+func _ManagementService_AddService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ManagementServiceServer).AddMySQL(ctx, in)
+		return srv.(ManagementServiceServer).AddService(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ManagementService_AddMySQL_FullMethodName,
+		FullMethod: ManagementService_AddService_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ManagementServiceServer).AddMySQL(ctx, req.(*AddMySQLRequest))
+		return srv.(ManagementServiceServer).AddService(ctx, req.(*AddServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ManagementService_AddMongoDB_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddMongoDBRequest)
+func _ManagementService_ListServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListServicesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ManagementServiceServer).AddMongoDB(ctx, in)
+		return srv.(ManagementServiceServer).ListServices(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ManagementService_AddMongoDB_FullMethodName,
+		FullMethod: ManagementService_ListServices_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ManagementServiceServer).AddMongoDB(ctx, req.(*AddMongoDBRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ManagementService_AddPostgreSQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddPostgreSQLRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ManagementServiceServer).AddPostgreSQL(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ManagementService_AddPostgreSQL_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ManagementServiceServer).AddPostgreSQL(ctx, req.(*AddPostgreSQLRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ManagementService_AddProxySQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddProxySQLRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ManagementServiceServer).AddProxySQL(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ManagementService_AddProxySQL_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ManagementServiceServer).AddProxySQL(ctx, req.(*AddProxySQLRequest))
+		return srv.(ManagementServiceServer).ListServices(ctx, req.(*ListServicesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -482,20 +436,38 @@ func _ManagementService_DiscoverRDS_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ManagementService_AddRDS_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddRDSRequest)
+func _ManagementService_DiscoverAzureDatabase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DiscoverAzureDatabaseRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ManagementServiceServer).AddRDS(ctx, in)
+		return srv.(ManagementServiceServer).DiscoverAzureDatabase(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ManagementService_AddRDS_FullMethodName,
+		FullMethod: ManagementService_DiscoverAzureDatabase_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ManagementServiceServer).AddRDS(ctx, req.(*AddRDSRequest))
+		return srv.(ManagementServiceServer).DiscoverAzureDatabase(ctx, req.(*DiscoverAzureDatabaseRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ManagementService_AddAzureDatabase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddAzureDatabaseRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagementServiceServer).AddAzureDatabase(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ManagementService_AddAzureDatabase_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagementServiceServer).AddAzureDatabase(ctx, req.(*AddAzureDatabaseRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -530,6 +502,10 @@ var ManagementService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ManagementService_AddAnnotation_Handler,
 		},
 		{
+			MethodName: "ListAgents",
+			Handler:    _ManagementService_ListAgents_Handler,
+		},
+		{
 			MethodName: "RegisterNode",
 			Handler:    _ManagementService_RegisterNode_Handler,
 		},
@@ -538,36 +514,32 @@ var ManagementService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ManagementService_UnregisterNode_Handler,
 		},
 		{
-			MethodName: "AddExternal",
-			Handler:    _ManagementService_AddExternal_Handler,
+			MethodName: "ListNodes",
+			Handler:    _ManagementService_ListNodes_Handler,
 		},
 		{
-			MethodName: "AddHAProxy",
-			Handler:    _ManagementService_AddHAProxy_Handler,
+			MethodName: "GetNode",
+			Handler:    _ManagementService_GetNode_Handler,
 		},
 		{
-			MethodName: "AddMySQL",
-			Handler:    _ManagementService_AddMySQL_Handler,
+			MethodName: "AddService",
+			Handler:    _ManagementService_AddService_Handler,
 		},
 		{
-			MethodName: "AddMongoDB",
-			Handler:    _ManagementService_AddMongoDB_Handler,
-		},
-		{
-			MethodName: "AddPostgreSQL",
-			Handler:    _ManagementService_AddPostgreSQL_Handler,
-		},
-		{
-			MethodName: "AddProxySQL",
-			Handler:    _ManagementService_AddProxySQL_Handler,
+			MethodName: "ListServices",
+			Handler:    _ManagementService_ListServices_Handler,
 		},
 		{
 			MethodName: "DiscoverRDS",
 			Handler:    _ManagementService_DiscoverRDS_Handler,
 		},
 		{
-			MethodName: "AddRDS",
-			Handler:    _ManagementService_AddRDS_Handler,
+			MethodName: "DiscoverAzureDatabase",
+			Handler:    _ManagementService_DiscoverAzureDatabase_Handler,
+		},
+		{
+			MethodName: "AddAzureDatabase",
+			Handler:    _ManagementService_AddAzureDatabase_Handler,
 		},
 		{
 			MethodName: "RemoveService",

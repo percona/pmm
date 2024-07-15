@@ -58,7 +58,7 @@ type RemoveNodeOK struct {
 }
 
 func (o *RemoveNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/Remove][%d] removeNodeOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[DELETE /v1/inventory/nodes/{node_id}][%d] removeNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *RemoveNodeOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *RemoveNodeDefault) Code() int {
 }
 
 func (o *RemoveNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/Remove][%d] RemoveNode default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[DELETE /v1/inventory/nodes/{node_id}][%d] RemoveNode default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *RemoveNodeDefault) GetPayload() *RemoveNodeDefaultBody {
@@ -113,46 +113,6 @@ func (o *RemoveNodeDefault) readResponse(response runtime.ClientResponse, consum
 		return err
 	}
 
-	return nil
-}
-
-/*
-RemoveNodeBody remove node body
-swagger:model RemoveNodeBody
-*/
-type RemoveNodeBody struct {
-	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Remove node with all dependencies.
-	Force bool `json:"force,omitempty"`
-}
-
-// Validate validates this remove node body
-func (o *RemoveNodeBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this remove node body based on context it is used
-func (o *RemoveNodeBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *RemoveNodeBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *RemoveNodeBody) UnmarshalBinary(b []byte) error {
-	var res RemoveNodeBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

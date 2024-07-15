@@ -28,7 +28,9 @@ import (
 var errNoNode = errors.New("no node available")
 
 // HAProxyMinPMMServerVersion contains minimum version for running HAProxy.
-const haProxyMinPMMServerVersion = "2.15.0"
+const (
+	haProxyMinPMMServerVersion = "2.15.0"
+)
 
 // ServerVersionLessThan return if provided version is lower than server version.
 func ServerVersionLessThan(currentVersion string) (bool, error) {

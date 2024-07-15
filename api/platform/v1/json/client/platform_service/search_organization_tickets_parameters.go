@@ -60,9 +60,6 @@ SearchOrganizationTicketsParams contains all the parameters to send to the API e
 	Typically these are written to a http.Request.
 */
 type SearchOrganizationTicketsParams struct {
-	// Body.
-	Body interface{}
-
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
@@ -116,28 +113,12 @@ func (o *SearchOrganizationTicketsParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the search organization tickets params
-func (o *SearchOrganizationTicketsParams) WithBody(body interface{}) *SearchOrganizationTicketsParams {
-	o.SetBody(body)
-	return o
-}
-
-// SetBody adds the body to the search organization tickets params
-func (o *SearchOrganizationTicketsParams) SetBody(body interface{}) {
-	o.Body = body
-}
-
 // WriteToRequest writes these params to a swagger request
 func (o *SearchOrganizationTicketsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
 	var res []error
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
-	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

@@ -25,7 +25,7 @@ import (
 // Get implements rpc to get list of available labels.
 //
 //nolint:goconst
-func (s *Service) Get(ctx context.Context, in *qanpb.GetFilteredMetricsNamesRequest) (*qanpb.GetFilteredMetricsNamesResponse, error) {
+func (s *Service) GetFilteredMetricsNames(ctx context.Context, in *qanpb.GetFilteredMetricsNamesRequest) (*qanpb.GetFilteredMetricsNamesResponse, error) {
 	if in.PeriodStartFrom == nil || in.PeriodStartTo == nil {
 		err := fmt.Errorf("from-date: %s or to-date: %s cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
 		return nil, err

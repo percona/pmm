@@ -41,7 +41,7 @@ func addRemoteRDSNode(t pmmapitests.TestingT, nodeName string) *nodes.AddNodeOKB
 		Context: pmmapitests.Context,
 	}
 	res, err := client.Default.NodesService.AddNode(params)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 
 	return res.Payload
@@ -61,7 +61,7 @@ func addRemoteAzureDatabaseNode(t pmmapitests.TestingT, nodeName string) *nodes.
 		Context: pmmapitests.Context,
 	}
 	res, err := client.Default.NodesService.AddNode(params)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 
 	return res.Payload
@@ -76,7 +76,7 @@ func addService(t pmmapitests.TestingT, body services.AddServiceBody) *services.
 	}
 
 	res, err := client.Default.ServicesService.AddService(params)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
 }
@@ -91,7 +91,7 @@ func addNodeExporter(t pmmapitests.TestingT, pmmAgentID string, customLabels map
 		},
 		Context: pmmapitests.Context,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 	require.NotNil(t, res.Payload.NodeExporter)
 	require.Equal(t, pmmAgentID, res.Payload.NodeExporter.PMMAgentID)
@@ -105,7 +105,7 @@ func addAgent(t pmmapitests.TestingT, body agents.AddAgentBody) *agents.AddAgent
 		Body:    body,
 		Context: pmmapitests.Context,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
 }

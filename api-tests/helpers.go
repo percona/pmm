@@ -22,8 +22,10 @@ import (
 	"math"
 	"math/big"
 	"reflect"
+	"strings"
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -57,7 +59,7 @@ func TestString(t TestingT, name string) string {
 	n, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt32))
 	require.NoError(t, err)
 
-	return fmt.Sprintf("pmm-api-tests/%s/%s/%s/%d", Hostname, t.Name(), name, n)
+	return strings.ReplaceAll(fmt.Sprintf("pmm-api-tests-%s-%s-%s-%d", Hostname, t.Name(), name, n), "/", "-")
 }
 
 // AssertAPIErrorf check that actual API error equals expected.
@@ -143,10 +145,8 @@ func UnregisterNodes(t TestingT, nodeIDs ...string) {
 
 	for _, nodeID := range nodeIDs {
 		params := &mservice.UnregisterNodeParams{
-			Body: mservice.UnregisterNodeBody{
-				NodeID: nodeID,
-				Force:  true,
-			},
+			NodeID:  nodeID,
+			Force:   pointer.ToBool(true),
 			Context: context.Background(),
 		}
 
@@ -164,13 +164,11 @@ func RemoveNodes(t TestingT, nodeIDs ...string) {
 
 	for _, nodeID := range nodeIDs {
 		params := &nodes.RemoveNodeParams{
-			Body: nodes.RemoveNodeBody{
-				NodeID: nodeID,
-			},
+			NodeID:  nodeID,
 			Context: context.Background(),
 		}
 		res, err := client.Default.NodesService.RemoveNode(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, res)
 	}
 }
@@ -181,14 +179,12 @@ func RemoveServices(t TestingT, serviceIDs ...string) {
 
 	for _, serviceID := range serviceIDs {
 		params := &services.RemoveServiceParams{
-			Body: services.RemoveServiceBody{
-				ServiceID: serviceID,
-				Force:     true,
-			},
-			Context: context.Background(),
+			ServiceID: serviceID,
+			Force:     pointer.ToBool(true),
+			Context:   context.Background(),
 		}
 		res, err := client.Default.ServicesService.RemoveService(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, res)
 	}
 }
@@ -199,13 +195,27 @@ func RemoveAgents(t TestingT, agentIDs ...string) {
 
 	for _, agentID := range agentIDs {
 		params := &agents.RemoveAgentParams{
-			Body: agents.RemoveAgentBody{
-				AgentID: agentID,
-			},
+			AgentID: agentID,
 			Context: context.Background(),
 		}
 		res, err := client.Default.AgentsService.RemoveAgent(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
+		assert.NotNil(t, res)
+	}
+}
+
+// RemoveAgentsWithForce removes specified agents along with dependents.
+func RemoveAgentsWithForce(t TestingT, agentIDs ...string) {
+	t.Helper()
+
+	for _, agentID := range agentIDs {
+		params := &agents.RemoveAgentParams{
+			AgentID: agentID,
+			Force:   pointer.ToBool(true),
+			Context: context.Background(),
+		}
+		res, err := client.Default.AgentsService.RemoveAgent(params)
+		require.NoError(t, err)
 		assert.NotNil(t, res)
 	}
 }
@@ -224,7 +234,7 @@ func AddGenericNode(t TestingT, nodeName string) *nodes.AddNodeOKBodyGeneric {
 		Context: Context,
 	}
 	res, err := client.Default.NodesService.AddNode(params)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 	require.NotNil(t, res.Payload)
 	require.NotNil(t, res.Payload.Generic)
@@ -245,7 +255,7 @@ func AddRemoteNode(t TestingT, nodeName string) *nodes.AddNodeOKBody {
 		Context: Context,
 	}
 	res, err := client.Default.NodesService.AddNode(params)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
 }
@@ -260,7 +270,7 @@ func AddNode(t TestingT, nodeBody *nodes.AddNodeBody) *nodes.AddNodeOKBody {
 	}
 
 	res, err := client.Default.NodesService.AddNode(params)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 
 	return res.Payload
@@ -278,7 +288,7 @@ func AddPMMAgent(t TestingT, nodeID string) *agents.AddAgentOKBody {
 		},
 		Context: Context,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
 }

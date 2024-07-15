@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // NewRemoveServiceParams creates a new RemoveServiceParams object,
@@ -60,8 +61,17 @@ RemoveServiceParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type RemoveServiceParams struct {
-	// Body.
-	Body RemoveServiceBody
+	/* Force.
+
+	   Remove service with all dependencies.
+	*/
+	Force *bool
+
+	/* ServiceID.
+
+	   Unique randomly generated instance identifier. Required.
+	*/
+	ServiceID string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -116,15 +126,26 @@ func (o *RemoveServiceParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the remove service params
-func (o *RemoveServiceParams) WithBody(body RemoveServiceBody) *RemoveServiceParams {
-	o.SetBody(body)
+// WithForce adds the force to the remove service params
+func (o *RemoveServiceParams) WithForce(force *bool) *RemoveServiceParams {
+	o.SetForce(force)
 	return o
 }
 
-// SetBody adds the body to the remove service params
-func (o *RemoveServiceParams) SetBody(body RemoveServiceBody) {
-	o.Body = body
+// SetForce adds the force to the remove service params
+func (o *RemoveServiceParams) SetForce(force *bool) {
+	o.Force = force
+}
+
+// WithServiceID adds the serviceID to the remove service params
+func (o *RemoveServiceParams) WithServiceID(serviceID string) *RemoveServiceParams {
+	o.SetServiceID(serviceID)
+	return o
+}
+
+// SetServiceID adds the serviceId to the remove service params
+func (o *RemoveServiceParams) SetServiceID(serviceID string) {
+	o.ServiceID = serviceID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,7 +154,25 @@ func (o *RemoveServiceParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
+
+	if o.Force != nil {
+
+		// query param force
+		var qrForce bool
+
+		if o.Force != nil {
+			qrForce = *o.Force
+		}
+		qForce := swag.FormatBool(qrForce)
+		if qForce != "" {
+			if err := r.SetQueryParam("force", qForce); err != nil {
+				return err
+			}
+		}
+	}
+
+	// path param service_id
+	if err := r.SetPathParam("service_id", o.ServiceID); err != nil {
 		return err
 	}
 

@@ -43,3 +43,9 @@ message Metadata {
     PbmMetadata pbm_metadata = 3;
   }
 }
+
+// LogChunk represent one chunk of logs.
+message LogChunk {
+  uint32 chunk_id = 1;
+  string data = 2;
+}

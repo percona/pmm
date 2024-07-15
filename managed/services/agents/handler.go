@@ -142,7 +142,7 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
 				})
 
 			case *agentv1.ActionResultRequest:
-				// TODO: PMM-3978: In the future we need to merge action parts before send it to storage.
+				// TODO: PMM-3978: In the future we need to merge action parts before we send it to the storage.
 				err := models.ChangeActionResult(h.db.Querier, p.ActionId, agent.id, p.Error, string(p.Output), p.Done)
 				if err != nil {
 					l.Warnf("Failed to change action: %+v", err)

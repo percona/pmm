@@ -60,7 +60,7 @@ type ListRestoresOK struct {
 }
 
 func (o *ListRestoresOK) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/RestoreHistory/List][%d] listRestoresOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/backups/restores][%d] listRestoresOk  %+v", 200, o.Payload)
 }
 
 func (o *ListRestoresOK) GetPayload() *ListRestoresOKBody {
@@ -102,7 +102,7 @@ func (o *ListRestoresDefault) Code() int {
 }
 
 func (o *ListRestoresDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/backup/RestoreHistory/List][%d] ListRestores default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/backups/restores][%d] ListRestores default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ListRestoresDefault) GetPayload() *ListRestoresDefaultBody {

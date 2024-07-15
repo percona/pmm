@@ -197,7 +197,7 @@ func TestMySQLExplain(t *testing.T) {
 		var er explainResponse
 		err = json.Unmarshal(resp, &er)
 		assert.NoError(t, err)
-		assert.Equal(t, er.IsDMLQuery, true)
+		assert.True(t, er.IsDMLQuery)
 		assert.Equal(t, er.Query, `SELECT * FROM city  WHERE Name='Rosario'`)
 	})
 

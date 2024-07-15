@@ -33,7 +33,7 @@ Service name: {{ .Service.ServiceName }}
 `)
 
 type addProxySQLResult struct {
-	Service *mservice.AddProxySQLOKBodyService `json:"service"`
+	Service *mservice.AddServiceOKBodyProxysqlService `json:"service"`
 }
 
 func (res *addProxySQLResult) Result() {}
@@ -132,38 +132,40 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &mservice.AddProxySQLParams{
-		Body: mservice.AddProxySQLBody{
-			NodeID:         cmd.NodeID,
-			ServiceName:    serviceName,
-			Address:        host,
-			Socket:         socket,
-			Port:           int64(port),
-			ExposeExporter: cmd.ExposeExporter,
-			PMMAgentID:     cmd.PMMAgentID,
-			Environment:    cmd.Environment,
-			Cluster:        cmd.Cluster,
-			ReplicationSet: cmd.ReplicationSet,
-			Username:       cmd.Username,
-			Password:       cmd.Password,
-			AgentPassword:  cmd.AgentPassword,
+	params := &mservice.AddServiceParams{
+		Body: mservice.AddServiceBody{
+			Proxysql: &mservice.AddServiceParamsBodyProxysql{
+				NodeID:         cmd.NodeID,
+				ServiceName:    serviceName,
+				Address:        host,
+				Socket:         socket,
+				Port:           int64(port),
+				ExposeExporter: cmd.ExposeExporter,
+				PMMAgentID:     cmd.PMMAgentID,
+				Environment:    cmd.Environment,
+				Cluster:        cmd.Cluster,
+				ReplicationSet: cmd.ReplicationSet,
+				Username:       cmd.Username,
+				Password:       cmd.Password,
+				AgentPassword:  cmd.AgentPassword,
 
-			CustomLabels:        customLabels,
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
-			TLS:                 cmd.TLS,
-			TLSSkipVerify:       cmd.TLSSkipVerify,
-			MetricsMode:         pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
-			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
-			LogLevel:            &cmd.AddLogLevel,
+				CustomLabels:        customLabels,
+				SkipConnectionCheck: cmd.SkipConnectionCheck,
+				TLS:                 cmd.TLS,
+				TLSSkipVerify:       cmd.TLSSkipVerify,
+				MetricsMode:         pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
+				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
+				LogLevel:            &cmd.AddLogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.ManagementService.AddProxySQL(params)
+	resp, err := client.Default.ManagementService.AddService(params)
 	if err != nil {
 		return nil, err
 	}
 
 	return &addProxySQLResult{
-		Service: resp.Payload.Service,
+		Service: resp.Payload.Proxysql.Service,
 	}, nil
 }

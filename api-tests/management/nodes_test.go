@@ -213,10 +213,8 @@ func TestNodeRegister(t *testing.T) {
 
 			// Check Node Exporter is created
 			listAgentsOK, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-				Body: agents.ListAgentsBody{
-					PMMAgentID: pmmAgentID,
-				},
-				Context: pmmapitests.Context,
+				PMMAgentID: pointer.ToString(pmmAgentID),
+				Context:    pmmapitests.Context,
 			})
 			assert.NoError(t, err)
 			require.Len(t, listAgentsOK.Payload.NodeExporter, 1)

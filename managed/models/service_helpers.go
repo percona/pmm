@@ -72,7 +72,7 @@ func validateDBConnectionOptions(socket, host *string, port *uint16) error {
 		}
 
 		if port == nil {
-			return status.Errorf(codes.InvalidArgument, "Port are expected to be passed with address.")
+			return status.Errorf(codes.InvalidArgument, "Port is expected to be passed along with the host address.")
 		}
 	}
 
@@ -438,6 +438,11 @@ func ChangeStandardLabels(q *reform.Querier, serviceID string, labels ServiceSta
 	if labels.ExternalGroup != nil {
 		columns = append(columns, "external_group")
 		s.ExternalGroup = *labels.ExternalGroup
+	}
+
+	// to avoid "reform: nothing to update" error
+	if len(columns) == 0 {
+		return nil
 	}
 
 	if err = q.UpdateColumns(s, columns...); err != nil {

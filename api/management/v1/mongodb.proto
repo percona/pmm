@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package management.v1;
 
-import "google/api/annotations.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/log_level.proto";
 import "inventory/v1/services.proto";
@@ -12,7 +11,7 @@ import "validate/validate.proto";
 
 // Add MongoDB
 
-message AddMongoDBRequest {
+message AddMongoDBServiceParams {
   reserved 8; // TODO https://jira.percona.com/browse/PMM-4650
   reserved "query_examples_disabled";
 
@@ -93,7 +92,7 @@ message AddMongoDBRequest {
   bool expose_exporter = 34;
 }
 
-message AddMongoDBResponse {
+message MongoDBServiceResult {
   inventory.v1.MongoDBService service = 1;
   inventory.v1.MongoDBExporter mongodb_exporter = 2;
   inventory.v1.QANMongoDBProfilerAgent qan_mongodb_profiler = 3;

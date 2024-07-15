@@ -58,7 +58,7 @@ type AWSInstanceCheckOK struct {
 }
 
 func (o *AWSInstanceCheckOK) Error() string {
-	return fmt.Sprintf("[POST /v1/AWSInstanceCheck][%d] awsInstanceCheckOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/server/AWSInstance][%d] awsInstanceCheckOk  %+v", 200, o.Payload)
 }
 
 func (o *AWSInstanceCheckOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *AWSInstanceCheckDefault) Code() int {
 }
 
 func (o *AWSInstanceCheckDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/AWSInstanceCheck][%d] AWSInstanceCheck default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/server/AWSInstance][%d] AWSInstanceCheck default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AWSInstanceCheckDefault) GetPayload() *AWSInstanceCheckDefaultBody {
@@ -113,43 +113,6 @@ func (o *AWSInstanceCheckDefault) readResponse(response runtime.ClientResponse, 
 		return err
 	}
 
-	return nil
-}
-
-/*
-AWSInstanceCheckBody AWS instance check body
-swagger:model AWSInstanceCheckBody
-*/
-type AWSInstanceCheckBody struct {
-	// AWS EC2 instance ID (i-1234567890abcdef0).
-	InstanceID string `json:"instance_id,omitempty"`
-}
-
-// Validate validates this AWS instance check body
-func (o *AWSInstanceCheckBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this AWS instance check body based on context it is used
-func (o *AWSInstanceCheckBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AWSInstanceCheckBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AWSInstanceCheckBody) UnmarshalBinary(b []byte) error {
-	var res AWSInstanceCheckBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

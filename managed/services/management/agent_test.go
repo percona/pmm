@@ -30,7 +30,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	agentv1beta1 "github.com/percona/pmm/api/management/v1/agent"
+	agentv1beta1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -39,7 +39,7 @@ import (
 
 var now time.Time
 
-func setup(t *testing.T) (context.Context, *MgmtServiceService, func(t *testing.T)) {
+func setup(t *testing.T) (context.Context, *ManagementService, func(t *testing.T)) {
 	t.Helper()
 
 	now = models.Now()
@@ -54,14 +54,26 @@ func setup(t *testing.T) (context.Context, *MgmtServiceService, func(t *testing.
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
+	vmdb := &mockPrometheusService{}
+	vmdb.Test(t)
+
 	state := &mockAgentsStateUpdater{}
 	state.Test(t)
 
 	ar := &mockAgentsRegistry{}
 	ar.Test(t)
 
-	vmdb := &mockPrometheusService{}
-	vmdb.Test(t)
+	cc := &mockConnectionChecker{}
+	cc.Test(t)
+
+	sib := &mockServiceInfoBroker{}
+	sib.Test(t)
+
+	vc := &mockVersionCache{}
+	vc.Test(t)
+
+	grafanaClient := &mockGrafanaClient{}
+	grafanaClient.Test(t)
 
 	vmClient := &mockVictoriaMetricsClient{}
 	vmClient.Test(t)
@@ -72,13 +84,18 @@ func setup(t *testing.T) (context.Context, *MgmtServiceService, func(t *testing.
 		uuid.SetRand(nil)
 
 		require.NoError(t, sqlDB.Close())
-		state.AssertExpectations(t)
+
 		ar.AssertExpectations(t)
+		state.AssertExpectations(t)
+		cc.AssertExpectations(t)
+		sib.AssertExpectations(t)
 		vmdb.AssertExpectations(t)
+		vc.AssertExpectations(t)
+		grafanaClient.AssertExpectations(t)
 		vmClient.AssertExpectations(t)
 	}
 
-	s := NewMgmtServiceService(db, ar, state, vmdb, vmClient)
+	s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
 
 	return ctx, s, teardown
 }

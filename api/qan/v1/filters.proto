@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package qan.v1;
 
-import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "qan/v1/qan.proto";
 

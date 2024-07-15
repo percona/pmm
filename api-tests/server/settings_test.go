@@ -536,7 +536,7 @@ func TestSettings(t *testing.T) {
 					Context: pmmapitests.Context,
 				})
 				require.NoError(t, err)
-				assert.Empty(t, res)
+				assert.Equal(t, sshKey, res.Payload.Settings.SSHKey)
 			})
 
 			t.Run("OK", func(t *testing.T) {
@@ -632,7 +632,7 @@ func TestSettings(t *testing.T) {
 
 				getRes, err := serverClient.Default.ServerService.GetSettings(nil)
 				require.NoError(t, err)
-				getExpected := &server.ChangeSettingsOKBodySettingsAdvisorRunIntervals{
+				getExpected := &server.GetSettingsOKBodySettingsAdvisorRunIntervals{
 					RareInterval:     "28800s",
 					StandardInterval: "1800s",
 					FrequentInterval: "20s",
@@ -657,7 +657,7 @@ func TestSettings(t *testing.T) {
 					// Check if the values were persisted
 					getRes, err := serverClient.Default.ServerService.GetSettings(nil)
 					require.NoError(t, err)
-					getExpected := &server.ChangeSettingsOKBodySettingsAdvisorRunIntervals{
+					getExpected := &server.GetSettingsOKBodySettingsAdvisorRunIntervals{
 						RareInterval:     "28800s",
 						StandardInterval: "1800s",
 						FrequentInterval: "20s",
@@ -679,10 +679,10 @@ func TestSettings(t *testing.T) {
 					} `json:"settings"`
 				}
 				changeURI := pmmapitests.BaseURL.ResolveReference(&url.URL{
-					Path: "v1/Settings/Change",
+					Path: "v1/server/settings",
 				})
 				getURI := pmmapitests.BaseURL.ResolveReference(&url.URL{
-					Path: "v1/Settings/Get",
+					Path: "v1/server/settings",
 				})
 
 				for change, get := range map[string]string{
@@ -703,7 +703,7 @@ func TestSettings(t *testing.T) {
 						p.Settings.MetricsResolutions.LR = change
 						b, err := json.Marshal(p.Settings)
 						require.NoError(t, err)
-						req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, changeURI.String(), bytes.NewReader(b))
+						req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPut, changeURI.String(), bytes.NewReader(b))
 						require.NoError(t, err)
 						if pmmapitests.Debug {
 							b, err = httputil.DumpRequestOut(req, true)
@@ -733,7 +733,7 @@ func TestSettings(t *testing.T) {
 						require.NoError(t, err)
 						assert.Equal(t, get, p.Settings.MetricsResolutions.LR, "Change")
 
-						req, err = http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, getURI.String(), nil)
+						req, err = http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, getURI.String(), nil)
 						require.NoError(t, err)
 						if pmmapitests.Debug {
 							b, err = httputil.DumpRequestOut(req, true)

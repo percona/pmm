@@ -58,7 +58,7 @@ type RemoveServiceOK struct {
 }
 
 func (o *RemoveServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/Remove][%d] removeServiceOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[DELETE /v1/inventory/services/{service_id}][%d] removeServiceOk  %+v", 200, o.Payload)
 }
 
 func (o *RemoveServiceOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *RemoveServiceDefault) Code() int {
 }
 
 func (o *RemoveServiceDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/Remove][%d] RemoveService default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[DELETE /v1/inventory/services/{service_id}][%d] RemoveService default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *RemoveServiceDefault) GetPayload() *RemoveServiceDefaultBody {
@@ -113,46 +113,6 @@ func (o *RemoveServiceDefault) readResponse(response runtime.ClientResponse, con
 		return err
 	}
 
-	return nil
-}
-
-/*
-RemoveServiceBody remove service body
-swagger:model RemoveServiceBody
-*/
-type RemoveServiceBody struct {
-	// Unique randomly generated instance identifier. Required.
-	ServiceID string `json:"service_id,omitempty"`
-
-	// Remove service with all dependencies.
-	Force bool `json:"force,omitempty"`
-}
-
-// Validate validates this remove service body
-func (o *RemoveServiceBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this remove service body based on context it is used
-func (o *RemoveServiceBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *RemoveServiceBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *RemoveServiceBody) UnmarshalBinary(b []byte) error {
-	var res RemoveServiceBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

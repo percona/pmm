@@ -58,7 +58,7 @@ type GetAgentLogsOK struct {
 }
 
 func (o *GetAgentLogsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/GetLogs][%d] getAgentLogsOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/inventory/agents/{agent_id}/logs][%d] getAgentLogsOk  %+v", 200, o.Payload)
 }
 
 func (o *GetAgentLogsOK) GetPayload() *GetAgentLogsOKBody {
@@ -100,7 +100,7 @@ func (o *GetAgentLogsDefault) Code() int {
 }
 
 func (o *GetAgentLogsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/GetLogs][%d] GetAgentLogs default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/inventory/agents/{agent_id}/logs][%d] GetAgentLogs default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetAgentLogsDefault) GetPayload() *GetAgentLogsDefaultBody {
@@ -115,46 +115,6 @@ func (o *GetAgentLogsDefault) readResponse(response runtime.ClientResponse, cons
 		return err
 	}
 
-	return nil
-}
-
-/*
-GetAgentLogsBody get agent logs body
-swagger:model GetAgentLogsBody
-*/
-type GetAgentLogsBody struct {
-	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
-
-	// is less than this value. 0: no limit
-	Limit int64 `json:"limit,omitempty"`
-}
-
-// Validate validates this get agent logs body
-func (o *GetAgentLogsBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this get agent logs body based on context it is used
-func (o *GetAgentLogsBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetAgentLogsBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetAgentLogsBody) UnmarshalBinary(b []byte) error {
-	var res GetAgentLogsBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

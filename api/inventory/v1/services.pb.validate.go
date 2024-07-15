@@ -3587,438 +3587,6 @@ var _ interface {
 	ErrorName() string
 } = RemoveServiceResponseValidationError{}
 
-// Validate checks the field values on AddCustomLabelsRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddCustomLabelsRequest) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddCustomLabelsRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddCustomLabelsRequestMultiError, or nil if none found.
-func (m *AddCustomLabelsRequest) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddCustomLabelsRequest) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := AddCustomLabelsRequestValidationError{
-			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	// no validation rules for CustomLabels
-
-	if len(errors) > 0 {
-		return AddCustomLabelsRequestMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddCustomLabelsRequestMultiError is an error wrapping multiple validation
-// errors returned by AddCustomLabelsRequest.ValidateAll() if the designated
-// constraints aren't met.
-type AddCustomLabelsRequestMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddCustomLabelsRequestMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddCustomLabelsRequestMultiError) AllErrors() []error { return m }
-
-// AddCustomLabelsRequestValidationError is the validation error returned by
-// AddCustomLabelsRequest.Validate if the designated constraints aren't met.
-type AddCustomLabelsRequestValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddCustomLabelsRequestValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddCustomLabelsRequestValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddCustomLabelsRequestValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddCustomLabelsRequestValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddCustomLabelsRequestValidationError) ErrorName() string {
-	return "AddCustomLabelsRequestValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddCustomLabelsRequestValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddCustomLabelsRequest.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddCustomLabelsRequestValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddCustomLabelsRequestValidationError{}
-
-// Validate checks the field values on AddCustomLabelsResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddCustomLabelsResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddCustomLabelsResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddCustomLabelsResponseMultiError, or nil if none found.
-func (m *AddCustomLabelsResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddCustomLabelsResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if len(errors) > 0 {
-		return AddCustomLabelsResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddCustomLabelsResponseMultiError is an error wrapping multiple validation
-// errors returned by AddCustomLabelsResponse.ValidateAll() if the designated
-// constraints aren't met.
-type AddCustomLabelsResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddCustomLabelsResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddCustomLabelsResponseMultiError) AllErrors() []error { return m }
-
-// AddCustomLabelsResponseValidationError is the validation error returned by
-// AddCustomLabelsResponse.Validate if the designated constraints aren't met.
-type AddCustomLabelsResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddCustomLabelsResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddCustomLabelsResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddCustomLabelsResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddCustomLabelsResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddCustomLabelsResponseValidationError) ErrorName() string {
-	return "AddCustomLabelsResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddCustomLabelsResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddCustomLabelsResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddCustomLabelsResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddCustomLabelsResponseValidationError{}
-
-// Validate checks the field values on RemoveCustomLabelsRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *RemoveCustomLabelsRequest) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on RemoveCustomLabelsRequest with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// RemoveCustomLabelsRequestMultiError, or nil if none found.
-func (m *RemoveCustomLabelsRequest) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *RemoveCustomLabelsRequest) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := RemoveCustomLabelsRequestValidationError{
-			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if len(errors) > 0 {
-		return RemoveCustomLabelsRequestMultiError(errors)
-	}
-
-	return nil
-}
-
-// RemoveCustomLabelsRequestMultiError is an error wrapping multiple validation
-// errors returned by RemoveCustomLabelsRequest.ValidateAll() if the
-// designated constraints aren't met.
-type RemoveCustomLabelsRequestMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m RemoveCustomLabelsRequestMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m RemoveCustomLabelsRequestMultiError) AllErrors() []error { return m }
-
-// RemoveCustomLabelsRequestValidationError is the validation error returned by
-// RemoveCustomLabelsRequest.Validate if the designated constraints aren't met.
-type RemoveCustomLabelsRequestValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e RemoveCustomLabelsRequestValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e RemoveCustomLabelsRequestValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e RemoveCustomLabelsRequestValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e RemoveCustomLabelsRequestValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e RemoveCustomLabelsRequestValidationError) ErrorName() string {
-	return "RemoveCustomLabelsRequestValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e RemoveCustomLabelsRequestValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sRemoveCustomLabelsRequest.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = RemoveCustomLabelsRequestValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = RemoveCustomLabelsRequestValidationError{}
-
-// Validate checks the field values on RemoveCustomLabelsResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *RemoveCustomLabelsResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on RemoveCustomLabelsResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// RemoveCustomLabelsResponseMultiError, or nil if none found.
-func (m *RemoveCustomLabelsResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *RemoveCustomLabelsResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if len(errors) > 0 {
-		return RemoveCustomLabelsResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// RemoveCustomLabelsResponseMultiError is an error wrapping multiple
-// validation errors returned by RemoveCustomLabelsResponse.ValidateAll() if
-// the designated constraints aren't met.
-type RemoveCustomLabelsResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m RemoveCustomLabelsResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m RemoveCustomLabelsResponseMultiError) AllErrors() []error { return m }
-
-// RemoveCustomLabelsResponseValidationError is the validation error returned
-// by RemoveCustomLabelsResponse.Validate if the designated constraints aren't met.
-type RemoveCustomLabelsResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e RemoveCustomLabelsResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e RemoveCustomLabelsResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e RemoveCustomLabelsResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e RemoveCustomLabelsResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e RemoveCustomLabelsResponseValidationError) ErrorName() string {
-	return "RemoveCustomLabelsResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e RemoveCustomLabelsResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sRemoveCustomLabelsResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = RemoveCustomLabelsResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = RemoveCustomLabelsResponseValidationError{}
-
 // Validate checks the field values on ChangeServiceRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -4066,6 +3634,37 @@ func (m *ChangeServiceRequest) validate(all bool) error {
 
 	if m.ExternalGroup != nil {
 		// no validation rules for ExternalGroup
+	}
+
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeServiceRequestValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeServiceRequestValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeServiceRequestValidationError{
+					field:  "CustomLabels",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
 	}
 
 	if len(errors) > 0 {
@@ -4169,6 +3768,257 @@ func (m *ChangeServiceResponse) validate(all bool) error {
 	}
 
 	var errors []error
+
+	switch v := m.Service.(type) {
+	case *ChangeServiceResponse_Mysql:
+		if v == nil {
+			err := ChangeServiceResponseValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMysql()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeServiceResponseValidationError{
+						field:  "Mysql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeServiceResponseValidationError{
+						field:  "Mysql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMysql()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeServiceResponseValidationError{
+					field:  "Mysql",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeServiceResponse_Mongodb:
+		if v == nil {
+			err := ChangeServiceResponseValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMongodb()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeServiceResponseValidationError{
+						field:  "Mongodb",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeServiceResponseValidationError{
+						field:  "Mongodb",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMongodb()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeServiceResponseValidationError{
+					field:  "Mongodb",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeServiceResponse_Postgresql:
+		if v == nil {
+			err := ChangeServiceResponseValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetPostgresql()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeServiceResponseValidationError{
+						field:  "Postgresql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeServiceResponseValidationError{
+						field:  "Postgresql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetPostgresql()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeServiceResponseValidationError{
+					field:  "Postgresql",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeServiceResponse_Proxysql:
+		if v == nil {
+			err := ChangeServiceResponseValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetProxysql()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeServiceResponseValidationError{
+						field:  "Proxysql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeServiceResponseValidationError{
+						field:  "Proxysql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetProxysql()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeServiceResponseValidationError{
+					field:  "Proxysql",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeServiceResponse_Haproxy:
+		if v == nil {
+			err := ChangeServiceResponseValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetHaproxy()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeServiceResponseValidationError{
+						field:  "Haproxy",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeServiceResponseValidationError{
+						field:  "Haproxy",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetHaproxy()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeServiceResponseValidationError{
+					field:  "Haproxy",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeServiceResponse_External:
+		if v == nil {
+			err := ChangeServiceResponseValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetExternal()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeServiceResponseValidationError{
+						field:  "External",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeServiceResponseValidationError{
+						field:  "External",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetExternal()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeServiceResponseValidationError{
+					field:  "External",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
+	}
 
 	if len(errors) > 0 {
 		return ChangeServiceResponseMultiError(errors)

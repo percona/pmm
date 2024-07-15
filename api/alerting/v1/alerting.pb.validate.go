@@ -36,7 +36,7 @@ var (
 	_ = anypb.Any{}
 	_ = sort.Sort
 
-	_ = managementv1.BooleanFlag(0)
+	_ = managementv1.Severity(0)
 )
 
 // Validate checks the field values on BoolParamDefinition with the rules
@@ -61,7 +61,9 @@ func (m *BoolParamDefinition) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Default
+	if m.Default != nil {
+		// no validation rules for Default
+	}
 
 	if len(errors) > 0 {
 		return BoolParamDefinitionMultiError(errors)
@@ -165,17 +167,17 @@ func (m *FloatParamDefinition) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for HasDefault
+	if m.Default != nil {
+		// no validation rules for Default
+	}
 
-	// no validation rules for Default
+	if m.Min != nil {
+		// no validation rules for Min
+	}
 
-	// no validation rules for HasMin
-
-	// no validation rules for Min
-
-	// no validation rules for HasMax
-
-	// no validation rules for Max
+	if m.Max != nil {
+		// no validation rules for Max
+	}
 
 	if len(errors) > 0 {
 		return FloatParamDefinitionMultiError(errors)
@@ -279,9 +281,9 @@ func (m *StringParamDefinition) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for HasDefault
-
-	// no validation rules for Default
+	if m.Default != nil {
+		// no validation rules for Default
+	}
 
 	if len(errors) > 0 {
 		return StringParamDefinitionMultiError(errors)
@@ -848,32 +850,29 @@ func (m *ListTemplatesRequest) validate(all bool) error {
 
 	// no validation rules for Reload
 
-	if all {
-		switch v := interface{}(m.GetPageParams()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ListTemplatesRequestValidationError{
-					field:  "PageParams",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
+	if m.PageSize != nil {
+		if m.GetPageSize() < 1 {
+			err := ListTemplatesRequestValidationError{
+				field:  "PageSize",
+				reason: "value must be greater than or equal to 1",
 			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ListTemplatesRequestValidationError{
-					field:  "PageParams",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
+			if !all {
+				return err
 			}
+			errors = append(errors, err)
 		}
-	} else if v, ok := interface{}(m.GetPageParams()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ListTemplatesRequestValidationError{
-				field:  "PageParams",
-				reason: "embedded message failed validation",
-				cause:  err,
+	}
+
+	if m.PageIndex != nil {
+		if m.GetPageIndex() < 0 {
+			err := ListTemplatesRequestValidationError{
+				field:  "PageIndex",
+				reason: "value must be greater than or equal to 0",
 			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
 		}
 	}
 
@@ -979,6 +978,10 @@ func (m *ListTemplatesResponse) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for TotalItems
+
+	// no validation rules for TotalPages
+
 	for idx, item := range m.GetTemplates() {
 		_, _ = idx, item
 
@@ -1011,35 +1014,6 @@ func (m *ListTemplatesResponse) validate(all bool) error {
 			}
 		}
 
-	}
-
-	if all {
-		switch v := interface{}(m.GetTotals()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ListTemplatesResponseValidationError{
-					field:  "Totals",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ListTemplatesResponseValidationError{
-					field:  "Totals",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetTotals()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ListTemplatesResponseValidationError{
-				field:  "Totals",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
 	}
 
 	if len(errors) > 0 {

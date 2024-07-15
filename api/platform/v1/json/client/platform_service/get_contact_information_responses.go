@@ -58,7 +58,7 @@ type GetContactInformationOK struct {
 }
 
 func (o *GetContactInformationOK) Error() string {
-	return fmt.Sprintf("[POST /v1/platform/GetContactInformation][%d] getContactInformationOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/platform/contact][%d] getContactInformationOk  %+v", 200, o.Payload)
 }
 
 func (o *GetContactInformationOK) GetPayload() *GetContactInformationOKBody {
@@ -100,7 +100,7 @@ func (o *GetContactInformationDefault) Code() int {
 }
 
 func (o *GetContactInformationDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/platform/GetContactInformation][%d] GetContactInformation default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/platform/contact][%d] GetContactInformation default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetContactInformationDefault) GetPayload() *GetContactInformationDefaultBody {

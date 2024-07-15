@@ -39,13 +39,13 @@ type PlatformServiceClient interface {
 	Disconnect(ctx context.Context, in *DisconnectRequest, opts ...grpc.CallOption) (*DisconnectResponse, error)
 	// SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.
 	SearchOrganizationTickets(ctx context.Context, in *SearchOrganizationTicketsRequest, opts ...grpc.CallOption) (*SearchOrganizationTicketsResponse, error)
-	// SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.
+	// SearchOrganizationEntitlements fetches entitlements available to the Portal organization that the PMM server is connected to.
 	SearchOrganizationEntitlements(ctx context.Context, in *SearchOrganizationEntitlementsRequest, opts ...grpc.CallOption) (*SearchOrganizationEntitlementsResponse, error)
-	// GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.
+	// GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account.
 	GetContactInformation(ctx context.Context, in *GetContactInformationRequest, opts ...grpc.CallOption) (*GetContactInformationResponse, error)
 	// ServerInfo returns PMM server ID and name.
 	ServerInfo(ctx context.Context, in *ServerInfoRequest, opts ...grpc.CallOption) (*ServerInfoResponse, error)
-	// UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.
+	// UserStatus check if the current user is logged in with their Percona Account.
 	UserStatus(ctx context.Context, in *UserStatusRequest, opts ...grpc.CallOption) (*UserStatusResponse, error)
 }
 
@@ -130,13 +130,13 @@ type PlatformServiceServer interface {
 	Disconnect(context.Context, *DisconnectRequest) (*DisconnectResponse, error)
 	// SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.
 	SearchOrganizationTickets(context.Context, *SearchOrganizationTicketsRequest) (*SearchOrganizationTicketsResponse, error)
-	// SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.
+	// SearchOrganizationEntitlements fetches entitlements available to the Portal organization that the PMM server is connected to.
 	SearchOrganizationEntitlements(context.Context, *SearchOrganizationEntitlementsRequest) (*SearchOrganizationEntitlementsResponse, error)
-	// GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.
+	// GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account.
 	GetContactInformation(context.Context, *GetContactInformationRequest) (*GetContactInformationResponse, error)
 	// ServerInfo returns PMM server ID and name.
 	ServerInfo(context.Context, *ServerInfoRequest) (*ServerInfoResponse, error)
-	// UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.
+	// UserStatus check if the current user is logged in with their Percona Account.
 	UserStatus(context.Context, *UserStatusRequest) (*UserStatusResponse, error)
 	mustEmbedUnimplementedPlatformServiceServer()
 }

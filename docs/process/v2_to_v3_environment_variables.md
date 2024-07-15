@@ -12,7 +12,7 @@ Below is a list of affected variables and their new names.
 | `DISABLE_BACKUP_MANAGEMENT`                   | `PMM_DISABLE_BACKUP_MANAGEMENT`            |                                                              |
 | `ENABLE_AZUREDISCOVER`                        | `PMM_ENABLE_AZURE_DISCOVER`                |                                                              |
 | `ENABLE_RBAC`                                 | `PMM_ENABLE_ACCESS_CONTROL`                |                                                              |
-| `LESS_LOG_NOISE`                              | `PMM_LESS_LOG_NOISE`                       |                                                              |
+| `LESS_LOG_NOISE`                              |                                            | Removed in PMM v3                                            |
 | `METRICS_RESOLUTION`                          | `PMM_METRICS_RESOLUTION`                   |                                                              |
 | `METRICS_RESOLUTION_HR`                       | `PMM_METRICS_RESOLUTION_HR`                |                                                              |
 | `METRICS_RESOLUTION_LR`                       | `PMM_METRICS_RESOLUTION_LR`                |                                                              |
@@ -24,7 +24,7 @@ Below is a list of affected variables and their new names.
 | `PERCONA_TEST_CHECKS_HOST`                    |                                            | Removed in PMM v3, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS`    |
 | `PERCONA_TEST_CHECKS_INTERVAL`                |                                            | Removed in PMM v3 as it wasn't actually used.                |
 | `PERCONA_TEST_CHECKS_PUBLIC_KEY`              |                                            | Removed in PMM v3, use `PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY` |
-| `PERCONA_TEST_NICER_API`                      | `PMM_NICER_API`                            |                                                              |
+| `PERCONA_TEST_NICER_API`                      |                                            | Removed in PMM v3                                            |
 | `PERCONA_TEST_PMM_CLICKHOUSE_ADDR`            | `PMM_CLICKHOUSE_ADDR`                      |                                                              |
 | `PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE`      |                                            | Removed in PMM v3, because of new clickhouse version.        |
 | `PERCONA_TEST_PMM_CLICKHOUSE_DATABASE`        | `PMM_CLICKHOUSE_DATABASE`                  |                                                              |

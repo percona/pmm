@@ -222,13 +222,13 @@ func (s *LocationsService) TestLocationConfig(
 }
 
 // RemoveLocation removes backup location.
-func (s *LocationsService) RemoveLocation(_ context.Context, req *backuppb.RemoveLocationRequest) (*backuppb.RemoveLocationResponse, error) {
+func (s *LocationsService) RemoveLocation(ctx context.Context, req *backuppb.RemoveLocationRequest) (*backuppb.RemoveLocationResponse, error) {
 	mode := models.RemoveRestrict
 	if req.Force {
 		mode = models.RemoveCascade
 	}
 
-	err := s.db.InTransaction(func(tx *reform.TX) error {
+	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		return models.RemoveBackupLocation(tx.Querier, req.LocationId, mode)
 	})
 	if err != nil {

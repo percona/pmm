@@ -51,7 +51,7 @@ func TestNextPrefix(t *testing.T) {
 		{"./", "/", "/"},
 		{"hax0r", "/", "/"},
 		{"", "/"},
-		{"/v1/AWSInstanceCheck/..%2finventory/Services/List'"},
+		{"/v1/server/AWSInstanceCheck/..%2f..%2finventory/Services/List'"},
 	} {
 		t.Run(paths[0], func(t *testing.T) {
 			for i, path := range paths[:len(paths)-1] {
@@ -199,42 +199,52 @@ func TestAuthServerAuthenticate(t *testing.T) {
 	})
 
 	for uri, minRole := range map[string]role{
-		"/agent.Agent/Connect": admin,
+		"/agent.v1.AgentService/Connect": admin,
+		"/agent.Agent/Connect":           admin,
 
-		"/inventory.Nodes/ListNodes":               admin,
-		"/actions/StartMySQLShowTableStatusAction": viewer,
-		"/management.Service/RemoveService":        admin,
-		"/management.Service/ListServices":         admin,
-		"/management.Annotation/AddAnnotation":     admin,
-		"/server.Server/CheckUpdates":              viewer,
-		"/server.Server/StartUpdate":               admin,
-		"/server.Server/UpdateStatus":              none,
-		"/server.Server/AWSInstanceCheck":          none,
+		"/inventory.v1.Nodes/ListNodes":                  admin,
+		"/actions.v1.ActionsService/StartServiceAction":  viewer,
+		"/management.v1.ManagementService/RemoveService": admin,
+		"/management.v1.ManagementService/ListServices":  admin,
+		"/management.v1.ManagementService/AddAnnotation": admin,
+		"/server.v1.ServerService/CheckUpdates":          viewer,
+		"/server.v1.ServerService/StartUpdate":           admin,
+		"/server.v1.ServerService/UpdateStatus":          none,
+		"/server.v1.ServerService/AWSInstanceCheck":      none,
 
-		"/v1/inventory/Nodes/List":              admin,
-		"/v1/actions/StartMySQLShowTableStatus": viewer,
-		"/v1/management/Service/Remove":         admin,
-		"/v1/management/Service/List":           admin,
-		"/v1/management/Agent/List":             admin,
-		"/v1/updates/Check":                     viewer,
-		"/v1/updates/Start":                     admin,
-		"/v1/updates/Status":                    none,
-		"/v1/settings/Get":                      admin,
-		"/v1/AWSInstanceCheck":                  none,
-		"/v1/platform/Connect":                  admin,
+		"/v1/inventory/nodes":               admin,
+		"/v1/actions:startServiceAction":    viewer,
+		"/v1/advisors":                      editor,
+		"/v1/advisors/checks:start":         editor,
+		"/v1/management/services":           admin,
+		"/v1/management/agents":             admin,
+		"/v1/server/updates":                viewer,
+		"/v1/server/updates:start":          admin,
+		"/v1/server/updates:getStatus":      none,
+		"/v1/server/settings":               admin,
+		"/v1/server/AWSInstance":            none,
+		"/v1/backups":                       admin,
+		"/v1/accesscontrol":                 admin,
+		"/v1/users":                         viewer,
+		"/v1/platform:connect":              admin,
+		"/v1/platform:disconnect":           admin,
+		"/v1/platform/contact":              viewer,
+		"/v1/platform/user":                 viewer,
+		"/v1/platform/server":               viewer,
+		"/v1/platform/organization/tickets": viewer,
 
-		"/v1/AWSInstanceCheck/..%2finventory/Services/List": admin,
-		"/v1/AWSInstanceCheck/..%2f..%2flogs.zip":           admin,
+		"/v1/server/AWSInstance/..%2f..%2finventory/Services/List": admin,
+		"/v1/server/AWSInstance/..%2flogs.zip":                     admin,
 
-		"/v1/readyz": none,
-		"/ping":      none,
+		"/v1/server/version": viewer,
+		"/v1/server/readyz":  none,
+		"/ping":              none,
 
-		"/v1/version": viewer,
+		"/v1/qan/query:getExample": viewer,
+		"/v1/qan:getMetrics":       viewer,
 
-		"/v1/qan/ObjectDetails/GetQueryExample": viewer,
-
-		"/prometheus/": admin,
-		"/logs.zip":    admin,
+		"/prometheus/":        admin,
+		"/v1/server/logs.zip": admin,
 	} {
 		for _, role := range []role{viewer, editor, admin} {
 			uri := uri
@@ -482,13 +492,13 @@ func Test_cleanPath(t *testing.T) {
 		expected string
 	}{
 		{
-			"/v1/AWSInstanceCheck/..%2finventory/Services/List",
+			"/v1/server/AWSInstanceCheck/..%2f..%2finventory/Services/List",
 			"/v1/inventory/Services/List",
 		}, {
-			"/v1/AWSInstanceCheck/..%2f..%2fmanaged/logs.zip",
+			"/v1/server/AWSInstanceCheck/..%2f..%2f..%2fmanaged/logs.zip",
 			"/managed/logs.zip",
 		}, {
-			"/v1/AWSInstanceCheck/..%2f..%2f/logs.zip",
+			"/v1/server/AWSInstanceCheck/..%2f..%2f..%2f/logs.zip",
 			"/logs.zip",
 		}, {
 			"/graph/api/datasources/proxy/8/?query=WITH%20(%0A%20%20%20%20CASE%20%0A%20%20%20%20%20%20%20%20WHEN%20(3000%20%25%2060)%20%3D%200%20THEN%203000%0A%20%20%20%20ELSE%2060%20END%0A)%20AS%20scale%0ASELECT%0A%20%20%20%20(intDiv(toUInt32(timestamp)%2C%203000)%20*%203000)%20*%201000%20as%20t%2C%0A%20%20%20%20hostname%20h%2C%0A%20%20%20%20status%20s%2C%0A%20%20%20%20SUM(req_count)%20as%20req_count%0AFROM%20pinba.report_by_all%0AWHERE%0A%20%20%20%20timestamp%20%3E%3D%20toDateTime(1707139680)%20AND%20timestamp%20%3C%3D%20toDateTime(1707312480)%0A%20%20%20%20AND%20status%20%3E%3D%20400%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20schema%20%3D%20%27all%27%20ELSE%201%20END%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20hostname%20%3D%20%27all%27%20ELSE%201%20END%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20server_name%20%3D%20%27all%27%20ELSE%201%20END%0AGROUP%20BY%20t%2C%20h%2C%20s%0AORDER%20BY%20t%20FORMAT%20JSON",

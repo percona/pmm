@@ -21,6 +21,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -96,9 +97,7 @@ func TestCheckUpdates(t *testing.T) {
 
 	t.Run("Force", func(t *testing.T) {
 		params = &server.CheckUpdatesParams{
-			Body: server.CheckUpdatesBody{
-				Force: true,
-			},
+			Force:   pointer.ToBool(true),
 			Context: pmmapitests.Context,
 		}
 		params.SetTimeout(slow) // that call with force can be slow

@@ -71,8 +71,8 @@ func (cmd *ListNodesCommand) RunCmd() (commands.Result, error) {
 	}
 
 	params := &nodes.ListNodesParams{
-		Body:    nodes.ListNodesBody{NodeType: nodeType},
-		Context: commands.Ctx,
+		NodeType: nodeType,
+		Context:  commands.Ctx,
 	}
 	result, err := client.Default.NodesService.ListNodes(params)
 	if err != nil {

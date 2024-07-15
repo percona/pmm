@@ -117,7 +117,7 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventoryv1.ListAgen
 
 // GetAgent returns a single Agent by ID.
 func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRequest) (*inventoryv1.GetAgentResponse, error) {
-	agent, err := s.s.Get(ctx, req.AgentId)
+	agent, err := s.s.Get(ctx, req.GetAgentId())
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +162,7 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRe
 
 // GetAgentLogs returns Agent logs by ID.
 func (s *agentsServer) GetAgentLogs(ctx context.Context, req *inventoryv1.GetAgentLogsRequest) (*inventoryv1.GetAgentLogsResponse, error) {
-	logs, agentConfigLogLinesCount, err := s.s.Logs(ctx, req.AgentId, req.Limit)
+	logs, agentConfigLogLinesCount, err := s.s.Logs(ctx, req.GetAgentId(), req.GetLimit())
 	if err != nil {
 		return nil, err
 	}
@@ -211,41 +211,43 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 
 // ChangeAgent allows to change some Agent attributes.
 func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeAgentRequest) (*inventoryv1.ChangeAgentResponse, error) {
+	agentID := req.GetAgentId()
+
 	switch req.Agent.(type) {
 	case *inventoryv1.ChangeAgentRequest_NodeExporter:
-		return s.s.ChangeNodeExporter(ctx, req.GetNodeExporter())
+		return s.s.ChangeNodeExporter(ctx, agentID, req.GetNodeExporter())
 	case *inventoryv1.ChangeAgentRequest_MysqldExporter:
-		return s.s.ChangeMySQLdExporter(ctx, req.GetMysqldExporter())
+		return s.s.ChangeMySQLdExporter(ctx, agentID, req.GetMysqldExporter())
 	case *inventoryv1.ChangeAgentRequest_MongodbExporter:
-		return s.s.ChangeMongoDBExporter(ctx, req.GetMongodbExporter())
+		return s.s.ChangeMongoDBExporter(ctx, agentID, req.GetMongodbExporter())
 	case *inventoryv1.ChangeAgentRequest_PostgresExporter:
-		return s.s.ChangePostgresExporter(ctx, req.GetPostgresExporter())
+		return s.s.ChangePostgresExporter(ctx, agentID, req.GetPostgresExporter())
 	case *inventoryv1.ChangeAgentRequest_ProxysqlExporter:
-		return s.s.ChangeProxySQLExporter(ctx, req.GetProxysqlExporter())
+		return s.s.ChangeProxySQLExporter(ctx, agentID, req.GetProxysqlExporter())
 	case *inventoryv1.ChangeAgentRequest_RdsExporter:
-		return s.s.ChangeRDSExporter(ctx, req.GetRdsExporter())
+		return s.s.ChangeRDSExporter(ctx, agentID, req.GetRdsExporter())
 	case *inventoryv1.ChangeAgentRequest_ExternalExporter:
-		return s.s.ChangeExternalExporter(ctx, req.GetExternalExporter())
+		return s.s.ChangeExternalExporter(ctx, agentID, req.GetExternalExporter())
 	case *inventoryv1.ChangeAgentRequest_AzureDatabaseExporter:
-		return s.s.ChangeAzureDatabaseExporter(ctx, req.GetAzureDatabaseExporter())
+		return s.s.ChangeAzureDatabaseExporter(ctx, agentID, req.GetAzureDatabaseExporter())
 	case *inventoryv1.ChangeAgentRequest_QanMysqlPerfschemaAgent:
-		return s.s.ChangeQANMySQLPerfSchemaAgent(ctx, req.GetQanMysqlPerfschemaAgent())
+		return s.s.ChangeQANMySQLPerfSchemaAgent(ctx, agentID, req.GetQanMysqlPerfschemaAgent())
 	case *inventoryv1.ChangeAgentRequest_QanMysqlSlowlogAgent:
-		return s.s.ChangeQANMySQLSlowlogAgent(ctx, req.GetQanMysqlSlowlogAgent())
+		return s.s.ChangeQANMySQLSlowlogAgent(ctx, agentID, req.GetQanMysqlSlowlogAgent())
 	case *inventoryv1.ChangeAgentRequest_QanMongodbProfilerAgent:
-		return s.s.ChangeQANMongoDBProfilerAgent(ctx, req.GetQanMongodbProfilerAgent())
+		return s.s.ChangeQANMongoDBProfilerAgent(ctx, agentID, req.GetQanMongodbProfilerAgent())
 	case *inventoryv1.ChangeAgentRequest_QanPostgresqlPgstatementsAgent:
-		return s.s.ChangeQANPostgreSQLPgStatementsAgent(ctx, req.GetQanPostgresqlPgstatementsAgent())
+		return s.s.ChangeQANPostgreSQLPgStatementsAgent(ctx, agentID, req.GetQanPostgresqlPgstatementsAgent())
 	case *inventoryv1.ChangeAgentRequest_QanPostgresqlPgstatmonitorAgent:
-		return s.s.ChangeQANPostgreSQLPgStatMonitorAgent(ctx, req.GetQanPostgresqlPgstatmonitorAgent())
+		return s.s.ChangeQANPostgreSQLPgStatMonitorAgent(ctx, agentID, req.GetQanPostgresqlPgstatmonitorAgent())
 	default:
 		return nil, fmt.Errorf("invalid request %v", req.Agent)
 	}
 }
 
-// RemoveAgent removes Agent.
+// RemoveAgent removes the Agent.
 func (s *agentsServer) RemoveAgent(ctx context.Context, req *inventoryv1.RemoveAgentRequest) (*inventoryv1.RemoveAgentResponse, error) {
-	if err := s.s.Remove(ctx, req.AgentId, req.Force); err != nil {
+	if err := s.s.Remove(ctx, req.GetAgentId(), req.GetForce()); err != nil {
 		return nil, err
 	}
 

@@ -69,13 +69,13 @@ func TestDownloadLogs(t *testing.T) {
 		"supervisorctl_status.log",
 		"supervisord.conf",
 		"supervisord.log",
-		"systemctl_status.log",
 		"victoriametrics-promscrape.yml",
 		"victoriametrics.ini",
 		"victoriametrics.log",
 		"victoriametrics_targets.json",
 		"vmalert.ini",
 		"vmalert.log",
+		"vmproxy.ini",
 		"vmproxy.log",
 	}
 

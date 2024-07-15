@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // NewRemoveAgentParams creates a new RemoveAgentParams object,
@@ -60,8 +61,14 @@ RemoveAgentParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type RemoveAgentParams struct {
-	// Body.
-	Body RemoveAgentBody
+	// AgentID.
+	AgentID string
+
+	/* Force.
+
+	   Remove agent with all dependencies.
+	*/
+	Force *bool
 
 	timeout    time.Duration
 	Context    context.Context
@@ -116,15 +123,26 @@ func (o *RemoveAgentParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the remove agent params
-func (o *RemoveAgentParams) WithBody(body RemoveAgentBody) *RemoveAgentParams {
-	o.SetBody(body)
+// WithAgentID adds the agentID to the remove agent params
+func (o *RemoveAgentParams) WithAgentID(agentID string) *RemoveAgentParams {
+	o.SetAgentID(agentID)
 	return o
 }
 
-// SetBody adds the body to the remove agent params
-func (o *RemoveAgentParams) SetBody(body RemoveAgentBody) {
-	o.Body = body
+// SetAgentID adds the agentId to the remove agent params
+func (o *RemoveAgentParams) SetAgentID(agentID string) {
+	o.AgentID = agentID
+}
+
+// WithForce adds the force to the remove agent params
+func (o *RemoveAgentParams) WithForce(force *bool) *RemoveAgentParams {
+	o.SetForce(force)
+	return o
+}
+
+// SetForce adds the force to the remove agent params
+func (o *RemoveAgentParams) SetForce(force *bool) {
+	o.Force = force
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,8 +151,26 @@ func (o *RemoveAgentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.R
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
+
+	// path param agent_id
+	if err := r.SetPathParam("agent_id", o.AgentID); err != nil {
 		return err
+	}
+
+	if o.Force != nil {
+
+		// query param force
+		var qrForce bool
+
+		if o.Force != nil {
+			qrForce = *o.Force
+		}
+		qForce := swag.FormatBool(qrForce)
+		if qForce != "" {
+			if err := r.SetQueryParam("force", qForce); err != nil {
+				return err
+			}
+		}
 	}
 
 	if len(res) > 0 {

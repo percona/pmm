@@ -3,9 +3,9 @@ syntax = "proto3";
 package advisors.v1;
 
 import "google/api/annotations.proto";
-import "management/v1/pagination.proto";
 import "management/v1/severity.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
 
 // AdvisorCheckInterval represents possible execution interval values for checks.
 enum AdvisorCheckInterval {
@@ -146,23 +146,28 @@ message ListFailedServicesResponse {
 }
 
 message GetFailedChecksRequest {
-  string service_id = 1;
-  management.v1.PageParams page_params = 2;
+  // Maximum number of results per page.
+  optional int32 page_size = 1 [(validate.rules).int32.gte = 1];
+  // Index of the requested page, starts from 0.
+  optional int32 page_index = 2 [(validate.rules).int32.gte = 0];
+  // Service ID.
+  string service_id = 3;
 }
 
 message GetFailedChecksResponse {
-  repeated CheckResult results = 1;
-  management.v1.PageTotals page_totals = 2;
+  // Total number of results.
+  int32 total_items = 1;
+  // Total number of pages.
+  int32 total_pages = 2;
+  // Check results
+  repeated CheckResult results = 3;
 }
 
 // AdvisorService service provides public Management API methods for Advisor Service.
 service AdvisorService {
   // ListFailedServices returns a list of services with failed checks.
   rpc ListFailedServices(ListFailedServicesRequest) returns (ListFailedServicesResponse) {
-    option (google.api.http) = {
-      post: "/v1/advisors/ListFailedServices"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/advisors/failedServices"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Failed Services"
       description: "Returns a list of services with failed checks and a summary of check results."
@@ -170,10 +175,7 @@ service AdvisorService {
   }
   // GetFailedChecks returns the checks result for a given service.
   rpc GetFailedChecks(GetFailedChecksRequest) returns (GetFailedChecksResponse) {
-    option (google.api.http) = {
-      post: "/v1/advisors/FailedChecks"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/advisors/checks/failed"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Failed Checks"
       description: "Returns the latest check results for a given service."
@@ -182,7 +184,7 @@ service AdvisorService {
   // StartAdvisorChecks executes Advisor checks and returns when all checks are executed.
   rpc StartAdvisorChecks(StartAdvisorChecksRequest) returns (StartAdvisorChecksResponse) {
     option (google.api.http) = {
-      post: "/v1/advisors/StartChecks"
+      post: "/v1/advisors/checks:start"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -192,10 +194,7 @@ service AdvisorService {
   }
   // ListAdvisorChecks returns a list of advisor checks available to the user..
   rpc ListAdvisorChecks(ListAdvisorChecksRequest) returns (ListAdvisorChecksResponse) {
-    option (google.api.http) = {
-      post: "/v1/advisors/ListChecks"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/advisors/checks"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List advisor checks"
       description: "List advisor checks available to the user."
@@ -203,10 +202,7 @@ service AdvisorService {
   }
   // ListAdvisors returns a list of advisors available for the user.
   rpc ListAdvisors(ListAdvisorsRequest) returns (ListAdvisorsResponse) {
-    option (google.api.http) = {
-      post: "/v1/advisors/List"
-      body: "*"
-    };
+    option (google.api.http) = {get: "/v1/advisors"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List advisors"
       description: "List advisors available to the user."
@@ -215,7 +211,7 @@ service AdvisorService {
   // ChangeAdvisorChecks enables/disables Advisor checks or changes their exec interval.
   rpc ChangeAdvisorChecks(ChangeAdvisorChecksRequest) returns (ChangeAdvisorChecksResponse) {
     option (google.api.http) = {
-      post: "/v1/advisors/Change"
+      post: "/v1/advisors/checks:batchChange"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {

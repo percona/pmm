@@ -59,17 +59,16 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	accesscontrolv1 "github.com/percona/pmm/api/accesscontrol/v1beta1"
 	actionsv1 "github.com/percona/pmm/api/actions/v1"
 	advisorsv1 "github.com/percona/pmm/api/advisors/v1"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
-	alertingpb "github.com/percona/pmm/api/alerting/v1"
-	backuppb "github.com/percona/pmm/api/backup/v1"
-	dumpv1beta1 "github.com/percona/pmm/api/dump/v1"
+	alertingv1 "github.com/percona/pmm/api/alerting/v1"
+	backupv1 "github.com/percona/pmm/api/backup/v1"
+	dumpv1beta1 "github.com/percona/pmm/api/dump/v1beta1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
-	managementv1beta1 "github.com/percona/pmm/api/management/v1/service"
 	platformv1 "github.com/percona/pmm/api/platform/v1"
-	rolev1beta1 "github.com/percona/pmm/api/role/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	uieventsv1 "github.com/percona/pmm/api/uievents/v1"
 	userv1 "github.com/percona/pmm/api/user/v1"
@@ -139,7 +138,7 @@ var pprofSemaphore = semaphore.NewWeighted(1)
 func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 	l := logrus.WithField("component", "logs.zip")
 
-	mux.HandleFunc("/logs.zip", func(rw http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("/v1/server/logs.zip", func(rw http.ResponseWriter, req *http.Request) {
 		var lineCount int64
 		contextTimeout := defaultContextTimeout
 		// increase context timeout if pprof query parameter exist in request
@@ -195,34 +194,34 @@ func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 type gRPCServerDeps struct {
 	db                   *reform.DB
 	ha                   *ha.Service
-	vmdb                 *victoriametrics.Service
-	platformClient       *platformClient.Client
-	server               *server.Server
+	checksService        *checks.Service
+	config               *config.Config
 	agentsRegistry       *agents.Registry
 	handler              *agents.Handler
 	actions              *agents.ActionsService
-	agentsStateUpdater   *agents.StateUpdater
+	agentService         *agents.AgentService
+	jobsService          *agents.JobsService
 	connectionCheck      *agents.ConnectionChecker
 	serviceInfoBroker    *agents.ServiceInfoBroker
+	agentsStateUpdater   *agents.StateUpdater
 	grafanaClient        *grafana.Client
-	checksService        *checks.Service
-	vmalert              *vmalert.Service
-	settings             *models.Settings
 	templatesService     *alerting.Service
-	jobsService          *agents.JobsService
-	schedulerService     *scheduler.Service
 	backupService        *backup.Service
 	dumpService          *dump.Service
 	compatibilityService *backup.CompatibilityService
 	backupRemovalService *backup.RemovalService
 	pbmPITRService       *backup.PBMPITRService
-	minioClient          *minio.Client
-	versionCache         *versioncache.Service
-	supervisord          *supervisord.Service
-	config               *config.Config
-	agentService         *agents.AgentService
-	uieventsService      *uievents.Service
 	vmClient             *metrics.Client
+	minioClient          *minio.Client
+	settings             *models.Settings
+	platformClient       *platformClient.Client
+	schedulerService     *scheduler.Service
+	supervisord          *supervisord.Service
+	server               *server.Server
+	uieventsService      *uievents.Service
+	versionCache         *versioncache.Service
+	vmdb                 *victoriametrics.Service
+	vmalert              *vmalert.Service
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -260,37 +259,34 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	agentv1.RegisterAgentServiceServer(gRPCServer, agentgrpc.NewAgentServer(deps.handler))
 
 	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
-	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.versionCache)
 	agentsSvc := inventory.NewAgentsService(
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
 		deps.vmdb, deps.connectionCheck, deps.serviceInfoBroker, deps.agentService)
 
-	mgmtBackupsService := managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService)
-	mgmtArtifactsService := managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pbmPITRService)
+	mgmtBackupService := managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService, deps.backupRemovalService, deps.pbmPITRService)
 	mgmtRestoreService := managementbackup.NewRestoreService(deps.db)
-	mgmtServices := common.MgmtServices{BackupsService: mgmtBackupsService, ArtifactsService: mgmtArtifactsService, RestoreService: mgmtRestoreService}
+	mgmtServices := common.NewMgmtServices(mgmtBackupService, mgmtRestoreService)
 
+	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.versionCache, mgmtServices)
 	inventoryv1.RegisterNodesServiceServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
-	inventoryv1.RegisterServicesServiceServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc, mgmtServices))
+	inventoryv1.RegisterServicesServiceServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc))
 	inventoryv1.RegisterAgentsServiceServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
-	managementSvc := management.NewManagementService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb, deps.versionCache, deps.grafanaClient)
+	managementSvc := management.NewManagementService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb, deps.versionCache, deps.grafanaClient, v1.NewAPI(*deps.vmClient))
 
-	managementv1beta1.RegisterManagementV1Beta1ServiceServer(gRPCServer, management.NewMgmtServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, v1.NewAPI(*deps.vmClient)))
 	managementv1.RegisterManagementServiceServer(gRPCServer, managementSvc)
 	actionsv1.RegisterActionsServiceServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
 	advisorsv1.RegisterAdvisorServiceServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
 
-	rolev1beta1.RegisterRoleServiceServer(gRPCServer, management.NewRoleService(deps.db))
+	accesscontrolv1.RegisterAccessControlServiceServer(gRPCServer, management.NewAccessControlService(deps.db))
 
-	alertingpb.RegisterAlertingServiceServer(gRPCServer, deps.templatesService)
+	alertingv1.RegisterAlertingServiceServer(gRPCServer, deps.templatesService)
 
-	backuppb.RegisterBackupsServiceServer(gRPCServer, mgmtBackupsService)
-	backuppb.RegisterLocationsServiceServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
-	backuppb.RegisterArtifactsServiceServer(gRPCServer, mgmtArtifactsService)
-	backuppb.RegisterRestoreServiceServer(gRPCServer, mgmtRestoreService)
+	backupv1.RegisterBackupServiceServer(gRPCServer, mgmtBackupService)
+	backupv1.RegisterLocationsServiceServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
+	backupv1.RegisterRestoreServiceServer(gRPCServer, mgmtRestoreService)
 
-	dumpv1beta1.RegisterDumpsServiceServer(gRPCServer, managementdump.New(deps.db, deps.grafanaClient, deps.dumpService))
+	dumpv1beta1.RegisterDumpServiceServer(gRPCServer, managementdump.New(deps.db, deps.grafanaClient, deps.dumpService))
 
 	userv1.RegisterUserServiceServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
@@ -349,15 +345,11 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		},
 	}
 
-	// FIXME make that a default behavior: https://jira.percona.com/browse/PMM-6722
-	if nicer, _ := strconv.ParseBool(os.Getenv("PMM_NICER_API")); nicer {
-		l.Warn("Enabling nicer API with default/zero values in response.")
-		marshaller.EmitUnpopulated = true
-	}
-
 	proxyMux := grpc_gateway.NewServeMux(
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
-		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler))
+		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler),
+		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler),
+	)
 
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -375,20 +367,18 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		inventoryv1.RegisterServicesServiceHandlerFromEndpoint,
 		inventoryv1.RegisterAgentsServiceHandlerFromEndpoint,
 
-		managementv1beta1.RegisterManagementV1Beta1ServiceHandlerFromEndpoint,
 		managementv1.RegisterManagementServiceHandlerFromEndpoint,
 		actionsv1.RegisterActionsServiceHandlerFromEndpoint,
 		advisorsv1.RegisterAdvisorServiceHandlerFromEndpoint,
-		rolev1beta1.RegisterRoleServiceHandlerFromEndpoint,
+		accesscontrolv1.RegisterAccessControlServiceHandlerFromEndpoint,
 
-		alertingpb.RegisterAlertingServiceHandlerFromEndpoint,
+		alertingv1.RegisterAlertingServiceHandlerFromEndpoint,
 
-		backuppb.RegisterBackupsServiceHandlerFromEndpoint,
-		backuppb.RegisterLocationsServiceHandlerFromEndpoint,
-		backuppb.RegisterArtifactsServiceHandlerFromEndpoint,
-		backuppb.RegisterRestoreServiceHandlerFromEndpoint,
+		backupv1.RegisterBackupServiceHandlerFromEndpoint,
+		backupv1.RegisterLocationsServiceHandlerFromEndpoint,
+		backupv1.RegisterRestoreServiceHandlerFromEndpoint,
 
-		dumpv1beta1.RegisterDumpsServiceHandlerFromEndpoint,
+		dumpv1beta1.RegisterDumpServiceHandlerFromEndpoint,
 
 		platformv1.RegisterPlatformServiceHandlerFromEndpoint,
 		uieventsv1.RegisterUIEventsServiceHandlerFromEndpoint,

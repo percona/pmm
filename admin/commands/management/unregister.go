@@ -15,6 +15,7 @@
 package management
 
 import (
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
@@ -68,9 +69,7 @@ func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 		nodeID = status.NodeID
 		node, err := client.Default.NodesService.GetNode(&nodes.GetNodeParams{
 			Context: commands.Ctx,
-			Body: nodes.GetNodeBody{
-				NodeID: nodeID,
-			},
+			NodeID:  nodeID,
 		})
 		if err != nil {
 			return nil, err
@@ -82,14 +81,11 @@ func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 	}
 
 	params := &mservice.UnregisterNodeParams{
-		Body: mservice.UnregisterNodeBody{
-			NodeID: nodeID,
-			Force:  cmd.Force,
-		},
+		NodeID:  nodeID,
+		Force:   pointer.ToBool(cmd.Force),
 		Context: commands.Ctx,
 	}
 
-	// _, err = client.Default.NodesService.RemoveNode(params)
 	res, err := managementClient.Default.ManagementService.UnregisterNode(params)
 	if err != nil {
 		return nil, err

@@ -58,7 +58,7 @@ type ServerInfoOK struct {
 }
 
 func (o *ServerInfoOK) Error() string {
-	return fmt.Sprintf("[POST /v1/platform/ServerInfo][%d] serverInfoOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/platform/server][%d] serverInfoOk  %+v", 200, o.Payload)
 }
 
 func (o *ServerInfoOK) GetPayload() *ServerInfoOKBody {
@@ -100,7 +100,7 @@ func (o *ServerInfoDefault) Code() int {
 }
 
 func (o *ServerInfoDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/platform/ServerInfo][%d] ServerInfo default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/platform/server][%d] ServerInfo default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ServerInfoDefault) GetPayload() *ServerInfoDefaultBody {

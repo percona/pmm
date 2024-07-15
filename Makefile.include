@@ -48,7 +48,22 @@ gen-api:            ## Generate PMM API
 
 	bin/buf generate -v api
 
-	for API in api/agentlocal/v1 api/server/v1 api/inventory/v1 api/management/v1 api/actions/v1 api/advisors/v1 api/alerting/v1 api/backup/v1 api/dump/v1 api/management/v1/azure api/role/v1 api/qan/v1 api/management/v1/agent api/management/v1/node api/management/v1/service api/platform/v1 api/user/v1; do \
+	SPECS="\
+		api/agentlocal/v1 \
+		api/server/v1 \
+		api/user/v1 \
+		api/inventory/v1 \
+		api/management/v1 \
+		api/management/v1/service \
+		api/actions/v1 \
+		api/advisors/v1 \
+		api/alerting/v1 \
+		api/backup/v1 \
+		api/dump/v1beta1 \
+		api/accesscontrol/v1beta1 \
+		api/qan/v1 \
+		api/platform/v1"; \
+	for API in $$SPECS; do \
 		set -x ; \
 		bin/swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$(basename $$API).json --keep-spec-order; \
 		bin/swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$(basename $$API).json --output=$$API/json/$$(basename $$API).json ; \
@@ -73,15 +88,14 @@ gen-api:            ## Generate PMM API
 		api/swagger/header.json \
 		api/server/v1/json/v1.json \
 		api/user/v1/json/v1.json \
-    api/inventory/v1/json/v1.json \
+		api/inventory/v1/json/v1.json \
 		api/management/v1/json/v1.json \
 		api/actions/v1/json/v1.json \
 		api/alerting/v1/json/v1.json \
 		api/advisors/v1/json/v1.json \
 		api/backup/v1/json/v1.json \
-    api/dump/v1/json/v1.json \
-    api/role/v1/json/v1.json \
-    api/qan/v1/json/v1.json
+		api/qan/v1/json/v1.json \
+		api/platform/v1/json/v1.json
 	bin/swagger validate api/swagger/swagger.json
 
 	bin/swagger-order --output=api/swagger/swagger.json api/swagger/swagger.json
@@ -97,12 +111,8 @@ gen-api:            ## Generate PMM API
 		api/alerting/v1/json/v1.json \
 		api/advisors/v1/json/v1.json \
 		api/backup/v1/json/v1.json \
-		api/dump/v1/json/v1.json \
-		api/management/v1/azure/json/azure.json \
-		api/role/v1/json/v1.json \
-		api/management/v1/agent/json/agent.json \
-		api/management/v1/node/json/node.json \
-		api/management/v1/service/json/service.json \
+		api/dump/v1beta1/json/v1beta1.json \
+		api/accesscontrol/v1beta1/json/v1beta1.json \
 		api/qan/v1/json/v1.json \
 		api/platform/v1/json/v1.json
 
@@ -132,7 +142,21 @@ clean: clean_swagger  ## Remove generated files
 	find api -name '*.pb.gw.go' -print -delete
 	find api -name '*.validate.go' -print -delete
 
-	for API in api/agentlocal/v1 api/server/v1 api/inventory/v1 api/management/v1 api/actions/v1 api/alerting/v1 api/advisors/v1 api/backup/v1 api/dump/v1 api/role/v1 api/management/v1/agent api/management/v1/node api/management/v1/service api/qan/v1 api/platform/v1 ; do \
+	SPECS="\
+		api/agentlocal/v1 \
+		api/server/v1 \
+		api/user/v1 \
+		api/inventory/v1 \
+		api/management/v1 \
+		api/actions/v1 \
+		api/alerting/v1 \
+		api/advisors/v1 \
+		api/backup/v1 \
+		api/dump/v1beta1 \
+		api/accesscontrol/v1beta1 \
+		api/qan/v1 \
+		api/platform/v1"; \
+	for API in $$SPECS; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$(basename $$API).json ; \
 	done
 	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json
@@ -145,8 +169,8 @@ api-test:             ## Run API tests on dev env.
 
 check:                ## Run required checkers and linters
 	bin/buf lint -v api
-	LOG_LEVEL=error bin/golangci-lint run ; \
-	bin/go-sumtype ./... ; \
+	LOG_LEVEL=error bin/golangci-lint run
+	bin/go-sumtype ./...
 	bin/go-consistent -pedantic ./...
 
 check-license:          ## Run license header checks against source files

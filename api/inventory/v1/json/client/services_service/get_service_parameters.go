@@ -60,8 +60,11 @@ GetServiceParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type GetServiceParams struct {
-	// Body.
-	Body GetServiceBody
+	/* ServiceID.
+
+	   Unique randomly generated instance identifier.
+	*/
+	ServiceID string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -116,15 +119,15 @@ func (o *GetServiceParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the get service params
-func (o *GetServiceParams) WithBody(body GetServiceBody) *GetServiceParams {
-	o.SetBody(body)
+// WithServiceID adds the serviceID to the get service params
+func (o *GetServiceParams) WithServiceID(serviceID string) *GetServiceParams {
+	o.SetServiceID(serviceID)
 	return o
 }
 
-// SetBody adds the body to the get service params
-func (o *GetServiceParams) SetBody(body GetServiceBody) {
-	o.Body = body
+// SetServiceID adds the serviceId to the get service params
+func (o *GetServiceParams) SetServiceID(serviceID string) {
+	o.ServiceID = serviceID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -133,7 +136,9 @@ func (o *GetServiceParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
+
+	// path param service_id
+	if err := r.SetPathParam("service_id", o.ServiceID); err != nil {
 		return err
 	}
 

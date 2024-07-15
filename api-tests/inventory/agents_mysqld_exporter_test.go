@@ -77,7 +77,7 @@ func TestMySQLdExporter(t *testing.T) {
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
-				Body:    agents.GetAgentBody{AgentID: agentID},
+				AgentID: agentID,
 				Context: pmmapitests.Context,
 			})
 		require.NoError(t, err)
@@ -100,18 +100,16 @@ func TestMySQLdExporter(t *testing.T) {
 		// Test change API.
 		changeMySQLdExporterOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					MysqldExporter: &agents.ChangeAgentParamsBodyMysqldExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyMysqldExporterCommon{
-							Enable:       pointer.ToBool(false),
-							CustomLabels: &agents.ChangeAgentParamsBodyMysqldExporterCommonCustomLabels{},
-						},
+						Enable:       pointer.ToBool(false),
+						CustomLabels: &agents.ChangeAgentParamsBodyMysqldExporterCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			MysqldExporter: &agents.ChangeAgentOKBodyMysqldExporter{
 				AgentID:                   agentID,
@@ -129,22 +127,20 @@ func TestMySQLdExporter(t *testing.T) {
 
 		changeMySQLdExporterOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					MysqldExporter: &agents.ChangeAgentParamsBodyMysqldExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyMysqldExporterCommon{
-							Enable: pointer.ToBool(true),
-							CustomLabels: &agents.ChangeAgentParamsBodyMysqldExporterCommonCustomLabels{
-								Values: map[string]string{
-									"new_label": "mysql_exporter",
-								},
+						Enable: pointer.ToBool(true),
+						CustomLabels: &agents.ChangeAgentParamsBodyMysqldExporterCustomLabels{
+							Values: map[string]string{
+								"new_label": "mysql_exporter",
 							},
 						},
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			MysqldExporter: &agents.ChangeAgentOKBodyMysqldExporter{
 				AgentID:    agentID,
@@ -339,7 +335,7 @@ func TestMySQLdExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID \"pmm-not-exist-server\" not found.")
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID pmm-not-exist-server not found.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.MysqldExporter.AgentID)
 		}
@@ -393,7 +389,7 @@ func TestMySQLdExporter(t *testing.T) {
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
-				Body:    agents.GetAgentBody{AgentID: agentID},
+				AgentID: agentID,
 				Context: pmmapitests.Context,
 			})
 		require.NoError(t, err)
@@ -417,17 +413,15 @@ func TestMySQLdExporter(t *testing.T) {
 		// Test change API.
 		changeMySQLdExporterOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					MysqldExporter: &agents.ChangeAgentParamsBodyMysqldExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyMysqldExporterCommon{
-							EnablePushMetrics: pointer.ToBool(false),
-						},
+						EnablePushMetrics: pointer.ToBool(false),
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			MysqldExporter: &agents.ChangeAgentOKBodyMysqldExporter{
 				AgentID:    agentID,
@@ -446,17 +440,15 @@ func TestMySQLdExporter(t *testing.T) {
 
 		changeMySQLdExporterOK, err = client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
+				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					MysqldExporter: &agents.ChangeAgentParamsBodyMysqldExporter{
-						AgentID: agentID,
-						Common: &agents.ChangeAgentParamsBodyMysqldExporterCommon{
-							EnablePushMetrics: pointer.ToBool(true),
-						},
+						EnablePushMetrics: pointer.ToBool(true),
 					},
 				},
 				Context: pmmapitests.Context,
 			})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			MysqldExporter: &agents.ChangeAgentOKBodyMysqldExporter{
 				AgentID:    agentID,
