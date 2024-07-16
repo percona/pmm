@@ -55,7 +55,7 @@
     name: "*"
     state: latest
     exclude: "ansible*"
-    disablerepo: percona-release-x86_64
+    disablerepo: pmm2-server
 
 - name: Packages                   | Update OS EL9
   when:
