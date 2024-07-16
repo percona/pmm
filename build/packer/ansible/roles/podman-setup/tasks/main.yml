@@ -110,3 +110,8 @@
 - name: Sleep for 1 minute
   pause:
     minutes: 1
+
+- name: Copy distribution method into the container
+  command: podman cp /srv/pmm-distribution pmm-server:/srv/pmm-distribution
+  become: true
+  become_user: admin

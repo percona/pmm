@@ -4,7 +4,8 @@
   become: yes
   become_user: root
   roles:
-    - cloud-node
     - lvm-init
+    - cloud-node
     - podman-setup
     - ami-ovf
+    - init-admin-password
