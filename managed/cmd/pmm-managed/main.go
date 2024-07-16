@@ -21,6 +21,7 @@ import (
 	"database/sql"
 	_ "expvar" // register /debug/vars
 	"fmt"
+	"github.com/percona/pmm/managed/utils/distribution"
 	"html/template"
 	"log"
 	"net"
@@ -133,6 +134,9 @@ const (
 
 	clickhouseMaxIdleConns = 5
 	clickhouseMaxOpenConns = 10
+
+	distributionInfoFilePath = "/srv/pmm-distribution"
+	osInfoFilePath           = "/proc/version"
 )
 
 var pprofSemaphore = semaphore.NewWeighted(1)
@@ -935,7 +939,8 @@ func main() { //nolint:cyclop,maintidx
 		telemetry.UIEventsExtension: uieventsService,
 	}
 
-	telemetry, err := telemetry.NewService(db, platformClient, version.Version, cfg.Config.Services.Telemetry, telemetryExtensions)
+	dus := distribution.NewService(distributionInfoFilePath, osInfoFilePath, l)
+	telemetry, err := telemetry.NewService(db, platformClient, version.Version, dus, cfg.Config.Services.Telemetry, telemetryExtensions)
 	if err != nil {
 		l.Fatalf("Could not create telemetry service: %s", err)
 	}
@@ -995,6 +1000,7 @@ func main() { //nolint:cyclop,maintidx
 		GrafanaClient:        grafanaClient,
 		VMAlertExternalRules: externalRules,
 		Updater:              updater,
+		Dus:                  dus,
 	}
 
 	server, err := server.NewServer(serverParams)

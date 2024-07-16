@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package telemetry
+package distribution
 
 import (
 	"bytes"
@@ -26,22 +26,22 @@ import (
 	"github.com/percona/pmm/api/serverpb"
 )
 
-type distributionUtilServiceImpl struct {
+type Service struct {
 	distributionInfoFilePath string
 	osInfoFilePath           string
 
 	l *logrus.Entry
 }
 
-func newDistributionUtilServiceImpl(distributionFilePath, osInfoFilePath string, l *logrus.Entry) *distributionUtilServiceImpl {
-	return &distributionUtilServiceImpl{
+func NewService(distributionFilePath, osInfoFilePath string, l *logrus.Entry) *Service {
+	return &Service{
 		distributionInfoFilePath: distributionFilePath,
 		osInfoFilePath:           osInfoFilePath,
 		l:                        l,
 	}
 }
 
-func (d distributionUtilServiceImpl) getDistributionMethodAndOS() (serverpb.DistributionMethod, pmmv1.DistributionMethod, string) {
+func (d Service) GetDistributionMethodAndOS() (serverpb.DistributionMethod, pmmv1.DistributionMethod, string) {
 	b, err := os.ReadFile(d.distributionInfoFilePath)
 	if err != nil {
 		d.l.Debugf("Failed to read %s: %s", d.distributionInfoFilePath, err)
@@ -85,7 +85,7 @@ var procVersionRegexps = []pair{
 }
 
 // getLinuxDistribution detects Linux distribution and version from /proc/version information.
-func (d distributionUtilServiceImpl) getLinuxDistribution(procVersion string) string {
+func (d Service) getLinuxDistribution(procVersion string) string {
 	for _, p := range procVersionRegexps {
 		match := p.re.FindStringSubmatchIndex(procVersion)
 		if match != nil {

@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package telemetry
+package distribution
 
 import (
 	"os"
@@ -132,11 +132,13 @@ func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
 				tmpOsInfoFilePath = f2.Name()
 			}
 
-			d := newDistributionUtilServiceImpl(tmpDistributionFilePath, tmpOsInfoFilePath, logEntry)
-			got, got1, got2 := d.getDistributionMethodAndOS()
-			assert.Equalf(t, tt.want, got, "getDistributionMethodAndOS() serverpb.DistributionMethod")
-			assert.Equalf(t, tt.want1, got1, "getDistributionMethodAndOS() pmmv1.DistributionMethod")
-			assert.Equalf(t, tt.want2, got2, "getDistributionMethodAndOS() name")
+			d := NewService(logEntry)
+			d.distributionInfoFilePath = tmpDistributionFilePath
+			d.osInfoFilePath = tmpOsInfoFilePath
+			got, got1, got2 := d.GetDistributionMethodAndOS()
+			assert.Equalf(t, tt.want, got, "GetDistributionMethodAndOS() serverpb.DistributionMethod")
+			assert.Equalf(t, tt.want1, got1, "GetDistributionMethodAndOS() pmmv1.DistributionMethod")
+			assert.Equalf(t, tt.want2, got2, "GetDistributionMethodAndOS() name")
 		})
 	}
 }
@@ -228,7 +230,7 @@ func Test_distributionUtilServiceImpl_getLinuxDistribution(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			d := distributionUtilServiceImpl{
+			d := Service{
 				distributionInfoFilePath: tmpDistributionFile,
 				osInfoFilePath:           tmpOsInfoFilePath,
 				l:                        logEntry,

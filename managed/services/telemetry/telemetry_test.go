@@ -34,6 +34,7 @@ import (
 
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
@@ -258,7 +259,7 @@ func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceCon
 	return serviceConfig
 }
 
-func getDistributionUtilService(t *testing.T, l *logrus.Entry) *distributionUtilServiceImpl {
+func getDistributionUtilService(t *testing.T, l *logrus.Entry) distributionUtilService {
 	t.Helper()
 	const (
 		tmpDistributionFile = "/tmp/distribution"
@@ -269,7 +270,7 @@ func getDistributionUtilService(t *testing.T, l *logrus.Entry) *distributionUtil
 		assert.Fail(t, "cannot write to file: ", err)
 		return nil
 	}
-	dus := newDistributionUtilServiceImpl(tmpDistributionFile, osInfoFilePath, l)
+	dus := distribution.NewService(tmpDistributionFile, "/proc/version", l)
 	return dus
 }
 
