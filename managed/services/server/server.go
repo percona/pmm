@@ -21,7 +21,6 @@ import (
 	"crypto/subtle"
 	"encoding/json"
 	"fmt"
-	"github.com/percona/pmm/managed/utils/distribution"
 	"os"
 	"os/user"
 	"path"
@@ -43,6 +42,7 @@ import (
 
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/version"
 )

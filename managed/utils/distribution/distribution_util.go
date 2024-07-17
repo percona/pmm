@@ -42,13 +42,17 @@ func NewService(distributionFilePath, osInfoFilePath string, l *logrus.Entry) *S
 }
 
 func (d Service) GetDistributionMethodAndOS() (serverpb.DistributionMethod, pmmv1.DistributionMethod, string) {
-	b, err := os.ReadFile(d.distributionInfoFilePath)
-	if err != nil {
-		d.l.Debugf("Failed to read %s: %s", d.distributionInfoFilePath, err)
-	}
+	dm := os.Getenv("PMM_DISTRIBUTION_METHOD")
+	if dm == "" {
+		b, err := os.ReadFile(d.distributionInfoFilePath)
+		if err != nil {
+			d.l.Debugf("Failed to read %s: %s", d.distributionInfoFilePath, err)
+		}
 
-	b = bytes.ToLower(bytes.TrimSpace(b))
-	switch string(b) {
+		b = bytes.ToLower(bytes.TrimSpace(b))
+		dm = string(b)
+	}
+	switch dm {
 	case "ovf":
 		return serverpb.DistributionMethod_OVF, pmmv1.DistributionMethod_OVF, "ovf"
 	case "ami":
@@ -58,7 +62,8 @@ func (d Service) GetDistributionMethodAndOS() (serverpb.DistributionMethod, pmmv
 	case "digitalocean":
 		return serverpb.DistributionMethod_DO, pmmv1.DistributionMethod_DO, "digitalocean"
 	case "docker", "": // /srv/pmm-distribution does not exist in PMM 2.0.
-		if b, err = os.ReadFile(d.osInfoFilePath); err != nil {
+		b, err := os.ReadFile(d.osInfoFilePath)
+		if err != nil {
 			d.l.Debugf("Failed to read %s: %s", d.osInfoFilePath, err)
 		}
 		return serverpb.DistributionMethod_DOCKER, pmmv1.DistributionMethod_DOCKER, d.getLinuxDistribution(string(b))

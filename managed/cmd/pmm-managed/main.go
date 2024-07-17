@@ -21,12 +21,11 @@ import (
 	"database/sql"
 	_ "expvar" // register /debug/vars
 	"fmt"
-	"github.com/percona/pmm/managed/utils/distribution"
 	"html/template"
 	"log"
 	"net"
 	"net/http"
-	_ "net/http/pprof" //nolint:gosec // register /debug/pprof
+	_ "net/http/pprof"
 	"net/url"
 	"os"
 	"os/signal"
@@ -105,6 +104,7 @@ import (
 	"github.com/percona/pmm/managed/services/victoriametrics"
 	"github.com/percona/pmm/managed/services/vmalert"
 	"github.com/percona/pmm/managed/utils/clean"
+	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
