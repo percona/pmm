@@ -1,5 +1,5 @@
 - name: Copy watchtower systemd service file to user-specific directory
-  template:
+  copy:
     src: init-admin-password
     dest: /home/admin/init-admin-password
     owner: admin
@@ -7,7 +7,7 @@
     mode: '0755'
 
 - name: Copy change-admin-password systemd service file to user-specific directory
-  template:
+  copy:
     src: init-admin-password.service
     dest: /home/admin/.config/systemd/user/
     owner: admin
