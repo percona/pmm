@@ -21,6 +21,7 @@ ExecStart=/usr/bin/podman run \
     -e PMM_SERVER_UPDATE_VERSION=${PMM_SERVER_UPDATE_VERSION} \
     --net pmm_default \
     --cap-add=net_admin,net_raw \
+    --userns=keep-id:uid=1000,gid=1000 \
     -p 443:8443/tcp --ulimit=host ${PMM_IMAGE}
 
 ExecStop=/usr/bin/podman stop -t 10 %N
