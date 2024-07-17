@@ -120,6 +120,33 @@ func TestCheckUpdates(t *testing.T) {
 	})
 }
 
+func TestListUpdates(t *testing.T) {
+	const fast, slow = 5 * time.Second, 60 * time.Second
+
+	if !pmmapitests.RunUpdateTest {
+		t.Skip("skipping PMM Server check update test")
+	}
+
+	// that call should always be fast
+	version, err := serverClient.Default.Server.Version(server.NewVersionParamsWithTimeout(fast))
+	require.NoError(t, err)
+	if version.Payload.Server == nil || version.Payload.Server.Version == "" {
+		t.Skip("skipping test in developer's environment")
+	}
+
+	params := &server.ListUpdatesParams{
+		Context: pmmapitests.Context,
+	}
+	params.SetTimeout(slow) // that call can be slow with a cold cache
+	res, err := serverClient.Default.Server.ListUpdates(params)
+	require.NoError(t, err)
+
+	if len(res.Payload.Updates) > 0 {
+		assert.True(t, strings.HasPrefix(res.Payload.Updates[0].Version, "3."),
+			"installed.version = %q should have '3.' prefix", res.Payload.Updates[0].Version)
+	}
+}
+
 func TestUpdate(t *testing.T) {
 	// do not run this test in parallel with other tests
 

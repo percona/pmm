@@ -40,6 +40,8 @@ type ClientService interface {
 
 	LeaderHealthCheck(params *LeaderHealthCheckParams, opts ...ClientOption) (*LeaderHealthCheckOK, error)
 
+	ListUpdates(params *ListUpdatesParams, opts ...ClientOption) (*ListUpdatesOK, error)
+
 	Logs(params *LogsParams, writer io.Writer, opts ...ClientOption) (*LogsOK, error)
 
 	Readiness(params *ReadinessParams, opts ...ClientOption) (*ReadinessOK, error)
@@ -245,6 +247,45 @@ func (a *Client) LeaderHealthCheck(params *LeaderHealthCheckParams, opts ...Clie
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*LeaderHealthCheckDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListUpdates lists updates
+
+Lists available PMM Server updates between the installed version and the latest available version.
+*/
+func (a *Client) ListUpdates(params *ListUpdatesParams, opts ...ClientOption) (*ListUpdatesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListUpdatesParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListUpdates",
+		Method:             "GET",
+		PathPattern:        "/v1/Updates/List",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListUpdatesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListUpdatesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListUpdatesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

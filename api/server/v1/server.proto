@@ -91,6 +91,16 @@ message CheckUpdatesResponse {
   google.protobuf.Timestamp last_check = 5;
 }
 
+message ListUpdatesRequest {}
+
+message ListUpdatesResponse {
+  // List of available updates.
+  repeated DockerVersionInfo updates = 1;
+
+  // Last check time.
+  google.protobuf.Timestamp last_check = 2;
+}
+
 message StartUpdateRequest {
   string new_image = 1;
 }
@@ -246,6 +256,14 @@ service ServerService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Check updates"
       description: "Checks for available PMM Server updates."
+    };
+  }
+
+  rpc ListUpdates(ListUpdatesRequest) returns (ListUpdatesResponse) {
+    option (google.api.http) = {get: "/v1/Updates/List"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List updates"
+      description: "Lists available PMM Server updates between the installed version and the latest available version."
     };
   }
   // StartUpdate starts PMM Server update.

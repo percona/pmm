@@ -25,6 +25,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -62,7 +63,8 @@ type Updater struct {
 	lastCheckTime   time.Time
 
 	// releaseNotes holds a map of PMM server versions to their release notes.
-	releaseNotes map[string]string
+	releaseNotes   map[string]string
+	releaseNotesRW sync.RWMutex
 }
 
 // NewUpdater creates a new Updater service.
@@ -186,13 +188,22 @@ func (up *Updater) LastCheckUpdatesResult(ctx context.Context) (*version.UpdateC
 	}, lastCheckTime
 }
 
-func (up *Updater) latest(ctx context.Context) (*version.DockerVersionInfo, error) {
+// ListUpdates returns the list of available versions between installed and latest.
+func (up *Updater) ListUpdates(ctx context.Context) ([]*version.DockerVersionInfo, error) {
+	all, _, err := up.latest(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return all, nil
+}
+
+func (up *Updater) latest(ctx context.Context) ([]*version.DockerVersionInfo, *version.DockerVersionInfo, error) {
 	info, err := up.readFromFile()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to read from file")
+		return nil, nil, errors.Wrap(err, "failed to read from file")
 	}
 	if info != nil {
-		return info, nil
+		return nil, info, nil
 	}
 	if os.Getenv("PMM_DEV_UPDATE_DOCKER_IMAGE") != "" {
 		return up.parseDockerTag(os.Getenv("PMM_DEV_UPDATE_DOCKER_IMAGE"))
@@ -235,7 +246,7 @@ type TagsResponse struct {
 // It returns the latest minor version for the current major version.
 // If the current version is the latest minor version, it returns the next major version.
 // If the current version is the latest version, it returns the current version.
-func (up *Updater) latestAvailableFromDockerHub(ctx context.Context) (*version.DockerVersionInfo, error) {
+func (up *Updater) latestAvailableFromDockerHub(ctx context.Context) ([]*version.DockerVersionInfo, *version.DockerVersionInfo, error) {
 	repo := os.Getenv("PMM_DEV_UPDATE_DOCKER_REPO")
 	if repo == "" {
 		repo = "percona/pmm-server"
@@ -244,52 +255,54 @@ func (up *Updater) latestAvailableFromDockerHub(ctx context.Context) (*version.D
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		up.l.WithError(err).Error("Failed to create request")
-		return nil, errors.Wrap(err, "failed to create request")
+		return nil, nil, errors.Wrap(err, "failed to create request")
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		up.l.WithError(err).Error("Failed to get tags from DockerHub")
-		return nil, errors.Wrap(err, "failed to get tags from DockerHub")
+		return nil, nil, errors.Wrap(err, "failed to get tags from DockerHub")
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
 	var tagsResponse TagsResponse
 	if err := json.NewDecoder(resp.Body).Decode(&tagsResponse); err != nil {
 		up.l.WithError(err).Error("Failed to decode response")
-		return nil, errors.Wrap(err, "failed to decode response")
+		return nil, nil, errors.Wrap(err, "failed to decode response")
 	}
 
 	if len(tagsResponse.Results) != 0 {
-		up.l.Debugf("Found %d tags", len(tagsResponse.Results))
-		next := up.next(*up.currentVersion(), tagsResponse.Results)
+		up.l.Infof("Found %d tags", len(tagsResponse.Results))
+		updates, next := up.next(*up.currentVersion(), tagsResponse.Results)
 		if next.DockerImage != "" {
 			next.DockerImage = repo + ":" + next.DockerImage
 		}
-		return next, err
+		return updates, next, err
 	}
-	return nil, errors.New("no tags found")
+	return nil, nil, errors.New("no tags found")
 }
 
-func (up *Updater) parseDockerTag(tag string) (*version.DockerVersionInfo, error) {
+func (up *Updater) parseDockerTag(tag string) ([]*version.DockerVersionInfo, *version.DockerVersionInfo, error) {
+	// todo (michael): support reading version diffs from custom docker image.
 	splitTag := strings.Split(tag, ":")
 	if len(splitTag) != 2 {
-		return nil, fmt.Errorf("invalid tag: %s", tag)
+		return nil, nil, fmt.Errorf("invalid tag: %s", tag)
 	}
 	parsed, err := version.Parse(splitTag[1])
 	if err != nil {
 		up.l.Debugf("Failed to parse version: %s", splitTag[1])
-		return &version.DockerVersionInfo{DockerImage: tag}, nil //nolint:nilerr
+		return nil, &version.DockerVersionInfo{DockerImage: tag}, nil //nolint:nilerr
 	}
-	return &version.DockerVersionInfo{
+	return nil, &version.DockerVersionInfo{
 		Version:     *parsed,
 		DockerImage: tag,
 	}, nil
 }
 
-func (up *Updater) next(currentVersion version.Parsed, results []result) *version.DockerVersionInfo {
+func (up *Updater) next(currentVersion version.Parsed, results []result) ([]*version.DockerVersionInfo, *version.DockerVersionInfo) {
 	nextMinor := &version.DockerVersionInfo{
 		Version: currentVersion,
 	}
+	updates := version.DockerVersionsInfo{}
 	var nextMajor *version.DockerVersionInfo
 	for _, result := range results {
 		v, err := version.Parse(result.Name)
@@ -305,7 +318,19 @@ func (up *Updater) next(currentVersion version.Parsed, results []result) *versio
 		if err != nil {
 			up.l.Errorf("Failed to get release notes for version: %s, %s", v.String(), err.Error())
 		}
-		if v.Major == currentVersion.Major && nextMinor.Version.Less(v) { // next major
+
+		// versions with pre-lease labels (e.g 2.40.1-rc) are not considered for the update diffs
+		if v.Rest == "" && currentVersion.Less(v) {
+			updates = append(updates, &version.DockerVersionInfo{
+				Version:          *v,
+				DockerImage:      result.Name,
+				BuildTime:        result.TagLastPushed,
+				ReleaseNotesURL:  releaseNotesURL,
+				ReleaseNotesText: releaseNote,
+			})
+		}
+
+		if v.Major == currentVersion.Major && nextMinor.Version.Less(v) {
 			nextMinor = &version.DockerVersionInfo{
 				Version:          *v,
 				DockerImage:      result.Name,
@@ -325,10 +350,12 @@ func (up *Updater) next(currentVersion version.Parsed, results []result) *versio
 			}
 		}
 	}
+
+	sort.Sort(updates)
 	if nextMinor.Version == currentVersion && nextMajor != nil {
-		return nextMajor
+		return updates, nextMajor
 	}
-	return nextMinor
+	return updates, nextMinor
 }
 
 // InstalledPMMVersion returns the currently installed PMM version.
@@ -403,7 +430,7 @@ func (up *Updater) check(ctx context.Context) error {
 	up.checkRW.Lock()
 	defer up.checkRW.Unlock()
 
-	latest, err := up.latest(ctx)
+	_, latest, err := up.latest(ctx)
 	if err != nil {
 		return errors.Wrap(err, "failed to get latest version")
 	}
@@ -435,20 +462,21 @@ func isHostAvailable(host string, port string, timeout time.Duration) bool {
 	return false
 }
 
-// GetReleaseNotesText returns the change log for a specific PMM server release.
-// if the version argument has an extra label (e.g 2.40.0-alpha), it strips the label
-// and returns the release notes for the base version (e.g 2.40.0).
+// getReleaseNotesText is a placeholder for getting release notes in MarkDown format
+// until we finalize the implementation on version service.
 func (up *Updater) getReleaseNotesText(ctx context.Context, version version.Parsed) (string, error) {
 	if version.Rest != "" {
 		version.Rest = ""
 	}
 
+	up.releaseNotesRW.Lock()
+	defer up.releaseNotesRW.Unlock()
 	versionString := version.String()
 	if releaseNotes, ok := up.releaseNotes[versionString]; ok {
 		return releaseNotes, nil
 	}
 
-	u := "https://api.github.com/repos/percona/pmm-doc/contents/docs/release-notes/" + versionString + ".md"
+	u := "https://api.github.com/repos/percona/pmm-doc/contents/docs/release-notes/2.41.0.md"
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	req.Header.Set("Accept", "application/vnd.github.raw+json")
 	if err != nil {
@@ -457,8 +485,8 @@ func (up *Updater) getReleaseNotesText(ctx context.Context, version version.Pars
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		up.l.WithError(err).Error("Failed to get tags from DockerHub")
-		return "", errors.Wrap(err, "failed to get change log")
+		up.l.WithError(err).Error("Failed to get release notes")
+		return "", errors.Wrap(err, "failed to get release notes")
 	}
 
 	if resp.StatusCode != http.StatusOK {

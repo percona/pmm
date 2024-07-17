@@ -20,6 +20,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -233,7 +234,7 @@ func TestUpdater(t *testing.T) {
 				u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
 				parsed, err := version.Parse(tt.args.currentVersion)
 				require.NoError(t, err)
-				next := u.next(*parsed, tt.args.results)
+				_, next := u.next(*parsed, tt.args.results)
 				require.NoError(t, err)
 				assert.Equal(t, tt.want.Version, next.Version.String())
 				assert.Equal(t, tt.want.DockerImage, next.DockerImage)
@@ -245,10 +246,25 @@ func TestUpdater(t *testing.T) {
 		}
 	})
 
+	t.Run("TestSortedVersionList", func(t *testing.T) {
+		versions := version.DockerVersionsInfo{
+			{Version: *version.MustParse("3.0.0")},
+			{Version: *version.MustParse("3.1.0")},
+			{Version: *version.MustParse("3.0.1")},
+			{Version: *version.MustParse("3.0.0-rc")},
+		}
+
+		sort.Sort(versions)
+		assert.Equal(t, "3.0.0-rc", versions[0].Version.String())
+		assert.Equal(t, "3.0.0", versions[1].Version.String())
+		assert.Equal(t, "3.0.1", versions[2].Version.String())
+		assert.Equal(t, "3.1.0", versions[3].Version.String())
+	})
+
 	t.Run("TestLatest", func(t *testing.T) {
 		version.Version = "2.41.0"
 		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
-		latest, err := u.latest(context.Background())
+		_, latest, err := u.latest(context.Background())
 		require.NoError(t, err)
 		assert.NotNil(t, latest)
 		assert.True(t, strings.HasPrefix(latest.Version.String(), "2.") || strings.HasPrefix(latest.Version.String(), "3."),
@@ -265,7 +281,7 @@ func TestUpdater(t *testing.T) {
 		require.NoError(t, err)
 
 		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
-		latest, err := u.latest(context.Background())
+		_, latest, err := u.latest(context.Background())
 		require.NoError(t, err)
 		assert.Equal(t, "2.41.1", latest.Version.String())
 		assert.Equal(t, "2.41.1", latest.DockerImage)

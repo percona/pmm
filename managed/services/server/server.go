@@ -297,6 +297,30 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 	return res, nil
 }
 
+// ListUpdates lists PMM versions between currently installed version and the latest one.
+func (s *Server) ListUpdates(ctx context.Context, req *serverv1.ListUpdatesRequest) (*serverv1.ListUpdatesResponse, error) {
+	versions, err := s.updater.ListUpdates(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Unavailable, "failed to list available updates")
+	}
+
+	updates := make([]*serverv1.DockerVersionInfo, 0, len(versions))
+	for _, v := range versions {
+		updates = append(updates, &serverv1.DockerVersionInfo{
+			Version:          v.Version.String(),
+			Tag:              v.DockerImage,
+			ReleaseNotesText: v.ReleaseNotesText,
+			ReleaseNotesUrl:  v.ReleaseNotesURL,
+		})
+	}
+	res := &serverv1.ListUpdatesResponse{
+		Updates:   updates,
+		LastCheck: timestamppb.Now(),
+	}
+
+	return res, nil
+}
+
 // StartUpdate starts PMM Server update.
 func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateRequest) (*serverv1.StartUpdateResponse, error) {
 	s.envRW.RLock()
@@ -309,7 +333,7 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateReque
 
 	newImage := req.GetNewImage()
 	if newImage == "" {
-		latest, err := s.updater.latest(ctx)
+		_, latest, err := s.updater.latest(ctx)
 		if err != nil {
 			s.l.WithError(err).Error("Failed to get latest version")
 			newImage = defaultLatestPMMImage
