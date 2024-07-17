@@ -1,5 +1,5 @@
 ---
-data_partition: "/home"
+data_partition: "/home/admin/volume"
 create_admin: "true"
 enable_lvm: "true"
 single_disk: "false"

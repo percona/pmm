@@ -12,7 +12,7 @@ Restart=on-failure
 RestartSec=20
 
 ExecStart=/usr/bin/podman run \
-    --volume pmm-data:/srv/ \
+    --volume /home/admin/volume/srv:/srv \
     --volume /home/admin/.ssh/:/home/pmm/.ssh/ \
     --volume /home/admin/.config/:/home/pmm/config/  \
     --rm --replace=true --name %N \
