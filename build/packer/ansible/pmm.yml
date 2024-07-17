@@ -6,6 +6,6 @@
   roles:
     - lvm-init
     - cloud-node
-    - podman-setup
     - ami-ovf
+    - podman-setup
     - init-admin-password
