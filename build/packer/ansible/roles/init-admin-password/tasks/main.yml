@@ -14,8 +14,8 @@
     group: admin
     mode: '0644'
 
-- name: Enable and start watchtower container as a user service
-  command: systemctl --user enable --now change-admin-password
+- name: Enable and start init-admin-password as a user service
+  command: systemctl --user enable --now init-admin-password
   become: true
   become_user: admin
   environment:
