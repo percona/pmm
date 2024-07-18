@@ -1,14 +1,4 @@
 ---
-- name: Remove device-mapper package without dependencies
-  command:
-    cmd: rpm -e --nodeps device-mapper
-  ignore_errors: yes
-
-- name: Remove device-mapper-libs package without dependencies
-  command:
-    cmd: rpm -e --nodeps device-mapper-libs
-  ignore_errors: yes
-
 - name: Packages                   | Install OS tools
   yum:
     name:
