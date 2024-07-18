@@ -263,7 +263,7 @@ func (s *ManagementService) ListAgentVersions(ctx context.Context, _ *management
 			case agentVersion.Less(serverVersion):
 				severity = managementv1.UpdateSeverity_UPDATE_SEVERITY_REQUIRED
 			case serverVersion.Less(agentVersion):
-				return status.Errorf(codes.Internal, "unsupported agent version: %s", *agent.Version)
+				severity = managementv1.UpdateSeverity_UPDATE_SEVERITY_UNSUPPORTED
 			default:
 				severity = managementv1.UpdateSeverity_UPDATE_SEVERITY_UP_TO_DATE
 			}
@@ -284,6 +284,6 @@ func (s *ManagementService) ListAgentVersions(ctx context.Context, _ *management
 	}
 
 	return &managementv1.ListAgentVersionsResponse{
-		Versions: versions,
+		AgentVersions: versions,
 	}, nil
 }

@@ -149,12 +149,14 @@ message ListAgentsResponse {
 
 enum UpdateSeverity {
   UPDATE_SEVERITY_UNSPECIFIED = 0;
+  // The client version is newer than the server version.
+  UPDATE_SEVERITY_UNSUPPORTED = 1;
   // The client version matches the server version.
-  UPDATE_SEVERITY_UP_TO_DATE = 1;
-  // The client's minor or patch version is outdated.
-  UPDATE_SEVERITY_REQUIRED = 2;
-  // The client's major version is outdated.
-  UPDATE_SEVERITY_CRITICAL = 3;
+  UPDATE_SEVERITY_UP_TO_DATE = 2;
+  // The client's minor or patch version is older.
+  UPDATE_SEVERITY_REQUIRED = 3;
+  // The client's major version is older.
+  UPDATE_SEVERITY_CRITICAL = 4;
 }
 
 message AgentVersions {
@@ -172,5 +174,5 @@ message ListAgentVersionsRequest {}
 
 message ListAgentVersionsResponse {
   // List of Agent versions.
-  repeated AgentVersions versions = 1;
+  repeated AgentVersions agent_versions = 1;
 }

@@ -267,14 +267,14 @@ swagger:model ListAgentVersionsOKBody
 */
 type ListAgentVersionsOKBody struct {
 	// List of Agent versions.
-	Versions []*ListAgentVersionsOKBodyVersionsItems0 `json:"versions"`
+	AgentVersions []*ListAgentVersionsOKBodyAgentVersionsItems0 `json:"agent_versions"`
 }
 
 // Validate validates this list agent versions OK body
 func (o *ListAgentVersionsOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateVersions(formats); err != nil {
+	if err := o.validateAgentVersions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -284,22 +284,22 @@ func (o *ListAgentVersionsOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ListAgentVersionsOKBody) validateVersions(formats strfmt.Registry) error {
-	if swag.IsZero(o.Versions) { // not required
+func (o *ListAgentVersionsOKBody) validateAgentVersions(formats strfmt.Registry) error {
+	if swag.IsZero(o.AgentVersions) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(o.Versions); i++ {
-		if swag.IsZero(o.Versions[i]) { // not required
+	for i := 0; i < len(o.AgentVersions); i++ {
+		if swag.IsZero(o.AgentVersions[i]) { // not required
 			continue
 		}
 
-		if o.Versions[i] != nil {
-			if err := o.Versions[i].Validate(formats); err != nil {
+		if o.AgentVersions[i] != nil {
+			if err := o.AgentVersions[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentVersionsOk" + "." + "versions" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentVersionsOk" + "." + "agent_versions" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("listAgentVersionsOk" + "." + "versions" + "." + strconv.Itoa(i))
+					return ce.ValidateName("listAgentVersionsOk" + "." + "agent_versions" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -314,7 +314,7 @@ func (o *ListAgentVersionsOKBody) validateVersions(formats strfmt.Registry) erro
 func (o *ListAgentVersionsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.contextValidateVersions(ctx, formats); err != nil {
+	if err := o.contextValidateAgentVersions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -324,14 +324,14 @@ func (o *ListAgentVersionsOKBody) ContextValidate(ctx context.Context, formats s
 	return nil
 }
 
-func (o *ListAgentVersionsOKBody) contextValidateVersions(ctx context.Context, formats strfmt.Registry) error {
-	for i := 0; i < len(o.Versions); i++ {
-		if o.Versions[i] != nil {
-			if err := o.Versions[i].ContextValidate(ctx, formats); err != nil {
+func (o *ListAgentVersionsOKBody) contextValidateAgentVersions(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.AgentVersions); i++ {
+		if o.AgentVersions[i] != nil {
+			if err := o.AgentVersions[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentVersionsOk" + "." + "versions" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentVersionsOk" + "." + "agent_versions" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("listAgentVersionsOk" + "." + "versions" + "." + strconv.Itoa(i))
+					return ce.ValidateName("listAgentVersionsOk" + "." + "agent_versions" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -360,10 +360,10 @@ func (o *ListAgentVersionsOKBody) UnmarshalBinary(b []byte) error {
 }
 
 /*
-ListAgentVersionsOKBodyVersionsItems0 list agent versions OK body versions items0
-swagger:model ListAgentVersionsOKBodyVersionsItems0
+ListAgentVersionsOKBodyAgentVersionsItems0 list agent versions OK body agent versions items0
+swagger:model ListAgentVersionsOKBodyAgentVersionsItems0
 */
-type ListAgentVersionsOKBodyVersionsItems0 struct {
+type ListAgentVersionsOKBodyAgentVersionsItems0 struct {
 	// Agent ID.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -373,15 +373,16 @@ type ListAgentVersionsOKBodyVersionsItems0 struct {
 	// Node name where the agent runs.
 	NodeName string `json:"node_name,omitempty"`
 
+	//  - UPDATE_SEVERITY_UNSUPPORTED: The client version is newer than the server version.
 	//  - UPDATE_SEVERITY_UP_TO_DATE: The client version matches the server version.
-	//  - UPDATE_SEVERITY_REQUIRED: The client's minor or patch version is outdated.
-	//  - UPDATE_SEVERITY_CRITICAL: The client's major version is outdated.
-	// Enum: [UPDATE_SEVERITY_UNSPECIFIED UPDATE_SEVERITY_UP_TO_DATE UPDATE_SEVERITY_REQUIRED UPDATE_SEVERITY_CRITICAL]
+	//  - UPDATE_SEVERITY_REQUIRED: The client's minor or patch version is older.
+	//  - UPDATE_SEVERITY_CRITICAL: The client's major version is older.
+	// Enum: [UPDATE_SEVERITY_UNSPECIFIED UPDATE_SEVERITY_UNSUPPORTED UPDATE_SEVERITY_UP_TO_DATE UPDATE_SEVERITY_REQUIRED UPDATE_SEVERITY_CRITICAL]
 	Severity *string `json:"severity,omitempty"`
 }
 
-// Validate validates this list agent versions OK body versions items0
-func (o *ListAgentVersionsOKBodyVersionsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list agent versions OK body agent versions items0
+func (o *ListAgentVersionsOKBodyAgentVersionsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateSeverity(formats); err != nil {
@@ -394,42 +395,45 @@ func (o *ListAgentVersionsOKBodyVersionsItems0) Validate(formats strfmt.Registry
 	return nil
 }
 
-var listAgentVersionsOkBodyVersionsItems0TypeSeverityPropEnum []interface{}
+var listAgentVersionsOkBodyAgentVersionsItems0TypeSeverityPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["UPDATE_SEVERITY_UNSPECIFIED","UPDATE_SEVERITY_UP_TO_DATE","UPDATE_SEVERITY_REQUIRED","UPDATE_SEVERITY_CRITICAL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["UPDATE_SEVERITY_UNSPECIFIED","UPDATE_SEVERITY_UNSUPPORTED","UPDATE_SEVERITY_UP_TO_DATE","UPDATE_SEVERITY_REQUIRED","UPDATE_SEVERITY_CRITICAL"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
-		listAgentVersionsOkBodyVersionsItems0TypeSeverityPropEnum = append(listAgentVersionsOkBodyVersionsItems0TypeSeverityPropEnum, v)
+		listAgentVersionsOkBodyAgentVersionsItems0TypeSeverityPropEnum = append(listAgentVersionsOkBodyAgentVersionsItems0TypeSeverityPropEnum, v)
 	}
 }
 
 const (
 
-	// ListAgentVersionsOKBodyVersionsItems0SeverityUPDATESEVERITYUNSPECIFIED captures enum value "UPDATE_SEVERITY_UNSPECIFIED"
-	ListAgentVersionsOKBodyVersionsItems0SeverityUPDATESEVERITYUNSPECIFIED string = "UPDATE_SEVERITY_UNSPECIFIED"
+	// ListAgentVersionsOKBodyAgentVersionsItems0SeverityUPDATESEVERITYUNSPECIFIED captures enum value "UPDATE_SEVERITY_UNSPECIFIED"
+	ListAgentVersionsOKBodyAgentVersionsItems0SeverityUPDATESEVERITYUNSPECIFIED string = "UPDATE_SEVERITY_UNSPECIFIED"
 
-	// ListAgentVersionsOKBodyVersionsItems0SeverityUPDATESEVERITYUPTODATE captures enum value "UPDATE_SEVERITY_UP_TO_DATE"
-	ListAgentVersionsOKBodyVersionsItems0SeverityUPDATESEVERITYUPTODATE string = "UPDATE_SEVERITY_UP_TO_DATE"
+	// ListAgentVersionsOKBodyAgentVersionsItems0SeverityUPDATESEVERITYUNSUPPORTED captures enum value "UPDATE_SEVERITY_UNSUPPORTED"
+	ListAgentVersionsOKBodyAgentVersionsItems0SeverityUPDATESEVERITYUNSUPPORTED string = "UPDATE_SEVERITY_UNSUPPORTED"
 
-	// ListAgentVersionsOKBodyVersionsItems0SeverityUPDATESEVERITYREQUIRED captures enum value "UPDATE_SEVERITY_REQUIRED"
-	ListAgentVersionsOKBodyVersionsItems0SeverityUPDATESEVERITYREQUIRED string = "UPDATE_SEVERITY_REQUIRED"
+	// ListAgentVersionsOKBodyAgentVersionsItems0SeverityUPDATESEVERITYUPTODATE captures enum value "UPDATE_SEVERITY_UP_TO_DATE"
+	ListAgentVersionsOKBodyAgentVersionsItems0SeverityUPDATESEVERITYUPTODATE string = "UPDATE_SEVERITY_UP_TO_DATE"
 
-	// ListAgentVersionsOKBodyVersionsItems0SeverityUPDATESEVERITYCRITICAL captures enum value "UPDATE_SEVERITY_CRITICAL"
-	ListAgentVersionsOKBodyVersionsItems0SeverityUPDATESEVERITYCRITICAL string = "UPDATE_SEVERITY_CRITICAL"
+	// ListAgentVersionsOKBodyAgentVersionsItems0SeverityUPDATESEVERITYREQUIRED captures enum value "UPDATE_SEVERITY_REQUIRED"
+	ListAgentVersionsOKBodyAgentVersionsItems0SeverityUPDATESEVERITYREQUIRED string = "UPDATE_SEVERITY_REQUIRED"
+
+	// ListAgentVersionsOKBodyAgentVersionsItems0SeverityUPDATESEVERITYCRITICAL captures enum value "UPDATE_SEVERITY_CRITICAL"
+	ListAgentVersionsOKBodyAgentVersionsItems0SeverityUPDATESEVERITYCRITICAL string = "UPDATE_SEVERITY_CRITICAL"
 )
 
 // prop value enum
-func (o *ListAgentVersionsOKBodyVersionsItems0) validateSeverityEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, listAgentVersionsOkBodyVersionsItems0TypeSeverityPropEnum, true); err != nil {
+func (o *ListAgentVersionsOKBodyAgentVersionsItems0) validateSeverityEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listAgentVersionsOkBodyAgentVersionsItems0TypeSeverityPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *ListAgentVersionsOKBodyVersionsItems0) validateSeverity(formats strfmt.Registry) error {
+func (o *ListAgentVersionsOKBodyAgentVersionsItems0) validateSeverity(formats strfmt.Registry) error {
 	if swag.IsZero(o.Severity) { // not required
 		return nil
 	}
@@ -442,13 +446,13 @@ func (o *ListAgentVersionsOKBodyVersionsItems0) validateSeverity(formats strfmt.
 	return nil
 }
 
-// ContextValidate validates this list agent versions OK body versions items0 based on context it is used
-func (o *ListAgentVersionsOKBodyVersionsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this list agent versions OK body agent versions items0 based on context it is used
+func (o *ListAgentVersionsOKBodyAgentVersionsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ListAgentVersionsOKBodyVersionsItems0) MarshalBinary() ([]byte, error) {
+func (o *ListAgentVersionsOKBodyAgentVersionsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -456,8 +460,8 @@ func (o *ListAgentVersionsOKBodyVersionsItems0) MarshalBinary() ([]byte, error) 
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListAgentVersionsOKBodyVersionsItems0) UnmarshalBinary(b []byte) error {
-	var res ListAgentVersionsOKBodyVersionsItems0
+func (o *ListAgentVersionsOKBodyAgentVersionsItems0) UnmarshalBinary(b []byte) error {
+	var res ListAgentVersionsOKBodyAgentVersionsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -312,9 +312,9 @@ func TestListAgentVersions(t *testing.T) {
 		version.PMMVersion = "3.0.0"
 		res, err := s.ListAgentVersions(ctx, &agentv1.ListAgentVersionsRequest{})
 		require.NoError(t, err)
-		require.Len(t, res.Versions, 1)
+		require.Len(t, res.AgentVersions, 1)
 
-		assert.Equal(t, agentv1.UpdateSeverity_UPDATE_SEVERITY_CRITICAL, res.Versions[0].Severity)
+		assert.Equal(t, agentv1.UpdateSeverity_UPDATE_SEVERITY_CRITICAL, res.AgentVersions[0].Severity)
 	})
 
 	t.Run("Should suggest an update if minor versions differ", func(t *testing.T) {
@@ -334,9 +334,9 @@ func TestListAgentVersions(t *testing.T) {
 		version.PMMVersion = "3.1.0"
 		res, err := s.ListAgentVersions(ctx, &agentv1.ListAgentVersionsRequest{})
 		require.NoError(t, err)
-		require.Len(t, res.Versions, 1)
+		require.Len(t, res.AgentVersions, 1)
 
-		assert.Equal(t, agentv1.UpdateSeverity_UPDATE_SEVERITY_REQUIRED, res.Versions[0].Severity)
+		assert.Equal(t, agentv1.UpdateSeverity_UPDATE_SEVERITY_REQUIRED, res.AgentVersions[0].Severity)
 	})
 
 	t.Run("Should suggest an update if patch versions differ", func(t *testing.T) {
@@ -356,9 +356,9 @@ func TestListAgentVersions(t *testing.T) {
 		version.PMMVersion = "3.0.1"
 		res, err := s.ListAgentVersions(ctx, &agentv1.ListAgentVersionsRequest{})
 		require.NoError(t, err)
-		require.Len(t, res.Versions, 1)
+		require.Len(t, res.AgentVersions, 1)
 
-		assert.Equal(t, agentv1.UpdateSeverity_UPDATE_SEVERITY_REQUIRED, res.Versions[0].Severity)
+		assert.Equal(t, agentv1.UpdateSeverity_UPDATE_SEVERITY_REQUIRED, res.AgentVersions[0].Severity)
 	})
 
 	t.Run("Should suggest no update if versions are the same", func(t *testing.T) {
@@ -378,12 +378,12 @@ func TestListAgentVersions(t *testing.T) {
 		version.PMMVersion = "3.0.0"
 		res, err := s.ListAgentVersions(ctx, &agentv1.ListAgentVersionsRequest{})
 		require.NoError(t, err)
-		require.Len(t, res.Versions, 1)
+		require.Len(t, res.AgentVersions, 1)
 
-		assert.Equal(t, agentv1.UpdateSeverity_UPDATE_SEVERITY_UP_TO_DATE, res.Versions[0].Severity)
+		assert.Equal(t, agentv1.UpdateSeverity_UPDATE_SEVERITY_UP_TO_DATE, res.AgentVersions[0].Severity)
 	})
 
-	t.Run("Should error out if server version is lower", func(t *testing.T) {
+	t.Run("Should say unsupported if client version is newer", func(t *testing.T) {
 		ctx, s, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -399,8 +399,9 @@ func TestListAgentVersions(t *testing.T) {
 
 		version.PMMVersion = "3.0.0-beta"
 		res, err := s.ListAgentVersions(ctx, &agentv1.ListAgentVersionsRequest{})
-		assert.Nil(t, res)
+		require.NoError(t, err)
+		require.Len(t, res.AgentVersions, 1)
 
-		tests.AssertGRPCError(t, status.New(codes.Internal, "unsupported agent version: "+*pmmAgent.Version), err)
+		assert.Equal(t, agentv1.UpdateSeverity_UPDATE_SEVERITY_UNSUPPORTED, res.AgentVersions[0].Severity)
 	})
 }

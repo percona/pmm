@@ -38,9 +38,9 @@ func TestListAgentVersions(t *testing.T) {
 				Context: ctx,
 			})
 		require.NoError(t, err)
-		require.Len(t, listAgentVersionsOK.Payload.Versions, 1)
+		require.Len(t, listAgentVersionsOK.Payload.AgentVersions, 1)
 
-		expected := pointer.ToString(mgmtSvc.ListAgentVersionsOKBodyVersionsItems0SeverityUPDATESEVERITYUPTODATE)
-		require.Equal(t, expected, listAgentVersionsOK.Payload.Versions[0].Severity)
+		expected := pointer.ToString(mgmtSvc.ListAgentVersionsOKBodyAgentVersionsItems0SeverityUPDATESEVERITYUPTODATE)
+		require.Equal(t, expected, listAgentVersionsOK.Payload.AgentVersions[0].Severity)
 	})
 }
