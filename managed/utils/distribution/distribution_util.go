@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package distribution provides structures and methods to determine the distribution method and OS of the PMM Server.
 package distribution
 
 import (
@@ -26,6 +27,7 @@ import (
 	serverv1 "github.com/percona/pmm/api/server/v1"
 )
 
+// Service provides methods to determine the distribution method and OS of the PMM Server.
 type Service struct {
 	distributionInfoFilePath string
 	osInfoFilePath           string
@@ -33,6 +35,7 @@ type Service struct {
 	l *logrus.Entry
 }
 
+// NewService creates a new Distribution Service.
 func NewService(distributionFilePath, osInfoFilePath string, l *logrus.Entry) *Service {
 	return &Service{
 		distributionInfoFilePath: distributionFilePath,
@@ -41,6 +44,7 @@ func NewService(distributionFilePath, osInfoFilePath string, l *logrus.Entry) *S
 	}
 }
 
+// GetDistributionMethodAndOS returns the distribution method and OS of the PMM Server.
 func (d Service) GetDistributionMethodAndOS() (serverv1.DistributionMethod, pmmv1.DistributionMethod, string) {
 	dm := os.Getenv("PMM_DISTRIBUTION_METHOD")
 	if dm == "" {
