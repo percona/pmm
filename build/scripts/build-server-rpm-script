@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -o errexit
+set -o xtrace
+
+. $(dirname $0)/vars
+
+sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES /home/builder/.cache
+
+# Add 'Epoch' to spec file to prevent update of rpms which are built in PR build
+if [ ${RPM_EPOCH} = 1 ]; then
+    sed -i '/^Version:.*/i Epoch: 1' /home/builder/rpm/SOURCES/${spec_name}.spec
+fi
+
+rm -rf /home/builder/rpm/RPMS/${spec_name}-*
+
+printf '[local]\nname=local\nbaseurl=file:///home/builder/rpm/RPMS\ngpgcheck=0\nenabled=1\n' \
+    | sudo tee /etc/yum.repos.d/local.repo
+
+until /usr/bin/createrepo_c --update /home/builder/rpm/RPMS; do
+    echo waiting
+    sleep 1
+done
+
+# Only these two specs have build dependencies
+if [[ ${spec_name} =~ ^grafana$|^percona-dashboards$ ]]; then
+    sleep 5s
+    sudo yum-builddep -y SOURCES/${spec_name}.spec
+fi
+
+spectool -C SOURCES -g SOURCES/${spec_name}.spec
+rpmbuild  --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' \
+          --define 'dist .${rpmbuild_dist}' \
+          --define 'debug_package %{nil}' \
+          -ba SOURCES/${spec_name}.spec
+
+rm -f SOURCES/${spec_name}.spec*
+sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
+
+# vim: expandtab shiftwidth=4 tabstop=4
