@@ -11,6 +11,10 @@
     src: /usr/share/percona-dashboards/VERSION
   register: image_version_file
 
+- name: Initialization needed
+  set_fact:
+    need_initialization: "{{ current_version_file['failed'] == true }}"
+
 - name: Set current version if VERSION doesn't exist
   set_fact:
     pmm_current_version: "0.0"
@@ -36,9 +40,6 @@
 - name: Print need_upgrade fact
   debug:
     msg: "Need upgrade: {{ need_upgrade }}"
-- name: Initialization needed
-  set_fact:
-    need_initialization: "{{ pmm_current_version == '0.0' }}"
 
 - name: Perform upgrade & init tasks
   block:
