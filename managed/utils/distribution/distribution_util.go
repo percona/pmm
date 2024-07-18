@@ -23,7 +23,7 @@ import (
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/api/serverpb"
+	serverv1 "github.com/percona/pmm/api/server/v1"
 )
 
 type Service struct {
@@ -41,7 +41,7 @@ func NewService(distributionFilePath, osInfoFilePath string, l *logrus.Entry) *S
 	}
 }
 
-func (d Service) GetDistributionMethodAndOS() (serverpb.DistributionMethod, pmmv1.DistributionMethod, string) {
+func (d Service) GetDistributionMethodAndOS() (serverv1.DistributionMethod, pmmv1.DistributionMethod, string) {
 	dm := os.Getenv("PMM_DISTRIBUTION_METHOD")
 	if dm == "" {
 		b, err := os.ReadFile(d.distributionInfoFilePath)
@@ -54,21 +54,21 @@ func (d Service) GetDistributionMethodAndOS() (serverpb.DistributionMethod, pmmv
 	}
 	switch dm {
 	case "ovf":
-		return serverpb.DistributionMethod_OVF, pmmv1.DistributionMethod_OVF, "ovf"
+		return serverv1.DistributionMethod_DISTRIBUTION_METHOD_OVF, pmmv1.DistributionMethod_OVF, "ovf"
 	case "ami":
-		return serverpb.DistributionMethod_AMI, pmmv1.DistributionMethod_AMI, "ami"
+		return serverv1.DistributionMethod_DISTRIBUTION_METHOD_AMI, pmmv1.DistributionMethod_AMI, "ami"
 	case "azure":
-		return serverpb.DistributionMethod_AZURE, pmmv1.DistributionMethod_AZURE, "azure"
+		return serverv1.DistributionMethod_DISTRIBUTION_METHOD_AZURE, pmmv1.DistributionMethod_AZURE, "azure"
 	case "digitalocean":
-		return serverpb.DistributionMethod_DO, pmmv1.DistributionMethod_DO, "digitalocean"
+		return serverv1.DistributionMethod_DISTRIBUTION_METHOD_DO, pmmv1.DistributionMethod_DO, "digitalocean"
 	case "docker", "": // /srv/pmm-distribution does not exist in PMM 2.0.
 		b, err := os.ReadFile(d.osInfoFilePath)
 		if err != nil {
 			d.l.Debugf("Failed to read %s: %s", d.osInfoFilePath, err)
 		}
-		return serverpb.DistributionMethod_DOCKER, pmmv1.DistributionMethod_DOCKER, d.getLinuxDistribution(string(b))
+		return serverv1.DistributionMethod_DISTRIBUTION_METHOD_DOCKER, pmmv1.DistributionMethod_DOCKER, d.getLinuxDistribution(string(b))
 	default:
-		return serverpb.DistributionMethod_DISTRIBUTION_METHOD_INVALID, pmmv1.DistributionMethod_DISTRIBUTION_METHOD_INVALID, ""
+		return serverv1.DistributionMethod_DISTRIBUTION_METHOD_UNSPECIFIED, pmmv1.DistributionMethod_DISTRIBUTION_METHOD_INVALID, ""
 	}
 }
 

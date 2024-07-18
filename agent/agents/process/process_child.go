@@ -30,7 +30,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/agents/process"
-	"github.com/percona/pmm/api/inventorypb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 func main() {
@@ -44,11 +44,11 @@ func main() {
 
 	// Wait until the process is running.
 	state := <-p.Changes()
-	if state != inventorypb.AgentStatus_STARTING {
+	if state != inventoryv1.AgentStatus_AGENT_STATUS_STARTING {
 		panic("process isn't moved to starting state.")
 	}
 	state = <-p.Changes()
-	if state != inventorypb.AgentStatus_RUNNING {
+	if state != inventoryv1.AgentStatus_AGENT_STATUS_RUNNING {
 		panic("process isn't moved to running state.")
 	}
 

@@ -39,51 +39,60 @@ import (
 )
 
 const (
-	connectionEndpoint = "/agent.Agent/Connect"
+	connectionEndpoint = "/agent.v1.AgentService/Connect"
 )
 
 // rules maps original URL prefix to minimal required role.
 var rules = map[string]role{
-	connectionEndpoint: admin,
+	// TODO https://jira.percona.com/browse/PMM-4420
+	"/agent.Agent/Connect": admin, // compatibility for v2 agents
+	connectionEndpoint:     admin,
 
-	"/inventory.":                     admin,
-	"/management.":                    admin,
-	"/management.Actions/":            viewer,
-	"/server.Server/CheckUpdates":     viewer,
-	"/server.Server/UpdateStatus":     none, // special token-based auth
-	"/server.Server/AWSInstanceCheck": none, // special case - used before Grafana can be accessed
-	"/server.":                        admin,
+	"/inventory.":                               admin,
+	"/management.":                              admin,
+	"/actions.":                                 viewer,
+	"/advisors.v1.":                             editor,
+	"/server.v1.ServerService/CheckUpdates":     viewer,
+	"/server.v1.ServerService/UpdateStatus":     none,  // special token-based auth
+	"/server.v1.ServerService/AWSInstanceCheck": none,  // special case - used before Grafana can be accessed
+	"/server.":                                  admin, // TODO: do we need it for older agents?
+	"/server.v1.":                               admin,
+	"/qan.v1.CollectorService.":                 viewer,
+	"/qan.v1.QANService.":                       viewer,
 
-	"/v1/inventory/":                              admin,
-	"/v1/inventory/Services/ListTypes":            viewer,
-	"/v1/management/":                             admin,
-	"/v1/management/Actions/":                     viewer,
-	"/v1/management/Jobs":                         viewer,
-	"/v1/management/Role":                         admin,
-	"/v1/Updates/Check":                           viewer,
-	"/v1/Updates/Status":                          none, // special token-based auth
-	"/v1/AWSInstanceCheck":                        none, // special case - used before Grafana can be accessed
-	"/v1/Updates/":                                admin,
-	"/v1/Settings/":                               admin,
-	"/v1/Platform/Connect":                        admin,
-	"/v1/Platform/Disconnect":                     admin,
-	"/v1/Platform/SearchOrganizationTickets":      viewer,
-	"/v1/Platform/SearchOrganizationEntitlements": viewer,
-	"/v1/Platform/GetContactInformation":          viewer,
-	"/v1/Platform/ServerInfo":                     viewer,
-	"/v1/Platform/UserStatus":                     viewer,
-
-	"/v1/user": viewer,
+	"/v1/alerting":                    viewer,
+	"/v1/advisors":                    editor,
+	"/v1/advisors/checks:":            editor,
+	"/v1/actions/":                    viewer,
+	"/v1/actions:":                    viewer,
+	"/v1/backups":                     admin,
+	"/v1/dump":                        admin,
+	"/v1/accesscontrol":               admin,
+	"/v1/inventory/":                  admin,
+	"/v1/inventory/services:getTypes": viewer,
+	"/v1/management/":                 admin,
+	"/v1/management/Jobs":             viewer,
+	"/v1/server/AWSInstance":          none, // special case - used before Grafana can be accessed
+	"/v1/server/updates":              viewer,
+	"/v1/server/updates:start":        admin,
+	"/v1/server/updates:getStatus":    none, // special token-based auth
+	"/v1/server/settings":             admin,
+	"/v1/platform:":                   admin,
+	"/v1/platform/":                   viewer,
+	"/v1/users":                       viewer,
 
 	// must be available without authentication for health checking
-	"/v1/readyz":            none,
-	"/v1/leaderHealthCheck": none,
-	"/ping":                 none, // PMM 1.x variant
+	"/v1/readyz":                   none, // TODO: remove before v3 GA
+	"/v1/server/readyz":            none,
+	"/v1/server/leaderHealthCheck": none,
+	"/ping":                        none, // PMM 1.x variant
 
 	// must not be available without authentication as it can leak data
-	"/v1/version": viewer,
+	"/v1/version":        viewer, // TODO: remove before v3 GA
+	"/v1/server/version": viewer,
 
-	"/v0/qan/": viewer,
+	"/v1/qan":  viewer,
+	"/v1/qan:": viewer,
 
 	// mustSetupRules group
 	"/prometheus":      admin,
@@ -91,7 +100,7 @@ var rules = map[string]role{
 	"/graph":           none,
 	"/swagger":         none,
 
-	"/logs.zip": admin,
+	"/v1/server/logs.zip": admin,
 	// "/auth_request" and "/setup" have auth_request disabled in nginx config
 
 	// "/" is a special case in this code
@@ -108,7 +117,7 @@ const vmProxyHeaderName = "X-Proxy-Filter"
 
 // Only UI is blocked by setup wizard; APIs can be used.
 // Critically, AWSInstanceCheck must be available for the setup wizard itself to work;
-// and /agent.Agent/Connect and Management APIs should be available for pmm-agent on PMM Server registration.
+// and /agent.v1.AgentService/Connect and Management APIs should be available for pmm-agent on PMM Server registration.
 var mustSetupRules = []string{
 	"/prometheus",
 	"/victoriametrics",
@@ -144,7 +153,7 @@ type cacheItem struct {
 
 // clientInterface exist only to make fuzzing simpler.
 type clientInterface interface {
-	getAuthUser(context.Context, http.Header) (authUser, error)
+	getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error)
 }
 
 // AuthServer authenticates incoming requests via Grafana API.
@@ -440,7 +449,7 @@ func (s *AuthServer) mustSetup(rw http.ResponseWriter, req *http.Request, l *log
 	return false
 }
 
-// nextPrefix returns path's prefix, stopping on slashes and dots:
+// nextPrefix returns path's prefix, stopping on slashes, dots, and colons, e.g.:
 // /inventory.Nodes/ListNodes -> /inventory.Nodes/ -> /inventory.Nodes -> /inventory. -> /inventory -> /
 // /v1/inventory/Nodes/List -> /v1/inventory/Nodes/ -> /v1/inventory/Nodes -> /v1/inventory/ -> /v1/inventory -> /v1/ -> /v1 -> /
 // That works for both gRPC and JSON URLs.
@@ -458,7 +467,11 @@ func nextPrefix(path string) string {
 		return t
 	}
 
-	i := strings.LastIndexAny(path, "/.")
+	if t := strings.TrimRight(path, ":"); t != path {
+		return t
+	}
+
+	i := strings.LastIndexAny(path, "/.:")
 	return path[:i+1]
 }
 

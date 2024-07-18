@@ -16,8 +16,8 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 var addAgentRDSExporterResultT = commands.ParseTemplate(`
@@ -35,7 +35,7 @@ Custom labels             : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentRDSExporterResult struct {
-	Agent *agents.AddRDSExporterOKBodyRDSExporter `json:"rds_exporter"`
+	Agent *agents.AddAgentOKBodyRDSExporter `json:"rds_exporter"`
 }
 
 func (res *addAgentRDSExporterResult) Result() {}
@@ -61,23 +61,25 @@ type AddAgentRDSExporterCommand struct {
 // RunCmd executes the AddAgentRDSExporterCommand and returns the result.
 func (cmd *AddAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-	params := &agents.AddRDSExporterParams{
-		Body: agents.AddRDSExporterBody{
-			PMMAgentID:             cmd.PMMAgentID,
-			NodeID:                 cmd.NodeID,
-			AWSAccessKey:           cmd.AWSAccessKey,
-			AWSSecretKey:           cmd.AWSSecretKey,
-			CustomLabels:           customLabels,
-			SkipConnectionCheck:    cmd.SkipConnectionCheck,
-			DisableBasicMetrics:    cmd.DisableBasicMetrics,
-			DisableEnhancedMetrics: cmd.DisableEnhancedMetrics,
-			PushMetrics:            cmd.PushMetrics,
-			LogLevel:               &cmd.LogLevel,
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			RDSExporter: &agents.AddAgentParamsBodyRDSExporter{
+				PMMAgentID:             cmd.PMMAgentID,
+				NodeID:                 cmd.NodeID,
+				AWSAccessKey:           cmd.AWSAccessKey,
+				AWSSecretKey:           cmd.AWSSecretKey,
+				CustomLabels:           customLabels,
+				SkipConnectionCheck:    cmd.SkipConnectionCheck,
+				DisableBasicMetrics:    cmd.DisableBasicMetrics,
+				DisableEnhancedMetrics: cmd.DisableEnhancedMetrics,
+				PushMetrics:            cmd.PushMetrics,
+				LogLevel:               &cmd.LogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddRDSExporter(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

@@ -34,8 +34,8 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
 const (
@@ -60,7 +60,7 @@ func TestAuth(t *testing.T) {
 				baseURL.User = user
 
 				uri := baseURL.ResolveReference(&url.URL{
-					Path: "v1/version",
+					Path: "v1/server/version",
 				})
 				t.Logf("URI: %s", uri)
 
@@ -87,7 +87,7 @@ func TestAuth(t *testing.T) {
 			t.Run(fmt.Sprintf("%s/%d", grpcCode, httpCode), func(t *testing.T) {
 				t.Parallel()
 
-				res, err := serverClient.Default.Server.Version(&server.VersionParams{
+				res, err := serverClient.Default.ServerService.Version(&server.VersionParams{
 					Dummy:   pointer.ToString(fmt.Sprintf("grpccode-%d", grpcCode)),
 					Context: pmmapitests.Context,
 				})
@@ -123,8 +123,7 @@ func TestSetup(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("X-Test-Must-Setup", "1")
 
-		resp, b := doRequest(t, client, req)
-		defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+		resp, b := doRequest(t, client, req) //nolint:bodyclose
 
 		assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
 		assert.True(t, strings.HasPrefix(string(b), `<!doctype html>`), string(b))
@@ -140,9 +139,9 @@ func TestSetup(t *testing.T) {
 			"swagger":     200,
 			"swagger/":    301,
 
-			"v1/readyz":           200,
-			"v1/AWSInstanceCheck": 501, // only POST is expected, other request methods are seen as unimplemented
-			"v1/version":          401, // Grafana authentication required
+			"v1/server/readyz":      200,
+			"v1/server/AWSInstance": 400, // It must accept a parameter
+			"v1/server/version":     401, // Grafana authentication required
 		}
 		for path, code := range paths {
 			path, code := path, code
@@ -157,8 +156,7 @@ func TestSetup(t *testing.T) {
 				require.NoError(t, err)
 				req.Header.Set("X-Test-Must-Setup", "1")
 
-				resp, b := doRequest(t, client, req)
-				defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+				resp, b := doRequest(t, client, req) //nolint:bodyclose
 
 				assert.Equal(t, code, resp.StatusCode, "response:\n%s", b)
 				if code == 303 {
@@ -171,20 +169,19 @@ func TestSetup(t *testing.T) {
 	t.Run("API", func(t *testing.T) {
 		t.Parallel()
 
+		q := make(url.Values)
+		q.Set("instance_id", "123")
 		uri := baseURL.ResolveReference(&url.URL{
-			Path: "v1/AWSInstanceCheck",
+			Path:     "v1/server/AWSInstance",
+			RawQuery: q.Encode(),
 		})
 		t.Logf("URI: %s", uri)
-		b, err := json.Marshal(server.AWSInstanceCheckBody{
-			InstanceID: "123",
-		})
 		require.NoError(t, err)
-		req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, uri.String(), bytes.NewReader(b))
+		req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 		require.NoError(t, err)
 		req.Header.Set("X-Test-Must-Setup", "1")
 
-		resp, b := doRequest(t, client, req)
-		defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+		resp, b := doRequest(t, client, req) //nolint:bodyclose
 
 		assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
 		assert.Equal(t, "{}", string(b), "response:\n%s", b)
@@ -218,8 +215,7 @@ func TestSwagger(t *testing.T) {
 				req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				require.NoError(t, err)
 
-				resp, _ := doRequest(t, http.DefaultClient, req)
-				defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+				resp, _ := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 				require.NoError(t, err)
 				assert.Equal(t, 200, resp.StatusCode)
@@ -235,8 +231,7 @@ func TestSwagger(t *testing.T) {
 				req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				require.NoError(t, err)
 
-				resp, _ := doRequest(t, http.DefaultClient, req)
-				defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+				resp, _ := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 				require.NoError(t, err)
 				assert.Equal(t, 200, resp.StatusCode)
@@ -298,17 +293,17 @@ func TestBasicAuthPermissions(t *testing.T) {
 		method   string
 		userCase []userCase
 	}{
-		{name: "settings", url: "/v1/Settings/Get", method: "POST", userCase: []userCase{
+		{name: "settings", url: "/v1/server/settings", method: "GET", userCase: []userCase{
 			{userType: "default", login: none, statusCode: 401},
 			{userType: "viewer", login: viewer, apiKey: viewerAPIKey, statusCode: 401},
 			{userType: "editor", login: editor, apiKey: editorAPIKey, statusCode: 401},
 			{userType: "admin", login: admin, apiKey: adminAPIKey, statusCode: 200},
 		}},
-		{name: "platform-connect", url: "/v1/Platform/Connect", method: "POST", userCase: []userCase{
+		{name: "platform-connect", url: "/v1/platform:connect", method: "POST", userCase: []userCase{
 			{userType: "default", login: none, statusCode: 401},
 			{userType: "viewer", login: viewer, apiKey: viewerAPIKey, statusCode: 401},
 			{userType: "editor", login: editor, apiKey: editorAPIKey, statusCode: 401},
-			{userType: "admin", login: admin, apiKey: adminAPIKey, statusCode: 400}, // We send bad request, but have access to endpoint
+			{userType: "admin", login: admin, apiKey: adminAPIKey, statusCode: 400}, // We send a bad request, but have access to endpoint
 		}},
 	}
 
@@ -336,7 +331,7 @@ func TestBasicAuthPermissions(t *testing.T) {
 
 				t.Run(fmt.Sprintf("API Key auth %s", user.userType), func(t *testing.T) {
 					if user.apiKey == "" {
-						t.Skip("API Key is not exist")
+						t.Skip("API Key does not exist")
 					}
 					// make a BaseURL without authentication
 					u, err := url.Parse(pmmapitests.BaseURL.String())
@@ -358,7 +353,7 @@ func TestBasicAuthPermissions(t *testing.T) {
 
 				t.Run(fmt.Sprintf("API Key Basic auth %s", user.userType), func(t *testing.T) {
 					if user.apiKey == "" {
-						t.Skip("API Key is not exist")
+						t.Skip("API Key does not exist")
 					}
 					// make a BaseURL without authentication
 					u, err := url.Parse(pmmapitests.BaseURL.String())
@@ -397,8 +392,7 @@ func deleteUser(t *testing.T, userID int) {
 	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodDelete, u.String(), nil)
 	require.NoError(t, err)
 
-	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete user, status code: %d, response: %s", resp.StatusCode, b)
 }
@@ -422,9 +416,8 @@ func createUser(t *testing.T, login string) int {
 	require.NoError(t, err)
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
-	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create user, status code: %d, response: %s", resp.StatusCode, b)
 
 	var m map[string]interface{}
@@ -450,8 +443,7 @@ func setRole(t *testing.T, userID int, role string) {
 	require.NoError(t, err)
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to set role for user, response: %s", b)
 }
@@ -493,25 +485,23 @@ func TestServiceAccountPermissions(t *testing.T) {
 		method   string
 		userCase []userCase
 	}{
-		{name: "settings", url: "/v1/Settings/Get", method: "POST", userCase: []userCase{
+		{name: "settings", url: "/v1/server/settings", method: "GET", userCase: []userCase{
 			{userType: "default", statusCode: 401},
 			{userType: "viewer", serviceToken: viewerToken, statusCode: 401},
 			{userType: "editor", serviceToken: editorToken, statusCode: 401},
 			{userType: "admin", serviceToken: adminToken, statusCode: 200},
 		}},
-		{name: "platform-connect", url: "/v1/Platform/Connect", method: "POST", userCase: []userCase{
+		{name: "platform-connect", url: "/v1/platform:connect", method: "POST", userCase: []userCase{
 			{userType: "default", statusCode: 401},
 			{userType: "viewer", serviceToken: viewerToken, statusCode: 401},
 			{userType: "editor", serviceToken: editorToken, statusCode: 401},
-			{userType: "admin", serviceToken: adminToken, statusCode: 400}, // We send bad request, but have access to endpoint
+			{userType: "admin", serviceToken: adminToken, statusCode: 400}, // We are sending a bad request, but we still have access to the endpoint
 		}},
 	}
 
 	for _, test := range tests {
-		test := test
 		t.Run(test.name, func(t *testing.T) {
 			for _, user := range test.userCase {
-				user := user
 				t.Run(fmt.Sprintf("Service Token auth %s", user.userType), func(t *testing.T) {
 					// make a BaseURL without authentication
 					u, err := url.Parse(pmmapitests.BaseURL.String())
@@ -569,8 +559,7 @@ func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
-	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create API key, status code: %d, response: %s", resp.StatusCode, b)
 
@@ -585,8 +574,7 @@ func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
 	require.NoError(t, err)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 
-	resp1, b := doRequest(t, http.DefaultClient, req)
-	defer resp1.Body.Close() //nolint:gosec,errcheck,nolintlint
+	resp1, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp1.StatusCode, "failed to get API key, status code: %d, response: %s", resp1.StatusCode, b)
 

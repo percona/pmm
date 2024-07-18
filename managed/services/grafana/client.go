@@ -521,12 +521,10 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, inte
 	}
 
 	if err := c.do(ctx, "POST", fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s", folderUID), "", authHeaders, body, nil); err != nil {
-		if err != nil {
-			if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
-				return status.Error(codes.InvalidArgument, cErr.ErrorMessage)
-			}
-			return err
+		if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
+			return status.Error(codes.InvalidArgument, cErr.ErrorMessage)
 		}
+		return err
 	}
 
 	return nil
@@ -680,7 +678,7 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 	}
 
 	// Max length of service account name is 190 chars (default limit in Grafana). In reality it is 187.
-	// Some test could fail if you will have name longer than 187 chars.
+	// Some tests could fail if you pass a name longer than 187 chars.
 	serviceAccountName := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
 	b, err := json.Marshal(serviceAccount{Name: serviceAccountName, Role: role.String(), Force: reregister})
 	if err != nil {

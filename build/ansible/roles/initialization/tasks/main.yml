@@ -99,7 +99,7 @@
 
   - name: Wait for PMM to be ready
     ansible.builtin.uri:
-      url: "http://127.0.0.1:7772/v1/readyz"
+      url: "http://127.0.0.1:7772/v1/server/readyz"
       status_code: 200
       method: GET
     retries: 20

@@ -21,8 +21,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/utils/envvars"
 )
 
@@ -32,7 +32,7 @@ var (
 )
 
 // vmAgentConfig returns desired configuration of vmagent process.
-func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentpb.SetStateRequest_AgentProcess {
+func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentv1.SetStateRequest_AgentProcess {
 	serverURL := "{{.server_url}}/victoriametrics/"
 	if params.ExternalVM() {
 		serverURL = params.URL()
@@ -75,8 +75,8 @@ func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentpb.SetS
 	}
 	sort.Strings(envs)
 
-	res := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_VM_AGENT,
+	res := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_VM_AGENT,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args:               args,
