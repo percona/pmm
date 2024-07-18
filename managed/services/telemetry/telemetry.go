@@ -67,7 +67,8 @@ var (
 )
 
 // NewService creates a new service.
-func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string, dus distributionUtilService, config ServiceConfig, extensions map[ExtensionType]Extension) (*Service, error) {
+func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
+	dus distributionUtilService, config ServiceConfig, extensions map[ExtensionType]Extension) (*Service, error) {
 	if config.SaasHostname == "" {
 		return nil, errors.New("empty host")
 	}
