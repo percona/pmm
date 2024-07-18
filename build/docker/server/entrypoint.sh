@@ -25,8 +25,6 @@ if [ ! -f INIT_FILE ]; then
     
     echo "Enabling pg_stat_statements extension for PostgreSQL..."
     /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o '-c logging_collector=off'
-    # We create the postgres user with superuser privileges to not break the code that connects pmm-managed to postgres.
-    /usr/pgsql-14/bin/createuser --echo --superuser --host=/run/postgresql --no-password postgres
     /usr/bin/psql postgres postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
     /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
     touch $INIT_FILE
