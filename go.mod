@@ -2,7 +2,7 @@ module github.com/percona/pmm
 
 go 1.22
 
-toolchain go1.22.2
+toolchain go1.22.5
 
 // Update saas with
 // go get -v github.com/percona-platform/saas@latest
