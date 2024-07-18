@@ -34,9 +34,9 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/config"
-	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/json/client"
-	managementpb "github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/node"
+	agentlocalClient "github.com/percona/pmm/api/agentlocal/v1/json/client"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 
@@ -57,7 +57,7 @@ func setLocalTransport(host string, port uint16, l *logrus.Entry) {
 	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
 	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 
-	agentlocalpb.Default.SetTransport(transport)
+	agentlocalClient.Default.SetTransport(transport)
 }
 
 type statusResult struct {
@@ -69,7 +69,7 @@ type statusResult struct {
 //
 // This method is not thread-safe.
 func localStatus() (*statusResult, error) {
-	res, err := agentlocalpb.Default.AgentLocal.Status(nil)
+	res, err := agentlocalClient.Default.AgentLocalService.Status(nil)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func localStatus() (*statusResult, error) {
 //
 // This method is not thread-safe.
 func localReload() error {
-	_, err := agentlocalpb.Default.AgentLocal.Reload(nil)
+	_, err := agentlocalClient.Default.AgentLocalService.Reload(nil)
 	return err
 }
 
@@ -137,7 +137,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 		httpTransport.TLSClientConfig.InsecureSkipVerify = insecureTLS
 	}
 
-	managementpb.Default.SetTransport(transport)
+	managementClient.Default.SetTransport(transport)
 }
 
 // ParseCustomLabels parses --custom-labels flag value.
@@ -167,8 +167,8 @@ func ParseCustomLabels(labels string) (map[string]string, error) {
 // This method is not thread-safe.
 func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { //nolint:nonamedreturns
 	nodeTypes := map[string]string{
-		"generic":   node.RegisterNodeBodyNodeTypeGENERICNODE,
-		"container": node.RegisterNodeBodyNodeTypeCONTAINERNODE,
+		"generic":   mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE,
+		"container": mservice.RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE,
 	}
 
 	var disableCollectors []string
@@ -184,8 +184,8 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 		return "", "", err
 	}
 
-	res, err := managementpb.Default.Node.RegisterNode(&node.RegisterNodeParams{
-		Body: node.RegisterNodeBody{
+	res, err := managementClient.Default.ManagementService.RegisterNode(&mservice.RegisterNodeParams{
+		Body: mservice.RegisterNodeBody{
 			NodeType:      pointer.ToString(nodeTypes[cfgSetup.NodeType]),
 			NodeName:      cfgSetup.NodeName,
 			MachineID:     cfgSetup.MachineID,

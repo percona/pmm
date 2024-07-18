@@ -83,7 +83,7 @@ func (r *registry) deleteByInterval(interval check.Interval) {
 	delete(r.checkResults, interval)
 }
 
-// cleanup removes all stt results form registry.
+// cleanup removes all advisors results form registry.
 func (r *registry) cleanup() {
 	r.rw.Lock()
 	defer r.rw.Unlock()

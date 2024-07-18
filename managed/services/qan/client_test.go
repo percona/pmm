@@ -29,9 +29,9 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
-	qanpb "github.com/percona/pmm/api/qanpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/utils/logger"
@@ -50,7 +50,7 @@ func TestClient(t *testing.T) {
 
 	for _, str := range []reform.Struct{
 		&models.Node{
-			NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+			NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 			NodeType:     models.GenericNodeType,
 			NodeName:     "test-generic-node",
 			Address:      "1.2.3.4",
@@ -58,64 +58,64 @@ func TestClient(t *testing.T) {
 			NodeModel:    "test-node-model",
 		},
 		&models.Agent{
-			AgentID:      "/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853",
+			AgentID:      "217907dc-d34d-4e2e-aa84-a1b765d49853",
 			AgentType:    models.PMMAgentType,
-			RunsOnNodeID: pointer.ToString("/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d"),
+			RunsOnNodeID: pointer.ToString("cc663f36-18ca-40a1-aea9-c6310bb4738d"),
 		},
 
 		&models.Service{
-			ServiceID:    "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+			ServiceID:    "014647c3-b2f5-44eb-94f4-d943260a968c",
 			ServiceType:  models.MySQLServiceType,
 			ServiceName:  "test-mysql",
-			NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+			NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 			Address:      pointer.ToString("5.6.7.8"),
 			Port:         pointer.ToUint16(3306),
 			CustomLabels: []byte(`{"_service_label": "bar"}`),
 		},
 
 		&models.Agent{
-			AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+			AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
 			AgentType:    models.QANMySQLPerfSchemaAgentType,
-			PMMAgentID:   pointer.ToString("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853"),
-			ServiceID:    pointer.ToString("/service_id/014647c3-b2f5-44eb-94f4-d943260a968c"),
+			PMMAgentID:   pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
+			ServiceID:    pointer.ToString("014647c3-b2f5-44eb-94f4-d943260a968c"),
 			CustomLabels: []byte(`{"_agent_label": "baz"}`),
 			ListenPort:   pointer.ToUint16(12345),
 		},
 
 		&models.Service{
-			ServiceID:    "/service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1",
+			ServiceID:    "9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1",
 			ServiceType:  models.PostgreSQLServiceType,
 			ServiceName:  "test-postgresql",
-			NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+			NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 			Address:      pointer.ToString("5.6.7.8"),
 			Port:         pointer.ToUint16(5432),
 			CustomLabels: []byte(`{"_service_label": "bar"}`),
 		},
 
 		&models.Agent{
-			AgentID:      "/agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac",
+			AgentID:      "29e14468-d479-4b4d-bfb7-4ac2fb865bac",
 			AgentType:    models.QANPostgreSQLPgStatementsAgentType,
-			PMMAgentID:   pointer.ToString("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853"),
-			ServiceID:    pointer.ToString("/service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1"),
+			PMMAgentID:   pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
+			ServiceID:    pointer.ToString("9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1"),
 			CustomLabels: []byte(`{"_agent_label": "postgres-baz"}`),
 			ListenPort:   pointer.ToUint16(12345),
 		},
 
 		&models.Service{
-			ServiceID:    "/service_id/1fce2502-ecc7-46d4-968b-18d7907f2543",
+			ServiceID:    "1fce2502-ecc7-46d4-968b-18d7907f2543",
 			ServiceType:  models.MongoDBServiceType,
 			ServiceName:  "test-mongodb",
-			NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+			NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 			Address:      pointer.ToString("5.6.7.8"),
 			Port:         pointer.ToUint16(27017),
 			CustomLabels: []byte(`{"_service_label": "mongo-bar"}`),
 		},
 
 		&models.Agent{
-			AgentID:      "/agent_id/b153f0d8-34e4-4635-9184-499161b4d12c",
+			AgentID:      "b153f0d8-34e4-4635-9184-499161b4d12c",
 			AgentType:    models.QANMongoDBProfilerAgentType,
-			PMMAgentID:   pointer.ToString("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853"),
-			ServiceID:    pointer.ToString("/service_id/1fce2502-ecc7-46d4-968b-18d7907f2543"),
+			PMMAgentID:   pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
+			ServiceID:    pointer.ToString("1fce2502-ecc7-46d4-968b-18d7907f2543"),
 			CustomLabels: []byte(`{"_agent_label": "mongodb-baz"}`),
 			ListenPort:   pointer.ToUint16(12345),
 		},
@@ -134,24 +134,23 @@ func TestClient(t *testing.T) {
 			l:  logrus.WithField("test", t.Name()),
 		}
 		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
-		metricsBuckets := []*agentpb.MetricsBucket{
+		metricsBuckets := []*agentv1.MetricsBucket{
 			{
-				Common: &agentpb.MetricsBucket_Common{
+				Common: &agentv1.MetricsBucket_Common{
 					Queryid:             "some-query-id",
 					Fingerprint:         "SELECT * FROM `city`",
 					Schema:              "world",
-					AgentId:             "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+					AgentId:             "75bb30d3-ef4a-4147-97a8-621a996611dd",
 					PeriodStartUnixSecs: 1554116340,
 					PeriodLengthSecs:    60,
-					AgentType:           inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
+					AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 					Example:             "SELECT /* AllCities */ * FROM city",
-					ExampleFormat:       agentpb.ExampleFormat_EXAMPLE, //nolint:staticcheck
-					ExampleType:         agentpb.ExampleType_RANDOM,
+					ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
 					NumQueries:          1,
 					MQueryTimeCnt:       1,
 					MQueryTimeSum:       1234,
 				},
-				Mysql: &agentpb.MetricsBucket_MySQL{
+				Mysql: &agentv1.MetricsBucket_MySQL{
 					MLockTimeCnt:     1,
 					MLockTimeSum:     3456,
 					MRowsSentCnt:     1,
@@ -173,20 +172,19 @@ func TestClient(t *testing.T) {
 				Queryid:             "some-query-id",
 				Fingerprint:         "SELECT * FROM `city`",
 				Schema:              "world",
-				AgentId:             "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentId:             "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
-				AgentType:           inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
+				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 				Example:             "SELECT /* AllCities */ * FROM city",
-				ExampleFormat:       qanpb.ExampleFormat_EXAMPLE, //nolint:staticcheck
-				ExampleType:         qanpb.ExampleType_RANDOM,
+				ExampleType:         qanpb.ExampleType_EXAMPLE_TYPE_RANDOM,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
 				MQueryTimeSum:       1234,
-				ServiceId:           "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+				ServiceId:           "014647c3-b2f5-44eb-94f4-d943260a968c",
 				ServiceName:         "test-mysql",
 				ServiceType:         "mysql",
-				NodeId:              "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				NodeId:              "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:            "test-generic-node",
 				NodeType:            "generic",
 				NodeModel:           "test-node-model",
@@ -222,18 +220,18 @@ func TestClient(t *testing.T) {
 			l:  logrus.WithField("test", t.Name()),
 		}
 		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
-		metricsBuckets := []*agentpb.MetricsBucket{
+		metricsBuckets := []*agentv1.MetricsBucket{
 			{
-				Common: &agentpb.MetricsBucket_Common{
+				Common: &agentv1.MetricsBucket_Common{
 					Queryid:     "some-mongo-query-id",
 					Fingerprint: "INSERT peoples",
 					Database:    "test",
 					Schema:      "peoples",
-					AgentId:     "/agent_id/b153f0d8-34e4-4635-9184-499161b4d12c",
-					AgentType:   inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT,
+					AgentId:     "b153f0d8-34e4-4635-9184-499161b4d12c",
+					AgentType:   inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 					NumQueries:  1,
 				},
-				Mongodb: &agentpb.MetricsBucket_MongoDB{
+				Mongodb: &agentv1.MetricsBucket_MongoDB{
 					MResponseLengthSum: 60,
 					MResponseLengthMin: 60,
 					MResponseLengthMax: 60,
@@ -249,13 +247,13 @@ func TestClient(t *testing.T) {
 				Fingerprint: "INSERT peoples",
 				Database:    "test",
 				Schema:      "peoples",
-				AgentId:     "/agent_id/b153f0d8-34e4-4635-9184-499161b4d12c",
-				AgentType:   inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT,
+				AgentId:     "b153f0d8-34e4-4635-9184-499161b4d12c",
+				AgentType:   inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 				NumQueries:  1,
-				ServiceId:   "/service_id/1fce2502-ecc7-46d4-968b-18d7907f2543",
+				ServiceId:   "1fce2502-ecc7-46d4-968b-18d7907f2543",
 				ServiceName: "test-mongodb",
 				ServiceType: "mongodb",
-				NodeId:      "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				NodeId:      "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:    "test-generic-node",
 				NodeType:    "generic",
 				NodeModel:   "test-node-model",
@@ -284,23 +282,23 @@ func TestClient(t *testing.T) {
 			l:  logrus.WithField("test", t.Name()),
 		}
 		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
-		metricsBuckets := []*agentpb.MetricsBucket{
+		metricsBuckets := []*agentv1.MetricsBucket{
 			{
-				Common: &agentpb.MetricsBucket_Common{
+				Common: &agentv1.MetricsBucket_Common{
 					Queryid:             "some-query-id",
 					Fingerprint:         "SELECT /* AllCities */ * FROM city",
 					Schema:              "pmm-agent",
 					Tables:              []string{"city"},
 					Username:            "pmm-agent",
-					AgentId:             "/agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac",
+					AgentId:             "29e14468-d479-4b4d-bfb7-4ac2fb865bac",
 					PeriodStartUnixSecs: 1554116340,
 					PeriodLengthSecs:    60,
-					AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+					AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 					NumQueries:          1,
 					MQueryTimeCnt:       1,
 					MQueryTimeSum:       55,
 				},
-				Postgresql: &agentpb.MetricsBucket_PostgreSQL{
+				Postgresql: &agentv1.MetricsBucket_PostgreSQL{
 					MRowsCnt:              1,
 					MRowsSum:              4079,
 					MSharedBlksHitCnt:     1,
@@ -344,17 +342,17 @@ func TestClient(t *testing.T) {
 				Schema:              "pmm-agent",
 				Tables:              []string{"city"},
 				Username:            "pmm-agent",
-				AgentId:             "/agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac",
+				AgentId:             "29e14468-d479-4b4d-bfb7-4ac2fb865bac",
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
-				AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
 				MQueryTimeSum:       55,
 				ServiceName:         "test-postgresql",
 				ServiceType:         "postgresql",
-				ServiceId:           "/service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1",
-				NodeId:              "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				ServiceId:           "9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1",
+				NodeId:              "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:            "test-generic-node",
 				NodeType:            "generic",
 				NodeModel:           "test-node-model",
@@ -411,9 +409,9 @@ func TestClient(t *testing.T) {
 			l:  logrus.WithField("test", t.Name()),
 		}
 		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
-		metricsBuckets := []*agentpb.MetricsBucket{
+		metricsBuckets := []*agentv1.MetricsBucket{
 			{
-				Common: &agentpb.MetricsBucket_Common{
+				Common: &agentv1.MetricsBucket_Common{
 					AgentId: "no-such-agent",
 				},
 			},
@@ -436,7 +434,7 @@ func TestClientPerformance(t *testing.T) {
 
 	for _, str := range []reform.Struct{
 		&models.Service{
-			ServiceID:    "/service_id/0d350868-4d85-4884-b972-dff130129c23",
+			ServiceID:    "0d350868-4d85-4884-b972-dff130129c23",
 			ServiceType:  models.MySQLServiceType,
 			ServiceName:  "test-mysql",
 			NodeID:       "pmm-server",
@@ -446,9 +444,9 @@ func TestClientPerformance(t *testing.T) {
 		},
 
 		&models.Agent{
-			AgentID:      "/agent_id/6b74c6bf-642d-43f0-bee1-0faddd1a2e28",
+			AgentID:      "6b74c6bf-642d-43f0-bee1-0faddd1a2e28",
 			AgentType:    models.QANMySQLPerfSchemaAgentType,
-			ServiceID:    pointer.ToString("/service_id/0d350868-4d85-4884-b972-dff130129c23"),
+			ServiceID:    pointer.ToString("0d350868-4d85-4884-b972-dff130129c23"),
 			PMMAgentID:   pointer.ToString("pmm-server"),
 			CustomLabels: []byte(`{"_agent_label": "baz"}`),
 			ListenPort:   pointer.ToUint16(12345),
@@ -475,12 +473,12 @@ func TestClientPerformance(t *testing.T) {
 	}
 
 	const bucketsN = 1000
-	metricsBuckets := make([]*agentpb.MetricsBucket, bucketsN)
+	metricsBuckets := make([]*agentv1.MetricsBucket, bucketsN)
 	for i := range metricsBuckets {
-		metricsBuckets[i] = &agentpb.MetricsBucket{
-			Common: &agentpb.MetricsBucket_Common{
+		metricsBuckets[i] = &agentv1.MetricsBucket{
+			Common: &agentv1.MetricsBucket_Common{
 				Queryid: fmt.Sprintf("bucket %d", i),
-				AgentId: "/agent_id/6b74c6bf-642d-43f0-bee1-0faddd1a2e28",
+				AgentId: "6b74c6bf-642d-43f0-bee1-0faddd1a2e28",
 			},
 		}
 	}
@@ -495,9 +493,9 @@ func TestClientPerformance(t *testing.T) {
 			NodeId:      "pmm-server",
 			NodeName:    "pmm-server",
 			NodeType:    "generic",
-			ServiceId:   "/service_id/0d350868-4d85-4884-b972-dff130129c23",
+			ServiceId:   "0d350868-4d85-4884-b972-dff130129c23",
 			ServiceType: "mysql",
-			AgentId:     "/agent_id/6b74c6bf-642d-43f0-bee1-0faddd1a2e28",
+			AgentId:     "6b74c6bf-642d-43f0-bee1-0faddd1a2e28",
 			Labels: map[string]string{
 				"_agent_label":   "baz",
 				"_service_label": "bar",

@@ -32,7 +32,7 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/status"
 
-	"github.com/percona/pmm/api/serverpb"
+	serverv1 "github.com/percona/pmm/api/server/v1"
 )
 
 // PMMHTTPErrorHandler is a custom implementation of DefaultHTTPErrorHandler
@@ -60,7 +60,7 @@ func PMMHTTPErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshaler r
 		w.Header().Set("WWW-Authenticate", s.Message())
 	}
 
-	body := &serverpb.HttpError{
+	body := &serverv1.HttpError{
 		Error:   s.Message(),
 		Message: s.Message(),
 		Code:    int32(s.Code()),
@@ -80,7 +80,7 @@ func PMMHTTPErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshaler r
 
 	md, ok := runtime.ServerMetadataFromContext(ctx)
 	if !ok {
-		grpclog.Infof("Failed to extract ServerMetadata from context")
+		grpclog.Info("Failed to extract ServerMetadata from context")
 	}
 
 	handleForwardResponseServerMetadata(w, mux, md)
@@ -141,4 +141,21 @@ func handleForwardResponseTrailer(w http.ResponseWriter, md runtime.ServerMetada
 			w.Header().Add(tKey, v)
 		}
 	}
+}
+
+// PMMRoutingErrorHandler customizes the http status code for routes that can't be found (i.e. 404).
+func PMMRoutingErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshaler runtime.Marshaler, w http.ResponseWriter, r *http.Request, httpStatus int) {
+	if httpStatus != http.StatusNotFound {
+		runtime.DefaultRoutingErrorHandler(ctx, mux, marshaler, w, r, httpStatus)
+		return
+	}
+
+	// Use HTTPStatusError to customize the DefaultHTTPErrorHandler status code
+	msg := fmt.Sprintf("Endpoint not found: %s, http method: %s", r.URL.Path, r.Method)
+	err := &runtime.HTTPStatusError{
+		HTTPStatus: httpStatus,
+		Err:        status.Error(codes.NotFound, msg),
+	}
+
+	runtime.DefaultHTTPErrorHandler(ctx, mux, marshaler, w, r, err)
 }
