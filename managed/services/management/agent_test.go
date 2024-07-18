@@ -30,11 +30,12 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	agentv1beta1 "github.com/percona/pmm/api/management/v1"
+	agentv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 	"github.com/percona/pmm/utils/logger"
+	"github.com/percona/pmm/version"
 )
 
 var now time.Time
@@ -103,18 +104,18 @@ func setup(t *testing.T) (context.Context, *ManagementService, func(t *testing.T
 func TestAgentService(t *testing.T) {
 	t.Run("Should return a validation error when no params passed", func(t *testing.T) {
 		ctx, s, teardown := setup(t)
-		defer teardown(t)
+		t.Cleanup(func() { teardown(t) })
 
-		response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentsRequest{})
+		response, err := s.ListAgents(ctx, &agentv1.ListAgentsRequest{})
 		assert.Nil(t, response)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Either service_id or node_id is expected."), err)
 	})
 
 	t.Run("Should return a validation error when both params passed", func(t *testing.T) {
 		ctx, s, teardown := setup(t)
-		defer teardown(t)
+		t.Cleanup(func() { teardown(t) })
 
-		response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentsRequest{ServiceId: "foo-id", NodeId: "bar-id"})
+		response, err := s.ListAgents(ctx, &agentv1.ListAgentsRequest{ServiceId: "foo-id", NodeId: "bar-id"})
 		assert.Nil(t, response)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Either service_id or node_id is expected, not both."), err)
 	})
@@ -127,7 +128,7 @@ func TestAgentService(t *testing.T) {
 
 		t.Run("should output a list of agents provisioned by default", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
-			defer teardown(t)
+			t.Cleanup(func() { teardown(t) })
 
 			services, err := models.FindServices(s.db.Querier, models.ServiceFilters{
 				NodeID: models.PMMServerNodeID,
@@ -140,12 +141,12 @@ func TestAgentService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once() // PMM Server Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()           // PMM Server PostgreSQL exporter
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgStatStatementID).Return(false).Once()      // PMM Server PG Stat Statements agent
-			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentsRequest{
+			response, err := s.ListAgents(ctx, &agentv1.ListAgentsRequest{
 				ServiceId: service.ServiceID,
 			})
 			require.NoError(t, err)
 
-			expected := []*agentv1beta1.UniversalAgent{
+			expected := []*agentv1.UniversalAgent{
 				{
 					AgentId:     pgExporterID,
 					AgentType:   "postgres_exporter",
@@ -154,7 +155,7 @@ func TestAgentService(t *testing.T) {
 					CreatedAt:   timestamppb.New(now),
 					UpdatedAt:   timestamppb.New(now),
 					Username:    "postgres",
-					PostgresqlOptions: &agentv1beta1.UniversalAgent_PostgreSQLOptions{
+					PostgresqlOptions: &agentv1.UniversalAgent_PostgreSQLOptions{
 						IsSslKeySet: false,
 					},
 					ServiceId:               "00000000-0000-4000-8000-000000000002",
@@ -170,7 +171,7 @@ func TestAgentService(t *testing.T) {
 					CreatedAt:   timestamppb.New(now),
 					UpdatedAt:   timestamppb.New(now),
 					Username:    "postgres",
-					PostgresqlOptions: &agentv1beta1.UniversalAgent_PostgreSQLOptions{
+					PostgresqlOptions: &agentv1.UniversalAgent_PostgreSQLOptions{
 						IsSslKeySet: false,
 					},
 					ServiceId:               "00000000-0000-4000-8000-000000000002",
@@ -193,7 +194,7 @@ func TestAgentService(t *testing.T) {
 
 		t.Run("should output a list of agents provisioned for RDS service", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
-			defer teardown(t)
+			t.Cleanup(func() { teardown(t) })
 
 			node, err := models.CreateNode(s.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
 				NodeName: "test",
@@ -221,12 +222,12 @@ func TestAgentService(t *testing.T) {
 
 			s.r.(*mockAgentsRegistry).On("IsConnected", rdsExporter.AgentID).Return(false).Once()
 
-			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentsRequest{
+			response, err := s.ListAgents(ctx, &agentv1.ListAgentsRequest{
 				ServiceId: service.ServiceID,
 			})
 			require.NoError(t, err)
 
-			expected := []*agentv1beta1.UniversalAgent{
+			expected := []*agentv1.UniversalAgent{
 				{
 					AgentId:     rdsExporter.AgentID,
 					AgentType:   "rds_exporter",
@@ -243,7 +244,7 @@ func TestAgentService(t *testing.T) {
 
 		t.Run("should output a list of agents provisioned for Azure service", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
-			defer teardown(t)
+			t.Cleanup(func() { teardown(t) })
 
 			node, err := models.CreateNode(s.db.Querier, models.RemoteAzureDatabaseNodeType, &models.CreateNodeParams{
 				NodeName: "test",
@@ -271,12 +272,12 @@ func TestAgentService(t *testing.T) {
 
 			s.r.(*mockAgentsRegistry).On("IsConnected", azureExporter.AgentID).Return(false).Once()
 
-			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentsRequest{
+			response, err := s.ListAgents(ctx, &agentv1.ListAgentsRequest{
 				ServiceId: service.ServiceID,
 			})
 			require.NoError(t, err)
 
-			expected := []*agentv1beta1.UniversalAgent{
+			expected := []*agentv1.UniversalAgent{
 				{
 					AgentId:     azureExporter.AgentID,
 					AgentType:   "azure_database_exporter",
@@ -290,5 +291,116 @@ func TestAgentService(t *testing.T) {
 			}
 			assert.Equal(t, expected, response.Agents)
 		})
+	})
+}
+
+func TestListAgentVersions(t *testing.T) {
+	t.Run("Should suggest critical severity if major versions differ", func(t *testing.T) {
+		ctx, s, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		pmmAgent := &models.Agent{
+			AgentID:      uuid.New().String(),
+			AgentType:    models.PMMAgentType,
+			RunsOnNodeID: pointer.ToString(models.PMMServerNodeID),
+			Version:      pointer.ToString("2.0.0"),
+		}
+
+		err := s.db.Insert(pmmAgent)
+		require.NoError(t, err)
+
+		version.PMMVersion = "3.0.0"
+		res, err := s.ListAgentVersions(ctx, &agentv1.ListAgentVersionsRequest{})
+		require.NoError(t, err)
+		require.Len(t, res.Versions, 1)
+
+		assert.Equal(t, agentv1.UpdateSeverity_UPDATE_SEVERITY_CRITICAL, res.Versions[0].Severity)
+	})
+
+	t.Run("Should suggest an update if minor versions differ", func(t *testing.T) {
+		ctx, s, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		pmmAgent := &models.Agent{
+			AgentID:      uuid.New().String(),
+			AgentType:    models.PMMAgentType,
+			RunsOnNodeID: pointer.ToString(models.PMMServerNodeID),
+			Version:      pointer.ToString("3.0.0"),
+		}
+
+		err := s.db.Insert(pmmAgent)
+		require.NoError(t, err)
+
+		version.PMMVersion = "3.1.0"
+		res, err := s.ListAgentVersions(ctx, &agentv1.ListAgentVersionsRequest{})
+		require.NoError(t, err)
+		require.Len(t, res.Versions, 1)
+
+		assert.Equal(t, agentv1.UpdateSeverity_UPDATE_SEVERITY_REQUIRED, res.Versions[0].Severity)
+	})
+
+	t.Run("Should suggest an update if patch versions differ", func(t *testing.T) {
+		ctx, s, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		pmmAgent := &models.Agent{
+			AgentID:      uuid.New().String(),
+			AgentType:    models.PMMAgentType,
+			RunsOnNodeID: pointer.ToString(models.PMMServerNodeID),
+			Version:      pointer.ToString("3.0.0"),
+		}
+
+		err := s.db.Insert(pmmAgent)
+		require.NoError(t, err)
+
+		version.PMMVersion = "3.0.1"
+		res, err := s.ListAgentVersions(ctx, &agentv1.ListAgentVersionsRequest{})
+		require.NoError(t, err)
+		require.Len(t, res.Versions, 1)
+
+		assert.Equal(t, agentv1.UpdateSeverity_UPDATE_SEVERITY_REQUIRED, res.Versions[0].Severity)
+	})
+
+	t.Run("Should suggest no update if versions are the same", func(t *testing.T) {
+		ctx, s, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		pmmAgent := &models.Agent{
+			AgentID:      uuid.New().String(),
+			AgentType:    models.PMMAgentType,
+			RunsOnNodeID: pointer.ToString(models.PMMServerNodeID),
+			Version:      pointer.ToString("3.0.0"),
+		}
+
+		err := s.db.Insert(pmmAgent)
+		require.NoError(t, err)
+
+		version.PMMVersion = "3.0.0"
+		res, err := s.ListAgentVersions(ctx, &agentv1.ListAgentVersionsRequest{})
+		require.NoError(t, err)
+		require.Len(t, res.Versions, 1)
+
+		assert.Equal(t, agentv1.UpdateSeverity_UPDATE_SEVERITY_UP_TO_DATE, res.Versions[0].Severity)
+	})
+
+	t.Run("Should error out if server version is lower", func(t *testing.T) {
+		ctx, s, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		pmmAgent := &models.Agent{
+			AgentID:      uuid.New().String(),
+			AgentType:    models.PMMAgentType,
+			RunsOnNodeID: pointer.ToString(models.PMMServerNodeID),
+			Version:      pointer.ToString("3.0.0"),
+		}
+
+		err := s.db.Insert(pmmAgent)
+		require.NoError(t, err)
+
+		version.PMMVersion = "3.0.0-beta"
+		res, err := s.ListAgentVersions(ctx, &agentv1.ListAgentVersionsRequest{})
+		assert.Nil(t, res)
+
+		tests.AssertGRPCError(t, status.New(codes.Internal, "unsupported agent version: "+*pmmAgent.Version), err)
 	})
 }
