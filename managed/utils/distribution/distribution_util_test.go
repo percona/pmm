@@ -132,9 +132,7 @@ func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
 				tmpOsInfoFilePath = f2.Name()
 			}
 
-			d := NewService(logEntry)
-			d.distributionInfoFilePath = tmpDistributionFilePath
-			d.osInfoFilePath = tmpOsInfoFilePath
+			d := NewService(tmpDistributionFilePath, tmpOsInfoFilePath, logEntry)
 			got, got1, got2 := d.GetDistributionMethodAndOS()
 			assert.Equalf(t, tt.want, got, "GetDistributionMethodAndOS() serverpb.DistributionMethod")
 			assert.Equalf(t, tt.want1, got1, "GetDistributionMethodAndOS() pmmv1.DistributionMethod")
