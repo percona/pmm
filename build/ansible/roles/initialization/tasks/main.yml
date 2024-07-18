@@ -38,7 +38,7 @@
     msg: "Need upgrade: {{ need_upgrade }}"
 - name: Initialization needed
   set_fact:
-    initialization_needed: "{{ pmm_current_version == '0.0' }}"
+    need_initialization: "{{ pmm_current_version == '0.0' }}"
 
 - name: Perform upgrade & init tasks
   block:
@@ -69,7 +69,7 @@
           login_user: postgres
           state: present
         when: not ansible_check_mode
-    when: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == '' and initialization_needed
+    when: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == '' and need_initialization
 
   - name: Upgrade/Install dashboards
     include_role:
@@ -91,7 +91,7 @@
       owner: pmm
       group: pmm
       mode: 0775
-    when: upgrade_needed
+    when: need_upgrade
 
   # Note: we want to leave this for some time until we achieve stable builds
   - name: Output pmm-managed logs
@@ -109,4 +109,4 @@
     file:
       state: absent
       path: /usr/share/pmm-server/maintenance/maintenance.html
-  when: initialization_needed or need_upgrade
+  when: need_initialization or need_upgrade
