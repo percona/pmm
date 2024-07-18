@@ -40,3 +40,5 @@ plugins:
     opt:
       - simple_operation_ids=true
       - json_names_for_fields=false
+      - proto3_optional_nullable=true
+      # - visibility_restriction_selectors=INTERNAL # Uncomment to show elements marked up with `INTERNAL`

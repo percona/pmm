@@ -19,10 +19,12 @@ import (
 	"net"
 	"strconv"
 
+	"github.com/AlekSi/pointer"
+
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
-	"github.com/percona/pmm/api/inventorypb/types"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	"github.com/percona/pmm/api/inventory/v1/types"
 )
 
 var listServicesResultT = commands.ParseTemplate(`
@@ -85,17 +87,13 @@ func (cmd *ListServicesCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	filters := services.ListServicesBody{
-		ExternalGroup: cmd.ExternalGroup,
-		NodeID:        cmd.NodeID,
-		ServiceType:   serviceType,
-	}
-
 	params := &services.ListServicesParams{
-		Body:    filters,
-		Context: commands.Ctx,
+		NodeID:        pointer.ToString(cmd.NodeID),
+		ExternalGroup: pointer.ToString(cmd.ExternalGroup),
+		ServiceType:   serviceType,
+		Context:       commands.Ctx,
 	}
-	result, err := client.Default.Services.ListServices(params)
+	result, err := client.Default.ServicesService.ListServices(params)
 	if err != nil {
 		return nil, err
 	}

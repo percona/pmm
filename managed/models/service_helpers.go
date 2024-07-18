@@ -72,7 +72,7 @@ func validateDBConnectionOptions(socket, host *string, port *uint16) error {
 		}
 
 		if port == nil {
-			return status.Errorf(codes.InvalidArgument, "Port are expected to be passed with address.")
+			return status.Errorf(codes.InvalidArgument, "Port is expected to be passed along with the host address.")
 		}
 	}
 
@@ -264,7 +264,7 @@ func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSSe
 		return nil, status.Errorf(codes.InvalidArgument, "Unknown service type: %q.", serviceType)
 	}
 
-	id := "/service_id/" + uuid.New().String()
+	id := uuid.New().String()
 	if err := checkServiceUniqueID(q, id); err != nil {
 		return nil, err
 	}
@@ -438,6 +438,11 @@ func ChangeStandardLabels(q *reform.Querier, serviceID string, labels ServiceSta
 	if labels.ExternalGroup != nil {
 		columns = append(columns, "external_group")
 		s.ExternalGroup = *labels.ExternalGroup
+	}
+
+	// to avoid "reform: nothing to update" error
+	if len(columns) == 0 {
+		return nil
 	}
 
 	if err = q.UpdateColumns(s, columns...); err != nil {

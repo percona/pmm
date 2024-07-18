@@ -16,9 +16,9 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/api/inventorypb/types"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
+	"github.com/percona/pmm/api/inventory/v1/types"
 )
 
 var listNodesResultT = commands.ParseTemplate(`
@@ -71,10 +71,10 @@ func (cmd *ListNodesCommand) RunCmd() (commands.Result, error) {
 	}
 
 	params := &nodes.ListNodesParams{
-		Body:    nodes.ListNodesBody{NodeType: nodeType},
-		Context: commands.Ctx,
+		NodeType: nodeType,
+		Context:  commands.Ctx,
 	}
-	result, err := client.Default.Nodes.ListNodes(params)
+	result, err := client.Default.NodesService.ListNodes(params)
 	if err != nil {
 		return nil, err
 	}

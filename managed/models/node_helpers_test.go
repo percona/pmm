@@ -55,7 +55,7 @@ func TestNodeHelpers(t *testing.T) {
 				NodeID:    "MySQLNode",
 				NodeType:  models.ContainerNodeType,
 				NodeName:  "Node for MySQL Service",
-				MachineID: pointer.ToString("/machine_id/MySQLNode"),
+				MachineID: pointer.ToString("MySQLNode"),
 			},
 			&models.Service{
 				ServiceID:   "MySQL",
@@ -69,7 +69,7 @@ func TestNodeHelpers(t *testing.T) {
 				NodeID:    "GenericNode",
 				NodeType:  models.GenericNodeType,
 				NodeName:  "Node for Agents",
-				MachineID: pointer.ToString("/machine_id/GenericNode"),
+				MachineID: pointer.ToString("GenericNode"),
 			},
 			&models.Agent{
 				AgentID:      "pmm-agent",
@@ -125,7 +125,7 @@ func TestNodeHelpers(t *testing.T) {
 			q, teardown := setup(t)
 			defer teardown(t)
 
-			machineID := "/machine_id/GenericNode"
+			machineID := "GenericNode"
 			_, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
 				NodeName:  t.Name(),
 				MachineID: pointer.ToString(machineID + "\n"),
@@ -136,19 +136,19 @@ func TestNodeHelpers(t *testing.T) {
 			require.NoError(t, err)
 			require.Len(t, structs, 2)
 			expected := &models.Node{
-				NodeID:    "GenericNode",
+				NodeID:    structs[0].(*models.Node).NodeID,
 				NodeType:  models.GenericNodeType,
-				NodeName:  "Node for Agents",
-				MachineID: &machineID, // \n trimmed
+				NodeName:  t.Name(),
+				MachineID: &machineID,
 				CreatedAt: now,
 				UpdatedAt: now,
 			}
 			assert.Equal(t, expected, structs[0])
 			expected = &models.Node{
-				NodeID:    structs[1].(*models.Node).NodeID,
+				NodeID:    "GenericNode",
 				NodeType:  models.GenericNodeType,
-				NodeName:  t.Name(),
-				MachineID: &machineID,
+				NodeName:  "Node for Agents",
+				MachineID: &machineID, // \n trimmed
 				CreatedAt: now,
 				UpdatedAt: now,
 			}
@@ -173,14 +173,14 @@ func TestNodeHelpers(t *testing.T) {
 			NodeID:    "GenericNode",
 			NodeType:  models.GenericNodeType,
 			NodeName:  "Node for Agents",
-			MachineID: pointer.ToString("/machine_id/GenericNode"),
+			MachineID: pointer.ToString("GenericNode"),
 			CreatedAt: now,
 			UpdatedAt: now,
 		}, {
 			NodeID:    "MySQLNode",
 			NodeType:  models.ContainerNodeType,
 			NodeName:  "Node for MySQL Service",
-			MachineID: pointer.ToString("/machine_id/MySQLNode"),
+			MachineID: pointer.ToString("MySQLNode"),
 			CreatedAt: now,
 			UpdatedAt: now,
 		}, {
@@ -212,7 +212,7 @@ func TestNodeHelpers(t *testing.T) {
 				NodeID:    "MySQLNode",
 				NodeType:  models.ContainerNodeType,
 				NodeName:  "Node for MySQL Service",
-				MachineID: pointer.ToString("/machine_id/MySQLNode"),
+				MachineID: pointer.ToString("MySQLNode"),
 				CreatedAt: now,
 				UpdatedAt: now,
 			},

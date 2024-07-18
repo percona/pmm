@@ -277,7 +277,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	clickhouseAddr := getValueFromENV("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
 	clickhouseDataSourceAddr := getValueFromENV("PMM_CLICKHOUSE_DATASOURCE_ADDR", defaultClickhouseDataSourceAddr)
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2)
-	vmSearchDisableCache := getValueFromENV("VM_search_disableCache", strconv.FormatBool(!settings.VictoriaMetrics.CacheEnabled))
+	vmSearchDisableCache := getValueFromENV("VM_search_disableCache", strconv.FormatBool(!settings.IsVictoriaMetricsCacheEnabled()))
 	vmSearchMaxQueryLen := getValueFromENV("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
 	vmSearchLatencyOffset := getValueFromENV("VM_search_latencyOffset", defaultVMSearchLatencyOffset)
 	vmSearchMaxUniqueTimeseries := getValueFromENV("VM_search_maxUniqueTimeseries", defaultVMSearchMaxUniqueTimeseries)
@@ -372,8 +372,8 @@ func (s *Service) addClusterParams(templateParams map[string]interface{}) {
 		}
 		templateParams["HANodes"] = strings.Join(nodes, ",")
 	}
-	//- GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS=172.20.0.5:9095
-	//- GF_UNIFIED_ALERTING_HA_PEERS=pmm-server-active:9095,pmm-server-passive:9095
+	// - GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS=172.20.0.5:9095
+	// - GF_UNIFIED_ALERTING_HA_PEERS=pmm-server-active:9095,pmm-server-passive:9095
 }
 
 // saveConfigAndReload saves given supervisord program configuration to file and reloads it.

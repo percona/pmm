@@ -24,50 +24,53 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	managementClient "github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/security_checks"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	advisorsv1 "github.com/percona/pmm/api/advisors/v1"
+	advisorClient "github.com/percona/pmm/api/advisors/v1/json/client"
+	advisor "github.com/percona/pmm/api/advisors/v1/json/client/advisor_service"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
 func restoreSettingsDefaults(t *testing.T) {
 	t.Helper()
 
-	res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+	res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 		Body: server.ChangeSettingsBody{
-			EnableStt:       true,
-			EnableTelemetry: true,
-			EnableAlerting:  true,
+			EnableAdvisor:   pointer.ToBool(true),
+			EnableTelemetry: pointer.ToBool(true),
+			EnableAlerting:  pointer.ToBool(true),
 			MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
 				Hr: "5s",
 				Mr: "10s",
 				Lr: "60s",
 			},
-			SttCheckIntervals: &server.ChangeSettingsParamsBodySttCheckIntervals{
+			AdvisorRunIntervals: &server.ChangeSettingsParamsBodyAdvisorRunIntervals{
 				FrequentInterval: "14400s",
 				StandardInterval: "86400s",
 				RareInterval:     "280800s",
 			},
 			DataRetention: "2592000s",
-			AWSPartitions: []string{"aws"},
+			AWSPartitions: &server.ChangeSettingsParamsBodyAWSPartitions{
+				Values: []string{"aws"},
+			},
 		},
 		Context: pmmapitests.Context,
 	})
 	require.NoError(t, err)
-	assert.Equal(t, true, res.Payload.Settings.TelemetryEnabled)
-	assert.Equal(t, true, res.Payload.Settings.SttEnabled)
+	assert.True(t, res.Payload.Settings.TelemetryEnabled)
+	assert.True(t, res.Payload.Settings.AdvisorEnabled)
 	expectedResolutions := &server.ChangeSettingsOKBodySettingsMetricsResolutions{
 		Hr: "5s",
 		Mr: "10s",
 		Lr: "60s",
 	}
 	assert.Equal(t, expectedResolutions, res.Payload.Settings.MetricsResolutions)
-	expectedSTTIntervals := &server.ChangeSettingsOKBodySettingsSttCheckIntervals{
+	expectedAdvisorRunIntervals := &server.ChangeSettingsOKBodySettingsAdvisorRunIntervals{
 		FrequentInterval: "14400s",
 		StandardInterval: "86400s",
 		RareInterval:     "280800s",
 	}
-	assert.Equal(t, expectedSTTIntervals, res.Payload.Settings.SttCheckIntervals)
+	assert.Equal(t, expectedAdvisorRunIntervals, res.Payload.Settings.AdvisorRunIntervals)
 	assert.Equal(t, "2592000s", res.Payload.Settings.DataRetention)
 	assert.Equal(t, []string{"aws"}, res.Payload.Settings.AWSPartitions)
 }
@@ -75,26 +78,26 @@ func restoreSettingsDefaults(t *testing.T) {
 func restoreCheckIntervalDefaults(t *testing.T) {
 	t.Helper()
 
-	resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+	resp, err := advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
 	require.NoError(t, err)
 	require.NotEmpty(t, resp.Payload.Checks)
 
-	var params *security_checks.ChangeSecurityChecksParams
+	var params *advisor.ChangeAdvisorChecksParams
 
 	for _, check := range resp.Payload.Checks {
-		params = &security_checks.ChangeSecurityChecksParams{
-			Body: security_checks.ChangeSecurityChecksBody{
-				Params: []*security_checks.ChangeSecurityChecksParamsBodyParamsItems0{
+		params = &advisor.ChangeAdvisorChecksParams{
+			Body: advisor.ChangeAdvisorChecksBody{
+				Params: []*advisor.ChangeAdvisorChecksParamsBodyParamsItems0{
 					{
 						Name:     check.Name,
-						Interval: pointer.ToString(security_checks.ChangeSecurityChecksParamsBodyParamsItems0IntervalSTANDARD),
+						Interval: pointer.ToString(advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD.String()),
 					},
 				},
 			},
 			Context: pmmapitests.Context,
 		}
 
-		_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecks(params)
+		_, err = advisorClient.Default.AdvisorService.ChangeAdvisorChecks(params)
 		require.NoError(t, err)
 	}
 }
