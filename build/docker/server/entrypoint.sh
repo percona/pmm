@@ -9,10 +9,9 @@ if [ ! -w /srv ]; then
 fi
 
 # Initialize /srv if empty
-DIST_FILE=/srv/pmm-distribution
-if [ ! -f $DIST_FILE ]; then
-    echo "File $DIST_FILE doesn't exist. Initializing /srv..."
-    echo docker > $DIST_FILE
+INIT_FILE=/srv/initialized
+if [ ! -f INIT_FILE ]; then
+    echo "Initializing /srv..."
     mkdir -p /srv/{backup,clickhouse,grafana,logs,nginx,postgres14,prometheus,victoriametrics}
     echo "Copying grafana plugins and the VERSION file..."
     cp -r /usr/share/percona-dashboards/panels/* /srv/grafana/plugins
@@ -30,6 +29,11 @@ if [ ! -f $DIST_FILE ]; then
     /usr/pgsql-14/bin/createuser --echo --superuser --host=/run/postgresql --no-password postgres
     /usr/bin/psql postgres postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
     /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
+    touch $INIT_FILE
+fi
+DIST_FILE=/srv/pmm-distribution
+if [ ! -f $DIST_FILE ]; then
+    echo "docker" > $DIST_FILE
 fi
 
 # pmm-managed-init validates environment variables.

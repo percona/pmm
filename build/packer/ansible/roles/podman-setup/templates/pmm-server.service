@@ -19,7 +19,6 @@ ExecStart=/usr/bin/podman run \
     -e PMM_WATCHTOWER_HOST=${PMM_WATCHTOWER_HOST} \
     -e PMM_WATCHTOWER_TOKEN=${PMM_WATCHTOWER_TOKEN} \
     -e PMM_SERVER_UPDATE_VERSION=${PMM_SERVER_UPDATE_VERSION} \
-    -e PMM_DISTRIBUTION_METHOD=${PMM_DISTRIBUTION_METHOD} \
     --net pmm_default \
     --cap-add=net_admin,net_raw \
     --userns=keep-id:uid=1000,gid=1000 \

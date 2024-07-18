@@ -1,8 +1,16 @@
+- name: Create user-specific volume directory
+  file:
+    path: /home/admin/volume/srv/
+    state: directory
+    owner: admin
+    group: admin
+    mode: '0755'
+
 - name: Set distribution for OVF
   when: ansible_virtualization_type == "virtualbox"
   copy:
     content: ovf
-    dest: /srv/pmm-distribution
+    dest: /home/admin/volume/srv/pmm-distribution
 
 - name: Set distribution for AMI
   when: >
@@ -11,13 +19,13 @@
     and ansible_system_vendor != "DigitalOcean"
   copy:
     content: ami
-    dest: /srv/pmm-distribution
+    dest: /home/admin/volume/srv/pmm-distribution
 
 - name: Change file owner
   when: ansible_virtualization_type == "virtualbox" or
           ( (ansible_virtualization_type == "xen" or ansible_virtualization_type == "kvm") and ansible_system_vendor != "DigitalOcean" )
   file:
-    path: /srv/pmm-distribution
+    path: /home/admin/volume/srv/pmm-distribution
     owner: admin
     state: file
 
