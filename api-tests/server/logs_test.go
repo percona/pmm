@@ -26,13 +26,13 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	"github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
 func TestDownloadLogs(t *testing.T) {
 	var buf bytes.Buffer
-	res, err := serverClient.Default.Server.Logs(&server.LogsParams{
+	res, err := serverClient.Default.ServerService.Logs(&server_service.LogsParams{
 		Context: pmmapitests.Context,
 	}, &buf)
 	require.NoError(t, err)
@@ -69,13 +69,13 @@ func TestDownloadLogs(t *testing.T) {
 		"supervisorctl_status.log",
 		"supervisord.conf",
 		"supervisord.log",
-		"systemctl_status.log",
 		"victoriametrics-promscrape.yml",
 		"victoriametrics.ini",
 		"victoriametrics.log",
 		"victoriametrics_targets.json",
 		"vmalert.ini",
 		"vmalert.log",
+		"vmproxy.ini",
 		"vmproxy.log",
 	}
 

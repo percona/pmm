@@ -21,12 +21,12 @@ import (
 	"fmt"
 	"strings"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
 )
 
 // GetReport implements rpc to get report for given filtering.
-func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanpb.ReportReply, error) {
+func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*qanpb.GetReportResponse, error) {
 	if in.PeriodStartFrom == nil || in.PeriodStartTo == nil {
 		return nil, fmt.Errorf("from-date: %s or to-date: %s cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
 	}
@@ -113,7 +113,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		return nil, fmt.Errorf("order column '%s' not in selected columns: [%s]", orderCol, strings.Join(uniqColumns, ", "))
 	}
 
-	resp := &qanpb.ReportReply{}
+	resp := &qanpb.GetReportResponse{}
 	results, err := s.rm.Select(
 		ctx,
 		periodStartFromSec,

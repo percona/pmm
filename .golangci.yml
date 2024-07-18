@@ -6,6 +6,10 @@ linters-settings:
   cyclop:
     max-complexity: 30
 
+  inamedparam:
+    # Skips check for interface methods with only a single parameter.
+    skip-single-param: true    
+
   depguard:
     rules:
       main:
@@ -81,11 +85,11 @@ linters:
   enable-all: true
   disable:
     # keep the rules sorted alpahbetically
+    - deadcode         # unmaintained, we leverage `unused`
+    - dupl             # we can't avoid duplicating code
     - execinquery      # false positives only
     - exhaustivestruct # too annoying
     - exhaustruct      # too many files to fix/nolint
-    - deadcode         # unmaintained, we leverage `unused`
-    - dupl             # we can't avoid duplicating code
     - funlen           # useless
     - gochecknoglobals # mostly useless
     - gochecknoinits   # we use init functions
@@ -100,6 +104,7 @@ linters:
     - maligned         # deprecated
     - nlreturn         # too annoying
     - nosnakecase      # deprecated
+    - protogetter      # we need direct access to proto fields
     - rowserrcheck     # disabled because of generics
     - scopelint        # too many false positives
     - structcheck      # replaced by unused
@@ -144,6 +149,7 @@ issues:
         - forcetypeassert  # for tests' brevity sake
         - funlen           # tests may be long
         - gocognit         # triggered by subtests
+        - goconst          # not critical for tests
         - gomnd            # tests are full of magic numbers
         - ireturn          # we have exceptions, so need to silence them in tests
         - lll              # tests often require long lines

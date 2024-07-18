@@ -29,7 +29,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/percona/pmm/agent/utils/tests"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/version"
 )
 
@@ -47,7 +47,7 @@ func TestMongoDBExplain(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("Valid MongoDB query", func(t *testing.T) {
-		params := &agentpb.StartActionRequest_MongoDBExplainParams{
+		params := &agentv1.StartActionRequest_MongoDBExplainParams{
 			Dsn:   tests.GetTestMongoDBDSN(t),
 			Query: `{"ns":"test.coll","op":"query","query":{"k":{"$lte":{"$numberInt":"1"}}}}`,
 		}
@@ -56,7 +56,7 @@ func TestMongoDBExplain(t *testing.T) {
 		require.NoError(t, err)
 
 		res, err := ex.Run(ctx)
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 
 		want := map[string]interface{}{
 			"indexFilterSet": false,
@@ -71,9 +71,9 @@ func TestMongoDBExplain(t *testing.T) {
 
 		explainM := make(map[string]interface{})
 		err = json.Unmarshal(res, &explainM)
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 		queryPlanner, ok := explainM["queryPlanner"]
-		assert.Equal(t, ok, true)
+		assert.True(t, ok)
 		assert.NotEmpty(t, queryPlanner)
 		assert.Equal(t, want, queryPlanner)
 	})
@@ -127,7 +127,7 @@ func TestNewMongoDBExplain(t *testing.T) {
 		t.Run(tf.in, func(t *testing.T) {
 			query, err := os.ReadFile(filepath.Join("testdata/", filepath.Clean(tf.in)))
 			assert.NoError(t, err)
-			params := &agentpb.StartActionRequest_MongoDBExplainParams{
+			params := &agentv1.StartActionRequest_MongoDBExplainParams{
 				Dsn:   tests.GetTestMongoDBDSN(t),
 				Query: string(query),
 			}

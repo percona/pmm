@@ -86,7 +86,7 @@ func TestCredentials(t *testing.T) {
 		// Test reading is OK
 		t.Parallel()
 		creds, _ := ReadFromSource(credSource)
-		assert.Equal(t, creds.Username, "testuser")
+		assert.Equal(t, "testuser", creds.Username)
 	})
 
 	t.Run("Executing", func(t *testing.T) {

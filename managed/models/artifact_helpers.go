@@ -220,7 +220,7 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 		return nil, err
 	}
 
-	id := "/artifact_id/" + uuid.New().String()
+	id := uuid.New().String()
 	_, err := FindArtifactByID(q, id)
 	switch {
 	case err == nil:

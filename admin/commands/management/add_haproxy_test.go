@@ -20,20 +20,20 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/percona/pmm/api/managementpb/json/client/ha_proxy"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 func TestAddHAProxy(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		res := &addHAProxyResult{
-			Service: &ha_proxy.AddHAProxyOKBodyService{
-				ServiceID:   "/service_id/1",
+			Service: &mservice.AddServiceOKBodyHaproxyService{
+				ServiceID:   "1",
 				ServiceName: "myhost-redis",
 			},
 		}
 		expected := strings.TrimSpace(`
 HAProxy Service added.
-Service ID  : /service_id/1
+Service ID  : 1
 Service name: myhost-redis
 `)
 		assert.Equal(t, expected, strings.TrimSpace(res.String()))
