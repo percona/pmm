@@ -146,3 +146,31 @@ message ListAgentsResponse {
   // List of Agents.
   repeated UniversalAgent agents = 1;
 }
+
+enum UpdateSeverity {
+  UPDATE_SEVERITY_UNSPECIFIED = 0;
+  // The client version matches the server version.
+  UPDATE_SEVERITY_UP_TO_DATE = 1;
+  // The client's minor or patch version is outdated.
+  UPDATE_SEVERITY_REQUIRED = 2;
+  // The client's major version is outdated.
+  UPDATE_SEVERITY_CRITICAL = 3;
+}
+
+message AgentVersions {
+  // Agent ID.
+  string agent_id = 1;
+  // Agent version.
+  string version = 2;
+  // Node name where the agent runs.
+  string node_name = 3;
+  // Update severity.
+  UpdateSeverity severity = 4;
+}
+
+message ListAgentVersionsRequest {}
+
+message ListAgentVersionsResponse {
+  // List of Agent versions.
+  repeated AgentVersions versions = 1;
+}

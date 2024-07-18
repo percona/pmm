@@ -17763,6 +17763,94 @@
         }
       }
     },
+    "/v1/management/agents/versions": {
+      "get": {
+        "description": "Lists Agent versions and their update severity.",
+        "tags": [
+          "ManagementService"
+        ],
+        "summary": "List Agent Versions",
+        "operationId": "ListAgentVersions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "versions": {
+                  "description": "List of Agent versions.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Agent ID.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "version": {
+                        "description": "Agent version.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "node_name": {
+                        "description": "Node name where the agent runs.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "severity": {
+                        "description": " - UPDATE_SEVERITY_UP_TO_DATE: The client version matches the server version.\n - UPDATE_SEVERITY_REQUIRED: The client's minor or patch version is outdated.\n - UPDATE_SEVERITY_CRITICAL: The client's major version is outdated.",
+                        "type": "string",
+                        "default": "UPDATE_SEVERITY_UNSPECIFIED",
+                        "enum": [
+                          "UPDATE_SEVERITY_UNSPECIFIED",
+                          "UPDATE_SEVERITY_UP_TO_DATE",
+                          "UPDATE_SEVERITY_REQUIRED",
+                          "UPDATE_SEVERITY_CRITICAL"
+                        ],
+                        "x-order": 3
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/annotations": {
       "post": {
         "description": "Adds an annotation.",
