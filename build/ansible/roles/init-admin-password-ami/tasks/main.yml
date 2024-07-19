@@ -1,0 +1,10 @@
+- name: Copy watchtower systemd service file to user-specific directory
+  copy:
+    src: init-admin-password
+    dest: /home/pmm/init-admin-password
+    owner: admin
+    group: admin
+    mode: '0755'
+
+- name: start init-admin-password
+  command: /home/pmm/init-admin-password

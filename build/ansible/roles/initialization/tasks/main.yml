@@ -1,5 +1,11 @@
 ---
 # This role contains tasks executed during initialization of PMM Server
+- name: detect /srv/pmm-distribution
+  stat:
+    path: /srv/pmm-distribution
+  no_log: yes
+  register: srv_pmm_distribution
+
 - name: Get current version
   slurp:
     src: /srv/grafana/PERCONA_DASHBOARDS_VERSION
@@ -104,6 +110,11 @@
       method: GET
     retries: 20
     delay: 5
+
+  - name: init admin password on AMI
+    include_role:
+      name: init-admin-password-ami
+    when: need_initialization and srv_pmm_distribution == "ami"
 
   - name: Disable maintenance mode
     file:
