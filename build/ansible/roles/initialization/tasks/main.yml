@@ -17,10 +17,6 @@
     src: /usr/share/percona-dashboards/VERSION
   register: image_version_file
 
-- name: Initialization needed
-  set_fact:
-    need_initialization: "{{ current_version_file['failed'] == true }}"
-
 - name: Set current version if VERSION doesn't exist
   set_fact:
     pmm_current_version: "0.0"
@@ -35,13 +31,25 @@
   set_fact:
     pmm_image_version: "{{ image_version_file['content'] | b64decode | trim }}"
 
+- name: Set need_initialization fact
+  set_fact:
+    need_initialization: "{{ current_version_file['failed'] == true }}"
+
 - name: Set need_upgrade fact
   set_fact:
     need_upgrade: "{{ pmm_current_version is version(pmm_image_version, '<') }}"
 
+- name: Print PMM distribution
+  debug:
+    msg: "PMM distribution: {{ srv_pmm_distribution }}"
+
 - name: Print current PMM and image versions
   debug:
     msg: "Current version: {{ pmm_current_version }} Image Version: {{ pmm_image_version }}"
+
+- name: Print need_initialization fact
+  debug:
+    msg: "Need initialization: {{ need_initialization }}"
 
 - name: Print need_upgrade fact
   debug:
@@ -114,7 +122,7 @@
   - name: init admin password on AMI
     include_role:
       name: init-admin-password-ami
-    when: need_initialization and srv_pmm_distribution == "ami"
+    when: need_initialization and srv_pmm_distribution == 'ami'
 
   - name: Disable maintenance mode
     file:
