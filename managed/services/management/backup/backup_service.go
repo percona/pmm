@@ -137,10 +137,7 @@ func (s *BackupService) StartBackup(ctx context.Context, req *backupv1.StartBack
 }
 
 // RestoreBackup starts restore backup job.
-func (s *BackupService) RestoreBackup(
-	ctx context.Context,
-	req *backupv1.RestoreBackupRequest,
-) (*backupv1.RestoreBackupResponse, error) {
+func (s *BackupService) RestoreBackup(ctx context.Context, req *backupv1.RestoreBackupRequest) (*backupv1.RestoreBackupResponse, error) {
 	// Disable all related scheduled backups before restoring
 	tasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{ServiceID: req.ServiceId})
 	if err != nil {

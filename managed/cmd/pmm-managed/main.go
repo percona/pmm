@@ -264,7 +264,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		deps.vmdb, deps.connectionCheck, deps.serviceInfoBroker, deps.agentService)
 
 	mgmtBackupService := managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService, deps.backupRemovalService, deps.pbmPITRService)
-	mgmtRestoreService := managementbackup.NewRestoreService(deps.db)
+	mgmtRestoreService := managementbackup.NewRestoreService(deps.db, deps.backupService, deps.schedulerService)
 	mgmtServices := common.NewMgmtServices(mgmtBackupService, mgmtRestoreService)
 
 	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.versionCache, mgmtServices)

@@ -35,7 +35,9 @@ func TestRestoreServiceGetLogs(t *testing.T) {
 
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	restoreSvc := NewRestoreService(db)
+	backupService := &mockBackupService{}
+	scheduleService := &mockScheduleService{}
+	restoreSvc := NewRestoreService(db, backupService, scheduleService)
 
 	t.Cleanup(func() {
 		_ = sqlDB.Close()
