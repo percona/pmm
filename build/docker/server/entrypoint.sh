@@ -14,8 +14,8 @@ if [ ! -f INIT_FILE ]; then
     echo "Initializing /srv..."
     mkdir -p /srv/{backup,clickhouse,grafana,logs,nginx,postgres14,prometheus,victoriametrics}
     echo "Copying grafana plugins and the VERSION file..."
+    mkdir -p /srv/grafana/plugins
     cp -r /usr/share/percona-dashboards/panels/* /srv/grafana/plugins
-    cp /usr/share/percona-dashboards/VERSION /srv/grafana/PERCONA_DASHBOARDS_VERSION
     
     echo "Generating self-signed certificates for nginx..."
     bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
