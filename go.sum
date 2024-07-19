@@ -648,7 +648,7 @@ github.com/percona/exporter_shared v0.7.5 h1:sIhdDtKOfH0jsqtTAi41C7wm1R42yXYeAkK
 github.com/percona/exporter_shared v0.7.5/go.mod h1:P8ZHDzveyJRGD4ZIRNiEMuAdDexBpQWf2mAVwtyVcYU=
 github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c h1:1SZ7nS+kSaO63IpaKspf/gf8602QcgP2eXNPMNOIc0M=
 github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c/go.mod h1:/SGLf9OMxlnK6jq4mkFiImBcJXXk5jwD+lDrwDaGXcw=
-github.com/percona/percona-backup-mongodb v1.8.1 h1:p3ztHbL1uv4aDB6GG4R7UI7R0jTwI/jEkpFAcfoXHuA=
+github.com/percona/percona-backup-mongodb v1.8.1 h1:Fc2DzIh2N+ioNgBlNg0wAJw8yRt3IoXOKQcQAFbPt6g=
 github.com/percona/percona-backup-mongodb v1.8.1/go.mod h1:KcY2y93p+gcYF1iMJgcxbsWEpZdUJWsDA59aAL3zqPY=
 github.com/percona/percona-toolkit v3.2.1+incompatible h1:5jLvtZKcu9fDmaLRB8qA4bLR727t5iYyguHJJQTk9w0=
 github.com/percona/percona-toolkit v3.2.1+incompatible/go.mod h1:netQWdWMaF1cnmwiIS+i5uyaqNXz46yNeM6HKkR6yeI=
