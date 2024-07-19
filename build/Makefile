@@ -1,6 +1,6 @@
 export PACKER_CACHE_DIR := .cache
 export PACKER_VERSION := 1.9.4
-export PMM_SERVER_IMAGE ?= docker.io/percona/pmm-server:3-dev-latest
+export PMM_SERVER_IMAGE ?= docker.io/perconalab/pmm-server-fb:PR-3664-e536f77
 
 ## ----------------- PACKER ------------------
 fetch:
