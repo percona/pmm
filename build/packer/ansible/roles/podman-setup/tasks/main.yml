@@ -71,6 +71,14 @@
     group: admin
     mode: '0644'
 
+- name: Display the contents of the environment file
+  command: cat /home/admin/.config/systemd/user/pmm-server.env
+  register: command_output
+
+- name: Print to console
+  debug:
+    msg: "{{command_output.stdout}}"
+
 - name: Copy pmm-server systemd service file to user-specific directory
   template:
     src: pmm-server.service
