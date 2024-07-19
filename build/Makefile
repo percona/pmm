@@ -40,7 +40,7 @@ pmm2-ovf-el9-rc: fetch-el9
 	sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
 	/usr/bin/packer build \
 			-var 'pmm_client_repos=pmm2-client testing' \
-			-var 'pmm_client_repo_name=percona-testing-x86_64' \
+			-var 'pmm_client_repo_name=pmm2-client-testing-x86_64' \
 			-var 'pmm2_server_repo=testing' \
 			-only virtualbox-ovf -color=false packer/pmm2.el9.json \
 					| tee build.log
@@ -49,7 +49,7 @@ pmm2-ovf-el9-dev-latest: fetch-el9
 	sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
 	/usr/bin/packer build \
 			-var 'pmm_client_repos=pmm2-client experimental' \
-			-var 'pmm_client_repo_name=percona-experimental-x86_64' \
+			-var 'pmm_client_repo_name=pmm2-client-experimental-x86_64' \
 			-var 'pmm2_server_repo=experimental' \
 			-only virtualbox-ovf -color=false packer/pmm2.el9.json \
 					| tee build.log
@@ -63,7 +63,7 @@ pmm2-azure:
 pmm2-ami:
 	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
 			build -var 'pmm_client_repos=pmm2-client experimental' \
-						-var 'pmm_client_repo_name=percona-experimental-x86_64' \
+						-var 'pmm_client_repo_name=pmm2-client-experimental-x86_64' \
 						-var 'pmm2_server_repo=experimental' \
 						-only amazon-ebs -color=false \
 				  	packer/pmm2.json
@@ -71,7 +71,7 @@ pmm2-ami:
 pmm2-ami-rc:
 	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
 			build -var 'pmm_client_repos=pmm2-client testing' \
-				  	-var 'pmm_client_repo_name=percona-testing-x86_64' \
+				  	-var 'pmm_client_repo_name=pmm2-client-testing-x86_64' \
 				  	-var 'pmm2_server_repo=testing' \
 				  	-only amazon-ebs '-color=false' \
 				  	packer/pmm2.json
@@ -82,7 +82,7 @@ pmm2-ami-el9:
 		sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
 		docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
 		build -var 'pmm_client_repos=pmm2-client experimental' \
-					-var 'pmm_client_repo_name=percona-experimental-x86_64' \
+					-var 'pmm_client_repo_name=pmm2-client-experimental-x86_64' \
 					-var 'pmm2_server_repo=experimental' \
 					-only amazon-ebs -color=false \
 					packer/pmm2.el9.json
@@ -93,7 +93,7 @@ pmm2-ami-el9-rc:
 			sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
 			docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
 			build -var 'pmm_client_repos=pmm2-client testing' \
-				  	-var 'pmm_client_repo_name=percona-testing-x86_64' \
+				  	-var 'pmm_client_repo_name=pmm2-client-testing-x86_64' \
 				  	-var 'pmm2_server_repo=testing' \
 				  	-only amazon-ebs '-color=false' \
 				  	packer/pmm2.el9.json
