@@ -236,7 +236,6 @@ func (s *RestoreService) RestoreBackup(ctx context.Context, req *backupv1.Restor
 	return &backupv1.RestoreBackupResponse{
 		RestoreId: id,
 	}, nil
-
 }
 
 func convertRestoreStatus(status models.RestoreStatus) (*backupv1.RestoreStatus, error) {
