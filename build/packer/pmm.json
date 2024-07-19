@@ -130,7 +130,7 @@
         "packer/ansible/roles/lvm-init",
         "packer/ansible/roles/cloud-node",
         "packer/ansible/roles/podman-setup",
-        "packer/ansible/roles/ami-ovf",
+        "packer/ansible/roles/ami-ovf"
       ]
     },
     {
