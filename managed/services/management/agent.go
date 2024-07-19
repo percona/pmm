@@ -211,7 +211,7 @@ func (s *ManagementService) validateListAgentRequest(req *managementv1.ListAgent
 	return nil
 }
 
-// ListAgentVersions returns a list of agents with their update recommendations (updte severity).
+// ListAgentVersions returns a list of agents with their update recommendations (update severity).
 func (s *ManagementService) ListAgentVersions(ctx context.Context, _ *managementv1.ListAgentVersionsRequest) (*managementv1.ListAgentVersionsResponse, error) {
 	var versions []*managementv1.AgentVersions
 
@@ -252,7 +252,7 @@ func (s *ManagementService) ListAgentVersions(ctx context.Context, _ *management
 			agentVersion, err := version.Parse(pointer.GetString(agent.Version))
 			if err != nil {
 				// We don't want to fail the whole request if we can't parse the agent version.
-				s.l.Warnf(errors.Wrap(err, fmt.Sprintf("could not parse the client version: %s", pointer.GetString(agent.Version))).Error())
+				s.l.Warnf(errors.Wrap(err, fmt.Sprintf("could not parse the client version %s for agent %s", pointer.GetString(agent.Version), agent.AgentID)).Error())
 				continue
 			}
 
