@@ -10,7 +10,7 @@ fi
 
 # Initialize /srv if empty
 INIT_FILE=/srv/initialized
-if [ ! -f INIT_FILE ]; then
+if [ ! -f $INIT_FILE ]; then
     echo "Initializing /srv..."
     mkdir -p /srv/{backup,clickhouse,grafana,logs,nginx,postgres14,prometheus,victoriametrics}
     echo "Copying grafana plugins and the VERSION file..."
