@@ -6,6 +6,11 @@
   register: pmm_distribution
   ignore_errors: True
 
+- name: detect AMI
+  set_fact:
+    is_ami: '{{ lookup("file", "/srv/pmm-distribution") == "ami" }}'
+  no_log: yes
+
 - name: Get current version
   slurp:
     src: /srv/grafana/PERCONA_DASHBOARDS_VERSION
@@ -41,7 +46,7 @@
 
 - name: Print PMM distribution
   debug:
-    msg: "PMM distribution: {{ pmm_distribution }}"
+    msg: "PMM distribution: {{ pmm_distribution }}, Is AMI: {{ is_ami }}"
 
 - name: Print current PMM and image versions
   debug:
@@ -122,7 +127,7 @@
   - name: init admin password on AMI
     include_role:
       name: init-admin-password-ami
-    when: need_initialization and pmm_distribution == 'ami'
+    when: need_initialization and is_ami
 
   - name: Disable maintenance mode
     file:
