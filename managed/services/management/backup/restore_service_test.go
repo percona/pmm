@@ -17,16 +17,21 @@ package backup
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	backupv1 "github.com/percona/pmm/api/backup/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
@@ -145,4 +150,64 @@ func TestRestoreServiceGetLogs(t *testing.T) {
 			assert.Equal(t, tc.expect, chunkIDs)
 		}
 	})
+}
+
+func TestRestoreBackupErrors(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	backupService := &mockBackupService{}
+	mockedPbmPITRService := &mockPbmPITRService{}
+	backupSvc := NewBackupsService(db, backupService, nil, nil, nil, mockedPbmPITRService)
+
+	for _, tc := range []struct {
+		testName    string
+		backupError error
+		code        backupv1.ErrorCode
+	}{
+		{
+			testName:    "xtrabackup not installed",
+			backupError: backup.ErrXtrabackupNotInstalled,
+			code:        backupv1.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED,
+		},
+		{
+			testName:    "invalid xtrabackup",
+			backupError: backup.ErrInvalidXtrabackup,
+			code:        backupv1.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP,
+		},
+		{
+			testName:    "incompatible xtrabackup",
+			backupError: backup.ErrIncompatibleXtrabackup,
+			code:        backupv1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP,
+		},
+		{
+			testName:    "target MySQL is not compatible",
+			backupError: backup.ErrIncompatibleTargetMySQL,
+			code:        backupv1.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL,
+		},
+		{
+			testName:    "target MongoDB is not compatible",
+			backupError: backup.ErrIncompatibleTargetMongoDB,
+			code:        backupv1.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MONGODB,
+		},
+	} {
+		t.Run(tc.testName, func(t *testing.T) {
+			backupError := fmt.Errorf("error: %w", tc.backupError)
+			backupService.On("RestoreBackup", mock.Anything, "serviceID1", "artifactID1", mock.Anything).
+				Return("", backupError).Once()
+			ctx := context.Background()
+			resp, err := backupSvc.RestoreBackup(ctx, &backupv1.RestoreBackupRequest{
+				ServiceId:  "serviceID1",
+				ArtifactId: "artifactID1",
+			})
+			assert.Nil(t, resp)
+			st, ok := status.FromError(err)
+			require.True(t, ok)
+			assert.Equal(t, codes.FailedPrecondition, st.Code())
+			assert.Equal(t, backupError.Error(), st.Message())
+			require.Len(t, st.Details(), 1)
+			detailedError, ok := st.Details()[0].(*backupv1.Error)
+			require.True(t, ok)
+			assert.Equal(t, tc.code, detailedError.Code)
+		})
+	}
 }
