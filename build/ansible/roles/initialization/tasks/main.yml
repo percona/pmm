@@ -8,7 +8,7 @@
 
 - name: detect AMI
   set_fact:
-    is_ami: '{{ lookup("file", "/srv/pmm-distribution") == "ami" }}'
+    is_ami: "{{ pmm_distribution['content'] | b64decode | trim == 'ami' }}"
   no_log: yes
 
 - name: Get current version
