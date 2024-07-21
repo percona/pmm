@@ -1,6 +1,8 @@
 #!/bin/bash
 set -o errexit
 
+PMM_DISTRIBUTION_METHOD="${PMM_DISTRIBUTION_METHOD:-docker}"
+
 if [ ! -w /srv ]; then
     echo "FATAL: /srv is not writable for $(whoami) user." >&2
     echo "Please make sure that /srv is owned by uid $(id -u) and gid $(id -g) and try again." >&2
@@ -9,8 +11,9 @@ if [ ! -w /srv ]; then
 fi
 
 # Initialize /srv if empty
-INIT_FILE=/srv/initialized
-if [ ! -f $INIT_FILE ]; then
+DIST_FILE=/srv/pmm-distribution
+if [ ! -f $DIST_FILE ]; then
+    echo $PMM_DISTRIBUTION_METHOD > $DIST_FILE
     echo "Initializing /srv..."
     mkdir -p /srv/{backup,clickhouse,grafana,logs,nginx,postgres14,prometheus,victoriametrics}
     echo "Copying grafana plugins and the VERSION file..."
@@ -27,11 +30,6 @@ if [ ! -f $INIT_FILE ]; then
     /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o '-c logging_collector=off'
     /usr/bin/psql postgres postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
     /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
-    touch $INIT_FILE
-fi
-DIST_FILE=/srv/pmm-distribution
-if [ ! -f $DIST_FILE ]; then
-    echo "docker" > $DIST_FILE
 fi
 
 # pmm-managed-init validates environment variables.
