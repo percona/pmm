@@ -1,8 +1,10 @@
-- name: Copy watchtower systemd service file to user-specific directory
-  copy:
-    src: init-admin-password
-    dest: /home/pmm/init-admin-password
-    mode: '0755'
+- name: Fetch instance metadata
+  uri:
+    url: http://169.254.169.254/latest/meta-data/instance-id
+    return_content: yes
+  register: jsondata
 
-- name: start init-admin-password
-  command: /home/pmm/init-admin-password
+- debug: msg="Instance ID {{ jsondata['content'] }}"
+
+- name: change admin password
+  command: change-admin-password {{ jsondata['content'] }}
