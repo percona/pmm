@@ -9,7 +9,12 @@
 - name: detect AMI
   set_fact:
     is_ami: "{{ pmm_distribution['content'] | b64decode | trim == 'ami' }}"
-  no_log: yes
+  when: pmm_distribution['failed'] == false
+
+- name: Set PMM distribution
+  set_fact:
+    is_ami: "False"
+  when: pmm_distribution['failed'] == true
 
 - name: Get current version
   slurp:
