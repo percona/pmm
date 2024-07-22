@@ -55,6 +55,9 @@ echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 
 
 %changelog
+* Tue Jul 23 2024 Nurlan Moldomurov <nurlan.moldomurov@percona.com> - 3.0.0-22
+- PMM-13053 Remove /setup page
+
 * Wed Nov 29 2023 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-21
 - PMM-12693 Run Grafana as non-root user
 
