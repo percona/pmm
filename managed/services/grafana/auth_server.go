@@ -147,10 +147,9 @@ type clientInterface interface {
 
 // AuthServer authenticates incoming requests via Grafana API.
 type AuthServer struct {
-	c       clientInterface
-	checker awsInstanceChecker
-	db      *reform.DB
-	l       *logrus.Entry
+	c  clientInterface
+	db *reform.DB
+	l  *logrus.Entry
 
 	cache map[string]cacheItem
 	rw    sync.RWMutex
@@ -161,13 +160,12 @@ type AuthServer struct {
 }
 
 // NewAuthServer creates new AuthServer.
-func NewAuthServer(c clientInterface, checker awsInstanceChecker, db *reform.DB) *AuthServer {
+func NewAuthServer(c clientInterface, db *reform.DB) *AuthServer {
 	return &AuthServer{
-		c:       c,
-		checker: checker,
-		db:      db,
-		l:       logrus.WithField("component", "grafana/auth"),
-		cache:   make(map[string]cacheItem),
+		c:     c,
+		db:    db,
+		l:     logrus.WithField("component", "grafana/auth"),
+		cache: make(map[string]cacheItem),
 		accessControl: &accessControl{
 			db: db,
 		},

@@ -20,7 +20,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -65,108 +64,8 @@ func TestNextPrefix(t *testing.T) {
 	}
 }
 
-func TestAuthServerMustSetup(t *testing.T) {
-	t.Run("MustCheck", func(t *testing.T) {
-		req, err := http.NewRequest(http.MethodGet, "/graph", nil)
-		require.NoError(t, err)
-
-		checker := &mockAwsInstanceChecker{}
-		checker.Test(t)
-		defer checker.AssertExpectations(t)
-
-		s := NewAuthServer(nil, checker, nil)
-
-		t.Run("Subrequest", func(t *testing.T) {
-			checker.On("MustCheck").Return(true)
-			rw := httptest.NewRecorder()
-			assert.True(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
-
-			resp := rw.Result()
-			defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
-			assert.Equal(t, 401, resp.StatusCode)
-			assert.Equal(t, "1", resp.Header.Get("X-Must-Setup"))
-			assert.Equal(t, "", resp.Header.Get("Location"))
-			b, err := io.ReadAll(resp.Body)
-			assert.NoError(t, err)
-			assert.Empty(t, b)
-		})
-
-		t.Run("Request", func(t *testing.T) {
-			req.Header.Set("X-Must-Setup", "1")
-
-			checker.On("MustCheck").Return(true)
-			rw := httptest.NewRecorder()
-			assert.True(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
-
-			resp := rw.Result()
-			defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
-			assert.Equal(t, 303, resp.StatusCode)
-			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
-			assert.Equal(t, "/setup", resp.Header.Get("Location"))
-			b, err := io.ReadAll(resp.Body)
-			assert.NoError(t, err)
-			assert.Empty(t, b)
-		})
-	})
-
-	t.Run("MustNotCheck", func(t *testing.T) {
-		req, err := http.NewRequest(http.MethodGet, "/graph", nil)
-		require.NoError(t, err)
-
-		checker := &mockAwsInstanceChecker{}
-		checker.Test(t)
-		defer checker.AssertExpectations(t)
-
-		s := NewAuthServer(nil, checker, nil)
-
-		t.Run("Subrequest", func(t *testing.T) {
-			checker.On("MustCheck").Return(false)
-			rw := httptest.NewRecorder()
-			assert.False(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
-
-			resp := rw.Result()
-			defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
-			assert.Equal(t, 200, resp.StatusCode)
-			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
-			assert.Equal(t, "", resp.Header.Get("Location"))
-			b, err := io.ReadAll(resp.Body)
-			assert.NoError(t, err)
-			assert.Empty(t, b)
-		})
-	})
-
-	t.Run("SkipNonUI", func(t *testing.T) {
-		req, err := http.NewRequest(http.MethodGet, "/dummy", nil)
-		require.NoError(t, err)
-
-		checker := &mockAwsInstanceChecker{}
-		checker.Test(t)
-		defer checker.AssertExpectations(t)
-
-		s := NewAuthServer(nil, checker, nil)
-
-		t.Run("Subrequest", func(t *testing.T) {
-			rw := httptest.NewRecorder()
-			assert.False(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
-
-			resp := rw.Result()
-			defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
-			assert.Equal(t, 200, resp.StatusCode)
-			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
-			assert.Equal(t, "", resp.Header.Get("Location"))
-			b, err := io.ReadAll(resp.Body)
-			assert.NoError(t, err)
-			assert.Empty(t, b)
-		})
-	})
-}
-
 func TestAuthServerAuthenticate(t *testing.T) {
 	t.Parallel()
-
-	checker := &mockAwsInstanceChecker{}
-	checker.Test(t)
-	t.Cleanup(func() { checker.AssertExpectations(t) })
 
 	ctx := context.Background()
 	c := NewClient("127.0.0.1:3000")

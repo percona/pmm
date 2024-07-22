@@ -903,7 +903,6 @@ func main() { //nolint:maintidx,cyclop
 		l.Fatalf("Could not create telemetry service: %s", err)
 	}
 
-	awsInstanceChecker := server.NewAWSInstanceChecker(db, telemetry)
 	grafanaClient := grafana.NewClient(*grafanaAddrF)
 	prom.MustRegister(grafanaClient)
 
@@ -954,7 +953,6 @@ func main() { //nolint:maintidx,cyclop
 		TemplatesService:     alertingService,
 		Supervisord:          supervisord,
 		TelemetryService:     telemetry,
-		AwsInstanceChecker:   awsInstanceChecker,
 		GrafanaClient:        grafanaClient,
 		VMAlertExternalRules: externalRules,
 		Updater:              updater,
@@ -1026,7 +1024,7 @@ func main() { //nolint:maintidx,cyclop
 		l.Fatalf("Failed to get settings: %+v.", err)
 	}
 
-	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker, db)
+	authServer := grafana.NewAuthServer(grafanaClient, db)
 
 	l.Info("Starting services...")
 	var wg sync.WaitGroup

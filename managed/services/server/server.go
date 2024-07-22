@@ -59,7 +59,6 @@ type Server struct {
 	templatesService     templatesService
 	supervisord          supervisordService
 	telemetryService     telemetryService
-	awsInstanceChecker   *AWSInstanceChecker
 	grafanaClient        grafanaClient
 	haService            haService
 	updater              *Updater
@@ -92,7 +91,6 @@ type Params struct {
 	VMAlertExternalRules vmAlertExternalRules
 	Supervisord          supervisordService
 	TelemetryService     telemetryService
-	AwsInstanceChecker   *AWSInstanceChecker
 	GrafanaClient        grafanaClient
 	Updater              *Updater
 	Dus                  *distribution.Service
@@ -116,7 +114,6 @@ func NewServer(params *Params) (*Server, error) {
 		vmalertExternalRules: params.VMAlertExternalRules,
 		supervisord:          params.Supervisord,
 		telemetryService:     params.TelemetryService,
-		awsInstanceChecker:   params.AwsInstanceChecker,
 		grafanaClient:        params.GrafanaClient,
 		updater:              params.Updater,
 		l:                    logrus.WithField("component", "server"),
@@ -688,14 +685,6 @@ func (s *Server) writeSSHKey(sshKey string) error {
 		return errors.WithStack(err)
 	}
 	return nil
-}
-
-// AWSInstanceCheck checks AWS EC2 instance ID.
-func (s *Server) AWSInstanceCheck(ctx context.Context, req *serverv1.AWSInstanceCheckRequest) (*serverv1.AWSInstanceCheckResponse, error) { //nolint:revive
-	if err := s.awsInstanceChecker.check(req.InstanceId); err != nil {
-		return nil, err
-	}
-	return &serverv1.AWSInstanceCheckResponse{}, nil
 }
 
 // isAgentsStateUpdateNeeded - checks metrics resolution changes,

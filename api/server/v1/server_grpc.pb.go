@@ -28,7 +28,6 @@ const (
 	ServerService_UpdateStatus_FullMethodName      = "/server.v1.ServerService/UpdateStatus"
 	ServerService_GetSettings_FullMethodName       = "/server.v1.ServerService/GetSettings"
 	ServerService_ChangeSettings_FullMethodName    = "/server.v1.ServerService/ChangeSettings"
-	ServerService_AWSInstanceCheck_FullMethodName  = "/server.v1.ServerService/AWSInstanceCheck"
 )
 
 // ServerServiceClient is the client API for ServerService service.
@@ -52,8 +51,6 @@ type ServerServiceClient interface {
 	GetSettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetSettingsResponse, error)
 	// ChangeSettings changes PMM Server settings.
 	ChangeSettings(ctx context.Context, in *ChangeSettingsRequest, opts ...grpc.CallOption) (*ChangeSettingsResponse, error)
-	// AWSInstanceCheck checks AWS EC2 instance ID.
-	AWSInstanceCheck(ctx context.Context, in *AWSInstanceCheckRequest, opts ...grpc.CallOption) (*AWSInstanceCheckResponse, error)
 }
 
 type serverServiceClient struct {
@@ -136,15 +133,6 @@ func (c *serverServiceClient) ChangeSettings(ctx context.Context, in *ChangeSett
 	return out, nil
 }
 
-func (c *serverServiceClient) AWSInstanceCheck(ctx context.Context, in *AWSInstanceCheckRequest, opts ...grpc.CallOption) (*AWSInstanceCheckResponse, error) {
-	out := new(AWSInstanceCheckResponse)
-	err := c.cc.Invoke(ctx, ServerService_AWSInstanceCheck_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // ServerServiceServer is the server API for ServerService service.
 // All implementations must embed UnimplementedServerServiceServer
 // for forward compatibility
@@ -166,8 +154,6 @@ type ServerServiceServer interface {
 	GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error)
 	// ChangeSettings changes PMM Server settings.
 	ChangeSettings(context.Context, *ChangeSettingsRequest) (*ChangeSettingsResponse, error)
-	// AWSInstanceCheck checks AWS EC2 instance ID.
-	AWSInstanceCheck(context.Context, *AWSInstanceCheckRequest) (*AWSInstanceCheckResponse, error)
 	mustEmbedUnimplementedServerServiceServer()
 }
 
@@ -204,10 +190,6 @@ func (UnimplementedServerServiceServer) GetSettings(context.Context, *GetSetting
 
 func (UnimplementedServerServiceServer) ChangeSettings(context.Context, *ChangeSettingsRequest) (*ChangeSettingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeSettings not implemented")
-}
-
-func (UnimplementedServerServiceServer) AWSInstanceCheck(context.Context, *AWSInstanceCheckRequest) (*AWSInstanceCheckResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AWSInstanceCheck not implemented")
 }
 func (UnimplementedServerServiceServer) mustEmbedUnimplementedServerServiceServer() {}
 
@@ -366,24 +348,6 @@ func _ServerService_ChangeSettings_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ServerService_AWSInstanceCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AWSInstanceCheckRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServerServiceServer).AWSInstanceCheck(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ServerService_AWSInstanceCheck_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServiceServer).AWSInstanceCheck(ctx, req.(*AWSInstanceCheckRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // ServerService_ServiceDesc is the grpc.ServiceDesc for ServerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -422,10 +386,6 @@ var ServerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ChangeSettings",
 			Handler:    _ServerService_ChangeSettings_Handler,
-		},
-		{
-			MethodName: "AWSInstanceCheck",
-			Handler:    _ServerService_AWSInstanceCheck_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
