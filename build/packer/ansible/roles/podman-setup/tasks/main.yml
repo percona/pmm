@@ -8,18 +8,16 @@
 
 - name: Set distribution for OVF
   when: ansible_virtualization_type == "virtualbox"
-  copy:
-    content: ovf
-    dest: /home/admin/volume/srv/pmm-distribution
+  set_fact:
+    pmm_distribution_method: ovf
 
 - name: Set distribution for AMI
   when: >
     ( ansible_virtualization_type == "xen"
     or ansible_virtualization_type == "kvm" )
     and ansible_system_vendor != "DigitalOcean"
-  copy:
-    content: ami
-    dest: /home/admin/volume/srv/pmm-distribution
+  set_fact:
+    pmm_distribution_method: ami
 
 - name: Change file owner
   when: ansible_virtualization_type == "virtualbox" or
