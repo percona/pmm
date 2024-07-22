@@ -1,0 +1,540 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "title": "PMM Roles API",
+    "version": "v1beta1"
+  },
+  "paths": {
+    "/v1/accesscontrol/roles": {
+      "get": {
+        "description": "Lists all roles.",
+        "tags": [
+          "AccessControlService"
+        ],
+        "summary": "List Roles",
+        "operationId": "ListRoles",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "roles": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "description": {
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "filter": {
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "role_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 0
+                      },
+                      "title": {
+                        "type": "string",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new role.",
+        "tags": [
+          "AccessControlService"
+        ],
+        "summary": "Create a Role",
+        "operationId": "CreateRole",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "description": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "filter": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "title": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "role_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/accesscontrol/roles/{role_id}": {
+      "get": {
+        "description": "Retrieves a role by ID.",
+        "tags": [
+          "AccessControlService"
+        ],
+        "summary": "Get a Role",
+        "operationId": "GetRole",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "role_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "description": {
+                  "type": "string",
+                  "x-order": 3
+                },
+                "filter": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "role_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 0
+                },
+                "title": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Updates an existing role.",
+        "tags": [
+          "AccessControlService"
+        ],
+        "summary": "Update a Role",
+        "operationId": "UpdateRole",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "role_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "description": {
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 2
+                },
+                "filter": {
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 1
+                },
+                "title": {
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a role.",
+        "tags": [
+          "AccessControlService"
+        ],
+        "summary": "Delete a Role",
+        "operationId": "DeleteRole",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "role_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "Role ID to be used as a replacement for the role. Additional logic applies.",
+            "name": "replacement_role_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/accesscontrol/roles:assign": {
+      "post": {
+        "description": "Replaces all existing roles for a user.",
+        "tags": [
+          "AccessControlService"
+        ],
+        "summary": "Assign Roles to a User",
+        "operationId": "AssignRoles",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "role_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "x-order": 0
+                },
+                "user_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/accesscontrol/roles:setDefault": {
+      "post": {
+        "description": "Configures a default role assigned to users.",
+        "tags": [
+          "AccessControlService"
+        ],
+        "summary": "Set a Default Role",
+        "operationId": "SetDefaultRole",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "role_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "AccessControlService"
+    }
+  ]
+}

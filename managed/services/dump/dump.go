@@ -60,7 +60,7 @@ type Service struct {
 // New creates a new instance of the dump service..
 func New(db *reform.DB) *Service {
 	return &Service{
-		l:  logrus.WithField("component", "management/backup/backup"),
+		l:  logrus.WithField("component", "services/dump"),
 		db: db,
 	}
 }

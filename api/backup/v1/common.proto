@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package backup.v1;
+
+import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
+
+// DataModel is a model used for performing a backup.
+enum DataModel {
+  DATA_MODEL_UNSPECIFIED = 0;
+  DATA_MODEL_PHYSICAL = 1;
+  DATA_MODEL_LOGICAL = 2;
+}
+
+// BackupMode specifies backup mode.
+enum BackupMode {
+  BACKUP_MODE_UNSPECIFIED = 0;
+  BACKUP_MODE_SNAPSHOT = 1;
+  BACKUP_MODE_INCREMENTAL = 2;
+  BACKUP_MODE_PITR = 3;
+}
+
+// File represents file or folder on a storage.
+message File {
+  string name = 1 [(validate.rules).string.min_len = 1];
+  bool is_directory = 2;
+}
+
+// PbmMetadata contains additional data for pbm cli tools.
+message PbmMetadata {
+  // Name of backup in backup tool representation.
+  string name = 1;
+}
+
+// Metadata contains extra artifact data like files it consists of, tool specific data, etc.
+message Metadata {
+  // List of files backup consists of.
+  repeated File file_list = 1;
+  // Exact time DB can be restored to.
+  google.protobuf.Timestamp restore_to = 2;
+  // Extra data for backup tools.
+  oneof backup_tool_metadata {
+    PbmMetadata pbm_metadata = 3;
+  }
+}
+
+// LogChunk represent one chunk of logs.
+message LogChunk {
+  uint32 chunk_id = 1;
+  string data = 2;
+}

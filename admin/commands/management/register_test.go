@@ -19,7 +19,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/percona/pmm/api/managementpb/json/client/node"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 func TestRegisterResult(t *testing.T) {
@@ -31,29 +31,29 @@ func TestRegisterResult(t *testing.T) {
 		{
 			name: "Success",
 			result: registerResult{
-				PMMAgent: &node.RegisterNodeOKBodyPMMAgent{
-					AgentID:      "/agent_id/new_id",
-					RunsOnNodeID: "/node_id/second_id",
+				PMMAgent: &mservice.RegisterNodeOKBodyPMMAgent{
+					AgentID:      "new_id",
+					RunsOnNodeID: "second_id",
 				},
 				Warning: "",
 			},
 			want: `pmm-agent registered.
-pmm-agent ID: /agent_id/new_id
-Node ID     : /node_id/second_id
+pmm-agent ID: new_id
+Node ID     : second_id
 `,
 		},
 		{
 			name: "With warning",
 			result: registerResult{
-				PMMAgent: &node.RegisterNodeOKBodyPMMAgent{
-					AgentID:      "/agent_id/warning",
-					RunsOnNodeID: "/node_id/warning_node",
+				PMMAgent: &mservice.RegisterNodeOKBodyPMMAgent{
+					AgentID:      "warning",
+					RunsOnNodeID: "warning_node",
 				},
 				Warning: "Couldn't create Admin API Key",
 			},
 			want: `pmm-agent registered.
-pmm-agent ID: /agent_id/warning
-Node ID     : /node_id/warning_node
+pmm-agent ID: warning
+Node ID     : warning_node
 
 Warning: Couldn't create Admin API Key
 `,

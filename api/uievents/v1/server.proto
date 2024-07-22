@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package uievents.v1;
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+message NotificationEvent {
+  string title = 1;
+  string text = 2;
+  string location = 3;
+  string location_params = 4;
+}
+
+message FetchingEvent {
+  string component = 1;
+  int32 load_time = 2;
+  string location = 3;
+  string location_params = 4;
+}
+
+message DashboardUsageEvent {
+  string uid = 1;
+  string title = 2;
+  repeated string tags = 3;
+  int32 load_time = 4;
+  string location = 5;
+  string location_params = 6;
+}
+
+message UserFlowEvent {
+  string flow_id = 1;
+  string story_id = 2;
+  string event = 3;
+  map<string, string> params = 4;
+}
+
+message StoreRequest {
+  repeated NotificationEvent notifications = 1;
+  repeated FetchingEvent fetching = 2;
+  repeated DashboardUsageEvent dashboard_usage = 3;
+  repeated UserFlowEvent user_flow_events = 4;
+}
+
+message StoreResponse {}
+
+// UIEvents collects UI related events.
+service UIEventsService {
+  // Store persists received UI events for further processing.
+  rpc Store(StoreRequest) returns (StoreResponse) {
+    option (google.api.http) = {
+      post: "/v1/ui-events/Store"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Persist UI events"
+      description: "Persists received UI events for further processing."
+    };
+  }
+}

@@ -19,37 +19,37 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/versioner"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
-func (c *Client) handleVersionsRequest(r *agentpb.GetVersionsRequest) []*agentpb.GetVersionsResponse_Version {
-	versionsResponse := make([]*agentpb.GetVersionsResponse_Version, 0, len(r.Softwares))
+func (c *Client) handleVersionsRequest(r *agentv1.GetVersionsRequest) []*agentv1.GetVersionsResponse_Version {
+	versionsResponse := make([]*agentv1.GetVersionsResponse_Version, 0, len(r.Softwares))
 	for _, s := range r.Softwares {
 		var version string
 		var err error
 		switch s.Software.(type) {
-		case *agentpb.GetVersionsRequest_Software_Mysqld:
+		case *agentv1.GetVersionsRequest_Software_Mysqld:
 			version, err = c.softwareVersioner.MySQLdVersion()
-		case *agentpb.GetVersionsRequest_Software_Xtrabackup:
+		case *agentv1.GetVersionsRequest_Software_Xtrabackup:
 			version, err = c.softwareVersioner.XtrabackupVersion()
-		case *agentpb.GetVersionsRequest_Software_Xbcloud:
+		case *agentv1.GetVersionsRequest_Software_Xbcloud:
 			version, err = c.softwareVersioner.XbcloudVersion()
-		case *agentpb.GetVersionsRequest_Software_Qpress:
+		case *agentv1.GetVersionsRequest_Software_Qpress:
 			version, err = c.softwareVersioner.QpressVersion()
-		case *agentpb.GetVersionsRequest_Software_Mongod:
+		case *agentv1.GetVersionsRequest_Software_Mongod:
 			version, err = c.softwareVersioner.MongoDBVersion()
-		case *agentpb.GetVersionsRequest_Software_Pbm:
+		case *agentv1.GetVersionsRequest_Software_Pbm:
 			version, err = c.softwareVersioner.PBMVersion()
 		default:
 			err = errors.Errorf("unknown software type %T", s.Software)
 		}
 
 		if err != nil && !errors.Is(err, versioner.ErrNotFound) {
-			versionsResponse = append(versionsResponse, &agentpb.GetVersionsResponse_Version{Error: err.Error()})
+			versionsResponse = append(versionsResponse, &agentv1.GetVersionsResponse_Version{Error: err.Error()})
 			continue
 		}
 
-		versionsResponse = append(versionsResponse, &agentpb.GetVersionsResponse_Version{Version: version})
+		versionsResponse = append(versionsResponse, &agentv1.GetVersionsResponse_Version{Version: version})
 	}
 
 	return versionsResponse

@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+package management.v1;
+
+import "inventory/v1/agents.proto";
+import "inventory/v1/nodes.proto";
+import "inventory/v1/services.proto";
+import "management/v1/metrics.proto";
+import "validate/validate.proto";
+
+// DiscoverRDSEngine describes supported RDS instance engines.
+enum DiscoverRDSEngine {
+  DISCOVER_RDS_ENGINE_UNSPECIFIED = 0;
+  DISCOVER_RDS_ENGINE_MYSQL = 1;
+  DISCOVER_RDS_ENGINE_POSTGRESQL = 2;
+}
+
+// DiscoverRDSInstance models an unique RDS instance for the list of instances returned by Discovery.
+message DiscoverRDSInstance {
+  // AWS region.
+  string region = 1;
+  // AWS availability zone.
+  string az = 2;
+  // AWS instance ID.
+  string instance_id = 3;
+  // AWS instance class.
+  string node_model = 4;
+  // Address used to connect to it.
+  string address = 5;
+  // Access port.
+  uint32 port = 6;
+  // Instance engine.
+  DiscoverRDSEngine engine = 7;
+  // Engine version.
+  string engine_version = 8;
+}
+
+message DiscoverRDSRequest {
+  // AWS Access key. Optional.
+  string aws_access_key = 1;
+  // AWS Secret key. Optional.
+  string aws_secret_key = 2;
+}
+
+message DiscoverRDSResponse {
+  repeated DiscoverRDSInstance rds_instances = 1;
+}
+
+message AddRDSServiceParams {
+  // AWS region.
+  string region = 1 [(validate.rules).string.min_len = 1];
+  // AWS availability zone.
+  string az = 2;
+  // AWS instance ID.
+  string instance_id = 3 [(validate.rules).string.min_len = 1];
+  // AWS instance class.
+  string node_model = 4;
+  // Address used to connect to it.
+  string address = 5 [(validate.rules).string.min_len = 1];
+  // Access port.
+  uint32 port = 6 [(validate.rules).uint32.gt = 0];
+  // Instance engine.
+  DiscoverRDSEngine engine = 7;
+  // Unique across all Nodes user-defined name. Defaults to AWS instance ID.
+  string node_name = 8;
+  // Unique across all Services user-defined name. Defaults to AWS instance ID.
+  string service_name = 9;
+  // Environment name.
+  string environment = 10;
+  // Cluster name.
+  string cluster = 11;
+  // Replication set name.
+  string replication_set = 12;
+  // Username for scraping metrics.
+  string username = 13 [(validate.rules).string.min_len = 1];
+  // Password for scraping metrics.
+  string password = 14;
+  // AWS Access key.
+  string aws_access_key = 15;
+  // AWS Secret key.
+  string aws_secret_key = 16;
+  // If true, adds rds_exporter.
+  bool rds_exporter = 17;
+  // If true, adds qan-mysql-perfschema-agent.
+  bool qan_mysql_perfschema = 18;
+  // Custom user-assigned labels for Node and Service.
+  map<string, string> custom_labels = 19;
+  // Skip connection check.
+  bool skip_connection_check = 20;
+  // Use TLS for database connections.
+  bool tls = 21;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 22;
+  // Disable query examples.
+  bool disable_query_examples = 23;
+  // Tablestats group collectors will be disabled if there are more than that number of tables.
+  // If zero, server's default value is used.
+  // Use negative value to disable them.
+  int32 tablestats_group_table_limit = 24;
+  // Disable basic metrics.
+  bool disable_basic_metrics = 25;
+  // Disable enhanced metrics.
+  bool disable_enhanced_metrics = 26;
+  // Defines metrics flow model for this exporter.
+  // Push metrics mode is not allowed.
+  MetricsMode metrics_mode = 27;
+  // If true, add qan-pgstatements
+  bool qan_postgresql_pgstatements = 28;
+  // Custom password for exporter endpoint /metrics.
+  string agent_password = 29;
+  // Database name.
+  string database = 30;
+  // Limit of databases for auto-discovery.
+  int32 auto_discovery_limit = 31;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 32;
+  // Maximum number of exporter connections to PostgreSQL instance.
+  int32 max_postgresql_exporter_connections = 33;
+}
+
+message RDSServiceResult {
+  inventory.v1.RemoteRDSNode node = 1;
+  inventory.v1.RDSExporter rds_exporter = 2;
+  inventory.v1.MySQLService mysql = 3;
+  inventory.v1.MySQLdExporter mysqld_exporter = 4;
+  inventory.v1.QANMySQLPerfSchemaAgent qan_mysql_perfschema = 5;
+  inventory.v1.PostgreSQLService postgresql = 6;
+  inventory.v1.PostgresExporter postgresql_exporter = 7;
+  inventory.v1.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements = 8;
+}

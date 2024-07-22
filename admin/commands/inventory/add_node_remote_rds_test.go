@@ -20,13 +20,13 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 )
 
 func TestAddNodeRemoteRDS(t *testing.T) {
 	res := &addNodeRemoteRDSResult{
-		Node: &nodes.AddRemoteRDSNodeOKBodyRemoteRDS{
-			NodeID:       "/node_id/1",
+		Node: &nodes.AddNodeOKBodyRemoteRDS{
+			NodeID:       "1",
 			NodeName:     "rds1",
 			Address:      "rds-mysql57",
 			NodeModel:    "db.t3.micro",
@@ -37,7 +37,7 @@ func TestAddNodeRemoteRDS(t *testing.T) {
 	}
 	expected := strings.TrimSpace(`
 Remote RDS Node added.
-Node ID  : /node_id/1
+Node ID  : 1
 Node name: rds1
 
 Address       : rds-mysql57

@@ -21,12 +21,12 @@ import (
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
 
-	"github.com/percona/pmm/api/serverpb"
+	serverv1 "github.com/percona/pmm/api/server/v1"
 )
 
 // distributionUtilService service to get info about OS on which pmm server is running.
 type distributionUtilService interface {
-	getDistributionMethodAndOS() (serverpb.DistributionMethod, pmmv1.DistributionMethod, string)
+	getDistributionMethodAndOS() (serverv1.DistributionMethod, pmmv1.DistributionMethod, string)
 }
 
 // sender is interface which defines method for client which sends report with metrics.
