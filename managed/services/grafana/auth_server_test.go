@@ -69,7 +69,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 
 	ctx := context.Background()
 	c := NewClient("127.0.0.1:3000")
-	s := NewAuthServer(c, checker, nil)
+	s := NewAuthServer(c, nil)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
 	require.NoError(t, err)
@@ -182,13 +182,9 @@ func TestAuthServerAuthenticate(t *testing.T) {
 func TestServerClientConnection(t *testing.T) {
 	t.Parallel()
 
-	checker := &mockAwsInstanceChecker{}
-	checker.Test(t)
-	t.Cleanup(func() { checker.AssertExpectations(t) })
-
 	ctx := context.Background()
 	c := NewClient("127.0.0.1:3000")
-	s := NewAuthServer(c, checker, nil)
+	s := NewAuthServer(c, nil)
 
 	t.Run("Basic auth - success", func(t *testing.T) {
 		t.Parallel()
@@ -264,12 +260,8 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 		require.NoError(t, sqlDB.Close())
 	}(t)
 
-	var checker mockAwsInstanceChecker
-	checker.Test(t)
-	defer checker.AssertExpectations(t)
-
 	c := NewClient("127.0.0.1:3000")
-	s := NewAuthServer(c, &checker, db)
+	s := NewAuthServer(c, db)
 
 	roleA := models.Role{
 		Title:  "Role A",
