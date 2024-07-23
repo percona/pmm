@@ -154,9 +154,9 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		return err
 	}
 
-	var sanitizedDSN string
+	sanitizedDSN := request.Dsn
 	for _, word := range redactWords(agent) {
-		sanitizedDSN = strings.ReplaceAll(request.Dsn, word, "****")
+		sanitizedDSN = strings.ReplaceAll(sanitizedDSN, word, "****")
 	}
 	l.Infof("ServiceInfoRequest: type: %s, DSN: %s timeout: %s.", request.Type, sanitizedDSN, request.Timeout)
 
