@@ -35,6 +35,14 @@ func DecryptAgent(agent Agent) Agent {
 }
 
 func agentEncryption(agent Agent, handler func(string) (string, error)) Agent {
+	if agent.Username != nil {
+		username, err := handler(*agent.Username)
+		if err != nil {
+			logrus.Warning(err)
+		}
+		agent.Username = &username
+	}
+
 	if agent.Password != nil {
 		password, err := handler(*agent.Password)
 		if err != nil {
@@ -49,6 +57,14 @@ func agentEncryption(agent Agent, handler func(string) (string, error)) Agent {
 			logrus.Warning(err)
 		}
 		agent.AgentPassword = &agentPassword
+	}
+
+	if agent.AWSAccessKey != nil {
+		awsAccessKey, err := handler(*agent.AWSAccessKey)
+		if err != nil {
+			logrus.Warning(err)
+		}
+		agent.AWSAccessKey = &awsAccessKey
 	}
 
 	if agent.AWSSecretKey != nil {
