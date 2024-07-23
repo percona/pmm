@@ -23,7 +23,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/percona/pmm/api/serverpb"
+	serverv1 "github.com/percona/pmm/api/server/v1"
 )
 
 func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
@@ -58,7 +58,7 @@ func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
 		name             string
 		distributionName string
 		dockerVersion    string
-		want             serverpb.DistributionMethod
+		want             serverv1.DistributionMethod
 		want1            pmmv1.DistributionMethod
 		want2            string
 	}{
@@ -134,7 +134,7 @@ func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
 
 			d := newDistributionUtilServiceImpl(tmpDistributionFilePath, tmpOsInfoFilePath, logEntry)
 			got, got1, got2 := d.getDistributionMethodAndOS()
-			assert.Equalf(t, tt.want, got, "getDistributionMethodAndOS() serverpb.DistributionMethod")
+			assert.Equalf(t, tt.want, got, "getDistributionMethodAndOS() serverv1.DistributionMethod")
 			assert.Equalf(t, tt.want1, got1, "getDistributionMethodAndOS() pmmv1.DistributionMethod")
 			assert.Equalf(t, tt.want2, got2, "getDistributionMethodAndOS() name")
 		})

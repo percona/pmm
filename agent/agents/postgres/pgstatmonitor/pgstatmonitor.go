@@ -35,8 +35,8 @@ import (
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/utils/version"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/utils/sqlmetrics"
 )
 
@@ -61,7 +61,7 @@ type Params struct {
 	MaxQueryLength         int32
 	DisableQueryExamples   bool
 	DisableCommentsParsing bool
-	TextFiles              *agentpb.TextFiles
+	TextFiles              *agentv1.TextFiles
 	AgentID                string
 }
 
@@ -235,32 +235,32 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	defer func() {
 		m.dbCloser.Close() //nolint:errcheck
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_DONE}
+		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)
 	}()
 
 	settings, err := m.getSettings()
 	if err != nil {
 		m.l.Error(err)
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 	}
 	normalizedQuery, err := settings.getNormalizedQueryValue()
 	if err != nil {
 		m.l.Error(err)
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 	}
 
 	// add current stat monitor to cache so they are not send as new on first iteration with incorrect timestamps
 	var running bool
-	m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
+	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 	if current, _, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.maxQueryLength); err == nil {
 		m.monitorCache.refresh(current)
 		m.l.Debugf("Got %d initial stat monitor.", len(current))
 		running = true
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
+		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 	} else {
 		m.l.Error(errors.Wrap(err, "failed to get extended monitor status"))
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 	}
 
 	waitTime, err := settings.getWaitTime()
@@ -278,20 +278,20 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			m.changes <- agents.Change{Status: inventorypb.AgentStatus_STOPPING}
+			m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}
 			m.l.Infof("Context canceled.")
 			return
 
 		case <-t.C:
 			if !running {
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
+				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 			}
 
 			settings, err := m.getSettings()
 			if err != nil {
 				m.l.Errorf(err.Error())
 				running = false
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 				m.resetWaitTime(t, waitTime)
 				continue
 			}
@@ -299,7 +299,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 			if err != nil {
 				m.l.Errorf(err.Error())
 				running = false
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 				m.resetWaitTime(t, waitTime)
 				continue
 			}
@@ -322,13 +322,13 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 			if err != nil {
 				m.l.Error(errors.Wrap(err, "getNewBuckets failed"))
 				running = false
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 				continue
 			}
 
 			if !running {
 				running = true
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
+				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 			}
 
 			m.changes <- agents.Change{MetricsBucket: buckets}
@@ -345,11 +345,11 @@ func (m *PGStatMonitorQAN) resetWaitTime(t *time.Timer, waitTime time.Duration) 
 func (m *PGStatMonitorQAN) checkDefaultWaitTime(waitTime time.Duration) bool {
 	if waitTime != defaultWaitTime {
 		m.l.Error("non default bucket time value is not supported, status changed to WAITING")
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 		return false
 	}
 
-	m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
+	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 	return true
 }
 
@@ -464,7 +464,7 @@ func (s settings) getWaitTime() (time.Duration, error) {
 	return time.Duration(valueInt) * time.Second, nil
 }
 
-func (m *PGStatMonitorQAN) getNewBuckets(ctx context.Context, periodLengthSecs uint32, normalizedQuery bool) ([]*agentpb.MetricsBucket, error) {
+func (m *PGStatMonitorQAN) getNewBuckets(ctx context.Context, periodLengthSecs uint32, normalizedQuery bool) ([]*agentv1.MetricsBucket, error) {
 	current, prev, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.maxQueryLength)
 	if err != nil {
 		return nil, err
@@ -491,8 +491,8 @@ func (m *PGStatMonitorQAN) getNewBuckets(ctx context.Context, periodLengthSecs u
 
 // makeBuckets uses current state of pg_stat_monitor table and accumulated previous state
 // to make metrics buckets.
-func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*pgStatMonitorExtended) []*agentpb.MetricsBucket {
-	res := make([]*agentpb.MetricsBucket, 0, len(current))
+func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*pgStatMonitorExtended) []*agentv1.MetricsBucket {
+	res := make([]*agentv1.MetricsBucket, 0, len(current))
 
 	for bucketStartTime, bucket := range current {
 		vPGSM, _, err := getPGMonitorVersion(m.q)
@@ -528,8 +528,8 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				m.l.Debugf("Normal query: %s.", currentPSM)
 			}
 
-			mb := &agentpb.MetricsBucket{
-				Common: &agentpb.MetricsBucket_Common{
+			mb := &agentv1.MetricsBucket{
+				Common: &agentv1.MetricsBucket_Common{
 					IsTruncated:         currentPSM.IsQueryTruncated,
 					Fingerprint:         currentPSM.Fingerprint,
 					Database:            currentPSM.Database,
@@ -538,10 +538,10 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 					Queryid:             currentPSM.QueryID,
 					NumQueries:          count,
 					ClientHost:          currentPSM.ClientIP,
-					AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
+					AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 					PeriodStartUnixSecs: uint32(currentPSM.BucketStartTime.Unix()),
 				},
-				Postgresql: &agentpb.MetricsBucket_PostgreSQL{},
+				Postgresql: &agentv1.MetricsBucket_PostgreSQL{},
 			}
 			if currentPSM.pgStatMonitor.CmdType >= 0 && currentPSM.pgStatMonitor.CmdType < int32(len(commandTypeToText)) {
 				mb.Postgresql.CmdType = commandTypeToText[currentPSM.pgStatMonitor.CmdType]
@@ -572,7 +572,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 
 			if !m.disableQueryExamples && currentPSM.Example != "" {
 				mb.Common.Example = currentPSM.Example
-				mb.Common.ExampleType = agentpb.ExampleType_RANDOM
+				mb.Common.ExampleType = agentv1.ExampleType_EXAMPLE_TYPE_RANDOM
 			}
 
 			if !m.disableCommentsParsing && currentPSM.Comments != nil {
@@ -641,7 +641,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 	return res
 }
 
-func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.StringArray, vPGSM pgStatMonitorVersion) ([]*agentpb.HistogramItem, error) {
+func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.StringArray, vPGSM pgStatMonitorVersion) ([]*agentv1.HistogramItem, error) {
 	histogram := getHistogramRangesArray(vPGSM)
 	for k, v := range respCalls {
 		val, err := strconv.ParseInt(v, 10, 32)
@@ -664,12 +664,12 @@ func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.Stri
 	return histogram, nil
 }
 
-func getHistogramRangesArray(vPGSM pgStatMonitorVersion) []*agentpb.HistogramItem {
+func getHistogramRangesArray(vPGSM pgStatMonitorVersion) []*agentv1.HistogramItem {
 	// For now we using static ranges (different ones since PGSM 2.0).
 	// In future we will compute range values from pg_stat_monitor_settings.
 	// pgsm_histogram_min, pgsm_histogram_max, pgsm_histogram_buckets.
 	if vPGSM >= pgStatMonitorVersion20PG12 {
-		return []*agentpb.HistogramItem{
+		return []*agentv1.HistogramItem{
 			{Range: "(0 - 1)"},
 			{Range: "(1 - 2)"},
 			{Range: "(2 - 4)"},
@@ -695,7 +695,7 @@ func getHistogramRangesArray(vPGSM pgStatMonitorVersion) []*agentpb.HistogramIte
 		}
 	}
 
-	return []*agentpb.HistogramItem{
+	return []*agentv1.HistogramItem{
 		{Range: "(0 - 3)"},
 		{Range: "(3 - 10)"},
 		{Range: "(10 - 31)"},

@@ -17,48 +17,29 @@ package management
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
+	"github.com/prometheus/common/model"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/auth"
 )
 
-// NodeService represents service for working with nodes.
-type NodeService struct {
-	db    *reform.DB
-	ap    authProvider
-	l     *logrus.Entry
-	r     agentsRegistry
-	state agentsStateUpdater
-	vmdb  prometheusService
-}
+// RegisterNode performs the registration of a new node.
+func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) {
+	res := &managementv1.RegisterNodeResponse{}
 
-// NewNodeService creates NodeService instance.
-func NewNodeService(db *reform.DB, ap authProvider, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService) *NodeService {
-	return &NodeService{
-		db:    db,
-		ap:    ap,
-		r:     r,
-		state: state,
-		vmdb:  vmdb,
-		l:     logrus.WithField("component", "node"),
-	}
-}
-
-// Register do registration of the new node.
-func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNodeRequest) (*managementpb.RegisterNodeResponse, error) {
-	res := &managementpb.RegisterNodeResponse{}
-
-	e := s.db.InTransaction(func(tx *reform.TX) error {
+	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		node, err := models.FindNodeByName(tx.Querier, req.NodeName)
 		switch status.Code(err) { //nolint:exhaustive
 		case codes.OK:
@@ -112,9 +93,9 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 			return err
 		}
 		switch n := n.(type) {
-		case *inventorypb.GenericNode:
+		case *inventoryv1.GenericNode:
 			res.GenericNode = n
-		case *inventorypb.ContainerNode:
+		case *inventoryv1.ContainerNode:
 			res.ContainerNode = n
 		default:
 			return status.Errorf(codes.InvalidArgument, "Unsupported Node type %q.", req.NodeType)
@@ -129,7 +110,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		if err != nil {
 			return err
 		}
-		res.PmmAgent = a.(*inventorypb.PMMAgent) //nolint:forcetypeassert
+		res.PmmAgent = a.(*inventoryv1.PMMAgent) //nolint:forcetypeassert
 		_, err = models.
 			CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil, isPushMode(req.MetricsMode), req.ExposeExporter,
 				req.DisableCollectors, pointer.ToStringOrNil(req.AgentPassword), "")
@@ -144,7 +125,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 	if token != "" {
 		res.Token = token
 	} else {
-		_, res.Token, e = s.ap.CreateServiceAccount(ctx, req.NodeName, req.Reregister)
+		_, res.Token, e = s.grafanaClient.CreateServiceAccount(ctx, req.NodeName, req.Reregister)
 		if e != nil {
 			return nil, e
 		}
@@ -154,7 +135,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 }
 
 // Unregister do unregistration of the node.
-func (s *NodeService) Unregister(ctx context.Context, req *managementpb.UnregisterNodeRequest) (*managementpb.UnregisterNodeResponse, error) {
+func (s *ManagementService) UnregisterNode(ctx context.Context, req *managementv1.UnregisterNodeRequest) (*managementv1.UnregisterNodeResponse, error) {
 	idsToKick := make(map[string]struct{})
 	idsToSetState := make(map[string]struct{})
 
@@ -211,15 +192,214 @@ func (s *NodeService) Unregister(ctx context.Context, req *managementpb.Unregist
 		s.vmdb.RequestConfigurationUpdate()
 	}
 
-	warning, err := s.ap.DeleteServiceAccount(ctx, node.NodeName, req.Force)
+	warning, err := s.grafanaClient.DeleteServiceAccount(ctx, node.NodeName, req.Force)
 	if err != nil {
-		s.l.WithError(err).Error("deleting service account")
-		return &managementpb.UnregisterNodeResponse{
+		// TODO: need to pass the logger to the service
+		// s.l.WithError(err).Error("deleting service account")
+		return &managementv1.UnregisterNodeResponse{ //nolint:nilerr
 			Warning: err.Error(),
 		}, nil
 	}
 
-	return &managementpb.UnregisterNodeResponse{
+	return &managementv1.UnregisterNodeResponse{
 		Warning: warning,
+	}, nil
+}
+
+const upQuery = `up{job=~".*_hr$"}`
+
+// ListNodes returns a filtered list of Nodes.
+func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.ListNodesRequest) (*managementv1.ListNodesResponse, error) {
+	filters := models.NodeFilters{
+		NodeType: services.ProtoToModelNodeType(req.NodeType),
+	}
+
+	var (
+		nodes    []*models.Node
+		agents   []*models.Agent
+		services []*models.Service
+	)
+
+	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		var err error
+
+		nodes, err = models.FindNodes(s.db.Querier, filters)
+		if err != nil {
+			return err
+		}
+
+		agents, err = models.FindAgents(s.db.Querier, models.AgentFilters{})
+		if err != nil {
+			return err
+		}
+
+		services, err = models.FindServices(s.db.Querier, models.ServiceFilters{})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if errTX != nil {
+		return nil, errTX
+	}
+
+	convertAgentToProto := func(agent *models.Agent) *managementv1.UniversalNode_Agent {
+		return &managementv1.UniversalNode_Agent{
+			AgentId:     agent.AgentID,
+			AgentType:   string(agent.AgentType),
+			Status:      agent.Status,
+			IsConnected: s.r.IsConnected(agent.AgentID),
+		}
+	}
+
+	aMap := make(map[string][]*managementv1.UniversalNode_Agent, len(nodes))
+	for _, a := range agents {
+		if a.NodeID != nil || a.RunsOnNodeID != nil {
+			var nodeID string
+			if a.NodeID != nil {
+				nodeID = pointer.GetString(a.NodeID)
+			} else {
+				nodeID = pointer.GetString(a.RunsOnNodeID)
+			}
+			aMap[nodeID] = append(aMap[nodeID], convertAgentToProto(a))
+		}
+	}
+
+	sMap := make(map[string][]*managementv1.UniversalNode_Service, len(services))
+	for _, s := range services {
+		sMap[s.NodeID] = append(sMap[s.NodeID], &managementv1.UniversalNode_Service{
+			ServiceId:   s.ServiceID,
+			ServiceType: string(s.ServiceType),
+			ServiceName: s.ServiceName,
+		})
+	}
+
+	result, _, err := s.vmClient.Query(ctx, upQuery, time.Now())
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to execute an instant VM query")
+	}
+
+	metrics := make(map[string]int, len(result.(model.Vector))) //nolint:forcetypeassert
+	for _, v := range result.(model.Vector) {                   //nolint:forcetypeassert
+		nodeID := string(v.Metric[model.LabelName("node_id")])
+		// Sometimes we may see several metrics for the same node, so we just take the first one.
+		if _, ok := metrics[nodeID]; !ok {
+			metrics[nodeID] = int(v.Value)
+		}
+	}
+
+	res := make([]*managementv1.UniversalNode, len(nodes))
+	for i, node := range nodes {
+		labels, err := node.GetCustomLabels()
+		if err != nil {
+			return nil, err
+		}
+
+		uNode := &managementv1.UniversalNode{
+			Address:       node.Address,
+			CustomLabels:  labels,
+			NodeId:        node.NodeID,
+			NodeName:      node.NodeName,
+			NodeType:      string(node.NodeType),
+			Az:            node.AZ,
+			CreatedAt:     timestamppb.New(node.CreatedAt),
+			ContainerId:   pointer.GetString(node.ContainerID),
+			ContainerName: pointer.GetString(node.ContainerName),
+			Distro:        node.Distro,
+			MachineId:     pointer.GetString(node.MachineID),
+			NodeModel:     node.NodeModel,
+			Region:        pointer.GetString(node.Region),
+			UpdatedAt:     timestamppb.New(node.UpdatedAt),
+		}
+
+		if metric, ok := metrics[node.NodeID]; ok {
+			switch metric {
+			// We assume there can only be metric values of either 1(UP) or 0(DOWN).
+			case 0:
+				uNode.Status = managementv1.UniversalNode_STATUS_DOWN
+			case 1:
+				uNode.Status = managementv1.UniversalNode_STATUS_UP
+			}
+		} else {
+			uNode.Status = managementv1.UniversalNode_STATUS_UNKNOWN
+		}
+
+		if uAgents, ok := aMap[node.NodeID]; ok {
+			uNode.Agents = uAgents
+		}
+
+		if uServices, ok := sMap[node.NodeID]; ok {
+			uNode.Services = uServices
+		}
+
+		res[i] = uNode
+	}
+
+	return &managementv1.ListNodesResponse{
+		Nodes: res,
+	}, nil
+}
+
+const nodeUpQuery = `up{job=~".*_hr$",node_id=%q}`
+
+// GetNode returns a single Node by ID.
+func (s *ManagementService) GetNode(ctx context.Context, req *managementv1.GetNodeRequest) (*managementv1.GetNodeResponse, error) {
+	node, err := models.FindNodeByID(s.db.Querier, req.NodeId)
+	if err != nil {
+		return nil, err
+	}
+
+	result, _, err := s.vmClient.Query(ctx, fmt.Sprintf(nodeUpQuery, req.NodeId), time.Now())
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to execute an instant VM query")
+	}
+
+	metrics := make(map[string]int, len(result.(model.Vector))) //nolint:forcetypeassert
+	for _, v := range result.(model.Vector) {                   //nolint:forcetypeassert
+		nodeID := string(v.Metric[model.LabelName("node_id")])
+		// Sometimes we may see several metrics for the same node, so we just take the first one.
+		if _, ok := metrics[nodeID]; !ok {
+			metrics[nodeID] = int(v.Value)
+		}
+	}
+
+	labels, err := node.GetCustomLabels()
+	if err != nil {
+		return nil, err
+	}
+
+	uNode := &managementv1.UniversalNode{
+		Address:       node.Address,
+		Az:            node.AZ,
+		CreatedAt:     timestamppb.New(node.CreatedAt),
+		ContainerId:   pointer.GetString(node.ContainerID),
+		ContainerName: pointer.GetString(node.ContainerName),
+		CustomLabels:  labels,
+		Distro:        node.Distro,
+		MachineId:     pointer.GetString(node.MachineID),
+		NodeId:        node.NodeID,
+		NodeName:      node.NodeName,
+		NodeType:      string(node.NodeType),
+		NodeModel:     node.NodeModel,
+		Region:        pointer.GetString(node.Region),
+		UpdatedAt:     timestamppb.New(node.UpdatedAt),
+	}
+
+	if metric, ok := metrics[node.NodeID]; ok {
+		switch metric {
+		// We assume there can only be metric values of either 1(UP) or 0(DOWN).
+		case 0:
+			uNode.Status = managementv1.UniversalNode_STATUS_DOWN
+		case 1:
+			uNode.Status = managementv1.UniversalNode_STATUS_UP
+		}
+	} else {
+		uNode.Status = managementv1.UniversalNode_STATUS_UNKNOWN
+	}
+
+	return &managementv1.GetNodeResponse{
+		Node: uNode,
 	}, nil
 }

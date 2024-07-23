@@ -16,8 +16,8 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 var addAgentPostgresExporterResultT = commands.ParseTemplate(`
@@ -36,7 +36,7 @@ Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentPostgresExporterResult struct {
-	Agent *agents.AddPostgresExporterOKBodyPostgresExporter `json:"postgres_exporter"`
+	Agent *agents.AddAgentOKBodyPostgresExporter `json:"postgres_exporter"`
 }
 
 func (res *addAgentPostgresExporterResult) Result() {}
@@ -93,31 +93,33 @@ func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &agents.AddPostgresExporterParams{
-		Body: agents.AddPostgresExporterBody{
-			PMMAgentID:          cmd.PMMAgentID,
-			ServiceID:           cmd.ServiceID,
-			Username:            cmd.Username,
-			Password:            cmd.Password,
-			AgentPassword:       cmd.AgentPassword,
-			CustomLabels:        customLabels,
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
-			PushMetrics:         cmd.PushMetrics,
-			ExposeExporter:      cmd.ExposeExporter,
-			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
-			AutoDiscoveryLimit:  cmd.AutoDiscoveryLimit,
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
+				PMMAgentID:          cmd.PMMAgentID,
+				ServiceID:           cmd.ServiceID,
+				Username:            cmd.Username,
+				Password:            cmd.Password,
+				AgentPassword:       cmd.AgentPassword,
+				CustomLabels:        customLabels,
+				SkipConnectionCheck: cmd.SkipConnectionCheck,
+				PushMetrics:         cmd.PushMetrics,
+				ExposeExporter:      cmd.ExposeExporter,
+				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
+				AutoDiscoveryLimit:  cmd.AutoDiscoveryLimit,
 
-			TLS:           cmd.TLS,
-			TLSSkipVerify: cmd.TLSSkipVerify,
-			TLSCa:         tlsCa,
-			TLSCert:       tlsCert,
-			TLSKey:        tlsKey,
-			LogLevel:      &cmd.LogLevel,
+				TLS:           cmd.TLS,
+				TLSSkipVerify: cmd.TLSSkipVerify,
+				TLSCa:         tlsCa,
+				TLSCert:       tlsCert,
+				TLSKey:        tlsKey,
+				LogLevel:      &cmd.LogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddPostgresExporter(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

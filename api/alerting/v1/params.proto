@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package alerting.v1;
+
+// ParamUnit represents template parameter unit.
+enum ParamUnit {
+  // Invalid, unknown or absent.
+  PARAM_UNIT_UNSPECIFIED = 0;
+  // %
+  PARAM_UNIT_PERCENTAGE = 1;
+  // s
+  PARAM_UNIT_SECONDS = 2;
+}
+
+// ParamType represents template parameter type.
+enum ParamType {
+  PARAM_TYPE_UNSPECIFIED = 0;
+  PARAM_TYPE_BOOL = 1;
+  PARAM_TYPE_FLOAT = 2;
+  PARAM_TYPE_STRING = 3;
+}

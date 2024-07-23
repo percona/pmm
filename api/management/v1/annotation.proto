@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package management.v1;
+
+import "validate/validate.proto";
+
+// AddAnnotationRequest is a params to add new annotation.
+message AddAnnotationRequest {
+  // An annotation description. Required.
+  string text = 1 [(validate.rules).string.min_len = 1];
+  // Tags are used to filter annotations.
+  repeated string tags = 2;
+  // Used for annotating a node.
+  string node_name = 3;
+  // Used for annotating services.
+  repeated string service_names = 4;
+}
+
+message AddAnnotationResponse {}

@@ -42,8 +42,8 @@ import (
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/agent/utils/truncate"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 const (
@@ -69,7 +69,7 @@ type Params struct {
 	DisableQueryExamples   bool
 	MaxSlowlogFileSize     int64
 	SlowLogFilePrefix      string // for development and testing
-	TextFiles              *agentpb.TextFiles
+	TextFiles              *agentv1.TextFiles
 	TLS                    bool
 	TLSSkipVerify          bool
 }
@@ -100,7 +100,7 @@ func New(params *Params, l *logrus.Entry) (*SlowLog, error) {
 // Run extracts performance data and sends it to the channel until ctx is canceled.
 func (s *SlowLog) Run(ctx context.Context) {
 	defer func() {
-		s.changes <- agents.Change{Status: inventorypb.AgentStatus_DONE}
+		s.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(s.changes)
 	}()
 
@@ -136,7 +136,7 @@ func (s *SlowLog) Run(ctx context.Context) {
 	b := backoff.New(backoffMinDelay, backoffMaxDelay)
 	fileInfo := <-fileInfos
 	for fileInfo != nil {
-		s.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
+		s.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
 		// process file until fileCtx is done, or fatal processing error is encountered
 		path, outlierTime := fileInfo.path, fileInfo.outlierTime
@@ -157,7 +157,7 @@ func (s *SlowLog) Run(ctx context.Context) {
 			fileCancel()
 		}
 
-		s.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+		s.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 
 		if err == nil {
 			b.Reset()
@@ -345,7 +345,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 		}
 	}()
 
-	s.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
+	s.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 
 	aggregator := event.NewAggregator(true, 0, outlierTime)
 	ctxDone := ctx.Done()
@@ -417,8 +417,8 @@ func makeBuckets(
 	disableQueryExamples bool,
 	maxQueryLength int32,
 	l *logrus.Entry,
-) []*agentpb.MetricsBucket {
-	buckets := make([]*agentpb.MetricsBucket, 0, len(res.Class))
+) []*agentv1.MetricsBucket {
+	buckets := make([]*agentv1.MetricsBucket, 0, len(res.Class))
 
 	for _, v := range res.Class {
 		if v.Metrics == nil {
@@ -432,8 +432,8 @@ func makeBuckets(
 		q := v.Fingerprint
 		v.Fingerprint = query.Fingerprint(v.Fingerprint)
 		fingerprint, isTruncated := truncate.Query(v.Fingerprint, maxQueryLength)
-		mb := &agentpb.MetricsBucket{
-			Common: &agentpb.MetricsBucket_Common{
+		mb := &agentv1.MetricsBucket{
+			Common: &agentv1.MetricsBucket_Common{
 				Queryid:              v.Id,
 				Fingerprint:          fingerprint,
 				IsTruncated:          isTruncated,
@@ -442,14 +442,14 @@ func makeBuckets(
 				Username:             v.User,
 				ClientHost:           v.Host,
 				AgentId:              agentID,
-				AgentType:            inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
+				AgentType:            inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT,
 				PeriodStartUnixSecs:  uint32(periodStart.Unix()),
 				PeriodLengthSecs:     periodLengthSecs,
 				NumQueries:           float32(v.TotalQueries),
 				Errors:               errListsToMap(v.ErrorsCode, v.ErrorsCount),
 				NumQueriesWithErrors: v.NumQueriesWithErrors,
 			},
-			Mysql: &agentpb.MetricsBucket_MySQL{},
+			Mysql: &agentv1.MetricsBucket_MySQL{},
 		}
 
 		if q != "" {
@@ -476,7 +476,7 @@ func makeBuckets(
 				mb.Common.IsTruncated = truncated
 			}
 			mb.Common.Example = example
-			mb.Common.ExampleType = agentpb.ExampleType_RANDOM
+			mb.Common.ExampleType = agentv1.ExampleType_EXAMPLE_TYPE_RANDOM
 		}
 
 		// If key has suffix _time or _wait than field is TimeMetrics.

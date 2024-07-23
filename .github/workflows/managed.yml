@@ -44,6 +44,7 @@ jobs:
       - name: Launch PMM Server (see docker-compose.yml)
         run: |
           make env-compose-up # the container workdir is /root/go/src/github.com/percona/pmm
+          docker exec -t pmm-server id -Z || :
           docker logs pmm-server
 
       - name: Mark the root directory of pmm as safe
@@ -124,7 +125,8 @@ jobs:
           docker exec pmm-server go env | sort
           docker exec pmm-server supervisorctl status || true
           services=$(docker exec pmm-server supervisorctl status | awk '{print $1}')
-          while IFS= read -r service; do
+          services=(`echo ${services}`)
+          for service in "${services[@]}"; do
             echo "Logs for $service:"
             docker exec pmm-server supervisorctl tail $service
-          done <<< "$services"
+          done
