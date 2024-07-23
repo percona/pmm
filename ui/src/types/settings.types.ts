@@ -1,2 +1,7 @@
-// no need to specify for now
-export interface GetSettingsResponse {}
+export interface Settings {
+  updatesEnabled: boolean;
+}
+
+export interface GetSettingsResponse {
+  settings: Settings;
+}

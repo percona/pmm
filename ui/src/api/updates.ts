@@ -2,25 +2,24 @@ import { AxiosResponse } from 'axios';
 import {
   GetUpdateStatusBody,
   GetUpdateStatusResponse,
-  GetUpdatesBody,
+  GetUpdatesParams,
   GetUpdatesResponse,
   StartUpdateResponse,
 } from 'types/updates.types';
 import { api } from './api';
 
 export const checkForUpdates = async (
-  body: GetUpdatesBody = { force: false }
+  params: GetUpdatesParams = { force: false }
 ) => {
-  const res = await api.post<GetUpdatesBody, AxiosResponse<GetUpdatesResponse>>(
-    '/Updates/Check',
-    body
-  );
+  const res = await api.get<GetUpdatesResponse>('/server/updates', {
+    params,
+  });
   return res.data;
 };
 
 export const startUpdate = async () => {
   const res = await api.post<object, AxiosResponse<StartUpdateResponse>>(
-    '/Updates/Start',
+    '/server/updates:start',
     {}
   );
   return res.data;
@@ -30,6 +29,6 @@ export const getUpdateStatus = async (body: GetUpdateStatusBody) => {
   const res = await api.post<
     GetUpdateStatusBody,
     AxiosResponse<GetUpdateStatusResponse>
-  >('/Updates/Status', body);
+  >('/server/updates:getStatus', body);
   return res.data;
 };
