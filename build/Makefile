@@ -22,8 +22,7 @@ deps:
 	unzip -o ${PACKER_CACHE_DIR}/packer.zip -d ~/bin
 
 pmm-ovf: fetch
-	/usr/bin/packer build \
-			-only virtualbox-ovf -color=false packer/pmm.json | tee build.log
+	/usr/bin/packer build -var 'pmm_server_image_name=${PMM_SERVER_IMAGE}'  -only virtualbox-ovf -color=false packer/pmm.json | tee build.log
 
 pmm-digitalocean:
 	packer build -only digitalocean -var 'single_disk=true' packer/pmm.json
