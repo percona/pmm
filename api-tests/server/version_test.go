@@ -28,13 +28,13 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
 func TestVersion(t *testing.T) {
 	t.Parallel()
 	paths := []string{
-		"v1/version",
+		"v1/server/version",
 	}
 	for _, path := range paths {
 		path := path

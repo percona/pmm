@@ -22,8 +22,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
@@ -44,9 +44,10 @@ func TestMongodbExporterConfig225(t *testing.T) {
 		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
 		AgentPassword: pointer.ToString("agent-password"),
 	}
+
 	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
-	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MONGODB_EXPORTER,
+	expected := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -103,8 +104,8 @@ func TestMongodbExporterConfig226(t *testing.T) {
 		AgentPassword: pointer.ToString("agent-password"),
 	}
 	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
-	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MONGODB_EXPORTER,
+	expected := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -248,8 +249,8 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 		AgentPassword: pointer.ToString("agent-password"),
 	}
 	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
-	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MONGODB_EXPORTER,
+	expected := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -403,8 +404,8 @@ func TestMongodbExporterConfig(t *testing.T) {
 		AgentPassword: pointer.ToString("agent-password"),
 	}
 	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
-	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MONGODB_EXPORTER,
+	expected := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -489,8 +490,8 @@ func TestMongodbExporterConfig(t *testing.T) {
 	t.Run("DisabledCollectors", func(t *testing.T) {
 		exporter.DisabledCollectors = []string{"topmetrics"}
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
-		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_MONGODB_EXPORTER,
+		expected := &agentv1.SetStateRequest_AgentProcess{
+			Type:               inventoryv1.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{
@@ -524,8 +525,8 @@ func TestNewMongodbExporterConfig(t *testing.T) {
 	}
 	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
 	require.NoError(t, err)
-	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MONGODB_EXPORTER,
+	expected := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -605,8 +606,8 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, localExporter, redactSecrets, pmmAgentVersion)
 
-		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_MONGODB_EXPORTER,
+		expected := &agentv1.SetStateRequest_AgentProcess{
+			Type:               inventoryv1.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args:               expectedArgs,
@@ -633,8 +634,8 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, localExporter, redactSecrets, pmmAgentVersion)
 
-		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_MONGODB_EXPORTER,
+		expected := &agentv1.SetStateRequest_AgentProcess{
+			Type:               inventoryv1.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args:               expectedArgs,

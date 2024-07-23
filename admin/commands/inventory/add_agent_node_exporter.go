@@ -16,8 +16,8 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 var addAgentNodeExporterResultT = commands.ParseTemplate(`
@@ -32,7 +32,7 @@ Custom labels: {{ .Agent.CustomLabels }}
 `)
 
 type addAgentNodeExporterResult struct {
-	Agent *agents.AddNodeExporterOKBodyNodeExporter `json:"node_exporter"`
+	Agent *agents.AddAgentOKBodyNodeExporter `json:"node_exporter"`
 }
 
 func (res *addAgentNodeExporterResult) Result() {}
@@ -54,19 +54,21 @@ type AddAgentNodeExporterCommand struct {
 // RunCmd runs the command for AddAgentNodeExporterCommand.
 func (cmd *AddAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-	params := &agents.AddNodeExporterParams{
-		Body: agents.AddNodeExporterBody{
-			PMMAgentID:        cmd.PMMAgentID,
-			CustomLabels:      customLabels,
-			PushMetrics:       cmd.PushMetrics,
-			ExposeExporter:    cmd.ExposeExporter,
-			DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
-			LogLevel:          &cmd.LogLevel,
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			NodeExporter: &agents.AddAgentParamsBodyNodeExporter{
+				PMMAgentID:        cmd.PMMAgentID,
+				CustomLabels:      customLabels,
+				PushMetrics:       cmd.PushMetrics,
+				ExposeExporter:    cmd.ExposeExporter,
+				DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
+				LogLevel:          &cmd.LogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddNodeExporter(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

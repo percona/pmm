@@ -1,4 +1,4 @@
-export interface GetUpdatesBody {
+export interface GetUpdatesParams {
   force: boolean;
   onlyInstalledVersion?: boolean;
 }

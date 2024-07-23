@@ -18,14 +18,15 @@ package inventory
 import (
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 func TestMongoDBExporter(t *testing.T) {
@@ -41,11 +42,13 @@ func TestMongoDBExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addMongoDBService(t, services.AddMongoDBServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "MongoDB Service for MongoDBExporter test"),
+		service := addService(t, services.AddServiceBody{
+			Mongodb: &services.AddServiceParamsBodyMongodb{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, "MongoDB Service for MongoDBExporter test"),
+			},
 		})
 		serviceID := service.Mongodb.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -54,22 +57,24 @@ func TestMongoDBExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		mongoDBExporter := addMongoDBExporter(t, agents.AddMongoDBExporterBody{
-			ServiceID:  serviceID,
-			Username:   "username",
-			Password:   "password",
-			PMMAgentID: pmmAgentID,
-			CustomLabels: map[string]string{
-				"new_label": "mongodb_exporter",
-			},
+		mongoDBExporter := addAgent(t, agents.AddAgentBody{
+			MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
+				ServiceID:  serviceID,
+				Username:   "username",
+				Password:   "password",
+				PMMAgentID: pmmAgentID,
+				CustomLabels: map[string]string{
+					"new_label": "mongodb_exporter",
+				},
 
-			SkipConnectionCheck: true,
+				SkipConnectionCheck: true,
+			},
 		})
 		agentID := mongoDBExporter.MongodbExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
-			Body:    agents.GetAgentBody{AgentID: agentID},
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
+			AgentID: agentID,
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -83,52 +88,63 @@ func TestMongoDBExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "mongodb_exporter",
 					},
-					Status: &AgentStatusUnknown,
+					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					StatsCollections:   make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
 
 		// Test change API.
-		changeMongoDBExporterOK, err := client.Default.Agents.ChangeMongoDBExporter(&agents.ChangeMongoDBExporterParams{
-			Body: agents.ChangeMongoDBExporterBody{
+		changeMongoDBExporterOK, err := client.Default.AgentsService.ChangeAgent(
+			&agents.ChangeAgentParams{
 				AgentID: agentID,
-				Common: &agents.ChangeMongoDBExporterParamsBodyCommon{
-					Disable:            true,
-					RemoveCustomLabels: true,
+				Body: agents.ChangeAgentBody{
+					MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
+						Enable:       pointer.ToBool(false),
+						CustomLabels: &agents.ChangeAgentParamsBodyMongodbExporterCustomLabels{},
+					},
 				},
-			},
-			Context: pmmapitests.Context,
-		})
-		assert.NoError(t, err)
-		assert.Equal(t, &agents.ChangeMongoDBExporterOK{
-			Payload: &agents.ChangeMongoDBExporterOKBody{
-				MongodbExporter: &agents.ChangeMongoDBExporterOKBodyMongodbExporter{
-					AgentID:    agentID,
-					ServiceID:  serviceID,
-					Username:   "username",
-					PMMAgentID: pmmAgentID,
-					Disabled:   true,
-					Status:     &AgentStatusUnknown,
+				Context: pmmapitests.Context,
+			})
+		require.NoError(t, err)
+		assert.Equal(t, &agents.ChangeAgentOK{
+			Payload: &agents.ChangeAgentOKBody{
+				MongodbExporter: &agents.ChangeAgentOKBodyMongodbExporter{
+					AgentID:            agentID,
+					ServiceID:          serviceID,
+					Username:           "username",
+					PMMAgentID:         pmmAgentID,
+					Disabled:           true,
+					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					StatsCollections:   make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					CustomLabels:       map[string]string{},
 				},
 			},
 		}, changeMongoDBExporterOK)
 
-		changeMongoDBExporterOK, err = client.Default.Agents.ChangeMongoDBExporter(&agents.ChangeMongoDBExporterParams{
-			Body: agents.ChangeMongoDBExporterBody{
+		changeMongoDBExporterOK, err = client.Default.AgentsService.ChangeAgent(
+			&agents.ChangeAgentParams{
 				AgentID: agentID,
-				Common: &agents.ChangeMongoDBExporterParamsBodyCommon{
-					Enable: true,
-					CustomLabels: map[string]string{
-						"new_label": "mongodb_exporter",
+				Body: agents.ChangeAgentBody{
+					MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
+						Enable: pointer.ToBool(true),
+						CustomLabels: &agents.ChangeAgentParamsBodyMongodbExporterCustomLabels{
+							Values: map[string]string{
+								"new_label": "mongodb_exporter",
+							},
+						},
 					},
 				},
-			},
-			Context: pmmapitests.Context,
-		})
-		assert.NoError(t, err)
-		assert.Equal(t, &agents.ChangeMongoDBExporterOK{
-			Payload: &agents.ChangeMongoDBExporterOKBody{
-				MongodbExporter: &agents.ChangeMongoDBExporterOKBodyMongodbExporter{
+				Context: pmmapitests.Context,
+			})
+		require.NoError(t, err)
+		assert.Equal(t, &agents.ChangeAgentOK{
+			Payload: &agents.ChangeAgentOKBody{
+				MongodbExporter: &agents.ChangeAgentOKBodyMongodbExporter{
 					AgentID:    agentID,
 					ServiceID:  serviceID,
 					Username:   "username",
@@ -137,7 +153,10 @@ func TestMongoDBExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "mongodb_exporter",
 					},
-					Status: &AgentStatusUnknown,
+					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					StatsCollections:   make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeMongoDBExporterOK)
@@ -154,14 +173,16 @@ func TestMongoDBExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
-			Body: agents.AddMongoDBExporterBody{
-				ServiceID:  "",
-				PMMAgentID: pmmAgentID,
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
+					ServiceID:  "",
+					PMMAgentID: pmmAgentID,
+				},
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBExporterRequest.ServiceId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBExporterParams.ServiceId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.MongodbExporter.AgentID)
 		}
@@ -174,25 +195,29 @@ func TestMongoDBExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addMongoDBService(t, services.AddMongoDBServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "MongoDB Service for agent"),
+		service := addService(t, services.AddServiceBody{
+			Mongodb: &services.AddServiceParamsBodyMongodb{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, "MongoDB Service for agent"),
+			},
 		})
 		serviceID := service.Mongodb.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.Agents.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
-			Body: agents.AddMongoDBExporterBody{
-				ServiceID:  serviceID,
-				PMMAgentID: "",
-				Username:   "username",
-				Password:   "password",
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
+					ServiceID:  serviceID,
+					PMMAgentID: "",
+					Username:   "username",
+					Password:   "password",
+				},
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBExporterRequest.PmmAgentId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBExporterParams.PmmAgentId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.MongodbExporter.AgentID)
 		}
@@ -209,12 +234,14 @@ func TestMongoDBExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
-			Body: agents.AddMongoDBExporterBody{
-				ServiceID:  "pmm-service-id",
-				PMMAgentID: pmmAgentID,
-				Username:   "username",
-				Password:   "password",
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
+					ServiceID:  "pmm-service-id",
+					PMMAgentID: pmmAgentID,
+					Username:   "username",
+					Password:   "password",
+				},
 			},
 			Context: pmmapitests.Context,
 		})
@@ -231,25 +258,29 @@ func TestMongoDBExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addMongoDBService(t, services.AddMongoDBServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "MongoDB Service for not exists node ID"),
+		service := addService(t, services.AddServiceBody{
+			Mongodb: &services.AddServiceParamsBodyMongodb{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, "MongoDB Service for not exists node ID"),
+			},
 		})
 		serviceID := service.Mongodb.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.Agents.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
-			Body: agents.AddMongoDBExporterBody{
-				ServiceID:  serviceID,
-				PMMAgentID: "pmm-not-exist-server",
-				Username:   "username",
-				Password:   "password",
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
+					ServiceID:  serviceID,
+					PMMAgentID: "pmm-not-exist-server",
+					Username:   "username",
+					Password:   "password",
+				},
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID \"pmm-not-exist-server\" not found.")
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID pmm-not-exist-server not found.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.MongodbExporter.AgentID)
 		}
@@ -266,11 +297,13 @@ func TestMongoDBExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addMongoDBService(t, services.AddMongoDBServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "MongoDB Service for MongoDBExporter test"),
+		service := addService(t, services.AddServiceBody{
+			Mongodb: &services.AddServiceParamsBodyMongodb{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, "MongoDB Service for MongoDBExporter test"),
+			},
 		})
 		serviceID := service.Mongodb.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -279,25 +312,28 @@ func TestMongoDBExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		mongoDBExporter := addMongoDBExporter(t, agents.AddMongoDBExporterBody{
-			ServiceID:  serviceID,
-			Username:   "username",
-			Password:   "password",
-			PMMAgentID: pmmAgentID,
-			CustomLabels: map[string]string{
-				"new_label": "mongodb_exporter",
-			},
+		mongoDBExporter := addAgent(t, agents.AddAgentBody{
+			MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
+				ServiceID:  serviceID,
+				Username:   "username",
+				Password:   "password",
+				PMMAgentID: pmmAgentID,
+				CustomLabels: map[string]string{
+					"new_label": "mongodb_exporter",
+				},
 
-			SkipConnectionCheck: true,
-			PushMetrics:         true,
+				SkipConnectionCheck: true,
+				PushMetrics:         true,
+			},
 		})
 		agentID := mongoDBExporter.MongodbExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
-			Body:    agents.GetAgentBody{AgentID: agentID},
-			Context: pmmapitests.Context,
-		})
+		getAgentRes, err := client.Default.AgentsService.GetAgent(
+			&agents.GetAgentParams{
+				AgentID: agentID,
+				Context: pmmapitests.Context,
+			})
 		require.NoError(t, err)
 		assert.Equal(t, &agents.GetAgentOK{
 			Payload: &agents.GetAgentOKBody{
@@ -311,24 +347,28 @@ func TestMongoDBExporter(t *testing.T) {
 					},
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					StatsCollections:   make([]string, 0),
 				},
 			},
 		}, getAgentRes)
 
 		// Test change API.
-		changeMongoDBExporterOK, err := client.Default.Agents.ChangeMongoDBExporter(&agents.ChangeMongoDBExporterParams{
-			Body: agents.ChangeMongoDBExporterBody{
+		changeMongoDBExporterOK, err := client.Default.AgentsService.ChangeAgent(
+			&agents.ChangeAgentParams{
 				AgentID: agentID,
-				Common: &agents.ChangeMongoDBExporterParamsBodyCommon{
-					DisablePushMetrics: true,
+				Body: agents.ChangeAgentBody{
+					MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
+						EnablePushMetrics: pointer.ToBool(false),
+					},
 				},
-			},
-			Context: pmmapitests.Context,
-		})
-		assert.NoError(t, err)
-		assert.Equal(t, &agents.ChangeMongoDBExporterOK{
-			Payload: &agents.ChangeMongoDBExporterOKBody{
-				MongodbExporter: &agents.ChangeMongoDBExporterOKBodyMongodbExporter{
+				Context: pmmapitests.Context,
+			})
+		require.NoError(t, err)
+		assert.Equal(t, &agents.ChangeAgentOK{
+			Payload: &agents.ChangeAgentOKBody{
+				MongodbExporter: &agents.ChangeAgentOKBodyMongodbExporter{
 					AgentID:    agentID,
 					ServiceID:  serviceID,
 					Username:   "username",
@@ -336,24 +376,28 @@ func TestMongoDBExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "mongodb_exporter",
 					},
-					Status: &AgentStatusUnknown,
+					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					StatsCollections:   make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeMongoDBExporterOK)
 
-		changeMongoDBExporterOK, err = client.Default.Agents.ChangeMongoDBExporter(&agents.ChangeMongoDBExporterParams{
-			Body: agents.ChangeMongoDBExporterBody{
+		changeMongoDBExporterOK, err = client.Default.AgentsService.ChangeAgent(
+			&agents.ChangeAgentParams{
 				AgentID: agentID,
-				Common: &agents.ChangeMongoDBExporterParamsBodyCommon{
-					EnablePushMetrics: true,
+				Body: agents.ChangeAgentBody{
+					MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
+						EnablePushMetrics: pointer.ToBool(true),
+					},
 				},
-			},
-			Context: pmmapitests.Context,
-		})
-		assert.NoError(t, err)
-		assert.Equal(t, &agents.ChangeMongoDBExporterOK{
-			Payload: &agents.ChangeMongoDBExporterOKBody{
-				MongodbExporter: &agents.ChangeMongoDBExporterOKBodyMongodbExporter{
+				Context: pmmapitests.Context,
+			})
+		require.NoError(t, err)
+		assert.Equal(t, &agents.ChangeAgentOK{
+			Payload: &agents.ChangeAgentOKBody{
+				MongodbExporter: &agents.ChangeAgentOKBodyMongodbExporter{
 					AgentID:    agentID,
 					ServiceID:  serviceID,
 					Username:   "username",
@@ -363,20 +407,11 @@ func TestMongoDBExporter(t *testing.T) {
 					},
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					StatsCollections:   make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeMongoDBExporterOK)
-
-		_, err = client.Default.Agents.ChangeMongoDBExporter(&agents.ChangeMongoDBExporterParams{
-			Body: agents.ChangeMongoDBExporterBody{
-				AgentID: agentID,
-				Common: &agents.ChangeMongoDBExporterParamsBodyCommon{
-					EnablePushMetrics:  true,
-					DisablePushMetrics: true,
-				},
-			},
-			Context: pmmapitests.Context,
-		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "expected one of  param: enable_push_metrics or disable_push_metrics")
 	})
 }
