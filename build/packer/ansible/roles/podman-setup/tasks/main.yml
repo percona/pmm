@@ -19,14 +19,6 @@
   set_fact:
     pmm_distribution_method: ami
 
-- name: Change file owner
-  when: ansible_virtualization_type == "virtualbox" or
-          ( (ansible_virtualization_type == "xen" or ansible_virtualization_type == "kvm") and ansible_system_vendor != "DigitalOcean" )
-  file:
-    path: /home/admin/volume/srv/pmm-distribution
-    owner: admin
-    state: file
-
 - name: Set SELinux in permissive mode for watchtower
   selinux:
     policy: targeted
