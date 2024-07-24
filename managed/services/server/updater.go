@@ -233,11 +233,13 @@ func (up *Updater) readFromFile() (*version.DockerVersionInfo, error) {
 }
 
 type result struct {
-	Version   string `json:"version"`
-	ImageInfo struct {
-		ImagePath             string    `json:"imagePath"`
-		ImageReleaseTimestamp time.Time `json:"imageReleaseTimestamp"`
-	} `json:"imageInfo"`
+	Version   string    `json:"version"`
+	ImageInfo imageInfo `json:"imageInfo"`
+}
+
+type imageInfo struct {
+	ImagePath             string    `json:"imagePath"`
+	ImageReleaseTimestamp time.Time `json:"imageReleaseTimestamp"`
 }
 
 // MetadataResponse is a response from the metadata endpoint on Percona version service.
@@ -305,6 +307,10 @@ func (up *Updater) parseDockerTag(tag string) ([]*version.DockerVersionInfo, *ve
 }
 
 func (up *Updater) next(currentVersion version.Parsed, results []result) ([]*version.DockerVersionInfo, *version.DockerVersionInfo) {
+	repo := os.Getenv("PMM_DEV_UPDATE_DOCKER_REPO")
+	if repo == "" {
+		repo = "percona/pmm-server"
+	}
 	nextMinor := &version.DockerVersionInfo{
 		Version: currentVersion,
 	}
@@ -325,11 +331,15 @@ func (up *Updater) next(currentVersion version.Parsed, results []result) ([]*ver
 			up.l.Errorf("Failed to get release notes for version: %s, %s", v.String(), err.Error())
 		}
 
+		dockerImage := result.ImageInfo.ImagePath
+		if dockerImage == "" {
+			dockerImage = repo + ":" + result.Version
+		}
 		// versions with pre-lease labels (e.g 2.40.1-rc) are not considered for the update diffs
 		if v.Rest == "" && currentVersion.Less(v) {
 			updates = append(updates, &version.DockerVersionInfo{
 				Version:          *v,
-				DockerImage:      result.ImageInfo.ImagePath,
+				DockerImage:      dockerImage,
 				BuildTime:        result.ImageInfo.ImageReleaseTimestamp,
 				ReleaseNotesURL:  releaseNotesURL,
 				ReleaseNotesText: releaseNote,
@@ -339,7 +349,7 @@ func (up *Updater) next(currentVersion version.Parsed, results []result) ([]*ver
 		if v.Major == currentVersion.Major && nextMinor.Version.Less(v) {
 			nextMinor = &version.DockerVersionInfo{
 				Version:          *v,
-				DockerImage:      result.ImageInfo.ImagePath,
+				DockerImage:      dockerImage,
 				BuildTime:        result.ImageInfo.ImageReleaseTimestamp,
 				ReleaseNotesURL:  releaseNotesURL,
 				ReleaseNotesText: releaseNote,
@@ -349,7 +359,7 @@ func (up *Updater) next(currentVersion version.Parsed, results []result) ([]*ver
 			(nextMajor == nil || (nextMajor.Version.Less(v) && nextMajor.Version.Major == v.Major) || v.Major < nextMajor.Version.Major) {
 			nextMajor = &version.DockerVersionInfo{
 				Version:          *v,
-				DockerImage:      result.ImageInfo.ImagePath,
+				DockerImage:      dockerImage,
 				BuildTime:        result.ImageInfo.ImageReleaseTimestamp,
 				ReleaseNotesURL:  releaseNotesURL,
 				ReleaseNotesText: releaseNote,
