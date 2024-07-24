@@ -5,7 +5,7 @@ import {
   useQuery,
 } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
-import { StartUpdateBody } from 'types/updates.types';
+import { StartUpdateBody, StartUpdateResponse } from 'types/updates.types';
 import { ApiErrorResponse } from 'types/api.types';
 
 export const useCheckUpdates = () =>
@@ -24,7 +24,11 @@ export const useCheckUpdates = () =>
   });
 
 export const useStartUpdate = (
-  options?: UseMutationOptions<unknown, unknown, StartUpdateBody>
+  options?: UseMutationOptions<
+    StartUpdateResponse | undefined,
+    unknown,
+    StartUpdateBody
+  >
 ) =>
   useMutation({
     mutationFn: async (args) => {

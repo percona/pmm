@@ -4,23 +4,23 @@ export interface GetUpdatesParams {
 }
 
 export interface CurrentInfo {
-  version?: string;
-  full_version?: string;
-  timestamp?: string;
+  version: string;
+  full_version: string;
+  timestamp: string | null;
 }
 
 export interface LatestInfo {
-  version?: string;
-  tag?: string;
-  timestamp?: string;
+  version: string;
+  tag: string;
+  timestamp: string | null;
 }
 
 export interface GetUpdatesResponse {
   lastCheck: string;
-  latest?: LatestInfo;
+  latest: LatestInfo;
   installed: CurrentInfo;
-  latestNewsUrl?: string;
-  updateAvailable?: boolean;
+  latestNewsUrl: string;
+  updateAvailable: boolean;
 }
 
 export interface StartUpdateBody {
