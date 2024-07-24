@@ -255,8 +255,8 @@ type ReleaseNotesResponse struct {
 // latestAvailableFromVersionService queries Percona version service and returns:
 // - list of versions between the installed version and the latest version (inclusive)
 // - the latest available version (i.e., the latest minor version for the current major version).
-// If the current version is the latest minor version, it returns the next major version.
-// If the current version is the latest version, it returns the current version.
+// If the current version is the latest minor version, it returns the next major version as the latest.
+// If the current version is the latest version, it returns the current version as the latest.
 func (up *Updater) latestAvailableFromVersionService(ctx context.Context) ([]*version.DockerVersionInfo, *version.DockerVersionInfo, error) {
 	versionServiceUrl := os.Getenv("PMM_DEV_VERSION_SERVICE_URL")
 	if versionServiceUrl == "" {
@@ -290,7 +290,6 @@ func (up *Updater) latestAvailableFromVersionService(ctx context.Context) ([]*ve
 }
 
 func (up *Updater) parseDockerTag(tag string) ([]*version.DockerVersionInfo, *version.DockerVersionInfo, error) {
-	// todo (michael): support reading version diffs from custom docker image.
 	splitTag := strings.Split(tag, ":")
 	if len(splitTag) != 2 {
 		return nil, nil, fmt.Errorf("invalid tag: %s", tag)
