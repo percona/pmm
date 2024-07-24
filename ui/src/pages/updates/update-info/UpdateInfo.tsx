@@ -1,6 +1,7 @@
 import { Link, Stack, Typography } from '@mui/material';
 import { FC } from 'react';
 import { Messages } from './UpdateInfo.messages';
+import { PMM_DOCS_UPDATES_URL } from 'constants';
 
 export const UpdateInfo: FC = () => (
   <Stack
@@ -13,7 +14,13 @@ export const UpdateInfo: FC = () => (
     <Typography>
       {Messages.upgrading}
       <br />
-      <Link>{Messages.readMore}</Link>
+      <Link
+        href={PMM_DOCS_UPDATES_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {Messages.readMore}
+      </Link>
     </Typography>
     <Typography variant="sectionHeading" textTransform="uppercase">
       {Messages.whatsNext}
