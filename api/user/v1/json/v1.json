@@ -1,0 +1,264 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "title": "PMM User API",
+    "version": "v1"
+  },
+  "paths": {
+    "/v1/users": {
+      "get": {
+        "description": "Retrieve user details for all users from PMM server",
+        "tags": [
+          "UserService"
+        ],
+        "summary": "List all users",
+        "operationId": "ListUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "users": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "role_ids": {
+                        "description": "List of role IDs assigned to the user.",
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "x-order": 1
+                      },
+                      "user_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 0
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/me": {
+      "get": {
+        "description": "Retrieve user details from PMM server",
+        "tags": [
+          "UserService"
+        ],
+        "summary": "Get user details",
+        "operationId": "GetUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-order": 2
+                },
+                "product_tour_completed": {
+                  "type": "boolean",
+                  "title": "Product Tour",
+                  "x-order": 1
+                },
+                "snoozed_pmm_version": {
+                  "type": "string",
+                  "title": "Snoozed PMM version update",
+                  "x-order": 3
+                },
+                "user_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "title": "User ID",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Update user details in PMM server",
+        "tags": [
+          "UserService"
+        ],
+        "summary": "Update a user",
+        "operationId": "UpdateUser",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-nullable": true,
+                  "x-order": 1
+                },
+                "product_tour_completed": {
+                  "type": "boolean",
+                  "title": "Product Tour",
+                  "x-nullable": true,
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-order": 2
+                },
+                "product_tour_completed": {
+                  "type": "boolean",
+                  "title": "Product Tour",
+                  "x-order": 1
+                },
+                "snoozed_pmm_version": {
+                  "type": "string",
+                  "title": "Snooze update alert for a PMM version",
+                  "x-order": 3
+                },
+                "user_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "title": "User ID",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "UserService"
+    }
+  ]
+}

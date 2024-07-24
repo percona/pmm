@@ -19,16 +19,16 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 func TestAddServicePostgreSQL(t *testing.T) {
 	t.Run("Address and port", func(t *testing.T) {
 		res := &addServicePostgreSQLResult{
-			Service: &services.AddPostgreSQLServiceOKBodyPostgresql{
-				ServiceID:      "/service_id/1",
+			Service: &services.AddServiceOKBodyPostgresql{
+				ServiceID:      "1",
 				ServiceName:    "PostgreSQL Service",
-				NodeID:         "/node_id/1",
+				NodeID:         "1",
 				Address:        "127.0.0.1",
 				Port:           5432,
 				Environment:    "environment",
@@ -38,9 +38,9 @@ func TestAddServicePostgreSQL(t *testing.T) {
 			},
 		}
 		expected := `PostgreSQL Service added.
-Service ID     : /service_id/1
+Service ID     : 1
 Service name   : PostgreSQL Service
-Node ID        : /node_id/1
+Node ID        : 1
 Address        : 127.0.0.1
 Port           : 5432
 Environment    : environment
@@ -53,10 +53,10 @@ Custom labels  : map[foo:bar key:value]
 
 	t.Run("Socket", func(t *testing.T) {
 		res := &addServicePostgreSQLResult{
-			Service: &services.AddPostgreSQLServiceOKBodyPostgresql{
-				ServiceID:      "/service_id/1",
+			Service: &services.AddServiceOKBodyPostgresql{
+				ServiceID:      "1",
 				ServiceName:    "PostgreSQL Socket Service",
-				NodeID:         "/node_id/1",
+				NodeID:         "1",
 				Socket:         "/var/run/postgresql",
 				Environment:    "environment",
 				Cluster:        "postgresql-cluster",
@@ -65,9 +65,9 @@ Custom labels  : map[foo:bar key:value]
 			},
 		}
 		expected := `PostgreSQL Service added.
-Service ID     : /service_id/1
+Service ID     : 1
 Service name   : PostgreSQL Socket Service
-Node ID        : /node_id/1
+Node ID        : 1
 Socket         : /var/run/postgresql
 Environment    : environment
 Cluster name   : postgresql-cluster

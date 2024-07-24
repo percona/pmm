@@ -16,8 +16,8 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 var addServiceProxySQLResultT = commands.ParseTemplate(`
@@ -38,7 +38,7 @@ Custom labels  : {{ .Service.CustomLabels }}
 `)
 
 type addServiceProxySQLResult struct {
-	Service *services.AddProxySQLServiceOKBodyProxysql `json:"proxysql"`
+	Service *services.AddServiceOKBodyProxysql `json:"proxysql"`
 }
 
 func (res *addServiceProxySQLResult) Result() {}
@@ -63,22 +63,24 @@ type AddServiceProxySQLCommand struct {
 // RunCmd executes the AddServiceProxySQLCommand and returns the result.
 func (cmd *AddServiceProxySQLCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-	params := &services.AddProxySQLServiceParams{
-		Body: services.AddProxySQLServiceBody{
-			ServiceName:    cmd.ServiceName,
-			NodeID:         cmd.NodeID,
-			Address:        cmd.Address,
-			Port:           cmd.Port,
-			Socket:         cmd.Socket,
-			Environment:    cmd.Environment,
-			Cluster:        cmd.Cluster,
-			ReplicationSet: cmd.ReplicationSet,
-			CustomLabels:   customLabels,
+	params := &services.AddServiceParams{
+		Body: services.AddServiceBody{
+			Proxysql: &services.AddServiceParamsBodyProxysql{
+				ServiceName:    cmd.ServiceName,
+				NodeID:         cmd.NodeID,
+				Address:        cmd.Address,
+				Port:           cmd.Port,
+				Socket:         cmd.Socket,
+				Environment:    cmd.Environment,
+				Cluster:        cmd.Cluster,
+				ReplicationSet: cmd.ReplicationSet,
+				CustomLabels:   customLabels,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Services.AddProxySQLService(params)
+	resp, err := client.Default.ServicesService.AddService(params)
 	if err != nil {
 		return nil, err
 	}

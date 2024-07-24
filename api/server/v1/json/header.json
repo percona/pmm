@@ -1,0 +1,59 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "PMM Server API",
+    "version": "v1"
+  },
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "paths": {
+    "/v1/server/logs.zip": {
+      "get": {
+        "tags": [
+          "ServerService"
+        ],
+        "description": "Returns the PMM Server logs.",
+        "summary": "Logs",
+        "operationId": "Logs",
+        "parameters": [
+          {
+            "type": "boolean",
+            "description": "Include performance profiling data,",
+            "name": "pprof",
+            "in": "query"
+          }
+        ],
+        "produces": ["application/zip"],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

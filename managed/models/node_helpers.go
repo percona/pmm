@@ -238,7 +238,7 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 
 // CreateNode creates a Node.
 func CreateNode(q *reform.Querier, nodeType NodeType, params *CreateNodeParams) (*Node, error) {
-	id := "/node_id/" + uuid.New().String()
+	id := uuid.New().String()
 	return createNodeWithID(q, id, nodeType, params)
 }
 

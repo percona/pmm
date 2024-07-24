@@ -10,7 +10,7 @@ services:
     #   context: .
     #   args:
     #     PMM_SERVER_IMAGE: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:3-dev-latest}
-    #   dockerfile: devcontainer.Dockerfile
+    #   dockerfile: ./.devcontainer/Dockerfile
     container_name: pmm-server
     hostname: pmm-server
     networks:
@@ -19,12 +19,12 @@ services:
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
       - AWS_SECRET_KEY=${AWS_SECRET_KEY}
       - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
-      - PMM_LESS_LOG_NOISE=1
       - PMM_RELEASE_PATH=/root/go/bin
       - PMM_ENABLE_ACCESS_CONTROL=${PMM_ENABLE_ACCESS_CONTROL:-0}
       - PMM_DEV_VERSION_SERVICE_URL=${PMM_DEV_VERSION_SERVICE_URL}
       - PMM_WATCHTOWER_HOST=${PMM_WATCHTOWER_HOST:-http://watchtower:8080}
       - PMM_WATCHTOWER_TOKEN=${PMM_WATCHTOWER_TOKEN:-INSECURE_TOKEN}
+      - PMM_RELEASE_VERSION=3.0.0-alpha
       # - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check.localhost
       # - PMM_DEV_PERCONA_PLATFORM_INSECURE=1
       # - PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY=<public key>
@@ -33,8 +33,6 @@ services:
       # - PMM_DEV_TELEMETRY_RETRY_BACKOFF=10s
       # - PMM_CLICKHOUSE_ADDR=127.0.0.1:9000
       # - PMM_CLICKHOUSE_DATABASE=pmm
-      # - PMM_CLICKHOUSE_BLOCK_SIZE=10000
-      # - PMM_CLICKHOUSE_POOL_SIZE=2
       # - PMM_DEBUG=1
       # - PMM_DEV_ADVISOR_CHECKS_FILE=/srv/checks/local-checks.yml
       # - PMM_POSTGRES_ADDR=pg
@@ -232,8 +230,6 @@ services:
       # - PMM_DEV_TELEMETRY_DISABLE_START_DELAY=1
       - PMM_CLICKHOUSE_ADDR=${CH_HOSTNAME:-ch}:9000
       - PMM_CLICKHOUSE_DATABASE=pmm
-      - PMM_CLICKHOUSE_BLOCK_SIZE=10000
-      - PMM_CLICKHOUSE_POOL_SIZE=2
       - PMM_DISABLE_BUILTIN_CLICKHOUSE=1
       - PMM_POSTGRES_ADDR=pg:5432
       - PMM_POSTGRES_USERNAME=pmm-managed
@@ -246,7 +242,7 @@ services:
       - GF_DATABASE_URL=postgres://grafana:grafana@pg:5432/grafana
       # - GF_DATABASE_SSL_MODE=require
       # - PMM_DEBUG=1
-      - GO_VERSION=1.20
+      - GO_VERSION=1.22
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
       - PMM_TEST_HA_ENABLE=1
       - PMM_TEST_HA_BOOTSTRAP=1
@@ -315,8 +311,6 @@ services:
       # - PMM_DEV_TELEMETRY_DISABLE_START_DELAY=1
       - PMM_CLICKHOUSE_ADDR=${CH_HOSTNAME:-ch}:9000
       - PMM_CLICKHOUSE_DATABASE=pmm
-      - PMM_CLICKHOUSE_BLOCK_SIZE=10000
-      - PMM_CLICKHOUSE_POOL_SIZE=2
       - PMM_DISABLE_BUILTIN_CLICKHOUSE=1
       - PMM_POSTGRES_ADDR=pg:5432
       - PMM_POSTGRES_USERNAME=pmm-managed
@@ -397,8 +391,6 @@ services:
       # - PMM_DEV_TELEMETRY_DISABLE_START_DELAY=1
       - PMM_CLICKHOUSE_ADDR=${CH_HOSTNAME:-ch}:9000
       - PMM_CLICKHOUSE_DATABASE=pmm
-      - PMM_CLICKHOUSE_BLOCK_SIZE=10000
-      - PMM_CLICKHOUSE_POOL_SIZE=2
       - PMM_DISABLE_BUILTIN_CLICKHOUSE=1
       - PMM_POSTGRES_ADDR=pg:5432
       - PMM_POSTGRES_USERNAME=pmm-managed

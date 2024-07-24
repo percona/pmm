@@ -25,7 +25,7 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/percona/pmm/admin/agentlocal"
-	"github.com/percona/pmm/api/inventorypb/types"
+	"github.com/percona/pmm/api/inventory/v1/types"
 	"github.com/percona/pmm/version"
 )
 

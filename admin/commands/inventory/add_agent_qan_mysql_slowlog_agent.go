@@ -20,8 +20,8 @@ import (
 	"github.com/alecthomas/units"
 
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 var addAgentQANMySQLSlowlogAgentResultT = commands.ParseTemplate(`
@@ -41,7 +41,7 @@ Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentQANMySQLSlowlogAgentResult struct {
-	Agent *agents.AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent `json:"qan_mysql_slowlog_agent"`
+	Agent *agents.AddAgentOKBodyQANMysqlSlowlogAgent `json:"qan_mysql_slowlog_agent"`
 }
 
 func (res *addAgentQANMySQLSlowlogAgentResult) Result() {}
@@ -114,29 +114,31 @@ func (cmd *AddAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error
 		disableCommentsParsing = false
 	}
 
-	params := &agents.AddQANMySQLSlowlogAgentParams{
-		Body: agents.AddQANMySQLSlowlogAgentBody{
-			PMMAgentID:             cmd.PMMAgentID,
-			ServiceID:              cmd.ServiceID,
-			Username:               cmd.Username,
-			Password:               cmd.Password,
-			CustomLabels:           customLabels,
-			SkipConnectionCheck:    cmd.SkipConnectionCheck,
-			DisableCommentsParsing: disableCommentsParsing,
-			MaxQueryLength:         cmd.MaxQueryLength,
-			DisableQueryExamples:   cmd.DisableQueryExamples,
-			MaxSlowlogFileSize:     strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
-			TLS:                    cmd.TLS,
-			TLSSkipVerify:          cmd.TLSSkipVerify,
-			TLSCa:                  tlsCa,
-			TLSCert:                tlsCert,
-			TLSKey:                 tlsKey,
-			LogLevel:               &cmd.LogLevel,
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			QANMysqlSlowlogAgent: &agents.AddAgentParamsBodyQANMysqlSlowlogAgent{
+				PMMAgentID:             cmd.PMMAgentID,
+				ServiceID:              cmd.ServiceID,
+				Username:               cmd.Username,
+				Password:               cmd.Password,
+				CustomLabels:           customLabels,
+				SkipConnectionCheck:    cmd.SkipConnectionCheck,
+				DisableCommentsParsing: disableCommentsParsing,
+				MaxQueryLength:         cmd.MaxQueryLength,
+				DisableQueryExamples:   cmd.DisableQueryExamples,
+				MaxSlowlogFileSize:     strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
+				TLS:                    cmd.TLS,
+				TLSSkipVerify:          cmd.TLSSkipVerify,
+				TLSCa:                  tlsCa,
+				TLSCert:                tlsCert,
+				TLSKey:                 tlsKey,
+				LogLevel:               &cmd.LogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddQANMySQLSlowlogAgent(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

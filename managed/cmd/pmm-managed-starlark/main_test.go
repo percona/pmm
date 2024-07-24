@@ -28,7 +28,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/services/checks"
 )
 
@@ -119,7 +119,7 @@ func TestStarlarkSandbox(t *testing.T) { //nolint:tparallel
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			result, err := agentpb.MarshalActionQueryDocsResult(validQueryActionResult)
+			result, err := agentv1.MarshalActionQueryDocsResult(validQueryActionResult)
 			require.NoError(t, err)
 
 			data := &checks.StarlarkScriptData{

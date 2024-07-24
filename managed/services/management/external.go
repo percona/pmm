@@ -22,37 +22,18 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
 
-// ExternalService External Management Service.
-type ExternalService struct {
-	db    *reform.DB
-	vmdb  prometheusService
-	state agentsStateUpdater
-	cc    connectionChecker
-
-	managementpb.UnimplementedExternalServer
-}
-
-// NewExternalService creates new External Management Service.
-func NewExternalService(db *reform.DB, vmdb prometheusService, state agentsStateUpdater, cc connectionChecker) *ExternalService {
-	return &ExternalService{
-		db:    db,
-		vmdb:  vmdb,
-		state: state,
-		cc:    cc,
-	}
-}
-
 // AddExternal adds an external service based on the provided request.
-func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.AddExternalRequest) (*managementpb.AddExternalResponse, error) {
-	res := &managementpb.AddExternalResponse{}
+func (s *ManagementService) addExternal(ctx context.Context, req *managementv1.AddExternalServiceParams) (*managementv1.AddServiceResponse, error) {
+	external := &managementv1.ExternalServiceResult{}
 	var pmmAgentID *string
-	if e := e.db.InTransaction(func(tx *reform.TX) error {
+
+	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		if (req.NodeId == "") != (req.RunsOnNodeId == "") {
 			return status.Error(codes.InvalidArgument, "runs_on_node_id and node_id should be specified together.")
 		}
@@ -86,13 +67,13 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.ExternalService) //nolint:forcetypeassert
+		external.Service = invService.(*inventoryv1.ExternalService) //nolint:forcetypeassert
 
-		if req.MetricsMode == managementpb.MetricsMode_AUTO {
+		if req.MetricsMode == managementv1.MetricsMode_METRICS_MODE_UNSPECIFIED {
 			agentIDs, err := models.FindPMMAgentsRunningOnNode(tx.Querier, req.RunsOnNodeId)
 			switch {
 			case err != nil || len(agentIDs) != 1:
-				req.MetricsMode = managementpb.MetricsMode_PULL
+				req.MetricsMode = managementv1.MetricsMode_METRICS_MODE_PULL
 			default:
 				req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, agentIDs[0].AgentID)
 				if err != nil {
@@ -118,7 +99,7 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 		}
 
 		if !req.SkipConnectionCheck {
-			if err = e.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
 		}
@@ -127,19 +108,28 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 		if err != nil {
 			return err
 		}
-		res.ExternalExporter = agent.(*inventorypb.ExternalExporter) //nolint:forcetypeassert
+		external.ExternalExporter = agent.(*inventoryv1.ExternalExporter) //nolint:forcetypeassert
+
 		pmmAgentID = row.PMMAgentID
 
 		return nil
-	}); e != nil {
-		return nil, e
+	})
+
+	if errTx != nil {
+		return nil, errTx
 	}
-	// we have to trigger after transaction
+
+	// we have to trigger these once the transaction completes
 	if pmmAgentID != nil {
 		// It's required to regenerate victoriametrics config file.
-		e.state.RequestStateUpdate(ctx, *pmmAgentID)
+		s.state.RequestStateUpdate(ctx, *pmmAgentID)
 	} else {
-		e.vmdb.RequestConfigurationUpdate()
+		s.vmdb.RequestConfigurationUpdate()
 	}
-	return res, nil
+
+	return &managementv1.AddServiceResponse{
+		Service: &managementv1.AddServiceResponse_External{
+			External: external,
+		},
+	}, nil
 }
