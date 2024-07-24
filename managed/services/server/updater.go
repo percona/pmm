@@ -126,6 +126,13 @@ func (up *Updater) sendRequestToWatchtower(ctx context.Context, newImageName str
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
+	if resp.StatusCode == http.StatusBadRequest {
+		bytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return errors.Wrap(err, "failed to read response body")
+		}
+		return grpcstatus.Error(codes.FailedPrecondition, string(bytes))
+	}
 	// Check the response
 	if resp.StatusCode != http.StatusOK {
 		return errors.Errorf("received non-OK response: %v", resp.StatusCode)
@@ -144,22 +151,25 @@ func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 	up.performM.Lock()
 	defer up.performM.Unlock()
 	if up.running {
-		return errors.New("update already in progress")
+		return grpcstatus.Error(codes.FailedPrecondition, "update already in progress")
 	}
 	up.running = true
 	if newImageName == "" {
+		up.running = false
 		return errors.New("newImageName is empty")
 	}
 
 	err := up.checkWatchtowerHost()
 	if err != nil {
+		up.running = false
 		up.l.WithError(err).Error("Failed to check watchtower host")
 		return grpcstatus.Errorf(codes.FailedPrecondition, "failed to check watchtower host")
 	}
 
 	if err := up.sendRequestToWatchtower(ctx, newImageName); err != nil {
+		up.running = false
 		up.l.WithError(err).Error("Failed to trigger update")
-		return errors.Wrap(err, "failed to trigger update")
+		return err
 	}
 	return nil
 }
