@@ -374,7 +374,7 @@ func RegisterServerServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/server.v1.ServerService/ListUpdates", runtime.WithHTTPPathPattern("/v1/Updates/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/server.v1.ServerService/ListUpdates", runtime.WithHTTPPathPattern("/v1/server/updates/changelogs"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -640,7 +640,7 @@ func RegisterServerServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/server.v1.ServerService/ListUpdates", runtime.WithHTTPPathPattern("/v1/Updates/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/server.v1.ServerService/ListUpdates", runtime.WithHTTPPathPattern("/v1/server/updates/changelogs"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -772,7 +772,7 @@ var (
 
 	pattern_ServerService_CheckUpdates_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "server", "updates"}, ""))
 
-	pattern_ServerService_ListUpdates_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Updates", "List"}, ""))
+	pattern_ServerService_ListUpdates_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "server", "updates", "changelogs"}, ""))
 
 	pattern_ServerService_StartUpdate_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "server", "updates"}, "start"))
 

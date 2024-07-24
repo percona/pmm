@@ -128,7 +128,7 @@ func TestListUpdates(t *testing.T) {
 	}
 
 	// that call should always be fast
-	version, err := serverClient.Default.Server.Version(server.NewVersionParamsWithTimeout(fast))
+	version, err := serverClient.Default.ServerService.Version(server.NewVersionParamsWithTimeout(fast))
 	require.NoError(t, err)
 	if version.Payload.Server == nil || version.Payload.Server.Version == "" {
 		t.Skip("skipping test in developer's environment")
@@ -138,7 +138,7 @@ func TestListUpdates(t *testing.T) {
 		Context: pmmapitests.Context,
 	}
 	params.SetTimeout(slow) // that call can be slow with a cold cache
-	res, err := serverClient.Default.Server.ListUpdates(params)
+	res, err := serverClient.Default.ServerService.ListUpdates(params)
 	require.NoError(t, err)
 
 	if len(res.Payload.Updates) > 0 {

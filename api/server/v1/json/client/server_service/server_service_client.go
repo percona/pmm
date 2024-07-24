@@ -251,9 +251,9 @@ func (a *Client) LeaderHealthCheck(params *LeaderHealthCheckParams, opts ...Clie
 }
 
 /*
-ListUpdates lists updates
+ListUpdates lists all the changes between the installed version and the latest available version
 
-Lists available PMM Server updates between the installed version and the latest available version.
+List all the changes between the installed version and the latest available version
 */
 func (a *Client) ListUpdates(params *ListUpdatesParams, opts ...ClientOption) (*ListUpdatesOK, error) {
 	// TODO: Validate the params before sending
@@ -263,7 +263,7 @@ func (a *Client) ListUpdates(params *ListUpdatesParams, opts ...ClientOption) (*
 	op := &runtime.ClientOperation{
 		ID:                 "ListUpdates",
 		Method:             "GET",
-		PathPattern:        "/v1/Updates/List",
+		PathPattern:        "/v1/server/updates/changelogs",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

@@ -59,7 +59,7 @@ type ListUpdatesOK struct {
 }
 
 func (o *ListUpdatesOK) Error() string {
-	return fmt.Sprintf("[GET /v1/Updates/List][%d] listUpdatesOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/server/updates/changelogs][%d] listUpdatesOk  %+v", 200, o.Payload)
 }
 
 func (o *ListUpdatesOK) GetPayload() *ListUpdatesOKBody {
@@ -101,7 +101,7 @@ func (o *ListUpdatesDefault) Code() int {
 }
 
 func (o *ListUpdatesDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/Updates/List][%d] ListUpdates default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/server/updates/changelogs][%d] ListUpdates default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ListUpdatesDefault) GetPayload() *ListUpdatesDefaultBody {

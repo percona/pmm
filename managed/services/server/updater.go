@@ -209,8 +209,8 @@ func (up *Updater) latest(ctx context.Context) ([]*version.DockerVersionInfo, *v
 		return up.parseDockerTag(os.Getenv("PMM_DEV_UPDATE_DOCKER_IMAGE"))
 	}
 
-	// If file does not exist, and ENV variable is not set, go get the latest tag from DockerHub
-	return up.latestAvailableFromDockerHub(ctx)
+	// If file does not exist, and ENV variable is not set, go get the latest versions from Percona version service.
+	return up.latestAvailableFromVersionService(ctx)
 }
 
 func (up *Updater) readFromFile() (*version.DockerVersionInfo, error) {
@@ -233,25 +233,34 @@ func (up *Updater) readFromFile() (*version.DockerVersionInfo, error) {
 }
 
 type result struct {
-	Name          string    `json:"name"`
-	TagLastPushed time.Time `json:"tag_last_pushed"`
+	Version   string `json:"version"`
+	ImageInfo struct {
+		ImagePath             string    `json:"imagePath"`
+		ImageReleaseTimestamp time.Time `json:"imageReleaseTimestamp"`
+	} `json:"imageInfo"`
 }
 
-// TagsResponse is a response from DockerHub.
-type TagsResponse struct {
-	Results []result `json:"results"`
+// MetadataResponse is a response from the metadata endpoint on Percona version service.
+type MetadataResponse struct {
+	Versions []result `json:"versions"`
 }
 
-// latestAvailableFromDockerHub returns the latest available version from DockerHub.
-// It returns the latest minor version for the current major version.
+// ReleaseNotesResponse is a response from the release-notes endpoint on Percona version service.
+type ReleaseNotesResponse struct {
+	ReleaseNote string `json:"releaseNote"`
+}
+
+// latestAvailableFromVersionService queries Percona version service and returns:
+// - list of versions between the installed version and the latest version (inclusive)
+// - the latest available version (i.e., the latest minor version for the current major version).
 // If the current version is the latest minor version, it returns the next major version.
 // If the current version is the latest version, it returns the current version.
-func (up *Updater) latestAvailableFromDockerHub(ctx context.Context) ([]*version.DockerVersionInfo, *version.DockerVersionInfo, error) {
-	repo := os.Getenv("PMM_DEV_UPDATE_DOCKER_REPO")
-	if repo == "" {
-		repo = "percona/pmm-server"
+func (up *Updater) latestAvailableFromVersionService(ctx context.Context) ([]*version.DockerVersionInfo, *version.DockerVersionInfo, error) {
+	versionServiceUrl := os.Getenv("PMM_DEV_VERSION_SERVICE_URL")
+	if versionServiceUrl == "" {
+		versionServiceUrl = "http://192.168.167.1:11000"
 	}
-	u := "https://registry.hub.docker.com/v2/repositories/" + repo + "/tags/?page_size=100"
+	u := versionServiceUrl + "/metadata/v1/pmm-server"
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		up.l.WithError(err).Error("Failed to create request")
@@ -259,23 +268,20 @@ func (up *Updater) latestAvailableFromDockerHub(ctx context.Context) ([]*version
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		up.l.WithError(err).Error("Failed to get tags from DockerHub")
-		return nil, nil, errors.Wrap(err, "failed to get tags from DockerHub")
+		up.l.WithError(err).Error("Failed to get PMM server versions")
+		return nil, nil, errors.Wrap(err, "failed to get PMM server versions")
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
-	var tagsResponse TagsResponse
-	if err := json.NewDecoder(resp.Body).Decode(&tagsResponse); err != nil {
+	var metadataResponse MetadataResponse
+	if err := json.NewDecoder(resp.Body).Decode(&metadataResponse); err != nil {
 		up.l.WithError(err).Error("Failed to decode response")
 		return nil, nil, errors.Wrap(err, "failed to decode response")
 	}
 
-	if len(tagsResponse.Results) != 0 {
-		up.l.Infof("Found %d tags", len(tagsResponse.Results))
-		updates, next := up.next(*up.currentVersion(), tagsResponse.Results)
-		if next.DockerImage != "" {
-			next.DockerImage = repo + ":" + next.DockerImage
-		}
+	if len(metadataResponse.Versions) != 0 {
+		up.l.Infof("Found %d versions", len(metadataResponse.Versions))
+		updates, next := up.next(*up.currentVersion(), metadataResponse.Versions)
 		return updates, next, err
 	}
 	return nil, nil, errors.New("no tags found")
@@ -305,9 +311,9 @@ func (up *Updater) next(currentVersion version.Parsed, results []result) ([]*ver
 	updates := version.DockerVersionsInfo{}
 	var nextMajor *version.DockerVersionInfo
 	for _, result := range results {
-		v, err := version.Parse(result.Name)
+		v, err := version.Parse(result.Version)
 		if err != nil {
-			up.l.Debugf("Failed to parse version: %s", result.Name)
+			up.l.Debugf("Failed to parse version: %s", result.Version)
 			continue
 		}
 		if !currentVersion.Less(v) {
@@ -323,8 +329,8 @@ func (up *Updater) next(currentVersion version.Parsed, results []result) ([]*ver
 		if v.Rest == "" && currentVersion.Less(v) {
 			updates = append(updates, &version.DockerVersionInfo{
 				Version:          *v,
-				DockerImage:      result.Name,
-				BuildTime:        result.TagLastPushed,
+				DockerImage:      result.ImageInfo.ImagePath,
+				BuildTime:        result.ImageInfo.ImageReleaseTimestamp,
 				ReleaseNotesURL:  releaseNotesURL,
 				ReleaseNotesText: releaseNote,
 			})
@@ -333,8 +339,8 @@ func (up *Updater) next(currentVersion version.Parsed, results []result) ([]*ver
 		if v.Major == currentVersion.Major && nextMinor.Version.Less(v) {
 			nextMinor = &version.DockerVersionInfo{
 				Version:          *v,
-				DockerImage:      result.Name,
-				BuildTime:        result.TagLastPushed,
+				DockerImage:      result.ImageInfo.ImagePath,
+				BuildTime:        result.ImageInfo.ImageReleaseTimestamp,
 				ReleaseNotesURL:  releaseNotesURL,
 				ReleaseNotesText: releaseNote,
 			}
@@ -343,8 +349,8 @@ func (up *Updater) next(currentVersion version.Parsed, results []result) ([]*ver
 			(nextMajor == nil || (nextMajor.Version.Less(v) && nextMajor.Version.Major == v.Major) || v.Major < nextMajor.Version.Major) {
 			nextMajor = &version.DockerVersionInfo{
 				Version:          *v,
-				DockerImage:      result.Name,
-				BuildTime:        result.TagLastPushed,
+				DockerImage:      result.ImageInfo.ImagePath,
+				BuildTime:        result.ImageInfo.ImageReleaseTimestamp,
 				ReleaseNotesURL:  releaseNotesURL,
 				ReleaseNotesText: releaseNote,
 			}
@@ -476,30 +482,33 @@ func (up *Updater) getReleaseNotesText(ctx context.Context, version version.Pars
 		return releaseNotes, nil
 	}
 
-	u := "https://api.github.com/repos/percona/pmm-doc/contents/docs/release-notes/2.41.0.md"
+	versionServiceUrl := os.Getenv("PMM_DEV_VERSION_SERVICE_URL")
+	if versionServiceUrl == "" {
+		versionServiceUrl = "http://192.168.167.1:11000"
+	}
+	u := versionServiceUrl + "/release-notes/v1/pmm/" + versionString
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
-	req.Header.Set("Accept", "application/vnd.github.raw+json")
 	if err != nil {
 		up.l.WithError(err).Error("Failed to create request")
 		return "", errors.Wrap(err, "failed to create request")
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		up.l.WithError(err).Error("Failed to get release notes")
-		return "", errors.Wrap(err, "failed to get release notes")
+		up.l.WithError(err).Errorf("Failed to get release note for version: %s", versionString)
+		return "", errors.Wrapf(err, "failed to get release notes for version: %s", versionString)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		up.l.Infof("Failed to get release notes for PMM %s, got HTTP %d", version.String(), resp.StatusCode)
+		up.l.Errorf("Failed to get release notes for PMM %s, got HTTP %d", version.String(), resp.StatusCode)
 		return "", nil
 	}
 	defer resp.Body.Close() //nolint:errcheck
-
-	content, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", errors.Wrap(err, "failed to read file content")
+	var rnResponse ReleaseNotesResponse
+	if err := json.NewDecoder(resp.Body).Decode(&rnResponse); err != nil {
+		up.l.WithError(err).Error("Failed to decode response")
+		return "", errors.Wrap(err, "failed to decode response")
 	}
-	releaseNotes := string(content)
-	up.releaseNotes[versionString] = releaseNotes
-	return releaseNotes, nil
+
+	up.releaseNotes[versionString] = rnResponse.ReleaseNote
+	return rnResponse.ReleaseNote, nil
 }
