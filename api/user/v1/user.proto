@@ -27,6 +27,8 @@ message UpdateUserRequest {
   optional bool product_tour_completed = 2;
   // Alerting Tour
   optional bool alerting_tour_completed = 3;
+  // Snooze update alert for a PMM version
+  optional string snoozed_pmm_version = 4;
 }
 
 message UpdateUserResponse {

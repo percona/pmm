@@ -100,7 +100,7 @@ func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest)
 			AlertingTour: req.AlertingTourCompleted,
 		}
 		if req.SnoozedPmmVersion != nil {
-			params.SnoozedPMMVersion = req.SnoozedPmmVersion.Value
+			params.SnoozedPMMVersion = req.SnoozedPmmVersion
 		}
 
 		userInfo, err = models.UpdateUser(tx.Querier, params)

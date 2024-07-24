@@ -34,7 +34,7 @@ type UpdateUserParams struct {
 	UserID            int
 	Tour              *bool
 	AlertingTour      *bool
-	SnoozedPMMVersion string
+	SnoozedPMMVersion *string
 }
 
 // GetOrCreateUser returns user and optionally creates it, if not in database yet.
@@ -107,8 +107,8 @@ func UpdateUser(q *reform.Querier, params *UpdateUserParams) (*UserDetails, erro
 	if params.AlertingTour != nil {
 		row.AlertingTour = *params.AlertingTour
 	}
-	if params.SnoozedPMMVersion != "" {
-		row.SnoozedPMMVersion = params.SnoozedPMMVersion
+	if params.SnoozedPMMVersion != nil {
+		row.SnoozedPMMVersion = *params.SnoozedPMMVersion
 	}
 
 	if err = q.Update(row); err != nil {

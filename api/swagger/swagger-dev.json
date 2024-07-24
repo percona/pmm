@@ -27919,6 +27919,12 @@
                   "title": "Alerting Tour",
                   "x-nullable": true,
                   "x-order": 1
+                },
+                "snoozed_pmm_version": {
+                  "type": "string",
+                  "title": "Snooze update alert for a PMM version",
+                  "x-nullable": true,
+                  "x-order": 2
                 }
               }
             }

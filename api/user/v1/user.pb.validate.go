@@ -273,6 +273,10 @@ func (m *UpdateUserRequest) validate(all bool) error {
 		// no validation rules for AlertingTourCompleted
 	}
 
+	if m.SnoozedPmmVersion != nil {
+		// no validation rules for SnoozedPmmVersion
+	}
+
 	if len(errors) > 0 {
 		return UpdateUserRequestMultiError(errors)
 	}
