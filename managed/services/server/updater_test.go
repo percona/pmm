@@ -96,7 +96,8 @@ func TestUpdater(t *testing.T) {
 					currentVersion: "3.0.0",
 					results: []result{
 						{Version: "3.0.0"},
-						{Version: "3.0.1",
+						{
+							Version: "3.0.1",
 							ImageInfo: imageInfo{
 								ImageReleaseTimestamp: time.Date(2024, 3, 20, 15, 48, 7, 145620000, time.UTC),
 							},

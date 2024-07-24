@@ -47,6 +47,7 @@ type DockerVersionInfo struct {
 	ReleaseNotesText string    `json:"release_notes_text"`
 }
 
+// DockerVersionsInfo is a wrapper around a DockerVersionInfo array to implement sorting.
 type DockerVersionsInfo []*DockerVersionInfo
 
 func (d DockerVersionsInfo) Len() int { return len(d) }

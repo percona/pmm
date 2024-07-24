@@ -127,18 +127,17 @@ func TestListUpdates(t *testing.T) {
 		t.Skip("skipping PMM Server check update test")
 	}
 
-	// that call should always be fast
 	version, err := serverClient.Default.ServerService.Version(server.NewVersionParamsWithTimeout(fast))
 	require.NoError(t, err)
 	if version.Payload.Server == nil || version.Payload.Server.Version == "" {
 		t.Skip("skipping test in developer's environment")
 	}
 
-	params := &server.ListUpdatesParams{
+	params := &server.ListChangeLogsParams{
 		Context: pmmapitests.Context,
 	}
-	params.SetTimeout(slow) // that call can be slow with a cold cache
-	res, err := serverClient.Default.ServerService.ListUpdates(params)
+	params.SetTimeout(slow)
+	res, err := serverClient.Default.ServerService.ListChangeLogs(params)
 	require.NoError(t, err)
 
 	if len(res.Payload.Updates) > 0 {

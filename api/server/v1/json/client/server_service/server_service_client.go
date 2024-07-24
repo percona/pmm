@@ -40,7 +40,7 @@ type ClientService interface {
 
 	LeaderHealthCheck(params *LeaderHealthCheckParams, opts ...ClientOption) (*LeaderHealthCheckOK, error)
 
-	ListUpdates(params *ListUpdatesParams, opts ...ClientOption) (*ListUpdatesOK, error)
+	ListChangeLogs(params *ListChangeLogsParams, opts ...ClientOption) (*ListChangeLogsOK, error)
 
 	Logs(params *LogsParams, writer io.Writer, opts ...ClientOption) (*LogsOK, error)
 
@@ -251,24 +251,24 @@ func (a *Client) LeaderHealthCheck(params *LeaderHealthCheckParams, opts ...Clie
 }
 
 /*
-ListUpdates lists all the changes between the installed version and the latest available version
+ListChangeLogs lists all the changes between the installed version and the latest available version
 
 List all the changes between the installed version and the latest available version
 */
-func (a *Client) ListUpdates(params *ListUpdatesParams, opts ...ClientOption) (*ListUpdatesOK, error) {
+func (a *Client) ListChangeLogs(params *ListChangeLogsParams, opts ...ClientOption) (*ListChangeLogsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewListUpdatesParams()
+		params = NewListChangeLogsParams()
 	}
 	op := &runtime.ClientOperation{
-		ID:                 "ListUpdates",
+		ID:                 "ListChangeLogs",
 		Method:             "GET",
 		PathPattern:        "/v1/server/updates/changelogs",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ListUpdatesReader{formats: a.formats},
+		Reader:             &ListChangeLogsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -280,12 +280,12 @@ func (a *Client) ListUpdates(params *ListUpdatesParams, opts ...ClientOption) (*
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ListUpdatesOK)
+	success, ok := result.(*ListChangeLogsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ListUpdatesDefault)
+	unexpectedSuccess := result.(*ListChangeLogsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

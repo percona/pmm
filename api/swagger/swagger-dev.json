@@ -27464,7 +27464,7 @@
           "ServerService"
         ],
         "summary": "List all the changes between the installed version and the latest available version",
-        "operationId": "ListUpdates",
+        "operationId": "ListChangeLogs",
         "responses": {
           "200": {
             "description": "A successful response.",

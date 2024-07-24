@@ -91,9 +91,9 @@ message CheckUpdatesResponse {
   google.protobuf.Timestamp last_check = 5;
 }
 
-message ListUpdatesRequest {}
+message ListChangeLogsRequest {}
 
-message ListUpdatesResponse {
+message ListChangeLogsResponse {
   // List of available updates.
   repeated DockerVersionInfo updates = 1;
 
@@ -259,7 +259,7 @@ service ServerService {
     };
   }
 
-  rpc ListUpdates(ListUpdatesRequest) returns (ListUpdatesResponse) {
+  rpc ListChangeLogs(ListChangeLogsRequest) returns (ListChangeLogsResponse) {
     option (google.api.http) = {get: "/v1/server/updates/changelogs"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List all the changes between the installed version and the latest available version"

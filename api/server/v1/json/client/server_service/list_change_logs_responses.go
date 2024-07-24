@@ -18,22 +18,22 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// ListUpdatesReader is a Reader for the ListUpdates structure.
-type ListUpdatesReader struct {
+// ListChangeLogsReader is a Reader for the ListChangeLogs structure.
+type ListChangeLogsReader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListUpdatesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListChangeLogsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
-		result := NewListUpdatesOK()
+		result := NewListChangeLogsOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
 	default:
-		result := NewListUpdatesDefault(response.Code())
+		result := NewListChangeLogsDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -44,30 +44,30 @@ func (o *ListUpdatesReader) ReadResponse(response runtime.ClientResponse, consum
 	}
 }
 
-// NewListUpdatesOK creates a ListUpdatesOK with default headers values
-func NewListUpdatesOK() *ListUpdatesOK {
-	return &ListUpdatesOK{}
+// NewListChangeLogsOK creates a ListChangeLogsOK with default headers values
+func NewListChangeLogsOK() *ListChangeLogsOK {
+	return &ListChangeLogsOK{}
 }
 
 /*
-ListUpdatesOK describes a response with status code 200, with default header values.
+ListChangeLogsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
-type ListUpdatesOK struct {
-	Payload *ListUpdatesOKBody
+type ListChangeLogsOK struct {
+	Payload *ListChangeLogsOKBody
 }
 
-func (o *ListUpdatesOK) Error() string {
-	return fmt.Sprintf("[GET /v1/server/updates/changelogs][%d] listUpdatesOk  %+v", 200, o.Payload)
+func (o *ListChangeLogsOK) Error() string {
+	return fmt.Sprintf("[GET /v1/server/updates/changelogs][%d] listChangeLogsOk  %+v", 200, o.Payload)
 }
 
-func (o *ListUpdatesOK) GetPayload() *ListUpdatesOKBody {
+func (o *ListChangeLogsOK) GetPayload() *ListChangeLogsOKBody {
 	return o.Payload
 }
 
-func (o *ListUpdatesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-	o.Payload = new(ListUpdatesOKBody)
+func (o *ListChangeLogsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+	o.Payload = new(ListChangeLogsOKBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -77,39 +77,39 @@ func (o *ListUpdatesOK) readResponse(response runtime.ClientResponse, consumer r
 	return nil
 }
 
-// NewListUpdatesDefault creates a ListUpdatesDefault with default headers values
-func NewListUpdatesDefault(code int) *ListUpdatesDefault {
-	return &ListUpdatesDefault{
+// NewListChangeLogsDefault creates a ListChangeLogsDefault with default headers values
+func NewListChangeLogsDefault(code int) *ListChangeLogsDefault {
+	return &ListChangeLogsDefault{
 		_statusCode: code,
 	}
 }
 
 /*
-ListUpdatesDefault describes a response with status code -1, with default header values.
+ListChangeLogsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
-type ListUpdatesDefault struct {
+type ListChangeLogsDefault struct {
 	_statusCode int
 
-	Payload *ListUpdatesDefaultBody
+	Payload *ListChangeLogsDefaultBody
 }
 
-// Code gets the status code for the list updates default response
-func (o *ListUpdatesDefault) Code() int {
+// Code gets the status code for the list change logs default response
+func (o *ListChangeLogsDefault) Code() int {
 	return o._statusCode
 }
 
-func (o *ListUpdatesDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/server/updates/changelogs][%d] ListUpdates default  %+v", o._statusCode, o.Payload)
+func (o *ListChangeLogsDefault) Error() string {
+	return fmt.Sprintf("[GET /v1/server/updates/changelogs][%d] ListChangeLogs default  %+v", o._statusCode, o.Payload)
 }
 
-func (o *ListUpdatesDefault) GetPayload() *ListUpdatesDefaultBody {
+func (o *ListChangeLogsDefault) GetPayload() *ListChangeLogsDefaultBody {
 	return o.Payload
 }
 
-func (o *ListUpdatesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-	o.Payload = new(ListUpdatesDefaultBody)
+func (o *ListChangeLogsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+	o.Payload = new(ListChangeLogsDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -120,10 +120,10 @@ func (o *ListUpdatesDefault) readResponse(response runtime.ClientResponse, consu
 }
 
 /*
-ListUpdatesDefaultBody list updates default body
-swagger:model ListUpdatesDefaultBody
+ListChangeLogsDefaultBody list change logs default body
+swagger:model ListChangeLogsDefaultBody
 */
-type ListUpdatesDefaultBody struct {
+type ListChangeLogsDefaultBody struct {
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -131,11 +131,11 @@ type ListUpdatesDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*ListUpdatesDefaultBodyDetailsItems0 `json:"details"`
+	Details []*ListChangeLogsDefaultBodyDetailsItems0 `json:"details"`
 }
 
-// Validate validates this list updates default body
-func (o *ListUpdatesDefaultBody) Validate(formats strfmt.Registry) error {
+// Validate validates this list change logs default body
+func (o *ListChangeLogsDefaultBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -148,7 +148,7 @@ func (o *ListUpdatesDefaultBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ListUpdatesDefaultBody) validateDetails(formats strfmt.Registry) error {
+func (o *ListChangeLogsDefaultBody) validateDetails(formats strfmt.Registry) error {
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -161,9 +161,9 @@ func (o *ListUpdatesDefaultBody) validateDetails(formats strfmt.Registry) error 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("ListUpdates default" + "." + "details" + "." + strconv.Itoa(i))
+					return ve.ValidateName("ListChangeLogs default" + "." + "details" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("ListUpdates default" + "." + "details" + "." + strconv.Itoa(i))
+					return ce.ValidateName("ListChangeLogs default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -174,8 +174,8 @@ func (o *ListUpdatesDefaultBody) validateDetails(formats strfmt.Registry) error 
 	return nil
 }
 
-// ContextValidate validate this list updates default body based on the context it is used
-func (o *ListUpdatesDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this list change logs default body based on the context it is used
+func (o *ListChangeLogsDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateDetails(ctx, formats); err != nil {
@@ -188,14 +188,14 @@ func (o *ListUpdatesDefaultBody) ContextValidate(ctx context.Context, formats st
 	return nil
 }
 
-func (o *ListUpdatesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+func (o *ListChangeLogsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("ListUpdates default" + "." + "details" + "." + strconv.Itoa(i))
+					return ve.ValidateName("ListChangeLogs default" + "." + "details" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("ListUpdates default" + "." + "details" + "." + strconv.Itoa(i))
+					return ce.ValidateName("ListChangeLogs default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -206,7 +206,7 @@ func (o *ListUpdatesDefaultBody) contextValidateDetails(ctx context.Context, for
 }
 
 // MarshalBinary interface implementation
-func (o *ListUpdatesDefaultBody) MarshalBinary() ([]byte, error) {
+func (o *ListChangeLogsDefaultBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -214,8 +214,8 @@ func (o *ListUpdatesDefaultBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListUpdatesDefaultBody) UnmarshalBinary(b []byte) error {
-	var res ListUpdatesDefaultBody
+func (o *ListChangeLogsDefaultBody) UnmarshalBinary(b []byte) error {
+	var res ListChangeLogsDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -224,7 +224,7 @@ func (o *ListUpdatesDefaultBody) UnmarshalBinary(b []byte) error {
 }
 
 /*
-ListUpdatesDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
+ListChangeLogsDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
 // URL that describes the type of the serialized message.
 //
 // Protobuf library provides support to pack/unpack Any values in the form
@@ -309,9 +309,9 @@ ListUpdatesDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized proto
 //       "@type": "type.googleapis.com/google.protobuf.Duration",
 //       "value": "1.212s"
 //     }
-swagger:model ListUpdatesDefaultBodyDetailsItems0
+swagger:model ListChangeLogsDefaultBodyDetailsItems0
 */
-type ListUpdatesDefaultBodyDetailsItems0 struct {
+type ListChangeLogsDefaultBodyDetailsItems0 struct {
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -343,18 +343,18 @@ type ListUpdatesDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 }
 
-// Validate validates this list updates default body details items0
-func (o *ListUpdatesDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list change logs default body details items0
+func (o *ListChangeLogsDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this list updates default body details items0 based on context it is used
-func (o *ListUpdatesDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this list change logs default body details items0 based on context it is used
+func (o *ListChangeLogsDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ListUpdatesDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+func (o *ListChangeLogsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -362,8 +362,8 @@ func (o *ListUpdatesDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListUpdatesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
-	var res ListUpdatesDefaultBodyDetailsItems0
+func (o *ListChangeLogsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ListChangeLogsDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -372,20 +372,20 @@ func (o *ListUpdatesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 }
 
 /*
-ListUpdatesOKBody list updates OK body
-swagger:model ListUpdatesOKBody
+ListChangeLogsOKBody list change logs OK body
+swagger:model ListChangeLogsOKBody
 */
-type ListUpdatesOKBody struct {
+type ListChangeLogsOKBody struct {
 	// List of available updates.
-	Updates []*ListUpdatesOKBodyUpdatesItems0 `json:"updates"`
+	Updates []*ListChangeLogsOKBodyUpdatesItems0 `json:"updates"`
 
 	// Last check time.
 	// Format: date-time
 	LastCheck strfmt.DateTime `json:"last_check,omitempty"`
 }
 
-// Validate validates this list updates OK body
-func (o *ListUpdatesOKBody) Validate(formats strfmt.Registry) error {
+// Validate validates this list change logs OK body
+func (o *ListChangeLogsOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateUpdates(formats); err != nil {
@@ -402,7 +402,7 @@ func (o *ListUpdatesOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ListUpdatesOKBody) validateUpdates(formats strfmt.Registry) error {
+func (o *ListChangeLogsOKBody) validateUpdates(formats strfmt.Registry) error {
 	if swag.IsZero(o.Updates) { // not required
 		return nil
 	}
@@ -415,9 +415,9 @@ func (o *ListUpdatesOKBody) validateUpdates(formats strfmt.Registry) error {
 		if o.Updates[i] != nil {
 			if err := o.Updates[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listUpdatesOk" + "." + "updates" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listChangeLogsOk" + "." + "updates" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("listUpdatesOk" + "." + "updates" + "." + strconv.Itoa(i))
+					return ce.ValidateName("listChangeLogsOk" + "." + "updates" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -428,20 +428,20 @@ func (o *ListUpdatesOKBody) validateUpdates(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ListUpdatesOKBody) validateLastCheck(formats strfmt.Registry) error {
+func (o *ListChangeLogsOKBody) validateLastCheck(formats strfmt.Registry) error {
 	if swag.IsZero(o.LastCheck) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("listUpdatesOk"+"."+"last_check", "body", "date-time", o.LastCheck.String(), formats); err != nil {
+	if err := validate.FormatOf("listChangeLogsOk"+"."+"last_check", "body", "date-time", o.LastCheck.String(), formats); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// ContextValidate validate this list updates OK body based on the context it is used
-func (o *ListUpdatesOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this list change logs OK body based on the context it is used
+func (o *ListChangeLogsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateUpdates(ctx, formats); err != nil {
@@ -454,14 +454,14 @@ func (o *ListUpdatesOKBody) ContextValidate(ctx context.Context, formats strfmt.
 	return nil
 }
 
-func (o *ListUpdatesOKBody) contextValidateUpdates(ctx context.Context, formats strfmt.Registry) error {
+func (o *ListChangeLogsOKBody) contextValidateUpdates(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Updates); i++ {
 		if o.Updates[i] != nil {
 			if err := o.Updates[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listUpdatesOk" + "." + "updates" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listChangeLogsOk" + "." + "updates" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("listUpdatesOk" + "." + "updates" + "." + strconv.Itoa(i))
+					return ce.ValidateName("listChangeLogsOk" + "." + "updates" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -472,7 +472,7 @@ func (o *ListUpdatesOKBody) contextValidateUpdates(ctx context.Context, formats 
 }
 
 // MarshalBinary interface implementation
-func (o *ListUpdatesOKBody) MarshalBinary() ([]byte, error) {
+func (o *ListChangeLogsOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -480,8 +480,8 @@ func (o *ListUpdatesOKBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListUpdatesOKBody) UnmarshalBinary(b []byte) error {
-	var res ListUpdatesOKBody
+func (o *ListChangeLogsOKBody) UnmarshalBinary(b []byte) error {
+	var res ListChangeLogsOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -490,10 +490,10 @@ func (o *ListUpdatesOKBody) UnmarshalBinary(b []byte) error {
 }
 
 /*
-ListUpdatesOKBodyUpdatesItems0 list updates OK body updates items0
-swagger:model ListUpdatesOKBodyUpdatesItems0
+ListChangeLogsOKBodyUpdatesItems0 list change logs OK body updates items0
+swagger:model ListChangeLogsOKBodyUpdatesItems0
 */
-type ListUpdatesOKBodyUpdatesItems0 struct {
+type ListChangeLogsOKBodyUpdatesItems0 struct {
 	// PMM Version.
 	Version string `json:"version,omitempty"`
 
@@ -511,8 +511,8 @@ type ListUpdatesOKBodyUpdatesItems0 struct {
 	ReleaseNotesText string `json:"release_notes_text,omitempty"`
 }
 
-// Validate validates this list updates OK body updates items0
-func (o *ListUpdatesOKBodyUpdatesItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list change logs OK body updates items0
+func (o *ListChangeLogsOKBodyUpdatesItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateTimestamp(formats); err != nil {
@@ -525,7 +525,7 @@ func (o *ListUpdatesOKBodyUpdatesItems0) Validate(formats strfmt.Registry) error
 	return nil
 }
 
-func (o *ListUpdatesOKBodyUpdatesItems0) validateTimestamp(formats strfmt.Registry) error {
+func (o *ListChangeLogsOKBodyUpdatesItems0) validateTimestamp(formats strfmt.Registry) error {
 	if swag.IsZero(o.Timestamp) { // not required
 		return nil
 	}
@@ -537,13 +537,13 @@ func (o *ListUpdatesOKBodyUpdatesItems0) validateTimestamp(formats strfmt.Regist
 	return nil
 }
 
-// ContextValidate validates this list updates OK body updates items0 based on context it is used
-func (o *ListUpdatesOKBodyUpdatesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this list change logs OK body updates items0 based on context it is used
+func (o *ListChangeLogsOKBodyUpdatesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ListUpdatesOKBodyUpdatesItems0) MarshalBinary() ([]byte, error) {
+func (o *ListChangeLogsOKBodyUpdatesItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -551,8 +551,8 @@ func (o *ListUpdatesOKBodyUpdatesItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListUpdatesOKBodyUpdatesItems0) UnmarshalBinary(b []byte) error {
-	var res ListUpdatesOKBodyUpdatesItems0
+func (o *ListChangeLogsOKBodyUpdatesItems0) UnmarshalBinary(b []byte) error {
+	var res ListChangeLogsOKBodyUpdatesItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

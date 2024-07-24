@@ -260,7 +260,7 @@ type ReleaseNotesResponse struct {
 func (up *Updater) latestAvailableFromVersionService(ctx context.Context) ([]*version.DockerVersionInfo, *version.DockerVersionInfo, error) {
 	versionServiceUrl := os.Getenv("PMM_DEV_VERSION_SERVICE_URL")
 	if versionServiceUrl == "" {
-		versionServiceUrl = "http://192.168.167.1:11000"
+		versionServiceUrl = "https://check.percona.com"
 	}
 	u := versionServiceUrl + "/metadata/v1/pmm-server"
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
@@ -494,7 +494,7 @@ func (up *Updater) getReleaseNotesText(ctx context.Context, version version.Pars
 
 	versionServiceUrl := os.Getenv("PMM_DEV_VERSION_SERVICE_URL")
 	if versionServiceUrl == "" {
-		versionServiceUrl = "http://192.168.167.1:11000"
+		versionServiceUrl = "https://check.percona.com"
 	}
 	u := versionServiceUrl + "/release-notes/v1/pmm/" + versionString
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)

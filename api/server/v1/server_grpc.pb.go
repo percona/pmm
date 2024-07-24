@@ -24,7 +24,7 @@ const (
 	ServerService_Readiness_FullMethodName         = "/server.v1.ServerService/Readiness"
 	ServerService_LeaderHealthCheck_FullMethodName = "/server.v1.ServerService/LeaderHealthCheck"
 	ServerService_CheckUpdates_FullMethodName      = "/server.v1.ServerService/CheckUpdates"
-	ServerService_ListUpdates_FullMethodName       = "/server.v1.ServerService/ListUpdates"
+	ServerService_ListChangeLogs_FullMethodName    = "/server.v1.ServerService/ListChangeLogs"
 	ServerService_StartUpdate_FullMethodName       = "/server.v1.ServerService/StartUpdate"
 	ServerService_UpdateStatus_FullMethodName      = "/server.v1.ServerService/UpdateStatus"
 	ServerService_GetSettings_FullMethodName       = "/server.v1.ServerService/GetSettings"
@@ -45,7 +45,7 @@ type ServerServiceClient interface {
 	LeaderHealthCheck(ctx context.Context, in *LeaderHealthCheckRequest, opts ...grpc.CallOption) (*LeaderHealthCheckResponse, error)
 	// CheckUpdates checks for available PMM Server updates.
 	CheckUpdates(ctx context.Context, in *CheckUpdatesRequest, opts ...grpc.CallOption) (*CheckUpdatesResponse, error)
-	ListUpdates(ctx context.Context, in *ListUpdatesRequest, opts ...grpc.CallOption) (*ListUpdatesResponse, error)
+	ListChangeLogs(ctx context.Context, in *ListChangeLogsRequest, opts ...grpc.CallOption) (*ListChangeLogsResponse, error)
 	// StartUpdate starts PMM Server update.
 	StartUpdate(ctx context.Context, in *StartUpdateRequest, opts ...grpc.CallOption) (*StartUpdateResponse, error)
 	// UpdateStatus returns PMM Server update status.
@@ -102,9 +102,9 @@ func (c *serverServiceClient) CheckUpdates(ctx context.Context, in *CheckUpdates
 	return out, nil
 }
 
-func (c *serverServiceClient) ListUpdates(ctx context.Context, in *ListUpdatesRequest, opts ...grpc.CallOption) (*ListUpdatesResponse, error) {
-	out := new(ListUpdatesResponse)
-	err := c.cc.Invoke(ctx, ServerService_ListUpdates_FullMethodName, in, out, opts...)
+func (c *serverServiceClient) ListChangeLogs(ctx context.Context, in *ListChangeLogsRequest, opts ...grpc.CallOption) (*ListChangeLogsResponse, error) {
+	out := new(ListChangeLogsResponse)
+	err := c.cc.Invoke(ctx, ServerService_ListChangeLogs_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -169,7 +169,7 @@ type ServerServiceServer interface {
 	LeaderHealthCheck(context.Context, *LeaderHealthCheckRequest) (*LeaderHealthCheckResponse, error)
 	// CheckUpdates checks for available PMM Server updates.
 	CheckUpdates(context.Context, *CheckUpdatesRequest) (*CheckUpdatesResponse, error)
-	ListUpdates(context.Context, *ListUpdatesRequest) (*ListUpdatesResponse, error)
+	ListChangeLogs(context.Context, *ListChangeLogsRequest) (*ListChangeLogsResponse, error)
 	// StartUpdate starts PMM Server update.
 	StartUpdate(context.Context, *StartUpdateRequest) (*StartUpdateResponse, error)
 	// UpdateStatus returns PMM Server update status.
@@ -202,8 +202,8 @@ func (UnimplementedServerServiceServer) CheckUpdates(context.Context, *CheckUpda
 	return nil, status.Errorf(codes.Unimplemented, "method CheckUpdates not implemented")
 }
 
-func (UnimplementedServerServiceServer) ListUpdates(context.Context, *ListUpdatesRequest) (*ListUpdatesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListUpdates not implemented")
+func (UnimplementedServerServiceServer) ListChangeLogs(context.Context, *ListChangeLogsRequest) (*ListChangeLogsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListChangeLogs not implemented")
 }
 
 func (UnimplementedServerServiceServer) StartUpdate(context.Context, *StartUpdateRequest) (*StartUpdateResponse, error) {
@@ -310,20 +310,20 @@ func _ServerService_CheckUpdates_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ServerService_ListUpdates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListUpdatesRequest)
+func _ServerService_ListChangeLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListChangeLogsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServiceServer).ListUpdates(ctx, in)
+		return srv.(ServerServiceServer).ListChangeLogs(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ServerService_ListUpdates_FullMethodName,
+		FullMethod: ServerService_ListChangeLogs_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServiceServer).ListUpdates(ctx, req.(*ListUpdatesRequest))
+		return srv.(ServerServiceServer).ListChangeLogs(ctx, req.(*ListChangeLogsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -442,8 +442,8 @@ var ServerService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ServerService_CheckUpdates_Handler,
 		},
 		{
-			MethodName: "ListUpdates",
-			Handler:    _ServerService_ListUpdates_Handler,
+			MethodName: "ListChangeLogs",
+			Handler:    _ServerService_ListChangeLogs_Handler,
 		},
 		{
 			MethodName: "StartUpdate",
