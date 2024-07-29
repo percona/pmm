@@ -13,3 +13,12 @@
           retries: 2
     dest: /etc/cloud/cloud.cfg.d/90_disable-cloud.cfg
     mode: 0644
+
+- name: Create user-specific .ssh directory
+  when: ansible_virtualization_type == "virtualbox"
+  file:
+    path: /home/admin/.ssh
+    state: directory
+    owner: admin
+    group: admin
+    mode: '0700'
