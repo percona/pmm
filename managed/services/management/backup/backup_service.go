@@ -136,33 +136,6 @@ func (s *BackupService) StartBackup(ctx context.Context, req *backupv1.StartBack
 	}, nil
 }
 
-// RestoreBackup starts restore backup job.
-func (s *BackupService) RestoreBackup(ctx context.Context, req *backupv1.RestoreBackupRequest) (*backupv1.RestoreBackupResponse, error) {
-	// Disable all related scheduled backups before restoring
-	tasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{ServiceID: req.ServiceId})
-	if err != nil {
-		return nil, err
-	}
-
-	for _, t := range tasks {
-		if _, err := s.ChangeScheduledBackup(ctx, &backupv1.ChangeScheduledBackupRequest{
-			ScheduledBackupId: t.ID,
-			Enabled:           pointer.ToBool(false),
-		}); err != nil {
-			return nil, err
-		}
-	}
-
-	id, err := s.backupService.RestoreBackup(ctx, req.ServiceId, req.ArtifactId, req.PitrTimestamp.AsTime())
-	if err != nil {
-		return nil, convertError(err)
-	}
-
-	return &backupv1.RestoreBackupResponse{
-		RestoreId: id,
-	}, nil
-}
-
 // ScheduleBackup add new backup task to scheduler.
 func (s *BackupService) ScheduleBackup(ctx context.Context, req *backupv1.ScheduleBackupRequest) (*backupv1.ScheduleBackupResponse, error) {
 	var id string

@@ -156,8 +156,8 @@ func TestRestoreBackupErrors(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	backupService := &mockBackupService{}
-	mockedPbmPITRService := &mockPbmPITRService{}
-	backupSvc := NewBackupsService(db, backupService, nil, nil, nil, mockedPbmPITRService)
+	scheduleService := &mockScheduleService{}
+	restoreSvc := NewRestoreService(db, backupService, scheduleService)
 
 	for _, tc := range []struct {
 		testName    string
@@ -195,7 +195,7 @@ func TestRestoreBackupErrors(t *testing.T) {
 			backupService.On("RestoreBackup", mock.Anything, "serviceID1", "artifactID1", mock.Anything).
 				Return("", backupError).Once()
 			ctx := context.Background()
-			resp, err := backupSvc.RestoreBackup(ctx, &backupv1.RestoreBackupRequest{
+			resp, err := restoreSvc.RestoreBackup(ctx, &backupv1.RestoreBackupRequest{
 				ServiceId:  "serviceID1",
 				ArtifactId: "artifactID1",
 			})
