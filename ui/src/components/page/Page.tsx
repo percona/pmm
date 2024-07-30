@@ -12,7 +12,7 @@ import { useUser } from 'contexts/user/user.hooks';
 import { Messages } from './Page.messages';
 import { PMM_HOME_URL } from 'constants';
 
-export const Page: FC<PageProps> = ({ title, children }) => {
+export const Page: FC<PageProps> = ({ title, footer, children }) => {
   const { user } = useUser();
 
   return (
@@ -45,6 +45,7 @@ export const Page: FC<PageProps> = ({ title, children }) => {
           </CardActions>
         </Card>
       )}
+      {footer && <Stack>{footer}</Stack>}
     </Stack>
   );
 };

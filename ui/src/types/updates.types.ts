@@ -5,7 +5,7 @@ export interface GetUpdatesParams {
 
 export interface CurrentInfo {
   version: string;
-  full_version: string;
+  fullVersion: string;
   timestamp: string | null;
 }
 
@@ -49,4 +49,6 @@ export enum UpdateStatus {
   Restarting = 'restarting',
   Completed = 'completed',
   Error = 'error',
+  Checking = 'checking',
+  UpToDate = 'up-to-date',
 }

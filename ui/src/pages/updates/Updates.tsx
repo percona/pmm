@@ -14,12 +14,13 @@ import { Messages } from './Updates.messages';
 import { Page } from 'components/page';
 import { useSettings } from 'hooks/api/useSettings';
 import { PMM_SETTINGS_URL } from 'constants';
+import { UpdateFooter } from './update-footer';
 
 export const Updates: FC = () => {
   const { data: settings } = useSettings();
 
   return (
-    <Page title={Messages.title}>
+    <Page title={Messages.title} footer={<UpdateFooter />}>
       <Card>
         <CardMedia sx={{ height: 140 }} image={Welcome} title="green iguana" />
         <CardContent sx={{ p: 3 }}>

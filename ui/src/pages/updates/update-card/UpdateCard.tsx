@@ -9,7 +9,7 @@ import {
   Skeleton,
   Alert,
 } from '@mui/material';
-import { FC, useMemo, useState } from 'react';
+import { FC } from 'react';
 import { formatTimestamp } from 'utils/formatTimestamp';
 import { PMM_HOME_URL } from 'constants';
 import { Messages } from './UpdateCard.messages';
@@ -22,23 +22,13 @@ import { UpdateStatus } from 'types/updates.types';
 import { KeyboardDoubleArrowUp } from '@mui/icons-material';
 import { UpdateInfo } from '../update-info';
 import { UpdateInProgressCard } from '../update-in-progress-card';
+import { useUpdates } from 'contexts/updates';
 
 export const UpdateCard: FC = () => {
+  const { inProgress, status, setStatus } = useUpdates();
   const { isLoading, data, error, isRefetching, refetch } = useCheckUpdates();
   const { mutate: startUpdate } = useStartUpdate();
   const { waitForReadiness } = useWaitForReadiness();
-  const [status, setStatus] = useState<UpdateStatus>(UpdateStatus.Pending);
-  const isUpToDate = useMemo(
-    () => data?.installed.version === data?.latest?.version,
-    [data]
-  );
-  const updateInProgress = useMemo(
-    () =>
-      status === UpdateStatus.Updating ||
-      status === UpdateStatus.Restarting ||
-      status === UpdateStatus.Completed,
-    [status]
-  );
 
   const handleStartUpdate = async () => {
     setStatus(UpdateStatus.Updating);
@@ -84,14 +74,14 @@ export const UpdateCard: FC = () => {
     );
   }
 
-  if (updateInProgress && data.latest) {
+  if (inProgress && data.latest) {
     return <UpdateInProgressCard versionInfo={data.latest} status={status} />;
   }
 
   return (
     <Card sx={{ p: 1 }}>
       <CardContent>
-        {isUpToDate && (
+        {status === UpdateStatus.UpToDate && (
           <Alert
             severity="success"
             sx={{
