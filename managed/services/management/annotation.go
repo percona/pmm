@@ -29,9 +29,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// AddAnnotation create annotation in grafana.
-//
-//nolint:unparam
+// AddAnnotation creates an annotation in grafana.
 func (s *ManagementService) AddAnnotation(ctx context.Context, req *managementv1.AddAnnotationRequest) (*managementv1.AddAnnotationResponse, error) {
 	headers, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
@@ -68,6 +66,13 @@ func (s *ManagementService) AddAnnotation(ctx context.Context, req *managementv1
 
 		tags = append(tags, req.NodeName)
 		postfix = append(postfix, "Node Name: "+req.NodeName)
+	}
+
+	for _, tag := range tags {
+		if len(tag) > 100 {
+			msg := fmt.Sprintf("tag '%s' length must be less than or equal to 100 characters", tag)
+			return nil, status.Error(codes.InvalidArgument, msg)
+		}
 	}
 
 	if len(postfix) != 0 {

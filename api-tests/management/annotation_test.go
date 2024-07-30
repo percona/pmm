@@ -95,7 +95,7 @@ func TestAddAnnotation(t *testing.T) {
 		genericNodeID := resNode.Payload.Generic.NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		serviceName := pmmapitests.TestString(t, "annotation-service")
+		serviceName := "annotation-service"
 		paramsService := &services.AddServiceParams{
 			Body: services.AddServiceBody{
 				Mysql: &services.AddServiceParamsBodyMysql{
@@ -126,7 +126,7 @@ func TestAddAnnotation(t *testing.T) {
 	})
 
 	t.Run("Existing node", func(t *testing.T) {
-		nodeName := pmmapitests.TestString(t, "annotation-node")
+		nodeName := "annotation-node"
 		params := &nodes.AddNodeParams{
 			Body: nodes.AddNodeBody{
 				Generic: &nodes.AddNodeParamsBodyGeneric{
