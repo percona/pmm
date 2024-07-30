@@ -8,4 +8,5 @@ RUN export GOPATH=$(go env GOPATH) && \
 COPY . $GOPATH/src/github.com/percona/pmm/
 WORKDIR $GOPATH/src/github.com/percona/pmm/api-tests/
 
-CMD make init run-race
+CMD ["make", "init", "run-race"]
+

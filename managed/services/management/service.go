@@ -22,6 +22,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -44,6 +45,7 @@ type ManagementService struct { //nolint:revive
 	vc            versionCache
 	grafanaClient grafanaClient
 	vmClient      victoriaMetricsClient
+	l             *logrus.Entry
 
 	managementv1.UnimplementedManagementServiceServer
 }
@@ -75,6 +77,7 @@ func NewManagementService(
 		vc:            vc,
 		grafanaClient: grafanaClient,
 		vmClient:      vmClient,
+		l:             logrus.WithField("service", "management"),
 	}
 }
 
