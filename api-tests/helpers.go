@@ -59,7 +59,7 @@ func TestString(t TestingT, name string) string {
 	n, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt32))
 	require.NoError(t, err)
 
-	return strings.ReplaceAll(fmt.Sprintf("pmm-api-tests-%s-%s-%s-%d", Hostname, t.Name(), name, n), "/", "-")
+	return strings.ReplaceAll(fmt.Sprintf("api-test-%s-%s-%s-%d", Hostname, t.Name(), name, n), "/", "-")
 }
 
 // AssertAPIErrorf check that actual API error equals expected.
