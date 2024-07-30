@@ -10,3 +10,11 @@
 
 - name: PMM                        | Delete Azure user
   shell: cd /tmp; nohup sh -c "trap '/usr/sbin/waagent -force -deprovision+user && sync' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
+
+- name: PMM                        | Add temp SSH key
+  copy:
+    src: authorized_keys
+    dest: /home/admin/.ssh/authorized_keys
+    owner: admin
+    group: admin
+    mode: '0600'
