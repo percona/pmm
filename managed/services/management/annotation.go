@@ -70,7 +70,7 @@ func (s *ManagementService) AddAnnotation(ctx context.Context, req *managementv1
 
 	for _, tag := range tags {
 		if len(tag) > 100 {
-			msg := fmt.Sprintf("tag '%s' length must be less than or equal to 100 characters", tag)
+			msg := fmt.Sprintf("tag length cannot exceed 100 characters, tag: %s", tag)
 			return nil, status.Error(codes.InvalidArgument, msg)
 		}
 	}
