@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	ManagementService_AddAnnotation_FullMethodName         = "/management.v1.ManagementService/AddAnnotation"
 	ManagementService_ListAgents_FullMethodName            = "/management.v1.ManagementService/ListAgents"
+	ManagementService_ListAgentVersions_FullMethodName     = "/management.v1.ManagementService/ListAgentVersions"
 	ManagementService_RegisterNode_FullMethodName          = "/management.v1.ManagementService/RegisterNode"
 	ManagementService_UnregisterNode_FullMethodName        = "/management.v1.ManagementService/UnregisterNode"
 	ManagementService_ListNodes_FullMethodName             = "/management.v1.ManagementService/ListNodes"
@@ -42,6 +43,8 @@ type ManagementServiceClient interface {
 	AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*AddAnnotationResponse, error)
 	// ListAgents returns a list of Agents filtered by service_id or node_id.
 	ListAgents(ctx context.Context, in *ListAgentsRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error)
+	// ListAgentVersions returns a list of PMM Agent versions and their update severity.
+	ListAgentVersions(ctx context.Context, in *ListAgentVersionsRequest, opts ...grpc.CallOption) (*ListAgentVersionsResponse, error)
 	// RegisterNode registers a new Node and a pmm-agent.
 	RegisterNode(ctx context.Context, in *RegisterNodeRequest, opts ...grpc.CallOption) (*RegisterNodeResponse, error)
 	// UnregisterNode unregisters a Node, pmm-agent and removes the service account and its token.
@@ -84,6 +87,15 @@ func (c *managementServiceClient) AddAnnotation(ctx context.Context, in *AddAnno
 func (c *managementServiceClient) ListAgents(ctx context.Context, in *ListAgentsRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error) {
 	out := new(ListAgentsResponse)
 	err := c.cc.Invoke(ctx, ManagementService_ListAgents_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managementServiceClient) ListAgentVersions(ctx context.Context, in *ListAgentVersionsRequest, opts ...grpc.CallOption) (*ListAgentVersionsResponse, error) {
+	out := new(ListAgentVersionsResponse)
+	err := c.cc.Invoke(ctx, ManagementService_ListAgentVersions_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -188,6 +200,8 @@ type ManagementServiceServer interface {
 	AddAnnotation(context.Context, *AddAnnotationRequest) (*AddAnnotationResponse, error)
 	// ListAgents returns a list of Agents filtered by service_id or node_id.
 	ListAgents(context.Context, *ListAgentsRequest) (*ListAgentsResponse, error)
+	// ListAgentVersions returns a list of PMM Agent versions and their update severity.
+	ListAgentVersions(context.Context, *ListAgentVersionsRequest) (*ListAgentVersionsResponse, error)
 	// RegisterNode registers a new Node and a pmm-agent.
 	RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error)
 	// UnregisterNode unregisters a Node, pmm-agent and removes the service account and its token.
@@ -220,6 +234,10 @@ func (UnimplementedManagementServiceServer) AddAnnotation(context.Context, *AddA
 
 func (UnimplementedManagementServiceServer) ListAgents(context.Context, *ListAgentsRequest) (*ListAgentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAgents not implemented")
+}
+
+func (UnimplementedManagementServiceServer) ListAgentVersions(context.Context, *ListAgentVersionsRequest) (*ListAgentVersionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListAgentVersions not implemented")
 }
 
 func (UnimplementedManagementServiceServer) RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error) {
@@ -306,6 +324,24 @@ func _ManagementService_ListAgents_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ManagementServiceServer).ListAgents(ctx, req.(*ListAgentsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ManagementService_ListAgentVersions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAgentVersionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagementServiceServer).ListAgentVersions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ManagementService_ListAgentVersions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagementServiceServer).ListAgentVersions(ctx, req.(*ListAgentVersionsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -504,6 +540,10 @@ var ManagementService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListAgents",
 			Handler:    _ManagementService_ListAgents_Handler,
+		},
+		{
+			MethodName: "ListAgentVersions",
+			Handler:    _ManagementService_ListAgentVersions_Handler,
 		},
 		{
 			MethodName: "RegisterNode",
