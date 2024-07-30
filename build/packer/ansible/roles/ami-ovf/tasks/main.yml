@@ -12,9 +12,7 @@
   shell: cd /tmp; nohup sh -c "trap '/usr/sbin/waagent -force -deprovision+user && sync' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
 
 - name: PMM                        | Add temp SSH key
-  copy:
-    src: authorized_keys
-    dest: /home/admin/.ssh/authorized_keys
-    owner: admin
-    group: admin
-    mode: '0600'
+  ansible.posix.authorized_key:
+    user: admin
+    state: present
+    key: https://github.com/BupycHuk.keys
