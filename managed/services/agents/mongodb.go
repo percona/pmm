@@ -136,7 +136,7 @@ func v226Args(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress s
 		collstatsLimit = exporter.MongoDBOptions.CollectionsLimit
 	}
 
-	collectors := defaultMongoDBCollectors(collectAll)
+	collectors := defaultCollectors(collectAll)
 
 	if !pmmAgentVersion.Less(v2_41_1) { // >= 2.41.1
 		collectors["shards"] = collectorArgs{
@@ -240,7 +240,7 @@ func v225Args(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress s
 	return args
 }
 
-func defaultMongoDBCollectors(collectAll bool) map[string]collectorArgs {
+func defaultCollectors(collectAll bool) map[string]collectorArgs {
 	return map[string]collectorArgs{
 		"diagnosticdata": {
 			enabled:     true,
