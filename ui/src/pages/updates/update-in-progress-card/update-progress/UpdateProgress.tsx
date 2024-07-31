@@ -75,7 +75,7 @@ export const UpdateProgress: FC<UpdateProgressProps> = ({ status }) => {
           [`& .${linearProgressClasses.bar}`]: {
             borderRadius: 5,
             backgroundColor:
-              status === UpdateStatus.Completed ? '#008C71' : '#0E5FB5',
+              status === UpdateStatus.Completed ? '#008C71' : '#606C86',
           },
         })}
       />
