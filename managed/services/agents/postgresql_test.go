@@ -172,7 +172,8 @@ func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
 			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
 			"--no-collector.locks",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
-			"--web.config={{ .TextFiles.webConfigPlaceholder }}"},
+			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+		},
 	}
 	requireNoDuplicateFlags(s.T(), actual.Args)
 	s.Require().Equal(expected.Args, actual.Args)
