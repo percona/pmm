@@ -17,6 +17,7 @@ package management
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -81,7 +82,7 @@ func TestAddAnnotation(t *testing.T) {
 	})
 
 	t.Run("Tag length exceeded", func(t *testing.T) {
-		nodeName := pmmapitests.TestString(t, "too-long-annotation-node-name")
+		nodeName := pmmapitests.TestString(t, strings.Repeat("long-annotation-node-name-", 10))
 		paramsNode := &nodes.AddNodeParams{
 			Body: nodes.AddNodeBody{
 				Generic: &nodes.AddNodeParamsBodyGeneric{

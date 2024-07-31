@@ -56,10 +56,10 @@ func TestString(t TestingT, name string) string {
 	t.Helper()
 
 	// Without proper seed parallel tests can generate same "random" number.
-	n, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt32))
+	rnd, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt32))
 	require.NoError(t, err)
 
-	return strings.ReplaceAll(fmt.Sprintf("api-test-%s-%s-%s-%d", Hostname, t.Name(), name, n), "/", "-")
+	return strings.ReplaceAll(fmt.Sprintf("api-test-%s-%s-%d", t.Name(), name, rnd), "/", "-")
 }
 
 // AssertAPIErrorf check that actual API error equals expected.
