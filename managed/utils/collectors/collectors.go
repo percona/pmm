@@ -42,3 +42,17 @@ func FilterOutCollectors(prefix string, args, disabledCollectors []string) []str
 	}
 	return enabledArgs
 }
+
+func DisableDefaultEnabledCollectors(prefix string, defaultCollectors []string, disabledCollectors []string) []string {
+	defaultCollectorsMap := make(map[string]struct{})
+	for _, defaultCollector := range defaultCollectors {
+		defaultCollectorsMap[defaultCollector] = struct{}{}
+	}
+	args := []string{}
+	for _, collector := range disabledCollectors {
+		if _, ok := defaultCollectorsMap[collector]; ok {
+			args = append(args, fmt.Sprintf("%s%s", prefix, collector))
+		}
+	}
+	return args
+}
