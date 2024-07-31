@@ -104,6 +104,21 @@ const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
           }),
         },
       },
+      MuiLinearProgress: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            height: 10,
+            borderStyle: 'solid',
+            borderRadius: 5,
+            borderColor: theme.palette.divider,
+            backgroundColor: theme.palette.surfaces?.low,
+          }),
+          bar: {
+            borderRadius: 5,
+            backgroundColor: '#606C86',
+          },
+        },
+      },
     },
   };
 

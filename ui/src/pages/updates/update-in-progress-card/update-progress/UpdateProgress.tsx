@@ -66,14 +66,8 @@ export const UpdateProgress: FC<UpdateProgressProps> = ({ status }) => {
       <LinearProgress
         variant="determinate"
         value={getStatusPercentage(status)}
-        sx={(theme) => ({
-          height: 10,
-          borderStyle: 'solid',
-          borderRadius: 5,
-          borderColor: theme.palette.divider,
-          backgroundColor: theme.palette.surfaces?.low,
+        sx={() => ({
           [`& .${linearProgressClasses.bar}`]: {
-            borderRadius: 5,
             backgroundColor:
               status === UpdateStatus.Completed ? '#008C71' : '#606C86',
           },
