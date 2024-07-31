@@ -1,13 +1,12 @@
-import { Link, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { useUpdates } from 'contexts/updates';
 import { FC } from 'react';
-import { formatCheckDate } from './UpdateFooter.utils';
-import { Messages } from './UpdateFooter.messages';
+import { formatCheckDate } from './Footer.utils';
+import { Messages } from './Footer.messages';
 
-export const UpdateFooter: FC = () => {
-  const { inProgress, versionInfo, recheck } = useUpdates();
+export const Footer: FC = () => {
+  const { inProgress, versionInfo } = useUpdates();
 
-  console.log({ versionInfo });
   if (!versionInfo) return null;
 
   return (
@@ -20,11 +19,6 @@ export const UpdateFooter: FC = () => {
           ? Messages.inProgress
           : Messages.checkedOn(formatCheckDate(versionInfo.lastCheck))}
       </Typography>
-      {!inProgress && (
-        <Typography variant="body2">
-          <Link onClick={recheck}>{Messages.checkNow}</Link>
-        </Typography>
-      )}
     </Stack>
   );
 };

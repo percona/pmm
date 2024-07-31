@@ -11,6 +11,7 @@ import {
 import { useUser } from 'contexts/user/user.hooks';
 import { Messages } from './Page.messages';
 import { PMM_HOME_URL } from 'constants';
+import { Footer } from 'components/footer';
 
 export const Page: FC<PageProps> = ({ title, footer, children }) => {
   const { user } = useUser();
@@ -45,7 +46,7 @@ export const Page: FC<PageProps> = ({ title, footer, children }) => {
           </CardActions>
         </Card>
       )}
-      {footer && <Stack>{footer}</Stack>}
+      {footer ? footer : <Footer />}
     </Stack>
   );
 };
