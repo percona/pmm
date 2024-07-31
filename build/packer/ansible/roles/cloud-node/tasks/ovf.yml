@@ -22,3 +22,12 @@
     owner: admin
     group: admin
     mode: '0700'
+
+- name: create authorized_keys file
+  when: ansible_virtualization_type == "virtualbox"
+  file:
+    path: /home/admin/.ssh/authorized_keys
+    state: touch
+    owner: admin
+    group: admin
+    mode: '0600'
