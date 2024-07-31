@@ -16,6 +16,8 @@
 package management
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -55,7 +57,7 @@ func TestAddAnnotation(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAnnotationRequest.Text: value length must be at least 1 runes")
 	})
 
-	t.Run("Non-existing service", func(t *testing.T) {
+	t.Run("Non-existent service", func(t *testing.T) {
 		params := &mservice.AddAnnotationParams{
 			Body: mservice.AddAnnotationBody{
 				Text:         "Some text",
@@ -67,7 +69,7 @@ func TestAddAnnotation(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, `Service with name "no-service" not found.`)
 	})
 
-	t.Run("Non-existing node", func(t *testing.T) {
+	t.Run("Non-existent node", func(t *testing.T) {
 		params := &mservice.AddAnnotationParams{
 			Body: mservice.AddAnnotationBody{
 				Text:     "Some text",
@@ -77,6 +79,33 @@ func TestAddAnnotation(t *testing.T) {
 		}
 		_, err := client.Default.ManagementService.AddAnnotation(params)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, `Node with name "no-node" not found.`)
+	})
+
+	t.Run("Tag length exceeded", func(t *testing.T) {
+		nodeName := pmmapitests.TestString(t, strings.Repeat("long-annotation-node-name-", 10))
+		paramsNode := &nodes.AddNodeParams{
+			Body: nodes.AddNodeBody{
+				Generic: &nodes.AddNodeParamsBodyGeneric{
+					NodeName: nodeName,
+					Address:  "10.0.0.1",
+				},
+			},
+			Context: pmmapitests.Context,
+		}
+		resNode, err := inventoryClient.Default.NodesService.AddNode(paramsNode)
+		assert.NoError(t, err)
+		genericNodeID := resNode.Payload.Generic.NodeID
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
+
+		params := &mservice.AddAnnotationParams{
+			Body: mservice.AddAnnotationBody{
+				Text:     "Some text",
+				NodeName: nodeName,
+			},
+			Context: pmmapitests.Context,
+		}
+		_, err = client.Default.ManagementService.AddAnnotation(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, fmt.Sprintf("tag length cannot exceed 100 characters, tag: %s", nodeName))
 	})
 
 	t.Run("Existing service", func(t *testing.T) {
@@ -95,7 +124,7 @@ func TestAddAnnotation(t *testing.T) {
 		genericNodeID := resNode.Payload.Generic.NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		serviceName := pmmapitests.TestString(t, "annotation-service")
+		serviceName := "annotation-service"
 		paramsService := &services.AddServiceParams{
 			Body: services.AddServiceBody{
 				Mysql: &services.AddServiceParamsBodyMysql{
@@ -126,7 +155,7 @@ func TestAddAnnotation(t *testing.T) {
 	})
 
 	t.Run("Existing node", func(t *testing.T) {
-		nodeName := pmmapitests.TestString(t, "annotation-node")
+		nodeName := "annotation-node"
 		params := &nodes.AddNodeParams{
 			Body: nodes.AddNodeBody{
 				Generic: &nodes.AddNodeParamsBodyGeneric{
