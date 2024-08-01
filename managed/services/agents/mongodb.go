@@ -49,7 +49,7 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 	args := getArgs(exporter, tdp, listenAddress, pmmAgentVersion)
 
 	if pointer.GetString(exporter.MetricsPath) != "" {
-		args = append(args, "--web.telemetry-path="+*exporter.MetricsPath)
+		args = append(args, "--web.telemetry-path="+*exporter.MetricsPath) //nolint:goconst
 	}
 
 	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, true)
@@ -138,7 +138,7 @@ func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress st
 			"--collect.topmetrics",
 			"--no-collect.connpoolstats",
 			"--no-collect.indexusage",
-			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
+			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right, //nolint:goconst
 		}
 
 		args = collectors.FilterOutCollectors("--collect.", args, exporter.DisabledCollectors)
