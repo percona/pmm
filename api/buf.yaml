@@ -5,6 +5,16 @@ breaking:
 lint:
   use:
     - DEFAULT
+  ignore_only:
+    RPC_REQUEST_STANDARD_NAME:
+        - agent/v1/agent.proto # We want our naming in this file to be different
+    RPC_RESPONSE_STANDARD_NAME:
+        - agent/v1/agent.proto # We want our naming in this file to be different
+    PACKAGE_VERSION_SUFFIX:
+      - common/common.proto # We don't want to version this file
+      - common/metrics_resolutions.proto # We don't want to version this file
+
+
 deps:
   - buf.build/googleapis/googleapis
   - buf.build/grpc-ecosystem/grpc-gateway

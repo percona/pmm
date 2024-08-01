@@ -51,6 +51,7 @@ var commonExpectedFiles = []string{
 	"postgresql14.log",
 	"qan-api2.ini",
 	"qan-api2.log",
+	"supervisorctl_status.log",
 	"supervisord.conf",
 	"supervisord.log",
 	"victoriametrics-promscrape.yml",
@@ -59,6 +60,7 @@ var commonExpectedFiles = []string{
 	"victoriametrics_targets.json",
 	"vmalert.ini",
 	"vmalert.log",
+	"vmproxy.ini",
 	"vmproxy.log",
 }
 
@@ -68,7 +70,7 @@ func TestReadLog(t *testing.T) {
 	fNoNewLineEnding, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
 	require.NoError(t, err)
 
-	for i := 0; i < 10; i++ {
+	for i := range 10 { //nolint:typecheck
 		fmt.Fprintf(f, "line #%03d\n", i)                // 10 bytes
 		fmt.Fprintf(fNoNewLineEnding, "line #%03d\n", i) // 10 bytes
 	}
@@ -80,7 +82,7 @@ func TestReadLog(t *testing.T) {
 	defer os.Remove(fNoNewLineEnding.Name()) //nolint:errcheck
 
 	t.Run("LimitByLines", func(t *testing.T) {
-		b, m, err := readLog(f.Name(), 5, 500)
+		b, m, err := readLog(f.Name(), 5)
 		require.NoError(t, err)
 		assert.WithinDuration(t, time.Now(), m, 5*time.Second)
 		expected := []string{"line #005", "line #006", "line #007", "line #008", "line #009"}
@@ -89,28 +91,46 @@ func TestReadLog(t *testing.T) {
 	})
 
 	t.Run("LimitByLines - no new line ending", func(t *testing.T) {
-		b, m, err := readLog(fNoNewLineEnding.Name(), 5, 500)
+		b, m, err := readLog(fNoNewLineEnding.Name(), 5)
 		require.NoError(t, err)
 		assert.WithinDuration(t, time.Now(), m, 5*time.Second)
 		expected := []string{"line #006", "line #007", "line #008", "line #009", "some string without new line"}
 		actual := strings.Split(strings.TrimSpace(string(b)), "\n")
 		assert.Equal(t, expected, actual)
 	})
+}
 
-	t.Run("LimitByBytes", func(t *testing.T) {
-		b, m, err := readLog(f.Name(), 500, 5)
+func TestReadLogUnlimited(t *testing.T) {
+	f, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
+	require.NoError(t, err)
+	fNoNewLineEnding, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
+	require.NoError(t, err)
+
+	for i := range 10 { //nolint:typecheck
+		fmt.Fprintf(f, "line #%03d\n", i)                // 10 bytes
+		fmt.Fprintf(fNoNewLineEnding, "line #%03d\n", i) // 10 bytes
+	}
+	fmt.Fprintf(fNoNewLineEnding, "some string without new line")
+	require.NoError(t, f.Close())
+	require.NoError(t, fNoNewLineEnding.Close())
+
+	defer os.Remove(f.Name())                //nolint:errcheck
+	defer os.Remove(fNoNewLineEnding.Name()) //nolint:errcheck
+
+	t.Run("UnlimitedLineCount", func(t *testing.T) {
+		b, m, err := readLogUnlimited(f.Name())
 		require.NoError(t, err)
 		assert.WithinDuration(t, time.Now(), m, 5*time.Second)
-		expected := []string{"#009"}
+		expected := []string{"line #000", "line #001", "line #002", "line #003", "line #004", "line #005", "line #006", "line #007", "line #008", "line #009"}
 		actual := strings.Split(strings.TrimSpace(string(b)), "\n")
 		assert.Equal(t, expected, actual)
 	})
 
-	t.Run("LimitByBytes - no new line ending", func(t *testing.T) {
-		b, m, err := readLog(fNoNewLineEnding.Name(), 500, 5)
+	t.Run("UnlimitedLineCount - no new line ending", func(t *testing.T) {
+		b, m, err := readLogUnlimited(fNoNewLineEnding.Name())
 		require.NoError(t, err)
 		assert.WithinDuration(t, time.Now(), m, 5*time.Second)
-		expected := []string{"line"}
+		expected := []string{"line #000", "line #001", "line #002", "line #003", "line #004", "line #005", "line #006", "line #007", "line #008", "line #009", "some string without new line"}
 		actual := strings.Split(strings.TrimSpace(string(b)), "\n")
 		assert.Equal(t, expected, actual)
 	})
@@ -148,7 +168,7 @@ func TestFiles(t *testing.T) {
 	l := NewLogs("2.4.5", updater, params)
 	ctx := logger.Set(context.Background(), t.Name())
 
-	files := l.files(ctx, nil)
+	files := l.files(ctx, nil, maxLogReadLines)
 	actual := make([]string, 0, len(files))
 	for _, f := range files {
 		// present only after update
@@ -161,13 +181,10 @@ func TestFiles(t *testing.T) {
 			continue
 		}
 
-		if f.Name == "systemctl_status.log" {
-			assert.EqualError(t, f.Err, "exit status 1")
-			continue
-		}
-
 		if f.Name == "supervisorctl_status.log" {
-			// FIXME: this fails following the transition to EL9
+			assert.EqualError(t, f.Err, "exit status 3")
+			// NOTE: this fails in supervisorctl v4+ if there are stopped services; it is not critical because the call succeeds
+			actual = append(actual, f.Name)
 			continue
 		}
 
@@ -190,7 +207,7 @@ func TestZip(t *testing.T) {
 	ctx := logger.Set(context.Background(), t.Name())
 
 	var buf bytes.Buffer
-	require.NoError(t, l.Zip(ctx, &buf, nil))
+	require.NoError(t, l.Zip(ctx, &buf, nil, -1))
 	reader := bytes.NewReader(buf.Bytes())
 	r, err := zip.NewReader(reader, reader.Size())
 	require.NoError(t, err)
@@ -202,7 +219,6 @@ func TestZip(t *testing.T) {
 		"client/pmm-agent-version.txt",
 		"client/status.json",
 		"client/pmm-agent/pmm-agent.log",
-		"systemctl_status.log",
 		"prometheus.base.yml",
 	}
 	// zip file includes client files

@@ -20,7 +20,7 @@ import (
 	"reflect"
 	"testing"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
 )
 
@@ -32,15 +32,15 @@ func TestService_GetMetricsNames(t *testing.T) {
 	tests := []struct {
 		name    string
 		fields  fields
-		in      *qanpb.MetricsNamesRequest
-		want    *qanpb.MetricsNamesReply
+		in      *qanpb.GetMetricsNamesRequest
+		want    *qanpb.GetMetricsNamesResponse
 		wantErr bool
 	}{
 		{
 			name:    "success",
 			fields:  fields{},
-			in:      &qanpb.MetricsNamesRequest{},
-			want:    &qanpb.MetricsNamesReply{Data: metricsNames},
+			in:      &qanpb.GetMetricsNamesRequest{},
+			want:    &qanpb.GetMetricsNamesResponse{Data: metricsNames},
 			wantErr: false,
 		},
 	}

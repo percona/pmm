@@ -35,8 +35,8 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/utils/logger"
@@ -47,36 +47,16 @@ const (
 	awsDiscoverTimeout = 7 * time.Second
 )
 
-// RDSService represents instance discovery service.
-type RDSService struct {
-	db    *reform.DB
-	state agentsStateUpdater
-	cc    connectionChecker
-	sib   serviceInfoBroker
-
-	managementpb.UnimplementedRDSServer
-}
-
-// NewRDSService creates new instance discovery service.
-func NewRDSService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, sib serviceInfoBroker) *RDSService {
-	return &RDSService{
-		db:    db,
-		state: state,
-		cc:    cc,
-		sib:   sib,
-	}
-}
-
 var (
 	// See https://pkg.go.dev/github.com/aws/aws-sdk-go/service/rds?tab=doc#CreateDBInstanceInput, Engine field.
 
-	rdsEngines = map[string]managementpb.DiscoverRDSEngine{
-		"aurora-mysql": managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL, // MySQL 5.7-compatible Aurora
-		"mariadb":      managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
-		"mysql":        managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
+	rdsEngines = map[string]managementv1.DiscoverRDSEngine{
+		"aurora-mysql": managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL, // MySQL 5.7-compatible Aurora
+		"mariadb":      managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
+		"mysql":        managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
 
-		"aurora-postgresql": managementpb.DiscoverRDSEngine_DISCOVER_RDS_POSTGRESQL,
-		"postgres":          managementpb.DiscoverRDSEngine_DISCOVER_RDS_POSTGRESQL,
+		"aurora-postgresql": managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
+		"postgres":          managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
 	}
 	rdsEnginesKeys = []*string{
 		pointer.ToString("aurora-mysql"),
@@ -137,7 +117,7 @@ func listRegions(partitions []string) []string {
 }
 
 // DiscoverRDS discovers RDS instances.
-func (s *RDSService) DiscoverRDS(ctx context.Context, req *managementpb.DiscoverRDSRequest) (*managementpb.DiscoverRDSResponse, error) {
+func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.DiscoverRDSRequest) (*managementv1.DiscoverRDSResponse, error) {
 	l := logger.Get(ctx).WithField("component", "discover/rds")
 
 	settings, err := models.GetSettings(s.db.Querier)
@@ -167,7 +147,7 @@ func (s *RDSService) DiscoverRDS(ctx context.Context, req *managementpb.Discover
 	ctx, cancel := context.WithTimeout(ctx, awsDiscoverTimeout)
 	defer cancel()
 	var wg errgroup.Group
-	instances := make(chan *managementpb.DiscoverRDSInstance)
+	instances := make(chan *managementv1.DiscoverRDSInstance)
 
 	for _, region := range listRegions(settings.AWSPartitions) {
 		region := region
@@ -187,7 +167,7 @@ func (s *RDSService) DiscoverRDS(ctx context.Context, req *managementpb.Discover
 					continue
 				}
 
-				instances <- &managementpb.DiscoverRDSInstance{
+				instances <- &managementv1.DiscoverRDSInstance{
 					Region:        region,
 					Az:            *db.AvailabilityZone,
 					InstanceId:    *db.DBInstanceIdentifier,
@@ -208,7 +188,7 @@ func (s *RDSService) DiscoverRDS(ctx context.Context, req *managementpb.Discover
 		close(instances)
 	}()
 
-	res := &managementpb.DiscoverRDSResponse{}
+	res := &managementv1.DiscoverRDSResponse{}
 	for i := range instances {
 		res.RdsInstances = append(res.RdsInstances, i)
 	}
@@ -242,15 +222,15 @@ func (s *RDSService) DiscoverRDS(ctx context.Context, req *managementpb.Discover
 }
 
 // AddRDS adds RDS instance.
-func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest) (*managementpb.AddRDSResponse, error) { //nolint:cyclop,maintidx
-	res := &managementpb.AddRDSResponse{}
+func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDSServiceParams) (*managementv1.AddServiceResponse, error) { //nolint:cyclop,maintidx
+	rds := &managementv1.RDSServiceResult{}
 
 	pmmAgentID := models.PMMServerAgentID
 	if req.GetPmmAgentId() != "" {
 		pmmAgentID = req.GetPmmAgentId()
 	}
 
-	if e := s.db.InTransaction(func(tx *reform.TX) error {
+	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		// tweak according to API docs
 		if req.NodeName == "" {
 			req.NodeName = req.InstanceId
@@ -284,7 +264,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 		if err != nil {
 			return err
 		}
-		res.Node = invNode.(*inventorypb.RemoteRDSNode) //nolint:forcetypeassert
+		rds.Node = invNode.(*inventoryv1.RemoteRDSNode) //nolint:forcetypeassert
 
 		metricsMode, err := supportedMetricsMode(tx.Querier, req.MetricsMode, pmmAgentID)
 		if err != nil {
@@ -308,11 +288,11 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			if err != nil {
 				return err
 			}
-			res.RdsExporter = invRDSExporter.(*inventorypb.RDSExporter) //nolint:forcetypeassert
+			rds.RdsExporter = invRDSExporter.(*inventoryv1.RDSExporter) //nolint:forcetypeassert
 		}
 
 		switch req.Engine {
-		case managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL:
+		case managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL:
 			// add MySQL Service
 			service, err := models.AddNewService(tx.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName:    req.ServiceName,
@@ -331,7 +311,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			if err != nil {
 				return err
 			}
-			res.Mysql = invService.(*inventorypb.MySQLService) //nolint:forcetypeassert
+			rds.Mysql = invService.(*inventoryv1.MySQLService) //nolint:forcetypeassert
 
 			// add MySQL Exporter
 			mysqldExporter, err := models.CreateAgent(tx.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
@@ -351,7 +331,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			if err != nil {
 				return err
 			}
-			res.MysqldExporter = invMySQLdExporter.(*inventorypb.MySQLdExporter) //nolint:forcetypeassert
+			rds.MysqldExporter = invMySQLdExporter.(*inventoryv1.MySQLdExporter) //nolint:forcetypeassert
 
 			if !req.SkipConnectionCheck {
 				if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, mysqldExporter); err != nil {
@@ -360,8 +340,6 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, mysqldExporter); err != nil {
 					return err
 				}
-				// GetInfoFromService gets additional info in row, let's also update the response
-				res.TableCount = *mysqldExporter.TableCount
 			}
 
 			// add MySQL PerfSchema QAN Agent
@@ -383,12 +361,12 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				if err != nil {
 					return err
 				}
-				res.QanMysqlPerfschema = invQANAgent.(*inventorypb.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
+				rds.QanMysqlPerfschema = invQANAgent.(*inventoryv1.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
 			}
 
 			return nil
 		// PostgreSQL RDS
-		case managementpb.DiscoverRDSEngine_DISCOVER_RDS_POSTGRESQL:
+		case managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL:
 			// add PostgreSQL Service
 			service, err := models.AddNewService(tx.Querier, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName:    req.ServiceName,
@@ -408,7 +386,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			if err != nil {
 				return err
 			}
-			res.Postgresql = invService.(*inventorypb.PostgreSQLService) //nolint:forcetypeassert
+			rds.Postgresql = invService.(*inventoryv1.PostgreSQLService) //nolint:forcetypeassert
 
 			// add PostgreSQL Exporter
 			postgresExporter, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, &models.CreateAgentParams{
@@ -432,7 +410,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			if err != nil {
 				return err
 			}
-			res.PostgresqlExporter = invPostgresExporter.(*inventorypb.PostgresExporter) //nolint:forcetypeassert
+			rds.PostgresqlExporter = invPostgresExporter.(*inventoryv1.PostgresExporter) //nolint:forcetypeassert
 
 			if !req.SkipConnectionCheck {
 				if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, postgresExporter); err != nil {
@@ -462,7 +440,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				if err != nil {
 					return err
 				}
-				res.QanPostgresqlPgstatements = invQANAgent.(*inventorypb.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
+				rds.QanPostgresqlPgstatements = invQANAgent.(*inventoryv1.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
 			}
 
 			return nil
@@ -470,10 +448,18 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 		default:
 			return status.Errorf(codes.InvalidArgument, "Unsupported Engine type %q.", req.Engine)
 		}
-	}); e != nil {
-		return nil, e
+	})
+
+	if errTx != nil {
+		return nil, errTx
 	}
 
 	s.state.RequestStateUpdate(ctx, pmmAgentID)
+
+	res := &managementv1.AddServiceResponse{
+		Service: &managementv1.AddServiceResponse_Rds{
+			Rds: rds,
+		},
+	}
 	return res, nil
 }

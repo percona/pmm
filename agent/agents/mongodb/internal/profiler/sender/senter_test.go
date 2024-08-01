@@ -23,7 +23,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 type testWriter struct {
@@ -41,7 +41,7 @@ func TestSender(t *testing.T) {
 	expected := &report.Report{
 		StartTs: time.Now(),
 		EndTs:   time.Now().Add(time.Second * 10),
-		Buckets: []*agentpb.MetricsBucket{{Common: &agentpb.MetricsBucket_Common{Queryid: "test"}}},
+		Buckets: []*agentv1.MetricsBucket{{Common: &agentv1.MetricsBucket_Common{Queryid: "test"}}},
 	}
 
 	repChan := make(chan *report.Report)

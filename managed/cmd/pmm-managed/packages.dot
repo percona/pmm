@@ -28,8 +28,6 @@ digraph packages {
 	"/services/management.test" -> "/services/management";
 	"/services/management/grpc" -> "/models";
 	"/services/management/grpc" -> "/services/agents";
-	"/services/management/grpc" -> "/services/grafana";
-	"/services/management/grpc" -> "/services/management";
 	"/services/qan" -> "/models";
 	"/services/qan.test" -> "/services/qan";
 	"/services/server" -> "/models";

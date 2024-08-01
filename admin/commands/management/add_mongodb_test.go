@@ -20,20 +20,20 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	mongodb "github.com/percona/pmm/api/managementpb/json/client/mongo_db"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 func TestAddMongoDB(t *testing.T) {
 	t.Run("TablestatEnabled", func(t *testing.T) {
 		res := &addMongoDBResult{
-			Service: &mongodb.AddMongoDBOKBodyService{
-				ServiceID:   "/service_id/1",
+			Service: &mservice.AddServiceOKBodyMongodbService{
+				ServiceID:   "1",
 				ServiceName: "mysql-1",
 			},
 		}
 		expected := strings.TrimSpace(`
 MongoDB Service added.
-Service ID  : /service_id/1
+Service ID  : 1
 Service name: mysql-1
 		`)
 		assert.Equal(t, expected, strings.TrimSpace(res.String()))
