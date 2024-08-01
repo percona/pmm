@@ -5,6 +5,7 @@ import {
   useQuery,
 } from '@tanstack/react-query';
 import { StartUpdateBody, StartUpdateResponse } from 'types/updates.types';
+import { AxiosError } from 'axios';
 
 export const useCheckUpdates = () =>
   useQuery({
@@ -13,10 +14,14 @@ export const useCheckUpdates = () =>
       try {
         return await checkForUpdates();
       } catch (error) {
-        return await checkForUpdates({
-          force: false,
-          onlyInstalledVersion: true,
-        });
+        if ((error as AxiosError).response?.status !== 401) {
+          return await checkForUpdates({
+            force: false,
+            onlyInstalledVersion: true,
+          });
+        }
+
+        throw error;
       }
     },
   });
