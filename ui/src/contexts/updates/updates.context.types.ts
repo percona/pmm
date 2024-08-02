@@ -1,3 +1,4 @@
+import { GetAgentVersionItem } from 'types/agent.types';
 import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
 
 export interface UpdatesContextProps {
@@ -7,4 +8,5 @@ export interface UpdatesContextProps {
   setStatus: (status: UpdateStatus) => void;
   versionInfo?: GetUpdatesResponse;
   recheck: () => void;
+  clients?: GetAgentVersionItem[];
 }

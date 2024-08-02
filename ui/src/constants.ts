@@ -5,3 +5,6 @@ export const PMM_SUPPORT_URL = 'https://per.co.na/pmm_documentation';
 // TODO: use shortened link
 export const PMM_DOCS_UPDATES_URL =
   'https://docs.percona.com/percona-monitoring-and-management/how-to/upgrade.html';
+// TODO: use shortened link & check if it's correct
+export const PMM_DOCS_UPDATE_CLIENT_URL =
+  'https://docs.percona.com/percona-monitoring-and-management/how-to/upgrade.html#updating-a-pmm-agent';
