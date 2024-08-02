@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "PMM API",
-    "version": "public"
+    "version": "v2"
   },
   "schemes": [
     "https",
@@ -25,5 +25,6 @@
       "node",
       "python"
     ]
-  }
+  },
+  "x-readme-id": "626badcabbc59c02acc1a53f"
 }
