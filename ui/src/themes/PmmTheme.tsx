@@ -119,6 +119,18 @@ const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
           },
         },
       },
+      MuiChip: {
+        styleOverrides: {
+          icon: {
+            width: 22,
+            height: 22,
+          },
+          colorError: {
+            color: '#920000',
+            backgroundColor: '#FFECE9',
+          },
+        },
+      },
     },
   };
 

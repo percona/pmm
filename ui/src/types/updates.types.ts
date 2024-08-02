@@ -51,4 +51,5 @@ export enum UpdateStatus {
   Error = 'error',
   Checking = 'checking',
   UpToDate = 'up-to-date',
+  UpdateClients = 'update-clients',
 }
