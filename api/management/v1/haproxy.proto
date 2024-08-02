@@ -36,7 +36,7 @@ message AddHAProxyServiceParams {
   string metrics_path = 9;
   // Listen port for scraping metrics.
   uint32 listen_port = 10 [(validate.rules).uint32 = {
-    gt: 0,
+    gt: 0
     lt: 65536
   }];
   // Environment name.
