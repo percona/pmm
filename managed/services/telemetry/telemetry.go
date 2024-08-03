@@ -38,9 +38,7 @@ import (
 )
 
 const (
-	distributionInfoFilePath = "/srv/pmm-distribution"
-	osInfoFilePath           = "/proc/version"
-	sendChSize               = 10
+	sendChSize = 10
 )
 
 // Service reports telemetry.
@@ -69,7 +67,9 @@ var (
 )
 
 // NewService creates a new service.
-func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string, config ServiceConfig, extensions map[ExtensionType]Extension) (*Service, error) {
+func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
+	dus distributionUtilService, config ServiceConfig, extensions map[ExtensionType]Extension,
+) (*Service, error) {
 	if config.SaasHostname == "" {
 		return nil, errors.New("empty host")
 	}
@@ -80,7 +80,6 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 	if err != nil {
 		return nil, err
 	}
-	dus := newDistributionUtilServiceImpl(distributionInfoFilePath, osInfoFilePath, l)
 	s := &Service{
 		db:           db,
 		l:            l,
@@ -94,7 +93,7 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 		extensions:   extensions,
 	}
 
-	s.sDistributionMethod, s.tDistributionMethod, s.os = dus.getDistributionMethodAndOS()
+	s.sDistributionMethod, s.tDistributionMethod, s.os = dus.GetDistributionMethodAndOS()
 	s.dataSourcesMap = s.locateDataSources(config.telemetry)
 
 	return s, nil
@@ -360,7 +359,7 @@ func (s *Service) makeMetric(ctx context.Context) (*pmmv1.ServerMetric, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to decode UUID %s", serverIDToUse)
 	}
-	_, distMethod, _ := s.dus.getDistributionMethodAndOS()
+	_, distMethod, _ := s.dus.GetDistributionMethodAndOS()
 
 	eventID := uuid.New()
 	return &pmmv1.ServerMetric{

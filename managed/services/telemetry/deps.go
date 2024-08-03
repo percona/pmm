@@ -26,7 +26,7 @@ import (
 
 // distributionUtilService service to get info about OS on which pmm server is running.
 type distributionUtilService interface {
-	getDistributionMethodAndOS() (serverv1.DistributionMethod, pmmv1.DistributionMethod, string)
+	GetDistributionMethodAndOS() (serverv1.DistributionMethod, pmmv1.DistributionMethod, string)
 }
 
 // sender is interface which defines method for client which sends report with metrics.
