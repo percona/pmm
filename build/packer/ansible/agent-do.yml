@@ -1,0 +1,333 @@
+---
+- name: "Provision Agent"
+  hosts: default
+  become: true
+  vars:
+    docker_compose_version: "2.14.2"
+    kubectl_version: "1.22.9"
+    doctl_version: "1.91.0"
+    node_version: "16.18.1"
+
+  tasks:
+    - name: Detect vm architecture
+      set_fact:
+        # Alternative architecture name just because we never can have only one name in computers
+        ansible_architecture_alt: "{% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}none{% endif %}"
+
+    - name: Add hashicorp repository
+      get_url:
+        url: https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+        dest: /etc/yum.repos.d/hashicorp.repo
+      when: ansible_facts['distribution'] == "Amazon"
+
+    - name: Add hashicorp repository
+      get_url:
+        url: https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+        dest: /etc/yum.repos.d/hashicorp.repo
+      when: ansible_facts['distribution'] != "Amazon"
+
+    - name: Enable epel repo
+      command: amazon-linux-extras install -y epel
+      when: ansible_facts['distribution'] == "Amazon"
+
+    - name: Enable epel repo
+      yum:
+        name: epel-release
+        state: present
+      when: ansible_facts['distribution'] != "Amazon"
+      # TODO maybe we can use the same repo for both
+
+    - name: Upgrade OS packages
+      yum:
+        name: "*"
+        state: latest
+
+    - name: Install packages
+      package:
+        name:
+          - docker
+          - git
+          - jq
+          - gettext
+          - unzip
+          - python3
+          - bats
+          - svn # we use it in pmm-framework.sh
+          - php # we use PHP in pmm-qa repo
+          - php-mysqlnd
+          - php-pdo
+          - wget
+          - kernel-devel
+          - kernel-headers
+          - gcc
+          - make
+          - perl
+          - p7zip
+          - https://rpm.nodesource.com/pub_16.x/el/7/{{ ansible_architecture }}/nodejs-{{ node_version }}-1nodesource.{{ ansible_architecture }}.rpm
+          - packer
+          - xmlstarlet
+        state: present
+
+    - name: Install Java11 on DO
+      package:
+        name: java-11-openjdk
+        state: present
+      when: ansible_facts['distribution'] != "Amazon"
+
+    - name: Install Java11 on AWS
+      command: amazon-linux-extras install -y java-openjdk11
+      when: ansible_facts['distribution'] == "Amazon"
+
+    - name: Install docker-compose
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-linux-{{ ansible_architecture }}"
+        dest: /usr/local/bin/docker-compose
+        mode: "u+x,g+x,o+x"
+
+    - name: Install kubectl
+      get_url:
+        url: https://storage.googleapis.com/kubernetes-release/release/v{{ kubectl_version }}/bin/linux/{{ ansible_architecture_alt }}/kubectl
+        dest: /usr/local/bin/kubectl
+        mode: "u+x,g+x,o+x"
+
+    - name: Install lacework
+      get_url:
+        url: "https://github.com/lacework/lacework-vulnerability-scanner/releases/latest/download/lw-scanner-linux-{{ ansible_architecture_alt }}"
+        dest: /usr/local/bin/lw-scanner
+        mode: "u+x,g+x,o+x"
+
+    - name: Install other software
+      package:
+        name:
+          - chromium
+        state: present
+      when: ansible_architecture == "x86_64"
+      # NOTE: no chromium package for arm64
+
+    - name: Install doctl client for digital ocean
+      get_url:
+        url: https://github.com/digitalocean/doctl/releases/download/v{{ doctl_version }}/doctl-{{ doctl_version }}-linux-{{ ansible_architecture_alt }}.tar.gz
+        dest: /tmp/doctl.tar.gz
+
+    - name: Unarchive a file with doctl
+      unarchive:
+        src: /tmp/doctl.tar.gz
+        dest: /usr/local/bin
+        remote_src: yes
+        mode: "u+x,g+x,o+x"
+        group: "{{ (ansible_facts['distribution'] == 'Amazon') | ternary('ec2-user', 'root') }}"
+        owner: "{{ (ansible_facts['distribution'] == 'Amazon') | ternary('ec2-user', 'root') }}"
+
+    - name: Instal yq
+      get_url:
+        url: https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+        dest: /usr/bin/yq
+        mode: "555"
+        group: "{{ (ansible_facts['distribution'] == 'Amazon') | ternary('ec2-user', 'root') }}"
+        owner: "{{ (ansible_facts['distribution'] == 'Amazon') | ternary('ec2-user', 'root') }}"
+
+    - name: Install Python modules
+      pip:
+        name: "{{ item }}"
+      loop: # Lookup versions at: https://pypi.org/search/
+        - pyaml==21.10.1
+        - GitPython==3.1.29
+        - PyGithub==1.57
+        - python-digitalocean==1.17.0
+        - docker==6.0.1
+        - linode-cli==5.27.2
+      when: ansible_facts['distribution'] == "Amazon"
+
+    - name: Install virtual box (only for digital ocean)
+      block:
+        - name: Add base repository for VirtualBox
+          yum_repository:
+            name: virtualbox
+            description: VirtualBox
+            baseurl: "http://download.virtualbox.org/virtualbox/rpm/el/$releasever/$basearch"
+            gpgcheck: true
+            gpgkey: https://www.virtualbox.org/download/oracle_vbox.asc
+            enabled: true
+            state: present
+
+        - name: Install packages for virtualization
+          yum:
+            state: present
+            name: "{{ item }}"
+          loop:
+            - VirtualBox-6.1
+            - vagrant
+
+        - name: Reboot to the latest kernel
+          reboot:
+            reboot_timeout: 1200
+        - name: Recompile kernel
+          command: /sbin/vboxconfig
+      when: ansible_facts['distribution'] != "Amazon"
+
+    - name: Copy docker daemon config
+      copy:
+        src: daemon.json
+        dest: /etc/docker/daemon.json
+
+    - name: Enable Docker service
+      systemd:
+        name: docker.service
+        state: started
+        enabled: yes
+
+    - name: Install AWS CLI
+      block:
+        - name: Download and unarchive AWS installer
+          unarchive:
+            src: https://awscli.amazonaws.com/awscli-exe-linux-{{ ansible_architecture }}.zip
+            dest: /tmp
+            remote_src: yes
+
+        - name: Run the install command
+          shell: /tmp/aws/install
+
+        - name: Add ec2-user user to "docker" group
+          user:
+            name: "ec2-user"
+            groups:
+              - "docker"
+            append: yes
+      when: ansible_facts['distribution'] == "Amazon"
+
+    - name: Pull and cache docker images
+      docker_image:
+        name: "{{ item }}"
+        source: pull
+      loop:
+        - centos:7
+        - debian:buster
+        - debian:stretch
+        - debian:bullseye
+        - ubuntu:jammy
+        - ubuntu:bionic
+        - ubuntu:focal
+        - rockylinux:8
+        - oraclelinux:9
+      when: ansible_facts['distribution'] == "Amazon"
+
+    - name: Turn off swap
+      sysctl:
+        name: vm.swappiness
+        value: 0
+        state: present
+
+    - name: Increase dirty ratio
+      sysctl:
+        name: vm.dirty_ratio
+        value: 80
+        state: present
+
+    - name: Decrease dirty_background_ratio
+      sysctl:
+        name: vm.dirty_background_ratio
+        value: 5
+
+    - name: Increase dirty_expire_centisecs
+      sysctl:
+        name: vm.dirty_expire_centisecs
+        value: 12000 #120 sec
+
+    - name: Increase net.core.somaxconn
+      sysctl:
+        name: net.core.somaxconn
+        value: 1024
+
+    - name: Increase net.core.netdev_max_backlog
+      sysctl:
+        name: net.core.netdev_max_backlog
+        value: 5000
+
+    - name: Increase net.core.rmem_max
+      sysctl:
+        name: net.core.rmem_max
+        value: 16777216
+
+    - name: Increase net.core.wmem_max
+      sysctl:
+        name: net.core.wmem_max
+        value: 16777216
+
+    - name: Increase net.ipv4.tcp_wmem
+      sysctl:
+        name: net.ipv4.tcp_wmem
+        value: 4096 12582912 16777216
+
+    - name: Increase net.ipv4.tcp_rmem
+      sysctl:
+        name: net.ipv4.tcp_rmem
+        value: 4096 12582912 16777216
+
+    - name: Increase net.ipv4.tcp_max_syn_backlog
+      sysctl:
+        name: net.ipv4.tcp_max_syn_backlog
+        value: 8192
+
+    - name: Disable net.ipv4.tcp_slow_start_after_idle
+      sysctl:
+        name: net.ipv4.tcp_slow_start_after_idle
+        value: 0
+
+    - name: Enable net.ipv4.tcp_tw_reuse
+      sysctl:
+        name: net.ipv4.tcp_tw_reuse
+        value: 1
+
+    - name: Change net.ipv4.ip_local_port_range
+      sysctl:
+        name: net.ipv4.ip_local_port_range
+        value: 10240 65535
+
+    - name: Change TCP Congestion Control Algorithm (net.ipv4.tcp_congestion_control)
+      sysctl:
+        name: net.ipv4.tcp_congestion_control
+        value: bbr
+
+    - name: Change net.ipv4.tcp_syn_retries
+      sysctl:
+        name: net.ipv4.tcp_syn_retries
+        value: 2
+
+    - name: Change BBR algoritm
+      sysctl:
+        name: net.core.default_qdisc
+        value: fq
+
+    - name: Increase kernel.perf_event_max_stack
+      sysctl:
+        name: kernel.perf_event_max_stack
+        value: 1023
+      when: ansible_facts['distribution'] == "Amazon"
+
+    - name: Increase fs.xfs.xfssyncd_centisecs
+      sysctl:
+        name: fs.xfs.xfssyncd_centisecs
+        value: 9000
+
+    - name: Increase fs.inotify.max_user_watches
+      sysctl:
+        name: fs.inotify.max_user_watches
+        value: 1048576
+
+    - name: Get disk UUID
+      command: blkid -s UUID -o value /dev/nvme0n1p1
+      register: disk_uuid
+      when: ansible_facts['distribution'] == "Amazon"
+
+    - name: Replace fstab entities with new mount options
+      lineinfile:
+        path: /etc/fstab
+        regexp: "^UUID={{ disk_uuid.stdout }}"
+        line: "UUID={{ disk_uuid.stdout }}     /           xfs    defaults,noatime,nobarrier,discard  1   1"
+      when: ansible_facts['distribution'] == "Amazon"
+
+    - name: Add repo.ci.percona.com to /etc/hosts
+      lineinfile:
+        dest: /etc/hosts
+        line: "10.30.6.9 repo.ci.percona.com"
+        state: present
