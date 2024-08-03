@@ -12,7 +12,7 @@
   "swagger": "2.0",
   "info": {
     "title": "PMM API",
-    "version": "public"
+    "version": "v3"
   },
   "paths": {
     "/v1/actions/{action_id}": {
@@ -27112,5 +27112,6 @@
       "node",
       "python"
     ]
-  }
+  },
+  "x-readme-id": "622892a957a7410330bc6184"
 }
