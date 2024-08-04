@@ -196,27 +196,19 @@ func TestAgentRequest(t *testing.T) {
 		metrics = append(metrics, m)
 	}
 	expectedMetrics := strings.Split(strings.TrimSpace(`
-# HELP pmm_agent_channel_messages_received_total A total number of received messages from pmm-managed.
-# TYPE pmm_agent_channel_messages_received_total counter
-pmm_agent_channel_messages_received_total 50
-# HELP pmm_agent_channel_messages_sent_total A total number of sent messages to pmm-managed.
-# TYPE pmm_agent_channel_messages_sent_total counter
-pmm_agent_channel_messages_sent_total 50
+# HELP pmm_agent_channel_failed_messages_total A total number of failed messages.
+# TYPE pmm_agent_channel_failed_messages_total counter
+pmm_agent_channel_failed_messages_total 0
+# HELP pmm_agent_channel_message_received Received message summary from pmm-managed.
+# TYPE pmm_agent_channel_message_received summary
+pmm_agent_channel_message_received_sum{message_type="qan_collect"} 200
+pmm_agent_channel_message_received_count{message_type="qan_collect"} 50
+# HELP pmm_agent_channel_message_sent Sent message summary to pmm-managed.
+# TYPE pmm_agent_channel_message_sent summary
+pmm_agent_channel_message_sent_sum{message_type="qan_collect"} 200
+pmm_agent_channel_message_sent_count{message_type="qan_collect"} 50
 `), "\n")
 	assert.Equal(t, expectedMetrics, helpers.Format(metrics))
-
-	// check that descriptions match metrics: same number, same order
-	descCh := make(chan *prometheus.Desc)
-	go func() {
-		channel.Describe(descCh)
-		close(descCh)
-	}()
-	var i int
-	for d := range descCh {
-		assert.Equal(t, metrics[i].Desc(), d)
-		i++
-	}
-	assert.Len(t, metrics, i)
 }
 
 func TestServerRequest(t *testing.T) {

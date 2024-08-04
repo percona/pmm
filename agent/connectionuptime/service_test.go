@@ -21,6 +21,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -33,6 +35,7 @@ func TestConnectionUpTime(t *testing.T) {
 		expectedUpTime   float32
 		windowPeriod     time.Duration
 		toTime           time.Time
+		uptimeSeconds    float32
 	}{
 		{
 			name: "should be 100%",
@@ -42,6 +45,7 @@ func TestConnectionUpTime(t *testing.T) {
 			expectedUpTime: 100,
 			windowPeriod:   time.Hour,
 			toTime:         now,
+			uptimeSeconds:  1,
 		},
 		{
 			name: "should be 0%",
@@ -51,6 +55,7 @@ func TestConnectionUpTime(t *testing.T) {
 			expectedUpTime: 0,
 			windowPeriod:   time.Hour,
 			toTime:         now,
+			uptimeSeconds:  0,
 		},
 		{
 			name: "should be 50% when half of the time there is no connection between server and server",
@@ -61,6 +66,7 @@ func TestConnectionUpTime(t *testing.T) {
 			expectedUpTime: 50,
 			windowPeriod:   time.Hour,
 			toTime:         now,
+			uptimeSeconds:  5,
 		},
 		{
 			name: "should be 10% when only 6 seconds was uptime from 1 minute",
@@ -71,6 +77,7 @@ func TestConnectionUpTime(t *testing.T) {
 			expectedUpTime: 10,
 			windowPeriod:   time.Hour,
 			toTime:         now,
+			uptimeSeconds:  6,
 		},
 		{
 			name: "should be 90% when only 54 seconds was uptime from 1 minute",
@@ -81,6 +88,7 @@ func TestConnectionUpTime(t *testing.T) {
 			expectedUpTime: 90,
 			windowPeriod:   time.Hour,
 			toTime:         now,
+			uptimeSeconds:  0,
 		},
 		{
 			name: "should be 50% when only 30 seconds was uptime from 1 minute",
@@ -93,6 +101,7 @@ func TestConnectionUpTime(t *testing.T) {
 			expectedUpTime: 50,
 			windowPeriod:   time.Hour,
 			toTime:         now,
+			uptimeSeconds:  20,
 		},
 		{
 			name: "should count uptime only during 1 minute and should be only 10% uptime",
@@ -105,6 +114,7 @@ func TestConnectionUpTime(t *testing.T) {
 			expectedUpTime: 10,
 			windowPeriod:   time.Minute,
 			toTime:         now,
+			uptimeSeconds:  6,
 		},
 		{
 			name: "should return 100% uptime",
@@ -121,6 +131,7 @@ func TestConnectionUpTime(t *testing.T) {
 			expectedUpTime: 100,
 			windowPeriod:   time.Minute,
 			toTime:         now,
+			uptimeSeconds:  59,
 		},
 		{
 			name: "should return 100% uptime for 5 second period",
@@ -136,6 +147,7 @@ func TestConnectionUpTime(t *testing.T) {
 			expectedUpTime: 80,
 			windowPeriod:   5 * time.Second,
 			toTime:         now,
+			uptimeSeconds:  4,
 		},
 		{
 			name:             "should return 0% uptime for 5 second period when there is no events",
@@ -143,6 +155,7 @@ func TestConnectionUpTime(t *testing.T) {
 			expectedUpTime:   0,
 			windowPeriod:     5 * time.Second,
 			toTime:           now,
+			uptimeSeconds:    0,
 		},
 	}
 
@@ -152,6 +165,7 @@ func TestConnectionUpTime(t *testing.T) {
 			t.Parallel()
 
 			service := NewService(tt.windowPeriod)
+			prometheus.Register(service) //nolint:errcheck
 
 			var sortedTime []time.Time
 			for k := range tt.setOfConnections {
@@ -165,6 +179,11 @@ func TestConnectionUpTime(t *testing.T) {
 			for _, t := range sortedTime {
 				service.RegisterConnectionStatus(t, tt.setOfConnections[t])
 			}
+
+			assert.Equal(t, 1, testutil.CollectAndCount(service))
+			uptimeSecondsGot := float32(service.getUptimeSeconds())
+			assert.True(t, compareFloatWithTolerance(tt.uptimeSeconds, uptimeSecondsGot),
+				fmt.Sprintf("expected = %f and got = %f aren't equal with tolerance", tt.uptimeSeconds, uptimeSecondsGot))
 
 			service.deleteOldEvents(tt.toTime)
 			got := service.GetConnectedUpTimeUntil(tt.toTime)

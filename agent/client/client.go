@@ -926,6 +926,7 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, 0)
 	}
 	c.supervisor.Collect(ch)
+	c.cus.Collect(ch)
 }
 
 // argListFromPgParams creates an array of strings from the pointer to the parameters for pt-pg-sumamry.
