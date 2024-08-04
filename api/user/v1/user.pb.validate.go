@@ -163,6 +163,8 @@ func (m *GetUserResponse) validate(all bool) error {
 
 	// no validation rules for AlertingTourCompleted
 
+	// no validation rules for SnoozedPmmVersion
+
 	if len(errors) > 0 {
 		return GetUserResponseMultiError(errors)
 	}
@@ -269,6 +271,10 @@ func (m *UpdateUserRequest) validate(all bool) error {
 
 	if m.AlertingTourCompleted != nil {
 		// no validation rules for AlertingTourCompleted
+	}
+
+	if m.SnoozedPmmVersion != nil {
+		// no validation rules for SnoozedPmmVersion
 	}
 
 	if len(errors) > 0 {
@@ -378,6 +384,8 @@ func (m *UpdateUserResponse) validate(all bool) error {
 	// no validation rules for ProductTourCompleted
 
 	// no validation rules for AlertingTourCompleted
+
+	// no validation rules for SnoozedPmmVersion
 
 	if len(errors) > 0 {
 		return UpdateUserResponseMultiError(errors)

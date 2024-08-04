@@ -18,6 +18,8 @@ message GetUserResponse {
   bool product_tour_completed = 2;
   // Alerting Tour
   bool alerting_tour_completed = 3;
+  // Snoozed PMM version update
+  string snoozed_pmm_version = 4;
 }
 
 message UpdateUserRequest {
@@ -25,6 +27,8 @@ message UpdateUserRequest {
   optional bool product_tour_completed = 2;
   // Alerting Tour
   optional bool alerting_tour_completed = 3;
+  // Snooze update alert for a PMM version
+  optional string snoozed_pmm_version = 4;
 }
 
 message UpdateUserResponse {
@@ -34,6 +38,8 @@ message UpdateUserResponse {
   bool product_tour_completed = 2;
   // Alerting Tour
   bool alerting_tour_completed = 3;
+  // Snooze update alert for a PMM version
+  string snoozed_pmm_version = 4;
 }
 
 message ListUsersRequest {}
