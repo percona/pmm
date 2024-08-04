@@ -57,8 +57,6 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 		}
 		mongodb.Service = invService.(*inventoryv1.MongoDBService) //nolint:forcetypeassert
 
-		mongoDBOptions := models.MongoDBOptionsFromRequest(req)
-
 		req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, req.PmmAgentId)
 		if err != nil {
 			return err
@@ -72,7 +70,7 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 			AgentPassword:     req.AgentPassword,
 			TLS:               req.Tls,
 			TLSSkipVerify:     req.TlsSkipVerify,
-			MongoDBOptions:    mongoDBOptions,
+			MongoDBOptions:    models.MongoDBOptionsFromRequest(req),
 			PushMetrics:       isPushMode(req.MetricsMode),
 			ExposeExporter:    req.ExposeExporter,
 			DisableCollectors: req.DisableCollectors,
@@ -106,7 +104,7 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 				Password:       req.Password,
 				TLS:            req.Tls,
 				TLSSkipVerify:  req.TlsSkipVerify,
-				MongoDBOptions: mongoDBOptions,
+				MongoDBOptions: models.MongoDBOptionsFromRequest(req),
 				MaxQueryLength: req.MaxQueryLength,
 				LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 				// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-7860

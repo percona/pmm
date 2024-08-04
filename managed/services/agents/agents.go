@@ -109,6 +109,25 @@ func redactWords(agent *models.Agent) []string {
 			words = append(words, s)
 		}
 	}
+	if agent.MySQLOptions != nil {
+		if s := agent.MySQLOptions.TLSKey; s != "" {
+			words = append(words, s)
+		}
+	}
+	if agent.PostgreSQLOptions != nil {
+		if s := agent.PostgreSQLOptions.SSLKey; s != "" {
+			words = append(words, s)
+		}
+	}
+	if agent.MongoDBOptions != nil {
+		if s := agent.MongoDBOptions.TLSCertificateKey; s != "" {
+			words = append(words, s)
+		}
+		if s := agent.MongoDBOptions.TLSCertificateKeyFilePassword; s != "" {
+			words = append(words, s)
+		}
+	}
+
 	return words
 }
 

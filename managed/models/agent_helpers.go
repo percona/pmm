@@ -229,7 +229,8 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 
 	agents := make([]*Agent, len(structs))
 	for i, s := range structs {
-		agents[i] = s.(*Agent) //nolint:forcetypeassert
+		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
+		agents[i] = &decryptedAgent
 	}
 
 	return agents, nil
@@ -249,8 +250,9 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 		}
 		return nil, errors.WithStack(err)
 	}
+	decryptedAgent := DecryptAgent(*agent)
 
-	return agent, nil
+	return &decryptedAgent, nil
 }
 
 // FindAgentsByIDs finds Agents by IDs.
@@ -272,7 +274,8 @@ func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 
 	res := make([]*Agent, len(structs))
 	for i, s := range structs {
-		res[i] = s.(*Agent) //nolint:forcetypeassert
+		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
+		res[i] = &decryptedAgent
 	}
 	return res, nil
 }
@@ -323,7 +326,8 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 
 	res := make([]*Agent, len(structs))
 	for i, s := range structs {
-		res[i] = s.(*Agent) //nolint:forcetypeassert
+		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
+		res[i] = &decryptedAgent
 	}
 
 	if len(res) == 0 {
@@ -350,8 +354,8 @@ func FindPMMAgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, err
 
 	res := make([]*Agent, 0, len(structs))
 	for _, str := range structs {
-		row := str.(*Agent) //nolint:forcetypeassert
-		res = append(res, row)
+		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
+		res = append(res, &decryptedAgent)
 	}
 
 	return res, nil
@@ -395,8 +399,8 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	}
 	res := make([]*Agent, 0, len(pmmAgentRecords))
 	for _, str := range pmmAgentRecords {
-		row := str.(*Agent) //nolint:forcetypeassert
-		res = append(res, row)
+		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
+		res = append(res, &decryptedAgent)
 	}
 
 	return res, nil
@@ -477,7 +481,8 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 
 	res := make([]*Agent, len(allAgents))
 	for i, s := range allAgents {
-		res[i] = s.(*Agent) //nolint:forcetypeassert
+		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
+		res[i] = &decryptedAgent
 	}
 	return res, nil
 }
@@ -641,11 +646,14 @@ func CreateNodeExporter(q *reform.Querier,
 	if err := row.SetCustomLabels(customLabels); err != nil {
 		return nil, err
 	}
-	if err := q.Insert(row); err != nil {
+
+	encryptedAgent := EncryptAgent(*row)
+	if err := q.Insert(&encryptedAgent); err != nil {
 		return nil, errors.WithStack(err)
 	}
+	agent := DecryptAgent(encryptedAgent)
 
-	return row, nil
+	return &agent, nil
 }
 
 // CreateExternalExporterParams params for add external exporter.
@@ -725,11 +733,14 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}
-	if err := q.Insert(row); err != nil {
+
+	encryptedAgent := EncryptAgent(*row)
+	if err := q.Insert(&encryptedAgent); err != nil {
 		return nil, errors.WithStack(err)
 	}
+	agent := DecryptAgent(encryptedAgent)
 
-	return row, nil
+	return &agent, nil
 }
 
 // CreateAgentParams params for add common exporter.
@@ -912,15 +923,17 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		DisabledCollectors:             params.DisableCollectors,
 		LogLevel:                       pointer.ToStringOrNil(params.LogLevel),
 	}
-
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}
-	if err := q.Insert(row); err != nil {
+
+	encryptedAgent := EncryptAgent(*row)
+	if err := q.Insert(&encryptedAgent); err != nil {
 		return nil, errors.WithStack(err)
 	}
+	agent := DecryptAgent(encryptedAgent)
 
-	return row, nil
+	return &agent, nil
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.

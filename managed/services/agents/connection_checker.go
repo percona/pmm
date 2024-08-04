@@ -86,9 +86,9 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		return err
 	}
 
-	var sanitizedDSN string
+	sanitizedDSN := request.Dsn
 	for _, word := range redactWords(agent) {
-		sanitizedDSN = strings.ReplaceAll(request.Dsn, word, "****")
+		sanitizedDSN = strings.ReplaceAll(sanitizedDSN, word, "****")
 	}
 	l.Infof("CheckConnectionRequest: type: %s, DSN: %s timeout: %s.", request.Type, sanitizedDSN, request.Timeout)
 

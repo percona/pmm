@@ -16,6 +16,9 @@ jobs:
     name: Checks
     runs-on: ubuntu-22.04
 
+    env:
+      PMM_ENCRYPTION_KEY_PATH: pmm-encryption.key
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
