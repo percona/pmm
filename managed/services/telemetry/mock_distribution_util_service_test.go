@@ -14,12 +14,12 @@ type mockDistributionUtilService struct {
 	mock.Mock
 }
 
-// getDistributionMethodAndOS provides a mock function with given fields:
-func (_m *mockDistributionUtilService) getDistributionMethodAndOS() (serverv1.DistributionMethod, pmmv1.DistributionMethod, string) {
+// GetDistributionMethodAndOS provides a mock function with given fields:
+func (_m *mockDistributionUtilService) GetDistributionMethodAndOS() (serverv1.DistributionMethod, pmmv1.DistributionMethod, string) {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for getDistributionMethodAndOS")
+		panic("no return value specified for GetDistributionMethodAndOS")
 	}
 
 	var r0 serverv1.DistributionMethod

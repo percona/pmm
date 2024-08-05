@@ -1,5 +1,21 @@
 ---
 # This role contains tasks executed during initialization of PMM Server
+- name: detect /srv/pmm-distribution
+  slurp:
+    path: /srv/pmm-distribution
+  register: pmm_distribution
+  ignore_errors: True
+
+- name: detect AMI
+  set_fact:
+    is_ami: "{{ pmm_distribution['content'] | b64decode | trim == 'ami' }}"
+  when: pmm_distribution['failed'] == false
+
+- name: Set PMM distribution
+  set_fact:
+    is_ami: "False"
+  when: pmm_distribution['failed'] == true
+
 - name: Get current version
   slurp:
     src: /srv/grafana/PERCONA_DASHBOARDS_VERSION
@@ -25,63 +41,102 @@
   set_fact:
     pmm_image_version: "{{ image_version_file['content'] | b64decode | trim }}"
 
+- name: Set need_initialization fact
+  set_fact:
+    need_initialization: "{{ current_version_file['failed'] == true }}"
+
 - name: Set need_upgrade fact
   set_fact:
     need_upgrade: "{{ pmm_current_version is version(pmm_image_version, '<') }}"
+
+- name: Print PMM distribution
+  debug:
+    msg: "PMM distribution: {{ pmm_distribution }}, Is AMI: {{ is_ami }}"
 
 - name: Print current PMM and image versions
   debug:
     msg: "Current version: {{ pmm_current_version }} Image Version: {{ pmm_image_version }}"
 
+- name: Print need_initialization fact
+  debug:
+    msg: "Need initialization: {{ need_initialization }}"
+
 - name: Print need_upgrade fact
   debug:
     msg: "Need upgrade: {{ need_upgrade }}"
 
-- name: Perform upgrade tasks
+- name: Perform upgrade & init tasks
   block:
-    - name: Enable maintenance mode before upgrade
-      copy:
-        src: maintenance.html
-        dest: /usr/share/pmm-server/maintenance/
-        owner: pmm
-        group: pmm
-        mode: 0644
-    
-    - name: Upgrade dashboards
-      include_role:
-        name: dashboards
-    
-    - name: Copy file with image version
-      copy:
-        src: /usr/share/percona-dashboards/VERSION
-        dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
-        owner: pmm
-        group: pmm
-        mode: 0644
-        remote_src: yes
-    
-    - name: Create a backup directory
-      file:
-        path: /srv/backup
-        state: directory
-        owner: pmm
-        group: pmm
-        mode: 0775
+  - name: Enable maintenance mode before upgrade
+    copy:
+      src: maintenance.html
+      dest: /usr/share/pmm-server/maintenance/
+      owner: pmm
+      group: pmm
+      mode: 0644
 
-    # Note: we want to leave this for some time until we achieve stable builds
-    - name: Output pmm-managed logs
-      shell: sleep 10 && tail -n 300 /srv/logs/pmm-managed.log
+  - name: Create grafana DB
+    block:
+      - name: Create grafana database in postgres
+        postgresql_db:
+          name: grafana
+          login_user: postgres
+          state: present
 
-    - name: Wait for PMM to be ready
-      ansible.builtin.uri:
-        url: "http://127.0.0.1:7772/v1/server/readyz"
-        status_code: 200
-        method: GET
-      retries: 20
-      delay: 5
-    
-    - name: Disable maintenance mode
-      file:
-        state: absent
-        path: /usr/share/pmm-server/maintenance/maintenance.html
-  when: need_upgrade
+      - name: Create grafana user in postgres
+        postgresql_user:
+          db: grafana
+          name: grafana
+          password: grafana
+          priv: 'ALL'
+          expires: infinity
+          login_user: postgres
+          state: present
+        when: not ansible_check_mode
+    when: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == '' and need_initialization
+
+  - name: Upgrade/Install dashboards
+    include_role:
+      name: dashboards
+
+  - name: Copy file with image version
+    copy:
+      src: /usr/share/percona-dashboards/VERSION
+      dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
+      owner: pmm
+      group: pmm
+      mode: 0644
+      remote_src: yes
+
+  - name: Create a backup directory
+    file:
+      path: /srv/backup
+      state: directory
+      owner: pmm
+      group: pmm
+      mode: 0775
+    when: need_upgrade
+
+  # Note: we want to leave this for some time until we achieve stable builds
+  - name: Output pmm-managed logs
+    shell: sleep 10 && tail -n 300 /srv/logs/pmm-managed.log
+
+  - name: Wait for PMM to be ready
+    ansible.builtin.uri:
+      url: "http://127.0.0.1:7772/v1/server/readyz"
+      status_code: 200
+      method: GET
+    retries: 20
+    delay: 5
+    ignore_errors: yes
+
+  - name: init admin password on AMI
+    include_role:
+      name: init-admin-password-ami
+    when: need_initialization and is_ami
+
+  - name: Disable maintenance mode
+    file:
+      state: absent
+      path: /usr/share/pmm-server/maintenance/maintenance.html
+  when: need_initialization or need_upgrade

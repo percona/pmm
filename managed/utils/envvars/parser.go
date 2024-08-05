@@ -176,7 +176,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 			}
 
-		case "PMM_INSTALL_METHOD":
+		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
 			continue
 
 		case envEnableAccessControl:
