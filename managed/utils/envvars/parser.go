@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
@@ -56,9 +57,9 @@ func (e InvalidDurationError) Error() string { return string(e) }
 // In case of error, the docker run terminates.
 // Short description of environment variables:
 //   - PATH, HOSTNAME, TERM, HOME are default environment variables that will be ignored;
-//   - PMM_DISABLE_UPDATES is a boolean flag to enable or disable pmm-server update;
-//   - PMM_DISABLE_TELEMETRY is a boolean flag to enable or disable pmm telemetry (and disable STT if telemetry is disabled);
-//   - PMM_DISABLE_ALERTING disables Percona Alerting;
+//   - PMM_ENABLE_UPDATES is a boolean flag to enable or disable pmm-server update;
+//   - PMM_ENABLE_TELEMETRY is a boolean flag to enable or disable pmm telemetry (and disable Advisors if telemetry is disabled);
+//   - PMM_ENABLE_ALERTING disables Percona Alerting;
 //   - PMM_METRICS_RESOLUTION, PMM_METRICS_RESOLUTION_MR, PMM_METRICS_RESOLUTION_HR, PMM_METRICS_RESOLUTION_LR are durations of metrics resolution;
 //   - PMM_DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
 //   - PMM_ENABLE_AZURE_DISCOVER enables Azure Discover;
@@ -101,59 +102,73 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_CLICKHOUSE_DATABASE", "PMM_CLICKHOUSE_ADDR":
 			// skip env variables for external clickhouse
 			continue
-		case "PMM_DISABLE_UPDATES":
-			envSettings.DisableUpdates, err = strconv.ParseBool(v)
+		case "PMM_ENABLE_UPDATES":
+			b, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
 			}
-		case "PMM_DISABLE_TELEMETRY":
-			envSettings.DisableTelemetry, err = strconv.ParseBool(v)
+			envSettings.EnableUpdates = &b
+		case "PMM_ENABLE_TELEMETRY":
+			b, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
 			}
+			envSettings.EnableTelemetry = &b
 		case "PMM_METRICS_RESOLUTION", "PMM_METRICS_RESOLUTION_HR":
 			if envSettings.MetricsResolutions.HR, err = parseStringDuration(v); err != nil {
-				err = formatEnvVariableError(err, env, v)
+				errs = append(errs, formatEnvVariableError(err, env, v))
+				continue
 			}
 		case "PMM_METRICS_RESOLUTION_MR":
 			if envSettings.MetricsResolutions.MR, err = parseStringDuration(v); err != nil {
-				err = formatEnvVariableError(err, env, v)
+				errs = append(errs, formatEnvVariableError(err, env, v))
+				continue
 			}
 		case "PMM_METRICS_RESOLUTION_LR":
 			if envSettings.MetricsResolutions.LR, err = parseStringDuration(v); err != nil {
-				err = formatEnvVariableError(err, env, v)
+				errs = append(errs, formatEnvVariableError(err, env, v))
+				continue
 			}
 		case "PMM_DATA_RETENTION":
 			if envSettings.DataRetention, err = parseStringDuration(v); err != nil {
-				err = formatEnvVariableError(err, env, v)
+				errs = append(errs, formatEnvVariableError(err, env, v))
+				continue
 			}
 		case "PMM_ENABLE_VM_CACHE":
-			envSettings.EnableVMCache, err = strconv.ParseBool(v)
+			b, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
 			}
-			if !envSettings.EnableVMCache {
-				// disable cache explicitly
-				envSettings.DisableVMCache = true
-			}
-		case "PMM_DISABLE_ALERTING":
-			envSettings.DisableAlerting, err = strconv.ParseBool(v)
+			envSettings.EnableVMCache = &b
+		case "PMM_ENABLE_ALERTING":
+			b, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
 			}
+			envSettings.EnableAlerting = &b
+
 		case "PMM_ENABLE_AZURE_DISCOVER":
-			envSettings.EnableAzurediscover, err = strconv.ParseBool(v)
+			b, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
 			}
-		case "PMM_DISABLE_BACKUP_MANAGEMENT":
-			envSettings.DisableBackupManagement, err = strconv.ParseBool(v)
+			envSettings.EnableAzurediscover = &b
+
+		case "ENABLE_BACKUP_MANAGEMENT":
+			b, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
 			}
+			envSettings.EnableBackupManagement = &b
 
 		case "PMM_PUBLIC_ADDRESS":
-			envSettings.PMMPublicAddress = v
+			envSettings.PMMPublicAddress = pointer.ToString(v)
 
 		case "PMM_VM_URL":
 			_, err = url.Parse(v)
@@ -161,17 +176,18 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 			}
 
-		case "PMM_INSTALL_METHOD":
+		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
 			continue
 
 		case envEnableAccessControl:
-			envSettings.EnableAccessControl, err = strconv.ParseBool(v)
+			b, err := strconv.ParseBool(v)
 			if err != nil {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 				errs = append(errs, err)
 				continue
 			}
-			envSettings.DisableAccessControl = !envSettings.EnableAccessControl
+
+			envSettings.EnableAccessControl = &b
 
 		case envPlatformAPITimeout:
 			// This variable is not part of the settings and is parsed separately.
@@ -222,15 +238,11 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			}
 
 			if strings.HasPrefix(k, "PERCONA_") {
-				warns = append(warns, "PERCONA_* env variables IS NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation")
+				warns = append(warns, "PERCONA_* env variables are NOT SUPPORTED, please use PMM_* env variables, for details please check our documentation")
 				continue
 			}
 
 			warns = append(warns, fmt.Sprintf("unknown environment variable %q", env))
-		}
-
-		if err != nil {
-			errs = append(errs, err)
 		}
 	}
 

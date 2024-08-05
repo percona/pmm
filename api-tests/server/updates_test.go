@@ -21,14 +21,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
 func TestCheckUpdates(t *testing.T) {
@@ -41,7 +42,7 @@ func TestCheckUpdates(t *testing.T) {
 	}
 
 	// that call should always be fast
-	version, err := serverClient.Default.Server.Version(server.NewVersionParamsWithTimeout(fast))
+	version, err := serverClient.Default.ServerService.Version(server.NewVersionParamsWithTimeout(fast))
 	require.NoError(t, err)
 	if version.Payload.Server == nil || version.Payload.Server.Version == "" {
 		t.Skip("skipping test in developer's environment")
@@ -51,7 +52,7 @@ func TestCheckUpdates(t *testing.T) {
 		Context: pmmapitests.Context,
 	}
 	params.SetTimeout(slow) // that call can be slow with a cold cache
-	res, err := serverClient.Default.Server.CheckUpdates(params)
+	res, err := serverClient.Default.ServerService.CheckUpdates(params)
 	require.NoError(t, err)
 
 	require.NotEmpty(t, res.Payload.Installed)
@@ -88,7 +89,7 @@ func TestCheckUpdates(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		params.SetTimeout(fast) // that call should be fast with hot cache
-		resAgain, err := serverClient.Default.Server.CheckUpdates(params)
+		resAgain, err := serverClient.Default.ServerService.CheckUpdates(params)
 		require.NoError(t, err)
 
 		assert.Equal(t, res.Payload, resAgain.Payload)
@@ -96,13 +97,11 @@ func TestCheckUpdates(t *testing.T) {
 
 	t.Run("Force", func(t *testing.T) {
 		params = &server.CheckUpdatesParams{
-			Body: server.CheckUpdatesBody{
-				Force: true,
-			},
+			Force:   pointer.ToBool(true),
 			Context: pmmapitests.Context,
 		}
 		params.SetTimeout(slow) // that call with force can be slow
-		resForce, err := serverClient.Default.Server.CheckUpdates(params)
+		resForce, err := serverClient.Default.ServerService.CheckUpdates(params)
 		require.NoError(t, err)
 
 		assert.Equal(t, res.Payload.Installed, resForce.Payload.Installed)
@@ -119,7 +118,7 @@ func TestUpdate(t *testing.T) {
 	}
 
 	// check that pmm-managed and pmm-update versions match
-	version, err := serverClient.Default.Server.Version(nil)
+	version, err := serverClient.Default.ServerService.Version(nil)
 	require.NoError(t, err)
 	require.NotNil(t, version.Payload)
 	t.Logf("Before update: %s", spew.Sdump(version.Payload))
@@ -135,22 +134,22 @@ func TestUpdate(t *testing.T) {
 	noAuthClient := serverClient.New(pmmapitests.Transport(baseURL, true), nil)
 
 	// without authentication
-	_, err = noAuthClient.Server.StartUpdate(nil)
+	_, err = noAuthClient.ServerService.StartUpdate(nil)
 	pmmapitests.AssertAPIErrorf(t, err, 401, codes.Unauthenticated, "Unauthorized")
 
 	// with authentication
-	startRes, err := serverClient.Default.Server.StartUpdate(nil)
+	startRes, err := serverClient.Default.ServerService.StartUpdate(nil)
 	require.NoError(t, err)
 	authToken := startRes.Payload.AuthToken
 	logOffset := startRes.Payload.LogOffset
 	require.NotEmpty(t, authToken)
 	assert.Zero(t, logOffset)
 
-	_, err = serverClient.Default.Server.StartUpdate(nil)
+	_, err = serverClient.Default.ServerService.StartUpdate(nil)
 	pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "Update is already running.")
 
 	// without token
-	_, err = noAuthClient.Server.UpdateStatus(&server.UpdateStatusParams{
+	_, err = noAuthClient.ServerService.UpdateStatus(&server.UpdateStatusParams{
 		Body: server.UpdateStatusBody{
 			LogOffset: logOffset,
 		},
@@ -163,7 +162,7 @@ func TestUpdate(t *testing.T) {
 	var retries int
 	for {
 		start := time.Now()
-		statusRes, err := noAuthClient.Server.UpdateStatus(&server.UpdateStatusParams{
+		statusRes, err := noAuthClient.ServerService.UpdateStatus(&server.UpdateStatusParams{
 			Body: server.UpdateStatusBody{
 				AuthToken: authToken,
 				LogOffset: logOffset,
@@ -220,7 +219,7 @@ func TestUpdate(t *testing.T) {
 	assert.Contains(t, lastLine, "Waiting for Grafana dashboards update to finish...")
 
 	// extra check for done
-	statusRes, err := noAuthClient.Server.UpdateStatus(&server.UpdateStatusParams{
+	statusRes, err := noAuthClient.ServerService.UpdateStatus(&server.UpdateStatusParams{
 		Body: server.UpdateStatusBody{
 			AuthToken: authToken,
 			LogOffset: logOffset,
@@ -233,7 +232,7 @@ func TestUpdate(t *testing.T) {
 	assert.Equal(t, logOffset, statusRes.Payload.LogOffset)
 
 	// whole log
-	statusRes, err = noAuthClient.Server.UpdateStatus(&server.UpdateStatusParams{
+	statusRes, err = noAuthClient.ServerService.UpdateStatus(&server.UpdateStatusParams{
 		Body: server.UpdateStatusBody{
 			AuthToken: authToken,
 		},
@@ -248,7 +247,7 @@ func TestUpdate(t *testing.T) {
 	assert.Contains(t, lastLine, "Waiting for Grafana dashboards update to finish...")
 
 	// check that both pmm-managed and pmm-update were updated
-	version, err = serverClient.Default.Server.Version(nil)
+	version, err = serverClient.Default.ServerService.Version(nil)
 	require.NoError(t, err)
 	require.NotNil(t, version.Payload)
 	t.Logf("After update: %s", spew.Sdump(version.Payload))

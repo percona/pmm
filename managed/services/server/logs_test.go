@@ -51,6 +51,7 @@ var commonExpectedFiles = []string{
 	"postgresql14.log",
 	"qan-api2.ini",
 	"qan-api2.log",
+	"supervisorctl_status.log",
 	"supervisord.conf",
 	"supervisord.log",
 	"victoriametrics-promscrape.yml",
@@ -59,6 +60,7 @@ var commonExpectedFiles = []string{
 	"victoriametrics_targets.json",
 	"vmalert.ini",
 	"vmalert.log",
+	"vmproxy.ini",
 	"vmproxy.log",
 }
 
@@ -179,13 +181,10 @@ func TestFiles(t *testing.T) {
 			continue
 		}
 
-		if f.Name == "systemctl_status.log" {
-			assert.EqualError(t, f.Err, "exit status 1")
-			continue
-		}
-
 		if f.Name == "supervisorctl_status.log" {
-			// FIXME: this fails following the transition to EL9
+			assert.EqualError(t, f.Err, "exit status 3")
+			// NOTE: this fails in supervisorctl v4+ if there are stopped services; it is not critical because the call succeeds
+			actual = append(actual, f.Name)
 			continue
 		}
 
@@ -220,7 +219,6 @@ func TestZip(t *testing.T) {
 		"client/pmm-agent-version.txt",
 		"client/status.json",
 		"client/pmm-agent/pmm-agent.log",
-		"systemctl_status.log",
 		"prometheus.base.yml",
 	}
 	// zip file includes client files

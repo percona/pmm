@@ -14,9 +14,3 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package grafana
-
-// checker is a subset of methods of server.AWSInstanceChecker used by this package.
-// We use it instead of real type for testing and to avoid dependency cycle.
-type awsInstanceChecker interface {
-	MustCheck() bool
-}

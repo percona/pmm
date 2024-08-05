@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package management.v1;
+
+import "inventory/v1/agents.proto";
+import "inventory/v1/services.proto";
+import "management/v1/metrics.proto";
+import "management/v1/node.proto";
+import "validate/validate.proto";
+
+// Add HAProxy
+
+message AddHAProxyServiceParams {
+  // Node identifier on which an external exporter is been running.
+  // Exactly one of these parameters should be present: node_id, node_name, add_node.
+  string node_id = 1;
+  // Node name on which a service and node is been running.
+  // Exactly one of these parameters should be present: node_id, node_name, add_node.
+  string node_name = 2;
+  // Create a new Node with those parameters.
+  // add_node always should be passed with address.
+  // Exactly one of these parameters should be present: node_id, node_name, add_node.
+  AddNodeParams add_node = 3;
+  // Node and Exporter access address (DNS name or IP).
+  // address always should be passed with add_node.
+  string address = 4;
+  // Unique across all Services user-defined name. Required.
+  string service_name = 5 [(validate.rules).string.min_len = 1];
+  // HTTP basic auth username for collecting metrics.
+  string username = 6;
+  // HTTP basic auth password for collecting metrics.
+  string password = 7;
+  // Scheme to generate URI to exporter metrics endpoints.
+  string scheme = 8;
+  // Path under which metrics are exposed, used to generate URI.
+  string metrics_path = 9;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 10 [(validate.rules).uint32 = {
+    gt: 0
+    lt: 65536
+  }];
+  // Environment name.
+  string environment = 11;
+  // Cluster name.
+  string cluster = 12;
+  // Replication set name.
+  string replication_set = 13;
+  // Custom user-assigned labels for Service.
+  map<string, string> custom_labels = 14;
+  // Defines metrics flow model for this exporter.
+  // Metrics could be pushed to the server with vmagent,
+  // pulled by the server, or the server could choose behavior automatically.
+  // Node with registered pmm_agent_id must present at pmm-server
+  // in case of push metrics_mode.
+  MetricsMode metrics_mode = 15;
+  // Skip connection check.
+  bool skip_connection_check = 16;
+}
+
+message HAProxyServiceResult {
+  inventory.v1.HAProxyService service = 1;
+  inventory.v1.ExternalExporter external_exporter = 2;
+}

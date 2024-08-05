@@ -26,14 +26,14 @@ import (
 
 	"github.com/percona/pmm/agent/runner/actions"
 	"github.com/percona/pmm/agent/runner/jobs"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 // assertActionResults checks expected results in any order.
-func assertActionResults(t *testing.T, cr *Runner, expected ...*agentpb.ActionResultRequest) {
+func assertActionResults(t *testing.T, cr *Runner, expected ...*agentv1.ActionResultRequest) {
 	t.Helper()
 
-	actual := make([]agentpb.AgentRequestPayload, len(expected))
+	actual := make([]agentv1.AgentRequestPayload, len(expected))
 	for i := range expected {
 		actual[i] = <-cr.ActionsResults()
 	}
@@ -47,8 +47,8 @@ func TestConcurrentRunnerRun(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	go cr.Run(ctx)
-	a1 := actions.NewProcessAction("/action_id/6a479303-5081-46d0-baa0-87d6248c987b", 5*time.Second, "echo", []string{"test"})
-	a2 := actions.NewProcessAction("/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", 5*time.Second, "echo", []string{"test2"})
+	a1 := actions.NewProcessAction("6a479303-5081-46d0-baa0-87d6248c987b", 5*time.Second, "echo", []string{"test"})
+	a2 := actions.NewProcessAction("84140ab2-612d-4d93-9360-162a4bd5de14", 5*time.Second, "echo", []string{"test2"})
 
 	err := cr.StartAction(a1)
 	require.NoError(t, err)
@@ -56,9 +56,9 @@ func TestConcurrentRunnerRun(t *testing.T) {
 	err = cr.StartAction(a2)
 	require.NoError(t, err)
 
-	expected := []*agentpb.ActionResultRequest{
-		{ActionId: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte("test\n"), Done: true},
-		{ActionId: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte("test2\n"), Done: true},
+	expected := []*agentv1.ActionResultRequest{
+		{ActionId: "6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte("test\n"), Done: true},
+		{ActionId: "84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte("test2\n"), Done: true},
 	}
 	assertActionResults(t, cr, expected...)
 	cr.wg.Wait()
@@ -156,36 +156,36 @@ func TestPerDBInstanceLimit(t *testing.T) {
 	db2j2 := testJob{id: "test-5", timeout: time.Second, dsn: "postgresql://db2"}
 	db2j3 := testJob{id: "test-6", timeout: time.Second, dsn: "postgresql://db2"}
 
-	require.NoError(t, cr.StartJob(db1j1))
-	require.NoError(t, cr.StartJob(db2j1))
+	require.NoError(t, cr.StartJob(db1j1), "start job db1j1 failed")
+	require.NoError(t, cr.StartJob(db2j1), "start job db2j1 failed")
 
 	// Let jobs to start
 	time.Sleep(200 * time.Millisecond)
 
-	require.NoError(t, cr.StartJob(db1j2))
-	require.NoError(t, cr.StartJob(db2j2))
-	require.NoError(t, cr.StartJob(db1j3))
-	require.NoError(t, cr.StartJob(db2j3))
+	require.NoError(t, cr.StartJob(db1j2), "start job db1j2 failed")
+	require.NoError(t, cr.StartJob(db2j2), "start job db2j2 failed")
+	require.NoError(t, cr.StartJob(db1j3), "start job db1j3 failed")
+	require.NoError(t, cr.StartJob(db2j3), "start job db2j3 failed")
 
 	// Let rest jobs to reach semaphores
 	time.Sleep(300 * time.Millisecond)
 
-	assert.True(t, cr.IsRunning(db1j1.ID()))
-	assert.True(t, cr.IsRunning(db2j1.ID()))
-	assert.False(t, cr.IsRunning(db1j2.ID()))
-	assert.False(t, cr.IsRunning(db2j2.ID()))
-	assert.False(t, cr.IsRunning(db1j3.ID()))
-	assert.False(t, cr.IsRunning(db2j3.ID()))
+	assert.True(t, cr.IsRunning(db1j1.ID()), "db1j1 is not running")
+	assert.True(t, cr.IsRunning(db2j1.ID()), "db2j1 is not running")
+	assert.False(t, cr.IsRunning(db1j2.ID()), "db1j2 is running")
+	assert.False(t, cr.IsRunning(db2j2.ID()), "db2j2 is running")
+	assert.False(t, cr.IsRunning(db1j3.ID()), "db1j3 is running")
+	assert.False(t, cr.IsRunning(db2j3.ID()), "db2j3 is running")
 
 	// Over time all jobs are terminated
-	time.Sleep(2 * time.Second)
+	time.Sleep(3 * time.Second)
 
-	assert.False(t, cr.IsRunning(db1j1.ID()))
-	assert.False(t, cr.IsRunning(db2j1.ID()))
-	assert.False(t, cr.IsRunning(db1j2.ID()))
-	assert.False(t, cr.IsRunning(db2j2.ID()))
-	assert.False(t, cr.IsRunning(db1j3.ID()))
-	assert.False(t, cr.IsRunning(db2j3.ID()))
+	assert.False(t, cr.IsRunning(db1j1.ID()), "db1j1 is running")
+	assert.False(t, cr.IsRunning(db2j1.ID()), "db2j1 is running")
+	assert.False(t, cr.IsRunning(db1j2.ID()), "db1j2 is running")
+	assert.False(t, cr.IsRunning(db2j2.ID()), "db2j2 is running")
+	assert.False(t, cr.IsRunning(db1j3.ID()), "db1j3 is running")
+	assert.False(t, cr.IsRunning(db2j3.ID()), "db2j3 is running")
 }
 
 func TestDefaultPerDBInstanceLimit(t *testing.T) {
@@ -242,8 +242,8 @@ func TestConcurrentRunnerTimeout(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	go cr.Run(ctx)
-	a1 := actions.NewProcessAction("/action_id/6a479303-5081-46d0-baa0-87d6248c987b", time.Second, "sleep", []string{"20"})
-	a2 := actions.NewProcessAction("/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", time.Second, "sleep", []string{"30"})
+	a1 := actions.NewProcessAction("6a479303-5081-46d0-baa0-87d6248c987b", time.Second, "sleep", []string{"20"})
+	a2 := actions.NewProcessAction("84140ab2-612d-4d93-9360-162a4bd5de14", time.Second, "sleep", []string{"30"})
 
 	err := cr.StartAction(a1)
 	require.NoError(t, err)
@@ -252,9 +252,9 @@ func TestConcurrentRunnerTimeout(t *testing.T) {
 	require.NoError(t, err)
 
 	// https://github.com/golang/go/issues/21880
-	expected := []*agentpb.ActionResultRequest{
-		{ActionId: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte{}, Error: "signal: killed", Done: true},
-		{ActionId: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte{}, Error: "signal: killed", Done: true},
+	expected := []*agentv1.ActionResultRequest{
+		{ActionId: "6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte{}, Error: "signal: killed", Done: true},
+		{ActionId: "84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte{}, Error: "signal: killed", Done: true},
 	}
 	assertActionResults(t, cr, expected...)
 	cr.wg.Wait()
@@ -268,8 +268,8 @@ func TestConcurrentRunnerStop(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	go cr.Run(ctx)
-	a1 := actions.NewProcessAction("/action_id/6a479303-5081-46d0-baa0-87d6248c987b", 5*time.Second, "sleep", []string{"20"})
-	a2 := actions.NewProcessAction("/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", 5*time.Second, "sleep", []string{"30"})
+	a1 := actions.NewProcessAction("6a479303-5081-46d0-baa0-87d6248c987b", 5*time.Second, "sleep", []string{"20"})
+	a2 := actions.NewProcessAction("84140ab2-612d-4d93-9360-162a4bd5de14", 5*time.Second, "sleep", []string{"30"})
 
 	err := cr.StartAction(a1)
 	require.NoError(t, err)
@@ -283,9 +283,9 @@ func TestConcurrentRunnerStop(t *testing.T) {
 	cr.Stop(a2.ID())
 
 	// https://github.com/golang/go/issues/21880
-	expected := []*agentpb.ActionResultRequest{
-		{ActionId: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte{}, Error: "signal: killed", Done: true},
-		{ActionId: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte{}, Error: "signal: killed", Done: true},
+	expected := []*agentv1.ActionResultRequest{
+		{ActionId: "6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte{}, Error: "signal: killed", Done: true},
+		{ActionId: "84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte{}, Error: "signal: killed", Done: true},
 	}
 	assertActionResults(t, cr, expected...)
 	cr.wg.Wait()
@@ -299,8 +299,8 @@ func TestConcurrentRunnerCancel(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	go cr.Run(ctx)
 
-	a1 := actions.NewProcessAction("/action_id/6a479303-5081-46d0-baa0-87d6248c987b", 5*time.Second, "sleep", []string{"20"})
-	a2 := actions.NewProcessAction("/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", 5*time.Second, "sleep", []string{"30"})
+	a1 := actions.NewProcessAction("6a479303-5081-46d0-baa0-87d6248c987b", 5*time.Second, "sleep", []string{"20"})
+	a2 := actions.NewProcessAction("84140ab2-612d-4d93-9360-162a4bd5de14", 5*time.Second, "sleep", []string{"30"})
 
 	err := cr.StartAction(a1)
 	require.NoError(t, err)
@@ -313,18 +313,18 @@ func TestConcurrentRunnerCancel(t *testing.T) {
 
 	// Unlike other tests, there we mostly see "context canceled", but "signal: killed" still happens.
 	// Check both.
-	expected := make([]agentpb.AgentRequestPayload, 2)
+	expected := make([]agentv1.AgentRequestPayload, 2)
 	expected[0] = <-cr.ActionsResults()
 	expected[1] = <-cr.ActionsResults()
 	sort.Slice(expected, func(i, j int) bool {
-		return expected[i].(*agentpb.ActionResultRequest).ActionId < expected[j].(*agentpb.ActionResultRequest).ActionId
+		return expected[i].(*agentv1.ActionResultRequest).ActionId < expected[j].(*agentv1.ActionResultRequest).ActionId
 	})
-	assert.Equal(t, expected[0].(*agentpb.ActionResultRequest).ActionId, "/action_id/6a479303-5081-46d0-baa0-87d6248c987b")
-	assert.Contains(t, []string{"signal: killed", context.Canceled.Error()}, expected[0].(*agentpb.ActionResultRequest).Error)
-	assert.True(t, expected[0].(*agentpb.ActionResultRequest).Done)
-	assert.Equal(t, expected[1].(*agentpb.ActionResultRequest).ActionId, "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14")
-	assert.Contains(t, []string{"signal: killed", context.Canceled.Error()}, expected[0].(*agentpb.ActionResultRequest).Error)
-	assert.True(t, expected[1].(*agentpb.ActionResultRequest).Done)
+	assert.Equal(t, expected[0].(*agentv1.ActionResultRequest).ActionId, "6a479303-5081-46d0-baa0-87d6248c987b")
+	assert.Contains(t, []string{"signal: killed", context.Canceled.Error()}, expected[0].(*agentv1.ActionResultRequest).Error)
+	assert.True(t, expected[0].(*agentv1.ActionResultRequest).Done)
+	assert.Equal(t, expected[1].(*agentv1.ActionResultRequest).ActionId, "84140ab2-612d-4d93-9360-162a4bd5de14")
+	assert.Contains(t, []string{"signal: killed", context.Canceled.Error()}, expected[0].(*agentv1.ActionResultRequest).Error)
+	assert.True(t, expected[1].(*agentv1.ActionResultRequest).Done)
 	cr.wg.Wait()
 	assert.Empty(t, cr.cancels)
 }

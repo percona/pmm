@@ -137,7 +137,7 @@ func CreateJob(q *reform.Querier, params CreateJobParams) (*Job, error) {
 		return nil, err
 	}
 	result := &Job{
-		ID:         "/job_id/" + uuid.New().String(),
+		ID:         uuid.New().String(),
 		PMMAgentID: params.PMMAgentID,
 		Type:       params.Type,
 		Data:       params.Data,

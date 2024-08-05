@@ -1,6 +1,6 @@
 # pmm-api-tests
 
-API tests for PMM 2.x
+API tests for PMM 3.x
 
 # Setup Instructions
 
@@ -8,7 +8,7 @@ Make sure you have the latest Go version installed on your systems, execute the 
 to set up API-tests in your local systems.
 
 1. Run PMM Server. This can be done by running `make env-up` in the root (`pmm`) directory.
-2. In the case below, `$PMM_SERVER_URL` should be replaced with a URL in format `http://USERNAME:PASSWORD@HOST`. For local development it's usually `http://admin:admin@127.0.0.1`.
+2. Replace `$PMM_SERVER_URL` with a URL in format `http://USERNAME:PASSWORD@HOST`. For local development it's usually `http://admin:admin@127.0.0.1`.
 
 # Usage
 
@@ -32,9 +32,9 @@ Run Docker container using the following command:
 docker run -e PMM_SERVER_URL=**pmm-server-url** IMAGENAME
 ```
 
-where `PMM_SERVER_URL` should be pointing to pmm-server.
+where `PMM_SERVER_URL` should be pointing to a running PMM Server.
 
-If pmm-server located locally:
+If pmm-server is located locally:
 
 - Use --network=host while running docker container or add both containers to the same docker network.
 - Use the insecure url if you default to a self-generated certificate.
@@ -43,5 +43,5 @@ If pmm-server located locally:
 
 All tests should follow these rules:
 
-- Tests can work in parallel and in real system, so take into account that there might be records in database.
-- Always revert changes made by test.
+- Tests can work in parallel and on a real system, so take into account that there might be records in database.
+- Always revert changes made by tests.

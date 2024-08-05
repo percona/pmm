@@ -21,8 +21,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
@@ -53,7 +53,7 @@ resource_groups:
 `
 
 // azureDatabaseExporterConfig returns configuration of azure_database_exporter process.
-func azureDatabaseExporterConfig(exporter *models.Agent, service *models.Service, redactMode redactMode, pmmAgentVersion *version.Parsed) (*agentpb.SetStateRequest_AgentProcess, error) { //nolint:lll
+func azureDatabaseExporterConfig(exporter *models.Agent, service *models.Service, redactMode redactMode, pmmAgentVersion *version.Parsed) (*agentv1.SetStateRequest_AgentProcess, error) { //nolint:lll
 	t, err := template.New("credentials").Parse(azureDatabaseTemplate)
 	if err != nil {
 		return nil, err
@@ -97,8 +97,8 @@ func azureDatabaseExporterConfig(exporter *models.Agent, service *models.Service
 	}
 	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, true)
 
-	return &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_AZURE_DATABASE_EXPORTER,
+	return &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,

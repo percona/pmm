@@ -19,8 +19,8 @@ package models
 import (
 	"time"
 
-	"github.com/percona/pmm/api/inventorypb"
-	qanpb "github.com/percona/pmm/api/qanpb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	qanv1 "github.com/percona/pmm/api/qan/v1"
 )
 
 const queryTimeout = 30 * time.Second
@@ -90,7 +90,7 @@ var sparklinePointAllFields = []string{
 	"m_plan_time_sum_per_sec",
 }
 
-func getPointFieldsList(point *qanpb.Point, fields []string) []interface{} {
+func getPointFieldsList(point *qanv1.Point, fields []string) []interface{} {
 	sparklinePointValuesMap := map[string]interface{}{
 		"point":                                &point.Point,
 		"timestamp":                            &point.Timestamp,
@@ -349,19 +349,35 @@ func isValidMetricColumn(name string) bool {
 	return isValid
 }
 
-func agentTypeToClickHouseEnum(agentType inventorypb.AgentType) string {
+func agentTypeToClickHouseEnum(agentType inventoryv1.AgentType) string {
 	// String representation of agent type. It must match the one in pmm-managed.
-	agentTypes := map[inventorypb.AgentType]string{
-		inventorypb.AgentType_AGENT_TYPE_INVALID:                 "qan-agent-type-invalid",
-		inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT:         "qan-mysql-perfschema-agent",
-		inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT:            "qan-mysql-slowlog-agent",
-		inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT:         "qan-mongodb-profiler-agent",
-		inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:  "qan-postgresql-pgstatements-agent",
-		inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT: "qan-postgresql-pgstatmonitor-agent",
+	agentTypes := map[inventoryv1.AgentType]string{
+		inventoryv1.AgentType_AGENT_TYPE_UNSPECIFIED:                        "qan-agent-type-invalid",
+		inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT:         "qan-mysql-perfschema-agent",
+		inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT:            "qan-mysql-slowlog-agent",
+		inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT:         "qan-mongodb-profiler-agent",
+		inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:  "qan-postgresql-pgstatements-agent",
+		inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT: "qan-postgresql-pgstatmonitor-agent",
 	}
 
 	if val, ok := agentTypes[agentType]; ok {
 		return val
 	}
-	return agentTypes[inventorypb.AgentType_AGENT_TYPE_INVALID]
+	return agentTypes[inventoryv1.AgentType_AGENT_TYPE_UNSPECIFIED]
+}
+
+func exampleTypeToClickHouseEnum(exampleType qanv1.ExampleType) string {
+	// String representation of example type. Keys must match the ones in pmm-managed, while values map to the clickhouse enum.
+	exampleTypes := map[qanv1.ExampleType]string{
+		qanv1.ExampleType_EXAMPLE_TYPE_UNSPECIFIED: "EXAMPLE_TYPE_INVALID",
+		qanv1.ExampleType_EXAMPLE_TYPE_RANDOM:      "RANDOM",
+		qanv1.ExampleType_EXAMPLE_TYPE_SLOWEST:     "SLOWEST",
+		qanv1.ExampleType_EXAMPLE_TYPE_FASTEST:     "FASTEST",
+		qanv1.ExampleType_EXAMPLE_TYPE_WITH_ERROR:  "WITH_ERROR",
+	}
+
+	if val, ok := exampleTypes[exampleType]; ok {
+		return val
+	}
+	return exampleTypes[qanv1.ExampleType_EXAMPLE_TYPE_UNSPECIFIED]
 }

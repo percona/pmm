@@ -1,7 +1,7 @@
 ---
 title: Access Control
 slug: access-control
-category: 64e49e26498dc6002b62ebf4
+category: 66aca8d40bf230001846b567
 ---
 
 ## Overview
@@ -17,7 +17,7 @@ Once enabled, restricting access to metrics can be performed by:
 ### Create a Percona role
 
 ```shell
-curl -X POST "http://localhost/v1/management/Role/Create" \
+curl -X POST "http://localhost/v1/role/Create" \
      -H "Authorization: Basic xxx" \
      -H "Content-Type: application/json" \
      -d '{
@@ -31,11 +31,11 @@ Full access can be provided by specifying an empty `filter` field.
 
 ### Assign a Percona role
 
-Users can be assigned roles by using the `/v1/management/Role/Assign` API.  
+Users can be assigned roles by using the `/v1/role/Assign` API.  
 The endpoint assigns new roles to a user. Other roles, that may have been assigned to the user previously, stay intact.
 
 ```shell
-curl -X POST "http://localhost/v1/management/Role/Assign" \
+curl -X POST "http://localhost/v1/role/Assign" \
      -H "Authorization: Basic xxx" \
      -H "Content-Type: application/json" \
      -d '{
