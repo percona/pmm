@@ -46,9 +46,9 @@
           - nodejs
         state: present
 
-    - name: Install Java17
+    - name: Install Java21
       package:
-        name: java-17-openjdk
+        name: java-21-amazon-corretto
         state: present
 
     - name: Install pip3 and ansible
