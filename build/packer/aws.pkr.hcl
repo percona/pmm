@@ -19,13 +19,13 @@ source "amazon-ebs" "agent" {
   region                = "us-east-2"
   source_ami_filter {
     filters = {
-      name                = "al2023-ami-*"
+      name                = "OL9.3-*"
       root-device-type    = "ebs"
       virtualization-type = "hvm"
       architecture        = "x86_64"
     }
     most_recent = true
-    owners      = ["amazon"]
+    owners      = ["131827586825"]
   }
   ssh_username = "ec2-user"
   tags = {
@@ -40,7 +40,7 @@ source "amazon-ebs" "agent" {
   }
   launch_block_device_mappings {
     device_name           = "/dev/xvda"
-    volume_size           = 30
+    volume_size           = 50
     volume_type           = "gp3"
     delete_on_termination = true
   }
@@ -65,13 +65,13 @@ source "amazon-ebs" "arm-agent" {
   region                = "us-east-2"
   source_ami_filter {
     filters = {
-      name                = "*al2023-ami-kernel-*"
+      name                = "OL9.3-*"
       root-device-type    = "ebs"
       virtualization-type = "hvm"
       architecture        = "arm64"
     }
     most_recent = true
-    owners      = ["amazon"]
+    owners      = ["131827586825"]
   }
   ssh_username = "ec2-user"
   tags = {

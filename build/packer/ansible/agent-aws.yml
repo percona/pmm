@@ -41,14 +41,14 @@
           - gcc
           - make
           - perl
-          - p7zip
+          # - p7zip
           # - xmlstarlet
           - nodejs
         state: present
 
-    - name: Install Java21
+    - name: Install Java17
       package:
-        name: java-21-amazon-corretto
+        name: jdk-17-headless
         state: present
 
     - name: Install pip3 and ansible
