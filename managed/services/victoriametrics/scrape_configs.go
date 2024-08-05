@@ -422,7 +422,7 @@ func scrapeConfigsForMongoDBExporter(params *scrapeConfigParams) ([]*config.Scra
 		if !params.pmmAgentVersion.Less(version.MustParse("2.41.1-0")) {
 			defaultCollectors = append(defaultCollectors, "shards")
 		}
-		if params.pmmAgentVersion.Less(version.MustParse("2.42.0-0")) {
+		if !params.pmmAgentVersion.Less(version.MustParse("2.42.0-0")) {
 			defaultCollectors = append(defaultCollectors, "currentopmetrics")
 		}
 
