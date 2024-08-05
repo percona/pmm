@@ -6,11 +6,21 @@ After=nss-user-lookup.target nss-lookup.target
 After=time-sync.target
 
 [Service]
-TimeoutStartSec=0
-Restart=always
+EnvironmentFile=/home/admin/.config/systemd/user/pmm-server.env
 
-ExecStart=/usr/bin/podman run --volume pmm-data:/srv/ --rm --name %N \
-    -p 443:8443/tcp --ulimit=host {{ pmm_server_image_name }}
+Restart=on-failure
+RestartSec=20
+
+ExecStart=/usr/bin/podman run \
+    --volume /home/admin/volume/srv:/srv \
+    --volume /home/admin/.ssh/:/home/pmm/.ssh/ \
+    --volume /home/admin/.config/:/home/pmm/config/  \
+    --rm --replace=true --name %N \
+    --env-file=/home/admin/.config/systemd/user/pmm-server.env \
+    --net pmm_default \
+    --cap-add=net_admin,net_raw \
+    --userns=keep-id:uid=1000,gid=1000 \
+    -p 443:8443/tcp --ulimit=host ${PMM_IMAGE}
 
 ExecStop=/usr/bin/podman stop -t 10 %N
 
