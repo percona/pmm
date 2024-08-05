@@ -404,7 +404,6 @@ func scrapeConfigsForMongoDBExporter(params *scrapeConfigParams) ([]*config.Scra
 		"diagnosticdata",
 		"replicasetstatus",
 		"topmetrics",
-		"currentopmetrics",
 	})
 	if err != nil {
 		return nil, err
@@ -422,6 +421,9 @@ func scrapeConfigsForMongoDBExporter(params *scrapeConfigParams) ([]*config.Scra
 		}
 		if !params.pmmAgentVersion.Less(version.MustParse("2.41.1-0")) {
 			defaultCollectors = append(defaultCollectors, "shards")
+		}
+		if params.pmmAgentVersion.Less(version.MustParse("2.42.0-0")) {
+			defaultCollectors = append(defaultCollectors, "currentopmetrics")
 		}
 
 		lr, err := scrapeConfigForStandardExporter("lr", params.metricsResolution.LR, params, defaultCollectors)
