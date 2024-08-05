@@ -9,7 +9,7 @@ packer {
 
 source "digitalocean" "pmm-ovf" {
   droplet_name  = "pmm-ovf-agent-builder"
-  image         = "centos-7-x64"
+  image         = "centos-stream-9-x64"
   region        = "ams3"
   size          = "s-4vcpu-8gb-intel"
   ssh_username  = "root"
@@ -21,9 +21,10 @@ build {
   sources = ["source.digitalocean.pmm-ovf"]
 
   provisioner "ansible" {
-    use_proxy       = false  # otherwise it fails to connect ansible to the host
-    extra_arguments = ["-v"] # -vvv for more verbose output
-    max_retries     = 1
-    playbook_file   = "./ansible/agent.yml"
+    use_proxy        = false  # otherwise it fails to connect ansible to the host
+    ansible_env_vars = ["ANSIBLE_NOCOLOR=True"]
+    extra_arguments  = ["-v"] # -vvv for more verbose output
+    max_retries      = 1
+    playbook_file    = "./ansible/agent-do.yml"
   }
 }

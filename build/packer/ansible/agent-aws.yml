@@ -1,5 +1,5 @@
 ---
-- name: "Provision Agent"
+- name: "Provision an AWS Agent"
   hosts: default
   become: true
   vars:
@@ -44,6 +44,11 @@
           - p7zip
           # - xmlstarlet
           - nodejs
+        state: present
+
+    - name: Install Java17
+      package:
+        name: java-17-openjdk
         state: present
 
     - name: Install pip3 and ansible
@@ -114,12 +119,12 @@
         name: "{{ item }}"
         virtualenv: /home/ec2-user/venv
       loop: # Lookup versions at: https://pypi.org/search/
-        - pyaml==23.12.0
+        - pyaml==24.7.0
         - GitPython==3.1.43
         - PyGithub==2.3.0
         - python-digitalocean==1.17.0
-        - docker==7.0.0
-        - linode-cli==5.48.3
+        - docker==7.1.0
+        - linode-cli==5.50.0
 
     - name: Copy docker daemon config
       copy:
@@ -167,7 +172,6 @@
         - ubuntu:focal
         - ubuntu:jammy
         - ubuntu:noble
-        - centos:7
         - rockylinux:8
         - oraclelinux:9
 
