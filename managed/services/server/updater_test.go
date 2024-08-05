@@ -17,6 +17,8 @@ package server
 
 import (
 	"context"
+	"github.com/percona/pmm/managed/utils/distribution"
+	"github.com/sirupsen/logrus"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -34,6 +36,8 @@ import (
 func TestUpdater(t *testing.T) {
 	gRPCMessageMaxSize := uint32(100 * 1024 * 1024)
 	watchtowerURL, _ := url.Parse("http://watchtower:8080")
+	const tmpDistributionFile = "/tmp/distribution"
+	dus := distribution.NewService(tmpDistributionFile, "/proc/version", logrus.WithField("test", "true"))
 
 	t.Run("TestNextVersion", func(t *testing.T) {
 		type args struct {
@@ -230,7 +234,7 @@ func TestUpdater(t *testing.T) {
 			tt := tt
 			t.Run(tt.name, func(t *testing.T) {
 				t.Parallel()
-				u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
+				u := NewUpdater(watchtowerURL, dus, gRPCMessageMaxSize)
 				parsed, err := version.Parse(tt.args.currentVersion)
 				require.NoError(t, err)
 				next := u.next(*parsed, tt.args.results)
@@ -247,7 +251,7 @@ func TestUpdater(t *testing.T) {
 
 	t.Run("TestLatest", func(t *testing.T) {
 		version.Version = "2.41.0"
-		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
+		u := NewUpdater(watchtowerURL, dus, gRPCMessageMaxSize)
 		latest, err := u.latest(context.Background())
 		require.NoError(t, err)
 		assert.NotNil(t, latest)
@@ -264,11 +268,33 @@ func TestUpdater(t *testing.T) {
 		err := os.WriteFile(fileName, []byte(fileBody), 0o600)
 		require.NoError(t, err)
 
-		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
+		u := NewUpdater(watchtowerURL, dus, gRPCMessageMaxSize)
 		latest, err := u.latest(context.Background())
 		require.NoError(t, err)
 		assert.Equal(t, "2.41.1", latest.Version.String())
 		assert.Equal(t, "2.41.1", latest.DockerImage)
 		assert.Equal(t, time.Date(2024, 3, 20, 15, 48, 7, 145620000, time.UTC), latest.BuildTime)
+	})
+
+	t.Run("TestUpdateEnvFile", func(t *testing.T) {
+		u := NewUpdater(watchtowerURL, dus, gRPCMessageMaxSize)
+		tmpFile := filepath.Join(os.TempDir(), "pmm-service.env")
+		content := `PMM_WATCHTOWER_HOST=http://watchtower:8080
+PMM_WATCHTOWER_TOKEN=123
+PMM_SERVER_UPDATE_VERSION=docker.io/perconalab/pmm-server:3-dev-container
+PMM_IMAGE=docker.io/perconalab/pmm-server:3-dev-latest
+PMM_DISTRIBUTION_METHOD=ami`
+		err := os.WriteFile(tmpFile, []byte(content), 0o644)
+		require.NoError(t, err)
+
+		err = u.updateEnvironmentVariables(tmpFile, "perconalab/pmm-server:3-dev-container")
+		require.NoError(t, err)
+		newContent, err := os.ReadFile(tmpFile)
+		require.NoError(t, err)
+		assert.Equal(t, `PMM_WATCHTOWER_HOST=http://watchtower:8080
+PMM_WATCHTOWER_TOKEN=123
+PMM_SERVER_UPDATE_VERSION=docker.io/perconalab/pmm-server:3-dev-container
+PMM_IMAGE=docker.io/perconalab/pmm-server:3-dev-container
+PMM_DISTRIBUTION_METHOD=ami`, string(newContent))
 	})
 }

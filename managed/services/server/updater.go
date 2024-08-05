@@ -20,6 +20,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	serverv1 "github.com/percona/pmm/api/server/v1"
+	"github.com/percona/pmm/managed/utils/distribution"
 	"io"
 	"net"
 	"net/http"
@@ -44,6 +46,7 @@ const (
 	updateCheckInterval    = 24 * time.Hour
 	updateCheckResultFresh = updateCheckInterval + 10*time.Minute
 	updateDefaultTimeout   = 30 * time.Second
+	envfilePath            = "/home/pmm/.config/systemd/user/pmm-server.env"
 )
 
 var fileName = "/etc/pmm-server-update-version.json"
@@ -52,6 +55,7 @@ var fileName = "/etc/pmm-server-update-version.json"
 type Updater struct {
 	l                  *logrus.Entry
 	watchtowerHost     *url.URL
+	dus                *distribution.Service
 	gRPCMessageMaxSize uint32
 
 	performM sync.Mutex
@@ -63,10 +67,11 @@ type Updater struct {
 }
 
 // NewUpdater creates a new Updater service.
-func NewUpdater(watchtowerHost *url.URL, gRPCMessageMaxSize uint32) *Updater {
+func NewUpdater(watchtowerHost *url.URL, dus *distribution.Service, gRPCMessageMaxSize uint32) *Updater {
 	u := &Updater{
 		l:                  logrus.WithField("service", "updater"),
 		watchtowerHost:     watchtowerHost,
+		dus:                dus,
 		gRPCMessageMaxSize: gRPCMessageMaxSize,
 	}
 	return u
@@ -155,6 +160,15 @@ func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 	if err != nil {
 		up.l.WithError(err).Error("Failed to check watchtower host")
 		return grpcstatus.Errorf(codes.FailedPrecondition, "failed to check watchtower host")
+	}
+
+	dm, _, _ := up.dus.GetDistributionMethodAndOS()
+	if dm != serverv1.DistributionMethod_DISTRIBUTION_METHOD_DOCKER {
+		err := up.updateEnvironmentVariables(envfilePath, newImageName)
+		if err != nil {
+			up.l.WithError(err).Error("Failed to update environment variables file")
+			return errors.Wrap(err, "failed to update environment variables file")
+		}
 	}
 
 	if err := up.sendRequestToWatchtower(ctx, newImageName); err != nil {
@@ -405,6 +419,27 @@ func (up *Updater) checkWatchtowerHost() error {
 	}
 	if !isHostAvailable(up.watchtowerHost.Hostname(), up.watchtowerHost.Port(), updateDefaultTimeout) {
 		return errors.New("watchtower host is not available")
+	}
+	return nil
+}
+
+func (up *Updater) updateEnvironmentVariables(filename string, name string) error {
+	if len(strings.Split(name, "/")) < 3 {
+		name = "docker.io/" + name
+	}
+	file, err := os.ReadFile(filename)
+	if err != nil {
+		return errors.Wrap(err, "failed to read file")
+	}
+	lines := strings.Split(string(file), "\n")
+	for i, line := range lines {
+		if strings.Contains(line, "PMM_IMAGE") {
+			lines[i] = fmt.Sprintf("PMM_IMAGE=%s", name)
+		}
+	}
+	err = os.WriteFile(filename, []byte(strings.Join(lines, "\n")), 0644)
+	if err != nil {
+		return errors.Wrap(err, "failed to write file")
 	}
 	return nil
 }
