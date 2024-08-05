@@ -404,6 +404,7 @@ func scrapeConfigsForMongoDBExporter(params *scrapeConfigParams) ([]*config.Scra
 		"diagnosticdata",
 		"replicasetstatus",
 		"topmetrics",
+		"currentopmetrics",
 	})
 	if err != nil {
 		return nil, err
