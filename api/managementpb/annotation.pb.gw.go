@@ -61,6 +61,7 @@ func local_request_Annotation_AddAnnotation_0(ctx context.Context, marshaler run
 // UnaryRPC     :call AnnotationServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAnnotationHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterAnnotationHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AnnotationServer) error {
 	mux.Handle("POST", pattern_Annotation_AddAnnotation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -124,7 +125,7 @@ func RegisterAnnotationHandler(ctx context.Context, mux *runtime.ServeMux, conn 
 // to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "AnnotationClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "AnnotationClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "AnnotationClient" to call the correct interceptors.
+// "AnnotationClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterAnnotationHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AnnotationClient) error {
 	mux.Handle("POST", pattern_Annotation_AddAnnotation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
