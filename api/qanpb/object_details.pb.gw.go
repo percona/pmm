@@ -229,6 +229,7 @@ func local_request_ObjectDetails_SchemaByQueryID_0(ctx context.Context, marshale
 // UnaryRPC     :call ObjectDetailsServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterObjectDetailsHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ObjectDetailsServer) error {
 	mux.Handle("POST", pattern_ObjectDetails_GetMetrics_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -460,7 +461,7 @@ func RegisterObjectDetailsHandler(ctx context.Context, mux *runtime.ServeMux, co
 // to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ObjectDetailsClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ObjectDetailsClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "ObjectDetailsClient" to call the correct interceptors.
+// "ObjectDetailsClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ObjectDetailsClient) error {
 	mux.Handle("POST", pattern_ObjectDetails_GetMetrics_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())

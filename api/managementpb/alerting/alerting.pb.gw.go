@@ -157,6 +157,7 @@ func local_request_Alerting_CreateRule_0(ctx context.Context, marshaler runtime.
 // UnaryRPC     :call AlertingServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAlertingHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterAlertingHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AlertingServer) error {
 	mux.Handle("POST", pattern_Alerting_ListTemplates_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -316,7 +317,7 @@ func RegisterAlertingHandler(ctx context.Context, mux *runtime.ServeMux, conn *g
 // to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "AlertingClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "AlertingClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "AlertingClient" to call the correct interceptors.
+// "AlertingClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterAlertingHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AlertingClient) error {
 	mux.Handle("POST", pattern_Alerting_ListTemplates_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
