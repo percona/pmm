@@ -245,11 +245,11 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			case models.ProxySQLExporterType:
 				agentProcesses[row.AgentID] = proxysqlExporterConfig(node, service, row, redactMode, pmmAgentVersion)
 			case models.QANMySQLPerfSchemaAgentType:
-				builtinAgents[row.AgentID] = qanMySQLPerfSchemaAgentConfig(service, row)
+				builtinAgents[row.AgentID] = qanMySQLPerfSchemaAgentConfig(service, row, pmmAgentVersion)
 			case models.QANMySQLSlowlogAgentType:
-				builtinAgents[row.AgentID] = qanMySQLSlowlogAgentConfig(service, row)
+				builtinAgents[row.AgentID] = qanMySQLSlowlogAgentConfig(service, row, pmmAgentVersion)
 			case models.QANMongoDBProfilerAgentType:
-				builtinAgents[row.AgentID] = qanMongoDBProfilerAgentConfig(service, row)
+				builtinAgents[row.AgentID] = qanMongoDBProfilerAgentConfig(service, row, pmmAgentVersion)
 			case models.QANPostgreSQLPgStatementsAgentType:
 				builtinAgents[row.AgentID] = qanPostgreSQLPgStatementsAgentConfig(service, row, pmmAgentVersion)
 			case models.QANPostgreSQLPgStatMonitorAgentType:

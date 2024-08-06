@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package inventory;
 
+import "common/metrics_resolutions.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agent_status.proto";
 import "inventorypb/log_level.proto";
@@ -97,6 +98,8 @@ message NodeExporter {
 
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 11;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 12;
 }
 
 // MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
@@ -147,6 +150,8 @@ message MySQLdExporter {
   LogLevel log_level = 19;
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 20;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 21;
 }
 
 // MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
@@ -192,6 +197,8 @@ message MongoDBExporter {
   LogLevel log_level = 17;
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 18;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 19;
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -230,6 +237,8 @@ message PostgresExporter {
   bool expose_exporter = 16;
   // Maximum number of connections that exporter can open to the database instance.
   int32 max_exporter_connections = 17;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 18;
 }
 
 // ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
@@ -268,6 +277,8 @@ message ProxySQLExporter {
   LogLevel log_level = 14;
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 15;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 16;
 }
 
 // QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
@@ -499,6 +510,8 @@ message RDSExporter {
   LogLevel log_level = 13;
   // Limit of databases for auto-discovery.
   int32 auto_discovery_limit = 14;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 15;
 }
 
 // ExternalExporter runs on any Node type, including Remote Node.
@@ -525,6 +538,8 @@ message ExternalExporter {
   bool push_metrics_enabled = 11;
   // Path to exec process.
   string process_exec_path = 12;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 13;
 }
 
 // AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
@@ -557,6 +572,8 @@ message AzureDatabaseExporter {
   string process_exec_path = 11;
   // Log level for exporter.
   LogLevel log_level = 12;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 13;
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
@@ -574,6 +591,8 @@ message ChangeCommonAgentParams {
   bool enable_push_metrics = 5;
   // Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
   bool disable_push_metrics = 6;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 7;
 }
 
 // List
@@ -1213,7 +1232,7 @@ message AddExternalExporterRequest {
   string metrics_path = 7;
   // Listen port for scraping metrics.
   uint32 listen_port = 8 [(validate.rules).uint32 = {
-    gt: 0,
+    gt: 0
     lt: 65536
   }];
   // Custom user-assigned labels.

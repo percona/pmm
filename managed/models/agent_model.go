@@ -73,6 +73,8 @@ const (
 	VMAgentType                         AgentType = "vmagent"
 )
 
+var v2_42 = version.MustParse("2.42.0-0")
+
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.
 const PMMServerAgentID = string("pmm-server") // no /agent_id/ prefix
 
@@ -191,10 +193,11 @@ type Agent struct {
 	MetricsPath             *string `reform:"metrics_path"`
 	MetricsScheme           *string `reform:"metrics_scheme"`
 
-	RDSBasicMetricsDisabled    bool           `reform:"rds_basic_metrics_disabled"`
-	RDSEnhancedMetricsDisabled bool           `reform:"rds_enhanced_metrics_disabled"`
-	PushMetrics                bool           `reform:"push_metrics"`
-	DisabledCollectors         pq.StringArray `reform:"disabled_collectors"`
+	RDSBasicMetricsDisabled    bool                `reform:"rds_basic_metrics_disabled"`
+	RDSEnhancedMetricsDisabled bool                `reform:"rds_enhanced_metrics_disabled"`
+	PushMetrics                bool                `reform:"push_metrics"`
+	DisabledCollectors         pq.StringArray      `reform:"disabled_collectors"`
+	MetricsResolutions         *MetricsResolutions `reform:"metrics_resolutions"`
 
 	MySQLOptions      *MySQLOptions      `reform:"mysql_options"`
 	MongoDBOptions    *MongoDBOptions    `reform:"mongo_db_tls_options"`
@@ -312,7 +315,7 @@ type DSNParams struct {
 }
 
 // DSN returns a DSN string for accessing a given Service with this Agent (and an implicit driver).
-func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) string { //nolint:cyclop,maintidx
+func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, pmmAgentVersion *version.Parsed) string { //nolint:cyclop,maintidx
 	host := pointer.GetString(service.Address)
 	port := pointer.GetUint16(service.Port)
 	socket := pointer.GetString(service.Socket)
@@ -338,11 +341,17 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) s
 		cfg.DBName = dsnParams.Database
 		cfg.Params = make(map[string]string)
 		if s.TLS {
+			// It is mandatory to have "custom" as the first case.
+			// Except case for backward compatibility.
+			// Skip verify for "custom" is handled on pmm-agent side.
 			switch {
-			case s.TLSSkipVerify:
+			// Backward compatibility
+			case s.TLSSkipVerify && (pmmAgentVersion == nil || pmmAgentVersion.Less(v2_42)):
 				cfg.Params["tls"] = skipVerify
 			case len(s.Files()) != 0:
 				cfg.Params["tls"] = "custom"
+			case s.TLSSkipVerify:
+				cfg.Params["tls"] = skipVerify
 			default:
 				cfg.Params["tls"] = trueStr
 			}
@@ -367,11 +376,17 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) s
 		cfg.DBName = dsnParams.Database
 		cfg.Params = make(map[string]string)
 		if s.TLS {
+			// It is mandatory to have "custom" as the first case.
+			// Except case for backward compatibility.
+			// Skip verify for "custom" is handled on pmm-agent side.
 			switch {
-			case s.TLSSkipVerify:
-				cfg.Params["tls"] = "skip-verify"
+			// Backward compatibility
+			case pmmAgentVersion != nil && s.TLSSkipVerify && pmmAgentVersion.Less(v2_42):
+				cfg.Params["tls"] = skipVerify
 			case len(s.Files()) != 0:
 				cfg.Params["tls"] = "custom"
+			case s.TLSSkipVerify:
+				cfg.Params["tls"] = skipVerify
 			default:
 				cfg.Params["tls"] = trueStr
 			}
