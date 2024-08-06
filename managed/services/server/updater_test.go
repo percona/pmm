@@ -17,8 +17,6 @@ package server
 
 import (
 	"context"
-	"github.com/percona/pmm/managed/utils/distribution"
-	"github.com/sirupsen/logrus"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -27,9 +25,11 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/version"
 )
 

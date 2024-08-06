@@ -20,8 +20,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	serverv1 "github.com/percona/pmm/api/server/v1"
-	"github.com/percona/pmm/managed/utils/distribution"
 	"io"
 	"net"
 	"net/http"
@@ -36,6 +34,8 @@ import (
 	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
 
+	serverv1 "github.com/percona/pmm/api/server/v1"
+	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/version"
 )
 
@@ -437,7 +437,7 @@ func (up *Updater) updateEnvironmentVariables(filename string, name string) erro
 			lines[i] = fmt.Sprintf("PMM_IMAGE=%s", name)
 		}
 	}
-	err = os.WriteFile(filename, []byte(strings.Join(lines, "\n")), 0644)
+	err = os.WriteFile(filename, []byte(strings.Join(lines, "\n")), 0o644)
 	if err != nil {
 		return errors.Wrap(err, "failed to write file")
 	}
