@@ -13,9 +13,11 @@ import { Messages } from './UpdateInProgressCard.messages';
 import { UpdateProgress } from './update-progress/UpdateProgress';
 import { UpdateStatus } from 'types/updates.types';
 import { PMM_HOME_URL } from 'constants';
+import { UpdateLog } from '../update-log';
 
 export const UpdateInProgressCard: FC<UpdateInProgressCardProps> = ({
   versionInfo,
+  authToken,
   status,
 }) => (
   <Card>
@@ -37,13 +39,14 @@ export const UpdateInProgressCard: FC<UpdateInProgressCardProps> = ({
           <UpdateInfo />
         </Stack>
         <UpdateProgress status={status} />
-        {status === UpdateStatus.Completed && (
-          <Stack direction="row" justifyContent="flex-end">
+        <Stack direction="row" justifyContent="flex-end">
+          {status === UpdateStatus.Completed && (
             <Link href={PMM_HOME_URL} underline="none">
               {Messages.home}
             </Link>
-          </Stack>
-        )}
+          )}
+          {!!authToken && <UpdateLog authToken={authToken} />}
+        </Stack>
       </Stack>
     </CardContent>
   </Card>
