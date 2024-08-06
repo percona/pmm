@@ -20,7 +20,7 @@ export const Page: FC<PageProps> = ({ title, footer, children }) => {
     <Stack
       sx={{
         width: {
-          sm: 800,
+          sm: 1000,
           xs: 'auto',
         },
         p: {
