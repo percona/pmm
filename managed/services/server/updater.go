@@ -40,11 +40,12 @@ import (
 
 // defaultLatestPMMImage is the default image name to use when the latest version cannot be determined.
 const (
-	defaultLatestPMMImage  = "perconalab/pmm-server:3-dev-latest"
-	pmmUpdatePerformLog    = "/srv/logs/pmm-update-perform-init.log"
-	updateCheckInterval    = 24 * time.Hour
-	updateCheckResultFresh = updateCheckInterval + 10*time.Minute
-	updateDefaultTimeout   = 30 * time.Second
+	defaultLatestPMMImage        = "perconalab/pmm-server:3-dev-latest"
+	pmmUpdatePerformLog          = "/srv/logs/pmm-update-perform-init.log"
+	defaultVersionServiceAddress = "https://check-dev.percona.com"
+	updateCheckInterval          = 24 * time.Hour
+	updateCheckResultFresh       = updateCheckInterval + 10*time.Minute
+	updateDefaultTimeout         = 30 * time.Second
 )
 
 var fileName = "/etc/pmm-server-update-version.json"
@@ -259,7 +260,7 @@ type ReleaseNotesResponse struct {
 func (up *Updater) latestAvailableFromVersionService(ctx context.Context) ([]*version.DockerVersionInfo, *version.DockerVersionInfo, error) {
 	versionServiceUrl := os.Getenv("PMM_DEV_VERSION_SERVICE_URL")
 	if versionServiceUrl == "" {
-		versionServiceUrl = "https://check.percona.com"
+		versionServiceUrl = defaultVersionServiceAddress
 	}
 	u := versionServiceUrl + "/metadata/v1/pmm-server"
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
@@ -492,7 +493,7 @@ func (up *Updater) getReleaseNotesText(ctx context.Context, version version.Pars
 
 	versionServiceUrl := os.Getenv("PMM_DEV_VERSION_SERVICE_URL")
 	if versionServiceUrl == "" {
-		versionServiceUrl = "https://check.percona.com"
+		versionServiceUrl = defaultVersionServiceAddress
 	}
 	u := versionServiceUrl + "/release-notes/v1/pmm/" + versionString
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
