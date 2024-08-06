@@ -181,6 +181,7 @@ func local_request_Components_CheckForOperatorUpdate_0(ctx context.Context, mars
 // UnaryRPC     :call ComponentsServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterComponentsHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterComponentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ComponentsServer) error {
 	mux.Handle("POST", pattern_Components_GetPSMDBComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -364,7 +365,7 @@ func RegisterComponentsHandler(ctx context.Context, mux *runtime.ServeMux, conn 
 // to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ComponentsClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ComponentsClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "ComponentsClient" to call the correct interceptors.
+// "ComponentsClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterComponentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ComponentsClient) error {
 	mux.Handle("POST", pattern_Components_GetPSMDBComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
