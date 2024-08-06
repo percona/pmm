@@ -45,7 +45,7 @@ const (
 	updateCheckInterval    = 24 * time.Hour
 	updateCheckResultFresh = updateCheckInterval + 10*time.Minute
 	updateDefaultTimeout   = 30 * time.Second
-	envfilePath            = "/home/pmm/.config/systemd/user/pmm-server.env"
+	envfilePath            = "/home/pmm/update/pmm-server.env"
 )
 
 var fileName = "/etc/pmm-server-update-version.json"
