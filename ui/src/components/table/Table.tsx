@@ -44,10 +44,7 @@ export const Table = <T,>({
         {isLoading ? (
           <TableRow>
             <TableCell colSpan={columns.length} align="center">
-              <CircularProgress
-                size={20}
-                data-testid="table-loading-indicator"
-              />
+              <CircularProgress data-testid="table-loading-indicator" />
             </TableCell>
           </TableRow>
         ) : !rows.length ? (
