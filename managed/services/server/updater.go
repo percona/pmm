@@ -34,7 +34,6 @@ import (
 	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
 
-	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/version"
 )
@@ -162,13 +161,18 @@ func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 		return grpcstatus.Errorf(codes.FailedPrecondition, "failed to check watchtower host")
 	}
 
-	dm, _, _ := up.dus.GetDistributionMethodAndOS()
-	if dm != serverv1.DistributionMethod_DISTRIBUTION_METHOD_DOCKER {
+	fileInfo, err := os.Stat(envfilePath)
+	if os.IsExist(err) && fileInfo != nil {
 		err := up.updateEnvironmentVariables(envfilePath, newImageName)
 		if err != nil {
+			up.running = false
 			up.l.WithError(err).Error("Failed to update environment variables file")
 			return errors.Wrap(err, "failed to update environment variables file")
 		}
+	} else if err != nil {
+		up.running = false
+		up.l.WithError(err).Error("Failed to check file")
+		return errors.Wrap(err, "failed to check file")
 	}
 
 	if err := up.sendRequestToWatchtower(ctx, newImageName); err != nil {
