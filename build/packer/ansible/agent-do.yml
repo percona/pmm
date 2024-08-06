@@ -54,7 +54,7 @@
 
     - name: Install Java17
       package:
-        name: java-17-openjdk
+        name: jdk-17-headless
         state: present
 
     - name: Install docker-compose

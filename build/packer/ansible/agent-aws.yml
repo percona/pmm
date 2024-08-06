@@ -42,7 +42,6 @@
           - make
           - perl
           # - p7zip
-          # - xmlstarlet
           - nodejs
         state: present
 
