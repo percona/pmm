@@ -9,7 +9,7 @@ import {
   Skeleton,
   Alert,
 } from '@mui/material';
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { formatTimestamp } from 'utils/formatTimestamp';
 import { PMM_HOME_URL } from 'constants';
 import { Messages } from './UpdateCard.messages';
@@ -17,7 +17,6 @@ import { FetchingIcon } from 'components/fetching-icon';
 import { useCheckUpdates, useStartUpdate } from 'hooks/api/useUpdates';
 import { formatVersion } from './UpdateCard.utils';
 import { enqueueSnackbar } from 'notistack';
-import { useWaitForReadiness } from 'hooks/api/useReadiness';
 import { UpdateStatus } from 'types/updates.types';
 import { KeyboardDoubleArrowUp } from '@mui/icons-material';
 import { UpdateInfo } from '../update-info';
@@ -28,19 +27,18 @@ export const UpdateCard: FC = () => {
   const { inProgress, status, setStatus } = useUpdates();
   const { isLoading, data, error, isRefetching, refetch } = useCheckUpdates();
   const { mutate: startUpdate } = useStartUpdate();
-  const { waitForReadiness } = useWaitForReadiness();
+  const [authToken, setAuthToken] = useState<string>();
 
   const handleStartUpdate = async () => {
     setStatus(UpdateStatus.Updating);
     startUpdate(
       {},
       {
-        onSuccess: async () => {
-          setStatus(UpdateStatus.Restarting);
-
-          await waitForReadiness();
-
-          setStatus(UpdateStatus.Completed);
+        onSuccess: async (response) => {
+          if (response) {
+            setStatus(UpdateStatus.Restarting);
+            setAuthToken(response.authToken);
+          }
         },
         onError: () => {
           setStatus(UpdateStatus.Error);
@@ -75,7 +73,13 @@ export const UpdateCard: FC = () => {
   }
 
   if (inProgress && data.latest) {
-    return <UpdateInProgressCard versionInfo={data.latest} status={status} />;
+    return (
+      <UpdateInProgressCard
+        versionInfo={data.latest}
+        status={status}
+        authToken={authToken}
+      />
+    );
   }
 
   return (

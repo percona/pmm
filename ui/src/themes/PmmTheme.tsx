@@ -3,6 +3,8 @@ import { ThemeOptions } from '@mui/material/styles';
 import { deepmerge } from '@mui/utils';
 import { baseThemeOptions } from '@percona/design';
 
+import '@fontsource/roboto-mono';
+
 const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
   const newOptions: ThemeOptions = {
     palette: {
