@@ -24,7 +24,6 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"strconv"
-	"strings"
 	"testing"
 	"time"
 
@@ -95,96 +94,6 @@ func TestAuth(t *testing.T) {
 				pmmapitests.AssertAPIErrorf(t, err, httpCode, grpcCode, "gRPC code %d (%s)", grpcCode, grpcCode)
 			})
 		}
-	})
-}
-
-func TestSetup(t *testing.T) {
-	t.Parallel()
-	// make a BaseURL without authentication
-	baseURL, err := url.Parse(pmmapitests.BaseURL.String())
-	require.NoError(t, err)
-	baseURL.User = nil
-
-	// make client that does not follow redirects
-	client := &http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-	}
-
-	t.Run("WebPage", func(t *testing.T) {
-		t.Parallel()
-
-		uri := baseURL.ResolveReference(&url.URL{
-			Path: "/setup",
-		})
-		t.Logf("URI: %s", uri)
-		req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
-		require.NoError(t, err)
-		req.Header.Set("X-Test-Must-Setup", "1")
-
-		resp, b := doRequest(t, client, req) //nolint:bodyclose
-
-		assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
-		assert.True(t, strings.HasPrefix(string(b), `<!doctype html>`), string(b))
-	})
-
-	t.Run("Redirect", func(t *testing.T) {
-		t.Parallel()
-		paths := map[string]int{
-			"graph":       303,
-			"graph/":      303,
-			"prometheus":  303,
-			"prometheus/": 303,
-			"swagger":     200,
-			"swagger/":    301,
-
-			"v1/server/readyz":      200,
-			"v1/server/AWSInstance": 400, // It must accept a parameter
-			"v1/server/version":     401, // Grafana authentication required
-		}
-		for path, code := range paths {
-			path, code := path, code
-			t.Run(fmt.Sprintf("%s=%d", path, code), func(t *testing.T) {
-				t.Parallel()
-
-				uri := baseURL.ResolveReference(&url.URL{
-					Path: path,
-				})
-				t.Logf("URI: %s", uri)
-				req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
-				require.NoError(t, err)
-				req.Header.Set("X-Test-Must-Setup", "1")
-
-				resp, b := doRequest(t, client, req) //nolint:bodyclose
-
-				assert.Equal(t, code, resp.StatusCode, "response:\n%s", b)
-				if code == 303 {
-					assert.Equal(t, "/setup", resp.Header.Get("Location"))
-				}
-			})
-		}
-	})
-
-	t.Run("API", func(t *testing.T) {
-		t.Parallel()
-
-		q := make(url.Values)
-		q.Set("instance_id", "123")
-		uri := baseURL.ResolveReference(&url.URL{
-			Path:     "v1/server/AWSInstance",
-			RawQuery: q.Encode(),
-		})
-		t.Logf("URI: %s", uri)
-		require.NoError(t, err)
-		req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
-		require.NoError(t, err)
-		req.Header.Set("X-Test-Must-Setup", "1")
-
-		resp, b := doRequest(t, client, req) //nolint:bodyclose
-
-		assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
-		assert.Equal(t, "{}", string(b), "response:\n%s", b)
 	})
 }
 

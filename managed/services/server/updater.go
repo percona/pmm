@@ -153,7 +153,6 @@ func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 		return errors.New("update already in progress")
 	}
 	up.running = true
-	up.performM.Unlock()
 	if newImageName == "" {
 		return errors.New("newImageName is empty")
 	}

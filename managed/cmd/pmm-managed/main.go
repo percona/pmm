@@ -102,6 +102,7 @@ import (
 	"github.com/percona/pmm/managed/services/victoriametrics"
 	"github.com/percona/pmm/managed/services/vmalert"
 	"github.com/percona/pmm/managed/utils/clean"
+	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
@@ -131,6 +132,9 @@ const (
 
 	clickhouseMaxIdleConns = 5
 	clickhouseMaxOpenConns = 10
+
+	distributionInfoFilePath = "/srv/pmm-distribution"
+	osInfoFilePath           = "/proc/version"
 )
 
 var pprofSemaphore = semaphore.NewWeighted(1)
@@ -348,8 +352,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	proxyMux := grpc_gateway.NewServeMux(
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
 		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler),
-		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler),
-	)
+		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler))
 
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -893,12 +896,12 @@ func main() { //nolint:maintidx,cyclop
 		telemetry.UIEventsExtension: uieventsService,
 	}
 
-	telemetry, err := telemetry.NewService(db, platformClient, version.Version, cfg.Config.Services.Telemetry, telemetryExtensions)
+	dus := distribution.NewService(distributionInfoFilePath, osInfoFilePath, l)
+	telemetry, err := telemetry.NewService(db, platformClient, version.Version, dus, cfg.Config.Services.Telemetry, telemetryExtensions)
 	if err != nil {
 		l.Fatalf("Could not create telemetry service: %s", err)
 	}
 
-	awsInstanceChecker := server.NewAWSInstanceChecker(db, telemetry)
 	grafanaClient := grafana.NewClient(*grafanaAddrF)
 	prom.MustRegister(grafanaClient)
 
@@ -949,10 +952,10 @@ func main() { //nolint:maintidx,cyclop
 		TemplatesService:     alertingService,
 		Supervisord:          supervisord,
 		TelemetryService:     telemetry,
-		AwsInstanceChecker:   awsInstanceChecker,
 		GrafanaClient:        grafanaClient,
 		VMAlertExternalRules: externalRules,
 		Updater:              updater,
+		Dus:                  dus,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -1020,7 +1023,7 @@ func main() { //nolint:maintidx,cyclop
 		l.Fatalf("Failed to get settings: %+v.", err)
 	}
 
-	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker, db)
+	authServer := grafana.NewAuthServer(grafanaClient, db)
 
 	l.Info("Starting services...")
 	var wg sync.WaitGroup

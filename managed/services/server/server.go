@@ -43,6 +43,7 @@ import (
 
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/version"
 )
@@ -58,7 +59,6 @@ type Server struct {
 	templatesService     templatesService
 	supervisord          supervisordService
 	telemetryService     telemetryService
-	awsInstanceChecker   *AWSInstanceChecker
 	grafanaClient        grafanaClient
 	haService            haService
 	updater              *Updater
@@ -91,9 +91,9 @@ type Params struct {
 	VMAlertExternalRules vmAlertExternalRules
 	Supervisord          supervisordService
 	TelemetryService     telemetryService
-	AwsInstanceChecker   *AWSInstanceChecker
 	GrafanaClient        grafanaClient
 	Updater              *Updater
+	Dus                  *distribution.Service
 }
 
 // NewServer returns new server for Server service.
@@ -114,7 +114,6 @@ func NewServer(params *Params) (*Server, error) {
 		vmalertExternalRules: params.VMAlertExternalRules,
 		supervisord:          params.Supervisord,
 		telemetryService:     params.TelemetryService,
-		awsInstanceChecker:   params.AwsInstanceChecker,
 		grafanaClient:        params.GrafanaClient,
 		updater:              params.Updater,
 		l:                    logrus.WithField("component", "server"),
@@ -691,6 +690,11 @@ func (s *Server) writeSSHKey(sshKey string) error {
 	s.sshKeyM.Lock()
 	defer s.sshKeyM.Unlock()
 
+	distributionMethod := s.telemetryService.DistributionMethod()
+	if distributionMethod != serverv1.DistributionMethod_DISTRIBUTION_METHOD_AMI && distributionMethod != serverv1.DistributionMethod_DISTRIBUTION_METHOD_OVF {
+		return errors.New("SSH key can be set only on AMI and OVF distributions")
+	}
+
 	username := "pmm"
 	usr, err := user.Lookup(username)
 	if err != nil {
@@ -701,33 +705,11 @@ func (s *Server) writeSSHKey(sshKey string) error {
 		return errors.WithStack(err)
 	}
 
-	uid, err := strconv.Atoi(usr.Uid)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	gid, err := strconv.Atoi(usr.Gid)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	if err = os.Chown(sshDirPath, uid, gid); err != nil {
-		return errors.WithStack(err)
-	}
 	keysPath := path.Join(sshDirPath, "authorized_keys")
 	if err = os.WriteFile(keysPath, []byte(sshKey), 0o600); err != nil {
 		return errors.WithStack(err)
 	}
-	if err = os.Chown(keysPath, uid, gid); err != nil {
-		return errors.WithStack(err)
-	}
 	return nil
-}
-
-// AWSInstanceCheck checks AWS EC2 instance ID.
-func (s *Server) AWSInstanceCheck(ctx context.Context, req *serverv1.AWSInstanceCheckRequest) (*serverv1.AWSInstanceCheckResponse, error) { //nolint:revive
-	if err := s.awsInstanceChecker.check(req.InstanceId); err != nil {
-		return nil, err
-	}
-	return &serverv1.AWSInstanceCheckResponse{}, nil
 }
 
 // isAgentsStateUpdateNeeded - checks metrics resolution changes,

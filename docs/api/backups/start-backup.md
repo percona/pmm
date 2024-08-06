@@ -2,8 +2,7 @@
 title: Make a backup
 slug: startbackup
 excerpt: This endpoint allows to make an unscheduled, or ad-hoc, backup of a given service.
-category: 626badcabbc59c02acc1a540
-order: 0
+category: 66acac6024b4bc0022d980f3
 ---
 
 PMM can backup the monitored services.
