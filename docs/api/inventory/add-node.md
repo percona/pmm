@@ -14,8 +14,6 @@ Let's see how to add a Node of type `GENERIC_NODE` using the old and new API cal
 
 Old API call:
 
-````shell:
-
 ```shell
 curl --insecure -X POST \
   -H 'Authorization: Basic YWRtaW46YWRtaW4=' \
@@ -34,7 +32,7 @@ curl --insecure -X POST \
   }
 }
 '
-````
+```
 
 New API call:
 

@@ -2,8 +2,8 @@
   "variables": {
     "single_disk": "false",
     "pmm2_server_repo": "testing",
-    "pmm_client_repos": "original testing",
-    "pmm_client_repo_name": "percona-testing-x86_64"
+    "pmm_client_repos": "pmm2-client testing",
+    "pmm_client_repo_name": "pmm2-client-testing-x86_64"
   },
   "builders": [
     {
@@ -15,13 +15,13 @@
           "delete_on_termination": true,
           "device_name": "/dev/sda1",
           "volume_size": 10,
-          "volume_type": "gp2"
+          "volume_type": "gp3"
         },
         {
           "delete_on_termination": false,
           "device_name": "/dev/sdb",
           "volume_size": 100,
-          "volume_type": "gp2"
+          "volume_type": "gp3"
         }
       ],
       "region": "us-east-1",

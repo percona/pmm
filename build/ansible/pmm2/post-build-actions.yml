@@ -5,8 +5,8 @@
   become: yes
   gather_facts: yes
   vars:
-    pmm_client_repos: "original testing"
-    pmm_client_repos_final: "original release"
+    pmm_client_repos: "pmm2-client testing"
+    pmm_client_repos_final: "pmm2-client release"
 
   tasks:
     # pmm-managed checks that if /srv/pmm-distribution exist, it contains "docker", "ovf", or "ami" (all lowercase)

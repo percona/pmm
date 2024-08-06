@@ -2,7 +2,7 @@
 - name: Install the GPG key for repo.percona.com
   rpm_key:
     state: present
-    key: https://downloads.percona.com/downloads/RPM-GPG-KEY-percona
+    key: https://repo.percona.com/yum/PERCONA-PACKAGING-KEY
 
 - name: Packages                   | Add PMM2 Server YUM repository for EL7
   when:
@@ -55,7 +55,7 @@
     name: "*"
     state: latest
     exclude: "ansible*"
-    disablerepo: percona-release-x86_64
+    disablerepo: pmm2-server
 
 - name: Packages                   | Update OS EL9
   when:
@@ -64,7 +64,7 @@
   yum:
     name: "*"
     state: latest
-    disablerepo: percona-release-x86_64
+    disablerepo: pmm2-server
 
 - name: Packages                   | Install OS tools for EL7
   when:

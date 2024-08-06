@@ -34,6 +34,8 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 )
 
+const postgreSQLShowCreateTableActionType = "postgresql-show-create-table"
+
 type columnInfo struct {
 	Attname        string
 	FormatType     string
@@ -66,18 +68,28 @@ type postgresqlShowCreateTableAction struct {
 	id      string
 	timeout time.Duration
 	params  *agentpb.StartActionRequest_PostgreSQLShowCreateTableParams
-	tempDir string
+	dsn     string
 }
 
 // NewPostgreSQLShowCreateTableAction creates PostgreSQL SHOW CREATE TABLE Action.
 // This is an Action that can run `\d+ table` command analog on PostgreSQL service with given DSN.
-func NewPostgreSQLShowCreateTableAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_PostgreSQLShowCreateTableParams, tempDir string) Action {
+func NewPostgreSQLShowCreateTableAction(
+	id string,
+	timeout time.Duration,
+	params *agentpb.StartActionRequest_PostgreSQLShowCreateTableParams,
+	tempDir string,
+) (Action, error) {
+	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, filepath.Join(tempDir, postgreSQLShowCreateTableActionType, id))
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
 	return &postgresqlShowCreateTableAction{
 		id:      id,
 		timeout: timeout,
 		params:  params,
-		tempDir: tempDir,
-	}
+		dsn:     dsn,
+	}, nil
 }
 
 // ID returns an Action ID.
@@ -92,17 +104,17 @@ func (a *postgresqlShowCreateTableAction) Timeout() time.Duration {
 
 // Type returns an Action type.
 func (a *postgresqlShowCreateTableAction) Type() string {
-	return "postgresql-show-create-table"
+	return postgreSQLShowCreateTableActionType
+}
+
+// DSN returns a DSN for the Action.
+func (a *postgresqlShowCreateTableAction) DSN() string {
+	return a.dsn
 }
 
 // Run runs an Action and returns output and error.
 func (a *postgresqlShowCreateTableAction) Run(ctx context.Context) ([]byte, error) {
-	dsn, err := templates.RenderDSN(a.params.Dsn, a.params.TlsFiles, filepath.Join(a.tempDir, strings.ToLower(a.Type()), a.id))
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	connector, err := pq.NewConnector(dsn)
+	connector, err := pq.NewConnector(a.dsn)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
