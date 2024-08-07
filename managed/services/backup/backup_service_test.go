@@ -701,7 +701,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				name:      "sharded cluster restore not supported for physical backups",
 				pitrValue: time.Unix(0, 0),
 				artifactParams: models.CreateArtifactParams{
-					Name:             "mongo-artifact-name-7",
+					Name:             "mongo-artifact-name-8",
 					Vendor:           string(models.MongoDBServiceType),
 					LocationID:       locationRes.ID,
 					ServiceID:        *agent.ServiceID,
