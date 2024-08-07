@@ -94,14 +94,13 @@ var rules = map[string]role{
 	"/v1/qan":  viewer,
 	"/v1/qan:": viewer,
 
-	// mustSetupRules group
 	"/prometheus":      admin,
 	"/victoriametrics": admin,
 	"/graph":           none,
 	"/swagger":         none,
 
 	"/v1/server/logs.zip": admin,
-	// "/auth_request" and "/setup" have auth_request disabled in nginx config
+	// "/auth_request"  has auth_request disabled in nginx config
 
 	// "/" is a special case in this code
 }
@@ -114,16 +113,6 @@ var vmProxyPrefixes = []string{
 }
 
 const vmProxyHeaderName = "X-Proxy-Filter"
-
-// Only UI is blocked by setup wizard; APIs can be used.
-// Critically, AWSInstanceCheck must be available for the setup wizard itself to work;
-// and /agent.v1.AgentService/Connect and Management APIs should be available for pmm-agent on PMM Server registration.
-var mustSetupRules = []string{
-	"/prometheus",
-	"/victoriametrics",
-	"/graph",
-	"/swagger",
-}
 
 // nginx auth_request directive supports only 401 and 403 - every other code results in 500.
 // Our APIs can return codes.PermissionDenied which maps to 403 / http.StatusForbidden.
@@ -158,10 +147,9 @@ type clientInterface interface {
 
 // AuthServer authenticates incoming requests via Grafana API.
 type AuthServer struct {
-	c       clientInterface
-	checker awsInstanceChecker
-	db      *reform.DB
-	l       *logrus.Entry
+	c  clientInterface
+	db *reform.DB
+	l  *logrus.Entry
 
 	cache map[string]cacheItem
 	rw    sync.RWMutex
@@ -172,13 +160,12 @@ type AuthServer struct {
 }
 
 // NewAuthServer creates new AuthServer.
-func NewAuthServer(c clientInterface, checker awsInstanceChecker, db *reform.DB) *AuthServer {
+func NewAuthServer(c clientInterface, db *reform.DB) *AuthServer {
 	return &AuthServer{
-		c:       c,
-		checker: checker,
-		db:      db,
-		l:       logrus.WithField("component", "grafana/auth"),
-		cache:   make(map[string]cacheItem),
+		c:     c,
+		db:    db,
+		l:     logrus.WithField("component", "grafana/auth"),
+		cache: make(map[string]cacheItem),
 		accessControl: &accessControl{
 			db: db,
 		},
@@ -226,10 +213,6 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 	l := s.l.WithField("req", fmt.Sprintf("%s %s", req.Method, req.URL.Path))
 	// TODO l := logger.Get(ctx) once we have it after https://jira.percona.com/browse/PMM-4326
-
-	if s.mustSetup(rw, req, l) {
-		return
-	}
 
 	// fail-safe
 	ctx, cancel := context.WithTimeout(req.Context(), 3*time.Second)
@@ -402,51 +385,6 @@ func extractOriginalRequest(req *http.Request) error {
 	req.Method = origMethod
 	req.URL.Path = origURI
 	return nil
-}
-
-// mustSetup returns true if AWS instance ID must be checked.
-func (s *AuthServer) mustSetup(rw http.ResponseWriter, req *http.Request, l *logrus.Entry) bool {
-	// Only UI is blocked by setup wizard; APIs can be used.
-	var found bool
-	for _, r := range mustSetupRules {
-		if strings.HasPrefix(req.URL.Path, r) {
-			found = true
-			break
-		}
-	}
-	if !found {
-		return false
-	}
-
-	// This header is used to pass information that setup is required from auth_request subrequest
-	// to normal request to return redirect with location - something that auth_request can't do.
-	const mustSetupHeader = "X-Must-Setup"
-
-	// Redirect to /setup page.
-	if req.Header.Get(mustSetupHeader) != "" {
-		const redirectCode = 303 // temporary, not cacheable, always GET
-		l.Warnf("AWS instance ID must be checked, returning %d with Location.", redirectCode)
-		rw.Header().Set("Location", "/setup")
-		rw.WriteHeader(redirectCode)
-		return true
-	}
-
-	// Use X-Test-Must-Setup header for testing.
-	// There is no way to skip check, only to enforce it.
-	mustCheck := s.checker.MustCheck()
-	if req.Header.Get("X-Test-Must-Setup") != "" {
-		l.Debug("X-Test-Must-Setup is present, enforcing AWS instance ID check.")
-		mustCheck = true
-	}
-
-	if mustCheck {
-		l.Warnf("AWS instance ID must be checked, returning %d with %s.", authenticationErrorCode, mustSetupHeader)
-		rw.Header().Set(mustSetupHeader, "1") // any non-empty value is ok
-		rw.WriteHeader(authenticationErrorCode)
-		return true
-	}
-
-	return false
 }
 
 // nextPrefix returns path's prefix, stopping on slashes, dots, and colons, e.g.:

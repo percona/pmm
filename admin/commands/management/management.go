@@ -15,9 +15,7 @@
 // Package management provides management commands.
 package management
 
-import (
-	"github.com/percona/pmm/api/inventory/v1/types"
-)
+import "github.com/percona/pmm/api/inventory/v1/types"
 
 var (
 	allNodeTypes = map[string]string{

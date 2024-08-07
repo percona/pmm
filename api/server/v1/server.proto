@@ -202,13 +202,6 @@ message ChangeSettingsResponse {
   Settings settings = 1;
 }
 
-message AWSInstanceCheckRequest {
-  // AWS EC2 instance ID (i-1234567890abcdef0).
-  string instance_id = 1 [(validate.rules).string.min_len = 1];
-}
-
-message AWSInstanceCheckResponse {}
-
 // Server service provides generic PMM Server public APIs.
 service ServerService {
   // Version returns PMM Server versions.
@@ -283,14 +276,6 @@ service ServerService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change settings"
       description: "Changes PMM Server settings."
-    };
-  }
-  // AWSInstanceCheck checks AWS EC2 instance ID.
-  rpc AWSInstanceCheck(AWSInstanceCheckRequest) returns (AWSInstanceCheckResponse) {
-    option (google.api.http) = {get: "/v1/server/AWSInstance"};
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "AWS instance check"
-      description: "Checks AWS EC2 instance ID."
     };
   }
 }

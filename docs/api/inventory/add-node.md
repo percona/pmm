@@ -1,7 +1,7 @@
 ---
 title: Add a Node
 slug: addnode
-category: 626de009b977e3003179f7dd
+category: 66aca9bf17142b005ad4e9fa
 ---
 
 ## Add a Node
