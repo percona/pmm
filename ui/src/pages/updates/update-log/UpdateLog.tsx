@@ -25,7 +25,7 @@ export const UpdateLog: FC<UpdateLogProps> = ({ authToken }) => {
     if (isDone) {
       setStatus(UpdateStatus.Completed);
     }
-  }, [isDone]);
+  }, [isDone, setStatus]);
 
   return (
     <>

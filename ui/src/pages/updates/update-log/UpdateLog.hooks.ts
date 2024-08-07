@@ -13,7 +13,7 @@ export const useUpdateLog = (authToken: string) => {
         return;
       }
 
-      const [_, { authToken, logOffset }] = queryKey;
+      const [, { authToken, logOffset }] = queryKey;
 
       return getUpdateStatus({ authToken, logOffset });
     },
