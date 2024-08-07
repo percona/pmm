@@ -13,7 +13,6 @@ import OpenInNew from '@mui/icons-material/OpenInNew';
 import { Page } from 'components/page';
 import { useUpdates } from 'contexts/updates';
 import { FC, useMemo, useState } from 'react';
-import { ClientsFilter } from './clients-filter/ClientsFilter';
 import { useAgentVersions } from 'hooks/api/useAgents';
 import { Table } from 'components/table';
 import { SeverityChip } from './severity-chip';
@@ -24,6 +23,8 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { UpdateStatus } from 'types/updates.types';
 import { PMM_DOCS_UPDATE_CLIENT_URL } from 'constants';
 import { Messages } from './UpdateClients.messages';
+import { TextSelect } from 'components/text-select';
+import { FILTER_OPTIONS } from './UpdateClients.constants';
 
 export const UpdateClients: FC = () => {
   const { versionInfo, clients: data, status } = useUpdates();
@@ -98,7 +99,12 @@ export const UpdateClients: FC = () => {
                   {Messages.refreshList}
                 </Button>
               </Stack>
-              <ClientsFilter value={filter} onChange={setFilter} />
+              <TextSelect
+                value={filter}
+                label={Messages.filter.label}
+                options={FILTER_OPTIONS}
+                onChange={setFilter}
+              />
             </Stack>
             <Table
               isLoading={isLoading || isRefetching}
