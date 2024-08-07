@@ -94,7 +94,7 @@ require (
 	k8s.io/apimachinery v0.30.3
 	k8s.io/cli-runtime v0.30.3
 	k8s.io/client-go v0.30.3
-	k8s.io/kubectl v0.29.0
+	k8s.io/kubectl v0.30.3
 	sigs.k8s.io/controller-runtime v0.14.6
 )
 
