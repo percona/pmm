@@ -683,7 +683,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				err: nil,
 			},
 			{
-				name:      "sharded cluster restore not supported",
+				name:      "sharded cluster restore is supported for logical backups",
 				pitrValue: time.Unix(0, 0),
 				artifactParams: models.CreateArtifactParams{
 					Name:             "mongo-artifact-name-7",
@@ -691,6 +691,21 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 					LocationID:       locationRes.ID,
 					ServiceID:        *agent.ServiceID,
 					DataModel:        models.LogicalDataModel,
+					Mode:             models.Snapshot,
+					Status:           models.SuccessBackupStatus,
+					IsShardedCluster: true,
+				},
+				err: nil,
+			},
+			{
+				name:      "sharded cluster restore not supported for physical backups",
+				pitrValue: time.Unix(0, 0),
+				artifactParams: models.CreateArtifactParams{
+					Name:             "mongo-artifact-name-7",
+					Vendor:           string(models.MongoDBServiceType),
+					LocationID:       locationRes.ID,
+					ServiceID:        *agent.ServiceID,
+					DataModel:        models.PhysicalDataModel,
 					Mode:             models.Snapshot,
 					Status:           models.SuccessBackupStatus,
 					IsShardedCluster: true,
