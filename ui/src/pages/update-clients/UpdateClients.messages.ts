@@ -18,7 +18,7 @@ export const Messages = {
     empty: 'No clients matching the filter',
   },
   filter: {
-    label: 'Filter',
+    label: 'Filter: ',
     all: 'All versions',
     update: 'Update required',
     critical: 'Critical to update',
