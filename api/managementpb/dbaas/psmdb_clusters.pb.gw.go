@@ -133,6 +133,7 @@ func local_request_PSMDBClusters_GetPSMDBClusterResources_0(ctx context.Context,
 // UnaryRPC     :call PSMDBClustersServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterPSMDBClustersHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterPSMDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux, server PSMDBClustersServer) error {
 	mux.Handle("POST", pattern_PSMDBClusters_GetPSMDBClusterCredentials_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -268,7 +269,7 @@ func RegisterPSMDBClustersHandler(ctx context.Context, mux *runtime.ServeMux, co
 // to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "PSMDBClustersClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "PSMDBClustersClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "PSMDBClustersClient" to call the correct interceptors.
+// "PSMDBClustersClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterPSMDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux, client PSMDBClustersClient) error {
 	mux.Handle("POST", pattern_PSMDBClusters_GetPSMDBClusterCredentials_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
