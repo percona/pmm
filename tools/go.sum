@@ -104,8 +104,8 @@ github.com/boombuler/barcode v1.0.0/go.mod h1:paBWMcWSl3LHKBqUq+rly7CNSldXjb2rDl
 github.com/boombuler/barcode v1.0.1/go.mod h1:paBWMcWSl3LHKBqUq+rly7CNSldXjb2rDl3JlRe0mD8=
 github.com/brianvoe/gofakeit v3.18.0+incompatible h1:wDOmHc9DLG4nRjUVVaxA+CEglKOW72Y5+4WNxUIkjM8=
 github.com/brianvoe/gofakeit v3.18.0+incompatible/go.mod h1:kfwdRA90vvNhPutZWfH7WPaDzUjz+CZFqG+rPkOjGOc=
-github.com/bufbuild/buf v1.35.1 h1:aiCi/YFOg7eXKZeveWb2ZhnmLFwUMM/FnDCM0roFp+M=
-github.com/bufbuild/buf v1.35.1/go.mod h1:SM7b5QW3FkQPNkkqIa/9UWzLOoe51la+GGZpEgH9b68=
+github.com/bufbuild/buf v1.36.0 h1:sC/MRgAhwvcbLbUXlTY+zgLUT4PzHm19BnnEsgu/rgU=
+github.com/bufbuild/buf v1.36.0/go.mod h1:SM7b5QW3FkQPNkkqIa/9UWzLOoe51la+GGZpEgH9b68=
 github.com/bufbuild/protocompile v0.14.0 h1:z3DW4IvXE5G/uTOnSQn+qwQQxvhckkTWLS/0No/o7KU=
 github.com/bufbuild/protocompile v0.14.0/go.mod h1:N6J1NYzkspJo3ZwyL4Xjvli86XOj1xq4qAasUFxGups=
 github.com/bufbuild/protoplugin v0.0.0-20240323223605-e2735f6c31ee h1:E6ET8YUcYJ1lAe6ctR3as7yqzW2BNItDFnaB5zQq/8M=

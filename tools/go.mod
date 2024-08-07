@@ -10,7 +10,7 @@ require (
 	github.com/BurntSushi/go-sumtype v0.0.0-20190304192233-fcb4a6205bdc
 	github.com/Percona-Lab/swagger-order v0.0.0-20191002141859-166b3973d026
 	github.com/apache/skywalking-eyes v0.6.0
-	github.com/bufbuild/buf v1.35.1
+	github.com/bufbuild/buf v1.36.0
 	github.com/daixiang0/gci v0.13.0
 	github.com/envoyproxy/protoc-gen-validate v1.1.0
 	github.com/go-delve/delve v1.23.0
