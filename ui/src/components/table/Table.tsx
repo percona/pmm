@@ -40,7 +40,7 @@ export const Table = <T,>({
           ))}
         </TableRow>
       </TableHead>
-      <TableBody>
+      <TableBody data-testid="table-body">
         {isLoading ? (
           <TableRow>
             <TableCell colSpan={columns.length} align="center">
@@ -49,7 +49,11 @@ export const Table = <T,>({
           </TableRow>
         ) : !rows.length ? (
           <TableRow>
-            <TableCell colSpan={columns.length} align="center">
+            <TableCell
+              colSpan={columns.length}
+              align="center"
+              data-testid="table-empty-message"
+            >
               {emptyMessage}
             </TableCell>
           </TableRow>

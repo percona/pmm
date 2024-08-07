@@ -5,6 +5,7 @@ import {
   ListItemIcon,
   ListItemText,
   Menu,
+  menuClasses,
   MenuItem,
   Stack,
 } from '@mui/material';
@@ -41,16 +42,29 @@ export const TextSelect = <T,>({
         variant="text"
         onClick={handleOpen}
         endIcon={open ? <ArrowDropUp /> : <ArrowDropDown />}
+        data-testid="text-select-button"
       >
-        {label || Messages.label} {selected?.label || Messages.empty}
+        {label || Messages.label}: {selected?.label || Messages.empty}
       </Button>
-      <Menu open={open} anchorEl={anchorEl} onClose={handleClose}>
+      <Menu
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        sx={{
+          [`.${menuClasses.list}`]: {
+            p: 0,
+            m: 0,
+          },
+        }}
+        data-testid="text-select-menu"
+      >
         {options.map((option) => (
           <MenuItem
             key={option.value as React.Key}
             selected={option.value === value}
             onClick={() => handleChange(option)}
             color="text.secondary"
+            data-testid={'text-select-option-' + option.value}
           >
             <ListItem>
               {option.value === value && (

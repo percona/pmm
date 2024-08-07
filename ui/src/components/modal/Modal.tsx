@@ -46,6 +46,7 @@ export const Modal: FC<ModalProps> = ({
               onClick={() =>
                 props.onClose && props.onClose({}, 'escapeKeyDown')
               }
+              data-testid="modal-close-button"
             >
               <CloseIcon />
             </IconButton>
