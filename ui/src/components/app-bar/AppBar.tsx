@@ -18,10 +18,9 @@ export const AppBar = () => (
       <HomeLink
         color="inherit"
         underline="hover"
-        sx={(theme) => ({
-          cursor: 'pointer',
-          marginRight: theme.spacing(2),
-        })}
+        sx={{
+          mr: 2,
+        }}
         data-testid="appbar-pmm-link"
       >
         <Stack gap={1} direction="row" alignItems="center">

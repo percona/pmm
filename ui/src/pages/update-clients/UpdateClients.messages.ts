@@ -1,4 +1,5 @@
 export const Messages = {
+  pageTitle: 'Updates',
   title: 'Your PMM instance is up-to-date. ',
   seeReleaseNotes: 'See Release Notes',
   notify: " We'll notify you when a new update becomes available.",

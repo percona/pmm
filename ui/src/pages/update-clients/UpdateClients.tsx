@@ -43,7 +43,7 @@ export const UpdateClients: FC = () => {
   );
 
   return (
-    <Page title="Updates">
+    <Page title={Messages.pageTitle}>
       <Card>
         <CardContent>
           <Stack spacing={2}>

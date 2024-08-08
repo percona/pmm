@@ -37,7 +37,7 @@ export const UpdateInProgressCard: FC<UpdateInProgressCardProps> = ({
               <Typography variant="h5">
                 {versionInfo.version && Messages.title(versionInfo.version)}
               </Typography>
-              <Chip label="In progress" color="warning" />
+              <Chip label={Messages.inProgress} color="warning" />
             </Stack>
             <UpdateInfo />
           </Stack>
