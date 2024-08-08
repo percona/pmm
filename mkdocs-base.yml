@@ -127,7 +127,7 @@ plugins:
     cover_title: "Percona Monitoring and Management Documentation"
     cover_subtitle: 3.0.0 (May 16, 2024)
     author: "Percona Technical Documentation Team"
-    cover_logo: docs/_images/pmm_pdf_logo.png
+    cover_logo: docs/_images/Percona_Logo_Color.png
     custom_template_path: _resources/templates
     enabled_if_env: ENABLE_PDF_EXPORT
   # Check links - but extends build time significantly
