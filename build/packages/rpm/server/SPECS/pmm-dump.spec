@@ -2,7 +2,7 @@
 
 %global repo            pmm-dump
 %global provider        github.com/percona/%{repo}
-%global commit          0d49b27729506dc62950f9fa59147d63df194db2
+%global commit          f226dbb3afb62ac4b9b39032935b5694a48d526f
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
 %define release         1
@@ -37,6 +37,9 @@ install -p -m 0755 pmm-dump %{buildroot}%{_sbindir}/pmm-dump
 
 
 %changelog
+* Thu Aug 8 2024 Artem Gavrilov <artem.gavrilov@percona.com> - 3.0.0-1
+- PMM-13282 Migrate pmm-dump to v3 API
+
 * Tue Nov 23 2023 Artem Gavrilov <artem.gavrilov@percona.com> - 0.7.0-ga
 - PMM-12460 Update pmm-dump to v0.7.0-ga version
 
