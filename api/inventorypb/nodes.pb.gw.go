@@ -253,6 +253,7 @@ func local_request_Nodes_RemoveNode_0(ctx context.Context, marshaler runtime.Mar
 // UnaryRPC     :call NodesServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterNodesHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, server NodesServer) error {
 	mux.Handle("POST", pattern_Nodes_ListNodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -508,7 +509,7 @@ func RegisterNodesHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc
 // to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "NodesClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "NodesClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "NodesClient" to call the correct interceptors.
+// "NodesClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterNodesHandlerClient(ctx context.Context, mux *runtime.ServeMux, client NodesClient) error {
 	mux.Handle("POST", pattern_Nodes_ListNodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())

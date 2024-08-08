@@ -157,6 +157,7 @@ func local_request_Rules_DeleteAlertRule_0(ctx context.Context, marshaler runtim
 // UnaryRPC     :call RulesServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterRulesHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterRulesHandlerServer(ctx context.Context, mux *runtime.ServeMux, server RulesServer) error {
 	mux.Handle("POST", pattern_Rules_ListAlertRules_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -316,7 +317,7 @@ func RegisterRulesHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc
 // to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "RulesClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "RulesClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "RulesClient" to call the correct interceptors.
+// "RulesClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterRulesHandlerClient(ctx context.Context, mux *runtime.ServeMux, client RulesClient) error {
 	mux.Handle("POST", pattern_Rules_ListAlertRules_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
