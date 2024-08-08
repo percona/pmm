@@ -10,7 +10,7 @@ export const Footer: FC = () => {
   if (!versionInfo) return null;
 
   return (
-    <Stack direction="row" gap={2}>
+    <Stack direction="row" gap={2} data-testid="pmm-footer">
       <Typography variant="body2">
         {Messages.version(versionInfo.installed.version)}
       </Typography>

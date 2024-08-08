@@ -8,17 +8,18 @@ import {
 } from '@mui/material';
 import { HelpFilledIcon, PmmRoundedIcon } from 'icons';
 import { Breadcrumbs } from 'components/breadcrumbs';
-import { PMM_HOME_URL, PMM_SUPPORT_URL } from 'constants';
+import { PMM_SUPPORT_URL } from 'constants';
 import { Messages } from './AppBar.messages';
+import { HomeLink } from 'components/home-link';
 
 export const AppBar = () => (
   <MuiAppBar position="static" color="primary">
     <Toolbar>
-      <Link
-        href={PMM_HOME_URL}
+      <HomeLink
         color="inherit"
         underline="hover"
         sx={(theme) => ({
+          cursor: 'pointer',
           marginRight: theme.spacing(2),
         })}
         data-testid="appbar-pmm-link"
@@ -27,7 +28,7 @@ export const AppBar = () => (
           <PmmRoundedIcon sx={{ height: '40px', width: 'auto' }} />
           <Typography>{Messages.title}</Typography>
         </Stack>
-      </Link>
+      </HomeLink>
       <Breadcrumbs />
       <Box sx={{ ml: 'auto' }}>
         <Link
