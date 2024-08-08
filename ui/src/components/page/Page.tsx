@@ -28,6 +28,7 @@ export const Page: FC<PageProps> = ({ title, footer, children }) => {
         },
         mx: 'auto',
         gap: 3,
+        mt: 1,
       }}
     >
       {!!title && <Typography variant="h2">{title}</Typography>}

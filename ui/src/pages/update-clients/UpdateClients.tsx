@@ -67,7 +67,7 @@ export const UpdateClients: FC = () => {
               </Alert>
             )}
             <Stack direction="row" alignItems="center" spacing={1}>
-              <Typography variant="h5">
+              <Typography variant="h4">
                 {Messages.pmmUpdate(versionInfo?.latest?.version)}
               </Typography>
               {status === UpdateStatus.UpdateClients && (

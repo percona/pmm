@@ -41,7 +41,7 @@ export const UpdateCard: FC = () => {
             setStatus(UpdateStatus.Restarting);
             setAuthToken(response.authToken);
 
-            // todo: temporary till the done status works correctly on get status
+            // TODO: temporary till the done status works correctly on get status
             waitForReadiness().then(() => {
               setStatus(UpdateStatus.Completed);
             });
