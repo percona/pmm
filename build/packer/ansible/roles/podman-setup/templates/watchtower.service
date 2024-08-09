@@ -22,7 +22,7 @@ ExecStart=/usr/bin/podman run --rm --replace=true --name %N \
     -e WATCHTOWER_DEBUG=${WATCHTOWER_DEBUG} \
     --net pmm_default \
     --cap-add=net_admin,net_raw \
-    -p 8080:8080/tcp docker.io/perconalab/watchtower
+    docker.io/perconalab/watchtower
 
 ExecStop=/usr/bin/podman stop -t 10 %N
 
