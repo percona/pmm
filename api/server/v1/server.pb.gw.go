@@ -221,6 +221,7 @@ func local_request_ServerService_ChangeSettings_0(ctx context.Context, marshaler
 // UnaryRPC     :call ServerServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterServerServiceHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterServerServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ServerServiceServer) error {
 	mux.Handle("GET", pattern_ServerService_Version_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -452,7 +453,7 @@ func RegisterServerServiceHandler(ctx context.Context, mux *runtime.ServeMux, co
 // to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ServerServiceClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ServerServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "ServerServiceClient" to call the correct interceptors.
+// "ServerServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterServerServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ServerServiceClient) error {
 	mux.Handle("GET", pattern_ServerService_Version_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
