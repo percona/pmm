@@ -7,8 +7,8 @@ import {
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { KeyboardArrowRight } from '@mui/icons-material';
-import { PMM_HOME_URL } from 'constants';
 import { Messages } from './Breadcrumbs.messages';
+import { HomeLink } from 'components/home-link';
 
 export const Breadcrumbs: FC = () => {
   const theme = useTheme();
@@ -19,9 +19,9 @@ export const Breadcrumbs: FC = () => {
       color="text"
       separator={<KeyboardArrowRight fontSize="small" />}
     >
-      <Link underline="hover" color="inherit" href={PMM_HOME_URL}>
+      <HomeLink underline="hover" color="inherit">
         {Messages.home}
-      </Link>
+      </HomeLink>
       <Link
         underline="hover"
         component={RouterLink}

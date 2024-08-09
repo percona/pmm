@@ -3,6 +3,8 @@ import { ThemeOptions } from '@mui/material/styles';
 import { deepmerge } from '@mui/utils';
 import { baseThemeOptions } from '@percona/design';
 
+import '@fontsource/roboto-mono';
+
 const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
   const newOptions: ThemeOptions = {
     palette: {
@@ -102,6 +104,33 @@ const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
               flexDirection: 'column',
             },
           }),
+        },
+      },
+      MuiLinearProgress: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            height: 10,
+            borderStyle: 'solid',
+            borderRadius: 5,
+            borderColor: theme.palette.divider,
+            backgroundColor: theme.palette.surfaces?.low,
+          }),
+          bar: {
+            borderRadius: 5,
+            backgroundColor: '#606C86',
+          },
+        },
+      },
+      MuiChip: {
+        styleOverrides: {
+          icon: {
+            width: 22,
+            height: 22,
+          },
+          colorError: {
+            color: '#920000',
+            backgroundColor: '#FFECE9',
+          },
         },
       },
     },

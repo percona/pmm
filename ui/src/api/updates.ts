@@ -4,6 +4,7 @@ import {
   GetUpdateStatusResponse,
   GetUpdatesParams,
   GetUpdatesResponse,
+  StartUpdateBody,
   StartUpdateResponse,
 } from 'types/updates.types';
 import { api } from './api';
@@ -17,11 +18,11 @@ export const checkForUpdates = async (
   return res.data;
 };
 
-export const startUpdate = async () => {
-  const res = await api.post<object, AxiosResponse<StartUpdateResponse>>(
-    '/server/updates:start',
-    {}
-  );
+export const startUpdate = async (body: StartUpdateBody) => {
+  const res = await api.post<
+    StartUpdateBody,
+    AxiosResponse<StartUpdateResponse>
+  >('/server/updates:start', body);
   return res.data;
 };
 
