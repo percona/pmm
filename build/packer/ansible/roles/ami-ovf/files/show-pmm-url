@@ -1,0 +1,28 @@
+#!/bin/sh
+
+set -o errexit
+
+PATH=/bin:/sbin
+
+SOURCE=$(
+    cat /var/lib/cloud/data/status.json 2>/dev/null \
+        | python -c 'import json, sys; print json.load(sys.stdin)["v1"]["datasource"];' 2>/dev/null
+)
+
+IP=$(ip route get 1 2>/dev/null | awk '{print $7;exit}')
+if [ "x$SOURCE" = "xDataSourceEc2" ]; then
+    IP=$(curl --connect-timeout 5 -s http://169.254.169.254/latest/meta-data/public-ipv4)
+fi
+
+if [ -z "$IP" ]; then
+    IP=$(ip addr show up | grep 'inet ' | awk '{print$2}' | cut -d '/' -f 1 | grep -v '^127.')
+fi
+
+echo "
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    Percona Monitoring and Management           https://${IP}/
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+" | tee -a /dev/tty0

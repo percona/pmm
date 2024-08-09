@@ -30,31 +30,31 @@ import (
 
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tailog"
-	"github.com/percona/pmm/api/agentlocalpb"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 func TestServerStatus(t *testing.T) {
-	setup := func(t *testing.T) ([]*agentlocalpb.AgentInfo, *mockSupervisor, *mockClient, configGetReloader) {
+	setup := func(t *testing.T) ([]*agentlocal.AgentInfo, *mockSupervisor, *mockClient, configGetReloader) {
 		t.Helper()
-		agentInfo := []*agentlocalpb.AgentInfo{{
-			AgentId:   "/agent_id/00000000-0000-4000-8000-000000000002",
-			AgentType: inventorypb.AgentType_NODE_EXPORTER,
-			Status:    inventorypb.AgentStatus_RUNNING,
+		agentInfo := []*agentlocal.AgentInfo{{
+			AgentId:   "00000000-0000-4000-8000-000000000002",
+			AgentType: inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
+			Status:    inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
 		}}
 		var supervisor mockSupervisor
 		supervisor.Test(t)
 		supervisor.On("AgentsList").Return(agentInfo)
 		var client mockClient
 		client.Test(t)
-		client.On("GetServerConnectMetadata").Return(&agentpb.ServerConnectMetadata{
-			AgentRunsOnNodeID: "/node_id/00000000-0000-4000-8000-000000000003",
+		client.On("GetServerConnectMetadata").Return(&agentv1.ServerConnectMetadata{
+			AgentRunsOnNodeID: "00000000-0000-4000-8000-000000000003",
 			ServerVersion:     "2.0.0-dev",
 		})
 		client.On("GetConnectionUpTime").Return(float32(100.00))
 		cfgStorage := config.NewStorage(&config.Config{
-			ID: "/agent_id/00000000-0000-4000-8000-000000000001",
+			ID: "00000000-0000-4000-8000-000000000001",
 			Server: config.Server{
 				Address:  "127.0.0.1:8443",
 				Username: "username",
@@ -72,12 +72,12 @@ func TestServerStatus(t *testing.T) {
 		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", logStore)
 
 		// without network info
-		actual, err := s.Status(context.Background(), &agentlocalpb.StatusRequest{GetNetworkInfo: false})
+		actual, err := s.Status(context.Background(), &agentlocal.StatusRequest{GetNetworkInfo: false})
 		require.NoError(t, err)
-		expected := &agentlocalpb.StatusResponse{
-			AgentId:      "/agent_id/00000000-0000-4000-8000-000000000001",
-			RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000003",
-			ServerInfo: &agentlocalpb.ServerInfo{
+		expected := &agentlocal.StatusResponse{
+			AgentId:      "00000000-0000-4000-8000-000000000001",
+			RunsOnNodeId: "00000000-0000-4000-8000-000000000003",
+			ServerInfo: &agentlocal.ServerInfo{
 				Url:       "https://username:password@127.0.0.1:8443/",
 				Version:   "2.0.0-dev",
 				Connected: true,
@@ -100,12 +100,12 @@ func TestServerStatus(t *testing.T) {
 		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", logStore)
 
 		// with network info
-		actual, err := s.Status(context.Background(), &agentlocalpb.StatusRequest{GetNetworkInfo: true})
+		actual, err := s.Status(context.Background(), &agentlocal.StatusRequest{GetNetworkInfo: true})
 		require.NoError(t, err)
-		expected := &agentlocalpb.StatusResponse{
-			AgentId:      "/agent_id/00000000-0000-4000-8000-000000000001",
-			RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000003",
-			ServerInfo: &agentlocalpb.ServerInfo{
+		expected := &agentlocal.StatusResponse{
+			AgentId:      "00000000-0000-4000-8000-000000000001",
+			RunsOnNodeId: "00000000-0000-4000-8000-000000000003",
+			ServerInfo: &agentlocal.ServerInfo{
 				Url:        "https://username:password@127.0.0.1:8443/",
 				Version:    "2.0.0-dev",
 				Latency:    durationpb.New(latency),
@@ -121,32 +121,32 @@ func TestServerStatus(t *testing.T) {
 }
 
 func TestGetZipFile(t *testing.T) {
-	setup := func(t *testing.T) ([]*agentlocalpb.AgentInfo, *mockSupervisor, *mockClient, configGetReloader) {
+	setup := func(t *testing.T) ([]*agentlocal.AgentInfo, *mockSupervisor, *mockClient, configGetReloader) {
 		t.Helper()
-		agentInfo := []*agentlocalpb.AgentInfo{{
-			AgentId:   "/agent_id/00000000-0000-4000-8000-000000000002",
-			AgentType: inventorypb.AgentType_NODE_EXPORTER,
-			Status:    inventorypb.AgentStatus_RUNNING,
+		agentInfo := []*agentlocal.AgentInfo{{
+			AgentId:   "00000000-0000-4000-8000-000000000002",
+			AgentType: inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
+			Status:    inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
 		}}
 		var supervisor mockSupervisor
 		supervisor.Test(t)
 		supervisor.On("AgentsList").Return(agentInfo)
 		agentLogs := make(map[string][]string)
-		agentLogs[inventorypb.AgentType_NODE_EXPORTER.String()] = []string{
+		agentLogs[inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER.String()] = []string{
 			"logs1",
 			"logs2",
 		}
 		supervisor.On("AgentsLogs").Return(agentLogs)
 		var client mockClient
 		client.Test(t)
-		client.On("GetServerConnectMetadata").Return(&agentpb.ServerConnectMetadata{
-			AgentRunsOnNodeID: "/node_id/00000000-0000-4000-8000-000000000003",
+		client.On("GetServerConnectMetadata").Return(&agentv1.ServerConnectMetadata{
+			AgentRunsOnNodeID: "00000000-0000-4000-8000-000000000003",
 			ServerVersion:     "2.0.0-dev",
 		})
 		client.On("GetConnectionUpTime").Return(float32(100.00))
 
 		cfgStorage := config.NewStorage(&config.Config{
-			ID: "/agent_id/00000000-0000-4000-8000-000000000001",
+			ID: "00000000-0000-4000-8000-000000000001",
 			Server: config.Server{
 				Address:  "127.0.0.1:8443",
 				Username: "username",
@@ -162,7 +162,7 @@ func TestGetZipFile(t *testing.T) {
 		defer client.AssertExpectations(t)
 		logStore := tailog.NewStore(10)
 		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", logStore)
-		_, err := s.Status(context.Background(), &agentlocalpb.StatusRequest{GetNetworkInfo: false})
+		_, err := s.Status(context.Background(), &agentlocal.StatusRequest{GetNetworkInfo: false})
 		require.NoError(t, err)
 
 		rec := httptest.NewRecorder()

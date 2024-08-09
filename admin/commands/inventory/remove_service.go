@@ -15,9 +15,11 @@
 package inventory
 
 import (
+	"github.com/AlekSi/pointer"
+
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 var removeServiceResultT = commands.ParseTemplate(`
@@ -41,13 +43,11 @@ type RemoveServiceCommand struct {
 // RunCmd executes the RemoveServiceCommand and returns the result.
 func (cmd *RemoveServiceCommand) RunCmd() (commands.Result, error) {
 	params := &services.RemoveServiceParams{
-		Body: services.RemoveServiceBody{
-			ServiceID: cmd.ServiceID,
-			Force:     cmd.Force,
-		},
-		Context: commands.Ctx,
+		ServiceID: cmd.ServiceID,
+		Force:     pointer.ToBool(cmd.Force),
+		Context:   commands.Ctx,
 	}
-	_, err := client.Default.Services.RemoveService(params)
+	_, err := client.Default.ServicesService.RemoveService(params)
 	if err != nil {
 		return nil, err
 	}

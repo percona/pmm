@@ -26,6 +26,14 @@
   - Supervisor-level dependencies between services are not strictly required (due to restarts everything will work eventually), but are nice to have: they help avoid scarry errors in logs.
   - The big exception is exporters: we should follow practices established by the Prometheus community and not fail if the system under monitoring is not available. Other startup errors, like a missing certificate file, should still terminate the exporter.
 
+### Environment Variables
+For consistency, environment variables should keep to the following suggestions:
+- Use the `PMM_DEV_` prefix for any environment variable that is to be used for *only* development/test purposes i.e., 
+variables that are not meant for end-users in any circumstance e.g., `PMM_DEV_PERCONA_PLATFORM_ADDRESS`
+- Use the `PMM_TEST_` prefix for any variable that is not part of PMM GA functionality.
+- Use the `PMM_` prefix for variables that is part of PMM GA functionality.
+- Use a sub-prefix if a number of env vars relate to one component, e.g., `PMM_TEST_HA_`
+- The use of PERCONA_ prefix is prohibited (exception: PMM_PERCONA_PLATFORM_URL, since it's part of a proper name, not a prefix)
 ## Code style
 
 - `gofumpt -s ` (note the `-s`)

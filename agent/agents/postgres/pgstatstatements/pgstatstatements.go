@@ -37,8 +37,8 @@ import (
 	"github.com/percona/pmm/agent/agents/cache"
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/utils/truncate"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/utils/sqlmetrics"
 )
 
@@ -70,7 +70,7 @@ type Params struct {
 	AgentID                string
 	MaxQueryLength         int32
 	DisableCommentsParsing bool
-	TextFiles              *agentpb.TextFiles
+	TextFiles              *agentv1.TextFiles
 }
 
 const queryTag = "agent='pgstatstatements'"
@@ -145,26 +145,26 @@ func rowsByVersion(q *reform.Querier, tail string) (*sql.Rows, error) {
 func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	defer func() {
 		m.dbCloser.Close() //nolint:errcheck
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_DONE}
+		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)
 	}()
 
 	// add current stat statements to cache, so they are not send as new on first iteration with incorrect timestamps
 	var running bool
 	var err error
-	m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
+	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
 	if current, _, err := m.getStatStatementsExtended(ctx, m.q, m.maxQueryLength); err == nil {
 		if err = m.statementsCache.Set(current); err == nil {
 			m.l.Debugf("Got %d initial stat statements.", len(current))
 			running = true
-			m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
+			m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 		}
 	}
 
 	if err != nil {
 		m.l.Error(err)
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 	}
 
 	// query pg_stat_statements every minute at 00 seconds
@@ -177,13 +177,13 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			m.changes <- agents.Change{Status: inventorypb.AgentStatus_STOPPING}
+			m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}
 			m.l.Infof("Context canceled.")
 			return
 
 		case <-t.C:
 			if !running {
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
+				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 			}
 
 			lengthS := uint32(math.Round(wait.Seconds())) // round 59.9s/60.1s to 60s
@@ -197,13 +197,13 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 			if err != nil {
 				m.l.Error(err)
 				running = false
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 				continue
 			}
 
 			if !running {
 				running = true
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
+				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 			}
 
 			m.changes <- agents.Change{MetricsBucket: buckets}
@@ -281,7 +281,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	return current, prev, err
 }
 
-func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart time.Time, periodLengthSecs uint32) ([]*agentpb.MetricsBucket, error) {
+func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart time.Time, periodLengthSecs uint32) ([]*agentv1.MetricsBucket, error) {
 	current, prev, err := m.getStatStatementsExtended(ctx, m.q, m.maxQueryLength)
 	if err != nil {
 		return nil, err
@@ -312,8 +312,8 @@ func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart tim
 
 // makeBuckets uses current state of pg_stat_statements table and accumulated previous state
 // to make metrics buckets. It's a pure function for easier testing.
-func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *logrus.Entry) []*agentpb.MetricsBucket {
-	res := make([]*agentpb.MetricsBucket, 0, len(current))
+func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *logrus.Entry) []*agentv1.MetricsBucket {
+	res := make([]*agentv1.MetricsBucket, 0, len(current))
 
 	for queryID, currentPSS := range current {
 		prevPSS := prev[queryID]
@@ -350,8 +350,8 @@ func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *lo
 			currentPSS.Comments = comments
 		}
 
-		mb := &agentpb.MetricsBucket{
-			Common: &agentpb.MetricsBucket_Common{
+		mb := &agentv1.MetricsBucket{
+			Common: &agentv1.MetricsBucket_Common{
 				Database:    currentPSS.Database,
 				Tables:      currentPSS.Tables,
 				Username:    currentPSS.Username,
@@ -359,10 +359,10 @@ func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *lo
 				Comments:    currentPSS.Comments,
 				Fingerprint: currentPSS.Query,
 				NumQueries:  count,
-				AgentType:   inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+				AgentType:   inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 				IsTruncated: currentPSS.IsQueryTruncated,
 			},
-			Postgresql: &agentpb.MetricsBucket_PostgreSQL{},
+			Postgresql: &agentv1.MetricsBucket_PostgreSQL{},
 		}
 
 		for _, p := range []struct {

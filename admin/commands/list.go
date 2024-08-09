@@ -29,10 +29,10 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/percona/pmm/admin/agentlocal"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
-	"github.com/percona/pmm/api/inventorypb/types"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	"github.com/percona/pmm/api/inventory/v1/types"
 )
 
 var listResultT = ParseTemplate(`
@@ -133,17 +133,15 @@ func (cmd *ListCommand) RunCmd() (Result, error) {
 		cmd.NodeID = status.NodeID
 	}
 
-	servicesRes, err := client.Default.Services.ListServices(&services.ListServicesParams{
-		Body: services.ListServicesBody{
-			NodeID: cmd.NodeID,
-		},
+	servicesRes, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
+		NodeID:  pointer.ToString(cmd.NodeID),
 		Context: Ctx,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	agentsRes, err := client.Default.Agents.ListAgents(&agents.ListAgentsParams{
+	agentsRes, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 		Context: Ctx,
 	})
 	if err != nil {

@@ -185,7 +185,7 @@ func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*
 		return nil, errors.Wrapf(err, "couldn't create task with name %s", newName)
 	}
 
-	id := "/scheduled_task_id/" + uuid.New().String()
+	id := uuid.New().String()
 	if err := checkUniqueScheduledTaskID(q, id); err != nil {
 		return nil, err
 	}

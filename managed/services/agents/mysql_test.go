@@ -22,8 +22,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
@@ -46,19 +46,19 @@ func TestMySQLdExporterConfig(t *testing.T) {
 	pmmAgentVersion := version.MustParse("2.21.0")
 
 	actual := mysqldExporterConfig(node, mysql, exporter, redactSecrets, pmmAgentVersion)
-	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
+	expected := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
 			"--collect.auto_increment.columns",
 			"--collect.binlog_size",
 			"--collect.custom_query.hr",
-			"--collect.custom_query.hr.directory=/usr/local/percona/pmm2/collectors/custom-queries/mysql/high-resolution",
+			"--collect.custom_query.hr.directory=/usr/local/percona/pmm/collectors/custom-queries/mysql/high-resolution",
 			"--collect.custom_query.lr",
-			"--collect.custom_query.lr.directory=/usr/local/percona/pmm2/collectors/custom-queries/mysql/low-resolution",
+			"--collect.custom_query.lr.directory=/usr/local/percona/pmm/collectors/custom-queries/mysql/low-resolution",
 			"--collect.custom_query.mr",
-			"--collect.custom_query.mr.directory=/usr/local/percona/pmm2/collectors/custom-queries/mysql/medium-resolution",
+			"--collect.custom_query.mr.directory=/usr/local/percona/pmm/collectors/custom-queries/mysql/medium-resolution",
 			"--collect.engine_innodb_status",
 			"--collect.engine_tokudb_status",
 			"--collect.global_status",
@@ -156,8 +156,8 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 	pmmAgentVersion := version.MustParse("2.24.0")
 
 	actual := mysqldExporterConfig(node, mysql, exporter, redactSecrets, pmmAgentVersion)
-	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
+	expected := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -254,8 +254,8 @@ func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
 	pmmAgentVersion := version.MustParse("2.24.0")
 
 	actual := mysqldExporterConfig(node, mysql, exporter, redactSecrets, pmmAgentVersion)
-	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
+	expected := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{

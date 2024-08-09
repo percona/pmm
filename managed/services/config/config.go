@@ -30,7 +30,7 @@ import (
 )
 
 const (
-	envConfigPath     = "PERCONA_PMM_CONFIG_PATH"
+	envConfigPath     = "PMM_TEST_CONFIG_PATH"
 	defaultConfigPath = "/etc/percona/pmm/pmm-managed.yml"
 )
 

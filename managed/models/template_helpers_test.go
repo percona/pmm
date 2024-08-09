@@ -177,30 +177,6 @@ func TestRuleTemplates(t *testing.T) {
 		assert.Empty(t, templates)
 	})
 
-	t.Run("remove template that is used for some rule", func(t *testing.T) {
-		tx, err := db.Begin()
-		require.NoError(t, err)
-		defer func() {
-			require.NoError(t, tx.Rollback())
-		}()
-
-		q := tx.Querier
-
-		template, err := models.CreateTemplate(q, createTemplateParams(uuid.New().String()))
-		require.NoError(t, err)
-
-		channel := createChannel(t, q)
-
-		_ = createRule(t, q, channel.ID, template)
-
-		err = models.RemoveTemplate(q, template.Name)
-		require.NoError(t, err)
-
-		templates, err := models.FindTemplates(q)
-		require.NoError(t, err)
-		assert.Empty(t, templates)
-	})
-
 	t.Run("list", func(t *testing.T) {
 		tx, err := db.Begin()
 		require.NoError(t, err)
@@ -280,27 +256,4 @@ func changeTemplateParams(name string) *models.ChangeTemplateParams {
 			Annotations: nil,
 		},
 	}
-}
-
-func createRule(t *testing.T, q *reform.Querier, channelID string, template *models.Template) string { //nolint:unparam
-	t.Helper()
-	rule, err := models.CreateRule(q, &models.CreateRuleParams{
-		TemplateName: template.Name,
-		Disabled:     true,
-		ParamsValues: []models.AlertExprParamValue{
-			{
-				Name:       "test",
-				Type:       models.Float,
-				FloatValue: 3.14,
-			},
-		},
-		For:             5 * time.Second,
-		DefaultSeverity: models.Severity(common.Info),
-		Severity:        models.Severity(common.Warning),
-		CustomLabels:    map[string]string{"foo": "bar"},
-		Filters:         []models.Filter{{Type: models.Equal, Key: "value", Val: "10"}},
-		ChannelIDs:      []string{channelID},
-	})
-	require.NoError(t, err)
-	return rule.ID
 }

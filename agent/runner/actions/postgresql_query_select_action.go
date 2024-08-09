@@ -25,7 +25,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/utils/templates"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/utils/sqlrows"
 )
 
@@ -34,12 +34,12 @@ const postgreSQLQuerySelectActionType = "postgresql-query-select"
 type postgresqlQuerySelectAction struct {
 	id      string
 	timeout time.Duration
-	params  *agentpb.StartActionRequest_PostgreSQLQuerySelectParams
+	params  *agentv1.StartActionRequest_PostgreSQLQuerySelectParams
 	dsn     string
 }
 
 // NewPostgreSQLQuerySelectAction creates PostgreSQL SELECT query Action.
-func NewPostgreSQLQuerySelectAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_PostgreSQLQuerySelectParams, tempDir string) (Action, error) {
+func NewPostgreSQLQuerySelectAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_PostgreSQLQuerySelectParams, tempDir string) (Action, error) {
 	// A very basic check that there is a single SELECT query. It has oblivious false positives (`SELECT ';'`),
 	// but PostgreSQL query lexical structure (https://www.postgresql.org/docs/current/sql-syntax-lexical.html)
 	// does not allow false negatives.
@@ -101,7 +101,7 @@ func (a *postgresqlQuerySelectAction) Run(ctx context.Context) ([]byte, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	return agentpb.MarshalActionQuerySQLResult(columns, dataRows)
+	return agentv1.MarshalActionQuerySQLResult(columns, dataRows)
 }
 
 func (a *postgresqlQuerySelectAction) sealed() {}

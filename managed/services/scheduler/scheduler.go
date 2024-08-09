@@ -168,7 +168,7 @@ func (s *Service) Update(id string, params models.ChangeScheduledTaskParams) err
 		}
 
 		s.mx.Lock()
-		// TODO if addDBTask will fail, then scheduler state will be not restored by the transaction rollback
+		// TODO if addDBTask fails, then scheduler state will be not restored by the transaction rollback
 		_ = s.scheduler.RemoveByTag(id)
 		s.mx.Unlock()
 

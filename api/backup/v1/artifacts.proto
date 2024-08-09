@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package backup.v1;
+
+import "backup/v1/common.proto";
+import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
+
+// BackupStatus shows the current status of execution of backup.
+enum BackupStatus {
+  BACKUP_STATUS_UNSPECIFIED = 0;
+  BACKUP_STATUS_PENDING = 1;
+  BACKUP_STATUS_IN_PROGRESS = 2;
+  BACKUP_STATUS_PAUSED = 3;
+  BACKUP_STATUS_SUCCESS = 4;
+  BACKUP_STATUS_ERROR = 5;
+  BACKUP_STATUS_DELETING = 6;
+  BACKUP_STATUS_FAILED_TO_DELETE = 7;
+  BACKUP_STATUS_CLEANUP_IN_PROGRESS = 8;
+}
+
+// Artifact represents single backup artifact.
+message Artifact {
+  // Machine-readable artifact ID.
+  string artifact_id = 1;
+  // Artifact name
+  string name = 2;
+  // Database vendor e.g. PostgreSQL, MongoDB, MySQL.
+  string vendor = 3;
+  // Machine-readable location ID.
+  string location_id = 4;
+  // Location name.
+  string location_name = 5;
+  // Machine-readable service ID.
+  string service_id = 6;
+  // Service name.
+  string service_name = 7;
+  // Backup data model.
+  DataModel data_model = 8;
+  // Backup status.
+  BackupStatus status = 9;
+  // Artifact creation time.
+  google.protobuf.Timestamp created_at = 10;
+  // Backup mode.
+  BackupMode mode = 11;
+  // Source database setup type.
+  bool is_sharded_cluster = 12;
+  // Folder to store artifact on a storage.
+  string folder = 13;
+  // List of artifact metadata.
+  repeated backup.v1.Metadata metadata_list = 14;
+}
+
+message ListArtifactsRequest {}
+
+message ListArtifactsResponse {
+  repeated Artifact artifacts = 1;
+}
+
+message DeleteArtifactRequest {
+  // Machine-readable artifact ID.
+  string artifact_id = 1 [(validate.rules).string.min_len = 1];
+  // Removes all the backup files associated with artifact if flag is set.
+  bool remove_files = 2;
+}
+
+message DeleteArtifactResponse {}
+
+message PitrTimerange {
+  // start_timestamp is the time of the first event in the PITR chunk.
+  google.protobuf.Timestamp start_timestamp = 1;
+  // end_timestamp is the time of the last event in the PITR chunk.
+  google.protobuf.Timestamp end_timestamp = 2;
+}
+
+message ListPitrTimerangesRequest {
+  // Artifact ID represents artifact whose location has PITR timeranges to be retrieved.
+  string artifact_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message ListPitrTimerangesResponse {
+  repeated PitrTimerange timeranges = 1;
+}

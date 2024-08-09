@@ -1,0 +1,281 @@
+syntax = "proto3";
+
+package server.v1;
+
+import "common/common.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+
+// DistributionMethod defines PMM Server distribution method: Docker image, OVF/OVA, or AMI.
+enum DistributionMethod {
+  DISTRIBUTION_METHOD_UNSPECIFIED = 0;
+  DISTRIBUTION_METHOD_DOCKER = 1;
+  DISTRIBUTION_METHOD_OVF = 2;
+  DISTRIBUTION_METHOD_AMI = 3;
+  DISTRIBUTION_METHOD_AZURE = 4;
+  DISTRIBUTION_METHOD_DO = 5;
+}
+
+// VersionInfo describes component version, or PMM Server as a whole.
+message VersionInfo {
+  // User-visible version.
+  string version = 1;
+  // Full version for debugging.
+  string full_version = 2;
+  // Build or release date.
+  google.protobuf.Timestamp timestamp = 3;
+}
+
+message VersionRequest {
+  // Dummy parameter for internal testing. Do not use.
+  string dummy = 1;
+}
+
+message VersionResponse {
+  // PMM Server version.
+  string version = 1;
+  // Detailed PMM Server version information.
+  VersionInfo server = 2;
+  // pmm-managed version information for debugging.
+  VersionInfo managed = 3;
+  // PMM Server distribution method.
+  DistributionMethod distribution_method = 4;
+  // TODO Versions and statuses of Grafana, Prometheus, PostgreSQL, qan-api2, ClickHouse, pmm-agent, etc.
+}
+
+message ReadinessRequest {}
+
+message ReadinessResponse {
+  // This probe is available without authentication, so it should not contain any data.
+}
+
+message LeaderHealthCheckRequest {}
+
+message LeaderHealthCheckResponse {
+  // This probe is available without authentication, so it should not contain any data.
+}
+
+message CheckUpdatesRequest {
+  // If false, cached information may be returned.
+  bool force = 1;
+  // If true, only installed version will be in response.
+  bool only_installed_version = 2;
+}
+
+message DockerVersionInfo {
+  // PMM Version.
+  string version = 1;
+  // Docker image tag.
+  string tag = 2;
+  // Release date.
+  google.protobuf.Timestamp timestamp = 3;
+}
+
+message CheckUpdatesResponse {
+  // Currently installed PMM Server version.
+  VersionInfo installed = 1;
+  // Latest available PMM Server version.
+  DockerVersionInfo latest = 2;
+  // True if there is a PMM Server update available.
+  bool update_available = 3;
+  // Latest available PMM Server release announcement URL.
+  string latest_news_url = 4;
+  // Last check time.
+  google.protobuf.Timestamp last_check = 5;
+}
+
+message StartUpdateRequest {
+  string new_image = 1;
+}
+
+message StartUpdateResponse {
+  // Authentication token for getting update statuses.
+  string auth_token = 1;
+  // Progress log offset.
+  uint32 log_offset = 2;
+}
+
+message UpdateStatusRequest {
+  // Authentication token.
+  string auth_token = 1;
+  // Progress log offset.
+  uint32 log_offset = 2;
+}
+
+message UpdateStatusResponse {
+  // Progress log lines.
+  repeated string log_lines = 1;
+  // Progress log offset for the next request.
+  uint32 log_offset = 2;
+  // True when update is done.
+  bool done = 3;
+}
+
+// MetricsResolutions represents Prometheus exporters metrics resolutions.
+message MetricsResolutions {
+  // High resolution. Should have a suffix in JSON: 1s, 1m, 1h.
+  google.protobuf.Duration hr = 1;
+  // Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.
+  google.protobuf.Duration mr = 2;
+  // Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.
+  google.protobuf.Duration lr = 3;
+}
+
+// AdvisorRunIntervals represents intervals between each run of Advisor checks.
+message AdvisorRunIntervals {
+  // Standard check interval.
+  google.protobuf.Duration standard_interval = 1;
+  // Interval for rare check runs.
+  google.protobuf.Duration rare_interval = 2;
+  // Interval for frequent check runs.
+  google.protobuf.Duration frequent_interval = 3;
+}
+
+// Settings represents PMM Server settings.
+message Settings {
+  // True if updates are enabled.
+  bool updates_enabled = 1;
+  // True if telemetry is enabled.
+  bool telemetry_enabled = 2;
+  MetricsResolutions metrics_resolutions = 3;
+  google.protobuf.Duration data_retention = 4;
+  string ssh_key = 5;
+  repeated string aws_partitions = 6;
+  // True if Advisor is enabled.
+  bool advisor_enabled = 7;
+  // Percona Platform user's email, if this PMM instance is linked to the Platform.
+  string platform_email = 8;
+  // True if Alerting is enabled.
+  bool alerting_enabled = 10;
+  // PMM Server public address.
+  string pmm_public_address = 11;
+  // Intervals between Advisor runs.
+  AdvisorRunIntervals advisor_run_intervals = 12;
+  // True if Backup Management is enabled.
+  bool backup_management_enabled = 13;
+  // True if Azure Discover is enabled.
+  bool azurediscover_enabled = 14;
+  // True if the PMM instance is connected to Platform
+  bool connected_to_platform = 15;
+  // Includes list of collected telemetry
+  repeated string telemetry_summaries = 16;
+  // True if Access Control is enabled.
+  bool enable_access_control = 17;
+  // Default Access Control role ID for new users.
+  uint32 default_role_id = 18;
+}
+
+message GetSettingsRequest {}
+
+message GetSettingsResponse {
+  Settings settings = 1;
+}
+
+message ChangeSettingsRequest {
+  optional bool enable_updates = 1;
+  optional bool enable_telemetry = 2;
+  MetricsResolutions metrics_resolutions = 3;
+  // A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
+  google.protobuf.Duration data_retention = 4;
+  optional string ssh_key = 5;
+  optional common.StringArray aws_partitions = 6;
+  // Enable Advisor.
+  optional bool enable_advisor = 7;
+  // Enable Alerting.
+  optional bool enable_alerting = 8;
+  // PMM Server public address.
+  optional string pmm_public_address = 9;
+  // Intervals between Advisor runs.
+  AdvisorRunIntervals advisor_run_intervals = 10;
+  // Enable Azure Discover.
+  optional bool enable_azurediscover = 11;
+  // Enable Backup Management.
+  optional bool enable_backup_management = 12;
+  // Enable Access Control
+  optional bool enable_access_control = 13;
+}
+
+message ChangeSettingsResponse {
+  Settings settings = 1;
+}
+
+// Server service provides generic PMM Server public APIs.
+service ServerService {
+  // Version returns PMM Server versions.
+  rpc Version(VersionRequest) returns (VersionResponse) {
+    option (google.api.http) = {get: "/v1/server/version"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Version"
+      description: "Returns PMM Server versions."
+    };
+  }
+  // Readiness returns an error when Server components being restarted are not ready yet.
+  // Use this API for checking the health of Docker containers and for probing Kubernetes readiness.
+  rpc Readiness(ReadinessRequest) returns (ReadinessResponse) {
+    option (google.api.http) = {get: "/v1/server/readyz"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Check server readiness"
+      description: "Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness."
+    };
+  }
+  // LeaderHealthCheck checks if the instance is the leader in a cluster.
+  rpc LeaderHealthCheck(LeaderHealthCheckRequest) returns (LeaderHealthCheckResponse) {
+    option (google.api.http) = {get: "/v1/server/leaderHealthCheck"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Check Leadership"
+      description: "Checks if the instance is the leader in a cluster. Returns an error if the instance isn't the leader."
+    };
+  }
+  // CheckUpdates checks for available PMM Server updates.
+  rpc CheckUpdates(CheckUpdatesRequest) returns (CheckUpdatesResponse) {
+    option (google.api.http) = {get: "/v1/server/updates"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Check updates"
+      description: "Checks for available PMM Server updates."
+    };
+  }
+  // StartUpdate starts PMM Server update.
+  rpc StartUpdate(StartUpdateRequest) returns (StartUpdateResponse) {
+    option (google.api.http) = {
+      post: "/v1/server/updates:start"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start update"
+      description: "Starts PMM Server update."
+    };
+  }
+  // UpdateStatus returns PMM Server update status.
+  rpc UpdateStatus(UpdateStatusRequest) returns (UpdateStatusResponse) {
+    option (google.api.http) = {
+      post: "/v1/server/updates:getStatus"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Update status"
+      description: "Returns PMM Server update status."
+    };
+  }
+  // GetSettings returns current PMM Server settings.
+  rpc GetSettings(GetSettingsRequest) returns (GetSettingsResponse) {
+    option (google.api.http) = {get: "/v1/server/settings"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get settings"
+      description: "Returns current PMM Server settings."
+    };
+  }
+  // ChangeSettings changes PMM Server settings.
+  rpc ChangeSettings(ChangeSettingsRequest) returns (ChangeSettingsResponse) {
+    option (google.api.http) = {
+      put: "/v1/server/settings"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change settings"
+      description: "Changes PMM Server settings."
+    };
+  }
+}

@@ -31,7 +31,7 @@ import (
 	"golang.org/x/sys/unix"
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
@@ -42,7 +42,7 @@ const (
 	memoryLimitBytes = 1024 * 1024 * 1024
 
 	// Only used for testing.
-	starlarkRecursionFlag = "PERCONA_TEST_STARLARK_ALLOW_RECURSION"
+	starlarkRecursionFlag = "PMM_DEV_ADVISOR_STARLARK_ALLOW_RECURSION"
 
 	// Warning messages.
 	cpuUsageWarning    = "Failed to limit CPU usage"
@@ -164,7 +164,7 @@ func unmarshalQueryResult(qr string) ([]map[string]any, error) {
 		return nil, errors.Wrap(err, "failed to decode base64 encoded query result")
 	}
 
-	res, err := agentpb.UnmarshalActionQueryResult(b)
+	res, err := agentv1.UnmarshalActionQueryResult(b)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal query result")
 	}

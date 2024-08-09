@@ -16,30 +16,6 @@ sed -i '/nodocs/d' /etc/yum.conf
 # enable experimental repository with latest development packages
 sed -i'' -e 's^/release/^/experimental/^' /etc/yum.repos.d/pmm2-server.repo
 
-RHEL=$(rpm --eval '%{rhel}')
-if [ "$RHEL" = "7" ]; then
-    # disable fastestmirror plugin, which mostly fails due to CentOS 7 being EOL
-    sed -i 's/enabled=1/enabled=0/g' /etc/yum/pluginconf.d/fastestmirror.conf
-
-    if [ "$PMM_SERVER_IMAGE" = "percona/pmm-server:2.0.0" ]; then
-      sed -i -e 's/^\(mirrorlist\)/#\1/g' /etc/yum.repos.d/CentOS-Base.repo
-      sed -i -e 's/^#baseurl.*/baseurl=http:\/\/vault.centos.org\/centos\/$releasever\/os\/$basearch\//g' /etc/yum.repos.d/CentOS-Base.repo
-
-      # https://stackoverflow.com/questions/26734777/yum-error-cannot-retrieve-metalink-for-repository-epel-please-verify-its-path
-      yum --disablerepo=epel install -y ca-certificates-2020.2.41
-      yum install -y gcc-4.8.5 glibc-static-2.17.317
-    else
-      yum --disablerepo=epel update -y ca-certificates
-      yum --disablerepo="*" --enablerepo=base --enablerepo=updates install -y gcc glibc-static
-
-      sed -i -e 's/^\(mirrorlist\)/#\1/g' /etc/yum.repos.d/CentOS-Base.repo
-      sed -i -e 's/^#baseurl.*/baseurl=http:\/\/vault.centos.org\/centos\/$releasever\/os\/$basearch\//g' /etc/yum.repos.d/CentOS-Base.repo
-    fi
-
-    yum clean all
-    yum makecache fast
-fi
-
 yum update -y percona-release
 percona-release enable pmm2-client testing
 
@@ -52,14 +28,10 @@ yum install -y git make pkgconfig ansible \
     bash-completion \
     man man-pages
 
-if [ "$RHEL" = '7' ]; then
-    yum install -y ansible-lint bash-completion-extras
-else
-    yum --enablerepo=ol9_codeready_builder install -y gcc glibc-static ansible-lint
-fi
+yum --enablerepo=ol9_codeready_builder install -y gcc glibc-static ansible-lint
 
 fg || true
-tar -C /usr/local -xzf /tmp/golang.tar.gz
+tar -C /usr/local -xzf /tmp/golang.tar.gz && rm -f /tmp/golang.tar.gz
 update-alternatives --install "/usr/bin/go" "go" "/usr/local/go/bin/go" 0
 update-alternatives --set go /usr/local/go/bin/go
 update-alternatives --install "/usr/bin/gofmt" "gofmt" "/usr/local/go/bin/gofmt" 0
