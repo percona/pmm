@@ -61,6 +61,7 @@ func local_request_Templates_ListTemplates_0(ctx context.Context, marshaler runt
 // UnaryRPC     :call TemplatesServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterTemplatesHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterTemplatesHandlerServer(ctx context.Context, mux *runtime.ServeMux, server TemplatesServer) error {
 	mux.Handle("POST", pattern_Templates_ListTemplates_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -124,7 +125,7 @@ func RegisterTemplatesHandler(ctx context.Context, mux *runtime.ServeMux, conn *
 // to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "TemplatesClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "TemplatesClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "TemplatesClient" to call the correct interceptors.
+// "TemplatesClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterTemplatesHandlerClient(ctx context.Context, mux *runtime.ServeMux, client TemplatesClient) error {
 	mux.Handle("POST", pattern_Templates_ListTemplates_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
