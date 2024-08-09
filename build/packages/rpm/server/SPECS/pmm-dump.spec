@@ -9,7 +9,7 @@
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
 Name:		pmm-dump
-Version:	0.7.0
+Version:	3.0.0
 Release:	%{rpm_release}
 Summary:	Percona PMM Dump allows to export and import monitoring metrics and query analytics.
 
