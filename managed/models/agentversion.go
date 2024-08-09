@@ -18,13 +18,13 @@ package models
 import (
 	"fmt"
 
-	"github.com/hashicorp/go-version"
+	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
 // PMMAgentMinVersionForPostgreSQLSSLSni is the minimum required version of PMM Agent.
-var PMMAgentMinVersionForPostgreSQLSSLSni = version.Must(version.NewVersion("2.41.0-0"))
+var PMMAgentMinVersionForPostgreSQLSSLSni = version.MustParse("2.41.0-0")
 
 // AgentNotSupportedError is used when the target PMM agent doesn't support the requested functionality.
 type AgentNotSupportedError struct {
@@ -40,7 +40,7 @@ func (e AgentNotSupportedError) Error() string {
 }
 
 // PMMAgentSupported checks if pmm agent version satisfies required min version.
-func PMMAgentSupported(q *reform.Querier, pmmAgentID, functionalityPrefix string, pmmMinVersion *version.Version) error {
+func PMMAgentSupported(q *reform.Querier, pmmAgentID, functionalityPrefix string, pmmMinVersion *version.Parsed) error {
 	pmmAgent, err := FindAgentByID(q, pmmAgentID)
 	if err != nil {
 		return errors.Errorf("failed to get PMM Agent: %s", err)
@@ -49,19 +49,19 @@ func PMMAgentSupported(q *reform.Querier, pmmAgentID, functionalityPrefix string
 }
 
 // IsAgentSupported contains logic for PMMAgentSupported.
-func IsAgentSupported(agentModel *Agent, functionalityPrefix string, pmmMinVersion *version.Version) error {
+func IsAgentSupported(agentModel *Agent, functionalityPrefix string, pmmMinVersion *version.Parsed) error {
 	if agentModel == nil {
 		return errors.New("nil agent")
 	}
 	if agentModel.Version == nil {
 		return errors.Errorf("pmm agent %q has no version info", agentModel.AgentID)
 	}
-	pmmAgentVersion, err := version.NewVersion(*agentModel.Version)
+	pmmAgentVersion, err := version.Parse(*agentModel.Version)
 	if err != nil {
 		return errors.Errorf("failed to parse PMM agent version %q: %s", *agentModel.Version, err)
 	}
 
-	if pmmAgentVersion.LessThan(pmmMinVersion) {
+	if pmmAgentVersion.Less(pmmMinVersion) {
 		return errors.WithStack(AgentNotSupportedError{
 			AgentID:         agentModel.AgentID,
 			Functionality:   functionalityPrefix,

@@ -18,17 +18,17 @@ package backup
 import (
 	"context"
 
-	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
+	"github.com/percona/pmm/version"
 )
 
 // pmmAgentMinVersionForMongoBackupSoftwareCheck minimum agent version for getting required backup software versions.
-var pmmAgentMinVersionForMongoBackupSoftwareCheck = version.Must(version.NewVersion("2.35.0-0"))
+var pmmAgentMinVersionForMongoBackupSoftwareCheck = version.MustParse("2.35.0-0")
 
 // CompatibilityService is responsible for checking software and artifacts compatibility during backup and restore.
 type CompatibilityService struct {

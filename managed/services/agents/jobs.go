@@ -18,10 +18,10 @@ package agents
 
 import (
 	"context"
+
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -31,17 +31,18 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/version"
 )
 
 var (
 	// ErrRetriesExhausted is returned when remaining retries are 0.
 	ErrRetriesExhausted = errors.New("retries exhausted")
 
-	pmmAgentMinVersionForMongoLogicalBackupAndRestore  = version.Must(version.NewVersion("2.19"))
-	pmmAgentMinVersionForMySQLBackupAndRestore         = version.Must(version.NewVersion("2.23"))
-	pmmAgentMinVersionForMongoPhysicalBackupAndRestore = version.Must(version.NewVersion("2.31.0-0"))
-	pmmAgentMinVersionForMongoDBUseFilesystemStorage   = version.Must(version.NewVersion("2.32.0-0"))
-	pmmAgentMinVersionForMongoPITRRestore              = version.Must(version.NewVersion("2.32.0-0"))
+	pmmAgentMinVersionForMongoLogicalBackupAndRestore  = version.MustParse("2.19.0-0")
+	pmmAgentMinVersionForMySQLBackupAndRestore         = version.MustParse("2.23.0-0")
+	pmmAgentMinVersionForMongoPhysicalBackupAndRestore = version.MustParse("2.31.0-0")
+	pmmAgentMinVersionForMongoDBUseFilesystemStorage   = version.MustParse("2.32.0-0")
+	pmmAgentMinVersionForMongoPITRRestore              = version.MustParse("2.32.0-0")
 )
 
 const (
