@@ -5,6 +5,8 @@ set -o xtrace
 
 . $(dirname $0)/vars
 
+ARCH=${ARCH:-arm64}
+
 if [ -f "${docker_client_tarball}" ]; then
     echo skip docker build
     exit 0
@@ -17,22 +19,31 @@ if [ -z "${DOCKER_CLIENT_TAG}" ]; then
     DOCKER_CLIENT_TAG=perconalab/pmm-client-fb:${full_pmm_version}
 fi
 
-
 CLIENT_IMAGE_VERSION=`echo $DOCKER_CLIENT_TAG | cut -d ':' -f2`
 
-docker build --build-arg BUILD_DATE="`date --rfc-3339=seconds`" \
-             --build-arg VERSION="$CLIENT_IMAGE_VERSION" \
-             --squash \
-             --no-cache \
-             -f ${DOCKER_FILE_LOCATION}/${docker_file} \
-             -t ${DOCKER_CLIENT_TAG} \
-             ${DOCKER_FILE_LOCATION}
+docker buildx create --use --name multiarch-builder
+docker buildx inspect --bootstrap
+
+docker buildx build --build-arg BUILD_DATE="`date --rfc-3339=seconds`" \
+                    --build-arg VERSION="$CLIENT_IMAGE_VERSION" \
+                    --platform linux/${ARCH} \
+                    --squash \
+                    --no-cache \
+                    --load \
+                    -f ${DOCKER_FILE_LOCATION}/${docker_file} \
+                    -t ${DOCKER_CLIENT_TAG}-${ARCH} \
+                    ${DOCKER_FILE_LOCATION}
 
 if [ -n "${PUSH_DOCKER}" ]; then
     mkdir -p $(dirname ${docker_client_tag_file})
     echo ${DOCKER_CLIENT_TAG} > ${docker_client_tag_file}
-    docker push ${DOCKER_CLIENT_TAG}
+    docker push ${DOCKER_CLIENT_TAG}-${ARCH}
+    docker manifest create ${DOCKER_CLIENT_TAG} --amend ${DOCKER_CLIENT_TAG}-amd64 --amend ${DOCKER_CLIENT_TAG}-arm64
+    docker manifest annotate --arch amd64 ${DOCKER_CLIENT_TAG} ${DOCKER_CLIENT_TAG}-amd64
+    docker manifest annotate --arch arm64 ${DOCKER_CLIENT_TAG} ${DOCKER_CLIENT_TAG}-arm64
+    docker manifest push ${DOCKER_CLIENT_TAG}
 fi
+
 if [ -n "${SAVE_DOCKER}" ]; then
     mkdir -p $(dirname ${docker_client_tarball})
     docker save ${DOCKER_CLIENT_TAG} | xz > ${docker_client_tarball}
