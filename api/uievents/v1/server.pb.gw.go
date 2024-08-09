@@ -61,6 +61,7 @@ func local_request_UIEventsService_Store_0(ctx context.Context, marshaler runtim
 // UnaryRPC     :call UIEventsServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterUIEventsServiceHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterUIEventsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server UIEventsServiceServer) error {
 	mux.Handle("POST", pattern_UIEventsService_Store_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -124,7 +125,7 @@ func RegisterUIEventsServiceHandler(ctx context.Context, mux *runtime.ServeMux, 
 // to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "UIEventsServiceClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "UIEventsServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "UIEventsServiceClient" to call the correct interceptors.
+// "UIEventsServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterUIEventsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client UIEventsServiceClient) error {
 	mux.Handle("POST", pattern_UIEventsService_Store_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
