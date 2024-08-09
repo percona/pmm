@@ -467,6 +467,8 @@ func (m *AddRDSServiceParams) validate(all bool) error {
 
 	// no validation rules for Engine
 
+	// no validation rules for PmmAgentId
+
 	// no validation rules for NodeName
 
 	// no validation rules for ServiceName

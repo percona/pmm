@@ -3231,23 +3231,23 @@
                     "agent_password": {
                       "description": "Custom password for exporter endpoint /metrics.",
                       "type": "string",
-                      "x-order": 28
+                      "x-order": 29
                     },
                     "auto_discovery_limit": {
                       "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 30
+                      "x-order": 31
                     },
                     "aws_access_key": {
                       "description": "AWS Access key.",
                       "type": "string",
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "aws_secret_key": {
                       "description": "AWS Secret key.",
                       "type": "string",
-                      "x-order": 15
+                      "x-order": 16
                     },
                     "az": {
                       "description": "AWS availability zone.",
@@ -3257,7 +3257,7 @@
                     "cluster": {
                       "description": "Cluster name.",
                       "type": "string",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels for Node and Service.",
@@ -3265,32 +3265,32 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 18
+                      "x-order": 19
                     },
                     "database": {
                       "description": "Database name.",
                       "type": "string",
-                      "x-order": 29
+                      "x-order": 30
                     },
                     "disable_basic_metrics": {
                       "description": "Disable basic metrics.",
                       "type": "boolean",
-                      "x-order": 24
+                      "x-order": 25
                     },
                     "disable_comments_parsing": {
                       "description": "Disable parsing comments from queries and showing them in QAN.",
                       "type": "boolean",
-                      "x-order": 31
+                      "x-order": 32
                     },
                     "disable_enhanced_metrics": {
                       "description": "Disable enhanced metrics.",
                       "type": "boolean",
-                      "x-order": 25
+                      "x-order": 26
                     },
                     "disable_query_examples": {
                       "description": "Disable query examples.",
                       "type": "boolean",
-                      "x-order": 22
+                      "x-order": 23
                     },
                     "engine": {
                       "description": "DiscoverRDSEngine describes supported RDS instance engines.",
@@ -3306,7 +3306,7 @@
                     "environment": {
                       "description": "Environment name.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "instance_id": {
                       "description": "AWS instance ID.",
@@ -3317,7 +3317,7 @@
                       "description": "Maximum number of exporter connections to PostgreSQL instance.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 32
+                      "x-order": 33
                     },
                     "metrics_mode": {
                       "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.\n\n - METRICS_MODE_UNSPECIFIED: Auto",
@@ -3328,7 +3328,7 @@
                         "METRICS_MODE_PULL",
                         "METRICS_MODE_PUSH"
                       ],
-                      "x-order": 26
+                      "x-order": 27
                     },
                     "node_model": {
                       "description": "AWS instance class.",
@@ -3338,12 +3338,17 @@
                     "node_name": {
                       "description": "Unique across all Nodes user-defined name. Defaults to AWS instance ID.",
                       "type": "string",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "password": {
                       "description": "Password for scraping metrics.",
                       "type": "string",
-                      "x-order": 13
+                      "x-order": 14
+                    },
+                    "pmm_agent_id": {
+                      "description": "PMM Agent ID.",
+                      "type": "string",
+                      "x-order": 7
                     },
                     "port": {
                       "description": "Access port.",
@@ -3354,17 +3359,17 @@
                     "qan_mysql_perfschema": {
                       "description": "If true, adds qan-mysql-perfschema-agent.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 18
                     },
                     "qan_postgresql_pgstatements": {
                       "type": "boolean",
                       "title": "If true, add qan-pgstatements",
-                      "x-order": 27
+                      "x-order": 28
                     },
                     "rds_exporter": {
                       "description": "If true, adds rds_exporter.",
                       "type": "boolean",
-                      "x-order": 16
+                      "x-order": 17
                     },
                     "region": {
                       "description": "AWS region.",
@@ -3374,38 +3379,38 @@
                     "replication_set": {
                       "description": "Replication set name.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "service_name": {
                       "description": "Unique across all Services user-defined name. Defaults to AWS instance ID.",
                       "type": "string",
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "skip_connection_check": {
                       "description": "Skip connection check.",
                       "type": "boolean",
-                      "x-order": 19
+                      "x-order": 20
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 23
+                      "x-order": 24
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 20
+                      "x-order": 21
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 21
+                      "x-order": 22
                     },
                     "username": {
                       "description": "Username for scraping metrics.",
                       "type": "string",
-                      "x-order": 12
+                      "x-order": 13
                     }
                   },
                   "x-order": 6

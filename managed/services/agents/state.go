@@ -261,13 +261,31 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		}
 	}
 
+	// we do start rds exporter per AWS account.
 	if len(rdsExporters) != 0 {
-		groupID := u.r.roster.add(agent.id, rdsGroup, rdsExporters)
-		c, err := rdsExporterConfig(rdsExporters, redactMode, pmmAgentVersion)
-		if err != nil {
-			return err
+		// Create a new map to hold the groups of RDS exporters
+		groupedRdsExporters := make(map[string]map[*models.Node]*models.Agent)
+
+		// Iterate over the rdsExporters map
+		for node, exporter := range rdsExporters {
+			awsAccessKey := pointer.GetString(exporter.AWSAccessKey)
+
+			if _, ok := groupedRdsExporters[awsAccessKey]; !ok {
+				groupedRdsExporters[awsAccessKey] = make(map[*models.Node]*models.Agent)
+			}
+
+			groupedRdsExporters[awsAccessKey][node] = exporter
 		}
-		agentProcesses[groupID] = c
+
+		for awsAccessKey, exporters := range groupedRdsExporters {
+			// TODO: split by 50 exporters per group
+			groupID := u.r.roster.add(agent.id, rdsPrefix+awsAccessKey, exporters)
+			c, err := rdsExporterConfig(exporters, redactMode, pmmAgentVersion)
+			if err != nil {
+				return err
+			}
+			agentProcesses[groupID] = c
+		}
 	}
 
 	state := &agentv1.SetStateRequest{
