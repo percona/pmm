@@ -296,8 +296,8 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 	return res, nil
 }
 
-// ListUpdates lists PMM versions between currently installed version and the latest one.
-func (s *Server) ListUpdates(ctx context.Context, req *serverv1.ListChangeLogsRequest) (*serverv1.ListChangeLogsResponse, error) {
+// ListChangeLogs lists PMM versions between currently installed version and the latest one.
+func (s *Server) ListChangeLogs(ctx context.Context, req *serverv1.ListChangeLogsRequest) (*serverv1.ListChangeLogsResponse, error) {
 	versions, err := s.updater.ListUpdates(ctx)
 	if err != nil {
 		return nil, status.Error(codes.Unavailable, "failed to list available updates")
