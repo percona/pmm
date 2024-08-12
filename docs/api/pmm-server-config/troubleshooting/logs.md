@@ -1,7 +1,7 @@
 ---
 title: Logs
 slug: "logs"
-category: 626badcabbc59c02acc1a540
+category: 66acab7b0bf230001846b5e2
 ---
 
 Sometimes users need to troubleshoot an issue. PMM Server offers an ability to download the logs as well as configuration of its components. 

@@ -1295,7 +1295,7 @@ message AddExternalExporterParams {
   string metrics_path = 7;
   // Listen port for scraping metrics.
   uint32 listen_port = 8 [(validate.rules).uint32 = {
-    gt: 0,
+    gt: 0
     lt: 65536
   }];
   // Custom user-assigned labels.

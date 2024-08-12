@@ -191,6 +191,7 @@ func local_request_DumpService_UploadDump_0(ctx context.Context, marshaler runti
 // UnaryRPC     :call DumpServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterDumpServiceHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterDumpServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server DumpServiceServer) error {
 	mux.Handle("POST", pattern_DumpService_StartDump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -318,21 +319,21 @@ func RegisterDumpServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 // RegisterDumpServiceHandlerFromEndpoint is same as RegisterDumpServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
 func RegisterDumpServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
-	conn, err := grpc.DialContext(ctx, endpoint, opts...)
+	conn, err := grpc.NewClient(endpoint, opts...)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		if err != nil {
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 			return
 		}
 		go func() {
 			<-ctx.Done()
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 		}()
 	}()
@@ -350,7 +351,7 @@ func RegisterDumpServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn
 // to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "DumpServiceClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "DumpServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "DumpServiceClient" to call the correct interceptors.
+// "DumpServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterDumpServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client DumpServiceClient) error {
 	mux.Handle("POST", pattern_DumpService_StartDump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
