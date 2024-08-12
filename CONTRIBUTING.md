@@ -31,7 +31,7 @@ This project is built from several repositories:
 #### Frontends
 
 * [percona/grafana-dashboards](https://github.com/percona/grafana-dashboards) PMM dashboards for database monitoring
-* [percona-platform/grafana](https://github.com/percona-platform/grafana) user interface for PMM
+* [percona/grafana](https://github.com/percona/grafana) user interface for PMM
 
 ### PMM Client
 
