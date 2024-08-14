@@ -43,13 +43,6 @@ func (e explain) prepareCommand() bson.D {
 			command = e.Query
 		}
 
-		if isOldExplain(command) {
-			command = bson.D{
-				{Key: "explain", Value: ""},
-			}
-			break
-		}
-
 		if len(command) == 0 || command[0].Key != "find" {
 			var filter any
 			if len(command) != 0 && command[0].Key == "query" {
@@ -62,11 +55,7 @@ func (e explain) prepareCommand() bson.D {
 				{Key: "find", Value: e.getCollection()},
 				{Key: "filter", Value: filter},
 			}
-			break
 		}
-
-		command = dropNegativeNToReturnField(command)
-		command = dropDBField(command)
 	case "update":
 		if len(command) == 0 {
 			command = bson.D{
@@ -98,12 +87,8 @@ func (e explain) prepareCommand() bson.D {
 	case "getmore":
 		if len(e.OriginatingCommand) == 0 {
 			command = bson.D{{Key: "getmore", Value: ""}}
-			break
 		}
-
-		command = dropDBField(e.OriginatingCommand)
 	case "command":
-		command = sanitizeCommand(command)
 		if len(command) == 0 || command[0].Key != "group" {
 			break
 		}
@@ -130,73 +115,6 @@ func (e explain) getCollection() string {
 	}
 
 	return ""
-}
-
-// MongoDB <= 1.4?
-func dropNegativeNToReturnField(command bson.D) bson.D {
-	for i := range command {
-		if command[i].Key != "ntoreturn" {
-			continue
-		}
-
-		if value, ok := command[i].Value.(int64); ok && value < 0 {
-			command[i].Value = int64(0)
-		}
-	}
-
-	return command
-}
-
-// MongoDB <= 3.0
-func dropDBField(command bson.D) bson.D {
-	for i := range command {
-		if command[i].Key != "$db" {
-			continue
-		}
-
-		if len(command)-1 == i {
-			command = command[:i]
-			break
-		}
-
-		command = append(command[:i], command[i+1:]...)
-		break
-	}
-
-	return command
-}
-
-// MongoDB <= 2.6
-func isOldExplain(command bson.D) bool {
-	res, err := bson.Marshal(command)
-	if err != nil {
-		return false
-	}
-
-	var m bson.M
-	err = bson.Unmarshal(res, &m)
-	if err != nil {
-		return false
-	}
-
-	if _, ok := m["$explain"]; ok {
-		return true
-	}
-
-	return false
-}
-
-func sanitizeCommand(command bson.D) bson.D {
-	if len(command) == 0 {
-		return command
-	}
-
-	key := command[0].Key
-	if key == "count" || key == "distinct" {
-		return dropDBField(command)
-	}
-
-	return command
 }
 
 func fixReduceField(command bson.D) bson.D {
