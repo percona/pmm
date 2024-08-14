@@ -27,12 +27,12 @@ import (
 var minMongoDBVersion = version.MustParse("4.0.0-0")
 
 type explain struct {
-	Ns                 string `bson:"ns" json:"ns"`
-	Op                 string `bson:"op" json:"op"`
-	Query              bson.D `bson:"query,omitempty" json:"query,omitempty"`
-	Command            bson.D `bson:"command,omitempty" json:"command,omitempty"`
-	OriginatingCommand bson.D `bson:"originatingCommand,omitempty" json:"originatingCommand,omitempty"`
-	UpdateObj          bson.D `bson:"updateobj,omitempty" json:"updateobj,omitempty"`
+	Ns                 string `json:"ns"`
+	Op                 string `json:"op"`
+	Query              bson.D `json:"query,omitempty"`
+	Command            bson.D `json:"command,omitempty"`
+	OriginatingCommand bson.D `json:"originatingCommand,omitempty"`
+	UpdateObj          bson.D `json:"updateobj,omitempty"`
 }
 
 func (e explain) prepareCommand() bson.D {
