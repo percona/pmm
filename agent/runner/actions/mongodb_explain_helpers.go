@@ -1,0 +1,236 @@
+// Copyright (C) 2023 Percona LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package actions
+
+import (
+	"context"
+	"strings"
+
+	"github.com/pkg/errors"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+)
+
+type explain struct {
+	Ns                 string `bson:"ns" json:"ns"`
+	Op                 string `bson:"op" json:"op"`
+	Query              bson.D `bson:"query,omitempty" json:"query,omitempty"`
+	Command            bson.D `bson:"command,omitempty" json:"command,omitempty"`
+	OriginatingCommand bson.D `bson:"originatingCommand,omitempty" json:"originatingCommand,omitempty"`
+	UpdateObj          bson.D `bson:"updateobj,omitempty" json:"updateobj,omitempty"`
+}
+
+func (e explain) prepareCommand() bson.D {
+	command := e.Command
+	switch e.Op {
+	case "query":
+		if len(command) == 0 {
+			command = e.Query
+		}
+
+		if isOldExplain(command) {
+			command = bson.D{
+				{Key: "explain", Value: ""},
+			}
+			break
+		}
+
+		if len(command) == 0 || command[0].Key != "find" {
+			var filter any
+			if len(command) != 0 && command[0].Key == "query" {
+				filter = command[0].Value
+			} else {
+				filter = command
+			}
+
+			command = bson.D{
+				{Key: "find", Value: e.getCollection()},
+				{Key: "filter", Value: filter},
+			}
+			break
+		}
+
+		command = dropNegativeNToReturnField(command)
+		command = dropDBField(command)
+	case "update":
+		if len(command) == 0 {
+			command = bson.D{
+				{Key: "q", Value: e.Query},
+				{Key: "u", Value: e.UpdateObj},
+			}
+		}
+
+		return bson.D{
+			{Key: "update", Value: e.getCollection()},
+			{Key: "updates", Value: []any{command}},
+		}
+	case "remove":
+		if len(command) == 0 {
+			command = bson.D{{Key: "q", Value: e.Query}}
+		}
+
+		return bson.D{
+			{Key: "delete", Value: e.getCollection()},
+			{Key: "deletes", Value: []any{command}},
+		}
+	case "insert":
+		if len(command) == 0 {
+			command = e.Query
+		}
+		if len(command) == 0 || command[0].Key != "insert" {
+			command = bson.D{{Key: "insert", Value: e.getCollection()}}
+		}
+	case "getmore":
+		if len(e.OriginatingCommand) == 0 {
+			command = bson.D{{Key: "getmore", Value: ""}}
+			break
+		}
+
+		command = dropDBField(e.OriginatingCommand)
+	case "command":
+		command = sanitizeCommand(command)
+		if len(command) == 0 || command[0].Key != "group" {
+			break
+		}
+
+		command = fixReduceField(command)
+	}
+
+	return command
+}
+
+func (e explain) getDB() string {
+	s := strings.SplitN(e.Ns, ".", 2)
+	if len(s) == 2 {
+		return s[0]
+	}
+
+	return ""
+}
+
+func (e explain) getCollection() string {
+	s := strings.SplitN(e.Ns, ".", 2)
+	if len(s) == 2 {
+		return s[1]
+	}
+
+	return ""
+}
+
+// MongoDB <= 1.4?
+func dropNegativeNToReturnField(command bson.D) bson.D {
+	for i := range command {
+		if command[i].Key != "ntoreturn" {
+			continue
+		}
+
+		if value, ok := command[i].Value.(int64); ok && value < 0 {
+			command[i].Value = int64(0)
+		}
+	}
+
+	return command
+}
+
+// MongoDB <= 3.0
+func dropDBField(command bson.D) bson.D {
+	for i := range command {
+		if command[i].Key != "$db" {
+			continue
+		}
+
+		if len(command)-1 == i {
+			command = command[:i]
+			break
+		}
+
+		command = append(command[:i], command[i+1:]...)
+		break
+	}
+
+	return command
+}
+
+// MongoDB <= 2.6
+func isOldExplain(command bson.D) bool {
+	res, err := bson.Marshal(command)
+	if err != nil {
+		return false
+	}
+
+	var m bson.M
+	err = bson.Unmarshal(res, &m)
+	if err != nil {
+		return false
+	}
+
+	if _, ok := m["$explain"]; ok {
+		return true
+	}
+
+	return false
+}
+
+func sanitizeCommand(command bson.D) bson.D {
+	if len(command) == 0 {
+		return command
+	}
+
+	key := command[0].Key
+	if key == "count" || key == "distinct" {
+		return dropDBField(command)
+	}
+
+	return command
+}
+
+func fixReduceField(command bson.D) bson.D {
+	var group bson.D
+	var ok bool
+	if group, ok = command[0].Value.(bson.D); !ok {
+		return command
+	}
+
+	for i := range group {
+		if group[i].Key == "$reduce" {
+			group[i].Value = "{}"
+			command[0].Value = group
+			break
+		}
+	}
+
+	return command
+}
+
+func explainForQuery(ctx context.Context, client *mongo.Client, query string) ([]byte, error) {
+	var e explain
+	err := bson.UnmarshalExtJSON([]byte(query), true, &e)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Query: %s", query)
+	}
+
+	command := bson.D{{Key: "explain", Value: e.prepareCommand()}}
+	res := client.Database(e.getDB()).RunCommand(ctx, command)
+	if res.Err() != nil {
+		return nil, errors.Wrap(errCannotExplain, res.Err().Error())
+	}
+
+	result, err := res.Raw()
+	if err != nil {
+		return nil, err
+	}
+
+	return []byte(result.String()), nil
+}

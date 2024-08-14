@@ -46,24 +46,154 @@ func TestNewMongoExplain(t *testing.T) {
 		Dsn: tests.GetTestMongoDBDSN(t),
 		Query: `
 		{
-			"ns": "config.version",
-			"op": "query",
+			"ns": "testdb.listingsAndReviews",
+			"op": "command",
 			"command": {
-			  "find": "version",
-			  "filter": {},
-			  "limit": {
-				"$numberLong": "1"
+			  "explain": {
+				"find": "listingsAndReviews",
+				"filter": {
+				  "$and": [
+					{
+					  "repositoryFilePath": {
+						"$ne": ""
+					  }
+					},
+					{
+					  "repositoryFilePath": {
+						"$ne": null
+					  },
+					  "delete": {
+						"$ne": true
+					  }
+					},
+					{
+					  "$and": [
+						{
+						  "num_abonado": "985662747"
+						},
+						{
+						  "fecha_emision": {
+							"$gte": {
+							  "$date": {
+								"$numberLong": "1695160800000"
+							  }
+							}
+						  }
+						},
+						{
+						  "fecha_emision": {
+							"$lte": {
+							  "$date": {
+								"$numberLong": "1697839199000"
+							  }
+							}
+						  }
+						},
+						{
+						  "nif": {
+							"$in": [
+							  "B74145558",
+							  "LB74145558",
+							  "L00B74145558",
+							  "B74145558",
+							  "LB74145558",
+							  "L00B74145558"
+							]
+						  },
+						  "shardingKey": {
+							"$in": [
+							  "B74145558",
+							  "LB74145558",
+							  "L00B74145558",
+							  "B74145558",
+							  "LB74145558",
+							  "L00B74145558"
+							]
+						  },
+						  "prefix_shardingKey": {
+							"$in": [
+							  "5621",
+							  "d266",
+							  "2ced",
+							  "5621",
+							  "d266",
+							  "2ced"
+							]
+						  }
+						},
+						{
+						  "origen_documento": "Facturacion"
+						},
+						{
+						  "tipo_documento": {
+							"$in": [
+							  "FACTURA-REGULAR",
+							  "FACTURA-RF",
+							  "FACTURA-RF-ANULADA",
+							  "RESUMEN-CONC-FIJO",
+							  "RESUMEN-CONC-REGULAR",
+							  "RESUMEN-CONC-VAR",
+							  "RESUMEN-CTOS-INDIV",
+							  "RESUMEN-DIRECTA-TDE",
+							  "RESUMEN-FTNR-A-CONC",
+							  "RESUMEN-FTNR-A-CTOS",
+							  "RESUMEN-FTNR-A-I2",
+							  "RESUMEN-FTNR-A-PERS",
+							  "RESUMEN-FTNR-A-RI",
+							  "RESUMEN-FTNR-A-STB",
+							  "RESUMEN-FTNR-CONC",
+							  "RESUMEN-FTNR-CTOS",
+							  "RESUMEN-FTNR-IBERCOM",
+							  "RESUMEN-FTNR-PERS",
+							  "RESUMEN-FTNR-RI",
+							  "RESUMEN-FTNR-RPV",
+							  "RESUMEN-FTNR-STB",
+							  "RESUMEN-MAR-NACIONAL",
+							  "RESUMEN-PERS",
+							  "RESUMEN-REF-CLIENTE-CTOS",
+							  "RESUMEN-REF-CLIENTE-TD",
+							  "RESUMEN-VE-ANULACION",
+							  "RESUMEN-VENTA-EQUIPOS",
+							  "TS-ANULACION",
+							  "TS-ANULACION-OTRAS",
+							  "TS-ANULACION-OTRAS-SD",
+							  "TS-ANULACION-SD",
+							  "TS-FACTURAS-EMITIDAS",
+							  "TS-FACTURAS-EMITIDAS-OTRAS",
+							  "TS-FACTURAS-EMITIDAS-OTRAS-SD",
+							  "TS-FACTURAS-EMITIDAS-SD",
+							  "TS-FACTURAS-INHIB",
+							  "TS-FACTURAS-INHIB-OTRAS",
+							  "TS-FACTURAS-INHIB-OTRAS-SD",
+							  "TS-FACTURAS-INHIB-SD",
+							  "FACTURA-TSOL",
+							  "FACTURA"
+							]
+						  }
+						}
+					  ]
+					}
+				  ]
+				},
+				"lsid": {
+				  "id": {
+					"$binary": {
+					  "base64": "+znG58SsRj2RcxF+d+jFsA==",
+					  "subType": "04"
+					}
+				  }
+				},
+				"$db": "testdb"
 			  },
-			  "singleBatch": true,
 			  "lsid": {
 				"id": {
 				  "$binary": {
-					"base64": "YfWLS+S/RsWGvmk9Y5kfFg==",
+					"base64": "3dAPy58ITpmFXX2/fhKP0w==",
 					"subType": "04"
 				  }
 				}
 			  },
-			  "$db": "config"
+			  "$db": "testdb"
 			}
 		  }`,
 	}
@@ -73,9 +203,8 @@ func TestNewMongoExplain(t *testing.T) {
 
 	res, err := ex.Run(ctx)
 	assert.NoError(t, err)
-	assert.Empty(t, string(res))
+	assert.NotEmpty(t, string(res))
 }
-
 func prepareData(ctx context.Context, client *mongo.Client, database, collection string) error {
 	max := int64(100)
 	count, _ := client.Database(database).Collection(collection).CountDocuments(ctx, nil)
