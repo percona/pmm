@@ -16,8 +16,9 @@ package actions
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
-	"math/rand"
+	"math/big"
 	"os"
 	"testing"
 
@@ -62,7 +63,7 @@ func TestNewMongoExplain(t *testing.T) {
 			  "$db": "config"
 			}
 		  }`
-		runExplain(t, ctx, prepareParams(t, query))
+		runExplain(ctx, t, prepareParams(t, query))
 	})
 
 	// TODO: More queries/commands
@@ -77,11 +78,12 @@ func prepareParams(t *testing.T, query string) *agentpb.StartActionRequest_Mongo
 	}
 }
 
-func runExplain(t *testing.T, ctx context.Context, params *agentpb.StartActionRequest_MongoDBExplainParams) {
-	id := fmt.Sprintf("%d", rand.Uint64())
+func runExplain(ctx context.Context, t *testing.T, params *agentpb.StartActionRequest_MongoDBExplainParams) {
+	big, err := rand.Int(rand.Reader, big.NewInt(27))
+	require.NoError(t, err)
+	id := fmt.Sprintf("%d", big.Uint64())
 	ex, err := NewMongoDBExplainAction(id, 0, params, os.TempDir())
 	require.NoError(t, err)
-
 	res, err := ex.Run(ctx)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, string(res))
