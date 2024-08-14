@@ -17,9 +17,9 @@ package actions
 import (
 	"context"
 	"crypto/rand"
-	"fmt"
 	"math/big"
 	"os"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -79,9 +79,11 @@ func prepareParams(t *testing.T, query string) *agentpb.StartActionRequest_Mongo
 }
 
 func runExplain(ctx context.Context, t *testing.T, params *agentpb.StartActionRequest_MongoDBExplainParams) {
+	t.Helper()
+
 	big, err := rand.Int(rand.Reader, big.NewInt(27))
 	require.NoError(t, err)
-	id := fmt.Sprintf("%d", big.Uint64())
+	id := strconv.FormatUint(big.Uint64(), 10)
 	ex, err := NewMongoDBExplainAction(id, 0, params, os.TempDir())
 	require.NoError(t, err)
 	res, err := ex.Run(ctx)
