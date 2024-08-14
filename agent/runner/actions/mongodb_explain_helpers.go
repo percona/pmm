@@ -18,10 +18,13 @@ import (
 	"context"
 	"strings"
 
+	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
+
+var minMongoDBVersion = version.MustParse("4.0.0-0")
 
 type explain struct {
 	Ns                 string `bson:"ns" json:"ns"`
@@ -233,4 +236,25 @@ func explainForQuery(ctx context.Context, client *mongo.Client, query string) ([
 	}
 
 	return []byte(result.String()), nil
+}
+
+func notMinMongoDBVersion(ctx context.Context, client *mongo.Client) bool {
+	var result bson.M
+	command := bson.D{{Key: "serverStatus", Value: 1}}
+	err := client.Database("check").RunCommand(ctx, command).Decode(&result)
+	if err != nil || result["version"] == nil {
+		return false
+	}
+
+	var dbVersion string
+	var ok bool
+	if dbVersion, ok = result["version"].(string); !ok {
+		return false
+	}
+	currentVersion, err := version.Parse(dbVersion)
+	if err != nil {
+		return false
+	}
+
+	return currentVersion.Less(minMongoDBVersion)
 }

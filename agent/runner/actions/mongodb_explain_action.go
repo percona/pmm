@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -86,6 +87,12 @@ func (a *mongodbExplainAction) Run(ctx context.Context) ([]byte, error) {
 		return nil, errors.WithStack(err)
 	}
 	defer client.Disconnect(ctx) //nolint:errcheck
+
+	if notMinMongoDBVersion(ctx, client) {
+		version := strings.TrimSuffix(minMongoDBVersion.String(), "-0")
+		err := fmt.Sprintf("minimum supported version is %s, please update your MongoDB", version)
+		return nil, errors.New(err)
+	}
 
 	return explainForQuery(ctx, client, a.params.Query)
 }
