@@ -21,10 +21,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/percona/pmm/agent/utils/tests"
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/agent/utils/tests"
+	"github.com/percona/pmm/api/agentpb"
 )
 
 func TestNewMongoExplain(t *testing.T) {

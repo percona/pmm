@@ -18,10 +18,11 @@ import (
 	"context"
 	"strings"
 
-	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+
+	"github.com/percona/pmm/version"
 )
 
 var minMongoDBVersion = version.MustParse("4.0.0-0")
