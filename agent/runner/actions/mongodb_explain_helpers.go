@@ -85,6 +85,8 @@ func (e explain) prepareCommand() (bson.D, error) {
 			return bson.D{{Key: "getmore", Value: ""}}, nil
 		}
 
+		command = e.OriginatingCommand
+
 		return dropDBField(command), nil
 	case "command":
 		command = dropDBField(command)
