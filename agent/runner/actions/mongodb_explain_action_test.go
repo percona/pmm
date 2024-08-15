@@ -235,8 +235,8 @@ func runExplain(ctx context.Context, t *testing.T, params *agentpb.StartActionRe
 	ex, err := NewMongoDBExplainAction(id, 0, params, os.TempDir())
 	require.NoError(t, err)
 	res, err := ex.Run(ctx)
-	assert.NoError(t, err)
-	assert.NotEmpty(t, string(res))
+	require.NoError(t, err)
+	require.NotEmpty(t, string(res))
 }
 
 func runExplainExpectError(ctx context.Context, t *testing.T, params *agentpb.StartActionRequest_MongoDBExplainParams) {
@@ -248,7 +248,7 @@ func runExplainExpectError(ctx context.Context, t *testing.T, params *agentpb.St
 	ex, err := NewMongoDBExplainAction(id, 0, params, os.TempDir())
 	require.NoError(t, err)
 	_, err = ex.Run(ctx)
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestMongoDBExplain(t *testing.T) {
