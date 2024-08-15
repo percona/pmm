@@ -52,11 +52,10 @@ func (e explain) prepareCommand() (bson.D, error) {
 				filter = command
 			}
 
-			command = bson.D{
+			return bson.D{
 				{Key: "find", Value: e.getCollection()},
 				{Key: "filter", Value: filter},
-			}
-			break
+			}, nil
 		}
 
 		return dropDBField(command), nil
@@ -83,8 +82,7 @@ func (e explain) prepareCommand() (bson.D, error) {
 		}, nil
 	case "getmore":
 		if len(e.OriginatingCommand) == 0 {
-			command = bson.D{{Key: "getmore", Value: ""}}
-			break
+			return bson.D{{Key: "getmore", Value: ""}}, nil
 		}
 
 		return dropDBField(command), nil
@@ -92,7 +90,7 @@ func (e explain) prepareCommand() (bson.D, error) {
 		command = dropDBField(command)
 
 		if len(command) == 0 || command[0].Key != "group" {
-			break
+			return command, nil
 		}
 
 		return fixReduceField(command), nil
@@ -129,12 +127,10 @@ func dropDBField(command bson.D) bson.D {
 		}
 
 		if len(command)-1 == i {
-			command = command[:i]
-			break
+			return command[:i]
 		}
 
-		command = append(command[:i], command[i+1:]...)
-		break
+		return append(command[:i], command[i+1:]...)
 	}
 
 	return command
