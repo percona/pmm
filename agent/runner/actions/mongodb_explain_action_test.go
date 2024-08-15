@@ -151,14 +151,6 @@ func TestQueryExplain(t *testing.T) {
 			  "distinct": "inventory",
 			  "key": "dept",
 			  "query": {},
-			  "lsid": {
-				"id": {
-				  "$binary": {
-					"base64": "54EXxw1pRPqx/+4fCiJLJw==",
-					"subType": "04"
-				  }
-				}
-			  },
 			  "$db": "testdb"
 			}
 		  }`
@@ -171,14 +163,6 @@ func TestQueryExplain(t *testing.T) {
 			"op": "command",
 			"command": {
 			  "drop": "listingsAndReviews",
-			  "lsid": {
-				"id": {
-				  "$binary": {
-					"base64": "54DCxw1pRPqx/+4fCiJLJw==",
-					"subType": "04"
-				  }
-				}
-			  },
 			  "$db": "testdb"
 			}
 		  }`
