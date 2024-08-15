@@ -36,7 +36,7 @@ type explain struct {
 	UpdateObj          bson.D `json:"updateobj,omitempty"`
 }
 
-func (e explain) prepareCommand() bson.D {
+func (e explain) prepareCommand() (bson.D, error) {
 	command := e.Command
 	switch e.Op {
 	case "query":
@@ -59,7 +59,7 @@ func (e explain) prepareCommand() bson.D {
 			break
 		}
 
-		command = dropDBField(command)
+		return dropDBField(command), nil
 	case "update":
 		if len(command) == 0 {
 			command = bson.D{
@@ -71,7 +71,7 @@ func (e explain) prepareCommand() bson.D {
 		return bson.D{
 			{Key: "update", Value: e.getCollection()},
 			{Key: "updates", Value: []any{command}},
-		}
+		}, nil
 	case "remove":
 		if len(command) == 0 {
 			command = bson.D{{Key: "q", Value: e.Query}}
@@ -80,22 +80,14 @@ func (e explain) prepareCommand() bson.D {
 		return bson.D{
 			{Key: "delete", Value: e.getCollection()},
 			{Key: "deletes", Value: []any{command}},
-		}
-	case "insert":
-		if len(command) == 0 {
-			command = e.Query
-		}
-
-		if len(command) == 0 || command[0].Key != "insert" {
-			command = bson.D{{Key: "insert", Value: e.getCollection()}}
-		}
+		}, nil
 	case "getmore":
 		if len(e.OriginatingCommand) == 0 {
 			command = bson.D{{Key: "getmore", Value: ""}}
 			break
 		}
 
-		command = dropDBField(command)
+		return dropDBField(command), nil
 	case "command":
 		command = dropDBField(command)
 
@@ -103,10 +95,13 @@ func (e explain) prepareCommand() bson.D {
 			break
 		}
 
-		command = fixReduceField(command)
+		return fixReduceField(command), nil
+	// not supported
+	case "insert", "drop":
+		return nil, errors.Errorf("command %s is not supported for explain", e.Op)
 	}
 
-	return command
+	return command, nil
 }
 
 func (e explain) getDB() string {
@@ -170,7 +165,11 @@ func explainForQuery(ctx context.Context, client *mongo.Client, query string) ([
 		return nil, errors.Wrapf(err, "Query: %s", query)
 	}
 
-	command := bson.D{{Key: "explain", Value: e.prepareCommand()}}
+	preparedCommand, err := e.prepareCommand()
+	if err != nil {
+		return nil, errors.Wrap(errCannotExplain, err.Error())
+	}
+	command := bson.D{{Key: "explain", Value: preparedCommand}}
 	res := client.Database(e.getDB()).RunCommand(ctx, command)
 	if res.Err() != nil {
 		return nil, errors.Wrap(errCannotExplain, res.Err().Error())

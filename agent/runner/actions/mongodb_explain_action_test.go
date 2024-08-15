@@ -185,21 +185,20 @@ func TestQueryExplain(t *testing.T) {
 		runExplain(ctx, t, prepareParams(t, query))
 	})
 
-	t.Run("Insert", func(t *testing.T) {
+	t.Run("Insert - not supported", func(t *testing.T) {
 		query := `{
-			"ns": "testdb.inventory",
-			"op": "command",
+			"ns": "testdb.listingsAndReviews",
+			"op": "insert",
 			"command": {
-			  "distinct": "inventory",
-			  "key": "dept",
-			  "query": {},
+			  "insert": "listingsAndReviews",
+			  "ordered": true,
 			  "$db": "testdb"
 			}
 		  }`
-		runExplain(ctx, t, prepareParams(t, query))
+		runExplainExpectError(ctx, t, prepareParams(t, query))
 	})
 
-	t.Run("Drop - no support", func(t *testing.T) {
+	t.Run("Drop - not supported", func(t *testing.T) {
 		query := `{
 			"ns": "testdb.listingsAndReviews",
 			"op": "command",
@@ -212,7 +211,7 @@ func TestQueryExplain(t *testing.T) {
 	})
 
 	t.Run("PMM-12451", func(t *testing.T) {
-		// Query from customer to prevent wrong date/time, timestamp parsing in future.
+		// Query from customer to prevent wrong date/time, timestamp parsing in future and prevent regression.
 		query := `{"ns":"testdb.testDoc","op":"query","command":{"find":"testDoc","filter":{"$and":[{"c23":{"$ne":""}},{"c23":{"$ne":null},"delete":{"$ne":true}},{"$and":[{"c23":"985662747"},{"c15":{"$gte":{"$date":"2023-09-19T22:00:00.000Z"}}},{"c15":{"$lte":{"$date":"2023-10-20T21:59:59.000Z"}}},{"c8":{"$in":["X1118630710X","X1118630720X","X1118630730X","X1118630740X","X1118630750X","X1118630760X"]},"c22":{"$in":["X1118630710X","X1118630710XA","X1118630710XB","X1118630710XC","X1118630710XD","X1118630710XE"]},"c34":{"$in":["X1118630710X","X1118630710Y","X1118630710Z","X1118630710U","X1118630710V","X1118630710W"]}},{"c2":"xxxxxxx"},{"c29":{"$in":["X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X"]}}]}]},"lsid":{"id":{"$binary":{"base64":"n/f5RI2jTTCoyt0y+8D9Cw==","subType":"04"}}},"$db":"testdb"}}`
 		runExplain(ctx, t, prepareParams(t, query))
 	})
