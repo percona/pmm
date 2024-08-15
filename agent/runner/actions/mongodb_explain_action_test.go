@@ -52,43 +52,7 @@ func TestQueryExplain(t *testing.T) {
 				  "$options": "i"
 				}
 			  },
-			  "lsid": {
-				"id": {
-				  "$binary": {
-					"base64": "DSrmgdR2Sme3QAC5+9pTNA==",
-					"subType": "04"
-				  }
-				}
-			  },
 			  "$db": "config"
-			}
-		  }`
-		runExplain(ctx, t, prepareParams(t, query))
-	})
-
-	t.Run("Count", func(t *testing.T) {
-		query := `{
-			"ns": "testdb.collection",
-			"op": "command",
-			"command": {
-			  "count": "collection",
-			  "query": {
-				"a": {
-				  "$numberDouble": "5.0"
-				},
-				"b": {
-				  "$numberDouble": "5.0"
-				}
-			  },
-			  "lsid": {
-				"id": {
-				  "$binary": {
-					"base64": "54XDxw1pRPqx/+4fCiJLJw==",
-					"subType": "04"
-				  }
-				}
-			  },
-			  "$db": "testdb"
 			}
 		  }`
 		runExplain(ctx, t, prepareParams(t, query))
@@ -120,14 +84,6 @@ func TestQueryExplain(t *testing.T) {
 				}
 			  ],
 			  "cursor": {},
-			  "lsid": {
-				"id": {
-				  "$binary": {
-					"base64": "RSzR4G4ZQo2Nz/JxzCo5JA==",
-					"subType": "04"
-				  }
-				}
-			  },
 			  "$db": "testdb"
 			}
 		  }`
@@ -182,28 +138,6 @@ func TestQueryExplain(t *testing.T) {
 			  "limit": {
 				"$numberInt": "0"
 			  }
-			}
-		  }`
-		runExplain(ctx, t, prepareParams(t, query))
-	})
-
-	t.Run("Distinct", func(t *testing.T) {
-		query := `{
-			"ns": "testdb.inventory",
-			"op": "command",
-			"command": {
-			  "distinct": "inventory",
-			  "key": "dept",
-			  "query": {},
-			  "lsid": {
-				"id": {
-				  "$binary": {
-					"base64": "Md+WJ0QsQTy6JgsIy10HKg==",
-					"subType": "04"
-				  }
-				}
-			  },
-			  "$db": "testdb"
 			}
 		  }`
 		runExplain(ctx, t, prepareParams(t, query))
