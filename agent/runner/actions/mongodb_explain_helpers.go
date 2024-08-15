@@ -78,13 +78,6 @@ func (e explain) prepareCommand() bson.D {
 			{Key: "delete", Value: e.getCollection()},
 			{Key: "deletes", Value: []any{command}},
 		}
-	case "insert":
-		if len(command) == 0 {
-			command = e.Query
-		}
-		if len(command) == 0 || command[0].Key != "insert" {
-			command = bson.D{{Key: "insert", Value: e.getCollection()}}
-		}
 	case "getmore":
 		if len(e.OriginatingCommand) == 0 {
 			command = bson.D{{Key: "getmore", Value: ""}}
