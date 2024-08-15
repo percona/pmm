@@ -131,7 +131,7 @@ func fixReduceField(command bson.D) bson.D {
 
 func explainForQuery(ctx context.Context, client *mongo.Client, query string) ([]byte, error) {
 	var e explain
-	err := bson.UnmarshalExtJSON([]byte(query), true, &e)
+	err := bson.UnmarshalExtJSON([]byte(query), false, &e)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Query: %s", query)
 	}
