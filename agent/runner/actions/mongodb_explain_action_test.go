@@ -200,7 +200,7 @@ func TestQueryExplain(t *testing.T) {
 		runExplain(ctx, t, prepareParams(t, query))
 	})
 
-	t.Run("Insert - no support", func(t *testing.T) {
+	t.Run("Insert", func(t *testing.T) {
 		query := `{
 			"ns": "testdb.inventory",
 			"op": "command",
@@ -211,7 +211,7 @@ func TestQueryExplain(t *testing.T) {
 			  "$db": "testdb"
 			}
 		  }`
-		runExplainExpectError(ctx, t, prepareParams(t, query))
+		runExplain(ctx, t, prepareParams(t, query))
 	})
 
 	t.Run("Drop - no support", func(t *testing.T) {

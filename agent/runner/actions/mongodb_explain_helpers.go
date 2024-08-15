@@ -56,7 +56,10 @@ func (e explain) prepareCommand() bson.D {
 				{Key: "find", Value: e.getCollection()},
 				{Key: "filter", Value: filter},
 			}
+			break
 		}
+
+		command = dropDBField(command)
 	case "update":
 		if len(command) == 0 {
 			command = bson.D{
@@ -78,11 +81,24 @@ func (e explain) prepareCommand() bson.D {
 			{Key: "delete", Value: e.getCollection()},
 			{Key: "deletes", Value: []any{command}},
 		}
+	case "insert":
+		if len(command) == 0 {
+			command = e.Query
+		}
+
+		if len(command) == 0 || command[0].Key != "insert" {
+			command = bson.D{{Key: "insert", Value: e.getCollection()}}
+		}
 	case "getmore":
 		if len(e.OriginatingCommand) == 0 {
 			command = bson.D{{Key: "getmore", Value: ""}}
+			break
 		}
+
+		command = dropDBField(command)
 	case "command":
+		command = dropDBField(command)
+
 		if len(command) == 0 || command[0].Key != "group" {
 			break
 		}
@@ -109,6 +125,24 @@ func (e explain) getCollection() string {
 	}
 
 	return ""
+}
+
+func dropDBField(command bson.D) bson.D {
+	for i := range command {
+		if command[i].Key != "$db" {
+			continue
+		}
+
+		if len(command)-1 == i {
+			command = command[:i]
+			break
+		}
+
+		command = append(command[:i], command[i+1:]...)
+		break
+	}
+
+	return command
 }
 
 func fixReduceField(command bson.D) bson.D {
