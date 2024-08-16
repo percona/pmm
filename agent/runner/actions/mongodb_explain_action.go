@@ -90,8 +90,7 @@ func (a *mongodbExplainAction) Run(ctx context.Context) ([]byte, error) {
 
 	if notMinMongoDBVersion(ctx, client) {
 		version := strings.TrimSuffix(minMongoDBVersion.String(), "-0")
-		err := fmt.Sprintf("minimum supported version is %s, please update your MongoDB", version)
-		return nil, errors.New(err)
+		return nil, fmt.Errorf("minimum supported version is %s, please update your MongoDB", version)
 	}
 
 	return explainForQuery(ctx, client, a.params.Query)
