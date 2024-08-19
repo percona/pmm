@@ -163,6 +163,21 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			selectAllCities:     "5991662752016701281",
 			selectAllCitiesLong: "-3564720362103294944",
 		}
+	case "15":
+		digests = map[string]string{
+			selectAllCities:     "TODO-selectAllCities",
+			selectAllCitiesLong: "TODO-selectAllCitiesLong",
+		}
+	case "16":
+		digests = map[string]string{
+			selectAllCities:     "TODO-selectAllCities",
+			selectAllCitiesLong: "TODO-selectAllCitiesLong",
+		}
+	case "17":
+		digests = map[string]string{
+			selectAllCities:     "TODO-selectAllCities",
+			selectAllCitiesLong: "TODO-selectAllCitiesLong",
+		}
 	default:
 		t.Log("Unhandled version, assuming dummy digests.")
 		digests = map[string]string{

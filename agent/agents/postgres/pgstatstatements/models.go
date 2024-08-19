@@ -38,29 +38,29 @@ type pgUser struct {
 //
 //reform:pg_stat_statements
 type pgStatStatements struct {
-	UserID    int64   `reform:"userid"`
-	DBID      int64   `reform:"dbid"`
-	QueryID   int64   `reform:"queryid"` // we select only non-NULL rows
-	Query     string  `reform:"query"`   // we select only non-NULL rows
-	Calls     int64   `reform:"calls"`
-	TotalTime float64 `reform:"total_time"`
+	UserID        int64   `reform:"userid"`
+	DBID          int64   `reform:"dbid"`
+	QueryID       int64   `reform:"queryid"` // we select only non-NULL rows
+	Query         string  `reform:"query"`   // we select only non-NULL rows
+	Calls         int64   `reform:"calls"`
+	TotalExecTime float64 `reform:"total_exec_time"`
 	// MinTime           *float64 `reform:"min_time"`
 	// MaxTime           *float64 `reform:"max_time"`
 	// MeanTime          *float64 `reform:"mean_time"`
 	// StddevTime        *float64 `reform:"stddev_time"`
-	Rows              int64   `reform:"rows"`
-	SharedBlksHit     int64   `reform:"shared_blks_hit"`
-	SharedBlksRead    int64   `reform:"shared_blks_read"`
-	SharedBlksDirtied int64   `reform:"shared_blks_dirtied"`
-	SharedBlksWritten int64   `reform:"shared_blks_written"`
-	LocalBlksHit      int64   `reform:"local_blks_hit"`
-	LocalBlksRead     int64   `reform:"local_blks_read"`
-	LocalBlksDirtied  int64   `reform:"local_blks_dirtied"`
-	LocalBlksWritten  int64   `reform:"local_blks_written"`
-	TempBlksRead      int64   `reform:"temp_blks_read"`
-	TempBlksWritten   int64   `reform:"temp_blks_written"`
-	BlkReadTime       float64 `reform:"blk_read_time"`
-	BlkWriteTime      float64 `reform:"blk_write_time"`
+	Rows               int64   `reform:"rows"`
+	SharedBlksHit      int64   `reform:"shared_blks_hit"`
+	SharedBlksRead     int64   `reform:"shared_blks_read"`
+	SharedBlksDirtied  int64   `reform:"shared_blks_dirtied"`
+	SharedBlksWritten  int64   `reform:"shared_blks_written"`
+	LocalBlksHit       int64   `reform:"local_blks_hit"`
+	LocalBlksRead      int64   `reform:"local_blks_read"`
+	LocalBlksDirtied   int64   `reform:"local_blks_dirtied"`
+	LocalBlksWritten   int64   `reform:"local_blks_written"`
+	TempBlksRead       int64   `reform:"temp_blks_read"`
+	TempBlksWritten    int64   `reform:"temp_blks_written"`
+	SharedBlkReadTime  float64 `reform:"shared_blk_read_time"`
+	SharedBlkWriteTime float64 `reform:"shared_blk_write_time"`
 }
 
 // pgStatStatementsExtended contains pgStatStatements data and extends it with database, username and tables data.

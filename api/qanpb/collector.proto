@@ -333,10 +333,10 @@ message MetricsBucket {
   float m_temp_blks_written_cnt = 218;
   // Total number of temp blocks written by the statement.
   float m_temp_blks_written_sum = 219;
-  float m_blk_read_time_cnt = 220;
+  float m_shared_blk_read_time_cnt = 220;
   // Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-  float m_blk_read_time_sum = 221;
-  float m_blk_write_time_cnt = 222;
+  float m_shared_blk_read_time_sum = 221;
+  float m_shared_blk_write_time_cnt = 222;
   // Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
   float m_blk_write_time_sum = 223;
   float m_cpu_user_time_cnt = 230;

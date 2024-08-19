@@ -195,7 +195,7 @@ func (v *pgStatStatementsViewType) Columns() []string {
 		"queryid",
 		"query",
 		"calls",
-		"total_time",
+		"total_exec_time",
 		"rows",
 		"shared_blks_hit",
 		"shared_blks_read",
@@ -207,8 +207,8 @@ func (v *pgStatStatementsViewType) Columns() []string {
 		"local_blks_written",
 		"temp_blks_read",
 		"temp_blks_written",
-		"blk_read_time",
-		"blk_write_time",
+		"shared_blk_read_time",
+		"shared_blk_write_time",
 	}
 }
 
@@ -228,7 +228,7 @@ var pgStatStatementsView = &pgStatStatementsViewType{
 			{Name: "QueryID", Type: "int64", Column: "queryid"},
 			{Name: "Query", Type: "string", Column: "query"},
 			{Name: "Calls", Type: "int64", Column: "calls"},
-			{Name: "TotalTime", Type: "float64", Column: "total_time"},
+			{Name: "TotalExecTime", Type: "float64", Column: "total_exec_time"},
 			{Name: "Rows", Type: "int64", Column: "rows"},
 			{Name: "SharedBlksHit", Type: "int64", Column: "shared_blks_hit"},
 			{Name: "SharedBlksRead", Type: "int64", Column: "shared_blks_read"},
@@ -240,8 +240,8 @@ var pgStatStatementsView = &pgStatStatementsViewType{
 			{Name: "LocalBlksWritten", Type: "int64", Column: "local_blks_written"},
 			{Name: "TempBlksRead", Type: "int64", Column: "temp_blks_read"},
 			{Name: "TempBlksWritten", Type: "int64", Column: "temp_blks_written"},
-			{Name: "BlkReadTime", Type: "float64", Column: "blk_read_time"},
-			{Name: "BlkWriteTime", Type: "float64", Column: "blk_write_time"},
+			{Name: "SharedBlkReadTime", Type: "float64", Column: "shared_blk_read_time"},
+			{Name: "SharedBlkWriteTime", Type: "float64", Column: "shared_blk_write_time"},
 		},
 		PKFieldIndex: -1,
 	},
@@ -256,7 +256,7 @@ func (s pgStatStatements) String() string {
 	res[2] = "QueryID: " + reform.Inspect(s.QueryID, true)
 	res[3] = "Query: " + reform.Inspect(s.Query, true)
 	res[4] = "Calls: " + reform.Inspect(s.Calls, true)
-	res[5] = "TotalTime: " + reform.Inspect(s.TotalTime, true)
+	res[5] = "TotalExecTime: " + reform.Inspect(s.TotalExecTime, true)
 	res[6] = "Rows: " + reform.Inspect(s.Rows, true)
 	res[7] = "SharedBlksHit: " + reform.Inspect(s.SharedBlksHit, true)
 	res[8] = "SharedBlksRead: " + reform.Inspect(s.SharedBlksRead, true)
@@ -268,8 +268,8 @@ func (s pgStatStatements) String() string {
 	res[14] = "LocalBlksWritten: " + reform.Inspect(s.LocalBlksWritten, true)
 	res[15] = "TempBlksRead: " + reform.Inspect(s.TempBlksRead, true)
 	res[16] = "TempBlksWritten: " + reform.Inspect(s.TempBlksWritten, true)
-	res[17] = "BlkReadTime: " + reform.Inspect(s.BlkReadTime, true)
-	res[18] = "BlkWriteTime: " + reform.Inspect(s.BlkWriteTime, true)
+	res[17] = "SharedBlkReadTime: " + reform.Inspect(s.SharedBlkReadTime, true)
+	res[18] = "SharedBlkWriteTime: " + reform.Inspect(s.SharedBlkWriteTime, true)
 	return strings.Join(res, ", ")
 }
 
@@ -282,7 +282,7 @@ func (s *pgStatStatements) Values() []interface{} {
 		s.QueryID,
 		s.Query,
 		s.Calls,
-		s.TotalTime,
+		s.TotalExecTime,
 		s.Rows,
 		s.SharedBlksHit,
 		s.SharedBlksRead,
@@ -294,8 +294,8 @@ func (s *pgStatStatements) Values() []interface{} {
 		s.LocalBlksWritten,
 		s.TempBlksRead,
 		s.TempBlksWritten,
-		s.BlkReadTime,
-		s.BlkWriteTime,
+		s.SharedBlkReadTime,
+		s.SharedBlkWriteTime,
 	}
 }
 
@@ -308,7 +308,7 @@ func (s *pgStatStatements) Pointers() []interface{} {
 		&s.QueryID,
 		&s.Query,
 		&s.Calls,
-		&s.TotalTime,
+		&s.TotalExecTime,
 		&s.Rows,
 		&s.SharedBlksHit,
 		&s.SharedBlksRead,
@@ -320,8 +320,8 @@ func (s *pgStatStatements) Pointers() []interface{} {
 		&s.LocalBlksWritten,
 		&s.TempBlksRead,
 		&s.TempBlksWritten,
-		&s.BlkReadTime,
-		&s.BlkWriteTime,
+		&s.SharedBlkReadTime,
+		&s.SharedBlkWriteTime,
 	}
 }
 

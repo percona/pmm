@@ -48,7 +48,10 @@ const (
 	queryStatStatements     = time.Minute
 )
 
-var pgStatVer18 = semver.MustParse("1.8.0")
+var (
+	pgStatVer_1_8  = semver.MustParse("1.8.0")
+	pgStatVer_1_11 = semver.MustParse("1.11.0")
+)
 
 type statementsMap map[int64]*pgStatStatementsExtended
 
@@ -134,8 +137,13 @@ func rowsByVersion(q *reform.Querier, tail string) (*sql.Rows, error) {
 	}
 
 	columns := strings.Join(q.QualifiedColumns(pgStatStatementsView), ", ")
-	if pgStatVersion.GE(pgStatVer18) {
-		columns = strings.Replace(columns, `"total_time"`, `"total_exec_time"`, 1)
+	if pgStatVersion.LT(pgStatVer_1_8) {
+		columns = strings.Replace(columns, `"total_exec_time"`, `"total_time"`, 1)
+	}
+
+	if pgStatVersion.LT(pgStatVer_1_11) {
+		columns = strings.Replace(columns, `"shared_blk_read_time"`, `"blk_read_time"`, 1)
+		columns = strings.Replace(columns, `"shared_blk_write_time"`, `"blk_write_time"`, 1)
 	}
 
 	return q.Query(fmt.Sprintf("SELECT /* %s */ %s FROM %s %s", queryTag, columns, q.QualifiedView(pgStatStatementsView), tail))
@@ -243,7 +251,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	defer rows.Close() //nolint:errcheck
 
 	for ctx.Err() == nil {
-		var row pgStatStatements
+		var row pgStatStatements // TODO: select proper
 		if err = q.NextRow(&row, rows); err != nil {
 			if errors.Is(err, reform.ErrNoRows) {
 				err = nil
@@ -371,7 +379,7 @@ func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *lo
 			cnt   *float32 // MetricsBucket.XXXCnt field to write count
 		}{
 			// convert milliseconds to seconds
-			{float32(currentPSS.TotalTime-prevPSS.TotalTime) / 1000, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
+			{float32(currentPSS.TotalExecTime-prevPSS.TotalExecTime) / 1000, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
 			{float32(currentPSS.Rows - prevPSS.Rows), &mb.Postgresql.MRowsSum, &mb.Postgresql.MRowsCnt},
 
 			{float32(currentPSS.SharedBlksHit - prevPSS.SharedBlksHit), &mb.Postgresql.MSharedBlksHitSum, &mb.Postgresql.MSharedBlksHitCnt},
@@ -388,8 +396,8 @@ func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *lo
 			{float32(currentPSS.TempBlksWritten - prevPSS.TempBlksWritten), &mb.Postgresql.MTempBlksWrittenSum, &mb.Postgresql.MTempBlksWrittenCnt},
 
 			// convert milliseconds to seconds
-			{float32(currentPSS.BlkReadTime-prevPSS.BlkReadTime) / 1000, &mb.Postgresql.MBlkReadTimeSum, &mb.Postgresql.MBlkReadTimeCnt},
-			{float32(currentPSS.BlkWriteTime-prevPSS.BlkWriteTime) / 1000, &mb.Postgresql.MBlkWriteTimeSum, &mb.Postgresql.MBlkWriteTimeCnt},
+			{float32(currentPSS.SharedBlkReadTime-prevPSS.SharedBlkReadTime) / 1000, &mb.Postgresql.MBlkReadTimeSum, &mb.Postgresql.MBlkReadTimeCnt},
+			{float32(currentPSS.SharedBlkWriteTime-prevPSS.SharedBlkWriteTime) / 1000, &mb.Postgresql.MBlkWriteTimeSum, &mb.Postgresql.MBlkWriteTimeCnt},
 		} {
 			if p.value != 0 {
 				*p.sum = p.value
