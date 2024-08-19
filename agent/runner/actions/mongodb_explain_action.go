@@ -159,14 +159,23 @@ func (e explain) prepareCommand() (bson.D, error) {
 	case "command":
 		command = dropDBField(command)
 
-		if len(command) == 0 || command[0].Key != "group" {
+		if len(command) == 0 {
+			return command, nil
+		}
+
+		switch command[0].Key {
+		// Not supported commands.
+		case "dbStats":
+			return nil, errors.Errorf("command %s is not supported for explain", command[0].Key)
+		case "group":
+		default:
 			return command, nil
 		}
 
 		return fixReduceField(command), nil
-	// Not supported types.
+	// Not supported operations.
 	case "insert", "drop":
-		return nil, errors.Errorf("command %s is not supported for explain", e.Op)
+		return nil, errors.Errorf("operation %s is not supported for explain", e.Op)
 	}
 
 	return command, nil
