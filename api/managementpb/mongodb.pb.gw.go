@@ -61,6 +61,7 @@ func local_request_MongoDB_AddMongoDB_0(ctx context.Context, marshaler runtime.M
 // UnaryRPC     :call MongoDBServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterMongoDBHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterMongoDBHandlerServer(ctx context.Context, mux *runtime.ServeMux, server MongoDBServer) error {
 	mux.Handle("POST", pattern_MongoDB_AddMongoDB_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -124,7 +125,7 @@ func RegisterMongoDBHandler(ctx context.Context, mux *runtime.ServeMux, conn *gr
 // to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "MongoDBClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "MongoDBClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "MongoDBClient" to call the correct interceptors.
+// "MongoDBClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterMongoDBHandlerClient(ctx context.Context, mux *runtime.ServeMux, client MongoDBClient) error {
 	mux.Handle("POST", pattern_MongoDB_AddMongoDB_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
