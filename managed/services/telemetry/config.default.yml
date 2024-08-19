@@ -42,19 +42,19 @@ telemetry:
 
   - id: PMMServerAccessControlEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN access_control->'enabled' = 'true' THEN '1' WHEN access_control->'enabled' = 'null' THEN '1' ELSE '0' END) AS access_control_enabled FROM settings s, jsonb_extract_path(s.settings, 'access_control') AS access_control
-    summary: "PMM Server Access Control feature enabled/disabled"
+    query: (CASE WHEN access_control->'enabled' = 'true' THEN '1' WHEN access_control->'enabled' = 'null' THEN '0' ELSE '0' END) AS access_control_enabled FROM settings s, jsonb_extract_path(s.settings, 'access_control') AS access_control
+    summary: "PMM Server Access Control feature enabled"
     data:
       - metric_name: "pmm_server_access_control_enabled"
         column: "access_control_enabled"
 
-  - id: PMMServerUpdatesDisabled
+  - id: PMMServerUpdatesEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN updates->'enabled' = 'true' THEN '0' WHEN updates->'enabled' = 'null' THEN '0'  ELSE '1' END) AS updates_disabled FROM settings s, jsonb_extract_path(s.settings, 'updates') AS updates
-    summary: "PMM Server Check Updates feature disabled"
+    query: (CASE WHEN updates->'enabled' = 'true' THEN '1' WHEN updates->'enabled' = 'null' THEN '1'  ELSE '0' END) AS updates_disabled FROM settings s, jsonb_extract_path(s.settings, 'updates') AS updates
+    summary: "PMM Server Check Updates feature enabled"
     data:
-      - metric_name: "pmm_server_updates_disabled"
-        column: "updates_disabled"
+      - metric_name: "pmm_server_updates_enabled"
+        column: "updates_enabled"
 
   - id: PMMAzureMonitoringEnabled
     source: PMMDB_SELECT
@@ -909,7 +909,6 @@ telemetry:
       from dumps
       where created_at BETWEEN NOW() - INTERVAL '24 HOURS' AND NOW()
       group by status, services_count, timerange, ignore_load, export_qan;
-
     transform:
       type: JSON
       metric: pmm_dumps_performed
@@ -949,12 +948,19 @@ telemetry:
       - metric_name: "postgresql_db_count"
         value: 1
 
-  - id: PMMServerHAEnabled
+  - id: PMMServerTelementryEnabled
+    source: ENV_VARS
+    summary: "Use of telemetry feature"
+    data:
+      - metric_name: "pmm_server_telemetry_enable"
+        column: "PMM_ENABLE_TELEMETRY"
+
+  - id: PMMServerBuiltinDatabaseDisabled
     source: ENV_VARS
     summary: "Use of HA feature"
     data:
-      - metric_name: "pmm_server_ha_enable"
-        column: "PERCONA_TEST_HA_ENABLE"
+      - metric_name: "pmm_server_builtin_postgres_disable"
+        column: "PMM_DISABLE_BUILTIN_POSTGRES"
 
   - id: PMMServerHAUseOfDBs
     source: ENV_VARS
