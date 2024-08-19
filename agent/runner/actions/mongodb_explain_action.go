@@ -104,13 +104,19 @@ func (a *mongodbExplainAction) Run(ctx context.Context) ([]byte, error) {
 func (a *mongodbExplainAction) sealed() {}
 
 func (e explain) prepareCommand() (bson.D, error) {
+	// First always use "Command" property from explain params.
 	command := e.Command
+
+	// Different actions depends on operation type.
 	switch e.Op {
 	case "query":
+		// If "Command" property is empty use "Query" property
 		if len(command) == 0 {
 			command = e.Query
 		}
 
+		// In case command is still empty or not type "find"
+		// reformat object to correct structure.
 		if len(command) == 0 || command[0].Key != "find" {
 			var filter any
 			if len(command) != 0 && command[0].Key == "query" {
@@ -127,6 +133,7 @@ func (e explain) prepareCommand() (bson.D, error) {
 
 		return dropDBField(command), nil
 	case "update":
+		// If "Command" property is empty reformat object to correct structure.
 		if len(command) == 0 {
 			command = bson.D{
 				{Key: "q", Value: e.Query},
@@ -139,6 +146,7 @@ func (e explain) prepareCommand() (bson.D, error) {
 			{Key: "updates", Value: []any{command}},
 		}, nil
 	case "remove":
+		// If "Command" property is empty reformat object to correct structure.
 		if len(command) == 0 {
 			command = bson.D{{Key: "q", Value: e.Query}}
 		}
@@ -148,6 +156,7 @@ func (e explain) prepareCommand() (bson.D, error) {
 			{Key: "deletes", Value: []any{command}},
 		}, nil
 	case "getmore":
+		// If "OriginatingCommand" is empty use empty structure.
 		if len(e.OriginatingCommand) == 0 {
 			return bson.D{{Key: "getmore", Value: ""}}, nil
 		}
@@ -163,7 +172,7 @@ func (e explain) prepareCommand() (bson.D, error) {
 		}
 
 		return fixReduceField(command), nil
-	// not supported
+	// Not supported types
 	case "insert", "drop":
 		return nil, errors.Errorf("command %s is not supported for explain", e.Op)
 	}
@@ -189,6 +198,7 @@ func (e explain) getCollection() string {
 	return ""
 }
 
+// dropDBField remove DB field to be able run explain on all supported types.
 func dropDBField(command bson.D) bson.D {
 	for i := range command {
 		if command[i].Key != "$db" {
@@ -205,6 +215,7 @@ func dropDBField(command bson.D) bson.D {
 	return command
 }
 
+// fixReduceField fixing nil/empty values after unmarshalling.
 func fixReduceField(command bson.D) bson.D {
 	var group bson.D
 	var ok bool
