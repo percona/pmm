@@ -269,9 +269,10 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 			Timestamp:   timestamppb.New(*v.Installed.BuildTime),
 		},
 		Latest: &serverv1.DockerVersionInfo{
-			Version:         v.Latest.Version.String(),
-			Tag:             v.Latest.DockerImage,
-			ReleaseNotesUrl: v.Latest.ReleaseNotesURL,
+			Version:          v.Latest.Version.String(),
+			Tag:              v.Latest.DockerImage,
+			ReleaseNotesUrl:  v.Latest.ReleaseNotesURL,
+			ReleaseNotesText: v.Latest.ReleaseNotesText,
 		},
 		UpdateAvailable: v.Latest.DockerImage != "",
 		LatestNewsUrl:   v.LatestNewsURL,
