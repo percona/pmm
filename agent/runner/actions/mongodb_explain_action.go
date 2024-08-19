@@ -113,16 +113,16 @@ func (e explain) prepareCommand() (bson.D, error) {
 		}
 
 		if len(command) == 0 || command[0].Key != "find" {
-			var filter any
-			if len(command) != 0 && command[0].Key == "query" {
-				filter = command[0].Value
-			} else {
-				filter = command
-			}
-
 			return bson.D{
 				{Key: "find", Value: e.getCollection()},
-				{Key: "filter", Value: filter},
+				{Key: "filter", Value: command},
+			}, nil
+		}
+
+		if len(command) != 0 && command[0].Key == "query" {
+			return bson.D{
+				{Key: "find", Value: e.getCollection()},
+				{Key: "filter", Value: command[0].Value},
 			}, nil
 		}
 
