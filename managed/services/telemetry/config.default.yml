@@ -24,13 +24,13 @@ telemetry:
       - metric_name: "pmm_server_alert_rules_number"
         value: 1
 
-  - id: PMMServerAdvisorsDisabled
+  - id: PMMServerAdvisorsEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN advisors->'enabled' = 'true' THEN '0' WHEN advisors->'enabled' = 'null' THEN '0' ELSE '1' END) AS advisors_disabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS advisors
-    summary: "PMM Advisors Disabled"
+    query: (CASE WHEN advisors->'enabled' = 'true' THEN '1' WHEN advisors->'enabled' = 'null' THEN '1' ELSE '0' END) AS advisors_disabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS advisors
+    summary: "PMM Advisors Enabled"
     data:
-      - metric_name: "pmm_server_advisors_disabled"
-        column: "advisors_disabled"
+      - metric_name: "pmm_server_advisors_enabled"
+        column: "advisors_enabled"
 
   - id: PMMServerBackupManagementEnabled
     source: PMMDB_SELECT
@@ -92,14 +92,12 @@ telemetry:
     summary: "Plugins on the MySQL instance"
     data:
       - metric_name: "1"
-        label: "library" # is not available
-      - metric_name: "2"
         label: "license"
-      - metric_name: "3"
+      - metric_name: "2"
         label: "name"
-      - metric_name: "4"
+      - metric_name: "3"
         label: "status"
-      - metric_name: "5"
+      - metric_name: "4"
         label: "type"
 
   - id: MySQLEngineRocksDBCount
