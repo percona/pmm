@@ -1,8 +1,8 @@
 ---
 title: Create user accounts
 slug: bulk-add-users
-category: 626bd6a45c6ea70129427eff
-parentDoc: 626be9a93ab1240284d0d27d
+category: 66acab7b0bf230001846b5e2
+parentDoc: 66acad52c21a1a0036295235
 order: 1
 ---
 
