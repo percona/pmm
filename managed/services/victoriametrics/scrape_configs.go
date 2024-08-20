@@ -426,7 +426,6 @@ func scrapeConfigsForMongoDBExporter(params *scrapeConfigParams) ([]*config.Scra
 			defaultCollectors = append(defaultCollectors, "currentopmetrics")
 		}
 		if !params.pmmAgentVersion.Less(version.MustParse("2.43.0-0")) {
-			defaultCollectors = append(defaultCollectors, "fcv")
 			defaultCollectors = append(defaultCollectors, "pbm")
 		}
 

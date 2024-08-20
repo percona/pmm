@@ -111,7 +111,6 @@ func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress st
 			args = append(args, "--collector.currentopmetrics")
 		}
 		if !pmmAgentVersion.Less(v2_43_0) && collectAll { // >= 2.43.0
-			args = append(args, "--collector.fcv")
 			args = append(args, "--collector.pbm")
 		}
 
