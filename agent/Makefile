@@ -31,7 +31,7 @@ release:                        ## Build static pmm-agent release binary (Linux 
 	ldd $(PMM_RELEASE_PATH)/pmm-agent 2>&1 | grep -Fq 'not a dynamic executable'
 
 release-dev:
-	env CGO_ENABLED=1 go build -race -v -ldflags "$(VERSION_FLAGS)" -o $(PMM_RELEASE_PATH)/pmm-agent
+	env CGO_ENABLED=0 go build -v -ldflags "$(VERSION_FLAGS)" -a -installsuffix cgo -o $(PMM_RELEASE_PATH)/pmm-agent
 
 gen: clean                      ## Generate files
 	go generate ./...
