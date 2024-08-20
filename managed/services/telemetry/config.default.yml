@@ -2,7 +2,7 @@ telemetry:
   # PMM - generic information
   - id: PMMServerAlertingEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN alerting->'enabled' = 'true' THEN '1' WHEN alerting->'enabled' = 'null' THEN '1' ELSE '0' END) AS alerting_enabled FROM settings s, jsonb_extract_path(s.settings, 'alerting') AS alerting
+    query: (CASE WHEN alerting->'enabled' = 'false' THEN '0' ELSE '1' END) AS alerting_enabled FROM settings s, jsonb_extract_path(s.settings, 'alerting') AS alerting
     summary: "PMM Server Integration Alerting feature enabled/disabled"
     data:
       - metric_name: "pmm_server_alerting_enabled"
@@ -26,7 +26,7 @@ telemetry:
 
   - id: PMMServerAdvisorsEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN advisors->'enabled' = 'true' THEN '1' WHEN advisors->'enabled' = 'null' THEN '1' ELSE '0' END) AS advisors_disabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS advisors
+    query: (CASE WHEN advisors->'enabled' = 'false' THEN '0' ELSE '1' END) AS advisors_disabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS advisors
     summary: "PMM Advisors Enabled"
     data:
       - metric_name: "pmm_server_advisors_enabled"
@@ -34,7 +34,7 @@ telemetry:
 
   - id: PMMServerBackupManagementEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN backup_management->'enabled' = 'true' THEN '1' WHEN backup_management->'enabled' = 'null' THEN '1' ELSE '0' END) AS backup_management_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS backup_management
+    query: (CASE WHEN backup_management->'enabled' = 'false' THEN '0' ELSE '1' END) AS backup_management_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS backup_management
     summary: "PMM Server Backup Management feature enabled"
     data:
       - metric_name: "pmm_server_backup_management_enabled"
@@ -42,7 +42,7 @@ telemetry:
 
   - id: PMMServerAccessControlEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN access_control->'enabled' = 'true' THEN '1' WHEN access_control->'enabled' = 'null' THEN '0' ELSE '0' END) AS access_control_enabled FROM settings s, jsonb_extract_path(s.settings, 'access_control') AS access_control
+    query: (CASE WHEN access_control->'enabled' = 'true' THEN '1' ELSE '0' END) AS access_control_enabled FROM settings s, jsonb_extract_path(s.settings, 'access_control') AS access_control
     summary: "PMM Server Access Control feature enabled"
     data:
       - metric_name: "pmm_server_access_control_enabled"
@@ -50,7 +50,7 @@ telemetry:
 
   - id: PMMServerUpdatesEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN updates->'enabled' = 'true' THEN '1' WHEN updates->'enabled' = 'null' THEN '1'  ELSE '0' END) AS updates_disabled FROM settings s, jsonb_extract_path(s.settings, 'updates') AS updates
+    query: (CASE WHEN updates->'enabled' = 'true' THEN '1' ELSE '0' END) AS updates_disabled FROM settings s, jsonb_extract_path(s.settings, 'updates') AS updates
     summary: "PMM Server Check Updates feature enabled"
     data:
       - metric_name: "pmm_server_updates_enabled"
@@ -58,7 +58,7 @@ telemetry:
 
   - id: PMMAzureMonitoringEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN azure->'enabled' = 'true' THEN '1' WHEN azure->'enabled' = 'null' THEN '1'  ELSE '0' END) AS azure_enabled FROM settings s, jsonb_extract_path(s.settings, 'azure') AS azure
+    query: (CASE WHEN azure->'enabled' = 'true' THEN '1' ELSE '0' END) AS azure_enabled FROM settings s, jsonb_extract_path(s.settings, 'azure') AS azure
     summary: "PMM Azure monitoring feature enabled"
     data:
       - metric_name: "pmm_server_azure_enabled"
@@ -953,14 +953,7 @@ telemetry:
     summary: "Use of HA feature"
     data:
       - metric_name: "pmm_server_ha_enable"
-        column: "PMM_TEST_HA_ENABLE"        
-
-  - id: PMMServerTelementryEnabled
-    source: ENV_VARS
-    summary: "Use of telemetry feature"
-    data:
-      - metric_name: "pmm_server_telemetry_enable"
-        column: "PMM_ENABLE_TELEMETRY"
+        column: "PMM_TEST_HA_ENABLE"
 
   - id: PMMServerBuiltinDatabaseDisabled
     source: ENV_VARS
