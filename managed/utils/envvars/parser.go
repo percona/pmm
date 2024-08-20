@@ -159,7 +159,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			}
 			envSettings.EnableAzurediscover = &b
 
-		case "ENABLE_BACKUP_MANAGEMENT":
+		case "PMM_ENABLE_BACKUP_MANAGEMENT":
 			b, err := strconv.ParseBool(v)
 			if err != nil {
 				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))

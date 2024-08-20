@@ -9,7 +9,7 @@ Below is a list of affected variables and their new names.
 | `DISABLE_UPDATES`                             | `PMM_ENABLE_UPDATES`                       |                                                              |
 | `DISABLE_TELEMETRY`                           | `PMM_ENABLE_TELEMETRY`                     |                                                              |
 | `PERCONA_PLATFORM_API_TIMEOUT`                | `PMM_DEV_PERCONA_PLATFORM_API_TIMEOUT`     |                                                              |
-| `DISABLE_BACKUP_MANAGEMENT`                   | `PMM_DISABLE_BACKUP_MANAGEMENT`            |                                                              |
+| `DISABLE_BACKUP_MANAGEMENT`                   |                                            | Removed in PMM v3, use `PMM_ENABLE_BACKUP_MANAGEMENT`        |
 | `ENABLE_AZUREDISCOVER`                        | `PMM_ENABLE_AZURE_DISCOVER`                |                                                              |
 | `ENABLE_RBAC`                                 | `PMM_ENABLE_ACCESS_CONTROL`                |                                                              |
 | `LESS_LOG_NOISE`                              |                                            | Removed in PMM v3                                            |
