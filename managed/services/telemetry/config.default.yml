@@ -948,7 +948,7 @@ telemetry:
       - metric_name: "postgresql_db_count"
         value: 1
 
-  - id: PMMServerTelementryEnabled
+  - id: PMMServerTelemetryEnabled
     source: ENV_VARS
     summary: "Use of telemetry feature"
     data:
