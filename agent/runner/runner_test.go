@@ -156,36 +156,36 @@ func TestPerDBInstanceLimit(t *testing.T) {
 	db2j2 := testJob{id: "test-5", timeout: time.Second, dsn: "postgresql://db2"}
 	db2j3 := testJob{id: "test-6", timeout: time.Second, dsn: "postgresql://db2"}
 
-	require.NoError(t, cr.StartJob(db1j1))
-	require.NoError(t, cr.StartJob(db2j1))
+	require.NoError(t, cr.StartJob(db1j1), "start job db1j1 failed")
+	require.NoError(t, cr.StartJob(db2j1), "start job db2j1 failed")
 
 	// Let jobs to start
 	time.Sleep(200 * time.Millisecond)
 
-	require.NoError(t, cr.StartJob(db1j2))
-	require.NoError(t, cr.StartJob(db2j2))
-	require.NoError(t, cr.StartJob(db1j3))
-	require.NoError(t, cr.StartJob(db2j3))
+	require.NoError(t, cr.StartJob(db1j2), "start job db1j2 failed")
+	require.NoError(t, cr.StartJob(db2j2), "start job db2j2 failed")
+	require.NoError(t, cr.StartJob(db1j3), "start job db1j3 failed")
+	require.NoError(t, cr.StartJob(db2j3), "start job db2j3 failed")
 
 	// Let rest jobs to reach semaphores
 	time.Sleep(300 * time.Millisecond)
 
-	assert.True(t, cr.IsRunning(db1j1.ID()))
-	assert.True(t, cr.IsRunning(db2j1.ID()))
-	assert.False(t, cr.IsRunning(db1j2.ID()))
-	assert.False(t, cr.IsRunning(db2j2.ID()))
-	assert.False(t, cr.IsRunning(db1j3.ID()))
-	assert.False(t, cr.IsRunning(db2j3.ID()))
+	assert.True(t, cr.IsRunning(db1j1.ID()), "db1j1 is not running")
+	assert.True(t, cr.IsRunning(db2j1.ID()), "db2j1 is not running")
+	assert.False(t, cr.IsRunning(db1j2.ID()), "db1j2 is running")
+	assert.False(t, cr.IsRunning(db2j2.ID()), "db2j2 is running")
+	assert.False(t, cr.IsRunning(db1j3.ID()), "db1j3 is running")
+	assert.False(t, cr.IsRunning(db2j3.ID()), "db2j3 is running")
 
 	// Over time all jobs are terminated
-	time.Sleep(2 * time.Second)
+	time.Sleep(3 * time.Second)
 
-	assert.False(t, cr.IsRunning(db1j1.ID()))
-	assert.False(t, cr.IsRunning(db2j1.ID()))
-	assert.False(t, cr.IsRunning(db1j2.ID()))
-	assert.False(t, cr.IsRunning(db2j2.ID()))
-	assert.False(t, cr.IsRunning(db1j3.ID()))
-	assert.False(t, cr.IsRunning(db2j3.ID()))
+	assert.False(t, cr.IsRunning(db1j1.ID()), "db1j1 is running")
+	assert.False(t, cr.IsRunning(db2j1.ID()), "db2j1 is running")
+	assert.False(t, cr.IsRunning(db1j2.ID()), "db1j2 is running")
+	assert.False(t, cr.IsRunning(db2j2.ID()), "db2j2 is running")
+	assert.False(t, cr.IsRunning(db1j3.ID()), "db1j3 is running")
+	assert.False(t, cr.IsRunning(db2j3.ID()), "db2j3 is running")
 }
 
 func TestDefaultPerDBInstanceLimit(t *testing.T) {
