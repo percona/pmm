@@ -109,12 +109,10 @@ func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress st
 		}
 		if !pmmAgentVersion.Less(v2_42_0) && collectAll { // >= 2.42.0
 			args = append(args, "--collector.currentopmetrics")
-
-			// todo (michael): this is here to be able to test feature builds, but should be moved to 2.43 check afterwards.
-			args = append(args, "--collector.pbm")
 		}
 		if !pmmAgentVersion.Less(v2_43_0) && collectAll { // >= 2.43.0
 			args = append(args, "--collector.fcv")
+			args = append(args, "--collector.pbm")
 		}
 
 		args = collectors.FilterOutCollectors("--collector.", args, exporter.DisabledCollectors)
