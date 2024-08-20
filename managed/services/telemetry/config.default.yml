@@ -948,6 +948,13 @@ telemetry:
       - metric_name: "postgresql_db_count"
         value: 1
 
+  - id: PMMServerHAEnabled
+    source: ENV_VARS
+    summary: "Use of HA feature"
+    data:
+      - metric_name: "pmm_server_ha_enable"
+        column: "PMM_TEST_HA_ENABLE"        
+
   - id: PMMServerTelementryEnabled
     source: ENV_VARS
     summary: "Use of telemetry feature"
