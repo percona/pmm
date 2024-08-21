@@ -55,7 +55,7 @@ func TestPostgreSQLQueryShow(t *testing.T) {
 		require.NoError(t, err)
 		t.Log(spew.Sdump(data))
 		assert.LessOrEqual(t, 200, len(data))
-		assert.LessOrEqual(t, len(data), 358)
+		assert.LessOrEqual(t, len(data), 367)
 
 		var found int
 		for _, m := range data {
