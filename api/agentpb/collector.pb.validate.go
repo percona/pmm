@@ -1051,14 +1051,6 @@ func (m *MetricsBucket_PostgreSQL) validate(all bool) error {
 
 	// no validation rules for MSharedBlkWriteTimeSum
 
-	// no validation rules for MLocalBlkReadTimeCnt
-
-	// no validation rules for MLocalBlkReadTimeSum
-
-	// no validation rules for MLocalBlkWriteTimeCnt
-
-	// no validation rules for MLocalBlkWriteTimeSum
-
 	// no validation rules for MCpuUserTimeCnt
 
 	// no validation rules for MCpuUserTimeSum
