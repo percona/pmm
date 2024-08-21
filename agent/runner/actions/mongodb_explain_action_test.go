@@ -217,16 +217,16 @@ func TestQueryExplain(t *testing.T) {
 	})
 }
 
-func prepareParams(t *testing.T, query string) *agentpb.StartActionRequest_MongoDBExplainParams {
+func prepareParams(t *testing.T, query string) *agentv1.StartActionRequest_MongoDBExplainParams {
 	t.Helper()
 
-	return &agentpb.StartActionRequest_MongoDBExplainParams{
+	return &agentv1.StartActionRequest_MongoDBExplainParams{
 		Dsn:   tests.GetTestMongoDBDSN(t),
 		Query: query,
 	}
 }
 
-func runExplain(ctx context.Context, t *testing.T, params *agentpb.StartActionRequest_MongoDBExplainParams) {
+func runExplain(ctx context.Context, t *testing.T, params *agentv1.StartActionRequest_MongoDBExplainParams) {
 	t.Helper()
 
 	big, err := rand.Int(rand.Reader, big.NewInt(27))
@@ -239,7 +239,7 @@ func runExplain(ctx context.Context, t *testing.T, params *agentpb.StartActionRe
 	require.NotEmpty(t, string(res))
 }
 
-func runExplainExpectError(ctx context.Context, t *testing.T, params *agentpb.StartActionRequest_MongoDBExplainParams) {
+func runExplainExpectError(ctx context.Context, t *testing.T, params *agentv1.StartActionRequest_MongoDBExplainParams) {
 	t.Helper()
 
 	big, err := rand.Int(rand.Reader, big.NewInt(27))
