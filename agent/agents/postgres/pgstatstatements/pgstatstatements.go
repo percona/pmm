@@ -49,8 +49,8 @@ const (
 )
 
 var (
-	pgStatVer_1_8  = semver.MustParse("1.8.0")
-	pgStatVer_1_11 = semver.MustParse("1.11.0")
+	pgStatVer1_8  = semver.MustParse("1.8.0")
+	pgStatVer1_11 = semver.MustParse("1.11.0")
 )
 
 type statementsMap map[int64]*pgStatStatementsExtended
@@ -137,11 +137,11 @@ func rowsByVersion(q *reform.Querier, tail string) (*sql.Rows, error) {
 	}
 
 	columns := strings.Join(q.QualifiedColumns(pgStatStatementsView), ", ")
-	if pgStatVersion.LT(pgStatVer_1_8) {
+	if pgStatVersion.LT(pgStatVer1_8) {
 		columns = strings.Replace(columns, `"total_exec_time"`, `"total_time"`, 1)
 	}
 
-	if pgStatVersion.LT(pgStatVer_1_11) {
+	if pgStatVersion.LT(pgStatVer1_11) {
 		columns = strings.Replace(columns, `"shared_blk_read_time"`, `"blk_read_time"`, 1)
 		columns = strings.Replace(columns, `"shared_blk_write_time"`, `"blk_write_time"`, 1)
 	}
