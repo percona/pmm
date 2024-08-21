@@ -396,8 +396,8 @@ func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *lo
 			{float32(currentPSS.TempBlksWritten - prevPSS.TempBlksWritten), &mb.Postgresql.MTempBlksWrittenSum, &mb.Postgresql.MTempBlksWrittenCnt},
 
 			// convert milliseconds to seconds
-			{float32(currentPSS.SharedBlkReadTime-prevPSS.SharedBlkReadTime) / 1000, &mb.Postgresql.MBlkReadTimeSum, &mb.Postgresql.MBlkReadTimeCnt},
-			{float32(currentPSS.SharedBlkWriteTime-prevPSS.SharedBlkWriteTime) / 1000, &mb.Postgresql.MBlkWriteTimeSum, &mb.Postgresql.MBlkWriteTimeCnt},
+			{float32(currentPSS.SharedBlkReadTime-prevPSS.SharedBlkReadTime) / 1000, &mb.Postgresql.MSharedBlkReadTimeSum, &mb.Postgresql.MSharedBlkReadTimeCnt},
+			{float32(currentPSS.SharedBlkWriteTime-prevPSS.SharedBlkWriteTime) / 1000, &mb.Postgresql.MSharedBlkWriteTimeSum, &mb.Postgresql.MSharedBlkWriteTimeCnt},
 		} {
 			if p.value != 0 {
 				*p.sum = p.value

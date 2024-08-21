@@ -640,8 +640,8 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 
 				// convert milliseconds to seconds
 				{float32(currentPSM.TotalExecTime-prevPSM.TotalExecTime) / 1000, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
-				{float32(currentPSM.SharedBlkReadTime-prevPSM.SharedBlkReadTime) / 1000, &mb.Postgresql.MBlkReadTimeSum, &mb.Postgresql.MBlkReadTimeCnt},
-				{float32(currentPSM.SharedBlkWriteTime-prevPSM.SharedBlkWriteTime) / 1000, &mb.Postgresql.MBlkWriteTimeSum, &mb.Postgresql.MBlkWriteTimeCnt},
+				{float32(currentPSM.SharedBlkReadTime-prevPSM.SharedBlkReadTime) / 1000, &mb.Postgresql.MSharedBlkReadTimeSum, &mb.Postgresql.MSharedBlkReadTimeCnt},
+				{float32(currentPSM.SharedBlkWriteTime-prevPSM.SharedBlkWriteTime) / 1000, &mb.Postgresql.MSharedBlkWriteTimeSum, &mb.Postgresql.MSharedBlkWriteTimeCnt},
 
 				// convert microseconds to seconds
 				{float32(cpuSysTime) / 1000000, &mb.Postgresql.MCpuSysTimeSum, &mb.Postgresql.MCpuSysTimeCnt},
