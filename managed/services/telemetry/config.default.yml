@@ -92,12 +92,14 @@ telemetry:
     summary: "Plugins on the MySQL instance"
     data:
       - metric_name: "1"
-        label: "license"
+        label: "library"
       - metric_name: "2"
-        label: "name"
+        label: "license"
       - metric_name: "3"
-        label: "status"
+        label: "name"
       - metric_name: "4"
+        label: "status"
+      - metric_name: "5"
         label: "type"
 
   - id: MySQLEngineRocksDBCount
