@@ -959,7 +959,7 @@ telemetry:
 
   - id: PMMServerBuiltinDatabaseDisabled
     source: ENV_VARS
-    summary: "Use of HA feature"
+    summary: "Use of external PMM database"
     data:
       - metric_name: "pmm_server_builtin_postgres_disable"
         column: "PMM_DISABLE_BUILTIN_POSTGRES"
