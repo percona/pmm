@@ -50,7 +50,7 @@ telemetry:
 
   - id: PMMServerUpdatesEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN updates->'enabled' = 'true' THEN '1' ELSE '0' END) AS updates_disabled FROM settings s, jsonb_extract_path(s.settings, 'updates') AS updates
+    query: (CASE WHEN updates->'enabled' = 'true' THEN '1' ELSE '0' END) AS updates_enabled FROM settings s, jsonb_extract_path(s.settings, 'updates') AS updates
     summary: "PMM Server Check Updates feature enabled"
     data:
       - metric_name: "pmm_server_updates_enabled"
