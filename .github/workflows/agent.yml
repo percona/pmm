@@ -29,7 +29,7 @@ jobs:
           - { mysql: 'mysql:5.6', mongo: 'mongo:4.2', postgres: 'postgres:14', pmm_server: 'percona/pmm-server:2.0.0' }
           - { mysql: 'mysql:5.7', mongo: 'mongo:4.4', postgres: 'postgres:15', pmm_server: 'percona/pmm-server:2.0.1' }
           - { mysql: 'mysql:8.0', mongo: 'mongo:4.4', postgres: 'postgres:16', pmm_server: 'percona/pmm-server:2.1.0' }
-          - { mysql: 'mysql:8.0', mongo: 'mongo:4.4', postgres: 'postgres:17', pmm_server: 'percona/pmm-server:2.2.0' }
+          - { mysql: 'mysql:8.0', mongo: 'mongo:4.4', postgres: 'postgres:17beta3', pmm_server: 'percona/pmm-server:2.2.0' }
 
           # Percona + latest PMM Server release
           - { mysql: 'percona:5.6', mongo: 'percona/percona-server-mongodb:4.2', postgres: 'perconalab/percona-distribution-postgresql:14', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'percona/pmm-server:2' }
