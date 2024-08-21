@@ -165,13 +165,13 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		}
 	case "15":
 		digests = map[string]string{
-			selectAllCities:     "TODO-selectAllCities",
-			selectAllCitiesLong: "TODO-selectAllCitiesLong",
+			selectAllCities:     "5991662752016701281",
+			selectAllCitiesLong: "-3564720362103294944",
 		}
 	case "16":
 		digests = map[string]string{
-			selectAllCities:     "TODO-selectAllCities",
-			selectAllCitiesLong: "TODO-selectAllCitiesLong",
+			selectAllCities:     "9094455616937907056",
+			selectAllCitiesLong: "-8264367755446145090",
 		}
 	case "17":
 		digests = map[string]string{
