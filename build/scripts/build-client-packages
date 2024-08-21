@@ -475,8 +475,6 @@ if [ "$TARBALL" = '1' -o "$SOURCE" = '1' ]; then
     ProxysqlExp_REPO=$(get_repos "proxysql_exporter")
     NodeExp_BRANCH_NAME=$(get_branches "node_exporter")
     NodeExp_REPO=$(get_repos "node_exporter")
-    ClickhouseExp_BRANCH_NAME=$(get_branches "clickhouse_exporter")
-    ClickhouseExp_REPO=$(get_repos "clickhouse_exporter")
     AzureExp_BRANCH_NAME=$(get_branches "azure_metrics_exporter")
     AzureExp_REPO=$(get_repos "azure_metrics_exporter")
 fi
