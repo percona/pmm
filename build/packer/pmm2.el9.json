@@ -3,7 +3,7 @@
     "single_disk": "false",
     "pmm2_server_repo": "testing",
     "pmm_client_repos": "pmm2-client testing",
-    "pmm_client_repo_name": "percona-testing-x86_64"
+    "pmm_client_repo_name": "pmm2-client-testing-x86_64"
   },
   "builders": [
     {
