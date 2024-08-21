@@ -13,7 +13,7 @@ import { Messages } from './AppBar.messages';
 import { HomeLink } from 'components/home-link';
 
 export const AppBar = () => (
-  <MuiAppBar position="static" color="primary">
+  <MuiAppBar position="sticky" color="primary">
     <Toolbar>
       <HomeLink
         color="inherit"
