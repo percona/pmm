@@ -1,7 +1,7 @@
 ---
 - name: Set fact if running inside Docker
   set_fact:
-    running_in_docker: "{{ lookup('env', 'RUNNING_IN_DOCKER') | default(false) }}"
+    running_in_docker: "{{ lookup('env', 'PMM_RUNNING_IN_DOCKER') | default(false) }}"
 
 - name: Install the GPG key for repo.percona.com
   rpm_key:
