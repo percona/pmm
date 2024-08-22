@@ -427,6 +427,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		}
 		actual := buckets[0]
 		assert.NotZero(t, actual.Postgresql.MSharedBlkReadTimeSum+actual.Postgresql.MSharedBlkWriteTimeSum)
+		assert.Equal(t, float32(n), actual.Postgresql.MSharedBlkReadTimeCnt+actual.Postgresql.MSharedBlkWriteTimeCnt)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:             actual.Common.Queryid,
@@ -444,18 +445,20 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
-				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
-				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
-				MSharedBlksReadCnt:    float32(n),
-				MSharedBlksReadSum:    actual.Postgresql.MSharedBlksReadSum,
-				MSharedBlksWrittenCnt: float32(n),
-				MSharedBlksWrittenSum: actual.Postgresql.MSharedBlksWrittenSum,
-				MSharedBlksDirtiedCnt: actual.Postgresql.MSharedBlksDirtiedCnt,
-				MSharedBlksDirtiedSum: actual.Postgresql.MSharedBlksDirtiedSum,
-				MSharedBlksHitCnt:     actual.Postgresql.MSharedBlksHitCnt,
-				MSharedBlksHitSum:     actual.Postgresql.MSharedBlksHitSum,
-				MRowsCnt:              float32(n),
-				MRowsSum:              float32(n),
+				MSharedBlkReadTimeCnt:  actual.Postgresql.MSharedBlkReadTimeCnt,
+				MSharedBlkReadTimeSum:  actual.Postgresql.MSharedBlkReadTimeSum,
+				MSharedBlkWriteTimeCnt: actual.Postgresql.MSharedBlkWriteTimeCnt,
+				MSharedBlkWriteTimeSum: actual.Postgresql.MSharedBlkWriteTimeSum,
+				MSharedBlksReadCnt:     actual.Postgresql.MSharedBlksReadCnt,
+				MSharedBlksReadSum:     actual.Postgresql.MSharedBlksReadSum,
+				MSharedBlksWrittenCnt:  float32(n),
+				MSharedBlksWrittenSum:  actual.Postgresql.MSharedBlksWrittenSum,
+				MSharedBlksDirtiedCnt:  actual.Postgresql.MSharedBlksDirtiedCnt,
+				MSharedBlksDirtiedSum:  actual.Postgresql.MSharedBlksDirtiedSum,
+				MSharedBlksHitCnt:      actual.Postgresql.MSharedBlksHitCnt,
+				MSharedBlksHitSum:      actual.Postgresql.MSharedBlksHitSum,
+				MRowsCnt:               float32(n),
+				MRowsSum:               float32(n),
 			},
 		}
 		tests.AssertBucketsEqual(t, expected, actual)
