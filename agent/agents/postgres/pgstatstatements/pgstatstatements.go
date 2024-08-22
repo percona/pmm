@@ -138,12 +138,12 @@ func rowsByVersion(q *reform.Querier, tail string) (*sql.Rows, error) {
 
 	columns := strings.Join(q.QualifiedColumns(pgStatStatementsView), ", ")
 	if pgStatVersion.LT(pgStatVer1_8) {
-		columns = strings.Replace(columns, `"total_exec_time"`, `"total_time AS total_exec_time"`, 1)
+		columns = strings.Replace(columns, `"total_exec_time"`, `"total_time" AS total_exec_time`, 1)
 	}
 
 	if pgStatVersion.LT(pgStatVer1_11) {
-		columns = strings.Replace(columns, `"shared_blk_read_time"`, `"blk_read_time AS shared_blk_read_time "`, 1)
-		columns = strings.Replace(columns, `"shared_blk_write_time"`, `"blk_write_time AS shared_blk_write_time"`, 1)
+		columns = strings.Replace(columns, `"shared_blk_read_time"`, `"blk_read_time" AS shared_blk_read_time`, 1)
+		columns = strings.Replace(columns, `"shared_blk_write_time"`, `"blk_write_time" AS shared_blk_write_time`, 1)
 	}
 
 	return q.Query(fmt.Sprintf("SELECT /* %s */ %s FROM %s %s", queryTag, columns, q.QualifiedView(pgStatStatementsView), tail))
