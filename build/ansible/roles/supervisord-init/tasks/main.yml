@@ -1,7 +1,7 @@
 ---
 - name: Set fact if running inside Docker
   set_fact:
-    running_in_docker: "{{ lookup('env', 'RUNNING_IN_DOCKER') | default(false) }}"
+    running_in_docker: "{{ lookup('env', 'PMM_RUNNING_IN_DOCKER') | default(false) }}"
 
 - name: Install supervisor         | EL7
   when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
