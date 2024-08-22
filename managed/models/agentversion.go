@@ -18,9 +18,10 @@ package models
 import (
 	"fmt"
 
-	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/version"
 )
 
 // PMMAgentMinVersionForPostgreSQLSSLSni is the minimum required version of PMM Agent.

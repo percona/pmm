@@ -18,7 +18,6 @@ package agents
 
 import (
 	"context"
-
 	"time"
 
 	"github.com/AlekSi/pointer"
