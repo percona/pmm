@@ -31,11 +31,39 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 )
 
+// MessageType represent message type labels in grafana.
+type MessageType string
+
 const (
 	serverRequestsCap = 32
 
 	prometheusNamespace = "pmm_agent"
 	prometheusSubsystem = "channel"
+
+	labelMessageType = "message_type"
+)
+
+// MessageType labels for different messages.
+const (
+	ActionResult      MessageType = "action_result"
+	AgentLogs         MessageType = "agent_logs"
+	CheckConnection   MessageType = "check_connection"
+	GetVersions       MessageType = "get_versions"
+	JobProgress       MessageType = "job_progress"
+	JobResult         MessageType = "job_result"
+	JobStatus         MessageType = "job_status"
+	ParseDefaultsFile MessageType = "parse_defaults_file"
+	PbmSwitchPitr     MessageType = "pbm_switch_pitr"
+	Ping              MessageType = "ping"
+	Pong              MessageType = "pong"
+	QanCollect        MessageType = "qan_collect"
+	SetState          MessageType = "set_state"
+	StartAction       MessageType = "start_action"
+	StartJob          MessageType = "start_job"
+	StateChanged      MessageType = "state_changed"
+	StopAction        MessageType = "stop_action"
+	StopJob           MessageType = "stop_job"
+	Unknown           MessageType = "unknown"
 )
 
 // ServerRequest represents a request from server.
@@ -68,7 +96,8 @@ type Channel struct { //nolint:maligned
 	s agentpb.Agent_ConnectClient
 	l *logrus.Entry
 
-	mRecv, mSend prometheus.Counter
+	mRecv, mSend prometheus.SummaryVec
+	mFailed      prometheus.Counter
 
 	lastSentRequestID uint32
 
@@ -86,22 +115,30 @@ type Channel struct { //nolint:maligned
 // New creates new two-way communication channel with given stream.
 //
 // Stream should not be used by the caller after channel is created.
+//
+//nolint:nosnakecase
 func New(stream agentpb.Agent_ConnectClient) *Channel {
 	s := &Channel{
 		s: stream,
 		l: logrus.WithField("component", "channel"), // only for debug logging
 
-		mRecv: prometheus.NewCounter(prometheus.CounterOpts{
+		mRecv: *prometheus.NewSummaryVec(prometheus.SummaryOpts{ //nolint:exhaustruct
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
-			Name:      "messages_received_total",
-			Help:      "A total number of received messages from pmm-managed.",
-		}),
-		mSend: prometheus.NewCounter(prometheus.CounterOpts{
+			Name:      "message_received",
+			Help:      "Received message summary from pmm-managed.",
+		}, []string{labelMessageType}),
+		mSend: *prometheus.NewSummaryVec(prometheus.SummaryOpts{ //nolint:exhaustruct
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
-			Name:      "messages_sent_total",
-			Help:      "A total number of sent messages to pmm-managed.",
+			Name:      "message_sent",
+			Help:      "Sent message summary to pmm-managed.",
+		}, []string{labelMessageType}),
+		mFailed: prometheus.NewCounter(prometheus.CounterOpts{ //nolint:exhaustruct
+			Namespace: prometheusNamespace,
+			Subsystem: prometheusSubsystem,
+			Name:      "failed_messages_total",
+			Help:      "A total number of failed messages.",
 		}),
 
 		responses: make(map[uint32]chan Response),
@@ -202,9 +239,10 @@ func (c *Channel) send(msg *agentpb.AgentMessage) {
 	c.sendM.Unlock()
 	if err != nil {
 		c.close(errors.Wrap(err, "failed to send message"))
+		c.mFailed.Inc()
 		return
 	}
-	c.mSend.Inc()
+	c.mSend.WithLabelValues(string(getAgentMessageType(msg))).Observe(float64(proto.Size(msg)))
 }
 
 // runReader receives messages from server.
@@ -220,7 +258,6 @@ func (c *Channel) runReceiver() {
 			c.close(errors.Wrap(err, "failed to receive message"))
 			return
 		}
-		c.mRecv.Inc()
 
 		// Check log level before calling formatting function.
 		// Do not waste resources in case debug level is not enabled.
@@ -318,7 +355,9 @@ func (c *Channel) runReceiver() {
 				ID:     msg.Id,
 				Status: grpcstatus.New(codes.Unimplemented, "can't handle message type sent, it is not implemented"),
 			})
+			c.mFailed.Inc()
 		}
+		c.mRecv.WithLabelValues(string(getServerMessageType(msg))).Observe(float64(proto.Size(msg)))
 	}
 }
 
@@ -381,12 +420,100 @@ func (c *Channel) publish(id uint32, status *protostatus.Status, resp agentpb.Se
 func (c *Channel) Describe(ch chan<- *prometheus.Desc) {
 	c.mRecv.Describe(ch)
 	c.mSend.Describe(ch)
+	c.mFailed.Describe(ch)
 }
 
 // Collect implement prometheus.Collector.
 func (c *Channel) Collect(ch chan<- prometheus.Metric) {
 	c.mRecv.Collect(ch)
 	c.mSend.Collect(ch)
+	c.mFailed.Collect(ch)
+}
+
+//nolint:cyclop
+func getAgentMessageType(msg *agentpb.AgentMessage) MessageType {
+	//nolint:nosnakecase
+	switch msg.Payload.(type) {
+	case *agentpb.AgentMessage_Ping:
+		return Ping
+	case *agentpb.AgentMessage_StateChanged:
+		return StateChanged
+	case *agentpb.AgentMessage_QanCollect:
+		return QanCollect
+	case *agentpb.AgentMessage_ActionResult:
+		return ActionResult
+	case *agentpb.AgentMessage_Pong:
+		return Pong
+	case *agentpb.AgentMessage_SetState:
+		return SetState
+	case *agentpb.AgentMessage_StartAction:
+		return StartAction
+	case *agentpb.AgentMessage_StopAction:
+		return StopAction
+	case *agentpb.AgentMessage_CheckConnection:
+		return CheckConnection
+	case *agentpb.AgentMessage_StartJob:
+		return StartJob
+	case *agentpb.AgentMessage_StopJob:
+		return StopJob
+	case *agentpb.AgentMessage_JobStatus:
+		return JobStatus
+	case *agentpb.AgentMessage_JobResult:
+		return JobResult
+	case *agentpb.AgentMessage_JobProgress:
+		return JobProgress
+	case *agentpb.AgentMessage_GetVersions:
+		return GetVersions
+	case *agentpb.AgentMessage_PbmSwitchPitr:
+		return PbmSwitchPitr
+	case *agentpb.AgentMessage_ParseDefaultsFile:
+		return ParseDefaultsFile
+	case *agentpb.AgentMessage_AgentLogs:
+		return AgentLogs
+	default:
+		return Unknown
+	}
+}
+
+//nolint:cyclop
+func getServerMessageType(msg *agentpb.ServerMessage) MessageType {
+	//nolint:nosnakecase
+	switch msg.Payload.(type) {
+	case *agentpb.ServerMessage_Ping:
+		return Ping
+	case *agentpb.ServerMessage_SetState:
+		return SetState
+	case *agentpb.ServerMessage_StartAction:
+		return StartAction
+	case *agentpb.ServerMessage_StopAction:
+		return StopAction
+	case *agentpb.ServerMessage_CheckConnection:
+		return CheckConnection
+	case *agentpb.ServerMessage_StartJob:
+		return StartJob
+	case *agentpb.ServerMessage_StopJob:
+		return StopJob
+	case *agentpb.ServerMessage_JobStatus:
+		return JobStatus
+	case *agentpb.ServerMessage_GetVersions:
+		return GetVersions
+	case *agentpb.ServerMessage_PbmSwitchPitr:
+		return PbmSwitchPitr
+	case *agentpb.ServerMessage_ParseDefaultsFile:
+		return ParseDefaultsFile
+	case *agentpb.ServerMessage_AgentLogs:
+		return AgentLogs
+	case *agentpb.ServerMessage_Pong:
+		return Pong
+	case *agentpb.ServerMessage_StateChanged:
+		return StateChanged
+	case *agentpb.ServerMessage_QanCollect:
+		return QanCollect
+	case *agentpb.ServerMessage_ActionResult:
+		return ActionResult
+	default:
+		return Unknown
+	}
 }
 
 // check interfaces.

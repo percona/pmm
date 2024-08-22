@@ -47,6 +47,12 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 )
 
+const (
+	prometheusNamespace = "pmm_agent"
+	prometheusSubsystem = "supervisor"
+
+	labelAgentID = "agent_id"
+)
 // configGetter allows for getting a config.
 type configGetter interface {
 	Get() *config.Config
@@ -69,6 +75,10 @@ type Supervisor struct {
 
 	arw          sync.RWMutex
 	lastStatuses map[string]inventorypb.AgentStatus
+
+	agentStatuses          prometheus.GaugeVec
+	agentStatusChangeTotal prometheus.CounterVec
+	agentQANBucketLength   prometheus.GaugeVec
 }
 
 // agentProcessInfo describes Agent process.
@@ -109,6 +119,25 @@ func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Su
 		agentProcesses: make(map[string]*agentProcessInfo),
 		builtinAgents:  make(map[string]*builtinAgentInfo),
 		lastStatuses:   make(map[string]inventorypb.AgentStatus),
+
+		agentStatuses: *prometheus.NewGaugeVec(prometheus.GaugeOpts{ //nolint:exhaustruct
+			Namespace: prometheusNamespace,
+			Subsystem: prometheusSubsystem,
+			Name:      "agent_statuses",
+			Help:      "An integer between 0 and 6 that represent agent status. [invalid, starting, running, waiting, stopping, done, unknown]",
+		}, []string{labelAgentID}),
+		agentStatusChangeTotal: *prometheus.NewCounterVec(prometheus.CounterOpts{ //nolint:exhaustruct
+			Namespace: prometheusNamespace,
+			Subsystem: prometheusSubsystem,
+			Name:      "agent_status_changes_total",
+			Help:      "A total number of agent status changes.",
+		}, []string{labelAgentID}),
+		agentQANBucketLength: *prometheus.NewGaugeVec(prometheus.GaugeOpts{ //nolint:exhaustruct
+			Namespace: prometheusNamespace,
+			Subsystem: prometheusSubsystem,
+			Name:      "agent_qan_bucket_length",
+			Help:      "QAN bucket length total sent to pmm-managed.",
+		}, []string{labelAgentID}),
 	}
 }
 
@@ -256,6 +285,8 @@ func (s *Supervisor) storeLastStatus(agentID string, status inventorypb.AgentSta
 	s.arw.Lock()
 	defer s.arw.Unlock()
 
+	s.agentStatuses.WithLabelValues(agentID).Set(float64(status))
+	s.agentStatusChangeTotal.WithLabelValues(agentID).Inc()
 	if status == inventorypb.AgentStatus_DONE {
 		delete(s.lastStatuses, agentID)
 		return
@@ -597,6 +628,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 				}
 			}
 			if change.MetricsBucket != nil {
+				s.agentQANBucketLength.WithLabelValues(agentID).Add(float64(len(change.MetricsBucket)))
 				l.Infof("Sending %d buckets.", len(change.MetricsBucket))
 				s.qanRequests <- &agentpb.QANCollectRequest{
 					MetricsBucket: change.MetricsBucket,
@@ -756,6 +788,10 @@ func (s *Supervisor) Describe(ch chan<- *prometheus.Desc) {
 	for _, agent := range s.builtinAgents {
 		agent.describe(ch)
 	}
+
+	s.agentStatuses.Describe(ch)
+	s.agentStatusChangeTotal.Describe(ch)
+	s.agentQANBucketLength.Describe(ch)
 }
 
 // Collect implement prometheus.Collector.
@@ -766,6 +802,10 @@ func (s *Supervisor) Collect(ch chan<- prometheus.Metric) {
 	for _, agent := range s.builtinAgents {
 		agent.collect(ch)
 	}
+
+	s.agentStatuses.Collect(ch)
+	s.agentStatusChangeTotal.Collect(ch)
+	s.agentQANBucketLength.Collect(ch)
 }
 
 // check interfaces.

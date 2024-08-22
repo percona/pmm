@@ -21,6 +21,8 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/AlekSi/pointer"
+	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -45,6 +47,7 @@ func assertChanges(t *testing.T, s *Supervisor, expected ...*agentpb.StateChange
 	assert.Equal(t, expected, actual)
 }
 
+//nolint:nosnakecase
 func TestSupervisor(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -58,204 +61,313 @@ func TestSupervisor(t *testing.T) {
 	s := NewSupervisor(ctx, nil, cfgStorage)
 	go s.Run(ctx)
 
+	const (
+		sleep1 = "sleep1"
+		sleep2 = "sleep2"
+		noop3  = "noop3"
+		noop4  = "noop4"
+	)
+
 	t.Run("Start13", func(t *testing.T) {
 		expectedList := []*agentlocalpb.AgentInfo{}
 		require.Equal(t, expectedList, s.AgentsList())
 
 		s.SetState(&agentpb.SetStateRequest{
 			AgentProcesses: map[string]*agentpb.SetStateRequest_AgentProcess{
-				"sleep1": {Type: type_TEST_SLEEP, Args: []string{"10"}},
+				sleep1: {Type: type_TEST_SLEEP, Args: []string{"10"}},
 			},
 			BuiltinAgents: map[string]*agentpb.SetStateRequest_BuiltinAgent{
-				"noop3": {Type: type_TEST_NOOP, Dsn: "30"},
+				noop3: {Type: type_TEST_NOOP, Dsn: "30"},
 			},
 		})
 
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_STARTING},
-			&agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65000, ProcessExecPath: "sleep"})
+			&agentpb.StateChangedRequest{AgentId: noop3, Status: inventorypb.AgentStatus_STARTING}, //nolint:exhaustruct
+			&agentpb.StateChangedRequest{AgentId: sleep1, Status: inventorypb.AgentStatus_STARTING, ListenPort: 65000, ProcessExecPath: "sleep"})
 		expectedList = []*agentlocalpb.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventorypb.AgentStatus_STARTING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			{AgentType: type_TEST_NOOP, AgentId: noop3, Status: inventorypb.AgentStatus_STARTING},
+			{AgentType: type_TEST_SLEEP, AgentId: sleep1, Status: inventorypb.AgentStatus_STARTING, ListenPort: 65000, ProcessExecPath: "sleep"},
 		}
 		assert.Equal(t, expectedList, s.AgentsList())
 
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_RUNNING},
-			&agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"})
+			&agentpb.StateChangedRequest{AgentId: noop3, Status: inventorypb.AgentStatus_RUNNING}, //nolint:exhaustruct
+			&agentpb.StateChangedRequest{AgentId: sleep1, Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"})
 		expectedList = []*agentlocalpb.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventorypb.AgentStatus_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			{AgentType: type_TEST_NOOP, AgentId: noop3, Status: inventorypb.AgentStatus_RUNNING},
+			{AgentType: type_TEST_SLEEP, AgentId: sleep1, Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
 		}
 		assert.Equal(t, expectedList, s.AgentsList())
+
+		assert.Equal(t, 4, testutil.CollectAndCount(s))
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatuses.WithLabelValues(sleep1)))
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(sleep1)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(sleep1)))
+
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentStatuses.WithLabelValues(sleep2)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(sleep2)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(sleep2)))
+
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatuses.WithLabelValues(noop3)))
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(noop3)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(noop3)))
+
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentStatuses.WithLabelValues(noop4)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(noop4)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(noop4)))
 	})
 
 	t.Run("Restart1Start2", func(t *testing.T) {
 		expectedList := []*agentlocalpb.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventorypb.AgentStatus_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			{AgentType: type_TEST_NOOP, AgentId: noop3, Status: inventorypb.AgentStatus_RUNNING},
+			{AgentType: type_TEST_SLEEP, AgentId: sleep1, Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
 		}
 		require.Equal(t, expectedList, s.AgentsList())
 
 		s.SetState(&agentpb.SetStateRequest{
 			AgentProcesses: map[string]*agentpb.SetStateRequest_AgentProcess{
-				"sleep1": {Type: type_TEST_SLEEP, Args: []string{"20"}},
-				"sleep2": {Type: type_TEST_SLEEP, Args: []string{"10"}},
+				sleep1: {Type: type_TEST_SLEEP, Args: []string{"20"}},
+				sleep2: {Type: type_TEST_SLEEP, Args: []string{"10"}},
 			},
 			BuiltinAgents: map[string]*agentpb.SetStateRequest_BuiltinAgent{
-				"noop3": {Type: type_TEST_NOOP, Dsn: "30"},
+				noop3: {Type: type_TEST_NOOP, Dsn: "30"},
 			},
 		})
 
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_STOPPING, ListenPort: 65000, ProcessExecPath: "sleep"})
+			&agentpb.StateChangedRequest{AgentId: sleep1, Status: inventorypb.AgentStatus_STOPPING, ListenPort: 65000, ProcessExecPath: "sleep"})
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_DONE, ListenPort: 65000, ProcessExecPath: "sleep"})
+			&agentpb.StateChangedRequest{AgentId: sleep1, Status: inventorypb.AgentStatus_DONE, ListenPort: 65000, ProcessExecPath: "sleep"})
 
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65000, ProcessExecPath: "sleep"},
-			&agentpb.StateChangedRequest{AgentId: "sleep2", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65001, ProcessExecPath: "sleep"})
+			&agentpb.StateChangedRequest{AgentId: sleep1, Status: inventorypb.AgentStatus_STARTING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			&agentpb.StateChangedRequest{AgentId: sleep2, Status: inventorypb.AgentStatus_STARTING, ListenPort: 65001, ProcessExecPath: "sleep"})
 		expectedList = []*agentlocalpb.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventorypb.AgentStatus_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65000, ProcessExecPath: "sleep"},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65001, ProcessExecPath: "sleep"},
+			{AgentType: type_TEST_NOOP, AgentId: noop3, Status: inventorypb.AgentStatus_RUNNING},
+			{AgentType: type_TEST_SLEEP, AgentId: sleep1, Status: inventorypb.AgentStatus_STARTING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			{AgentType: type_TEST_SLEEP, AgentId: sleep2, Status: inventorypb.AgentStatus_STARTING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
 		assert.Equal(t, expectedList, s.AgentsList())
 
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
-			&agentpb.StateChangedRequest{AgentId: "sleep2", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"})
+			&agentpb.StateChangedRequest{AgentId: sleep1, Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			&agentpb.StateChangedRequest{AgentId: sleep2, Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"})
 		expectedList = []*agentlocalpb.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventorypb.AgentStatus_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
+			{AgentType: type_TEST_NOOP, AgentId: noop3, Status: inventorypb.AgentStatus_RUNNING},
+			{AgentType: type_TEST_SLEEP, AgentId: sleep1, Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			{AgentType: type_TEST_SLEEP, AgentId: sleep2, Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
 		assert.Equal(t, expectedList, s.AgentsList())
+
+		assert.Equal(t, 12, testutil.CollectAndCount(s))
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatuses.WithLabelValues(sleep1)))
+		assert.Equal(t, float64(6), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(sleep1)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(sleep1)))
+
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatuses.WithLabelValues(sleep2)))
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(sleep2)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(sleep2)))
+
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatuses.WithLabelValues(noop3)))
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(noop3)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(noop3)))
+
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentStatuses.WithLabelValues(noop4)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(noop4)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(noop4)))
 	})
 
 	t.Run("Restart3Start4", func(t *testing.T) {
 		expectedList := []*agentlocalpb.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventorypb.AgentStatus_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
+			{AgentType: type_TEST_NOOP, AgentId: noop3, Status: inventorypb.AgentStatus_RUNNING},
+			{AgentType: type_TEST_SLEEP, AgentId: sleep1, Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			{AgentType: type_TEST_SLEEP, AgentId: sleep2, Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
 		require.Equal(t, expectedList, s.AgentsList())
 
 		s.SetState(&agentpb.SetStateRequest{
 			AgentProcesses: map[string]*agentpb.SetStateRequest_AgentProcess{
-				"sleep1": {Type: type_TEST_SLEEP, Args: []string{"20"}},
-				"sleep2": {Type: type_TEST_SLEEP, Args: []string{"10"}},
+				sleep1: {Type: type_TEST_SLEEP, Args: []string{"20"}},
+				sleep2: {Type: type_TEST_SLEEP, Args: []string{"10"}},
 			},
 			BuiltinAgents: map[string]*agentpb.SetStateRequest_BuiltinAgent{
-				"noop3": {Type: type_TEST_NOOP, Dsn: "20"},
-				"noop4": {Type: type_TEST_NOOP, Dsn: "10"},
+				noop3: {Type: type_TEST_NOOP, Dsn: "20"},
+				noop4: {Type: type_TEST_NOOP, Dsn: "10"},
 			},
 		})
 
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_STOPPING})
+			&agentpb.StateChangedRequest{AgentId: noop3, Status: inventorypb.AgentStatus_STOPPING}) //nolint:exhaustruct
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_DONE})
+			&agentpb.StateChangedRequest{AgentId: noop3, Status: inventorypb.AgentStatus_DONE}) //nolint:exhaustruct
 
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_STARTING},
-			&agentpb.StateChangedRequest{AgentId: "noop4", Status: inventorypb.AgentStatus_STARTING})
+			&agentpb.StateChangedRequest{AgentId: noop3, Status: inventorypb.AgentStatus_STARTING}, //nolint:exhaustruct
+			&agentpb.StateChangedRequest{AgentId: noop4, Status: inventorypb.AgentStatus_STARTING}) //nolint:exhaustruct
 		expectedList = []*agentlocalpb.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventorypb.AgentStatus_STARTING},
-			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventorypb.AgentStatus_STARTING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
+			{AgentType: type_TEST_NOOP, AgentId: noop3, Status: inventorypb.AgentStatus_STARTING},
+			{AgentType: type_TEST_NOOP, AgentId: noop4, Status: inventorypb.AgentStatus_STARTING},
+			{AgentType: type_TEST_SLEEP, AgentId: sleep1, Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			{AgentType: type_TEST_SLEEP, AgentId: sleep2, Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
 		assert.Equal(t, expectedList, s.AgentsList())
 
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_RUNNING},
-			&agentpb.StateChangedRequest{AgentId: "noop4", Status: inventorypb.AgentStatus_RUNNING})
+			&agentpb.StateChangedRequest{AgentId: noop3, Status: inventorypb.AgentStatus_RUNNING}, //nolint:exhaustruct
+			&agentpb.StateChangedRequest{AgentId: noop4, Status: inventorypb.AgentStatus_RUNNING}) //nolint:exhaustruct
 		expectedList = []*agentlocalpb.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventorypb.AgentStatus_RUNNING},
-			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventorypb.AgentStatus_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
+			{AgentType: type_TEST_NOOP, AgentId: noop3, Status: inventorypb.AgentStatus_RUNNING},
+			{AgentType: type_TEST_NOOP, AgentId: noop4, Status: inventorypb.AgentStatus_RUNNING},
+			{AgentType: type_TEST_SLEEP, AgentId: sleep1, Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			{AgentType: type_TEST_SLEEP, AgentId: sleep2, Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
 		assert.Equal(t, expectedList, s.AgentsList())
+
+		assert.Equal(t, 12, testutil.CollectAndCount(s))
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatuses.WithLabelValues(sleep1)))
+		assert.Equal(t, float64(6), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(sleep1)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(sleep1)))
+
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatuses.WithLabelValues(sleep2)))
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(sleep2)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(sleep2)))
+
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatuses.WithLabelValues(noop3)))
+		assert.Equal(t, float64(6), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(noop3)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(noop3)))
+
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatuses.WithLabelValues(noop4)))
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(noop4)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(noop4)))
 	})
 
 	t.Run("Stop1", func(t *testing.T) {
 		expectedList := []*agentlocalpb.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventorypb.AgentStatus_RUNNING},
-			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventorypb.AgentStatus_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
+			{AgentType: type_TEST_NOOP, AgentId: noop3, Status: inventorypb.AgentStatus_RUNNING},
+			{AgentType: type_TEST_NOOP, AgentId: noop4, Status: inventorypb.AgentStatus_RUNNING},
+			{AgentType: type_TEST_SLEEP, AgentId: sleep1, Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			{AgentType: type_TEST_SLEEP, AgentId: sleep2, Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
 		require.Equal(t, expectedList, s.AgentsList())
 
 		s.SetState(&agentpb.SetStateRequest{
 			AgentProcesses: map[string]*agentpb.SetStateRequest_AgentProcess{
-				"sleep2": {Type: type_TEST_SLEEP, Args: []string{"10"}},
+				sleep2: {Type: type_TEST_SLEEP, Args: []string{"10"}},
 			},
 			BuiltinAgents: map[string]*agentpb.SetStateRequest_BuiltinAgent{
-				"noop3": {Type: type_TEST_NOOP, Dsn: "20"},
-				"noop4": {Type: type_TEST_NOOP, Dsn: "10"},
+				noop3: {Type: type_TEST_NOOP, Dsn: "20"},
+				noop4: {Type: type_TEST_NOOP, Dsn: "10"},
 			},
 		})
 
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_STOPPING, ListenPort: 65000, ProcessExecPath: "sleep"})
+			&agentpb.StateChangedRequest{AgentId: sleep1, Status: inventorypb.AgentStatus_STOPPING, ListenPort: 65000, ProcessExecPath: "sleep"})
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_DONE, ListenPort: 65000, ProcessExecPath: "sleep"})
+			&agentpb.StateChangedRequest{AgentId: sleep1, Status: inventorypb.AgentStatus_DONE, ListenPort: 65000, ProcessExecPath: "sleep"})
 		expectedList = []*agentlocalpb.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventorypb.AgentStatus_RUNNING},
-			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventorypb.AgentStatus_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
+			{AgentType: type_TEST_NOOP, AgentId: noop3, Status: inventorypb.AgentStatus_RUNNING},
+			{AgentType: type_TEST_NOOP, AgentId: noop4, Status: inventorypb.AgentStatus_RUNNING},
+			{AgentType: type_TEST_SLEEP, AgentId: sleep2, Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
 		require.Equal(t, expectedList, s.AgentsList())
+
+		assert.Equal(t, 12, testutil.CollectAndCount(s))
+		assert.Equal(t, float64(5), testutil.ToFloat64(s.agentStatuses.WithLabelValues(sleep1)))
+		assert.Equal(t, float64(8), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(sleep1)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(sleep1)))
+
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatuses.WithLabelValues(sleep2)))
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(sleep2)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(sleep2)))
+
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatuses.WithLabelValues(noop3)))
+		assert.Equal(t, float64(6), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(noop3)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(noop3)))
+
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatuses.WithLabelValues(noop4)))
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(noop4)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(noop4)))
 	})
 
 	t.Run("Stop3", func(t *testing.T) {
 		expectedList := []*agentlocalpb.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventorypb.AgentStatus_RUNNING},
-			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventorypb.AgentStatus_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
+			{AgentType: type_TEST_NOOP, AgentId: noop3, Status: inventorypb.AgentStatus_RUNNING},
+			{AgentType: type_TEST_NOOP, AgentId: noop4, Status: inventorypb.AgentStatus_RUNNING},
+			{AgentType: type_TEST_SLEEP, AgentId: sleep2, Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
 		require.Equal(t, expectedList, s.AgentsList())
 
 		s.SetState(&agentpb.SetStateRequest{
 			AgentProcesses: map[string]*agentpb.SetStateRequest_AgentProcess{
-				"sleep2": {Type: type_TEST_SLEEP, Args: []string{"10"}},
+				sleep2: {Type: type_TEST_SLEEP, Args: []string{"10"}},
 			},
 			BuiltinAgents: map[string]*agentpb.SetStateRequest_BuiltinAgent{
-				"noop4": {Type: type_TEST_NOOP, Dsn: "10"},
+				noop4: {Type: type_TEST_NOOP, Dsn: "10"},
 			},
 		})
 
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_STOPPING})
+			&agentpb.StateChangedRequest{AgentId: noop3, Status: inventorypb.AgentStatus_STOPPING}) //nolint:exhaustruct
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_DONE})
+			&agentpb.StateChangedRequest{AgentId: noop3, Status: inventorypb.AgentStatus_DONE}) //nolint:exhaustruct
 		expectedList = []*agentlocalpb.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventorypb.AgentStatus_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
+			{AgentType: type_TEST_NOOP, AgentId: noop4, Status: inventorypb.AgentStatus_RUNNING},
+			{AgentType: type_TEST_SLEEP, AgentId: sleep2, Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
 		require.Equal(t, expectedList, s.AgentsList())
+
+		assert.Equal(t, 12, testutil.CollectAndCount(s))
+		assert.Equal(t, float64(5), testutil.ToFloat64(s.agentStatuses.WithLabelValues(sleep1)))
+		assert.Equal(t, float64(8), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(sleep1)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(sleep1)))
+
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatuses.WithLabelValues(sleep2)))
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(sleep2)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(sleep2)))
+
+		assert.Equal(t, float64(5), testutil.ToFloat64(s.agentStatuses.WithLabelValues(noop3)))
+		assert.Equal(t, float64(8), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(noop3)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(noop3)))
+
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatuses.WithLabelValues(noop4)))
+		assert.Equal(t, float64(2), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(noop4)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(noop4)))
 	})
 
 	t.Run("Exit", func(t *testing.T) {
 		expectedList := []*agentlocalpb.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventorypb.AgentStatus_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
+			{AgentType: type_TEST_NOOP, AgentId: noop4, Status: inventorypb.AgentStatus_RUNNING},
+			{AgentType: type_TEST_SLEEP, AgentId: sleep2, Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
 		require.Equal(t, expectedList, s.AgentsList())
 
 		cancel()
 
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "sleep2", Status: inventorypb.AgentStatus_STOPPING, ListenPort: 65001, ProcessExecPath: "sleep"},
-			&agentpb.StateChangedRequest{AgentId: "sleep2", Status: inventorypb.AgentStatus_DONE, ListenPort: 65001, ProcessExecPath: "sleep"},
-			&agentpb.StateChangedRequest{AgentId: "noop4", Status: inventorypb.AgentStatus_STOPPING},
-			&agentpb.StateChangedRequest{AgentId: "noop4", Status: inventorypb.AgentStatus_DONE})
+			&agentpb.StateChangedRequest{AgentId: sleep2, Status: inventorypb.AgentStatus_STOPPING, ListenPort: 65001, ProcessExecPath: "sleep"},
+			&agentpb.StateChangedRequest{AgentId: sleep2, Status: inventorypb.AgentStatus_DONE, ListenPort: 65001, ProcessExecPath: "sleep"},
+			&agentpb.StateChangedRequest{AgentId: noop4, Status: inventorypb.AgentStatus_STOPPING}, //nolint:exhaustruct
+			&agentpb.StateChangedRequest{AgentId: noop4, Status: inventorypb.AgentStatus_DONE})     //nolint:exhaustruct
 		assertChanges(t, s, nil)
 		expectedList = []*agentlocalpb.AgentInfo{}
 		require.Equal(t, expectedList, s.AgentsList())
+
+		assert.Equal(t, 12, testutil.CollectAndCount(s))
+		assert.Equal(t, float64(5), testutil.ToFloat64(s.agentStatuses.WithLabelValues(sleep1)))
+		assert.Equal(t, float64(8), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(sleep1)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(sleep1)))
+
+		assert.Equal(t, float64(5), testutil.ToFloat64(s.agentStatuses.WithLabelValues(sleep2)))
+		assert.Equal(t, float64(4), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(sleep2)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(sleep2)))
+
+		assert.Equal(t, float64(5), testutil.ToFloat64(s.agentStatuses.WithLabelValues(noop3)))
+		assert.Equal(t, float64(8), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(noop3)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(noop3)))
+
+		assert.Equal(t, float64(5), testutil.ToFloat64(s.agentStatuses.WithLabelValues(noop4)))
+		assert.Equal(t, float64(4), testutil.ToFloat64(s.agentStatusChangeTotal.WithLabelValues(noop4)))
+		assert.Equal(t, float64(0), testutil.ToFloat64(s.agentQANBucketLength.WithLabelValues(noop4)))
 	})
 }
 
