@@ -251,7 +251,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	defer rows.Close() //nolint:errcheck
 
 	for ctx.Err() == nil {
-		var row pgStatStatements // TODO: select proper
+		var row pgStatStatements
 		if err = q.NextRow(&row, rows); err != nil {
 			if errors.Is(err, reform.ErrNoRows) {
 				err = nil
