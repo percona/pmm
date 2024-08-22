@@ -11,7 +11,7 @@
   tasks:
     - name: Set fact if running inside Docker
       set_fact:
-        running_in_docker: "{{ lookup('env', 'RUNNING_IN_DOCKER') | default(false) }}"
+        running_in_docker: "{{ lookup('env', 'PMM_RUNNING_IN_DOCKER') | default(false) }}"
 
     # pmm-managed checks that if /srv/pmm-distribution exist, it contains "docker", "ovf", or "ami" (all lowercase)
     - name: Detect distribution        | Create '/srv/pmm-distribution' file for Docker
