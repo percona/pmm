@@ -3,12 +3,26 @@ title: Logs
 slug: "logs"
 category: 626badcabbc59c02acc1a540
 ---
+Download the logs and components configuration to troubleshoot any issues with the PMM Server.
 
-Sometimes users need to troubleshoot an issue. PMM Server offers an ability to download the logs as well as configuration of its components. 
+## Accessing logs
 
-You can download the logs either by calling this endpoint or by visiting a dedicated URL (ex: https://pmmdemo.percona.com/logs.zip) or via the **Settings UI** as explained in the [Troubleshooting](https://docs.percona.com/percona-monitoring-and-management/how-to/troubleshoot.html#client-server-connections) section of our docs.
+PMM Server offers three ways to access and download logs:
 
-The structure of the logs is as follows:
+1. Through direct URL, by visiting `https://<address-of-your-pmm-server>/logs.zip`.
+2. By calling the Logs endpoint. This method enables you to customize the log content using the `line-count` parameter: For example:
+
+   - Default 50,000 lines: `https://<pmm-server>/logs.zip`
+   - Custom number of lines: `https://<pmm-server>/logs.zip?line-count=10000`
+   - Unlimited, full log: `https://<pmm-server>/logs.zip?line-count=-1`
+3. Through the UI, by selecting the **Help > PMM Logs** option from the main menu.
+  If you need to share logs with Percona Support via an SFTP server, you can also use the **PMM Dump** option from the Help menu to generate a compressed tarball file with an export of your PMM metrics and QAN data.
+  For more information, see [Export PMM data with PMM Dump](https://docs.percona.com/percona-monitoring-and-management/how-to/PMM_dump.html) topic in the product documentation.
+
+## Log structure
+
+The downloaded logs package contains the following structure:
+
 [block:code]
 {
   "codes": [
