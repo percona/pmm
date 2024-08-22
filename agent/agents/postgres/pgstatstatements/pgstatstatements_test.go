@@ -24,7 +24,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -126,35 +125,48 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		"$321, $322, $323, $324, $325, $326, $327, $328, $329, $330, $331, $332, $333, $334, $335, $336, $337, $338, $339, $340, " +
 		"$341, $342, $343, $3 ..."
 
+	// Need to detect vendor because result for mSharedBlksReadSum are different for different images for postgres.
+	mSharedBlksHitSum := float32(33)
+	if strings.Contains(os.Getenv("POSTGRES_IMAGE"), "perconalab") {
+		mSharedBlksHitSum = 32
+	}
+	truncatedMSharedBlksHitSum := mSharedBlksHitSum
+
 	engineVersion := tests.PostgreSQLVersion(t, sqlDB)
 	var digests map[string]string // digest_text/fingerprint to digest/query_id
 	switch engineVersion {
 	case "9.4":
+		truncatedMSharedBlksHitSum = float32(1007)
 		digests = map[string]string{
 			selectAllCities:     "3239586867",
 			selectAllCitiesLong: "2745128652",
 		}
 	case "9.5", "9.6":
+		truncatedMSharedBlksHitSum = float32(1007)
 		digests = map[string]string{
 			selectAllCities:     "3994135135",
 			selectAllCitiesLong: "2677760328",
 		}
 	case "10":
+		truncatedMSharedBlksHitSum = float32(1007)
 		digests = map[string]string{
 			selectAllCities:     "2229807896",
 			selectAllCitiesLong: "3454929487",
 		}
 	case "11":
+		truncatedMSharedBlksHitSum = float32(1007)
 		digests = map[string]string{
 			selectAllCities:     "-4056421706168012289",
 			selectAllCitiesLong: "2233640464962569536",
 		}
 	case "12":
+		truncatedMSharedBlksHitSum = float32(1007)
 		digests = map[string]string{
 			selectAllCities:     "5627444073676588515",
 			selectAllCitiesLong: "-1605123213815583414",
 		}
 	case "13":
+		truncatedMSharedBlksHitSum = float32(1007)
 		digests = map[string]string{
 			selectAllCities:     "-32455482996301954",
 			selectAllCitiesLong: "-4813789842463369261",
@@ -180,18 +192,6 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			selectAllCities:     "TODO-selectAllCities",
 			selectAllCitiesLong: "TODO-selectAllCitiesLong",
 		}
-	}
-
-	// Need to detect vendor because result for mSharedBlksReadSum are different for different images for postgres.
-	mSharedBlksHitSum := float32(33)
-	if strings.Contains(os.Getenv("POSTGRES_IMAGE"), "perconalab") {
-		mSharedBlksHitSum = 32
-	}
-
-	truncatedMSharedBlksHitSum := mSharedBlksHitSum
-	pgVer, err := version.Parse(engineVersion)
-	if pgVer.Less(version.MustParse("14")) {
-		truncatedMSharedBlksHitSum = float32(1007)
 	}
 
 	t.Run("AllCities", func(t *testing.T) {
