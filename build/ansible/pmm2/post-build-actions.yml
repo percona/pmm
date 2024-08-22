@@ -32,6 +32,7 @@
         ( ansible_virtualization_type == "xen"
         or ansible_virtualization_type == "kvm" )
         and ansible_system_vendor != "DigitalOcean"
+        and not running_in_docker
       copy:
         content: "ami"
         dest: /srv/pmm-distribution
