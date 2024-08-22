@@ -427,7 +427,6 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		}
 		actual := buckets[0]
 		assert.NotZero(t, actual.Postgresql.MSharedBlkReadTimeSum+actual.Postgresql.MSharedBlkWriteTimeSum)
-		assert.Equal(t, float32(n), actual.Postgresql.MSharedBlksReadCnt+actual.Postgresql.MSharedBlksWrittenCnt)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:             actual.Common.Queryid,
@@ -447,9 +446,9 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
 				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
 				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
-				MSharedBlksReadCnt:    actual.Postgresql.MSharedBlksReadCnt,
+				MSharedBlksReadCnt:    float32(n),
 				MSharedBlksReadSum:    actual.Postgresql.MSharedBlksReadSum,
-				MSharedBlksWrittenCnt: actual.Postgresql.MSharedBlksWrittenCnt,
+				MSharedBlksWrittenCnt: float32(n),
 				MSharedBlksWrittenSum: actual.Postgresql.MSharedBlksWrittenSum,
 				MSharedBlksDirtiedCnt: actual.Postgresql.MSharedBlksDirtiedCnt,
 				MSharedBlksDirtiedSum: actual.Postgresql.MSharedBlksDirtiedSum,
