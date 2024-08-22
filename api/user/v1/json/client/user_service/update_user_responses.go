@@ -128,6 +128,9 @@ type UpdateUserBody struct {
 
 	// Alerting Tour
 	AlertingTourCompleted *bool `json:"alerting_tour_completed,omitempty"`
+
+	// Snooze update alert for a PMM version
+	SnoozedPMMVersion *string `json:"snoozed_pmm_version,omitempty"`
 }
 
 // Validate validates this update user body
@@ -312,6 +315,9 @@ type UpdateUserOKBody struct {
 
 	// Alerting Tour
 	AlertingTourCompleted bool `json:"alerting_tour_completed,omitempty"`
+
+	// Snooze update alert for a PMM version
+	SnoozedPMMVersion string `json:"snoozed_pmm_version,omitempty"`
 }
 
 // Validate validates this update user OK body
