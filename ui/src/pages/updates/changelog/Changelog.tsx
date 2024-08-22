@@ -1,4 +1,4 @@
-import { Divider, Stack, Typography } from '@mui/material';
+import { Divider, Stack } from '@mui/material';
 import { useChangelogs } from 'hooks/api/useUpdates';
 import { FC } from 'react';
 import { ReleaseNotes } from './release-notes';
