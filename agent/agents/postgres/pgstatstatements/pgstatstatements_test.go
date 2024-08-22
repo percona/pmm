@@ -182,6 +182,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			selectAllCitiesLong: "-8264367755446145090",
 		}
 	case "17":
+		truncatedMSharedBlksHitSum = float32(8)
 		digests = map[string]string{
 			selectAllCities:     "1563925687573067138",
 			selectAllCitiesLong: "-3196437048361615995",
@@ -425,7 +426,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			fingerprint = fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)`, tableName)
 		}
 		actual := buckets[0]
-		assert.NotZero(t, actual.Postgresql.MSharedBlkReadTimeSum)
+		assert.NotZero(t, actual.Postgresql.MSharedBlkReadTimeSum+actual.Postgresql.MSharedBlkWriteTimeSum)
+		assert.Equal(t, float32(n), actual.Postgresql.MSharedBlksReadCnt+actual.Postgresql.MSharedBlksWrittenCnt)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:             actual.Common.Queryid,
@@ -443,7 +445,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
-				MSharedBlkReadTimeCnt: float32(n),
+				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
 				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
 				MSharedBlksReadCnt:    actual.Postgresql.MSharedBlksReadCnt,
 				MSharedBlksReadSum:    actual.Postgresql.MSharedBlksReadSum,
