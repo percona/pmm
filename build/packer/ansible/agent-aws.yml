@@ -301,16 +301,6 @@
         name: fs.inotify.max_user_watches
         value: 1048576
 
-          #- name: Get disk UUID
-          #  command: blkid -s UUID -o value /dev/nvme0n1p1
-          #  register: disk_uuid
-
-          #- name: Replace fstab entities with new mount options
-          #  lineinfile:
-          #    path: /etc/fstab
-          #    regexp: "^UUID={{ disk_uuid.stdout }}"
-          #    line: "UUID={{ disk_uuid.stdout }}     /           xfs    defaults,noatime,nobarrier,discard  1   1"
-
     - name: Add repo.ci.percona.com to /etc/hosts
       lineinfile:
         dest: /etc/hosts
