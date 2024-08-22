@@ -1,5 +1,5 @@
 
-# Alert rules
+# Alert rules and alert templates
 
 Alert rules describe the circumstances under which you want to be alerted. The evaluation criteria that you define determine whether an alert will fire. 
 
@@ -24,6 +24,12 @@ You can check the alert templates available for your account under **Alerting > 
 - Built-in templates, available out-of-the-box with PMM.
 - Templates downloaded from Percona Platform.
 - Custom templates created or uploaded on the **Alerting page > Alert Templates** tab. You can also store your custom template files in your ``/srv/alerting/templates`` directory and PMM will load them during startup.
+
+## Accessing alert templates
+
+To check the alert templates for your PMM instance, go to PMM > **Alerting > Alert Rule Templates** tab.
+
+To check the full list of available PMM templates, see the [List of available alert templates topic](../alert/templates_list.md)
 
 ### Create alert rules from alert rule templates
 

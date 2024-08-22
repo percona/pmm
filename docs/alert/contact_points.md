@@ -31,7 +31,8 @@ To use SMTP with a PMM Docker installation:
     GF_SMTP_FROM_NAME=Percona Alerting
     ```
     Below is a summary of each environment variable above: 
-    - `GF_SMTP_ENABLED`: When true, enables Grafana to send emails. 
+
+    - `GF_SMTP_ENABLED`: When true, enables Grafana to send emails.
     - `GF_SMTP_HOST`: Host address of your SMTP server.
     - `GF_SMTP_USER`: Username for SMTP authentication.
     - `GF_SMTP_PASSWORD`: Password for SMTP authentication
@@ -40,8 +41,7 @@ To use SMTP with a PMM Docker installation:
     - `GF_SMTP_FROM_NAME`: Name to be used when sending out emails.
 
     *NB: If you are using your Gmail’s SMTP credentials as shown above, you will have to generate an app password and fill it in as the value of your $GF_SMTP_PASSWORD variable.*
-
-2. Pass in the `.env` file to Docker run using the `--env-file` flag: 
+2. Pass in the `.env` file to Docker run using the `--env-file` flag:
     ```
     docker run --env-file=.env -p 443:443 -p 80:80 percona/pmm-server:2
     ```

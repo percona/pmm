@@ -272,13 +272,15 @@ nav:
         - use/qan/panels/overview.md
         - use/qan/panels/filters.md
         - use/qan/panels/details.md
-    - Advisors: advisors/advisors.md
-
+    - Advisors:
+      - advisors/advisors.md
+      - advisors/advisor-details.md 
+      - advisors/develop-advisor-checks.md
     - Percona Alerting:
       - alert/index.md
-      - alert/alert_type.md
       - alert/alert_rules.md
-      - alert/contact_points.md
+      - alert/alert_notifications.md
+      - alert/templates_list.md
       - alert/silence_alerts.md
     - Backup and restore: 
       - backup/index.md
@@ -360,8 +362,6 @@ nav:
         - api/index.md
         - api/authentication.md
       
-    - reference/develop_advisor_checks.md    
-
     - PMM dashboards:
       - Insight:
         - reference/dashboards/dashboard-home.md
