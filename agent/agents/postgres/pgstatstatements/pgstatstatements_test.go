@@ -24,6 +24,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -158,12 +159,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			selectAllCities:     "-32455482996301954",
 			selectAllCitiesLong: "-4813789842463369261",
 		}
-	case "14":
-		digests = map[string]string{
-			selectAllCities:     "5991662752016701281",
-			selectAllCitiesLong: "-3564720362103294944",
-		}
-	case "15":
+	case "14", "15":
 		digests = map[string]string{
 			selectAllCities:     "5991662752016701281",
 			selectAllCitiesLong: "-3564720362103294944",
@@ -190,6 +186,12 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	mSharedBlksHitSum := float32(33)
 	if strings.Contains(os.Getenv("POSTGRES_IMAGE"), "perconalab") {
 		mSharedBlksHitSum = 32
+	}
+
+	truncatedMSharedBlksHitSum := mSharedBlksHitSum
+	pgVer, err := version.Parse(engineVersion)
+	if pgVer.Less(version.MustParse("14")) {
+		truncatedMSharedBlksHitSum = float32(1007)
 	}
 
 	t.Run("AllCities", func(t *testing.T) {
@@ -299,7 +301,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		actual := buckets[0]
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
-		assert.InDelta(t, 1010, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 3)
+		assert.InDelta(t, truncatedMSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 3)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
@@ -344,7 +346,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		actual = buckets[0]
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
 		assert.InDelta(t, 0, actual.Postgresql.MSharedBlkReadTimeCnt, 1)
-		assert.InDelta(t, 1007, actual.Postgresql.MSharedBlksHitSum, 2)
+		assert.InDelta(t, truncatedMSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum, 2)
 		expected = &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCitiesLong,
