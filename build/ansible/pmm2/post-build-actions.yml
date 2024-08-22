@@ -9,9 +9,13 @@
     pmm_client_repos_final: "pmm2-client release"
 
   tasks:
+    - name: Set fact if running inside Docker
+      set_fact:
+        running_in_docker: "{{ lookup('env', 'RUNNING_IN_DOCKER') | default(false) }}"
+
     # pmm-managed checks that if /srv/pmm-distribution exist, it contains "docker", "ovf", or "ami" (all lowercase)
     - name: Detect distribution        | Create '/srv/pmm-distribution' file for Docker
-      when: ansible_virtualization_type == "docker"
+      when: running_in_docker
       copy:
         content: "docker"
         dest: /srv/pmm-distribution
@@ -50,14 +54,14 @@
         state: present
         update_cache: yes
       when:
-        - ansible_virtualization_type != "docker"
+        - not running_in_docker
         - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
         - ansible_distribution_major_version == '9'
 
     - name: Set locale to en_US.utf8   | EL9
       command: localectl set-locale LANG=en_US.utf8
       when:
-        - ansible_virtualization_type != "docker"
+        - not running_in_docker
         - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
         - ansible_distribution_major_version == '9'
 
@@ -102,11 +106,11 @@
       # ignore_errors: True
 
     - name: Supervisord stop           | Stop supervisord service for AMI/OVF
-      when: ansible_virtualization_type != "docker"
+      when: not running_in_docker
       service: name=supervisord state=stopped enabled=yes
 
     - name: Supervisord stop           | Stop supervisord service for docker
-      when: ansible_virtualization_type == "docker"
+      when: running_in_docker
       shell: supervisorctl shutdown
 
       # PMM-11336 - The previous steps failed to start PostgreSQL using supervisord,
@@ -118,14 +122,14 @@
       become: yes
       become_user: postgres
       ignore_errors: yes
-      when: ansible_virtualization_type != "docker"
+      when: not running_in_docker
     
     - name: Start PostgreSQL database without supervisord
       command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
       become: yes
       become_user: postgres
       ignore_errors: yes
-      when: ansible_virtualization_type != "docker"
+      when: not running_in_docker
 
     - name: Remove pmm-managed database EL7
       when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
@@ -160,18 +164,18 @@
       become: yes
       become_user: postgres
       ignore_errors: yes
-      when: ansible_virtualization_type != "docker"
+      when: not running_in_docker
 
     - name: Supervisord stop           | Stop supervisord service for AMI/OVF
-      when: ansible_virtualization_type != "docker"
+      when: not running_in_docker
       service: name=supervisord state=stopped enabled=yes
 
     - name: Supervisord stop EL7       | Stop supervisord service for docker
-      when: ansible_virtualization_type == "docker" and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+      when: running_in_docker and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
       shell: supervisorctl shutdown
 
     - name: Supervisord stop EL9       | Stop supervisord service for docker
-      when: ansible_virtualization_type == "docker" and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      when: running_in_docker and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
       shell: /usr/local/bin/supervisorctl shutdown
 
     - name: Cleanup yum cache          | Cleanup yum cache

@@ -7,6 +7,7 @@ ENV LANG=en_US.utf8
 ENV LC_ALL=en_US.utf8
 ENV GF_PLUGIN_DIR=/srv/grafana/plugins
 ENV PS1="[\u@\h \W] # "
+ENV RUNNING_IN_DOCKER=true
 
 LABEL org.opencontainers.image.created ${BUILD_DATE}
 LABEL org.opencontainers.image.licenses AGPL-3.0

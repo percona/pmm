@@ -39,11 +39,17 @@ source "amazon-ebs" "agent" {
     iit-billing-tag = "pmm-worker"
   }
   launch_block_device_mappings {
-    device_name           = "/dev/xvda"
-    volume_size           = 50
-    volume_type           = "gp3"
+    device_name = "/dev/sda1"
+    volume_size = 50
+    volume_type = "gp3"
     delete_on_termination = true
   }
+  #launch_block_device_mappings {
+  #  device_name           = "/dev/xvda"
+  #  volume_size           = 50
+  #  volume_type           = "gp3"
+  #  delete_on_termination = true
+  #}
   vpc_filter {
     filters = {
       "tag:Name" : "jenkins-pmm-amzn2"
@@ -109,12 +115,18 @@ build {
     "source.amazon-ebs.agent",
     "source.amazon-ebs.arm-agent"
   ]
+  #provisioner "shell" {
+  #  inline = [
+  #    "sudo growpart /dev/nvme0n1 1",  # Adjust partition number as needed
+  #    "sudo resize2fs /dev/nvme0n1p1"   # Adjust for the filesystem type, e.g., `xfs_growfs /` for XFS
+  #  ]
+  #}
   provisioner "ansible" {
     use_proxy              = false
     user                   = "ec2-user"
     ansible_env_vars       = ["ANSIBLE_NOCOLOR=True"]
     extra_arguments = [
-      "--ssh-extra-args", "-o HostKeyAlgorithms=+ssh-rsa -o StrictHostKeyChecking=no -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null", "-v"
+      "--ssh-extra-args", "-o HostKeyAlgorithms=+ssh-rsa -o StrictHostKeyChecking=no -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null", "-vvv"
     ]
     playbook_file          = "./ansible/agent-aws.yml"
   }

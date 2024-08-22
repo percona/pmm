@@ -1,0 +1,209 @@
+2024/08/08 20:16:52 [INFO] Packer version: 1.9.4 [go1.21.1 darwin arm64]
+2024/08/08 20:16:52 [TRACE] discovering plugins in 
+2024/08/08 20:16:52 [TRACE] discovering plugins in /opt/homebrew/bin
+2024/08/08 20:16:52 [INFO] Discovered potential plugin: amazon = /opt/homebrew/bin/github.com/hashicorp/amazon/packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64
+2024/08/08 20:16:52 [INFO] Discovered potential plugin: ansible = /opt/homebrew/bin/github.com/hashicorp/ansible/packer-plugin-ansible_v1.1.1_x5.0_darwin_arm64
+2024/08/08 20:16:52 [INFO] found external [chroot ebs ebssurrogate ebsvolume instance] builders from amazon plugin
+2024/08/08 20:16:52 [INFO] found external [import] post-processors from amazon plugin
+2024/08/08 20:16:52 found external [ami parameterstore secretsmanager] datasource from amazon plugin
+2024/08/08 20:16:52 found external [-packer-default-plugin-name- local] provisioner from ansible plugin
+2024/08/08 20:16:52 [INFO] PACKER_CONFIG env var not set; checking the default config file path
+2024/08/08 20:16:52 [INFO] PACKER_CONFIG env var set; attempting to open config file: /Users/talha/.packerconfig
+2024/08/08 20:16:52 [WARN] Config file doesn't exist: /Users/talha/.packerconfig
+2024/08/08 20:16:52 [INFO] Setting cache directory: /Users/talha/.cache/packer
+2024/08/08 20:16:52 [TRACE] listing potential installations for "github.com/hashicorp/amazon" that match "=1.1.6". plugingetter.ListInstallationsOptions{FromFolders:[]string{"", "/opt/homebrew/bin"}, BinaryInstallationOptions:plugingetter.BinaryInstallationOptions{APIVersionMajor:"5", APIVersionMinor:"0", OS:"darwin", ARCH:"arm64", Ext:"", Checksummers:[]plugingetter.Checksummer{plugingetter.Checksummer{Type:"sha256", Hash:(*sha256.digest)(0x140000f5000)}}}}
+2024/08/08 20:16:52 [TRACE] Found the following "github.com/hashicorp/amazon" installations: [{/opt/homebrew/bin/github.com/hashicorp/amazon/packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 v1.1.6}]
+2024/08/08 20:16:52 [INFO] found external [chroot ebs ebssurrogate ebsvolume instance] builders from amazon plugin
+2024/08/08 20:16:52 [INFO] found external [import] post-processors from amazon plugin
+2024/08/08 20:16:52 found external [ami parameterstore secretsmanager] datasource from amazon plugin
+2024/08/08 20:16:52 [TRACE] listing potential installations for "github.com/hashicorp/ansible" that match "~> 1". plugingetter.ListInstallationsOptions{FromFolders:[]string{"", "/opt/homebrew/bin"}, BinaryInstallationOptions:plugingetter.BinaryInstallationOptions{APIVersionMajor:"5", APIVersionMinor:"0", OS:"darwin", ARCH:"arm64", Ext:"", Checksummers:[]plugingetter.Checksummer{plugingetter.Checksummer{Type:"sha256", Hash:(*sha256.digest)(0x140000f5000)}}}}
+2024/08/08 20:16:52 [TRACE] Found the following "github.com/hashicorp/ansible" installations: [{/opt/homebrew/bin/github.com/hashicorp/ansible/packer-plugin-ansible_v1.1.1_x5.0_darwin_arm64 v1.1.1}]
+2024/08/08 20:16:52 found external [-packer-default-plugin-name- local] provisioner from ansible plugin
+2024/08/08 20:16:52 [INFO] Starting external plugin /opt/homebrew/bin/github.com/hashicorp/amazon/packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 start builder ebs
+2024/08/08 20:16:52 Starting plugin: /opt/homebrew/bin/github.com/hashicorp/amazon/packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 []string{"/opt/homebrew/bin/github.com/hashicorp/amazon/packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64", "start", "builder", "ebs"}
+2024/08/08 20:16:52 Waiting for RPC address for: /opt/homebrew/bin/github.com/hashicorp/amazon/packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64
+2024/08/08 20:16:52 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:16:52 Plugin address: unix /var/folders/dv/rxdp6rdj09b_zjn5r8lb3y1h0000gn/T/packer-plugin3921491709
+2024/08/08 20:16:52 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:16:52 Waiting for connection...
+2024/08/08 20:16:52 Received unix RPC address for /opt/homebrew/bin/github.com/hashicorp/amazon/packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64: addr is /var/folders/dv/rxdp6rdj09b_zjn5r8lb3y1h0000gn/T/packer-plugin3921491709
+2024/08/08 20:16:52 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:16:52 Serving a plugin connection...
+2024/08/08 20:16:52 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:16:52 [TRACE] starting builder ebs
+2024/08/08 20:16:52 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:16:52 [INFO] (aws): No AWS timeout and polling overrides have been set. Packer will default to waiter-specific delays and timeouts. If you would like to customize the length of time between retries and max number of retries you may do so by setting the environment variables AWS_POLL_DELAY_SECONDS and AWS_MAX_ATTEMPTS or the configuration options aws_polling_delay_seconds and aws_polling_max_attempts to your desired values.
+2024/08/08 20:16:52 [INFO] Starting external plugin /opt/homebrew/bin/github.com/hashicorp/ansible/packer-plugin-ansible_v1.1.1_x5.0_darwin_arm64 start provisioner -packer-default-plugin-name-
+2024/08/08 20:16:52 Starting plugin: /opt/homebrew/bin/github.com/hashicorp/ansible/packer-plugin-ansible_v1.1.1_x5.0_darwin_arm64 []string{"/opt/homebrew/bin/github.com/hashicorp/ansible/packer-plugin-ansible_v1.1.1_x5.0_darwin_arm64", "start", "provisioner", "-packer-default-plugin-name-"}
+2024/08/08 20:16:52 Waiting for RPC address for: /opt/homebrew/bin/github.com/hashicorp/ansible/packer-plugin-ansible_v1.1.1_x5.0_darwin_arm64
+2024/08/08 20:16:52 packer-plugin-ansible_v1.1.1_x5.0_darwin_arm64 plugin: 2024/08/08 20:16:52 Plugin address: unix /var/folders/dv/rxdp6rdj09b_zjn5r8lb3y1h0000gn/T/packer-plugin3185057719
+2024/08/08 20:16:52 packer-plugin-ansible_v1.1.1_x5.0_darwin_arm64 plugin: 2024/08/08 20:16:52 Waiting for connection...
+2024/08/08 20:16:52 Received unix RPC address for /opt/homebrew/bin/github.com/hashicorp/ansible/packer-plugin-ansible_v1.1.1_x5.0_darwin_arm64: addr is /var/folders/dv/rxdp6rdj09b_zjn5r8lb3y1h0000gn/T/packer-plugin3185057719
+2024/08/08 20:16:52 packer-plugin-ansible_v1.1.1_x5.0_darwin_arm64 plugin: 2024/08/08 20:16:52 Serving a plugin connection...
+2024/08/08 20:16:52 packer-plugin-ansible_v1.1.1_x5.0_darwin_arm64 plugin: 2024/08/08 20:16:52 [TRACE] starting provisioner -packer-default-plugin-name-
+2024/08/08 20:16:53 packer-plugin-ansible_v1.1.1_x5.0_darwin_arm64 plugin: 2024/08/08 20:16:53 ansible-playbook version: 2.17.1
+2024/08/08 20:16:53 ui: [1;32mjenkins-farm.amazon-ebs.agent: output will be in this color.[0m
+2024/08/08 20:16:53 ui: 
+2024/08/08 20:16:53 Build debug mode: false
+2024/08/08 20:16:53 Force build: false
+2024/08/08 20:16:53 On error: 
+2024/08/08 20:16:53 Waiting on builds to complete...
+2024/08/08 20:16:53 Starting build run: jenkins-farm.amazon-ebs.agent
+2024/08/08 20:16:53 Running builder: 
+2024/08/08 20:16:53 [INFO] (telemetry) Starting builder amazon-ebs.agent
+2024/08/08 20:16:53 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:16:53 [INFO] Attempting to use session-derived credentials
+2024/08/08 20:16:54 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:16:54 [INFO] Successfully derived credentials from session
+2024/08/08 20:16:54 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:16:54 [INFO] AWS Auth provider used: "SSOProvider"
+2024/08/08 20:16:54 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:16:54 Found region us-east-2
+2024/08/08 20:16:54 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:16:54 [INFO] AWS Auth provider used: "SSOProvider"
+2024/08/08 20:16:55 ui: [1;32m==> jenkins-farm.amazon-ebs.agent: Force Deregister flag found, skipping prevalidating AMI Name[0m
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:16:55 Using AMI Filters {
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:   Filters: [
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:     {
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:       Name: "name",
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:       Values: ["OL9.3-*"]
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:     },
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:     {
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:       Name: "root-device-type",
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:       Values: ["ebs"]
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:     },
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:     {
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:       Name: "virtualization-type",
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:       Values: ["hvm"]
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:     },
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:     {
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:       Name: "architecture",
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:       Values: ["x86_64"]
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:     }
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:   ],
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:   Owners: ["131827586825"]
+2024/08/08 20:16:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: }
+2024/08/08 20:16:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: Found Image ID: ami-0b5a1d936f517ad3e[0m
+2024/08/08 20:16:57 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:16:57 Using VPC Filters {
+2024/08/08 20:16:57 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:   Filters: [{
+2024/08/08 20:16:57 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:       Name: "tag:Name",
+2024/08/08 20:16:57 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:       Values: ["jenkins-pmm-amzn2"]
+2024/08/08 20:16:57 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:     }]
+2024/08/08 20:16:57 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: }
+2024/08/08 20:16:58 ui: [0;32m    jenkins-farm.amazon-ebs.agent: Found VPC ID: vpc-0e1c38d53d0789ff9[0m
+2024/08/08 20:16:58 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:16:58 Using Subnet Filters {
+2024/08/08 20:16:58 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:   Filters: [{
+2024/08/08 20:16:58 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:       Name: "tag:Name",
+2024/08/08 20:16:58 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:       Values: ["jenkins-pmm-amzn2-B"]
+2024/08/08 20:16:58 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:     },{
+2024/08/08 20:16:58 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:       Name: "state",
+2024/08/08 20:16:58 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:       Values: ["available"]
+2024/08/08 20:16:58 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:     },{
+2024/08/08 20:16:58 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:       Name: "vpc-id",
+2024/08/08 20:16:58 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:       Values: ["vpc-0e1c38d53d0789ff9"]
+2024/08/08 20:16:58 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin:     }]
+2024/08/08 20:16:58 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: }
+2024/08/08 20:17:00 ui: [0;32m    jenkins-farm.amazon-ebs.agent: Found Subnet ID: subnet-04356480646777b55[0m
+2024/08/08 20:17:00 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:17:00 [INFO] Finding AZ and VpcId for the given subnet 'subnet-04356480646777b55'
+2024/08/08 20:17:01 ui: [1;32m==> jenkins-farm.amazon-ebs.agent: Creating temporary keypair: packer_66b4e164-318e-f853-d10d-8fd986034a8d[0m
+2024/08/08 20:17:01 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:17:01 [INFO] AvailabilityZone found: 'us-east-2b'
+2024/08/08 20:17:02 ui: [1;32m==> jenkins-farm.amazon-ebs.agent: Creating temporary security group for this instance: packer_66b4e16e-4576-9842-20c6-9e71f3df035e[0m
+2024/08/08 20:17:03 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:17:03 [DEBUG] Waiting for temporary security group: sg-0910adf25cb6bf865
+2024/08/08 20:17:05 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:17:05 [DEBUG] Found security group sg-0910adf25cb6bf865
+2024/08/08 20:17:05 ui: [1;32m==> jenkins-farm.amazon-ebs.agent: Authorizing access to port 22 from [0.0.0.0/0] in the temporary security groups...[0m
+2024/08/08 20:17:06 ui: [1;32m==> jenkins-farm.amazon-ebs.agent: Launching a source AWS instance...[0m
+2024/08/08 20:17:06 ui: [0;32m    jenkins-farm.amazon-ebs.agent: Adding tag: "iit-billing-tag": "pmm-worker"[0m
+2024/08/08 20:17:06 ui: [0;32m    jenkins-farm.amazon-ebs.agent: Adding tag: "iit-billing-tag": "pmm-worker"[0m
+2024/08/08 20:17:08 ui: [0;32m    jenkins-farm.amazon-ebs.agent: Instance ID: i-0f378f282d1c30d21[0m
+2024/08/08 20:17:08 ui: [1;32m==> jenkins-farm.amazon-ebs.agent: Waiting for instance (i-0f378f282d1c30d21) to become ready...[0m
+2024/08/08 20:17:27 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:17:27 [INFO] Not using winrm communicator, skipping get password...
+2024/08/08 20:17:27 ui: [1;32m==> jenkins-farm.amazon-ebs.agent: Using SSH communicator to connect: 3.21.241.96[0m
+2024/08/08 20:17:27 ui: [1;32m==> jenkins-farm.amazon-ebs.agent: Waiting for SSH to become available...[0m
+2024/08/08 20:17:27 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:17:27 [INFO] Waiting for SSH, up to timeout: 5m0s
+2024/08/08 20:17:27 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:17:27 Using host value: 3.21.241.96
+2024/08/08 20:17:42 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:17:42 [DEBUG] TCP connection to SSH ip/port failed: dial tcp 3.21.241.96:22: i/o timeout
+2024/08/08 20:17:47 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:17:47 Using host value: 3.21.241.96
+2024/08/08 20:17:48 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:17:48 [DEBUG] TCP connection to SSH ip/port failed: dial tcp 3.21.241.96:22: connect: connection refused
+2024/08/08 20:17:53 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:17:53 Using host value: 3.21.241.96
+2024/08/08 20:17:53 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:17:53 [INFO] Attempting SSH connection to 3.21.241.96:22...
+2024/08/08 20:17:53 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:17:53 [DEBUG] reconnecting to TCP connection for SSH
+2024/08/08 20:17:53 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:17:53 [DEBUG] handshaking with SSH
+2024/08/08 20:17:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:17:55 [DEBUG] handshake complete!
+2024/08/08 20:17:55 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:17:55 [DEBUG] Opening new ssh session
+2024/08/08 20:17:56 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:17:56 [INFO] agent forwarding enabled
+2024/08/08 20:17:56 ui: [1;32m==> jenkins-farm.amazon-ebs.agent: Connected to SSH![0m
+2024/08/08 20:17:56 packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64 plugin: 2024/08/08 20:17:56 Running the provision hook
+2024/08/08 20:17:56 [INFO] (telemetry) Starting provisioner ansible
+2024/08/08 20:17:56 packer-plugin-ansible_v1.1.1_x5.0_darwin_arm64 plugin: 2024/08/08 20:17:56 ansible-playbook version: 2.17.1
+2024/08/08 20:17:56 ui: [1;32m==> jenkins-farm.amazon-ebs.agent: Provisioning with Ansible...[0m
+2024/08/08 20:17:56 ui: [0;32m    jenkins-farm.amazon-ebs.agent: Not using Proxy adapter for Ansible run:
+    jenkins-farm.amazon-ebs.agent: 	Using ssh keys from Packer communicator...[0m
+2024/08/08 20:17:56 packer-plugin-ansible_v1.1.1_x5.0_darwin_arm64 plugin: 2024/08/08 20:17:56 Creating inventory file for Ansible run...
+2024/08/08 20:17:56 ui: [1;32m==> jenkins-farm.amazon-ebs.agent: Executing Ansible: ansible-playbook -e packer_build_name="agent" -e packer_builder_type=amazon-ebs --ssh-extra-args '-o IdentitiesOnly=yes' --ssh-extra-args -o HostKeyAlgorithms=+ssh-rsa -o StrictHostKeyChecking=no -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null -vv -e ansible_ssh_private_key_file=/var/folders/dv/rxdp6rdj09b_zjn5r8lb3y1h0000gn/T/ansible-key3096292598 -i /var/folders/dv/rxdp6rdj09b_zjn5r8lb3y1h0000gn/T/packer-provisioner-ansible2526910781 /Users/talha/Desktop/PMM-13244-drop-centos-7/pmm/build/packer/ansible/agent-aws.yml[0m
+2024/08/08 20:17:56 ui: [0;32m    jenkins-farm.amazon-ebs.agent: /opt/homebrew/Cellar/ansible/10.1.0/libexec/lib/python3.12/site-packages/paramiko/pkey.py:100: CryptographyDeprecationWarning: TripleDES has been moved to cryptography.hazmat.decrepit.ciphers.algorithms.TripleDES and will be removed from this module in 48.0.0.[0m
+2024/08/08 20:17:56 ui: [0;32m    jenkins-farm.amazon-ebs.agent:   "cipher": algorithms.TripleDES,[0m
+2024/08/08 20:17:56 ui: [0;32m    jenkins-farm.amazon-ebs.agent: /opt/homebrew/Cellar/ansible/10.1.0/libexec/lib/python3.12/site-packages/paramiko/transport.py:259: CryptographyDeprecationWarning: TripleDES has been moved to cryptography.hazmat.decrepit.ciphers.algorithms.TripleDES and will be removed from this module in 48.0.0.[0m
+2024/08/08 20:17:56 ui: [0;32m    jenkins-farm.amazon-ebs.agent:   "class": algorithms.TripleDES,[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: ansible-playbook [core 2.17.1][0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent:   config file = None[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent:   configured module search path = ['/Users/talha/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules'][0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent:   ansible python module location = /opt/homebrew/Cellar/ansible/10.1.0/libexec/lib/python3.12/site-packages/ansible[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent:   ansible collection location = /Users/talha/.ansible/collections:/usr/share/ansible/collections[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent:   executable location = /opt/homebrew/bin/ansible-playbook[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent:   python version = 3.12.4 (main, Jun  6 2024, 18:26:44) [Clang 15.0.0 (clang-1500.3.9.4)] (/opt/homebrew/Cellar/ansible/10.1.0/libexec/bin/python)[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent:   jinja version = 3.1.4[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent:   libyaml = True[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: No config file found; using defaults[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: action) ansible.builtin.yum to ansible.builtin.dnf[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: action) ansible.builtin.yum to ansible.builtin.dnf[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: action) ansible.builtin.yum to ansible.builtin.dnf[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: action) ansible.builtin.yum to ansible.builtin.dnf[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.docker_image to community.docker.docker_image[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.sysctl to ansible.posix.sysctl[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.sysctl to ansible.posix.sysctl[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.sysctl to ansible.posix.sysctl[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.sysctl to ansible.posix.sysctl[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.sysctl to ansible.posix.sysctl[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.sysctl to ansible.posix.sysctl[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.sysctl to ansible.posix.sysctl[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.sysctl to ansible.posix.sysctl[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.sysctl to ansible.posix.sysctl[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.sysctl to ansible.posix.sysctl[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.sysctl to ansible.posix.sysctl[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.sysctl to ansible.posix.sysctl[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.sysctl to ansible.posix.sysctl[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.sysctl to ansible.posix.sysctl[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.sysctl to ansible.posix.sysctl[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.sysctl to ansible.posix.sysctl[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.sysctl to ansible.posix.sysctl[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.sysctl to ansible.posix.sysctl[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.sysctl to ansible.posix.sysctl[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: redirecting (type: modules) ansible.builtin.sysctl to ansible.posix.sysctl[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: Skipping callback 'default', as we already have a stdout callback.[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: Skipping callback 'minimal', as we already have a stdout callback.[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: Skipping callback 'oneline', as we already have a stdout callback.[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent:[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: PLAYBOOK: agent-aws.yml ********************************************************[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: 1 plays in /Users/talha/Desktop/PMM-13244-drop-centos-7/pmm/build/packer/ansible/agent-aws.yml[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent:[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: PLAY [Provision an AWS Agent] **************************************************[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent:[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: TASK [Gathering Facts] *********************************************************[0m
+2024/08/08 20:17:57 ui: [0;32m    jenkins-farm.amazon-ebs.agent: task path: /Users/talha/Desktop/PMM-13244-drop-centos-7/pmm/build/packer/ansible/agent-aws.yml:2[0m
+2024/08/08 20:18:01 ui: [0;32m    jenkins-farm.amazon-ebs.agent: fatal: [default]: UNREACHABLE! => {"changed": false, "msg": "Failed to connect to the host via ssh: OpenSSH_9.7p1, LibreSSL 3.3.6\r\ndebug1: Reading configuration data /Users/talha/.ssh/config\r\ndebug1: /Users/talha/.ssh/config line 1: Applying options for *\r\ndebug1: Reading configuration data /etc/ssh/ssh_config\r\ndebug1: /etc/ssh/ssh_config line 21: include /etc/ssh/ssh_config.d/* matched no files\r\ndebug1: /etc/ssh/ssh_config line 54: Applying options for *\r\ndebug2: resolve_canonicalize: hostname 3.21.241.96 is address\r\ndebug1: Authenticator provider $SSH_SK_PROVIDER did not resolve; disabling\r\ndebug1: auto-mux: Trying existing master at '/Users/talha/.ansible/cp/1508383765'\r\ndebug1: Control socket \"/Users/talha/.ansible/cp/1508383765\" does not exist\r\ndebug1: Connecting to 3.21.241.96 [3.21.241.96] port 22.\r\ndebug2: fd 3 setting O_NONBLOCK\r\ndebug1: fd 3 clearing O_NONBLOCK\r\ndebug1: Connection established.\r\ndebug1: identity file /var/folders/dv/rxdp6rdj09b_zjn5r8lb3y1h0000gn/T/ansible-key3096292598 type -1\r\ndebug1: identity file /var/folders/dv/rxdp6rdj09b_zjn5r8lb3y1h0000gn/T/ansible-key3096292598-cert type -1\r\ndebug1: identity file /Users/talha/.ssh/id_rsa_percona type 0\r\ndebug1: identity file /Users/talha/.ssh/id_rsa_percona-cert type -1\r\ndebug1: Local version string SSH-2.0-OpenSSH_9.7\r\ndebug1: Remote protocol version 2.0, remote software version OpenSSH_8.7\r\ndebug1: compat_banner: match: OpenSSH_8.7 pat OpenSSH* compat 0x04000000\r\ndebug2: fd 3 setting O_NONBLOCK\r\ndebug1: Authenticating to 3.21.241.96:22 as 'ec2-user'\r\ndebug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts: No such file or directory\r\ndebug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts2: No such file or directory\r\ndebug1: SSH2_MSG_KEXINIT sent\r\ndebug1: SSH2_MSG_KEXINIT received\r\ndebug2: local client KEXINIT proposal\r\ndebug2: KEX algorithms: sntrup761x25519-sha512@openssh.com,curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256,ext-info-c,kex-strict-c-v00@openssh.com\r\ndebug2: host key algorithms: ssh-ed25519-cert-v01@openssh.com,ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,sk-ssh-ed25519-cert-v01@openssh.com,sk-ecdsa-sha2-nistp256-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-256-cert-v01@openssh.com,ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,sk-ssh-ed25519@openssh.com,sk-ecdsa-sha2-nistp256@openssh.com,rsa-sha2-512,rsa-sha2-256,ssh-rsa\r\ndebug2: ciphers ctos: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com\r\ndebug2: ciphers stoc: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com\r\ndebug2: MACs ctos: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1\r\ndebug2: MACs stoc: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1\r\ndebug2: compression ctos: zlib@openssh.com,zlib,none\r\ndebug2: compression stoc: zlib@openssh.com,zlib,none\r\ndebug2: languages ctos: \r\ndebug2: languages stoc: \r\ndebug2: first_kex_follows 0 \r\ndebug2: reserved 0 \r\ndebug2: peer server KEXINIT proposal\r\ndebug2: KEX algorithms: curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group14-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512\r\ndebug2: host key algorithms: rsa-sha2-512,rsa-sha2-256,ecdsa-sha2-nistp256,ssh-ed25519\r\ndebug2: ciphers ctos: aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes128-gcm@openssh.com,aes128-ctr\r\ndebug2: ciphers stoc: aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes128-gcm@openssh.com,aes128-ctr\r\ndebug2: MACs ctos: hmac-sha2-256-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256,hmac-sha1,umac-128@openssh.com,hmac-sha2-512\r\ndebug2: MACs stoc: hmac-sha2-256-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256,hmac-sha1,umac-128@openssh.com,hmac-sha2-512\r\ndebug2: compression ctos: none,zlib@openssh.com\r\ndebug2: compression stoc: none,zlib@openssh.com\r\ndebug2: languages ctos: \r\ndebug2: languages stoc: \r\ndebug2: first_kex_follows 0 \r\ndebug2: reserved 0 \r\ndebug1: kex: algorithm: curve25519-sha256\r\ndebug1: kex: host key algorithm: ssh-ed25519\r\ndebug1: kex: server->client cipher: chacha20-poly1305@openssh.com MAC: <implicit> compression: zlib@openssh.com\r\ndebug1: kex: client->server cipher: chacha20-poly1305@openssh.com MAC: <implicit> compression: zlib@openssh.com\r\ndebug1: expecting SSH2_MSG_KEX_ECDH_REPLY\r\ndebug1: SSH2_MSG_KEX_ECDH_REPLY received\r\ndebug1: Server host key: ssh-ed25519 SHA256:U0oHGKys1eoNLVXgs9B1gX0YotyFZO85fubALe7C/bE\r\ndebug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts: No such file or directory\r\ndebug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts2: No such file or directory\r\nWarning: Permanently added '3.21.241.96' (ED25519) to the list of known hosts.\r\ndebug2: ssh_set_newkeys: mode 1\r\ndebug1: rekey out after 134217728 blocks\r\ndebug1: SSH2_MSG_NEWKEYS sent\r\ndebug1: expecting SSH2_MSG_NEWKEYS\r\ndebug1: SSH2_MSG_NEWKEYS received\r\ndebug2: ssh_set_newkeys: mode 0\r\ndebug1: rekey in after 134217728 blocks\r\ndebug2: KEX algorithms: sntrup761x25519-sha512@openssh.com,curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256,ext-info-c,kex-strict-c-v00@openssh.com\r\ndebug2: host key algorithms: ssh-ed25519-cert-v01@openssh.com,ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,sk-ssh-ed25519-cert-v01@openssh.com,sk-ecdsa-sha2-nistp256-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-256-cert-v01@openssh.com,ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,sk-ssh-ed25519@openssh.com,sk-ecdsa-sha2-nistp256@openssh.com,rsa-sha2-512,rsa-sha2-256,ssh-rsa\r\ndebug2: ciphers ctos: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com\r\ndebug2: ciphers stoc: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com\r\ndebug2: MACs ctos: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1\r\ndebug2: MACs stoc: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1\r\ndebug2: compression ctos: zlib@openssh.com,zlib,none\r\ndebug2: compression stoc: zlib@openssh.com,zlib,none\r\ndebug2: languages ctos: \r\ndebug2: languages stoc: \r\ndebug2: first_kex_follows 0 \r\ndebug2: reserved 0 \r\ndebug1: SSH2_MSG_EXT_INFO received\r\ndebug1: kex_ext_info_client_parse: server-sig-algs=<ssh-ed25519,sk-ssh-ed25519@openssh.com,ssh-rsa,rsa-sha2-256,rsa-sha2-512,ssh-dss,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,sk-ecdsa-sha2-nistp256@openssh.com,webauthn-sk-ecdsa-sha2-nistp256@openssh.com>\r\ndebug2: service_accept: ssh-userauth\r\ndebug1: SSH2_MSG_SERVICE_ACCEPT received\r\ndebug1: Authentications that can continue: publickey,gssapi-keyex,gssapi-with-mic\r\ndebug2: Unrecognized authentication method name: gssapi-keyex\r\ndebug1: Next authentication method: publickey\r\ndebug1: get_agent_identities: bound agent to hostkey\r\ndebug1: get_agent_identities: agent returned 6 keys\r\ndebug1: Will attempt key: /Users/talha/.ssh/id_rsa_percona RSA SHA256:rMC+l/zGoWdIt9URfy55F0LYqzpK3KQ3vTU0qsvHzHs explicit agent\r\ndebug1: Will attempt key: /var/folders/dv/rxdp6rdj09b_zjn5r8lb3y1h0000gn/T/ansible-key770151407 RSA SHA256:zq5MGmZzyPNkWZRlzoYehMLxTpVIPvAjyrIlYFyv/8Y agent\r\ndebug1: Will attempt key: /var/folders/dv/rxdp6rdj09b_zjn5r8lb3y1h0000gn/T/ansible-key603882790 RSA SHA256:81Y83l15+fjtknihnzq9rn6g4+EYqXXKjltXxup2f1Y agent\r\ndebug1: Will attempt key: /var/folders/dv/rxdp6rdj09b_zjn5r8lb3y1h0000gn/T/ansible-key3795245414 RSA SHA256:3+RSOIUEIa9w6Gzn8tq6JtMGw1CFz6LqLu4em5p6EQk agent\r\ndebug1: Will attempt key: /var/folders/dv/rxdp6rdj09b_zjn5r8lb3y1h0000gn/T/ansible-key2417183083 RSA SHA256:IZZVvXWBkRZ3ZhnOV1ux6/9hTl4Gfx/Xolt7TGJ+0tQ agent\r\ndebug1: Will attempt key: /Users/talha/Downloads/talhabinrizwan-ohio.pem RSA SHA256:LhHXWs/XFZNiImkkbwQuuIpcy5gsmWdzU8hJlQHzacE agent\r\ndebug1: Will attempt key: /var/folders/dv/rxdp6rdj09b_zjn5r8lb3y1h0000gn/T/ansible-key3096292598  explicit\r\ndebug2: pubkey_prepare: done\r\ndebug1: Offering public key: /Users/talha/.ssh/id_rsa_percona RSA SHA256:rMC+l/zGoWdIt9URfy55F0LYqzpK3KQ3vTU0qsvHzHs explicit agent\r\ndebug2: we sent a publickey packet, wait for reply\r\ndebug1: Authentications that can continue: publickey,gssapi-keyex,gssapi-with-mic\r\ndebug1: Offering public key: /var/folders/dv/rxdp6rdj09b_zjn5r8lb3y1h0000gn/T/ansible-key770151407 RSA SHA256:zq5MGmZzyPNkWZRlzoYehMLxTpVIPvAjyrIlYFyv/8Y agent\r\ndebug2: we sent a publickey packet, wait for reply\r\ndebug1: Authentications that can continue: publickey,gssapi-keyex,gssapi-with-mic\r\ndebug1: Offering public key: /var/folders/dv/rxdp6rdj09b_zjn5r8lb3y1h0000gn/T/ansible-key603882790 RSA SHA256:81Y83l15+fjtknihnzq9rn6g4+EYqXXKjltXxup2f1Y agent\r\ndebug2: we sent a publickey packet, wait for reply\r\ndebug1: Authentications that can continue: publickey,gssapi-keyex,gssapi-with-mic\r\ndebug1: Offering public key: /var/folders/dv/rxdp6rdj09b_zjn5r8lb3y1h0000gn/T/ansible-key3795245414 RSA SHA256:3+RSOIUEIa9w6Gzn8tq6JtMGw1CFz6LqLu4em5p6EQk agent\r\ndebug2: we sent a publickey packet, wait for reply\r\ndebug1: Authentications that can continue: publickey,gssapi-keyex,gssapi-with-mic\r\ndebug1: Offering public key: /var/folders/dv/rxdp6rdj09b_zjn5r8lb3y1h0000gn/T/ansible-key2417183083 RSA SHA256:IZZVvXWBkRZ3ZhnOV1ux6/9hTl4Gfx/Xolt7TGJ+0tQ agent\r\ndebug2: we sent a publickey packet, wait for reply\r\ndebug1: Authentications that can continue: publickey,gssapi-keyex,gssapi-with-mic\r\ndebug1: Offering public key: /Users/talha/Downloads/talhabinrizwan-ohio.pem RSA SHA256:LhHXWs/XFZNiImkkbwQuuIpcy5gsmWdzU8hJlQHzacE agent\r\ndebug2: we sent a publickey packet, wait for reply\r\nReceived disconnect from 3.21.241.96 port 22:2: Too many authentication failures\r\nDisconnected from 3.21.241.96 port 22", "unreachable": true}[0m
+2024/08/08 20:18:01 ui: [0;32m    jenkins-farm.amazon-ebs.agent:[0m
+2024/08/08 20:18:01 ui: [0;32m    jenkins-farm.amazon-ebs.agent: PLAY RECAP *********************************************************************[0m
+2024/08/08 20:18:01 ui: [0;32m    jenkins-farm.amazon-ebs.agent: default                    : ok=0    changed=0    unreachable=1    failed=0    skipped=0    rescued=0    ignored=0[0m
+2024/08/08 20:18:01 ui: [0;32m    jenkins-farm.amazon-ebs.agent:[0m
+2024/08/08 20:18:01 [INFO] (telemetry) ending ansible
+2024/08/08 20:18:01 ui: [1;32m==> jenkins-farm.amazon-ebs.agent: Provisioning step had errors: Running the cleanup provisioner, if present...[0m
+2024/08/08 20:18:01 ui: [1;32m==> jenkins-farm.amazon-ebs.agent: Terminating the source AWS instance...[0m
+2024/08/08 20:19:25 ui: [1;32m==> jenkins-farm.amazon-ebs.agent: Cleaning up any extra volumes...[0m
+2024/08/08 20:19:26 ui: [1;32m==> jenkins-farm.amazon-ebs.agent: No volumes to clean up, skipping[0m
+2024/08/08 20:19:26 ui: [1;32m==> jenkins-farm.amazon-ebs.agent: Deleting temporary security group...[0m
+2024/08/08 20:19:27 ui: [1;32m==> jenkins-farm.amazon-ebs.agent: Deleting temporary keypair...[0m
+2024/08/08 20:19:29 [INFO] (telemetry) ending amazon-ebs.agent
+2024/08/08 20:19:29 ui error: [1;31mBuild 'jenkins-farm.amazon-ebs.agent' errored after 2 minutes 36 seconds: Error executing Ansible: Non-zero exit status: exit status 4[0m
+2024/08/08 20:19:29 ui: 
+==> Wait completed after 2 minutes 36 seconds
+2024/08/08 20:19:29 machine readable: error-count []string{"1"}
+2024/08/08 20:19:29 ui error: 
+==> Some builds didn't complete successfully and had errors:
+2024/08/08 20:19:29 machine readable: jenkins-farm.amazon-ebs.agent,error []string{"Error executing Ansible: Non-zero exit status: exit status 4"}
+2024/08/08 20:19:29 ui error: --> jenkins-farm.amazon-ebs.agent: Error executing Ansible: Non-zero exit status: exit status 4
+2024/08/08 20:19:29 ui: 
+==> Builds finished but no artifacts were created.
+2024/08/08 20:19:29 [INFO] (telemetry) Finalizing.
+2024/08/08 20:19:30 waiting for all plugin processes to complete...
+2024/08/08 20:19:30 /opt/homebrew/bin/github.com/hashicorp/ansible/packer-plugin-ansible_v1.1.1_x5.0_darwin_arm64: plugin process exited
+2024/08/08 20:19:30 /opt/homebrew/bin/github.com/hashicorp/amazon/packer-plugin-amazon_v1.1.6_x5.0_darwin_arm64: plugin process exited
