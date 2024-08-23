@@ -44,12 +44,6 @@ source "amazon-ebs" "agent" {
     volume_type = "gp3"
     delete_on_termination = true
   }
-  #launch_block_device_mappings {
-  #  device_name           = "/dev/xvda"
-  #  volume_size           = 50
-  #  volume_type           = "gp3"
-  #  delete_on_termination = true
-  #}
   vpc_filter {
     filters = {
       "tag:Name" : "jenkins-pmm-amzn2"
