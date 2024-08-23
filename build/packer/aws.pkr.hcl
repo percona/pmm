@@ -109,12 +109,6 @@ build {
     "source.amazon-ebs.agent",
     "source.amazon-ebs.arm-agent"
   ]
-  #provisioner "shell" {
-  #  inline = [
-  #    "sudo growpart /dev/nvme0n1 1",  # Adjust partition number as needed
-  #    "sudo resize2fs /dev/nvme0n1p1"   # Adjust for the filesystem type, e.g., `xfs_growfs /` for XFS
-  #  ]
-  #}
   provisioner "ansible" {
     use_proxy              = false
     user                   = "ec2-user"
