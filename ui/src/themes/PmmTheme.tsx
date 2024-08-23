@@ -38,12 +38,6 @@ const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
               outlinedBorder: 'rgba(220, 33, 0, 0.5)',
               outlinedBorderOpacity: 0.5,
             },
-            background: {
-              default: '#F0F1F4',
-            },
-            surfaces: {
-              default: '#FFFFFF',
-            },
           }
         : {
             primary: {
@@ -67,6 +61,13 @@ const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
           }),
     },
     components: {
+      MuiCssBaseline: {
+        styleOverrides: {
+          body: {
+            backgroundColor: '#F0F1F4',
+          },
+        },
+      },
       MuiIconButton: {
         defaultProps: {
           disableTouchRipple: true,
