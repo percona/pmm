@@ -42,3 +42,20 @@ func FilterOutCollectors(prefix string, args, disabledCollectors []string) []str
 	}
 	return enabledArgs
 }
+
+// DisableDefaultEnabledCollectors returns CLI arguments to disable default enabled collectors based on input.
+// DefaultCollectors and disabledCollectors should be collector names without prefix.
+// Result will be returned with prefix.
+func DisableDefaultEnabledCollectors(prefix string, defaultCollectors []string, disabledCollectors []string) []string {
+	defaultCollectorsMap := make(map[string]struct{})
+	for _, defaultCollector := range defaultCollectors {
+		defaultCollectorsMap[defaultCollector] = struct{}{}
+	}
+	args := []string{}
+	for _, collector := range disabledCollectors {
+		if _, ok := defaultCollectorsMap[collector]; ok {
+			args = append(args, fmt.Sprintf("%s%s", prefix, collector))
+		}
+	}
+	return args
+}
