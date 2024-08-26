@@ -384,6 +384,35 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, expected.Args, actual.Args)
 	})
+
+	t.Run("Enable all collectors and disable some", func(t *testing.T) {
+		exporter.MongoDBOptions = &models.MongoDBOptions{
+			EnableAllCollectors: true,
+			StatsCollections:    []string{"db1.col1.one", "db2.col2", "db3"},
+		}
+		exporter.DisabledCollectors = []string{"dbstats", "topmetrics"}
+
+		expected.Args = []string{
+			"--collector.collstats",
+			"--collector.collstats-limit=0",
+			"--collector.diagnosticdata",
+			"--collector.indexstats",
+			"--collector.replicasetstatus",
+			"--collector.shards",
+			"--compatible-mode",
+			"--discovering-mode",
+			// this should be here even if limit=0 because it could be used to filter dbstats
+			// since dbstats is not depending the number of collections present in the db.
+			"--mongodb.collstats-colls=db1.col1.one,db2.col2,db3",
+			"--mongodb.global-conn-pool",
+			"--mongodb.indexstats-colls=db1.col1.one,db2.col2,db3",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
+			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+		}
+		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		require.NoError(t, err)
+		require.Equal(t, expected.Args, actual.Args)
+	})
 }
 
 func TestMongodbExporterConfig(t *testing.T) {
