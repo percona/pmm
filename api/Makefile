@@ -76,7 +76,7 @@ gen-alertmanager:     ## Generate Alertmanager client
 format:               ## Format API definitions
 	../bin/buf format . -w
 
-clean_swagger:
+clean-swagger:
 	find . -name '*.swagger.json' -print -delete
 
 
@@ -93,7 +93,7 @@ update-swagger: get_swagger_version               ## Update Swagger UI in swagge
 	rm -f swagger/.npmrc
 	sed -i 's/url: ".*"/url: "\/swagger.json",\n    validatorUrl: "none"/' swagger/swagger-initializer.js
 
-clean: clean_swagger  ## Remove generated files
+clean: clean-swagger  ## Remove generated files
 	find . -name '*.pb.go' -print -delete
 	find . -name '*.pb.gw.go' -print -delete
 	find . -name '*.validate.go' -print -delete
