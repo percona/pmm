@@ -30,7 +30,7 @@ release:              ## Build release versions of all components
 gen: clean            ## Generate files
 	make -C api gen
 	make -C api gen-alertmanager
-	make -C api clean_swagger
+	make -C api clean-swagger
 
 	make -C agent gen
 	make -C admin gen
