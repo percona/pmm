@@ -22,10 +22,36 @@
     - name: Add a repository for NodeJS
       shell: "curl -fsSL https://rpm.nodesource.com/setup_{{ node_version }} | bash -"
 
-    - name: Install packages
-      package:
+    - name: Install Oracle EPEL Repo
+      yum:
+        name: oracle-epel-release-el9
+        state: latest
+
+    - name: Install yum-utils
+      yum:
+        name: yum-utils
+        state: latest
+
+    - name: Add Docker repository
+      command: yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+
+    - name: Install Docker packages
+      yum:
         name:
-          - docker
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: latest
+
+    - name: Enable Docker service
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Install packages
+      yum:
+        name:
           - git
           - jq
           - gettext
@@ -41,22 +67,22 @@
           - gcc
           - make
           - perl
-          # - p7zip
+            #- p7zip
           - nodejs
-        state: present
+        state: latest
 
     - name: Install Java17
-      package:
-        name: jdk-17-headless
-        state: present
+      yum:
+        name: java-17-openjdk-headless
+        state: latest
 
     - name: Install pip3 and ansible
-      package:
+      yum:
         name:
           - python3-pip
           - ansible-core
           - glibc-langpack-en
-        state: present
+        state: latest
 
     - name: Install ansible collections
       shell: "ansible-galaxy collection install {{ item }}"
@@ -110,8 +136,7 @@
         mode: "555"
 
     - name: Install Python's virtualenv
-      pip:
-        name: virtualenv
+      command: python3 -m venv /home/ec2-user/venv
 
     - name: Install Python modules
       pip:
@@ -275,16 +300,6 @@
       sysctl:
         name: fs.inotify.max_user_watches
         value: 1048576
-
-    - name: Get disk UUID
-      command: blkid -s UUID -o value /dev/nvme0n1p1
-      register: disk_uuid
-
-    - name: Replace fstab entities with new mount options
-      lineinfile:
-        path: /etc/fstab
-        regexp: "^UUID={{ disk_uuid.stdout }}"
-        line: "UUID={{ disk_uuid.stdout }}     /           xfs    defaults,noatime,nobarrier,discard  1   1"
 
     - name: Add repo.ci.percona.com to /etc/hosts
       lineinfile:

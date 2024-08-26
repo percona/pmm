@@ -30,17 +30,13 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-type collectorArgs struct {
-	enabled     bool
-	enableParam string
-}
-
 var (
 	// New MongoDB Exporter will be released with PMM agent v2.10.0.
 	newMongoExporterPMMVersion = version.MustParse("2.9.99")
 	v2_25_0                    = version.MustParse("2.25.0-0")
 	v2_26_0                    = version.MustParse("2.26.0-0")
 	v2_41_1                    = version.MustParse("2.41.1-0")
+	v2_42_0                    = version.MustParse("2.42.0-0")
 )
 
 // mongodbExporterConfig returns desired configuration of mongodb_exporter process.
@@ -50,23 +46,10 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 	listenAddress := getExporterListenAddress(node, exporter)
 	tdp := exporter.TemplateDelimiters(service)
 
-	var args []string
-	// Starting with PMM 2.10.0, we are shipping the new mongodb_exporter
-	// Starting with PMM 2.25.0, we change the discovering-mode making it to discover all databases.
-	// Until now, discovering mode was not working properly and was enabled only if mongodb.collstats-colls=
-	// was specified in the command line.
-	// Starting with PMM 2.26.0, we disabled all collectors by default and added flags to enable them.
-	// Starting with PMM 2.41.1 we added shards collector.
-	if pmmAgentVersion.Less(v2_26_0) {
-		args = oldPMMAgentArgs(exporter, tdp, listenAddress, pmmAgentVersion)
-	} else {
-		args = v226Args(exporter, tdp, listenAddress, pmmAgentVersion)
-	}
-
-	args = collectors.FilterOutCollectors("--collect.", args, exporter.DisabledCollectors)
+	args := getArgs(exporter, tdp, listenAddress, pmmAgentVersion)
 
 	if pointer.GetString(exporter.MetricsPath) != "" {
-		args = append(args, "--web.telemetry-path="+*exporter.MetricsPath)
+		args = append(args, "--web.telemetry-path="+*exporter.MetricsPath) //nolint:goconst
 	}
 
 	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, true)
@@ -101,171 +84,74 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 	return res, nil
 }
 
-func oldPMMAgentArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress string, pmmAgentVersion *version.Parsed) []string {
+// getArgs returns the appropriate arguments based on the PMM agent version.
+func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress string, pmmAgentVersion *version.Parsed) []string {
 	var args []string
+
 	switch {
-	case !pmmAgentVersion.Less(v2_25_0): // >= 2.25
-		args = v225Args(exporter, tdp, listenAddress)
-	case !pmmAgentVersion.Less(newMongoExporterPMMVersion): // >= 2.10
-		args = []string{
-			"--mongodb.global-conn-pool",
-			"--compatible-mode",
-			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right, //nolint:goconst
+	case !pmmAgentVersion.Less(v2_25_0): // >= 2.26.0
+		args = buildBaseArgs(listenAddress, tdp)
+		args = append(args, "--discovering-mode")
+
+		defaultEnabledCollectors := []string{"diagnosticdata", "replicasetstatus"}
+		collectAll := exporter.MongoDBOptions != nil && exporter.MongoDBOptions.EnableAllCollectors
+
+		if !pmmAgentVersion.Less(v2_26_0) {
+			defaultEnabledCollectors = []string{}
+			args = append(args, "--collector.diagnosticdata", "--collector.replicasetstatus")
+			if collectAll {
+				args = append(args, "--collector.collstats", "--collector.dbstats", "--collector.indexstats", "--collector.topmetrics")
+			}
 		}
-	default:
+		if !pmmAgentVersion.Less(v2_41_1) && collectAll { // >= 2.41.1
+			args = append(args, "--collector.shards")
+		}
+		if !pmmAgentVersion.Less(v2_42_0) && collectAll { // >= 2.42.0
+			args = append(args, "--collector.currentopmetrics")
+		}
+
+		args = collectors.FilterOutCollectors("--collector.", args, exporter.DisabledCollectors)
+		args = append(args, collectors.DisableDefaultEnabledCollectors("--no-collector.", defaultEnabledCollectors, exporter.DisabledCollectors)...)
+
+		if exporter.MongoDBOptions != nil && len(exporter.MongoDBOptions.StatsCollections) != 0 {
+			args = append(args, "--mongodb.collstats-colls="+strings.Join(exporter.MongoDBOptions.StatsCollections, ","))
+			if !pmmAgentVersion.Less(v2_26_0) {
+				args = append(args, "--mongodb.indexstats-colls="+strings.Join(exporter.MongoDBOptions.StatsCollections, ","))
+			}
+		}
+
+		if exporter.MongoDBOptions != nil {
+			collstatsLimit := int32(200)
+			if exporter.MongoDBOptions.CollectionsLimit != -1 {
+				collstatsLimit = exporter.MongoDBOptions.CollectionsLimit
+			}
+			args = append(args, fmt.Sprintf("--collector.collstats-limit=%d", collstatsLimit))
+		}
+
+	case !pmmAgentVersion.Less(newMongoExporterPMMVersion): // >= 2.10.0
+		args = buildBaseArgs(listenAddress, tdp)
+
+	default: // < 2.10.0
 		args = []string{
 			"--collect.collection",
 			"--collect.database",
 			"--collect.topmetrics",
 			"--no-collect.connpoolstats",
 			"--no-collect.indexusage",
-			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
+			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right, //nolint:goconst
 		}
+
+		args = collectors.FilterOutCollectors("--collect.", args, exporter.DisabledCollectors)
 	}
+
 	return args
 }
 
-func v226Args(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress string, pmmAgentVersion *version.Parsed) []string {
-	collectAll := false
-	if exporter.MongoDBOptions != nil {
-		collectAll = exporter.MongoDBOptions.EnableAllCollectors
-	}
-
-	collstatsLimit := int32(200)
-	if exporter.MongoDBOptions != nil && exporter.MongoDBOptions.CollectionsLimit != -1 {
-		collstatsLimit = exporter.MongoDBOptions.CollectionsLimit
-	}
-
-	collectors := defaultMongoDBCollectors(collectAll)
-
-	if !pmmAgentVersion.Less(v2_41_1) { // >= 2.41.1
-		collectors["shards"] = collectorArgs{
-			enabled:     collectAll,
-			enableParam: "--collector.shards",
-		}
-	}
-
-	for _, collector := range exporter.DisabledCollectors {
-		col, ok := collectors[strings.ToLower(collector)]
-		if !ok {
-			continue
-		}
-		col.enabled = false
-		collectors[strings.ToLower(collector)] = col
-	}
-
-	args := []string{
+func buildBaseArgs(listenAddress string, tdp *models.DelimiterPair) []string {
+	return []string{
 		"--mongodb.global-conn-pool",
 		"--compatible-mode",
 		"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
-		"--discovering-mode",
-	}
-
-	if exporter.MongoDBOptions != nil && len(exporter.MongoDBOptions.StatsCollections) != 0 {
-		args = append(args, "--mongodb.collstats-colls="+strings.Join(exporter.MongoDBOptions.StatsCollections, ","))
-		args = append(args, "--mongodb.indexstats-colls="+strings.Join(exporter.MongoDBOptions.StatsCollections, ","))
-	}
-
-	if exporter.MongoDBOptions != nil {
-		args = append(args, fmt.Sprintf("--collector.collstats-limit=%d", collstatsLimit))
-	}
-
-	for _, collector := range collectors {
-		if collector.enabled && collector.enableParam != "" {
-			args = append(args, collector.enableParam)
-		}
-	}
-
-	return args
-}
-
-func v225Args(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress string) []string {
-	type collectorArgs struct {
-		enabled      bool
-		enableParam  string
-		disableParam string
-	}
-
-	collectors := map[string]collectorArgs{
-		"diagnosticdata": {
-			enabled:      true,
-			disableParam: "--no-collector.diagnosticdata",
-		},
-		"replicasetstatus": {
-			enabled:      true,
-			disableParam: "--no-collector.replicasetstatus",
-		},
-		// disabled until we have better information on the resources usage impact
-		"dbstats": {
-			enabled:     false,
-			enableParam: "--collector.dbstats",
-		},
-		// disabled until we have better information on the resources usage impact
-		"topmetrics": {
-			enabled:     false,
-			enableParam: "--collector.topmetrics",
-		},
-	}
-
-	for _, collector := range exporter.DisabledCollectors {
-		col := collectors[strings.ToLower(collector)]
-		col.enabled = false
-		collectors[strings.ToLower(collector)] = col
-	}
-
-	args := []string{
-		"--mongodb.global-conn-pool",
-		"--compatible-mode",
-		"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
-		"--discovering-mode",
-	}
-
-	if exporter.MongoDBOptions != nil && len(exporter.MongoDBOptions.StatsCollections) != 0 {
-		args = append(args, "--mongodb.collstats-colls="+strings.Join(exporter.MongoDBOptions.StatsCollections, ","))
-	}
-
-	if exporter.MongoDBOptions != nil && exporter.MongoDBOptions.CollectionsLimit != 0 {
-		args = append(args, fmt.Sprintf("--collector.collstats-limit=%d", exporter.MongoDBOptions.CollectionsLimit))
-	}
-
-	for _, collector := range collectors {
-		if collector.enabled && collector.enableParam != "" {
-			args = append(args, collector.enableParam)
-		}
-		if !collector.enabled && collector.disableParam != "" {
-			args = append(args, collector.disableParam)
-		}
-	}
-
-	return args
-}
-
-func defaultMongoDBCollectors(collectAll bool) map[string]collectorArgs {
-	return map[string]collectorArgs{
-		"diagnosticdata": {
-			enabled:     true,
-			enableParam: "--collector.diagnosticdata",
-		},
-		"replicasetstatus": {
-			enabled:     true,
-			enableParam: "--collector.replicasetstatus",
-		},
-		"collstats": {
-			enabled:     collectAll,
-			enableParam: "--collector.collstats",
-		},
-		"dbstats": {
-			enabled:     collectAll,
-			enableParam: "--collector.dbstats",
-		},
-		"indexstats": {
-			enabled:     collectAll,
-			enableParam: "--collector.indexstats",
-		},
-		"topmetrics": {
-			enabled:     collectAll,
-			enableParam: "--collector.topmetrics",
-		},
 	}
 }
 
