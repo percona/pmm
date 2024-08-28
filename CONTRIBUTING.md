@@ -33,7 +33,7 @@ This project is built from several repositories:
 #### Frontends
 
 * [percona/grafana-dashboards](https://github.com/percona/grafana-dashboards) PMM dashboards for database monitoring
-* [percona-platform/grafana](https://github.com/percona-platform/grafana) user interface for PMM
+* [percona/grafana](https://github.com/percona/grafana) user interface for PMM
 
 ### PMM Client
 
@@ -46,7 +46,6 @@ This project is built from several repositories:
 * [percona/proxysql_exporter](https://github.com/percona/proxysql_exporter) exports ProxySQL server's metrics
 * [percona/rds_exporter](https://github.com/percona/rds_exporter) exports metrics from RDS
 * [percona/azure_exporter](https://github.com/percona/azure_metrics_exporter) exports metrics from Azure
-* [Percona-Lab/clickhouse_exporter](https://github.com/Percona-Lab/clickhouse_exporter) exports metrics from ClickHouse
 * [percona/percona-toolkit](https://github.com/percona/percona-toolkit) is a collection of advanced command-line tools to perform a variety of MySQL and system tasks that are too difficult or complex to perform manually
 
 
@@ -119,8 +118,8 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 ### PMM Server
 
 * Clone [pmm repository](https://github.com/percona/pmm)
-* Run `make env-up` to start development container. This will be slow on first run, all consequent calls will be order of magnitude faster, because development container will be reused. From time to time it is recommended to perform container rebuild to pull the latest changes, for that run `make env-up-rebuild`.
-* To run pmm-managed with a new changes just run `make env TARGET="run-managed"`, it updates `pmm-managed` running in container.
+* Run `make env-up` to start development container. This will be slow on first run, all subsequent runs will be order of magnitude faster, because development container will be reused. From time to time it is recommended to rebuild the container to pull the latest changes by running `make env-up-rebuild`.
+* To run pmm-managed with your code changes, just run `make run-managed`. It updates `pmm-managed` running in the container.
 
 ### PMM Client
 
@@ -129,11 +128,11 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 * Run `make setup-dev` to connect pmm-agent to PMM Server.
   * This command will register local pmm-agent to PMM Server and generate config file `pmm-agent-dev.yaml`
 * Once it's connected just use `make run` to run pmm-agent.
-* To work correctly pmm-agent needs vmagent and exporters installed on the system.
-  * First option is just install pmm-client using this instrucion https://docs.percona.com/percona-monitoring-and-management/setting-up/client/index.html#install. It will install all exporters as well.
+* To work correctly, pmm-agent needs vmagent and exporters installed on the system.
+  * The first option is to install pmm-client using this instrucion https://docs.percona.com/percona-monitoring-and-management/setting-up/client/index.html#install. It will install all exporters as well.
   * Another option is to do it manually
-    * vmagent and exporters can be installed by building each of them or by downloading the pmm-client tarball from [percona.com](https://www.percona.com/downloads/pmm2/) and copying binaries to the exporters_base directory configured in a `pmm-agent-dev.yaml` file.
-    * All paths to exporters binaries are configured in `pmm-agent-dev.yaml`, so they can be changed manually
+    * vmagent and exporters can be installed by building each of them or by downloading the pmm-client tarball from [percona.com](https://www.percona.com/downloads/pmm2/) and copying binaries to the exporters_base directory configured in `pmm-agent-dev.yaml` file.
+    * All paths to exporter binaries are configured in `pmm-agent-dev.yaml`, so they can be changed manually if necessary.
 
 ### Exporters
 
@@ -145,20 +144,24 @@ See [Grafana Dashboards Contribution Guide](https://github.com/percona/grafana-d
 
 ## Tests
 
-In a PMM we have 3 kind of tests.
+In PMM we have 3 kinds of tests:
+
+  - unit tests
+  - API tests
+  - end-to-end, or e2e, tests
 
 ### Unit tests
 
-The first one is a Unit testing, so we have unit tests in each repository mentioned above. each of repositories has it's own instruction how to run unit tests.
+Each repository mentioned above has its own set of unit tests, as well as its own instruction on how to run unit tests.
 
 ### API tests
 
-API tests are included into pmm repository and located in [api-tests directory](https://github.com/percona/pmm/tree/main/api-tests). API tests runs against running PMM Server container.
+API tests are part of the PMM repository and can be found in [api-tests directory](https://github.com/percona/pmm/tree/main/api-tests). API tests run inside of an active PMM Server container.
 
-### End to End (E2E) tests
+### End-to-end (E2E) tests
 
-End to End tests are located in [pmm-qa repository](https://github.com/percona/pmm-qa). They includes UI tests and CLI tests.
-Please see [readme](https://github.com/percona/pmm-qa#readme) for details on how to run these.
+End-to-end tests are located in [pmm-qa repository](https://github.com/percona/pmm-qa). They include UI tests and CLI tests.
+Please refer to [readme](https://github.com/percona/pmm-qa#readme) for details on how to run these.
 
 ## Submitting a Pull Request
 
@@ -167,49 +170,53 @@ Before proceeding with your first pull request, we highly recommend you to read 
 - [Tech stack](docs/process/tech_stack.md)
 - [Best practices](docs/process/best_practices.md)
 
-As a PR created you are responsible to:
-* make sure PR is ready (linted, tested and etc)
-* make sure it is reviewed (ask for review, ping reviewers and etc)
-* make sure it is merged
-  * merge when it is reviewed and tested
-  * ask code owners/admins to merge it if merging is blocked for some reason
+Once your PR is created, please do the following:
+* prepare your PR for review
+  * run code syntax checks, or linters
+  * run tests and make sure they all pass
+* pass the review (ask for review, ping reviewers)
+* then merge it
+  * ask code owners or admins to merge it if merging is blocked for some reason
 
 ## Feature Build
 
-PMM is quite complex project, it consists from many different repos descibed above. Feature Build (FB) is a way to get changes all together, build them all together, run tests and get client and server containers.
+PMM is quite a complex project, it consists of many different repos described above. A Feature Build (FB) is a way to put everything together, build all components, run tests and, finally, build client and server containers.
 
 Please see: [How to create a feature build](https://github.com/Percona-Lab/pmm-submodules/blob/PMM-2.0/README.md#how-to-create-a-feature-build)
 
-### The Goals of the Feature Builds
+### The Goals of Feature Builds
 
-1. Provide an easy way to test/accept functionality for PO/PM and QA
-2. Inform the Developer about Automation Tests results before the code is merged
-3. (Future) Let the Developers add/modify e2e tests when they change functionality
+1. Provide a way to have the functionality tested by the developer and QA (or other PMM team members)
+2. Inform the Developer about Automation Test results before the code is merged
+3. Let the Developers add or modify e2e tests whenever there are functional changes
 
 ### The Rules
 
-1. Start Feature Build for every feature/improvement you are working on.
-2. Start PullRequest to percona-lab/pmm-submodules as DRAFT.
-3. Change the status of Pull Request from Draft to Open ONLY if your changes must be merged to pmm-submodules.
-4. Include a short explanation in the Long Description field of the Feature in PR for feature build and checkboxes to all related Pull Requests. Check other [PRs](https://github.com/Percona-Lab/pmm-submodules/pulls) as examples.
+1. Create a Feature Build for every feature/improvement/bugfix you are working on.
+2. Create a draft Pull Request in https://percona-lab/pmm-submodules.
+3. Change the status of the Pull Request from Draft to Open ONLY if you are contributing code changes to pmm-submodules (very rare).
+4. Provide a short explanation in the Description field of you feature build PR and checkboxes to all related Pull Requests. If you need examples, check out [PRs](https://github.com/Percona-Lab/pmm-submodules/pulls) made by others.
 5. After all related PRs in feature build are merged you should:
    a. either close the PR and delete the branch (this is the default option) or
-   b. merge the PR to pmm-submodules repository (please note, this rarely needs to be merged, for example infrastructure changes do)
+   b. merge the PR to pmm-submodules repository (please note, this rarely needs to be merged, for example infrastructure changes)
 
 ## Code Reviews
 
-There are number of approaches for the code review and ownership: Code Ownership (CODEOWNERS), [github auto review](https://docs.github.com/en/github/setting-up-and-managing-organizations-and-teams/managing-code-review-assignment-for-your-team), PR owner assign ppl that are better fit for the particular code/job.
+There is a number of approaches we use for the code review and ownership: 
 
-For more efficient review process we use a mixed approach:
-* repos that have CODEOWNERS
+- code ownership, which is enforced via github's CODEOWNERS file
+- github [code review assignment](https://docs.github.com/en/github/setting-up-and-managing-organizations-and-teams/managing-code-review-assignment-for-your-team)
+- finally, a PR owner can manually assign reviewers (usually one or more PMM team members).
+
+To make the review process effective, we use a mixed approach:
+* for repos that have CODEOWNERS
   * github will assign reviewers automatically
-* repos that don't have CODEOWNERS
+* for repos that don't have CODEOWNERS
   * add reviewers as follows:
       * add `pmm-review-fe` for UI/UX reviews
       * add `pmm-review-exporters` for exporter reviews [see PMM Client](#PMM-Client)
       * add `pmm-review-be` for backend reviews
-* if you know exactly who should review your code
-  * add them to the review
+* if you know exactly who should review your code, add them to the review
 
 
 | Team                 | Description                                                    | Members |

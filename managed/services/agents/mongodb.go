@@ -37,6 +37,7 @@ var (
 	v2_26_0                    = version.MustParse("2.26.0-0")
 	v2_41_1                    = version.MustParse("2.41.1-0")
 	v2_42_0                    = version.MustParse("2.42.0-0")
+	v2_43_0                    = version.MustParse("2.43.0-0")
 )
 
 // mongodbExporterConfig returns desired configuration of mongodb_exporter process.
@@ -108,6 +109,9 @@ func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress st
 		}
 		if !pmmAgentVersion.Less(v2_42_0) && collectAll { // >= 2.42.0
 			args = append(args, "--collector.currentopmetrics")
+		}
+		if !pmmAgentVersion.Less(v2_43_0) { // >= 2.43.0, enable pbm collector by default
+			args = append(args, "--collector.pbm")
 		}
 
 		args = collectors.FilterOutCollectors("--collector.", args, exporter.DisabledCollectors)
