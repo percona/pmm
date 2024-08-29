@@ -147,10 +147,10 @@ func getPointFieldsList(point *qanpb.Point, fields []string) []interface{} {
 		"m_local_blks_written_sum_per_sec":     &point.MLocalBlksWrittenSumPerSec,
 		"m_temp_blks_read_sum_per_sec":         &point.MTempBlksReadSumPerSec,
 		"m_temp_blks_written_sum_per_sec":      &point.MTempBlksWrittenSumPerSec,
-		"m_shared_blk_read_time_sum_per_sec":   &point.MSharedBlkReadTimeSumPerSec,  // TODO
-		"m_shared_blk_write_time_sum_per_sec":  &point.MSharedBlkWriteTimeSumPerSec, // TODO
-		"m_local_blk_read_time_sum_per_sec":    &point.MLocalBlkReadTimeSumPerSec,   // TODO
-		"m_local_blk_write_time_sum_per_sec":   &point.MLocalBlkWriteTimeSumPerSec,  // TODO
+		"m_shared_blk_read_time_sum_per_sec":   &point.MSharedBlkReadTimeSumPerSec,
+		"m_shared_blk_write_time_sum_per_sec":  &point.MSharedBlkWriteTimeSumPerSec,
+		"m_local_blk_read_time_sum_per_sec":    &point.MLocalBlkReadTimeSumPerSec,
+		"m_local_blk_write_time_sum_per_sec":   &point.MLocalBlkWriteTimeSumPerSec,
 		"m_cpu_user_time_sum_per_sec":          &point.MCpuUserTimeSumPerSec,
 		"m_cpu_sys_time_sum_per_sec":           &point.MCpuSysTimeSumPerSec,
 		"m_plans_calls_sum_per_sec":            &point.MPlansCallsSumPerSec,
