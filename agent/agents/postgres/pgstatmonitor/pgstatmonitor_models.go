@@ -67,6 +67,8 @@ type pgStatMonitor struct {
 	TempBlksWritten    int64
 	SharedBlkReadTime  float64
 	SharedBlkWriteTime float64
+	LocalBlkReadTime   float64
+	LocalBlkWriteTime  float64
 	RespCalls          pq.StringArray
 	CPUUserTime        float64
 	CPUSysTime         float64
@@ -178,7 +180,9 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 	if vPGSM >= pgStatMonitorVersion21PG17 {
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "SharedBlkReadTime", Type: "float64", Column: "shared_blk_read_time"}, pointer: &s.SharedBlkReadTime},
-			field{info: parse.FieldInfo{Name: "SharedBlkWriteTime", Type: "float64", Column: "shared_blk_write_time"}, pointer: &s.SharedBlkWriteTime})
+			field{info: parse.FieldInfo{Name: "SharedBlkWriteTime", Type: "float64", Column: "shared_blk_write_time"}, pointer: &s.SharedBlkWriteTime},
+			field{info: parse.FieldInfo{Name: "LocalBlkReadTime", Type: "float64", Column: "local_blk_read_time"}, pointer: &s.LocalBlkReadTime},
+			field{info: parse.FieldInfo{Name: "LocalBlkWriteTime", Type: "float64", Column: "local_blk_write_time"}, pointer: &s.LocalBlkWriteTime})
 	} else {
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "SharedBlkReadTime", Type: "float64", Column: "blk_read_time"}, pointer: &s.SharedBlkReadTime},
@@ -283,7 +287,7 @@ func (v *pgStatMonitorAllViewType) NewStruct() reform.Struct { //nolint:ireturn
 
 // String returns a string representation of this struct or record.
 func (s pgStatMonitor) String() string {
-	res := make([]string, 49)
+	res := make([]string, 51)
 	res[0] = "Bucket: " + reform.Inspect(s.Bucket, true)
 	res[1] = "BucketStartTime: " + reform.Inspect(s.BucketStartTime, true)
 	res[2] = "UserID: " + reform.Inspect(s.UserID, true)
@@ -305,34 +309,36 @@ func (s pgStatMonitor) String() string {
 	res[18] = "TempBlksWritten: " + reform.Inspect(s.TempBlksWritten, true)
 	res[19] = "SharedBlkReadTime: " + reform.Inspect(s.SharedBlkReadTime, true)
 	res[20] = "SharedBlkWriteTime: " + reform.Inspect(s.SharedBlkWriteTime, true)
-	res[21] = "RespCalls: " + reform.Inspect(s.RespCalls, true)
-	res[22] = "CPUUserTime: " + reform.Inspect(s.CPUUserTime, true)
-	res[23] = "CPUSysTime: " + reform.Inspect(s.CPUSysTime, true)
-	res[24] = "DBID: " + reform.Inspect(s.DBID, true)
-	res[25] = "DatName: " + reform.Inspect(s.DatName, true)
-	res[26] = "Rows: " + reform.Inspect(s.Rows, true)
-	res[27] = "TopQueryID: " + reform.Inspect(s.TopQueryID, true)
-	res[28] = "PlanID: " + reform.Inspect(s.PlanID, true)
-	res[29] = "QueryPlan: " + reform.Inspect(s.QueryPlan, true)
-	res[30] = "TopQuery: " + reform.Inspect(s.TopQuery, true)
-	res[31] = "ApplicationName: " + reform.Inspect(s.ApplicationName, true)
-	res[32] = "CmdType: " + reform.Inspect(s.CmdType, true)
-	res[33] = "CmdTypeText: " + reform.Inspect(s.CmdTypeText, true)
-	res[34] = "Elevel: " + reform.Inspect(s.Elevel, true)
-	res[35] = "Sqlcode: " + reform.Inspect(s.Sqlcode, true)
-	res[36] = "Message: " + reform.Inspect(s.Message, true)
-	res[37] = "MinExecTime: " + reform.Inspect(s.MinExecTime, true)
-	res[38] = "MaxExecTime: " + reform.Inspect(s.MaxExecTime, true)
-	res[39] = "MeanExecTime: " + reform.Inspect(s.MeanExecTime, true)
-	res[40] = "StddevExecTime: " + reform.Inspect(s.StddevExecTime, true)
-	res[41] = "PlansCalls: " + reform.Inspect(s.PlansCalls, true)
-	res[42] = "TotalPlanTime: " + reform.Inspect(s.TotalPlanTime, true)
-	res[43] = "MinPlanTime: " + reform.Inspect(s.MinPlanTime, true)
-	res[44] = "MaxPlanTime: " + reform.Inspect(s.MaxPlanTime, true)
-	res[45] = "MeanPlanTime: " + reform.Inspect(s.MeanPlanTime, true)
-	res[46] = "WalRecords: " + reform.Inspect(s.WalRecords, true)
-	res[47] = "WalFpi: " + reform.Inspect(s.WalFpi, true)
-	res[48] = "WalBytes: " + reform.Inspect(s.WalBytes, true)
+	res[21] = "LocalBlkReadTime: " + reform.Inspect(s.LocalBlkReadTime, true)
+	res[22] = "LocalBlkWriteTime: " + reform.Inspect(s.LocalBlkWriteTime, true)
+	res[23] = "RespCalls: " + reform.Inspect(s.RespCalls, true)
+	res[24] = "CPUUserTime: " + reform.Inspect(s.CPUUserTime, true)
+	res[25] = "CPUSysTime: " + reform.Inspect(s.CPUSysTime, true)
+	res[26] = "DBID: " + reform.Inspect(s.DBID, true)
+	res[27] = "DatName: " + reform.Inspect(s.DatName, true)
+	res[28] = "Rows: " + reform.Inspect(s.Rows, true)
+	res[29] = "TopQueryID: " + reform.Inspect(s.TopQueryID, true)
+	res[30] = "PlanID: " + reform.Inspect(s.PlanID, true)
+	res[31] = "QueryPlan: " + reform.Inspect(s.QueryPlan, true)
+	res[32] = "TopQuery: " + reform.Inspect(s.TopQuery, true)
+	res[33] = "ApplicationName: " + reform.Inspect(s.ApplicationName, true)
+	res[34] = "CmdType: " + reform.Inspect(s.CmdType, true)
+	res[35] = "CmdTypeText: " + reform.Inspect(s.CmdTypeText, true)
+	res[36] = "Elevel: " + reform.Inspect(s.Elevel, true)
+	res[37] = "Sqlcode: " + reform.Inspect(s.Sqlcode, true)
+	res[38] = "Message: " + reform.Inspect(s.Message, true)
+	res[39] = "MinExecTime: " + reform.Inspect(s.MinExecTime, true)
+	res[40] = "MaxExecTime: " + reform.Inspect(s.MaxExecTime, true)
+	res[41] = "MeanExecTime: " + reform.Inspect(s.MeanExecTime, true)
+	res[42] = "StddevExecTime: " + reform.Inspect(s.StddevExecTime, true)
+	res[43] = "PlansCalls: " + reform.Inspect(s.PlansCalls, true)
+	res[44] = "TotalPlanTime: " + reform.Inspect(s.TotalPlanTime, true)
+	res[45] = "MinPlanTime: " + reform.Inspect(s.MinPlanTime, true)
+	res[46] = "MaxPlanTime: " + reform.Inspect(s.MaxPlanTime, true)
+	res[47] = "MeanPlanTime: " + reform.Inspect(s.MeanPlanTime, true)
+	res[48] = "WalRecords: " + reform.Inspect(s.WalRecords, true)
+	res[49] = "WalFpi: " + reform.Inspect(s.WalFpi, true)
+	res[50] = "WalBytes: " + reform.Inspect(s.WalBytes, true)
 	return strings.Join(res, ", ")
 }
 

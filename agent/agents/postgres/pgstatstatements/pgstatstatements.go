@@ -399,6 +399,8 @@ func (m *PGStatStatementsQAN) makeBuckets(current, prev statementsMap) []*agentp
 			// convert milliseconds to seconds
 			{float32(currentPSS.SharedBlkReadTime-prevPSS.SharedBlkReadTime) / 1000, &mb.Postgresql.MSharedBlkReadTimeSum, &mb.Postgresql.MSharedBlkReadTimeCnt},
 			{float32(currentPSS.SharedBlkWriteTime-prevPSS.SharedBlkWriteTime) / 1000, &mb.Postgresql.MSharedBlkWriteTimeSum, &mb.Postgresql.MSharedBlkWriteTimeCnt},
+			{float32(currentPSS.LocalBlkReadTime-prevPSS.LocalBlkReadTime) / 1000, &mb.Postgresql.MLocalBlkReadTimeSum, &mb.Postgresql.MLocalBlkReadTimeCnt},
+			{float32(currentPSS.LocalBlkWriteTime-prevPSS.LocalBlkWriteTime) / 1000, &mb.Postgresql.MLocalBlkWriteTimeSum, &mb.Postgresql.MLocalBlkWriteTimeCnt},
 		} {
 			if p.value != 0 {
 				*p.sum = p.value

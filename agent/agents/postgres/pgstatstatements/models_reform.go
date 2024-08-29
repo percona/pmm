@@ -209,6 +209,8 @@ func (v *pgStatStatementsViewType) Columns() []string {
 		"temp_blks_written",
 		"shared_blk_read_time",
 		"shared_blk_write_time",
+		"local_blk_read_time",
+		"local_blk_write_time",
 	}
 }
 
@@ -242,6 +244,8 @@ var pgStatStatementsView = &pgStatStatementsViewType{
 			{Name: "TempBlksWritten", Type: "int64", Column: "temp_blks_written"},
 			{Name: "SharedBlkReadTime", Type: "float64", Column: "shared_blk_read_time"},
 			{Name: "SharedBlkWriteTime", Type: "float64", Column: "shared_blk_write_time"},
+			{Name: "LocalBlkReadTime", Type: "float64", Column: "local_blk_read_time"},
+			{Name: "LocalBlkWriteTime", Type: "float64", Column: "local_blk_write_time"},
 		},
 		PKFieldIndex: -1,
 	},
@@ -250,7 +254,7 @@ var pgStatStatementsView = &pgStatStatementsViewType{
 
 // String returns a string representation of this struct or record.
 func (s pgStatStatements) String() string {
-	res := make([]string, 19)
+	res := make([]string, 21)
 	res[0] = "UserID: " + reform.Inspect(s.UserID, true)
 	res[1] = "DBID: " + reform.Inspect(s.DBID, true)
 	res[2] = "QueryID: " + reform.Inspect(s.QueryID, true)
@@ -270,6 +274,8 @@ func (s pgStatStatements) String() string {
 	res[16] = "TempBlksWritten: " + reform.Inspect(s.TempBlksWritten, true)
 	res[17] = "SharedBlkReadTime: " + reform.Inspect(s.SharedBlkReadTime, true)
 	res[18] = "SharedBlkWriteTime: " + reform.Inspect(s.SharedBlkWriteTime, true)
+	res[19] = "LocalBlkReadTime: " + reform.Inspect(s.LocalBlkReadTime, true)
+	res[20] = "LocalBlkWriteTime: " + reform.Inspect(s.LocalBlkWriteTime, true)
 	return strings.Join(res, ", ")
 }
 
@@ -296,6 +302,8 @@ func (s *pgStatStatements) Values() []interface{} {
 		s.TempBlksWritten,
 		s.SharedBlkReadTime,
 		s.SharedBlkWriteTime,
+		s.LocalBlkReadTime,
+		s.LocalBlkWriteTime,
 	}
 }
 
@@ -322,6 +330,8 @@ func (s *pgStatStatements) Pointers() []interface{} {
 		&s.TempBlksWritten,
 		&s.SharedBlkReadTime,
 		&s.SharedBlkWriteTime,
+		&s.LocalBlkReadTime,
+		&s.LocalBlkWriteTime,
 	}
 }
 

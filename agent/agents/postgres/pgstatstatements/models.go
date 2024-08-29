@@ -61,6 +61,8 @@ type pgStatStatements struct {
 	TempBlksWritten    int64   `reform:"temp_blks_written"`
 	SharedBlkReadTime  float64 `reform:"shared_blk_read_time"`
 	SharedBlkWriteTime float64 `reform:"shared_blk_write_time"`
+	LocalBlkReadTime   float64 `reform:"local_blk_read_time"`
+	LocalBlkWriteTime  float64 `reform:"local_blk_write_time"`
 }
 
 // pgStatStatementsExtended contains pgStatStatements data and extends it with database, username and tables data.
