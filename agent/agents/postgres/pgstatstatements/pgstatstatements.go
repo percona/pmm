@@ -231,8 +231,9 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	}
 
 	row, view := newPgStatMonitorStructs(pgStatVersion)
+	columns := strings.Join(q.QualifiedColumns(view), ", ")
 
-	rows, err := q.Query(fmt.Sprintf("SELECT /* %s */ %s FROM %s %s", queryTag, view.Columns(), q.QualifiedView(view), "WHERE queryid IS NOT NULL AND query IS NOT NULL"))
+	rows, err := q.Query(fmt.Sprintf("SELECT /* %s */ %s FROM %s %s", queryTag, columns, q.QualifiedView(view), "WHERE queryid IS NOT NULL AND query IS NOT NULL"))
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "couldn't get rows from pg_stat_statements")
 	}
