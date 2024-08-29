@@ -6635,6 +6635,18 @@
 		"blk_write_time": {
 
 		},
+		"shared_blk_read_time": {
+
+		},
+		"shared_blk_write_time": {
+
+		},
+		"local_blk_read_time": {
+
+		},
+		"local_blk_write_time": {
+
+		},
 		"bytes_sent": {
 			"rate": 593.79974,
 			"cnt": 17870,

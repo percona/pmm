@@ -6,6 +6,18 @@
 		"blk_write_time": {
 
 		},
+		"shared_blk_read_time": {
+
+		},
+		"shared_blk_write_time": {
+
+		},
+		"local_blk_read_time": {
+
+		},
+		"local_blk_write_time": {
+
+		},
 		"bytes_sent": {
 			"rate": 2.7203703,
 			"cnt": 13,
@@ -1279,6 +1291,18 @@
 
 		},
 		"blk_write_time": {
+
+		},
+		"shared_blk_read_time": {
+
+		},
+		"shared_blk_write_time": {
+
+		},
+		"local_blk_read_time": {
+
+		},
+		"local_blk_write_time": {
 
 		},
 		"bytes_sent": {
