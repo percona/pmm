@@ -56,7 +56,7 @@ message AddLocationResponse {
 
 message ChangeLocationRequest {
   // Machine-readable ID.
-  string location_id = 1 [(validate.rules).string.min_len = 1];
+  string location_id = 1 [(validate.rules).string.uuid = true];
   // Location name
   string name = 2;
   string description = 3;

@@ -51,7 +51,7 @@ message DeleteDumpRequest {
 message DeleteDumpResponse {}
 
 message GetDumpLogsRequest {
-  string dump_id = 1 [(validate.rules).string.min_len = 1];
+  string dump_id = 1 [(validate.rules).string.uuid = true];
   uint32 offset = 2;
   uint32 limit = 3;
 }

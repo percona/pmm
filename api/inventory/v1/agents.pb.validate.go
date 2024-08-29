@@ -35,6 +35,9 @@ var (
 	_ = sort.Sort
 )
 
+// define the regex for a UUID once up-front
+var _agents_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
 // Validate checks the field values on PMMAgent with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -6783,10 +6786,11 @@ func (m *AddPMMAgentParams) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetRunsOnNodeId()) < 1 {
-		err := AddPMMAgentParamsValidationError{
+	if err := m._validateUuid(m.GetRunsOnNodeId()); err != nil {
+		err = AddPMMAgentParamsValidationError{
 			field:  "RunsOnNodeId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -6798,6 +6802,14 @@ func (m *AddPMMAgentParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddPMMAgentParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddPMMAgentParams) _validateUuid(uuid string) error {
+	if matched := _agents_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -7200,10 +7212,11 @@ func (m *AddMySQLdExporterParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := AddMySQLdExporterParamsValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = AddMySQLdExporterParamsValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -7250,6 +7263,14 @@ func (m *AddMySQLdExporterParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddMySQLdExporterParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddMySQLdExporterParams) _validateUuid(uuid string) error {
+	if matched := _agents_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -7531,10 +7552,11 @@ func (m *AddMongoDBExporterParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := AddMongoDBExporterParamsValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = AddMongoDBExporterParamsValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -7576,6 +7598,14 @@ func (m *AddMongoDBExporterParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddMongoDBExporterParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddMongoDBExporterParams) _validateUuid(uuid string) error {
+	if matched := _agents_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -7858,10 +7888,11 @@ func (m *AddPostgresExporterParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := AddPostgresExporterParamsValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = AddPostgresExporterParamsValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -7910,6 +7941,14 @@ func (m *AddPostgresExporterParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddPostgresExporterParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddPostgresExporterParams) _validateUuid(uuid string) error {
+	if matched := _agents_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -8192,10 +8231,11 @@ func (m *AddProxySQLExporterParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := AddProxySQLExporterParamsValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = AddProxySQLExporterParamsValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -8234,6 +8274,14 @@ func (m *AddProxySQLExporterParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddProxySQLExporterParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddProxySQLExporterParams) _validateUuid(uuid string) error {
+	if matched := _agents_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -8517,10 +8565,11 @@ func (m *AddQANMySQLPerfSchemaAgentParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := AddQANMySQLPerfSchemaAgentParamsValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = AddQANMySQLPerfSchemaAgentParamsValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -8565,6 +8614,14 @@ func (m *AddQANMySQLPerfSchemaAgentParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddQANMySQLPerfSchemaAgentParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddQANMySQLPerfSchemaAgentParams) _validateUuid(uuid string) error {
+	if matched := _agents_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -8851,10 +8908,11 @@ func (m *AddQANMySQLSlowlogAgentParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := AddQANMySQLSlowlogAgentParamsValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = AddQANMySQLSlowlogAgentParamsValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -8901,6 +8959,14 @@ func (m *AddQANMySQLSlowlogAgentParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddQANMySQLSlowlogAgentParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddQANMySQLSlowlogAgentParams) _validateUuid(uuid string) error {
+	if matched := _agents_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -9187,10 +9253,11 @@ func (m *AddQANMongoDBProfilerAgentParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := AddQANMongoDBProfilerAgentParamsValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = AddQANMongoDBProfilerAgentParamsValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -9226,6 +9293,14 @@ func (m *AddQANMongoDBProfilerAgentParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddQANMongoDBProfilerAgentParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddQANMongoDBProfilerAgentParams) _validateUuid(uuid string) error {
+	if matched := _agents_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -9514,10 +9589,11 @@ func (m *AddQANPostgreSQLPgStatementsAgentParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := AddQANPostgreSQLPgStatementsAgentParamsValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = AddQANPostgreSQLPgStatementsAgentParamsValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -9560,6 +9636,14 @@ func (m *AddQANPostgreSQLPgStatementsAgentParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddQANPostgreSQLPgStatementsAgentParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddQANPostgreSQLPgStatementsAgentParams) _validateUuid(uuid string) error {
+	if matched := _agents_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -9849,10 +9933,11 @@ func (m *AddQANPostgreSQLPgStatMonitorAgentParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := AddQANPostgreSQLPgStatMonitorAgentParamsValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = AddQANPostgreSQLPgStatMonitorAgentParamsValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -9897,6 +9982,14 @@ func (m *AddQANPostgreSQLPgStatMonitorAgentParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddQANPostgreSQLPgStatMonitorAgentParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddQANPostgreSQLPgStatMonitorAgentParams) _validateUuid(uuid string) error {
+	if matched := _agents_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -10184,10 +10277,11 @@ func (m *AddRDSExporterParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
-		err := AddRDSExporterParamsValidationError{
+	if err := m._validateUuid(m.GetNodeId()); err != nil {
+		err = AddRDSExporterParamsValidationError{
 			field:  "NodeId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -10213,6 +10307,14 @@ func (m *AddRDSExporterParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddRDSExporterParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddRDSExporterParams) _validateUuid(uuid string) error {
+	if matched := _agents_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -10483,10 +10585,11 @@ func (m *AddExternalExporterParams) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetRunsOnNodeId()) < 1 {
-		err := AddExternalExporterParamsValidationError{
+	if err := m._validateUuid(m.GetRunsOnNodeId()); err != nil {
+		err = AddExternalExporterParamsValidationError{
 			field:  "RunsOnNodeId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -10521,6 +10624,14 @@ func (m *AddExternalExporterParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddExternalExporterParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddExternalExporterParams) _validateUuid(uuid string) error {
+	if matched := _agents_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -10803,10 +10914,11 @@ func (m *AddAzureDatabaseExporterParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
-		err := AddAzureDatabaseExporterParamsValidationError{
+	if err := m._validateUuid(m.GetNodeId()); err != nil {
+		err = AddAzureDatabaseExporterParamsValidationError{
 			field:  "NodeId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -10845,6 +10957,14 @@ func (m *AddAzureDatabaseExporterParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddAzureDatabaseExporterParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddAzureDatabaseExporterParams) _validateUuid(uuid string) error {
+	if matched := _agents_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil

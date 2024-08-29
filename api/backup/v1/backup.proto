@@ -13,9 +13,9 @@ import "validate/validate.proto";
 
 message StartBackupRequest {
   // Service identifier.
-  string service_id = 1 [(validate.rules).string.min_len = 1];
+  string service_id = 1 [(validate.rules).string.uuid = true];
   // Machine-readable location ID.
-  string location_id = 2 [(validate.rules).string.min_len = 1];
+  string location_id = 2 [(validate.rules).string.uuid = true];
   // If empty then name is auto-generated.
   string name = 3;
   // Human-readable description.
@@ -37,7 +37,7 @@ message StartBackupResponse {
 
 message ListArtifactCompatibleServicesRequest {
   // Artifact id used to determine restore compatibility.
-  string artifact_id = 1 [(validate.rules).string.min_len = 1];
+  string artifact_id = 1 [(validate.rules).string.uuid = true];
 }
 
 message ListArtifactCompatibleServicesResponse {
@@ -89,9 +89,9 @@ message ScheduledBackup {
 
 message ScheduleBackupRequest {
   // Service identifier where backup should be performed.
-  string service_id = 1 [(validate.rules).string.min_len = 1];
+  string service_id = 1 [(validate.rules).string.uuid = true];
   // Machine-readable location ID.
-  string location_id = 2 [(validate.rules).string.min_len = 1];
+  string location_id = 2 [(validate.rules).string.uuid = true];
   // How often backup should be run in cron format.
   // Folder on storage for artifact.
   string folder = 3;
@@ -127,7 +127,7 @@ message ListScheduledBackupsResponse {
 }
 
 message ChangeScheduledBackupRequest {
-  string scheduled_backup_id = 1 [(validate.rules).string.min_len = 1];
+  string scheduled_backup_id = 1 [(validate.rules).string.uuid = true];
   optional bool enabled = 2;
   // How often backup should be run in cron format.
   optional string cron_expression = 3;
@@ -148,13 +148,13 @@ message ChangeScheduledBackupRequest {
 message ChangeScheduledBackupResponse {}
 
 message RemoveScheduledBackupRequest {
-  string scheduled_backup_id = 1 [(validate.rules).string.min_len = 1];
+  string scheduled_backup_id = 1 [(validate.rules).string.uuid = true];
 }
 
 message RemoveScheduledBackupResponse {}
 
 message GetLogsRequest {
-  string artifact_id = 1 [(validate.rules).string.min_len = 1];
+  string artifact_id = 1 [(validate.rules).string.uuid = true];
   uint32 offset = 2;
   uint32 limit = 3;
 }

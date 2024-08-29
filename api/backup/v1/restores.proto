@@ -53,7 +53,7 @@ message ListRestoresResponse {
 }
 
 message RestoreServiceGetLogsRequest {
-  string restore_id = 1 [(validate.rules).string.min_len = 1];
+  string restore_id = 1 [(validate.rules).string.uuid = true];
   uint32 offset = 2;
   uint32 limit = 3;
 }
@@ -65,9 +65,9 @@ message RestoreServiceGetLogsResponse {
 
 message RestoreBackupRequest {
   // Service identifier where backup should be restored.
-  string service_id = 1 [(validate.rules).string.min_len = 1];
+  string service_id = 1 [(validate.rules).string.uuid = true];
   // Artifact id to restore.
-  string artifact_id = 2 [(validate.rules).string.min_len = 1];
+  string artifact_id = 2 [(validate.rules).string.uuid = true];
   // Timestamp of PITR to restore to
   google.protobuf.Timestamp pitr_timestamp = 3;
 }

@@ -35,6 +35,9 @@ var (
 	_ = sort.Sort
 )
 
+// define the regex for a UUID once up-front
+var _nodes_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
 // Validate checks the field values on GenericNode with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -1011,10 +1014,11 @@ func (m *GetNodeRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
-		err := GetNodeRequestValidationError{
+	if err := m._validateUuid(m.GetNodeId()); err != nil {
+		err = GetNodeRequestValidationError{
 			field:  "NodeId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -1024,6 +1028,14 @@ func (m *GetNodeRequest) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetNodeRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetNodeRequest) _validateUuid(uuid string) error {
+	if matched := _nodes_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -2740,10 +2752,11 @@ func (m *RemoveNodeRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
-		err := RemoveNodeRequestValidationError{
+	if err := m._validateUuid(m.GetNodeId()); err != nil {
+		err = RemoveNodeRequestValidationError{
 			field:  "NodeId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -2755,6 +2768,14 @@ func (m *RemoveNodeRequest) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return RemoveNodeRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *RemoveNodeRequest) _validateUuid(uuid string) error {
+	if matched := _nodes_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil

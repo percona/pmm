@@ -135,7 +135,7 @@ message ListNodesResponse {
 
 message GetNodeRequest {
   // Unique randomly generated instance identifier.
-  string node_id = 1 [(validate.rules).string.min_len = 1];
+  string node_id = 1 [(validate.rules).string.uuid = true];
 }
 
 message GetNodeResponse {
@@ -269,7 +269,7 @@ message AddRemoteAzureNodeParams {
 
 message RemoveNodeRequest {
   // Unique randomly generated instance identifier.
-  string node_id = 1 [(validate.rules).string.min_len = 1];
+  string node_id = 1 [(validate.rules).string.uuid = true];
   // Remove node with all dependencies.
   bool force = 2;
 }
