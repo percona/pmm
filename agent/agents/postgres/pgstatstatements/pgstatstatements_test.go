@@ -85,7 +85,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 	structs, err := db.SelectAllFrom(view, "")
 	require.NoError(t, err)
-	rows, err := rowsByVersion(db.Querier, "")
+	rows, err := db.SelectRows(view, "")
 	require.NoError(t, err)
 
 	defer func() {
