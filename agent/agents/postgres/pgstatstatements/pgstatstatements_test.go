@@ -24,7 +24,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -78,34 +77,15 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		assert.NoError(t, err)
 	}()
 
+	structs, err := db.SelectAllFrom(pgStatDatabaseView, "")
+	require.NoError(t, err)
+	tests.LogTable(t, structs)
+
 	pgStatVersion, err := getPgStatVersion(db.Querier)
 	require.NoError(t, err)
 
 	_, view := newPgStatMonitorStructs(pgStatVersion)
-
-	structs, err := db.SelectAllFrom(view, "")
-	require.NoError(t, err)
-	rows, err := db.SelectRows(view, "")
-	require.NoError(t, err)
-
-	defer func() {
-		e := rows.Close()
-		if err == nil {
-			err = e
-		}
-	}()
-
-	for {
-		str := view.NewStruct()
-		if err = db.Querier.NextRow(str, rows); err != nil {
-			break
-		}
-
-		structs = append(structs, str)
-	}
-	if errors.Is(err, reform.ErrNoRows) {
-		err = nil
-	}
+	structs, err = db.SelectAllFrom(view, "")
 	require.NoError(t, err)
 	tests.LogTable(t, structs)
 
