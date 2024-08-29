@@ -71,25 +71,25 @@ func newPgStatMonitorStructs(vPGSS semver.Version) (*pgStatStatements, reform.Vi
 
 	if vPGSS.LT(pgStatVer1_8) {
 		fields = append(fields,
-			field{info: parse.FieldInfo{Name: "TotalExecTime", Type: "int64", Column: "total_time"}, pointer: &s.UserID},
+			field{info: parse.FieldInfo{Name: "TotalExecTime", Type: "float64", Column: "total_time"}, pointer: &s.UserID},
 		)
 	} else {
 		fields = append(fields,
-			field{info: parse.FieldInfo{Name: "TotalExecTime", Type: "int64", Column: "total_exec_time"}, pointer: &s.UserID},
+			field{info: parse.FieldInfo{Name: "TotalExecTime", Type: "float64", Column: "total_exec_time"}, pointer: &s.UserID},
 		)
 	}
 
 	if vPGSS.LT(pgStatVer1_11) {
 		fields = append(fields,
-			field{info: parse.FieldInfo{Name: "SharedBlkReadTime", Type: "int64", Column: "blk_read_time"}, pointer: &s.UserID},
-			field{info: parse.FieldInfo{Name: "SharedBlkWriteTime", Type: "int64", Column: "blk_write_time"}, pointer: &s.UserID},
+			field{info: parse.FieldInfo{Name: "SharedBlkReadTime", Type: "float64", Column: "blk_read_time"}, pointer: &s.UserID},
+			field{info: parse.FieldInfo{Name: "SharedBlkWriteTime", Type: "float64", Column: "blk_write_time"}, pointer: &s.UserID},
 		)
 	} else {
 		fields = append(fields,
-			field{info: parse.FieldInfo{Name: "SharedBlkReadTime", Type: "int64", Column: "shared_blk_read_time"}, pointer: &s.UserID},
-			field{info: parse.FieldInfo{Name: "SharedBlkWriteTime", Type: "int64", Column: "shared_blk_write_time"}, pointer: &s.UserID},
-			field{info: parse.FieldInfo{Name: "LocalBlkReadTime", Type: "int64", Column: "local_blk_read_time"}, pointer: &s.UserID},
-			field{info: parse.FieldInfo{Name: "LocalBlkWriteTime", Type: "int64", Column: "local_blk_write_time"}, pointer: &s.UserID},
+			field{info: parse.FieldInfo{Name: "SharedBlkReadTime", Type: "float64", Column: "shared_blk_read_time"}, pointer: &s.UserID},
+			field{info: parse.FieldInfo{Name: "SharedBlkWriteTime", Type: "float64", Column: "shared_blk_write_time"}, pointer: &s.UserID},
+			field{info: parse.FieldInfo{Name: "LocalBlkReadTime", Type: "float64", Column: "local_blk_read_time"}, pointer: &s.UserID},
+			field{info: parse.FieldInfo{Name: "LocalBlkWriteTime", Type: "float64", Column: "local_blk_write_time"}, pointer: &s.UserID},
 		)
 	}
 
