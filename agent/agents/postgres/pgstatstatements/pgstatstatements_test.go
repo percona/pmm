@@ -78,7 +78,12 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		assert.NoError(t, err)
 	}()
 
-	structs, err := db.SelectAllFrom(pgStatDatabaseView, "")
+	pgStatVersion, err := getPgStatVersion(db.Querier)
+	require.NoError(t, err)
+
+	_, view := newPgStatMonitorStructs(pgStatVersion)
+
+	structs, err := db.SelectAllFrom(view, "")
 	require.NoError(t, err)
 	rows, err := rowsByVersion(db.Querier, "")
 	require.NoError(t, err)
@@ -91,7 +96,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	}()
 
 	for {
-		str := pgStatStatementsView.NewStruct()
+		str := view.NewStruct()
 		if err = db.Querier.NextRow(str, rows); err != nil {
 			break
 		}

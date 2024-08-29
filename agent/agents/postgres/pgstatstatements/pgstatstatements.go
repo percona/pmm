@@ -130,25 +130,6 @@ func getPgStatVersion(q *reform.Querier) (semver.Version, error) {
 	return semver.Parse(v)
 }
 
-func rowsByVersion(q *reform.Querier, tail string) (*sql.Rows, error) {
-	pgStatVersion, err := getPgStatVersion(q)
-	if err != nil {
-		return nil, err
-	}
-
-	columns := strings.Join(q.QualifiedColumns(pgStatStatementsView), ", ")
-	if pgStatVersion.LT(pgStatVer1_8) {
-		columns = strings.Replace(columns, `"total_exec_time"`, `"total_time" AS total_exec_time`, 1)
-	}
-
-	if pgStatVersion.LT(pgStatVer1_11) {
-		columns = strings.Replace(columns, `"shared_blk_read_time"`, `"blk_read_time" AS shared_blk_read_time`, 1)
-		columns = strings.Replace(columns, `"shared_blk_write_time"`, `"blk_write_time" AS shared_blk_write_time`, 1)
-	}
-
-	return q.Query(fmt.Sprintf("SELECT /* %s */ %s FROM %s %s", queryTag, columns, q.QualifiedView(pgStatStatementsView), tail))
-}
-
 // Run extracts stats data and sends it to the channel until ctx is canceled.
 func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	defer func() {
@@ -244,15 +225,21 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	databases := queryDatabases(q)
 	usernames := queryUsernames(q)
 
-	rows, err := rowsByVersion(q, "WHERE queryid IS NOT NULL AND query IS NOT NULL")
+	pgStatVersion, err := getPgStatVersion(q)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	row, view := newPgStatMonitorStructs(pgStatVersion)
+
+	rows, err := q.Query(fmt.Sprintf("SELECT /* %s */ %s FROM %s %s", queryTag, view.Columns(), q.QualifiedView(view), "WHERE queryid IS NOT NULL AND query IS NOT NULL"))
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "couldn't get rows from pg_stat_statements")
 	}
 	defer rows.Close() //nolint:errcheck
 
 	for ctx.Err() == nil {
-		var row pgStatStatements
-		if err = q.NextRow(&row, rows); err != nil {
+		if err = q.NextRow(row, rows); err != nil {
 			if errors.Is(err, reform.ErrNoRows) {
 				err = nil
 			}
@@ -260,7 +247,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 		}
 		totalN++
 		c := &pgStatStatementsExtended{
-			pgStatStatements: row,
+			pgStatStatements: *row,
 			Database:         databases[row.DBID],
 			Username:         usernames[row.UserID],
 		}
