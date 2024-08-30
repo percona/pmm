@@ -85,26 +85,22 @@ func newPgStatMonitorStructs(vPGSS semver.Version) (*pgStatStatements, reform.Vi
 
 	if vPGSS.LT(pgStatVer1_8) {
 		fields = append(fields,
-			field{info: parse.FieldInfo{Name: "TotalExecTime", Type: "float64", Column: "total_time"}, pointer: &s.TotalExecTime},
-		)
+			field{info: parse.FieldInfo{Name: "TotalExecTime", Type: "float64", Column: "total_time"}, pointer: &s.TotalExecTime})
 	} else {
 		fields = append(fields,
-			field{info: parse.FieldInfo{Name: "TotalExecTime", Type: "float64", Column: "total_exec_time"}, pointer: &s.TotalExecTime},
-		)
+			field{info: parse.FieldInfo{Name: "TotalExecTime", Type: "float64", Column: "total_exec_time"}, pointer: &s.TotalExecTime})
 	}
 
 	if vPGSS.LT(pgStatVer1_11) {
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "SharedBlkReadTime", Type: "float64", Column: "blk_read_time"}, pointer: &s.SharedBlkReadTime},
-			field{info: parse.FieldInfo{Name: "SharedBlkWriteTime", Type: "float64", Column: "blk_write_time"}, pointer: &s.SharedBlkWriteTime},
-		)
+			field{info: parse.FieldInfo{Name: "SharedBlkWriteTime", Type: "float64", Column: "blk_write_time"}, pointer: &s.SharedBlkWriteTime})
 	} else {
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "SharedBlkReadTime", Type: "float64", Column: "shared_blk_read_time"}, pointer: &s.SharedBlkReadTime},
 			field{info: parse.FieldInfo{Name: "SharedBlkWriteTime", Type: "float64", Column: "shared_blk_write_time"}, pointer: &s.SharedBlkWriteTime},
 			field{info: parse.FieldInfo{Name: "LocalBlkReadTime", Type: "float64", Column: "local_blk_read_time"}, pointer: &s.LocalBlkReadTime},
-			field{info: parse.FieldInfo{Name: "LocalBlkWriteTime", Type: "float64", Column: "local_blk_write_time"}, pointer: &s.LocalBlkWriteTime},
-		)
+			field{info: parse.FieldInfo{Name: "LocalBlkWriteTime", Type: "float64", Column: "local_blk_write_time"}, pointer: &s.LocalBlkWriteTime})
 	}
 
 	s.pointers = make([]interface{}, len(fields))
