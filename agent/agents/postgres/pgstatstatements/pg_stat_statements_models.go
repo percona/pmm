@@ -56,7 +56,7 @@ func newPgStatMonitorStructs(vPGSS semver.Version) (*pgStatStatements, reform.Vi
 		{info: parse.FieldInfo{Name: "QueryID", Type: "int64", Column: "queryid"}, pointer: &s.QueryID},
 		{info: parse.FieldInfo{Name: "Query", Type: "string", Column: "query"}, pointer: &s.Query},
 		{info: parse.FieldInfo{Name: "Calls", Type: "int64", Column: "calls"}, pointer: &s.Calls},
-		{info: parse.FieldInfo{Name: "Rows", Type: "int64", Column: "rows"}, pointer: &s.UserID},
+		{info: parse.FieldInfo{Name: "Rows", Type: "int64", Column: "rows"}, pointer: &s.Rows},
 		{info: parse.FieldInfo{Name: "SharedBlksHit", Type: "int64", Column: "shared_blks_hit"}, pointer: &s.SharedBlksHit},
 		{info: parse.FieldInfo{Name: "SharedBlksRead", Type: "int64", Column: "shared_blks_read"}, pointer: &s.SharedBlksRead},
 		{info: parse.FieldInfo{Name: "SharedBlksDirtied", Type: "int64", Column: "shared_blks_dirtied"}, pointer: &s.SharedBlksDirtied},
