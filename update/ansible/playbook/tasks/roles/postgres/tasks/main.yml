@@ -11,7 +11,7 @@
         enabled: yes
         gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
       when:
-        - lookup('env', 'DISABLE_REMOTE_YUM_REPOSITORY', default='undefined') == 'undefined'
+        - lookup('env', 'DISABLE_REMOTE_YUM_REPOSITORY', default='false') == 'false'
 
     - name: Add PostgreSQL 11 YUM repository for EL7
       yum_repository:
@@ -22,7 +22,7 @@
         enabled: yes
         gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
       when:
-        - lookup('env', 'DISABLE_REMOTE_YUM_REPOSITORY', default='undefined') == 'undefined'
+        - lookup('env', 'DISABLE_REMOTE_YUM_REPOSITORY', default='false') == 'false'
 
     # we need the old postgres binary for the upgrade process
     - name: Install Postgres
@@ -53,7 +53,7 @@
         enabled: yes
         gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
       when:
-        - lookup('env', 'DISABLE_REMOTE_YUM_REPOSITORY', default='undefined') == 'undefined'
+        - lookup('env', 'DISABLE_REMOTE_YUM_REPOSITORY', default='false') == 'false'
 
     - name: Add PostgreSQL 11 YUM repository for EL9
       yum_repository:
@@ -64,7 +64,7 @@
         enabled: yes
         gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
       when:
-        - lookup('env', 'DISABLE_REMOTE_YUM_REPOSITORY', default='undefined') == 'undefined'
+        - lookup('env', 'DISABLE_REMOTE_YUM_REPOSITORY', default='false') == 'false'
 
     # we need the old postgres binary for the upgrade process
     - name: Install Postgres
