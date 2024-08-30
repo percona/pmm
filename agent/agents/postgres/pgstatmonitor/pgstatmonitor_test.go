@@ -251,6 +251,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
 				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
 				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
+				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
 				MSharedBlksReadCnt:    actual.Postgresql.MSharedBlksReadCnt,
 				MSharedBlksReadSum:    actual.Postgresql.MSharedBlksReadSum,
 				MSharedBlksHitCnt:     actual.Postgresql.MSharedBlksHitCnt,
@@ -313,6 +315,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				MRowsSum:              239,
 				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
 				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
+				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
 				MCpuUserTimeCnt:       actual.Postgresql.MCpuUserTimeCnt,
 				MCpuUserTimeSum:       actual.Postgresql.MCpuUserTimeSum,
 				MCpuSysTimeCnt:        actual.Postgresql.MCpuSysTimeCnt,
@@ -383,6 +387,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
 				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
 				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
+				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
 				MSharedBlksReadCnt:    actual.Postgresql.MSharedBlksReadCnt,
 				MSharedBlksReadSum:    actual.Postgresql.MSharedBlksReadSum,
 				MSharedBlksHitCnt:     actual.Postgresql.MSharedBlksHitCnt,
@@ -444,6 +450,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
 				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
 				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
+				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
 				MSharedBlksHitCnt:     1,
 				MSharedBlksHitSum:     actual.Postgresql.MSharedBlksHitSum,
 				MRowsCnt:              1,
@@ -543,6 +551,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
 				MSharedBlkReadTimeCnt: float32(n),
 				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
+				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
 				MSharedBlksReadCnt:    actual.Postgresql.MSharedBlksReadCnt,
 				MSharedBlksReadSum:    actual.Postgresql.MSharedBlksReadSum,
 				MSharedBlksWrittenCnt: actual.Postgresql.MSharedBlksWrittenCnt,

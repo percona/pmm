@@ -214,6 +214,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
 				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
 				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
+				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
 				MSharedBlksReadCnt:    actual.Postgresql.MSharedBlksReadCnt,
 				MSharedBlksReadSum:    actual.Postgresql.MSharedBlksReadSum,
 				MSharedBlksHitCnt:     actual.Postgresql.MSharedBlksHitCnt,
@@ -259,6 +261,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MRowsSum:              4079,
 				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
 				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
+				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
 			},
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
@@ -308,6 +312,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
 				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
 				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
+				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
 				MSharedBlksReadCnt:    actual.Postgresql.MSharedBlksReadCnt,
 				MSharedBlksReadSum:    actual.Postgresql.MSharedBlksReadSum,
 				MSharedBlksHitCnt:     actual.Postgresql.MSharedBlksHitCnt,
@@ -352,6 +358,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
 				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
 				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
+				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
 				MSharedBlksHitCnt:     1,
 				MSharedBlksHitSum:     actual.Postgresql.MSharedBlksHitSum,
 				MRowsCnt:              1,
@@ -434,6 +442,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MSharedBlkReadTimeSum:  actual.Postgresql.MSharedBlkReadTimeSum,
 				MSharedBlkWriteTimeCnt: actual.Postgresql.MSharedBlkWriteTimeCnt,
 				MSharedBlkWriteTimeSum: actual.Postgresql.MSharedBlkWriteTimeSum,
+				MLocalBlkReadTimeCnt:   actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:   actual.Postgresql.MLocalBlkReadTimeSum,
 				MSharedBlksReadCnt:     actual.Postgresql.MSharedBlksReadCnt,
 				MSharedBlksReadSum:     actual.Postgresql.MSharedBlksReadSum,
 				MSharedBlksWrittenCnt:  float32(n),
