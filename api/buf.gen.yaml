@@ -1,0 +1,33 @@
+version: v2
+managed:
+  enabled: true
+  disable:
+    - file_option: go_package
+      module: buf.build/googleapis/googleapis
+    - file_option: go_package
+      module: buf.build/grpc-ecosystem/grpc-gateway
+    - file_option: go_package
+      module: buf.build/envoyproxy/protoc-gen-validate
+  override:
+    - file_option: go_package_prefix
+      value: github.com/percona/pmm/api
+plugins:
+  - local: ../bin/protoc-gen-go
+    out: .
+    opt: paths=source_relative
+  - local: ../bin/protoc-gen-go-grpc
+    out: .
+    opt: paths=source_relative
+  - local: ../bin/protoc-gen-grpc-gateway
+    out: .
+    opt: paths=source_relative
+  - local: ../bin/protoc-gen-validate
+    out: .
+    opt:
+      - paths=source_relative
+      - lang=go
+  - local: ../bin/protoc-gen-openapiv2
+    out: .
+    opt:
+      - simple_operation_ids=true
+      - json_names_for_fields=false
