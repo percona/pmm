@@ -82,6 +82,9 @@ getent passwd pmm >/dev/null || echo "User pmm does not exist. Please create it 
 exit 0
 
 %changelog
+* Fri Sep 06 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.1.5-1
+- PMM-13235 Grafana 11.1.5
+
 * Thu Aug 15 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.1.4-1
 - PMM-13235 Grafana 11.1.4
 
