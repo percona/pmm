@@ -33,17 +33,21 @@ import (
 
 // RestoreService represents backup restore API.
 type RestoreService struct {
-	l  *logrus.Entry
-	db *reform.DB
+	l               *logrus.Entry
+	db              *reform.DB
+	backupService   backupService
+	scheduleService scheduleService
 
 	backupv1.UnimplementedRestoreServiceServer
 }
 
 // NewRestoreService creates new restore API service.
-func NewRestoreService(db *reform.DB) *RestoreService {
+func NewRestoreService(db *reform.DB, backupService backupService, scheduleService scheduleService) *RestoreService {
 	return &RestoreService{
-		l:  logrus.WithField("component", "management/backup/restore_history"),
-		db: db,
+		l:               logrus.WithField("component", "management/backup/restore"),
+		db:              db,
+		backupService:   backupService,
+		scheduleService: scheduleService,
 	}
 }
 
@@ -169,6 +173,69 @@ func (s *RestoreService) GetLogs(_ context.Context, req *backupv1.RestoreService
 	}
 
 	return res, nil
+}
+
+// RestoreBackup starts restore backup job.
+func (s *RestoreService) RestoreBackup(ctx context.Context, req *backupv1.RestoreBackupRequest) (*backupv1.RestoreBackupResponse, error) {
+	// Disable all related scheduled backups before restoring
+	tasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{ServiceID: req.ServiceId})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, task := range tasks {
+		var disablePITR bool
+		var serviceID string
+
+		errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+			scheduledTask, err := models.FindScheduledTaskByID(tx.Querier, task.ID)
+			if err != nil {
+				return convertError(err)
+			}
+
+			var data *models.CommonBackupTaskData
+			switch scheduledTask.Type {
+			case models.ScheduledMySQLBackupTask:
+				data = &scheduledTask.Data.MySQLBackupTask.CommonBackupTaskData
+			case models.ScheduledMongoDBBackupTask:
+				data = &scheduledTask.Data.MongoDBBackupTask.CommonBackupTaskData
+			default:
+				return status.Errorf(codes.InvalidArgument, "Unknown type: %s", scheduledTask.Type)
+			}
+
+			serviceID = data.ServiceID
+			params := models.ChangeScheduledTaskParams{
+				Data:    scheduledTask.Data,
+				Disable: pointer.ToBool(true),
+			}
+
+			if scheduledTask.Type == models.ScheduledMongoDBBackupTask {
+				disablePITR = data.Mode == models.PITR
+			}
+
+			err = s.scheduleService.Update(task.ID, params)
+
+			return convertError(err)
+		})
+		if errTx != nil {
+			return nil, errTx
+		}
+
+		if disablePITR {
+			if err := s.backupService.SwitchMongoPITR(ctx, serviceID, false); err != nil {
+				s.l.WithError(err).Error("failed to disable PITR")
+			}
+		}
+	}
+
+	id, err := s.backupService.RestoreBackup(ctx, req.ServiceId, req.ArtifactId, req.PitrTimestamp.AsTime())
+	if err != nil {
+		return nil, convertError(err)
+	}
+
+	return &backupv1.RestoreBackupResponse{
+		RestoreId: id,
+	}, nil
 }
 
 func convertRestoreStatus(status models.RestoreStatus) (*backupv1.RestoreStatus, error) {
