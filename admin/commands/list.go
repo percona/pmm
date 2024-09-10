@@ -65,7 +65,9 @@ func (a listResultAgent) NiceAgentStatus() string {
 	if res == "" {
 		res = "unknown" //nolint:goconst
 	}
-	res = cases.Title(language.English).String(strings.ToLower(res))
+	res = strings.ToLower(res)
+	res = cases.Title(language.English).String(res)
+	res = strings.ReplaceAll(res, "_", " ")
 	if a.Disabled {
 		res += " (disabled)"
 	}

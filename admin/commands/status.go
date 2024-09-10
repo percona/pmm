@@ -60,7 +60,9 @@ func (res *statusResult) HumanReadableAgentType(agentType string) string {
 }
 
 func (res *statusResult) NiceAgentStatus(status string) string {
-	return cases.Title(language.English).String(strings.ToLower(status))
+	status = strings.ToLower(status)
+	status = cases.Title(language.English).String(status)
+	return strings.ReplaceAll(status, "_", " ")
 }
 
 func (res *statusResult) Result() {}
