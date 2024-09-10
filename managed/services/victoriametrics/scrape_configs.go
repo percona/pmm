@@ -427,6 +427,9 @@ func scrapeConfigsForMongoDBExporter(params *scrapeConfigParams) ([]*config.Scra
 		}
 		if !params.pmmAgentVersion.Less(version.MustParse("2.43.0-0")) {
 			defaultCollectors = append(defaultCollectors, "fcv")
+    }
+		if !params.pmmAgentVersion.Less(version.MustParse("2.43.0-0")) {
+			defaultCollectors = append(defaultCollectors, "pbm")
 		}
 
 		lr, err := scrapeConfigForStandardExporter("lr", params.metricsResolution.LR, params, defaultCollectors)

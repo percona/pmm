@@ -112,6 +112,9 @@ func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress st
 		}
 		if !pmmAgentVersion.Less(v2_43_0) && collectAll { // >= 2.43.0
 			args = append(args, "--collector.fcv")
+    }
+		if !pmmAgentVersion.Less(v2_43_0) { // >= 2.43.0, enable pbm collector by default
+			args = append(args, "--collector.pbm")
 		}
 
 		args = collectors.FilterOutCollectors("--collector.", args, exporter.DisabledCollectors)
