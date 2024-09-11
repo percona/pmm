@@ -27028,6 +27028,11 @@
                   "type": "boolean",
                   "title": "Alerting Tour",
                   "x-order": 2
+                },
+                "snoozed_pmm_version": {
+                  "type": "string",
+                  "title": "Snoozed PMM version update",
+                  "x-order": 3
                 }
               }
             }
@@ -27091,6 +27096,12 @@
                   "title": "Alerting Tour",
                   "x-nullable": true,
                   "x-order": 1
+                },
+                "snoozed_pmm_version": {
+                  "type": "string",
+                  "title": "Snooze update alert for a PMM version",
+                  "x-nullable": true,
+                  "x-order": 2
                 }
               }
             }
@@ -27117,6 +27128,11 @@
                   "type": "boolean",
                   "title": "Alerting Tour",
                   "x-order": 2
+                },
+                "snoozed_pmm_version": {
+                  "type": "string",
+                  "title": "Snooze update alert for a PMM version",
+                  "x-order": 3
                 }
               }
             }

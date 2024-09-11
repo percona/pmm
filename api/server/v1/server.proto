@@ -7,7 +7,6 @@ import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
-import "validate/validate.proto";
 
 // DistributionMethod defines PMM Server distribution method: Docker image, OVF/OVA, or AMI.
 enum DistributionMethod {
