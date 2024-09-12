@@ -31,6 +31,24 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+func encryptionKeyPath() string {
+	customKeyPath := os.Getenv("PMM_ENCRYPTION_KEY_PATH")
+	if customKeyPath != "" {
+		return customKeyPath
+	}
+
+	return DefaultEncryptionKeyPath
+}
+
+func removeKey() error {
+	err := os.Remove(encryptionKeyPath())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func prepareRowPointers(rows *sql.Rows) ([]any, error) {
 	columnTypes, err := rows.ColumnTypes()
 	if err != nil {

@@ -20,6 +20,7 @@ import (
 	"encoding/base64"
 	"os"
 	"slices"
+	"sync"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -33,13 +34,14 @@ var (
 	// ErrEncryptionNotInitialized is error in case of encryption is not initialized.
 	ErrEncryptionNotInitialized = errors.New("encryption is not initialized")
 	// DefaultEncryption is the default implementation of encryption.
-	DefaultEncryption = New()
+	DefaultEncryption    = New()
+	defaultEncryptionMtx sync.Mutex
 )
 
 // New creates an encryption; if key on path doesn't exist, it will be generated.
 func New() *Encryption {
 	e := &Encryption{}
-	e.Path = getEncryptionKeyPath()
+	e.Path = encryptionKeyPath()
 
 	bytes, err := os.ReadFile(e.Path)
 	switch {
@@ -63,30 +65,28 @@ func New() *Encryption {
 	return e
 }
 
-func getEncryptionKeyPath() string {
-	customKeyPath := os.Getenv("PMM_ENCRYPTION_KEY_PATH")
-	if customKeyPath != "" {
-		return customKeyPath
-	}
-
-	return DefaultEncryptionKeyPath
-}
-
-func removeKey() error {
-	err := os.Remove(getEncryptionKeyPath())
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// RotateKey will generate new encryption key.
-func RotateKey() error {
+// RotateEncryptionKey is a wrapper around DefaultEncryption.RotateEncryptionKey.
+func RotateEncryptionKey() error {
 	err := removeKey()
 	if err != nil {
 		return err
 	}
+
+	defaultEncryptionMtx.Lock()
+	DefaultEncryption = New()
+	defaultEncryptionMtx.Unlock()
+
+	return nil
+}
+
+// RotateEncryptionKey will generate new encryption key.
+func (e *Encryption) RotateEncryptionKey() error {
+	err := removeKey()
+	if err != nil {
+		return err
+	}
+
+	e = New()
 
 	return nil
 }

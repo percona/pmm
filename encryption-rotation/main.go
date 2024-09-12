@@ -16,6 +16,7 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 
 	"github.com/Percona-Lab/kingpin"
@@ -26,7 +27,10 @@ import (
 )
 
 func main() {
-	db, dbName := openDB()
+	sqlDB, dbName := openDB()
+	defer sqlDB.Close()
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 	err := rotateEncryptionKey(db, dbName)
 	if err != nil {
 		log.Panicf("Failed to rotate encryption key: %+v", err)
@@ -40,7 +44,7 @@ func rotateEncryptionKey(db *reform.DB, params models.SetupDBParams) error {
 			return err
 		}
 
-		err = encryption.RotateKey()
+		err = encryption.RotateEncryptionKey()
 		if err != nil {
 			return err
 		}
@@ -54,7 +58,7 @@ func rotateEncryptionKey(db *reform.DB, params models.SetupDBParams) error {
 	})
 }
 
-func openDB() (*reform.DB, models.SetupDBParams) {
+func openDB() (*sql.DB, models.SetupDBParams) {
 	postgresAddrF := kingpin.Flag("postgres-addr", "PostgreSQL address").
 		Default(models.DefaultPostgreSQLAddr).
 		Envar("PMM_POSTGRES_ADDR").
@@ -101,5 +105,5 @@ func openDB() (*reform.DB, models.SetupDBParams) {
 		log.Panicf("Failed to connect to database: %+v", err)
 	}
 
-	return reform.NewDB(sqlDB, postgresql.Dialect, nil), *postgresDBNameF
+	return sqlDB, *postgresDBNameF
 }
