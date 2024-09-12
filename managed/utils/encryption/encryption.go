@@ -33,18 +33,13 @@ var (
 	// ErrEncryptionNotInitialized is error in case of encryption is not initialized.
 	ErrEncryptionNotInitialized = errors.New("encryption is not initialized")
 	// DefaultEncryption is the default implementation of encryption.
-	DefaultEncryption = New(DefaultEncryptionKeyPath)
+	DefaultEncryption = New()
 )
 
 // New creates an encryption; if key on path doesn't exist, it will be generated.
-func New(keyPath string) *Encryption {
+func New() *Encryption {
 	e := &Encryption{}
-	customKeyPath := os.Getenv("PMM_ENCRYPTION_KEY_PATH")
-	if customKeyPath != "" {
-		e.Path = customKeyPath
-	} else {
-		e.Path = keyPath
-	}
+	e.Path = getEncryptionKeyPath()
 
 	bytes, err := os.ReadFile(e.Path)
 	switch {
@@ -66,6 +61,34 @@ func New(keyPath string) *Encryption {
 	e.Primitive = primitive
 
 	return e
+}
+
+func getEncryptionKeyPath() string {
+	customKeyPath := os.Getenv("PMM_ENCRYPTION_KEY_PATH")
+	if customKeyPath != "" {
+		return customKeyPath
+	}
+
+	return DefaultEncryptionKeyPath
+}
+
+func removeKey() error {
+	err := os.Remove(getEncryptionKeyPath())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// RotateKey will generate new encryption key.
+func RotateKey() error {
+	err := removeKey()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Encrypt is a wrapper around DefaultEncryption.Encrypt.
