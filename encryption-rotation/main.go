@@ -38,9 +38,9 @@ func main() {
 	}
 }
 
-func rotateEncryptionKey(db *reform.DB, params models.SetupDBParams) error {
+func rotateEncryptionKey(db *reform.DB, dbName string) error {
 	return db.InTransaction(func(tx *reform.TX) error {
-		err := models.DecryptDB(tx, params.Name, models.AgentEncryptionColumns)
+		err := models.DecryptDB(tx, dbName, models.AgentEncryptionColumns)
 		if err != nil {
 			return err
 		}
@@ -50,7 +50,7 @@ func rotateEncryptionKey(db *reform.DB, params models.SetupDBParams) error {
 			return err
 		}
 
-		err = models.EncryptDB(tx, params.Name, models.AgentEncryptionColumns)
+		err = models.EncryptDB(tx, dbName, models.AgentEncryptionColumns)
 		if err != nil {
 			return err
 		}
@@ -59,7 +59,7 @@ func rotateEncryptionKey(db *reform.DB, params models.SetupDBParams) error {
 	})
 }
 
-func openDB() (*sql.DB, models.SetupDBParams) {
+func openDB() (*sql.DB, string) {
 	postgresAddrF := kingpin.Flag("postgres-addr", "PostgreSQL address").
 		Default(models.DefaultPostgreSQLAddr).
 		Envar("PMM_POSTGRES_ADDR").
