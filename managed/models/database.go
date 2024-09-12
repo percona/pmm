@@ -1176,15 +1176,27 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 
 // EncryptDB encrypts a set of columns in a specific database and table.
 func EncryptDB(tx *reform.TX, database string, itemsToEncrypt []encryption.Table) error {
-	return dbEncryption(tx, database, itemsToEncrypt, encryption.EncryptItems)
+	return dbEncryption(tx, database, itemsToEncrypt, encryption.EncryptItems, encryptionExists)
 }
 
 // DecryptDB decrypts a set of columns in a specific database and table.
 func DecryptDB(tx *reform.TX, database string, itemsToEncrypt []encryption.Table) error {
-	return dbEncryption(tx, database, itemsToEncrypt, encryption.EncryptItems)
+	return dbEncryption(tx, database, itemsToEncrypt, encryption.DecryptItems, encryptionNotExists)
 }
 
-func dbEncryption(tx *reform.TX, database string, itemsToEncrypt []encryption.Table, handler func(tx *reform.TX, tables []encryption.Table) error) error {
+func encryptionExists(m map[string]bool, key string) bool {
+	if m[key] {
+		return true
+	}
+
+	return false
+}
+
+func encryptionNotExists(m map[string]bool, key string) bool {
+	return !encryptionExists(m, key)
+}
+
+func dbEncryption(tx *reform.TX, database string, itemsToEncrypt []encryption.Table, handler func(tx *reform.TX, tables []encryption.Table) error, check func(m map[string]bool, key string) bool) error {
 	if len(itemsToEncrypt) == 0 {
 		return nil
 	}
@@ -1204,7 +1216,7 @@ func dbEncryption(tx *reform.TX, database string, itemsToEncrypt []encryption.Ta
 		columns := []encryption.Column{}
 		for _, column := range table.Columns {
 			dbTableColumn := fmt.Sprintf("%s.%s.%s", database, table.Name, column.Name)
-			if currentColumns[dbTableColumn] {
+			if check(currentColumns, dbTableColumn) {
 				continue
 			}
 
