@@ -15,6 +15,10 @@ export const ReleaseNotes: FC<ReleaseNotesProps> = ({ content }) => {
   return (
     <Stack
       sx={(theme) => ({
+        img: {
+          height: 'auto',
+          maxWidth: '100%',
+        },
         'table, tr, th, td': {
           p: 1,
           textAlign: 'left',
