@@ -34,6 +34,8 @@ github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20230116133345-3487748d4592 h1:
 github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20230116133345-3487748d4592/go.mod h1:xCJfGpj56ERA85Mj1VfBzoeWW4lZ00xXXkvG0LJQjZU=
 github.com/Percona-Lab/kingpin v2.2.6-percona+incompatible h1:N5oM40aAatvf8bCYjv69YsVdxJLIUhY/MerUG1jRL9Y=
 github.com/Percona-Lab/kingpin v2.2.6-percona+incompatible/go.mod h1:UC6j/e2eqpHBB/vn+5214ExsoDLiEo6BfUGBhbtf+x0=
+github.com/Percona-Lab/kingpin v2.2.6+incompatible h1:i7fo0CKR6IGSxe9ErG2DMFz/shUK6vRigVfyQqOyWvs=
+github.com/Percona-Lab/kingpin v2.2.6+incompatible/go.mod h1:UC6j/e2eqpHBB/vn+5214ExsoDLiEo6BfUGBhbtf+x0=
 github.com/Percona-Lab/spec v0.20.5-percona h1:ViCJVq52QIZxpP8/Nv4/nIed+WnqUirNjPtXvHhset4=
 github.com/Percona-Lab/spec v0.20.5-percona/go.mod h1:2OpW+JddWPrpXSCIX8eOx7lZ5iyuWj3RYR6VaaBKcWA=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=

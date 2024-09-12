@@ -19,6 +19,7 @@ require (
 	github.com/AlekSi/pointer v1.2.0
 	github.com/ClickHouse/clickhouse-go/v2 v2.23.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/Percona-Lab/kingpin v2.2.6+incompatible
 	github.com/alecthomas/kong v0.9.0
 	github.com/alecthomas/units v0.0.0-20231202071711-9a357b53e9c9
 	github.com/aws/aws-sdk-go v1.55.3
