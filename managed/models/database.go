@@ -1176,7 +1176,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 
 // EncryptDB encrypts a set of columns in a specific database and table.
 func EncryptDB(tx *reform.TX, database string, itemsToEncrypt []encryption.Table) error {
-	return dbEncryption(tx, database, itemsToEncrypt, encryption.EncryptItems, encryptionExists)
+	return dbEncryption(tx, database, itemsToEncrypt, encryption.EncryptItems, encryptionNotExists)
 }
 
 // DecryptDB decrypts a set of columns in a specific database and table.
@@ -1185,11 +1185,7 @@ func DecryptDB(tx *reform.TX, database string, itemsToEncrypt []encryption.Table
 }
 
 func encryptionExists(m map[string]bool, key string) bool {
-	if m[key] {
-		return true
-	}
-
-	return false
+	return m[key]
 }
 
 func encryptionNotExists(m map[string]bool, key string) bool {

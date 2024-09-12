@@ -90,6 +90,8 @@ func openDB() (*sql.DB, string) {
 		Envar("PMM_POSTGRES_SSL_CERT_PATH").
 		String()
 
+	kingpin.Parse()
+
 	setupParams := models.SetupDBParams{
 		Address:     *postgresAddrF,
 		Name:        *postgresDBNameF,
