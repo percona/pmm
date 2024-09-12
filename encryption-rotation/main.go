@@ -20,10 +20,11 @@ import (
 	"log"
 
 	"github.com/Percona-Lab/kingpin"
-	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/encryption"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
+
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/encryption"
 )
 
 func main() {
