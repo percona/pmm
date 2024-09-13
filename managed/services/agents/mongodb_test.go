@@ -473,6 +473,7 @@ func TestMongodbExporterConfig2430(t *testing.T) {
 			"--collector.dbstats",
 			"--collector.diagnosticdata",
 			"--collector.indexstats",
+			"--collector.fcv",
 			"--collector.pbm",
 			"--collector.replicasetstatus",
 			"--collector.shards",
