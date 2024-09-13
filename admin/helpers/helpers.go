@@ -17,11 +17,11 @@ package helpers
 
 import (
 	"fmt"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 	"strings"
 
 	"github.com/pkg/errors"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/api/inventorypb/json/client/nodes"

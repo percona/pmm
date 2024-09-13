@@ -274,7 +274,8 @@ func TestStartProcessFail(t *testing.T) {
 
 	t.Run("Start", func(t *testing.T) {
 		expectedList := []*agentlocalpb.AgentInfo{}
-		require.Equal(t, expectedList, s.AgentsList())
+		list := s.AgentsList()
+		require.Equal(t, expectedList, list)
 
 		s.SetState(&agentpb.SetStateRequest{
 			AgentProcesses: map[string]*agentpb.SetStateRequest_AgentProcess{
@@ -285,14 +286,13 @@ func TestStartProcessFail(t *testing.T) {
 		assertChanges(t, s,
 			&agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65000, ProcessExecPath: "sleep"},
 			&agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_INITIALIZATION_ERROR, ListenPort: 65000, ProcessExecPath: "sleep"},
-			&agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_DONE, ListenPort: 65000, ProcessExecPath: "sleep"},
 			&agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65001, ProcessExecPath: "sleep"},
 			&agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_INITIALIZATION_ERROR, ListenPort: 65001, ProcessExecPath: "sleep"},
-			&agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_DONE, ListenPort: 65001, ProcessExecPath: "sleep"},
 			&agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65002, ProcessExecPath: "sleep"},
-			&agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_INITIALIZATION_ERROR, ListenPort: 65002, ProcessExecPath: "sleep"},
-			&agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_DONE, ListenPort: 65002, ProcessExecPath: "sleep"})
-		expectedList = []*agentlocalpb.AgentInfo{}
+			&agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_INITIALIZATION_ERROR, ListenPort: 65002, ProcessExecPath: "sleep"})
+		expectedList = []*agentlocalpb.AgentInfo{
+			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventorypb.AgentStatus_INITIALIZATION_ERROR, ListenPort: 65002, ProcessExecPath: "sleep"},
+		}
 		require.Equal(t, expectedList, s.AgentsList())
 	})
 }
