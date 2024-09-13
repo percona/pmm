@@ -96,6 +96,7 @@ func IsOnPmmServer() (bool, error) {
 	return status.NodeID == "pmm-server", nil
 }
 
+// NiceAgentStatus returns prettified agent status.
 func NiceAgentStatus(status string) string {
 	status = strings.ToLower(status)
 	status = cases.Title(language.English).String(status)
