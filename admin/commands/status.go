@@ -17,14 +17,12 @@ package commands
 import (
 	"context"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/pkg/errors"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 
 	"github.com/percona/pmm/admin/agentlocal"
+	"github.com/percona/pmm/admin/helpers"
 	"github.com/percona/pmm/api/inventorypb/types"
 	"github.com/percona/pmm/version"
 )
@@ -60,9 +58,7 @@ func (res *statusResult) HumanReadableAgentType(agentType string) string {
 }
 
 func (res *statusResult) NiceAgentStatus(status string) string {
-	status = strings.ToLower(status)
-	status = cases.Title(language.English).String(status)
-	return strings.ReplaceAll(status, "_", " ")
+	return helpers.NiceAgentStatus(status)
 }
 
 func (res *statusResult) Result() {}

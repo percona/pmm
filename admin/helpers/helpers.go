@@ -17,6 +17,9 @@ package helpers
 
 import (
 	"fmt"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+	"strings"
 
 	"github.com/pkg/errors"
 
@@ -91,4 +94,10 @@ func IsOnPmmServer() (bool, error) {
 	}
 
 	return status.NodeID == "pmm-server", nil
+}
+
+func NiceAgentStatus(status string) string {
+	status = strings.ToLower(status)
+	status = cases.Title(language.English).String(status)
+	return strings.ReplaceAll(status, "_", " ")
 }
