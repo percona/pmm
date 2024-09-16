@@ -61,7 +61,8 @@ const (
 	VerifyFullSSLMode string = "verify-full"
 )
 
-var AgentEncryptionColumns = []encryption.Table{
+// DefaultAgentEncryptionColumns contains all tables and it's columns to be encrypted in PMM Server DB.
+var DefaultAgentEncryptionColumns = []encryption.Table{
 	{
 		Name:        "agents",
 		Identifiers: []string{"agent_id"},
@@ -1167,7 +1168,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, errCV
 	}
 
-	if err := migrateDB(db, params, AgentEncryptionColumns); err != nil {
+	if err := migrateDB(db, params, DefaultAgentEncryptionColumns); err != nil {
 		return nil, err
 	}
 
@@ -1217,7 +1218,7 @@ func removeFromEncryptedItems(encryptedItems []string, items []string) []string 
 }
 
 func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
-	handler func(tx *reform.TX, tables []encryption.Table) error,
+	encryptionHandler func(tx *reform.TX, tables []encryption.Table) error,
 	checkHandler func(m map[string]bool, key string) bool,
 	settingsHandler func(encryptedItems []string, items []string) []string,
 ) error {
@@ -1258,7 +1259,7 @@ func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
 		return nil
 	}
 
-	err = handler(tx, tables)
+	err = encryptionHandler(tx, tables)
 	if err != nil {
 		return err
 	}

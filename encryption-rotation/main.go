@@ -12,13 +12,16 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// Package main
-
+// Package main is the main package for encryption keys rotation.
 package main
 
 import (
 	"database/sql"
+	"errors"
+	"fmt"
 	"log"
+	"os/exec"
+	"strings"
 
 	"github.com/Percona-Lab/kingpin"
 	"gopkg.in/reform.v1"
@@ -30,13 +33,69 @@ import (
 
 func main() {
 	sqlDB, dbName := openDB()
-	defer sqlDB.Close()
+	defer sqlDB.Close() //nolint:errcheck
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
-	err := rotateEncryptionKey(db, dbName)
+
+	err := stopPMMServer()
 	if err != nil {
 		log.Panicf("Failed to rotate encryption key: %+v", err)
 	}
+
+	err = rotateEncryptionKey(db, dbName)
+	if err != nil {
+		log.Panicf("Failed to rotate encryption key: %+v", err)
+	}
+
+	err = startPMMServer()
+	if err != nil {
+		log.Panicf("Failed to rotate encryption key: %+v", err)
+	}
+}
+
+func startPMMServer() error {
+	if isPMMServerStatus("RUNNING") {
+		fmt.Println("PMM Server is already running.")
+		return nil
+	}
+
+	cmd := exec.Command("supervisorctl", "start pmm-managed")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("%s: %s", err, output)
+	}
+
+	if !isPMMServerStatus("RUNNING") {
+		return errors.New("cannot start pmm-managed")
+	}
+
+	return nil
+}
+
+func stopPMMServer() error {
+	if isPMMServerStatus("STOPPED") {
+		fmt.Println("PMM Server is already stopped.")
+		return nil
+	}
+
+	cmd := exec.Command("supervisorctl", "stop pmm-managed")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("%s: %s", err, output)
+	}
+
+	if !isPMMServerStatus("STOPPED") {
+		return errors.New("cannot stop pmm-managed")
+	}
+
+	return nil
+}
+
+func isPMMServerStatus(status string) bool {
+	cmd := exec.Command("supervisorctl", "status pmm-managed")
+	output, _ := cmd.CombinedOutput()
+
+	return strings.Contains(string(output), strings.ToUpper(status))
 }
 
 func rotateEncryptionKey(db *reform.DB, dbName string) error {
@@ -53,6 +112,7 @@ func rotateEncryptionKey(db *reform.DB, dbName string) error {
 
 		err = models.EncryptDB(tx, dbName, models.AgentEncryptionColumns)
 		if err != nil {
+			// rollback old key
 			return err
 		}
 
