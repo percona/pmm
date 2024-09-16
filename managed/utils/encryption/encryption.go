@@ -18,8 +18,10 @@ package encryption
 
 import (
 	"encoding/base64"
+	"fmt"
 	"os"
 	"slices"
+	"strings"
 	"sync"
 
 	"github.com/pkg/errors"
@@ -67,7 +69,7 @@ func New() *Encryption {
 
 // RotateEncryptionKey is a wrapper around DefaultEncryption.RotateEncryptionKey.
 func RotateEncryptionKey() error {
-	err := removeKey()
+	err := backupOldEncryptionKey()
 	if err != nil {
 		return err
 	}
@@ -81,12 +83,22 @@ func RotateEncryptionKey() error {
 
 // RotateEncryptionKey will generate new encryption key.
 func (e *Encryption) RotateEncryptionKey() error {
-	err := removeKey()
+	err := backupOldEncryptionKey()
 	if err != nil {
 		return err
 	}
 
 	e = New()
+
+	return nil
+}
+
+// RestoreOldEncryptionKey will restore previous backup during rotation.
+func RestoreOldEncryptionKey() error {
+	err := os.Rename(fmt.Sprintf("%s_old.key", strings.TrimSuffix(encryptionKeyPath(), ".key")), encryptionKeyPath())
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

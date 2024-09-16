@@ -17,13 +17,14 @@ package main
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"strings"
 
 	"github.com/Percona-Lab/kingpin"
+	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -39,30 +40,32 @@ func main() {
 
 	err := stopPMMServer()
 	if err != nil {
-		log.Panicf("Failed to rotate encryption key: %+v", err)
+		log.Printf("Failed to rotate encryption key: %+v", err)
+		os.Exit(1)
 	}
 
 	err = rotateEncryptionKey(db, dbName)
 	if err != nil {
-		log.Panicf("Failed to rotate encryption key: %+v", err)
+		log.Printf("Failed to rotate encryption key: %+v", err)
+		os.Exit(1)
 	}
 
 	err = startPMMServer()
 	if err != nil {
-		log.Panicf("Failed to rotate encryption key: %+v", err)
+		log.Printf("Failed to rotate encryption key: %+v", err)
+		os.Exit(1)
 	}
 }
 
 func startPMMServer() error {
 	if isPMMServerStatus("RUNNING") {
-		fmt.Println("PMM Server is already running.")
 		return nil
 	}
 
 	cmd := exec.Command("supervisorctl", "start pmm-managed")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("%s: %s", err, output)
+		return fmt.Errorf("%w: %s", err, output)
 	}
 
 	if !isPMMServerStatus("RUNNING") {
@@ -74,14 +77,13 @@ func startPMMServer() error {
 
 func stopPMMServer() error {
 	if isPMMServerStatus("STOPPED") {
-		fmt.Println("PMM Server is already stopped.")
 		return nil
 	}
 
 	cmd := exec.Command("supervisorctl", "stop pmm-managed")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("%s: %s", err, output)
+		return fmt.Errorf("%w: %s", err, output)
 	}
 
 	if !isPMMServerStatus("STOPPED") {
@@ -112,7 +114,9 @@ func rotateEncryptionKey(db *reform.DB, dbName string) error {
 
 		err = models.EncryptDB(tx, dbName, models.DefaultAgentEncryptionColumns)
 		if err != nil {
-			// rollback old key
+			if e := encryption.RestoreOldEncryptionKey(); e != nil {
+				return errors.Wrap(e, e.Error())
+			}
 			return err
 		}
 

@@ -40,8 +40,8 @@ func encryptionKeyPath() string {
 	return DefaultEncryptionKeyPath
 }
 
-func removeKey() error {
-	err := os.Remove(encryptionKeyPath())
+func backupOldEncryptionKey() error {
+	err := os.Rename(encryptionKeyPath(), fmt.Sprintf("%s_old.key", strings.TrimSuffix(encryptionKeyPath(), ".key")))
 	if err != nil {
 		return err
 	}
