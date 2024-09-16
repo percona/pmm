@@ -100,7 +100,7 @@ func isPMMServerStatus(status string) bool {
 
 func rotateEncryptionKey(db *reform.DB, dbName string) error {
 	return db.InTransaction(func(tx *reform.TX) error {
-		err := models.DecryptDB(tx, dbName, models.AgentEncryptionColumns)
+		err := models.DecryptDB(tx, dbName, models.DefaultAgentEncryptionColumns)
 		if err != nil {
 			return err
 		}
@@ -110,7 +110,7 @@ func rotateEncryptionKey(db *reform.DB, dbName string) error {
 			return err
 		}
 
-		err = models.EncryptDB(tx, dbName, models.AgentEncryptionColumns)
+		err = models.EncryptDB(tx, dbName, models.DefaultAgentEncryptionColumns)
 		if err != nil {
 			// rollback old key
 			return err
