@@ -33,6 +33,10 @@ import (
 )
 
 func main() {
+	os.Exit(rotate())
+}
+
+func rotate() int {
 	sqlDB, dbName := openDB()
 	defer sqlDB.Close() //nolint:errcheck
 
@@ -41,20 +45,22 @@ func main() {
 	err := stopPMMServer()
 	if err != nil {
 		log.Printf("Failed to rotate encryption key: %+v", err)
-		os.Exit(1)
+		return 1
 	}
 
 	err = rotateEncryptionKey(db, dbName)
 	if err != nil {
 		log.Printf("Failed to rotate encryption key: %+v", err)
-		os.Exit(1)
+		return 2
 	}
 
 	err = startPMMServer()
 	if err != nil {
 		log.Printf("Failed to rotate encryption key: %+v", err)
-		os.Exit(1)
+		return 3
 	}
+
+	return 0
 }
 
 func startPMMServer() error {
