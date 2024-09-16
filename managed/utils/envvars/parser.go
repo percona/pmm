@@ -159,7 +159,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			}
 			envSettings.EnableAzurediscover = &b
 
-		case "ENABLE_BACKUP_MANAGEMENT":
+		case "PMM_ENABLE_BACKUP_MANAGEMENT":
 			b, err := strconv.ParseBool(v)
 			if err != nil {
 				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
@@ -173,7 +173,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_VM_URL":
 			_, err = url.Parse(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
 			}
 
 		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
