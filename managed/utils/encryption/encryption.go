@@ -67,7 +67,7 @@ func New() *Encryption {
 	return e
 }
 
-// RotateEncryptionKey is a wrapper around DefaultEncryption.RotateEncryptionKey.
+// RotateEncryptionKey is will backup old encryption key and generate new one.
 func RotateEncryptionKey() error {
 	err := backupOldEncryptionKey()
 	if err != nil {
@@ -77,18 +77,6 @@ func RotateEncryptionKey() error {
 	defaultEncryptionMtx.Lock()
 	DefaultEncryption = New()
 	defaultEncryptionMtx.Unlock()
-
-	return nil
-}
-
-// RotateEncryptionKey will generate new encryption key.
-func (e *Encryption) RotateEncryptionKey() error {
-	err := backupOldEncryptionKey()
-	if err != nil {
-		return err
-	}
-
-	e = New()
 
 	return nil
 }
