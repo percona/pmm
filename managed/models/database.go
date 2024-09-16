@@ -1219,7 +1219,8 @@ func removeFromEncryptedItems(encryptedItems []string, items []string) []string 
 func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
 	handler func(tx *reform.TX, tables []encryption.Table) error,
 	checkHandler func(m map[string]bool, key string) bool,
-	settingsHandler func(encryptedItems []string, items []string) []string) error {
+	settingsHandler func(encryptedItems []string, items []string) []string,
+) error {
 	if len(items) == 0 {
 		return nil
 	}
@@ -1259,7 +1260,6 @@ func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
 
 	err = handler(tx, tables)
 	if err != nil {
-
 		return err
 	}
 	_, err = UpdateSettings(tx, &ChangeSettingsParams{
