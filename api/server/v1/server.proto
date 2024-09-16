@@ -7,7 +7,6 @@ import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
-import "validate/validate.proto";
 
 // DistributionMethod defines PMM Server distribution method: Docker image, OVF/OVA, or AMI.
 enum DistributionMethod {
@@ -72,6 +71,10 @@ message DockerVersionInfo {
   string tag = 2;
   // Release date.
   google.protobuf.Timestamp timestamp = 3;
+  // Release notes URL for the version (if available).
+  string release_notes_url = 4;
+  // Release notes text for the version (if available).
+  string release_notes_text = 5;
 }
 
 message CheckUpdatesResponse {
@@ -85,6 +88,16 @@ message CheckUpdatesResponse {
   string latest_news_url = 4;
   // Last check time.
   google.protobuf.Timestamp last_check = 5;
+}
+
+message ListChangeLogsRequest {}
+
+message ListChangeLogsResponse {
+  // List of available updates.
+  repeated DockerVersionInfo updates = 1;
+
+  // Last check time.
+  google.protobuf.Timestamp last_check = 2;
 }
 
 message StartUpdateRequest {
@@ -235,6 +248,14 @@ service ServerService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Check updates"
       description: "Checks for available PMM Server updates."
+    };
+  }
+
+  rpc ListChangeLogs(ListChangeLogsRequest) returns (ListChangeLogsResponse) {
+    option (google.api.http) = {get: "/v1/server/updates/changelogs"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List all the changes between the installed version and the latest available version"
+      description: "List all the changes between the installed version and the latest available version"
     };
   }
   // StartUpdate starts PMM Server update.
