@@ -75,7 +75,8 @@ services:
     platform: "linux/amd64"
     container_name: pmm-client-mysql
     depends_on:
-      - pmm-server
+      pmm-server:
+        condition: service_healthy
     environment:
       PMM_AGENT_SERVER_ADDRESS: pmm-server
       PMM_AGENT_SERVER_USERNAME: admin
@@ -84,6 +85,8 @@ services:
       PMM_AGENT_CONFIG_FILE: config/pmm-agent.yaml
       PMM_AGENT_SETUP: 1
       PMM_AGENT_SETUP_FORCE: 1
+      PMM_AGENT_SIDECAR: 1
+#      PMM_AGENT_PRERUN_SCRIPT: "pmm-admin status --wait=10s; pmm-admin add mysql --username=root --password=password --host=mysql --port=3306"
 
   sysbench:
     image: perconalab/sysbench
