@@ -1,9 +1,9 @@
 %global debug_package   %{nil}
-%global commit          f2a6d70344f94674f731e6e9b031a6f147de46cc
+%global commit          7dd51483f34ce324e603160f415395fce0bc55a1
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
 %define release         106
-%define grafana_version 11.1.4
+%define grafana_version 11.1.5
 %define full_pmm_version 2.0.0
 %define full_version    v%{grafana_version}-%{full_pmm_version}
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
