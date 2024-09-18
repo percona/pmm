@@ -80,35 +80,22 @@ func TestProcess(t *testing.T) {
 	})
 
 	t.Run("FailedToStart", func(t *testing.T) {
-		ctx, cancel, l := setup(t)
+		ctx, _, l := setup(t)
 		p := New(&Params{Path: "no_such_command"}, nil, l)
 		go p.Run(ctx)
 
-		assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_STARTING, inventoryv1.AgentStatus_AGENT_STATUS_WAITING, inventoryv1.AgentStatus_AGENT_STATUS_STARTING, inventoryv1.AgentStatus_AGENT_STATUS_WAITING)
-		cancel()
-		assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_DONE, inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED)
+		assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_STARTING, inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR,
+			inventoryv1.AgentStatus_AGENT_STATUS_DONE, inventoryv1.AgentStatus_AGENT_STATUS_INVALID)
 	})
 
 	t.Run("ExitedEarly", func(t *testing.T) {
 		sleep := strconv.FormatFloat(runningT.Seconds()-0.5, 'f', -1, 64)
-		ctx, cancel, l := setup(t)
+		ctx, _, l := setup(t)
 		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l)
 		go p.Run(ctx)
 
-		assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_STARTING, inventoryv1.AgentStatus_AGENT_STATUS_WAITING, inventoryv1.AgentStatus_AGENT_STATUS_STARTING, inventoryv1.AgentStatus_AGENT_STATUS_WAITING)
-		cancel()
-		assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_DONE, inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED)
-	})
-
-	t.Run("CancelStarting", func(t *testing.T) {
-		sleep := strconv.FormatFloat(runningT.Seconds()-0.5, 'f', -1, 64)
-		ctx, cancel, l := setup(t)
-		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l)
-		go p.Run(ctx)
-
-		assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_STARTING, inventoryv1.AgentStatus_AGENT_STATUS_WAITING, inventoryv1.AgentStatus_AGENT_STATUS_STARTING)
-		cancel()
-		assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_WAITING, inventoryv1.AgentStatus_AGENT_STATUS_DONE, inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED)
+		assertStates(t, p, inventoryv1.AgentStatus_STARTING, inventoryv1.AgentStatus_INITIALIZATION_ERROR,
+			inventoryv1.AgentStatus_DONE, inventoryv1.AgentStatus_AGENT_STATUS_INVALID)
 	})
 
 	t.Run("Exited", func(t *testing.T) {

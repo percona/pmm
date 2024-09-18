@@ -7,6 +7,8 @@ enum AgentStatus {
   AGENT_STATUS_UNSPECIFIED = 0;
   // Agent is starting.
   AGENT_STATUS_STARTING = 1;
+  // Agent encountered error when starting.
+  INITIALIZATION_ERROR = 7;
   // Agent is running.
   AGENT_STATUS_RUNNING = 2;
   // Agent encountered error and will be restarted automatically soon.

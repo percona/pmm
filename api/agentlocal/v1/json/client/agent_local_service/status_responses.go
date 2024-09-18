@@ -474,12 +474,13 @@ type StatusOKBodyAgentsInfoItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// The current listen port of this Agent (exporter or vmagent).
@@ -596,7 +597,7 @@ var statusOkBodyAgentsInfoItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -611,6 +612,9 @@ const (
 
 	// StatusOKBodyAgentsInfoItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
 	StatusOKBodyAgentsInfoItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// StatusOKBodyAgentsInfoItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	StatusOKBodyAgentsInfoItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// StatusOKBodyAgentsInfoItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
 	StatusOKBodyAgentsInfoItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
