@@ -35,9 +35,9 @@ import (
 
 const (
 	encryptionKeyTestPath = "/srv/pmm-encryption-rotation-test.key"
-	originEncryptionKey   = `CMatkOIIEmQKWAowdHlwZS5nb29nbGVhcGlzLmNvbS9nb29nbGUuY3J5cHRvLnRpbmsuQWVzR2NtS2V5EiIaIKDxOKZxwiJl5Hj6oPZ/unTzmAvfwHWzZ1Wli0vac15YGAEQARjGrZDiCCAB` //nolint:gosec
-	originUsernameHash    = `AYxEFsZVZMH7UErzcQ8vbm3lVza//yRF6o/yTH7tcRD0PAwsESt6c/d0BzM=`                                                                                     //nolint:gosec
-	originPasswordHash    = `AYxEFsa5GYg97cnETVOU/A7ZPjrG7A1je3qlu+g5pKI/uH2ndz3lzCaZwkU=`                                                                                     //nolint:gosec
+	originEncryptionKey   = `CMatkOIIEmQKWAowdHlwZS5nb29nbGVhcGlzLmNvbS9nb29nbGUuY3J5cHRvLnRpbmsuQWVzR2NtS2V5EiIaIKDxOKZxwiJl5Hj6oPZ/unTzmAvfwHWzZ1Wli0vac15YGAEQARjGrZDiCCAB`
+	originUsernameHash    = `AYxEFsZVZMH7UErzcQ8vbm3lVza//yRF6o/yTH7tcRD0PAwsESt6c/d0BzM=`
+	originPasswordHash    = `AYxEFsa5GYg97cnETVOU/A7ZPjrG7A1je3qlu+g5pKI/uH2ndz3lzCaZwkU=` //nolint:gosec
 )
 
 func TestEncryptionRotation(t *testing.T) {
