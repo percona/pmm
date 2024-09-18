@@ -521,7 +521,7 @@ func TestSettings(t *testing.T) {
 				assert.Empty(t, res)
 			})
 
-			t.Run("ChangeSSHKey", func(t *testing.T) {
+			t.Run("ChangeSSHKey only on AMI and OVF", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
 				sshKey := "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQClY/8sz3w03vA2bY6mBFgUzrvb2FIoHw8ZjUXGGClJzJg5HC" +
@@ -535,8 +535,8 @@ func TestSettings(t *testing.T) {
 					},
 					Context: pmmapitests.Context,
 				})
-				require.NoError(t, err)
-				assert.Equal(t, sshKey, res.Payload.Settings.SSHKey)
+				pmmapitests.AssertAPIErrorf(t, err, 500, codes.Internal, `SSH key can be set only on AMI and OVF distributions`)
+				assert.Empty(t, res)
 			})
 
 			t.Run("OK", func(t *testing.T) {
