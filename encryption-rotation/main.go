@@ -44,7 +44,7 @@ func rotate() int {
 
 	err := stopPMMServer()
 	if err != nil {
-		log.Printf("Failed to rotate encryption key: %+v", err)
+		log.Printf("Failed to stop PMM Server: %+v", err)
 		return 1
 	}
 
@@ -56,7 +56,7 @@ func rotate() int {
 
 	err = startPMMServer()
 	if err != nil {
-		log.Printf("Failed to rotate encryption key: %+v", err)
+		log.Printf("Failed to start PMM Server: %+v", err)
 		return 3
 	}
 
