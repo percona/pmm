@@ -30,7 +30,8 @@ import (
 
 const (
 	username, password = "postgres", ""
-	testDatabase       = "pmm-managed-dev"
+	// TestDatabase contains name of pmm-managed DB used for tests.
+	TestDatabase = "pmm-managed-dev"
 )
 
 // Open recreates testing PostgreSQL database and returns an open connection to it.
@@ -46,15 +47,15 @@ func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersio
 	db, err := models.OpenDB(setupParams)
 	require.NoError(tb, err)
 
-	_, err = db.Exec(`DROP DATABASE IF EXISTS "` + testDatabase + `"`)
+	_, err = db.Exec(`DROP DATABASE IF EXISTS "` + TestDatabase + `"`)
 	require.NoError(tb, err)
-	_, err = db.Exec(`CREATE DATABASE "` + testDatabase + `"`)
+	_, err = db.Exec(`CREATE DATABASE "` + TestDatabase + `"`)
 	require.NoError(tb, err)
 
 	err = db.Close()
 	require.NoError(tb, err)
 
-	setupParams.Name = testDatabase
+	setupParams.Name = TestDatabase
 	db, err = models.OpenDB(setupParams)
 	require.NoError(tb, err)
 	SetupDB(tb, db, setupFixtures, migrationVersion)

@@ -33,13 +33,13 @@ import (
 )
 
 func main() {
-	os.Exit(rotate())
-}
-
-func rotate() int {
 	sqlDB, dbName := openDB()
 	defer sqlDB.Close() //nolint:errcheck
 
+	os.Exit(rotate(sqlDB, dbName))
+}
+
+func rotate(sqlDB *sql.DB, dbName string) int {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	err := stopPMMServer()

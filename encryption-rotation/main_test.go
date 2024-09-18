@@ -1,0 +1,64 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+// Package main is the main package for encryption keys rotation.
+package main
+
+import (
+	"os"
+	"testing"
+	"time"
+
+	"github.com/AlekSi/pointer"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/encryption"
+	"github.com/percona/pmm/managed/utils/testdb"
+	"github.com/stretchr/testify/require"
+)
+
+const (
+	encryptionKeyTestPath = "/srv/pmm-encryption-rotation-test.key"
+	originEncryptionKey   = `CMatkOIIEmQKWAowdHlwZS5nb29nbGVhcGlzLmNvbS9nb29nbGUuY3J5cHRvLnRpbmsuQWVzR2NtS2V5EiIaIKDxOKZxwiJl5Hj6oPZ/unTzmAvfwHWzZ1Wli0vac15YGAEQARjGrZDiCCAB`
+	originUsernameHash    = `AYxEFsZVZMH7UErzcQ8vbm3lVza//yRF6o/yTH7tcRD0PAwsESt6c/d0BzM=`
+	originPasswordHash    = `AYxEFsa5GYg97cnETVOU/A7ZPjrG7A1je3qlu+g5pKI/uH2ndz3lzCaZwkU=`
+)
+
+func TestEncryptionRotation(t *testing.T) {
+	db := testdb.Open(t, models.SkipFixtures, pointer.ToInt(88))
+	defer db.Close() //nolint:errcheck
+
+	encryption.DefaultEncryptionKeyPath = encryptionKeyTestPath
+	err := os.WriteFile(encryptionKeyTestPath, []byte(originEncryptionKey), 0644)
+	require.NoError(t, err)
+
+	now := time.Now()
+	// Insert dummy encrypted agent in DB
+	_, err = db.Exec(
+		"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
+			"VALUES ('1', 'generic', 'name', '', '', '', '', $1, $2)",
+		now, now)
+	require.NoError(t, err)
+	_, err = db.Exec(
+		"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, socket, external_group, created_at, updated_at) "+
+			"VALUES ('1', 'mysql', 'name', '1', '', '', '', '/var/run/mysqld/mysqld.sock', '', $1, $2)",
+		now, now)
+	require.NoError(t, err)
+	_, err = db.Exec(
+		"INSERT INTO agents (agent_id, agent_type, username, password, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, max_query_length, query_examples_disabled, comments_parsing_disabled, max_query_log_size, table_count_tablestats_group_limit, rds_basic_metrics_disabled, rds_enhanced_metrics_disabled, push_metrics, expose_exporter) "+
+			"VALUES ('1', 'pmm-agent', $1, $2, '1', NULL, false, '', $3, $4, false, false, 0, false, true, 0, 0, true, true, false, false)",
+		originEncryptionKey, originPasswordHash, now, now)
+	require.NoError(t, err)
+
+	require.Equal(t, 0, rotate(db, testdb.TestDatabase))
+}

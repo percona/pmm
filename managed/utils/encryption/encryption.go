@@ -29,10 +29,9 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-// DefaultEncryptionKeyPath contains default PMM encryption key path.
-const DefaultEncryptionKeyPath = "/srv/pmm-encryption.key"
-
 var (
+	// DefaultEncryptionKeyPath contains default PMM encryption key path.
+	DefaultEncryptionKeyPath = "/srv/pmm-encryption.key"
 	// ErrEncryptionNotInitialized is error in case of encryption is not initialized.
 	ErrEncryptionNotInitialized = errors.New("encryption is not initialized")
 	// DefaultEncryption is the default implementation of encryption.
