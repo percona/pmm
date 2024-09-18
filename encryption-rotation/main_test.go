@@ -50,7 +50,7 @@ func TestEncryptionRotation(t *testing.T) {
 	err = insertTestData(db)
 	require.NoError(t, err)
 
-	statusCode := rotate(db, testdb.TestDatabase)
+	statusCode := rotate(db, "pmm-managed-dev")
 	require.Equal(t, 0, statusCode)
 
 	newEncryptionKey, err := os.ReadFile(encryptionKeyTestPath)
