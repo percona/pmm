@@ -21,7 +21,9 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/Percona-Lab/kingpin"
 	"github.com/pkg/errors"
@@ -33,6 +35,8 @@ import (
 )
 
 func main() {
+	signal.Ignore(syscall.SIGINT, syscall.SIGTERM) // to prevent any interuptions during process
+
 	sqlDB, dbName := openDB()
 	defer sqlDB.Close() //nolint:errcheck
 
