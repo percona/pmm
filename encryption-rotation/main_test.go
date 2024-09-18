@@ -16,15 +16,18 @@
 package main
 
 import (
+	"database/sql"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/pkg/errors"
+	"github.com/stretchr/testify/require"
+
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/managed/utils/testdb"
-	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -38,27 +41,91 @@ func TestEncryptionRotation(t *testing.T) {
 	db := testdb.Open(t, models.SkipFixtures, pointer.ToInt(88))
 	defer db.Close() //nolint:errcheck
 
-	encryption.DefaultEncryptionKeyPath = encryptionKeyTestPath
-	err := os.WriteFile(encryptionKeyTestPath, []byte(originEncryptionKey), 0644)
+	err := createOriginEncryptionKey()
 	require.NoError(t, err)
 
+	err = insertTestData(db)
+	require.NoError(t, err)
+
+	statusCode := rotate(db, testdb.TestDatabase)
+	require.Equal(t, 0, statusCode)
+
+	newEncryptionKey, err := os.ReadFile(encryptionKeyTestPath)
+	require.NoError(t, err)
+	require.NotEqual(t, newEncryptionKey, []byte(originEncryptionKey))
+
+	err = checkNewlyEncryptedData(db)
+	require.NoError(t, err)
+}
+
+func createOriginEncryptionKey() error {
+	encryption.DefaultEncryptionKeyPath = encryptionKeyTestPath
+	return os.WriteFile(encryptionKeyTestPath, []byte(originEncryptionKey), 0o644)
+}
+
+func insertTestData(db *sql.DB) error {
+	_, err := models.UpdateSettings(db, &models.ChangeSettingsParams{
+		EncryptedItems: []string{"pmm-managed-dev.agents.username", "pmm-managed-dev.agents.password", "pmm-managed-dev.agents.aws_access_key", "pmm-managed-dev.agents.aws_secret_key", "pmm-managed-dev.agents.mongo_db_tls_options", "pmm-managed-dev.agents.azure_options", "pmm-managed-dev.agents.mysql_options", "pmm-managed-dev.agents.postgresql_options", "pmm-managed-dev.agents.agent_password"},
+	})
+	if err != nil {
+		return err
+	}
+
 	now := time.Now()
-	// Insert dummy encrypted agent in DB
 	_, err = db.Exec(
 		"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
 			"VALUES ('1', 'generic', 'name', '', '', '', '', $1, $2)",
 		now, now)
-	require.NoError(t, err)
+	if err != nil {
+		return err
+	}
 	_, err = db.Exec(
 		"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, socket, external_group, created_at, updated_at) "+
 			"VALUES ('1', 'mysql', 'name', '1', '', '', '', '/var/run/mysqld/mysqld.sock', '', $1, $2)",
 		now, now)
-	require.NoError(t, err)
+	if err != nil {
+		return err
+	}
 	_, err = db.Exec(
 		"INSERT INTO agents (agent_id, agent_type, username, password, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, max_query_length, query_examples_disabled, comments_parsing_disabled, max_query_log_size, table_count_tablestats_group_limit, rds_basic_metrics_disabled, rds_enhanced_metrics_disabled, push_metrics, expose_exporter) "+
 			"VALUES ('1', 'pmm-agent', $1, $2, '1', NULL, false, '', $3, $4, false, false, 0, false, true, 0, 0, true, true, false, false)",
-		originEncryptionKey, originPasswordHash, now, now)
-	require.NoError(t, err)
+		originUsernameHash, originPasswordHash, now, now)
+	if err != nil {
+		return err
+	}
 
-	require.Equal(t, 0, rotate(db, testdb.TestDatabase))
+	return nil
+}
+
+func checkNewlyEncryptedData(db *sql.DB) error {
+	var newlyEncryptedUsername string
+	var newlyEncryptedPassword string
+	err := db.QueryRow(`SELECT username, password FROM agents WHERE agent_id = $1`, "1").Scan(&newlyEncryptedUsername, &newlyEncryptedPassword)
+	if err != nil {
+		return err
+	}
+	if newlyEncryptedUsername == originUsernameHash {
+		return errors.New("username hash not rotated properly")
+	}
+	if newlyEncryptedPassword == originPasswordHash {
+		return errors.New("password hash not rotated properly")
+	}
+
+	username, err := encryption.Decrypt(newlyEncryptedUsername)
+	if err != nil {
+		return err
+	}
+	if username != "pmm-managed" {
+		return errors.New("username not properly decrypted")
+	}
+
+	password, err := encryption.Decrypt(newlyEncryptedPassword)
+	if err != nil {
+		return err
+	}
+	if password != "pmm-managed" {
+		return errors.New("password not properly decrypted")
+	}
+
+	return nil
 }
