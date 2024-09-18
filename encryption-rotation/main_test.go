@@ -36,8 +36,10 @@ import (
 const (
 	encryptionKeyTestPath = "/srv/pmm-encryption-rotation-test.key"
 	originEncryptionKey   = `CMatkOIIEmQKWAowdHlwZS5nb29nbGVhcGlzLmNvbS9nb29nbGUuY3J5cHRvLnRpbmsuQWVzR2NtS2V5EiIaIKDxOKZxwiJl5Hj6oPZ/unTzmAvfwHWzZ1Wli0vac15YGAEQARjGrZDiCCAB`
-	originUsernameHash    = `AYxEFsZVZMH7UErzcQ8vbm3lVza//yRF6o/yTH7tcRD0PAwsESt6c/d0BzM=`
-	originPasswordHash    = `AYxEFsa5GYg97cnETVOU/A7ZPjrG7A1je3qlu+g5pKI/uH2ndz3lzCaZwkU=` //nolint:gosec
+	// pmm-managed-username encrypted with originEncryptionKey
+	originUsernameHash = `AYxEFsbCFxg31sCqO4KlCsqASFYNeHapjT+vf8seEhsQrN5hWOCuvCSxd/ZERv8RODu3oX4=`
+	// pmm-managed-password encrypted with originEncryptionKey
+	originPasswordHash = `AYxEFsajO8X5rrXG4ocOEE4ltWuaNmy7Uz0GyDgZ/Q04O2biFah5IdkenQ9ehXwv+nyiwDw=` //nolint:gosec
 )
 
 func TestEncryptionRotation(t *testing.T) {
@@ -63,7 +65,7 @@ func TestEncryptionRotation(t *testing.T) {
 
 func createOriginEncryptionKey() error {
 	encryption.DefaultEncryptionKeyPath = encryptionKeyTestPath
-	return os.WriteFile(encryptionKeyTestPath, []byte(originEncryptionKey), 0o600)
+	return os.WriteFile(encryptionKeyTestPath, []byte(originEncryptionKey), 0o644)
 }
 
 func insertTestData(db *sql.DB) error {

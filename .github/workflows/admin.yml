@@ -14,6 +14,7 @@ on:
       - "agent/**"
       - "api-tests/**"
       - "docs/**"
+      - "encryption-rotation/**"
       - "managed/**"
       - "qan-api2/**"
       - "update/**"

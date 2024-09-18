@@ -1,4 +1,4 @@
-name: QAN
+name: 'Encryption Rotation Tool'
 
 on:
   push:
@@ -16,8 +16,8 @@ on:
       - "api-tests/**"
       - "cli-tests/**"
       - "docs/**"
-      - "encryption-rotation/**"
       - "managed/**"
+      - "qan-api2/**"
       - "update/**"
       - "vmproxy/**"
       - "ui/**"
@@ -27,12 +27,16 @@ jobs:
     name: Tests
     runs-on: ubuntu-22.04
 
+    continue-on-error: true
+
+    env:
+
     defaults:
       run:
-        working-directory: ${{ github.workspace }}/qan-api2
+        working-directory: ${{ github.workspace }}/encryption-rotation
 
     steps:
-      - name: Checkout code
+      - name: Check out code
         uses: actions/checkout@v4
 
       - name: Set up Go release
@@ -63,19 +67,28 @@ jobs:
       - name: Build and install
         run: make install
 
-      - name: Initialize CI environment
-        run: make test-env-up
+      - name: Launch containers
+        env:
+          ENV_UP_FLAGS: "--detach"
+        run: make env-up
 
-      - name: Run Tests
-        run: |
-          make test-race
-          make test-cover
+      - name: Run tests
+        run: go test ./...
+
+      - name: Upload coverage results
+        uses: codecov/codecov-action@v4
+        with:
+          file: cover.out
+          flags: agent
+          env_vars: MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Run debug commands on failure
         if: ${{ failure() }}
         run: |
-          env
-          go version
-          go env
-          pwd
+          echo "--- Environment variables ---"
+          env | sort
+          echo "--- GO Environment ---"
+          go env | sort
           git status

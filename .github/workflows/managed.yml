@@ -15,6 +15,7 @@ on:
       - 'api-tests/**'
       - 'cli-tests/**'
       - 'docs/**'
+      - "encryption-rotation/**"
       - 'qan-api2/**'
       - 'update/**'
       - 'vmproxy/**'
