@@ -38,9 +38,10 @@ func main() {
 	signal.Ignore(syscall.SIGINT, syscall.SIGTERM) // to prevent any interuptions during process
 
 	sqlDB, dbName := openDB()
-	defer sqlDB.Close() //nolint:errcheck
+	statusCode := rotate(sqlDB, dbName)
+	sqlDB.Close() //nolint:errcheck
 
-	os.Exit(rotate(sqlDB, dbName))
+	os.Exit(statusCode)
 }
 
 func rotate(sqlDB *sql.DB, dbName string) int {

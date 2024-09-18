@@ -12,7 +12,10 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 // Package main is the main package for encryption keys rotation.
+//
+//nolint:dupword
 package main
 
 import (
@@ -32,9 +35,9 @@ import (
 
 const (
 	encryptionKeyTestPath = "/srv/pmm-encryption-rotation-test.key"
-	originEncryptionKey   = `CMatkOIIEmQKWAowdHlwZS5nb29nbGVhcGlzLmNvbS9nb29nbGUuY3J5cHRvLnRpbmsuQWVzR2NtS2V5EiIaIKDxOKZxwiJl5Hj6oPZ/unTzmAvfwHWzZ1Wli0vac15YGAEQARjGrZDiCCAB`
-	originUsernameHash    = `AYxEFsZVZMH7UErzcQ8vbm3lVza//yRF6o/yTH7tcRD0PAwsESt6c/d0BzM=`
-	originPasswordHash    = `AYxEFsa5GYg97cnETVOU/A7ZPjrG7A1je3qlu+g5pKI/uH2ndz3lzCaZwkU=`
+	originEncryptionKey   = `CMatkOIIEmQKWAowdHlwZS5nb29nbGVhcGlzLmNvbS9nb29nbGUuY3J5cHRvLnRpbmsuQWVzR2NtS2V5EiIaIKDxOKZxwiJl5Hj6oPZ/unTzmAvfwHWzZ1Wli0vac15YGAEQARjGrZDiCCAB` //nolint:gosec
+	originUsernameHash    = `AYxEFsZVZMH7UErzcQ8vbm3lVza//yRF6o/yTH7tcRD0PAwsESt6c/d0BzM=`                                                                                     //nolint:gosec
+	originPasswordHash    = `AYxEFsa5GYg97cnETVOU/A7ZPjrG7A1je3qlu+g5pKI/uH2ndz3lzCaZwkU=`                                                                                     //nolint:gosec
 )
 
 func TestEncryptionRotation(t *testing.T) {
@@ -60,7 +63,7 @@ func TestEncryptionRotation(t *testing.T) {
 
 func createOriginEncryptionKey() error {
 	encryption.DefaultEncryptionKeyPath = encryptionKeyTestPath
-	return os.WriteFile(encryptionKeyTestPath, []byte(originEncryptionKey), 0o644)
+	return os.WriteFile(encryptionKeyTestPath, []byte(originEncryptionKey), 0o600)
 }
 
 func insertTestData(db *sql.DB) error {
