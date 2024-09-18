@@ -1144,13 +1144,13 @@ type ListAgentsOKBodyAzureDatabaseExporterItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
-	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -1198,7 +1198,7 @@ var listAgentsOkBodyAzureDatabaseExporterItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1214,8 +1214,8 @@ const (
 	// ListAgentsOKBodyAzureDatabaseExporterItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
 	ListAgentsOKBodyAzureDatabaseExporterItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// ListAgentsOKBodyAzureDatabaseExporterItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
-	ListAgentsOKBodyAzureDatabaseExporterItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
+	// ListAgentsOKBodyAzureDatabaseExporterItems0StatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ListAgentsOKBodyAzureDatabaseExporterItems0StatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyAzureDatabaseExporterItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
 	ListAgentsOKBodyAzureDatabaseExporterItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
@@ -1620,13 +1620,13 @@ type ListAgentsOKBodyMongodbExporterItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
-	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -1684,7 +1684,7 @@ var listAgentsOkBodyMongodbExporterItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1700,8 +1700,8 @@ const (
 	// ListAgentsOKBodyMongodbExporterItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
 	ListAgentsOKBodyMongodbExporterItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// ListAgentsOKBodyMongodbExporterItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
-	ListAgentsOKBodyMongodbExporterItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
+	// ListAgentsOKBodyMongodbExporterItems0StatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ListAgentsOKBodyMongodbExporterItems0StatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyMongodbExporterItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
 	ListAgentsOKBodyMongodbExporterItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
@@ -1958,13 +1958,13 @@ type ListAgentsOKBodyMysqldExporterItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
-	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -2015,7 +2015,7 @@ var listAgentsOkBodyMysqldExporterItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2031,8 +2031,8 @@ const (
 	// ListAgentsOKBodyMysqldExporterItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
 	ListAgentsOKBodyMysqldExporterItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// ListAgentsOKBodyMysqldExporterItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
-	ListAgentsOKBodyMysqldExporterItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
+	// ListAgentsOKBodyMysqldExporterItems0StatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ListAgentsOKBodyMysqldExporterItems0StatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyMysqldExporterItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
 	ListAgentsOKBodyMysqldExporterItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
@@ -2260,13 +2260,13 @@ type ListAgentsOKBodyNodeExporterItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
-	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -2314,7 +2314,7 @@ var listAgentsOkBodyNodeExporterItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2330,8 +2330,8 @@ const (
 	// ListAgentsOKBodyNodeExporterItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
 	ListAgentsOKBodyNodeExporterItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// ListAgentsOKBodyNodeExporterItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
-	ListAgentsOKBodyNodeExporterItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
+	// ListAgentsOKBodyNodeExporterItems0StatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ListAgentsOKBodyNodeExporterItems0StatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyNodeExporterItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
 	ListAgentsOKBodyNodeExporterItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
@@ -2620,13 +2620,13 @@ type ListAgentsOKBodyPostgresExporterItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
-	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -2680,7 +2680,7 @@ var listAgentsOkBodyPostgresExporterItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2696,8 +2696,8 @@ const (
 	// ListAgentsOKBodyPostgresExporterItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
 	ListAgentsOKBodyPostgresExporterItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// ListAgentsOKBodyPostgresExporterItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
-	ListAgentsOKBodyPostgresExporterItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
+	// ListAgentsOKBodyPostgresExporterItems0StatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ListAgentsOKBodyPostgresExporterItems0StatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyPostgresExporterItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
 	ListAgentsOKBodyPostgresExporterItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
@@ -2937,13 +2937,13 @@ type ListAgentsOKBodyProxysqlExporterItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
-	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -2991,7 +2991,7 @@ var listAgentsOkBodyProxysqlExporterItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -3007,8 +3007,8 @@ const (
 	// ListAgentsOKBodyProxysqlExporterItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
 	ListAgentsOKBodyProxysqlExporterItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// ListAgentsOKBodyProxysqlExporterItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
-	ListAgentsOKBodyProxysqlExporterItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
+	// ListAgentsOKBodyProxysqlExporterItems0StatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ListAgentsOKBodyProxysqlExporterItems0StatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyProxysqlExporterItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
 	ListAgentsOKBodyProxysqlExporterItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
@@ -3245,13 +3245,13 @@ type ListAgentsOKBodyQANMongodbProfilerAgentItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
-	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -3286,7 +3286,7 @@ var listAgentsOkBodyQanMongodbProfilerAgentItems0TypeStatusPropEnum []interface{
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -3302,8 +3302,8 @@ const (
 	// ListAgentsOKBodyQANMongodbProfilerAgentItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
 	ListAgentsOKBodyQANMongodbProfilerAgentItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// ListAgentsOKBodyQANMongodbProfilerAgentItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
-	ListAgentsOKBodyQANMongodbProfilerAgentItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
+	// ListAgentsOKBodyQANMongodbProfilerAgentItems0StatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ListAgentsOKBodyQANMongodbProfilerAgentItems0StatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyQANMongodbProfilerAgentItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
 	ListAgentsOKBodyQANMongodbProfilerAgentItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
@@ -3469,13 +3469,13 @@ type ListAgentsOKBodyQANMysqlPerfschemaAgentItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
-	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -3510,7 +3510,7 @@ var listAgentsOkBodyQanMysqlPerfschemaAgentItems0TypeStatusPropEnum []interface{
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -3526,8 +3526,8 @@ const (
 	// ListAgentsOKBodyQANMysqlPerfschemaAgentItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
 	ListAgentsOKBodyQANMysqlPerfschemaAgentItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// ListAgentsOKBodyQANMysqlPerfschemaAgentItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
-	ListAgentsOKBodyQANMysqlPerfschemaAgentItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
+	// ListAgentsOKBodyQANMysqlPerfschemaAgentItems0StatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ListAgentsOKBodyQANMysqlPerfschemaAgentItems0StatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyQANMysqlPerfschemaAgentItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
 	ListAgentsOKBodyQANMysqlPerfschemaAgentItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
@@ -3696,13 +3696,13 @@ type ListAgentsOKBodyQANMysqlSlowlogAgentItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
-	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// mod tidy
@@ -3737,7 +3737,7 @@ var listAgentsOkBodyQanMysqlSlowlogAgentItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -3753,8 +3753,8 @@ const (
 	// ListAgentsOKBodyQANMysqlSlowlogAgentItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
 	ListAgentsOKBodyQANMysqlSlowlogAgentItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// ListAgentsOKBodyQANMysqlSlowlogAgentItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
-	ListAgentsOKBodyQANMysqlSlowlogAgentItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
+	// ListAgentsOKBodyQANMysqlSlowlogAgentItems0StatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ListAgentsOKBodyQANMysqlSlowlogAgentItems0StatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyQANMysqlSlowlogAgentItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
 	ListAgentsOKBodyQANMysqlSlowlogAgentItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
@@ -3908,13 +3908,13 @@ type ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
-	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -3949,7 +3949,7 @@ var listAgentsOkBodyQanPostgresqlPgstatementsAgentItems0TypeStatusPropEnum []int
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -3965,8 +3965,8 @@ const (
 	// ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
 	ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
-	ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
+	// ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0StatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0StatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
 	ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
@@ -4123,13 +4123,13 @@ type ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
-	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -4164,7 +4164,7 @@ var listAgentsOkBodyQanPostgresqlPgstatmonitorAgentItems0TypeStatusPropEnum []in
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -4180,8 +4180,8 @@ const (
 	// ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
 	ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
-	ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
+	// ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0StatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0StatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
 	ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
@@ -4323,13 +4323,13 @@ type ListAgentsOKBodyRDSExporterItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
-	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -4386,7 +4386,7 @@ var listAgentsOkBodyRdsExporterItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -4402,8 +4402,8 @@ const (
 	// ListAgentsOKBodyRDSExporterItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
 	ListAgentsOKBodyRDSExporterItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// ListAgentsOKBodyRDSExporterItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
-	ListAgentsOKBodyRDSExporterItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
+	// ListAgentsOKBodyRDSExporterItems0StatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ListAgentsOKBodyRDSExporterItems0StatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyRDSExporterItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
 	ListAgentsOKBodyRDSExporterItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
@@ -4621,13 +4621,13 @@ type ListAgentsOKBodyVMAgentItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
-	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -4655,7 +4655,7 @@ var listAgentsOkBodyVmAgentItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -4671,8 +4671,8 @@ const (
 	// ListAgentsOKBodyVMAgentItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
 	ListAgentsOKBodyVMAgentItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// ListAgentsOKBodyVMAgentItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
-	ListAgentsOKBodyVMAgentItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
+	// ListAgentsOKBodyVMAgentItems0StatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ListAgentsOKBodyVMAgentItems0StatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyVMAgentItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
 	ListAgentsOKBodyVMAgentItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"

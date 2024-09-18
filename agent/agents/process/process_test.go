@@ -85,7 +85,7 @@ func TestProcess(t *testing.T) {
 		go p.Run(ctx)
 
 		assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_STARTING, inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR,
-			inventoryv1.AgentStatus_AGENT_STATUS_DONE, inventoryv1.AgentStatus_AGENT_STATUS_INVALID)
+			inventoryv1.AgentStatus_AGENT_STATUS_DONE, inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED)
 	})
 
 	t.Run("ExitedEarly", func(t *testing.T) {
@@ -94,8 +94,8 @@ func TestProcess(t *testing.T) {
 		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l)
 		go p.Run(ctx)
 
-		assertStates(t, p, inventoryv1.AgentStatus_STARTING, inventoryv1.AgentStatus_INITIALIZATION_ERROR,
-			inventoryv1.AgentStatus_DONE, inventoryv1.AgentStatus_AGENT_STATUS_INVALID)
+		assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_STARTING, inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR,
+			inventoryv1.AgentStatus_AGENT_STATUS_DONE, inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED)
 	})
 
 	t.Run("Exited", func(t *testing.T) {
