@@ -18,7 +18,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -27,15 +26,19 @@ import (
 
 	"github.com/Percona-Lab/kingpin"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/encryption"
+	"github.com/percona/pmm/utils/logger"
 )
 
 func main() {
 	signal.Ignore(syscall.SIGINT, syscall.SIGTERM) // to prevent any interuptions during process
+
+	logger.SetupGlobalLogger()
 
 	sqlDB, dbName := openDB()
 	statusCode := rotate(sqlDB, dbName)
@@ -49,20 +52,20 @@ func rotate(sqlDB *sql.DB, dbName string) int {
 
 	err := stopPMMServer()
 	if err != nil {
-		log.Printf("Failed to stop PMM Server: %+v", err)
-		return 1
+		logrus.Errorf("Failed to stop PMM Server: %+v", err)
+		return 2
 	}
 
 	err = rotateEncryptionKey(db, dbName)
 	if err != nil {
-		log.Printf("Failed to rotate encryption key: %+v", err)
-		return 2
+		logrus.Errorf("Failed to rotate encryption key: %+v", err)
+		return 3
 	}
 
 	err = startPMMServer()
 	if err != nil {
-		log.Printf("Failed to start PMM Server: %+v", err)
-		return 3
+		logrus.Errorf("Failed to start PMM Server: %+v", err)
+		return 4
 	}
 
 	return 0
@@ -113,16 +116,21 @@ func isPMMServerStatus(status string) bool {
 
 func rotateEncryptionKey(db *reform.DB, dbName string) error {
 	return db.InTransaction(func(tx *reform.TX) error {
+		logrus.Infof("DB is being decrypted")
 		err := models.DecryptDB(tx, dbName, models.DefaultAgentEncryptionColumns)
 		if err != nil {
 			return err
 		}
+		logrus.Infof("DB is successfully decrypted")
 
+		logrus.Infof("Rotating encryption key")
 		err = encryption.RotateEncryptionKey()
 		if err != nil {
 			return err
 		}
+		logrus.Infof("New encryption key generated")
 
+		logrus.Infof("DB is being encrypted")
 		err = models.EncryptDB(tx, dbName, models.DefaultAgentEncryptionColumns)
 		if err != nil {
 			if e := encryption.RestoreOldEncryptionKey(); e != nil {
@@ -130,6 +138,7 @@ func rotateEncryptionKey(db *reform.DB, dbName string) error {
 			}
 			return err
 		}
+		logrus.Infof("DB is successfully encrypted")
 
 		return nil
 	})
@@ -181,7 +190,8 @@ func openDB() (*sql.DB, string) {
 
 	sqlDB, err := models.OpenDB(setupParams)
 	if err != nil {
-		log.Panicf("Failed to connect to database: %+v", err)
+		logrus.Errorf("Failed to connect to database: %+v", err)
+		os.Exit(1)
 	}
 
 	return sqlDB, *postgresDBNameF
