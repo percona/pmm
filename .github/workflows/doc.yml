@@ -32,7 +32,7 @@ jobs:
       - name: Sync API spec
         uses: readmeio/rdme@v8
         with:
-          rdme: openapi ./api/swagger/swagger.json --id=${{ env.ID }} --key=${{ secrets.README_TOKEN }}
+          rdme: openapi ./api/swagger/swagger.json --version=${{ env.VERSION }} --id=${{ env.ID }} --key=${{ secrets.README_TOKEN }}
 
       - name: Sync Markdown docs
         uses: readmeio/rdme@v8
