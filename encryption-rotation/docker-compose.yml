@@ -78,7 +78,6 @@ services:
       - ${PMM_PORT_CH_HTTP:-11123}:8123
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
-      - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro # substitute Makefile in devcontainer
       # caching
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
