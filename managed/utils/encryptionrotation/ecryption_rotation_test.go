@@ -13,10 +13,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package main is the main package for encryption keys rotation.
+// Package encryptionrotation is the package for encryption keys rotation testing.
 //
 //nolint:dupword
-package main
+package encryptionrotation
 
 import (
 	"database/sql"
@@ -28,13 +28,14 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 
+	encryptionRotation "github.com/percona/pmm/encryption-rotation/helpers"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
 const (
-	encryptionKeyTestPath = "pmm-encryption-rotation-test.key"
+	encryptionKeyTestPath = "/srv/pmm-encryption-rotation-test.key"
 	originEncryptionKey   = `CMatkOIIEmQKWAowdHlwZS5nb29nbGVhcGlzLmNvbS9nb29nbGUuY3J5cHRvLnRpbmsuQWVzR2NtS2V5EiIaIKDxOKZxwiJl5Hj6oPZ/unTzmAvfwHWzZ1Wli0vac15YGAEQARjGrZDiCCAB`
 	// pmm-managed-username encrypted with originEncryptionKey
 	originUsernameHash = `AYxEFsZsg7lp9+eSy6+wPFHlaNNy0ZpTbYN0NuCLPnQOZUYf2S6H9B+XJdF4+DscxC/pJwI=`
@@ -52,7 +53,7 @@ func TestEncryptionRotation(t *testing.T) {
 	err = insertTestData(db)
 	require.NoError(t, err)
 
-	statusCode := rotate(db, testdb.TestDatabase)
+	statusCode := encryptionRotation.Rotate(db, testdb.TestDatabase)
 	require.Equal(t, 0, statusCode)
 
 	newEncryptionKey, err := os.ReadFile(encryptionKeyTestPath)

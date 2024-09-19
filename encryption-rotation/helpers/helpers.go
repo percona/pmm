@@ -1,51 +1,20 @@
-// Copyright (C) 2023 Percona LLC
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU Affero General Public License for more details.
-//
-// You should have received a copy of the GNU Affero General Public License
-// along with this program. If not, see <https://www.gnu.org/licenses/>.
-// Package main is the main package for encryption keys rotation.
-package main
+package helpers
 
 import (
 	"database/sql"
 	"fmt"
 	"os"
 	"os/exec"
-	"os/signal"
 	"strings"
-	"syscall"
 
 	"github.com/Percona-Lab/kingpin"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
-
-	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/encryption"
-	"github.com/percona/pmm/utils/logger"
 )
-
-func main() {
-	signal.Ignore(syscall.SIGINT, syscall.SIGTERM) // to prevent any interuptions during process
-
-	logger.SetupGlobalLogger()
-
-	sqlDB, dbName := openDB()
-	statusCode := Rotate(sqlDB, dbName)
-	sqlDB.Close() //nolint:errcheck
-
-	os.Exit(statusCode)
-}
 
 func Rotate(sqlDB *sql.DB, dbName string) int {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
