@@ -65,16 +65,13 @@ jobs:
       - name: Download Go modules
         run: go mod download -x
 
-      - name: Build and install
-        run: make install
-
       - name: Launch containers
         env:
           ENV_UP_FLAGS: "--detach"
         run: make env-up
 
       - name: Run tests
-        run: go test ./...
+        run: make test
 
       - name: Run debug commands on failure
         if: ${{ failure() }}
