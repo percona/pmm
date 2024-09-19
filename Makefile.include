@@ -45,7 +45,7 @@ gen-mocks:
 	./bin/mockery --config .mockery.yaml
 
 test-common:          ## Run tests from API (and other shared) packages only (i.e it ignores directories that are explicitly listed)
-	go test $(shell go list ./... | grep -v -e admin -e agent -e managed -e api-tests -e qan-api2 -e update)
+	go test $(shell go list ./... | grep -v -e admin -e agent -e managed -e api-tests -e qan-api2 -e update -e encryption-rotation)
 
 api-test:             ## Run API tests on dev env.
 	go test -count=1 -race -p 1 -v ./api-tests/... -pmm.server-insecure-tls
