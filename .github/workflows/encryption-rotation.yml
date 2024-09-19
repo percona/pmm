@@ -36,10 +36,6 @@ jobs:
     env:
       PMM_SERVER_IMAGE: perconalab/pmm-server:3-dev-latest
 
-    defaults:
-      run:
-        working-directory: ${{ github.workspace }}/agent
-
     steps:
       - name: Check out code
         uses: actions/checkout@v4
