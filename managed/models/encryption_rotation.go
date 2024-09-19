@@ -29,6 +29,7 @@ import (
 	"github.com/percona/pmm/managed/utils/encryption"
 )
 
+// RotateEncryptionKey will stop PMM server, decrypt data, create new encryption key and encrypt them and start PMM Server again.
 func RotateEncryptionKey(sqlDB *sql.DB, dbName string) int {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
