@@ -66,7 +66,7 @@ func New() *Encryption {
 	return e
 }
 
-// RotateEncryptionKey is will backup old encryption key and generate new one.
+// RotateEncryptionKey is a wrapper around DefaultEncryption.RotateEncryptionKey.
 func RotateEncryptionKey() error {
 	err := backupOldEncryptionKey()
 	if err != nil {
@@ -80,9 +80,34 @@ func RotateEncryptionKey() error {
 	return nil
 }
 
-// RestoreOldEncryptionKey will restore previous backup during rotation.
+// RotateEncryptionKey is will backup old encryption key and generate new one.
+func (e *Encryption) RotateEncryptionKey() error {
+	err := e.backupOldEncryptionKey()
+	if err != nil {
+		return err
+	}
+
+	enc := New()
+	e.Key = enc.Key
+	e.Path = enc.Path
+	e.Primitive = enc.Primitive
+
+	return nil
+}
+
+// RestoreOldEncryptionKey is a wrapper around DefaultEncryption.RestoreOldEncryptionKey.
 func RestoreOldEncryptionKey() error {
 	err := os.Rename(fmt.Sprintf("%s_old.key", strings.TrimSuffix(encryptionKeyPath(), ".key")), encryptionKeyPath())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// RestoreOldEncryptionKey will restore previous backup during rotation.
+func (e *Encryption) RestoreOldEncryptionKey() error {
+	err := os.Rename(fmt.Sprintf("%s_old.key", strings.TrimSuffix(e.Path, ".key")), e.Path)
 	if err != nil {
 		return err
 	}
