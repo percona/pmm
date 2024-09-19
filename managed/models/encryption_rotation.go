@@ -6,11 +6,12 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
+
+	"github.com/percona/pmm/managed/utils/encryption"
 )
 
 func RotateEncryptionKey(sqlDB *sql.DB, dbName string) int {

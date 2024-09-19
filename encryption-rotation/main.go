@@ -21,9 +21,10 @@ import (
 	"syscall"
 
 	"github.com/Percona-Lab/kingpin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
-	"github.com/sirupsen/logrus"
 )
 
 func main() {
