@@ -81,15 +81,23 @@ services:
       # caching
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
-    # command: >
-    #   bash -c "
-    #     rm -rf /tmp/certs
-    #     mkdir /tmp/certs
-    #     cp -R /root/go/src/github.com/percona/pmm/managed/testdata/pg/certs/* /tmp/certs
-    #     chown grafana:grafana /tmp/certs/*
-    #     chmod 600 /tmp/certs/*
-    #     /opt/entrypoint.sh
-    #   "
+
+  postgres:
+    image: ${POSTGRES_IMAGE:-postgres:14}
+    container_name: pmm-agent_postgres
+    command: >
+      -c shared_preload_libraries='${PG_PRELOADED_LIBS:-pg_stat_statements}'
+      -c track_activity_query_size=2048
+      -c pg_stat_statements.max=10000
+      -c pg_stat_monitor.pgsm_query_max_len=10000
+      -c pg_stat_statements.track=all
+      -c pg_stat_statements.save=off
+      -c track_io_timing=on
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      - POSTGRES_USER=pmm-agent
+      - POSTGRES_PASSWORD=pmm-agent-password
 
 volumes:
   go-modules:
