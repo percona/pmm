@@ -16,7 +16,6 @@ on:
       - "api-tests/**"
       - "cli-tests/**"
       - "docs/**"
-      - "encryption-rotation/**"
       - "managed/**"
       - "update/**"
       - "vmproxy/**"

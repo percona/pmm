@@ -15,7 +15,6 @@ on:
       - "api-tests/**"
       - "cli-tests/**"
       - "docs/**"
-      - "encryption-rotation/**"
       - "managed/**"
       - "qan-api2/**"
       - "vmproxy/**"
