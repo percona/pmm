@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//nolint:dupl
 package models_test
 
 import (
@@ -74,6 +73,7 @@ func createOriginEncryptionKey() error {
 	return nil
 }
 
+//nolint:dupl
 func insertTestData(db *sql.DB) error {
 	_, err := models.UpdateSettings(db, &models.ChangeSettingsParams{
 		EncryptedItems: []string{"pmm-managed-dev.agents.username", "pmm-managed-dev.agents.password", "pmm-managed-dev.agents.aws_access_key", "pmm-managed-dev.agents.aws_secret_key", "pmm-managed-dev.agents.mongo_db_tls_options", "pmm-managed-dev.agents.azure_options", "pmm-managed-dev.agents.mysql_options", "pmm-managed-dev.agents.postgresql_options", "pmm-managed-dev.agents.agent_password"},
