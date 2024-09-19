@@ -116,29 +116,29 @@ func isPMMServerStatus(status string) bool {
 
 func rotateEncryptionKey(db *reform.DB, dbName string) error {
 	return db.InTransaction(func(tx *reform.TX) error {
-		logrus.Infof("DB is being decrypted")
+		logrus.Infof("DB %s is being decrypted", dbName)
 		err := models.DecryptDB(tx, dbName, models.DefaultAgentEncryptionColumns)
 		if err != nil {
 			return err
 		}
-		logrus.Infof("DB is successfully decrypted")
+		logrus.Infof("DB %s is successfully decrypted", dbName)
 
-		logrus.Infof("Rotating encryption key")
+		logrus.Infoln("Rotating encryption key")
 		err = encryption.RotateEncryptionKey()
 		if err != nil {
 			return err
 		}
 		logrus.Infof("New encryption key generated")
 
-		logrus.Infof("DB is being encrypted")
+		logrus.Infof("DB %s is being encrypted", dbName)
 		err = models.EncryptDB(tx, dbName, models.DefaultAgentEncryptionColumns)
 		if err != nil {
 			if e := encryption.RestoreOldEncryptionKey(); e != nil {
-				return errors.Wrap(e, e.Error())
+				return errors.Wrap(err, e.Error())
 			}
 			return err
 		}
-		logrus.Infof("DB is successfully encrypted")
+		logrus.Infof("DB %s is successfully encrypted", dbName)
 
 		return nil
 	})

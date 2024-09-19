@@ -1,5 +1,4 @@
 name: 'Encryption Rotation Tool'
-
 on:
   push:
     branches:
@@ -24,16 +23,22 @@ on:
 
 jobs:
   test:
-    name: Tests
+    name: Encryption Rotation Test
     runs-on: ubuntu-22.04
-
-    continue-on-error: true
-
-    env:
+    timeout-minutes: 10
 
     defaults:
       run:
         working-directory: ${{ github.workspace }}/encryption-rotation
+
+    continue-on-error: true
+
+    env:
+      PMM_SERVER_IMAGE: perconalab/pmm-server:3-dev-latest
+
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/agent
 
     steps:
       - name: Check out code
@@ -75,15 +80,6 @@ jobs:
       - name: Run tests
         run: go test ./...
 
-      - name: Upload coverage results
-        uses: codecov/codecov-action@v4
-        with:
-          file: cover.out
-          flags: agent
-          env_vars: MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
-          fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }}
-
       - name: Run debug commands on failure
         if: ${{ failure() }}
         run: |
@@ -92,3 +88,4 @@ jobs:
           echo "--- GO Environment ---"
           go env | sort
           git status
+
