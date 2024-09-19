@@ -35,6 +35,7 @@ jobs:
 
     env:
       PMM_SERVER_IMAGE: perconalab/pmm-server:3-dev-latest
+      PMM_ENCRYPTION_KEY_PATH: pmm-encryption.key
 
     steps:
       - name: Check out code
