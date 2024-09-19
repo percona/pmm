@@ -13,4 +13,8 @@ This section will provide you with information on how to perform configuration a
   - [Get settings](ref:getsettings)
   - [Change settings](ref:changesettings)
 - PMM Server High Availability
-  - 
+  - [Check PMM Server Leadership](ref:leaderhealthcheck)
+- PMM Server Upgrade
+  - [Check for upgrade](ref:checkupdates)
+  - [Start upgrade](ref:startupdate)
+  - [Check progress](ref:checkupdates)

@@ -1,6 +1,6 @@
 ---
 title: Logs
-slug: "logs"
+slug: pmm-server-logs
 categorySlug: pmm-server-maintenance
 parentDocSlug: pmm-server-troubleshooting
 ---

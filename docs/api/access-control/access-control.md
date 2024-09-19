@@ -1,11 +1,9 @@
 ---
-title: Access Control
-slug: access-control
-category: 61fc63ec4601b10049339d79
+title: Overview
+slug: access-control-overview
+category: 66eaff8bc9d854001991ee4f
 hidden: 0
 ---
-
-## Overview
 
 Access Control in PMM can be used to restrict access to individual metrics.  
 Access Control is in **tech preview** and needs to be enabled manually from PMM settings before it can be used.
