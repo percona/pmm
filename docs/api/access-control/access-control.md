@@ -1,7 +1,8 @@
 ---
 title: Access Control
 slug: access-control
-category: 66aca8d40bf230001846b567
+category: 61fc63ec4601b10049339d79
+hidden: 0
 ---
 
 ## Overview

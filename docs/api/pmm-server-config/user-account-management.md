@@ -1,7 +1,7 @@
 ---
 title: User account management
-slug: pmm-server-config-security
-category: 66acab7b0bf230001846b5e2
+slug: pmm-server-user-accounts
+categorySlug: pmm-server-maintenance
 order: 1
 ---
 

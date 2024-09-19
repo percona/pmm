@@ -2,7 +2,7 @@
 title: Restore from a backup
 slug: restorebackup
 excerpt: This endpoint allows to restore a database from a previously made backup.
-category: 66acac6024b4bc0022d980f3
+category: 66eb06589a42ac3f7ee6dee2
 ---
 
 PMM can backup the monitored services.

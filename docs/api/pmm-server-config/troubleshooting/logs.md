@@ -1,7 +1,8 @@
 ---
 title: Logs
 slug: "logs"
-category: 66acab7b0bf230001846b5e2
+categorySlug: pmm-server-maintenance
+parentDocSlug: pmm-server-troubleshooting
 ---
 Download the logs and components configuration to troubleshoot any issues with the PMM Server.
 
@@ -38,6 +39,6 @@ The downloaded logs package contains the following structure:
 {
   "type": "info",
   "title": "PMM Server Version",
-  "body": "PMM Server also dumps its version info to a special file `installed.json`. \n\n```shell\n% cat installed.json | jq\n{\n  \"version\": \"2.26.0\",\n  \"full_version\": \"2.26.0-17.2202021129.6914083.el7\",\n  \"build_time\": \"2022-02-02T11:30:45Z\",\n  \"repo\": \"local\"\n}\n```"
+  "body": "PMM Server also dumps its version info to a special file `installed.json`. \n\n```shell\n% cat installed.json | jq\n{\n  \"version\": \"3.0.0\",\n  \"full_version\": \"3.0.0-1.2412081130.6914083.el9\",\n  \"build_time\": \"2024-12-08T11:30:45Z\",\n  \"repo\": \"local\"\n}\n```"
 }
 [/block]

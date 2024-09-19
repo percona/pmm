@@ -1,8 +1,8 @@
 ---
 title: Create user accounts
 slug: bulk-add-users
-category: 66acab7b0bf230001846b5e2
-parentDoc: 66acad52c21a1a0036295235
+categorySlug: pmm-server-maintenance
+parentDocSlug: pmm-server-user-accounts
 order: 1
 ---
 
