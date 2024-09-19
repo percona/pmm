@@ -1,14 +1,11 @@
-package helpers
+package models
 
 import (
 	"database/sql"
 	"fmt"
-	"os"
 	"os/exec"
 	"strings"
 
-	"github.com/Percona-Lab/kingpin"
-	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -16,7 +13,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 )
 
-func Rotate(sqlDB *sql.DB, dbName string) int {
+func RotateEncryptionKey(sqlDB *sql.DB, dbName string) int {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	err := stopPMMServer()
@@ -86,7 +83,7 @@ func isPMMServerStatus(status string) bool {
 func rotateEncryptionKey(db *reform.DB, dbName string) error {
 	return db.InTransaction(func(tx *reform.TX) error {
 		logrus.Infof("DB %s is being decrypted", dbName)
-		err := models.DecryptDB(tx, dbName, models.DefaultAgentEncryptionColumns)
+		err := DecryptDB(tx, dbName, DefaultAgentEncryptionColumns)
 		if err != nil {
 			return err
 		}
@@ -100,7 +97,7 @@ func rotateEncryptionKey(db *reform.DB, dbName string) error {
 		logrus.Infof("New encryption key generated")
 
 		logrus.Infof("DB %s is being encrypted", dbName)
-		err = models.EncryptDB(tx, dbName, models.DefaultAgentEncryptionColumns)
+		err = EncryptDB(tx, dbName, DefaultAgentEncryptionColumns)
 		if err != nil {
 			if e := encryption.RestoreOldEncryptionKey(); e != nil {
 				return errors.Wrap(err, e.Error())
@@ -111,57 +108,4 @@ func rotateEncryptionKey(db *reform.DB, dbName string) error {
 
 		return nil
 	})
-}
-
-func openDB() (*sql.DB, string) {
-	postgresAddrF := kingpin.Flag("postgres-addr", "PostgreSQL address").
-		Default(models.DefaultPostgreSQLAddr).
-		Envar("PMM_POSTGRES_ADDR").
-		String()
-	postgresDBNameF := kingpin.Flag("postgres-name", "PostgreSQL database name").
-		Default("pmm-managed").
-		Envar("PMM_POSTGRES_DBNAME").
-		String()
-	postgresDBUsernameF := kingpin.Flag("postgres-username", "PostgreSQL database username").
-		Default("pmm-managed").
-		Envar("PMM_POSTGRES_USERNAME").
-		String()
-	postgresSSLModeF := kingpin.Flag("postgres-ssl-mode", "PostgreSQL SSL mode").
-		Default(models.DisableSSLMode).
-		Envar("PMM_POSTGRES_SSL_MODE").
-		Enum(models.DisableSSLMode, models.RequireSSLMode, models.VerifyCaSSLMode, models.VerifyFullSSLMode)
-	postgresSSLCAPathF := kingpin.Flag("postgres-ssl-ca-path", "PostgreSQL SSL CA root certificate path").
-		Envar("PMM_POSTGRES_SSL_CA_PATH").
-		String()
-	postgresDBPasswordF := kingpin.Flag("postgres-password", "PostgreSQL database password").
-		Default("pmm-managed").
-		Envar("PMM_POSTGRES_DBPASSWORD").
-		String()
-	postgresSSLKeyPathF := kingpin.Flag("postgres-ssl-key-path", "PostgreSQL SSL key path").
-		Envar("PMM_POSTGRES_SSL_KEY_PATH").
-		String()
-	postgresSSLCertPathF := kingpin.Flag("postgres-ssl-cert-path", "PostgreSQL SSL certificate path").
-		Envar("PMM_POSTGRES_SSL_CERT_PATH").
-		String()
-
-	kingpin.Parse()
-
-	setupParams := models.SetupDBParams{
-		Address:     *postgresAddrF,
-		Name:        *postgresDBNameF,
-		Username:    *postgresDBUsernameF,
-		Password:    *postgresDBPasswordF,
-		SSLMode:     *postgresSSLModeF,
-		SSLCAPath:   *postgresSSLCAPathF,
-		SSLKeyPath:  *postgresSSLKeyPathF,
-		SSLCertPath: *postgresSSLCertPathF,
-	}
-
-	sqlDB, err := models.OpenDB(setupParams)
-	if err != nil {
-		logrus.Errorf("Failed to connect to database: %+v", err)
-		os.Exit(1)
-	}
-
-	return sqlDB, *postgresDBNameF
 }

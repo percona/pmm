@@ -1,22 +1,4 @@
-// Copyright (C) 2023 Percona LLC
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU Affero General Public License for more details.
-//
-// You should have received a copy of the GNU Affero General Public License
-// along with this program. If not, see <https://www.gnu.org/licenses/>.
-
-// Package encryptionrotation is the package for encryption keys rotation testing.
-//
-//nolint:dupword
-package encryptionrotation
+package models_test
 
 import (
 	"database/sql"
@@ -28,7 +10,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 
-	encryptionRotation "github.com/percona/pmm/encryption-rotation/helpers"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/managed/utils/testdb"
@@ -53,7 +34,7 @@ func TestEncryptionRotation(t *testing.T) {
 	err = insertTestData(db)
 	require.NoError(t, err)
 
-	statusCode := encryptionRotation.Rotate(db, testdb.TestDatabase)
+	statusCode := models.RotateEncryptionKey(db, testdb.TestDatabase)
 	require.Equal(t, 0, statusCode)
 
 	newEncryptionKey, err := os.ReadFile(encryptionKeyTestPath)
