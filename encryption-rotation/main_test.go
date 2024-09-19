@@ -34,7 +34,7 @@ import (
 )
 
 const (
-	encryptionKeyTestPath = "/srv/pmm-encryption-rotation-test.key"
+	encryptionKeyTestPath = "pmm-encryption-rotation-test.key"
 	originEncryptionKey   = `CMatkOIIEmQKWAowdHlwZS5nb29nbGVhcGlzLmNvbS9nb29nbGUuY3J5cHRvLnRpbmsuQWVzR2NtS2V5EiIaIKDxOKZxwiJl5Hj6oPZ/unTzmAvfwHWzZ1Wli0vac15YGAEQARjGrZDiCCAB`
 	// pmm-managed-username encrypted with originEncryptionKey
 	originUsernameHash = `AYxEFsZsg7lp9+eSy6+wPFHlaNNy0ZpTbYN0NuCLPnQOZUYf2S6H9B+XJdF4+DscxC/pJwI=`
