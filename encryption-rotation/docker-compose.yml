@@ -95,6 +95,9 @@ services:
       -c track_io_timing=on
     ports:
       - "127.0.0.1:5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_HOST_AUTH_METHOD=trust
 
 volumes:
   go-modules:
