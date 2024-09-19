@@ -37,9 +37,9 @@ const (
 	encryptionKeyTestPath = "/srv/pmm-encryption-rotation-test.key"
 	originEncryptionKey   = `CMatkOIIEmQKWAowdHlwZS5nb29nbGVhcGlzLmNvbS9nb29nbGUuY3J5cHRvLnRpbmsuQWVzR2NtS2V5EiIaIKDxOKZxwiJl5Hj6oPZ/unTzmAvfwHWzZ1Wli0vac15YGAEQARjGrZDiCCAB`
 	// pmm-managed-username encrypted with originEncryptionKey
-	originUsernameHash = `AYxEFsbCFxg31sCqO4KlCsqASFYNeHapjT+vf8seEhsQrN5hWOCuvCSxd/ZERv8RODu3oX4=`
+	originUsernameHash = `AYxEFsZsg7lp9+eSy6+wPFHlaNNy0ZpTbYN0NuCLPnQOZUYf2S6H9B+XJdF4+DscxC/pJwI=`
 	// pmm-managed-password encrypted with originEncryptionKey
-	originPasswordHash = `AYxEFsajO8X5rrXG4ocOEE4ltWuaNmy7Uz0GyDgZ/Q04O2biFah5IdkenQ9ehXwv+nyiwDw=` //nolint:gosec
+	originPasswordHash = `AYxEFsZuL5xZb5IxGGh8NI6GrjDxCzFGxIcHe94UXcg+dnZphu7GQSgmZm633XvZ8CBU2wo=` //nolint:gosec
 )
 
 func TestEncryptionRotation(t *testing.T) {
@@ -65,7 +65,12 @@ func TestEncryptionRotation(t *testing.T) {
 
 func createOriginEncryptionKey() error {
 	encryption.DefaultEncryptionKeyPath = encryptionKeyTestPath
-	return os.WriteFile(encryptionKeyTestPath, []byte(originEncryptionKey), 0o644)
+	err := os.WriteFile(encryptionKeyTestPath, []byte(originEncryptionKey), 0o600)
+	if err != nil {
+		return err
+	}
+	encryption.DefaultEncryption = encryption.New()
+	return nil
 }
 
 func insertTestData(db *sql.DB) error {
@@ -120,7 +125,7 @@ func checkNewlyEncryptedData(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	if username != "pmm-managed" {
+	if username != "pmm-managed-username" {
 		return errors.New("username not properly decrypted")
 	}
 
@@ -128,7 +133,7 @@ func checkNewlyEncryptedData(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	if password != "pmm-managed" {
+	if password != "pmm-managed-password" {
 		return errors.New("password not properly decrypted")
 	}
 
