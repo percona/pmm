@@ -1,8 +1,3 @@
-import {
-  QueryClient,
-  QueryClientConfig,
-  QueryClientProvider,
-} from '@tanstack/react-query';
 import { UpdatesContext, UpdatesContextProps } from 'contexts/updates';
 import { ReactElement } from 'react';
 import { UpdateStatus } from 'types/updates.types';
@@ -41,21 +36,3 @@ export const wrapWithUpdatesProvider = (
     {children}
   </UpdatesContext.Provider>
 );
-
-export const wrapWithQuery = (
-  children: ReactElement,
-  config?: QueryClientConfig
-) => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        refetchOnWindowFocus: false,
-      },
-    },
-    ...config,
-  });
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-};
