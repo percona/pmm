@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
@@ -33,14 +32,14 @@ func TestListAgentVersions(t *testing.T) {
 	t.Cleanup(func() { cancel() })
 
 	t.Run("PMM Agent needs no update", func(t *testing.T) {
-		listAgentVersionsOK, err := client.Default.ManagementService.ListAgentVersions(
+		resp, err := client.Default.ManagementService.ListAgentVersions(
 			&mgmtSvc.ListAgentVersionsParams{
 				Context: ctx,
 			})
 		require.NoError(t, err)
-		require.Len(t, listAgentVersionsOK.Payload.AgentVersions, 1)
+		require.Len(t, resp.Payload.AgentVersions, 1)
 
-		expected := pointer.ToString(mgmtSvc.ListAgentVersionsOKBodyAgentVersionsItems0SeverityUPDATESEVERITYUPTODATE)
-		require.Equal(t, expected, listAgentVersionsOK.Payload.AgentVersions[0].Severity)
+		expected := mgmtSvc.ListAgentVersionsOKBodyAgentVersionsItems0SeverityUPDATESEVERITYUPTODATE
+		require.Equal(t, expected, *resp.Payload.AgentVersions[0].Severity)
 	})
 }

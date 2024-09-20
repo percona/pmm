@@ -40,7 +40,22 @@ type UpdateCheckResult struct {
 
 // DockerVersionInfo describes the version of the Docker image.
 type DockerVersionInfo struct {
-	Version     Parsed    `json:"version"`
-	DockerImage string    `json:"docker_image"`
-	BuildTime   time.Time `json:"build_time"`
+	Version          Parsed    `json:"version"`
+	DockerImage      string    `json:"docker_image"`
+	BuildTime        time.Time `json:"build_time"`
+	ReleaseNotesURL  string    `json:"release_notes_url"`
+	ReleaseNotesText string    `json:"release_notes_text"`
+}
+
+// DockerVersionsInfo is a wrapper around a DockerVersionInfo array to implement sorting.
+type DockerVersionsInfo []*DockerVersionInfo
+
+func (d DockerVersionsInfo) Len() int { return len(d) }
+
+func (d DockerVersionsInfo) Less(i, j int) bool {
+	return d[i].Version.Less(&d[j].Version)
+}
+
+func (d DockerVersionsInfo) Swap(i, j int) {
+	d[i], d[j] = d[j], d[i]
 }

@@ -14,21 +14,22 @@ import { Page } from 'components/page';
 import { useUpdates } from 'contexts/updates';
 import { FC, useMemo, useState } from 'react';
 import { useAgentVersions } from 'hooks/api/useAgents';
-import { Table } from 'components/table';
 import { SeverityChip } from './severity-chip';
 import { VersionsFilter } from './UpdateClients.types';
 import { filterClients } from './UpdateClients.utils';
-import { AgentUpdateSeverity } from 'types/agent.types';
+import { AgentUpdateSeverity, GetAgentVersionItem } from 'types/agent.types';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { UpdateStatus } from 'types/updates.types';
 import { PMM_DOCS_UPDATE_CLIENT_URL } from 'constants';
 import { Messages } from './UpdateClients.messages';
 import { TextSelect } from 'components/text-select';
 import { FILTER_OPTIONS } from './UpdateClients.constants';
+import { Table } from '@percona/ui-lib';
+import { type MRT_ColumnDef } from 'material-react-table';
 
 export const UpdateClients: FC = () => {
   const { versionInfo, clients: data, status } = useUpdates();
-  const { isLoading, isRefetching, refetch } = useAgentVersions();
+  const { isRefetching, refetch } = useAgentVersions();
   const [filter, setFilter] = useState<VersionsFilter>(VersionsFilter.All);
   const clients = useMemo(
     () => filterClients(data || [], filter),
@@ -40,6 +41,29 @@ export const UpdateClients: FC = () => {
         (item) => item.severity === AgentUpdateSeverity.UP_TO_DATE
       ),
     [data]
+  );
+
+  const columns: MRT_ColumnDef<GetAgentVersionItem>[] = useMemo(
+    () => [
+      {
+        accessorKey: 'nodeName',
+        header: Messages.table.node,
+      },
+      {
+        accessorKey: 'agentId',
+        header: Messages.table.client,
+      },
+      {
+        accessorKey: 'version',
+        header: Messages.table.version,
+      },
+      {
+        accessorKey: 'severity',
+        header: Messages.table.severity,
+        Cell: ({ row }) => <SeverityChip severity={row.original.severity} />,
+      },
+    ],
+    []
   );
 
   return (
@@ -107,29 +131,15 @@ export const UpdateClients: FC = () => {
               />
             </Stack>
             <Table
-              isLoading={isLoading || isRefetching}
-              rowId="agentId"
-              columns={[
-                {
-                  field: 'nodeName',
-                  name: Messages.table.node,
-                },
-                {
-                  field: 'agentId',
-                  name: Messages.table.client,
-                },
-                {
-                  field: 'version',
-                  name: Messages.table.version,
-                },
-                {
-                  field: 'severity',
-                  name: Messages.table.severity,
-                  cell: (item) => <SeverityChip severity={item.severity} />,
-                },
-              ]}
-              rows={clients || []}
-              emptyMessage={Messages.table.empty}
+              tableName="pmm-clients"
+              noDataMessage={Messages.table.empty}
+              columns={columns}
+              data={clients || []}
+              enableFilters={false}
+              enableColumnActions={false}
+              enableColumnOrdering={false}
+              enableTopToolbar={false}
+              enableColumnDragging={false}
             />
           </Stack>
         </CardContent>
