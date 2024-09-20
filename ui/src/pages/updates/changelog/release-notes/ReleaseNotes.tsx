@@ -5,7 +5,7 @@ import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import { Stack } from '@mui/material';
 import { CodeBlock } from '../code-block';
-import { IconMap } from './ReleaseNotes.contants';
+import { IconMap } from './ReleaseNotes.constants';
 
 export const ReleaseNotes: FC<ReleaseNotesProps> = ({ content }) => {
   if (!content) {

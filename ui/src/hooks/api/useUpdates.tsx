@@ -7,12 +7,15 @@ import {
 } from '@tanstack/react-query';
 import {
   GetChangelogsResponse,
+  GetUpdatesResponse,
   StartUpdateBody,
   StartUpdateResponse,
 } from 'types/updates.types';
 import { AxiosError } from 'axios';
 
-export const useCheckUpdates = () =>
+export const useCheckUpdates = (
+  options?: UseQueryOptions<GetUpdatesResponse>
+) =>
   useQuery({
     queryKey: ['checkUpdates'],
     queryFn: async () => {
@@ -29,6 +32,7 @@ export const useCheckUpdates = () =>
         throw error;
       }
     },
+    ...options,
   });
 
 export const useStartUpdate = (
