@@ -1,12 +1,13 @@
 ---
 title: Overview
-slug: access-control-overview
-category: 66eaff8bc9d854001991ee4f
+slug: access-control
+categorySlug: access-control-api
 hidden: 0
 ---
 
 Access Control in PMM can be used to restrict access to individual metrics.  
-Access Control is in **tech preview** and needs to be enabled manually from PMM settings before it can be used.
+
+Currently, Access Control is in **tech preview** and needs to be enabled manually from PMM settings before it can be used.
 
 Once enabled, restricting access to metrics can be performed by:
 
@@ -16,10 +17,10 @@ Once enabled, restricting access to metrics can be performed by:
 ### Create a Percona role
 
 ```shell
-curl -X POST "http://localhost/v1/role/Create" \
-     -H "Authorization: Basic xxx" \
-     -H "Content-Type: application/json" \
-     -d '{
+curl -X POST -k "http://127.0.0.1/v1/accesscontrol/roles" \
+     --header "Authorization: Basic XXXXX" \
+     --header "Content-Type: application/json" \
+     --data '{
         "title": "My custom role",
         "filter": "{environment=\"staging\"}"
       }'
@@ -30,14 +31,14 @@ Full access can be provided by specifying an empty `filter` field.
 
 ### Assign a Percona role
 
-Users can be assigned roles by using the `/v1/role/Assign` API.  
+Users can be assigned roles by using the `/v1/accesscontrol/roles:assign` API.  
 The endpoint assigns new roles to a user. Other roles, that may have been assigned to the user previously, stay intact.
 
 ```shell
-curl -X POST "http://localhost/v1/role/Assign" \
-     -H "Authorization: Basic xxx" \
-     -H "Content-Type: application/json" \
-     -d '{
+curl -X POST -k "http://127.0.0.1/v1/accesscontrol/roles:assign" \
+     --header "Authorization: Basic XXXXX" \
+     --header "Content-Type: application/json" \
+     --data '{
         "user_id": 1,
         "role_ids": [2, 3, 4]
       }'

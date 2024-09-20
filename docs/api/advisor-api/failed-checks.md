@@ -1,7 +1,7 @@
 ---
 title: Get Failed Advisor Checks
 slug: failed-checks
-category: 66eb0386f81fe000105dbea7
+categorySlug: advisor-api
 order: 2
 hidden: 1
 ---

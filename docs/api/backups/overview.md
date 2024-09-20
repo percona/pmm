@@ -1,7 +1,7 @@
 ---
 title: Overview
 slug: database-backups
-category: 66eb06589a42ac3f7ee6dee2
+categorySlug: backup-api
 order: 0
 ---
 
@@ -16,9 +16,9 @@ To be able to make a backup, you should start by [preparing a backup location](h
 
 Here a few other references to :
 
-- [Make a backup](startbackup)
-- [Restore the database from a backup](restorebackup)
-- [List restore history items](listrestorehistory)
-- [List available backup locations](listlocations)
+- [Make a backup](ref:startbackup)
+- [Restore the database from a backup](ref:restorebackup)
+- [List restore history items](ref:listrestores)
+- [List available backup locations](ref:listlocations)
 
 Read [more](https://docs.percona.com/percona-monitoring-and-management/get-started/backup/index.html).

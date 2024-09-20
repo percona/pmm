@@ -1,7 +1,7 @@
 ---
 title: Introduction
 slug: introduction
-category: 66aca6ddfd9bfe004c97cd48
+parentSlug: welcome
 order: 0
 ---
 
