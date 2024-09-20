@@ -66,7 +66,8 @@ export const TextSelect = <T,>({
             color="text.secondary"
             data-testid={'text-select-option-' + option.value}
           >
-            <ListItem>
+            {/* Use div as component to not have nested li elements */}
+            <ListItem component="div">
               {option.value === value && (
                 <ListItemIcon>
                   <Check />
