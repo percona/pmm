@@ -18,3 +18,4 @@ This section will provide you with information on how to perform configuration a
   - [Check for upgrade](ref:checkupdates)
   - [Start upgrade](ref:startupdate)
   - [Check progress](ref:checkupdates)
+- [PMM Server Logs](ref:logs)
