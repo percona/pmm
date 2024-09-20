@@ -40,24 +40,6 @@ func encryptionKeyPath() string {
 	return DefaultEncryptionKeyPath
 }
 
-func backupOldEncryptionKey() error {
-	err := os.Rename(encryptionKeyPath(), fmt.Sprintf("%s_old.key", strings.TrimSuffix(encryptionKeyPath(), ".key")))
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (e *Encryption) backupOldEncryptionKey() error {
-	err := os.Rename(e.Path, fmt.Sprintf("%s_old.key", strings.TrimSuffix(e.Path, ".key")))
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func prepareRowPointers(rows *sql.Rows) ([]any, error) {
 	columnTypes, err := rows.ColumnTypes()
 	if err != nil {

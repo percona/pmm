@@ -27,7 +27,6 @@ import (
 	"net"
 	"net/url"
 	"os"
-	"slices"
 	"strconv"
 	"strings"
 
@@ -1177,50 +1176,17 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 
 // EncryptDB encrypts a set of columns in a specific database and table.
 func EncryptDB(tx *reform.TX, database string, itemsToEncrypt []encryption.Table) error {
-	return dbEncryption(tx, database, itemsToEncrypt, encryption.EncryptItems, true, addToEncryptedItems)
-}
-
-func encryptionExists(m map[string]bool, key string) bool {
-	return m[key]
-}
-
-func addToEncryptedItems(encryptedItems []string, items []string) []string {
-	return slices.Concat(encryptedItems, items)
+	return dbEncryption(tx, database, itemsToEncrypt, encryption.EncryptItems, true)
 }
 
 // DecryptDB decrypts a set of columns in a specific database and table.
 func DecryptDB(tx *reform.TX, database string, itemsToEncrypt []encryption.Table) error {
-	return dbEncryption(tx, database, itemsToEncrypt, encryption.DecryptItems, false, removeFromEncryptedItems)
-}
-
-func encryptionNotExists(m map[string]bool, key string) bool {
-	return !encryptionExists(m, key)
-}
-
-func removeFromEncryptedItems(encryptedItems []string, items []string) []string {
-	res := []string{}
-	for _, encryptedItem := range encryptedItems {
-		exists := false
-		for _, item := range items {
-			if encryptedItem == item {
-				exists = true
-			}
-		}
-
-		if exists {
-			continue
-		}
-
-		res = append(res, encryptedItem)
-	}
-
-	return res
+	return dbEncryption(tx, database, itemsToEncrypt, encryption.DecryptItems, false)
 }
 
 func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
 	encryptionHandler func(tx *reform.TX, tables []encryption.Table) error,
 	expectedState bool,
-	settingsHandler func(encryptedItems []string, items []string) []string,
 ) error {
 	if len(items) == 0 {
 		return nil
@@ -1263,8 +1229,14 @@ func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
 	if err != nil {
 		return err
 	}
+
+	encryptedItems := []string{}
+	if expectedState {
+		encryptedItems = prepared
+	}
+
 	_, err = UpdateSettings(tx, &ChangeSettingsParams{
-		EncryptedItems: settingsHandler(settings.EncryptedItems, prepared),
+		EncryptedItems: encryptedItems,
 	})
 	if err != nil {
 		return err
