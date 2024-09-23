@@ -27,6 +27,8 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
+const codeDBConnectionFailed = 1
+
 func main() {
 	signal.Ignore(syscall.SIGINT, syscall.SIGTERM) // to prevent any interuptions during process
 
@@ -35,7 +37,7 @@ func main() {
 	sqlDB, err := models.OpenDB(setupParams())
 	if err != nil {
 		logrus.Error(err)
-		os.Exit(1)
+		os.Exit(codeDBConnectionFailed)
 	}
 
 	statusCode := models.RotateEncryptionKey(sqlDB, "pmm-managed")

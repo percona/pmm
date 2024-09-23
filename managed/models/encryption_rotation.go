@@ -29,6 +29,15 @@ import (
 	"github.com/percona/pmm/managed/utils/encryption"
 )
 
+const (
+	statusRunning        = "RUNNING"
+	statusStopped        = "STOPPED"
+	codeOK               = 0
+	codePMMStopFailed    = 2
+	codeEncryptionFailed = 3
+	codePMMStartFailed   = 4
+)
+
 // RotateEncryptionKey will stop PMM server, decrypt data, create new encryption key and encrypt them and start PMM Server again.
 func RotateEncryptionKey(sqlDB *sql.DB, dbName string) int {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
@@ -36,26 +45,26 @@ func RotateEncryptionKey(sqlDB *sql.DB, dbName string) int {
 	err := stopPMMServer()
 	if err != nil {
 		logrus.Errorf("Failed to stop PMM Server: %+v", err)
-		return 2
+		return codePMMStopFailed
 	}
 
 	err = rotateEncryptionKey(db, dbName)
 	if err != nil {
 		logrus.Errorf("Failed to rotate encryption key: %+v", err)
-		return 3
+		return codeEncryptionFailed
 	}
 
 	err = startPMMServer()
 	if err != nil {
 		logrus.Errorf("Failed to start PMM Server: %+v", err)
-		return 4
+		return codePMMStartFailed
 	}
 
-	return 0
+	return codeOK
 }
 
 func startPMMServer() error {
-	if isPMMServerStatus("RUNNING") {
+	if isPMMServerStatus(statusRunning) {
 		return nil
 	}
 
@@ -65,7 +74,7 @@ func startPMMServer() error {
 		return fmt.Errorf("%w: %s", err, output)
 	}
 
-	if !isPMMServerStatus("RUNNING") {
+	if !isPMMServerStatus(statusRunning) {
 		return errors.New("cannot start pmm-managed")
 	}
 
@@ -73,7 +82,7 @@ func startPMMServer() error {
 }
 
 func stopPMMServer() error {
-	if isPMMServerStatus("STOPPED") {
+	if isPMMServerStatus(statusStopped) {
 		return nil
 	}
 
@@ -83,7 +92,7 @@ func stopPMMServer() error {
 		return fmt.Errorf("%w: %s", err, output)
 	}
 
-	if !isPMMServerStatus("STOPPED") {
+	if !isPMMServerStatus(statusStopped) {
 		return errors.New("cannot stop pmm-managed")
 	}
 
