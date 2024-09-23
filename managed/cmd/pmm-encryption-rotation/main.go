@@ -16,6 +16,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -25,6 +26,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
+	"github.com/percona/pmm/version"
 )
 
 const codeDBConnectionFailed = 1
@@ -33,6 +35,8 @@ func main() {
 	signal.Ignore(syscall.SIGINT, syscall.SIGTERM) // to prevent any interuptions during process
 
 	logger.SetupGlobalLogger()
+
+	logrus.Infof("PMM Encryption Rotation Tools version: %s", version.Version)
 
 	sqlDB, err := models.OpenDB(setupParams())
 	if err != nil {
@@ -62,6 +66,7 @@ func setupParams() models.SetupDBParams {
 	kong.Parse(
 		&opts,
 		kong.Name("encryption-rotation"),
+		kong.Description(fmt.Sprintf("Version %s", version.Version)),
 		kong.UsageOnError(),
 		kong.ConfigureHelp(kong.HelpOptions{
 			Compact:             true,
