@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package models
+package encryption
 
 import (
 	"database/sql"
@@ -26,6 +26,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/encryption"
 )
 
@@ -109,7 +110,7 @@ func isPMMServerStatus(status string) bool {
 func rotateEncryptionKey(db *reform.DB, dbName string) error {
 	return db.InTransaction(func(tx *reform.TX) error {
 		logrus.Infof("DB %s is being decrypted", dbName)
-		err := DecryptDB(tx, dbName, DefaultAgentEncryptionColumns)
+		err := models.DecryptDB(tx, dbName, models.DefaultAgentEncryptionColumns)
 		if err != nil {
 			return err
 		}
@@ -123,7 +124,7 @@ func rotateEncryptionKey(db *reform.DB, dbName string) error {
 		logrus.Infof("New encryption key generated")
 
 		logrus.Infof("DB %s is being encrypted", dbName)
-		err = EncryptDB(tx, dbName, DefaultAgentEncryptionColumns)
+		err = models.EncryptDB(tx, dbName, models.DefaultAgentEncryptionColumns)
 		if err != nil {
 			if e := encryption.RestoreOldEncryptionKey(); e != nil {
 				return errors.Wrap(err, e.Error())

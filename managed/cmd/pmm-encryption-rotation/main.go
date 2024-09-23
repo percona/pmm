@@ -25,6 +25,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/models"
+	encryptionService "github.com/percona/pmm/managed/services/encryption"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
 )
@@ -44,7 +45,7 @@ func main() {
 		os.Exit(codeDBConnectionFailed)
 	}
 
-	statusCode := models.RotateEncryptionKey(sqlDB, "pmm-managed")
+	statusCode := encryptionService.RotateEncryptionKey(sqlDB, "pmm-managed")
 	sqlDB.Close() //nolint:errcheck
 
 	os.Exit(statusCode)

@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package models_test
+package encryption
 
 import (
 	"database/sql"
@@ -49,7 +49,7 @@ func TestEncryptionRotation(t *testing.T) {
 	err = insertTestData(db)
 	require.NoError(t, err)
 
-	statusCode := models.RotateEncryptionKey(db, "pmm-managed-dev")
+	statusCode := RotateEncryptionKey(db, "pmm-managed-dev")
 	require.Equal(t, 0, statusCode)
 
 	newEncryptionKey, err := os.ReadFile(encryptionKeyTestPath)
