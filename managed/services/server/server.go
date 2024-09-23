@@ -600,7 +600,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		// absent value means "do not change"
 		if req.SshKey != nil {
 			if err = s.writeSSHKey(pointer.GetString(req.SshKey)); err != nil {
-				return errors.WithStack(err)
+				s.l.Error(errors.WithStack(err))
+				return status.Errorf(codes.Internal, err.Error())
 			}
 		}
 
