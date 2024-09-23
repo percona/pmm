@@ -20,7 +20,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/Percona-Lab/kingpin"
+	"github.com/alecthomas/kong"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/models"
@@ -44,47 +44,44 @@ func main() {
 	os.Exit(statusCode)
 }
 
-func setupParams() models.SetupDBParams {
-	postgresAddrF := kingpin.Flag("postgres-addr", "PostgreSQL address").
-		Default(models.DefaultPostgreSQLAddr).
-		Envar("PMM_POSTGRES_ADDR").
-		String()
-	postgresDBNameF := kingpin.Flag("postgres-name", "PostgreSQL database name").
-		Default("pmm-managed").
-		Envar("PMM_POSTGRES_DBNAME").
-		String()
-	postgresDBUsernameF := kingpin.Flag("postgres-username", "PostgreSQL database username").
-		Default("pmm-managed").
-		Envar("PMM_POSTGRES_USERNAME").
-		String()
-	postgresSSLModeF := kingpin.Flag("postgres-ssl-mode", "PostgreSQL SSL mode").
-		Default(models.DisableSSLMode).
-		Envar("PMM_POSTGRES_SSL_MODE").
-		Enum(models.DisableSSLMode, models.RequireSSLMode, models.VerifyCaSSLMode, models.VerifyFullSSLMode)
-	postgresSSLCAPathF := kingpin.Flag("postgres-ssl-ca-path", "PostgreSQL SSL CA root certificate path").
-		Envar("PMM_POSTGRES_SSL_CA_PATH").
-		String()
-	postgresDBPasswordF := kingpin.Flag("postgres-password", "PostgreSQL database password").
-		Default("pmm-managed").
-		Envar("PMM_POSTGRES_DBPASSWORD").
-		String()
-	postgresSSLKeyPathF := kingpin.Flag("postgres-ssl-key-path", "PostgreSQL SSL key path").
-		Envar("PMM_POSTGRES_SSL_KEY_PATH").
-		String()
-	postgresSSLCertPathF := kingpin.Flag("postgres-ssl-cert-path", "PostgreSQL SSL certificate path").
-		Envar("PMM_POSTGRES_SSL_CERT_PATH").
-		String()
+type flags struct {
+	Address     string `name:"postgres-addr" default:"${address}" help:"PostgreSQL address with port"`
+	DBName      string `name:"postgres-name" default:"pmm-managed" help:"PostgreSQL database name"`
+	DBUsername  string `name:"postgres-username" default:"pmm-managed" help:"PostgreSQL database username name"`
+	DBPassword  string `name:"postgres-password" default:"pmm-managed" help:"PostgreSQL database password"`
+	SSLMode     string `name:"postgres-ssl-mode" default:"${disable_sslmode}" help:"PostgreSQL SSL mode" enum:"${disable_sslmode}, ${require_sslmode},${verify_sslmode}, ${verify_full_sslmode}"`
+	SSLCAPath   string `name:"postgres-ssl-ca-path" help:"PostgreSQL SSL CA root certificate path" type:"path"`
+	SSLKeyPath  string `name:"postgres-ssl-key-path" help:"PostgreSQL SSL key path" type:"path"`
+	SSLCertPath string `name:"postgres-ssl-cert-path" help:"PostgreSQL SSL certificate path" type:"path"`
+}
 
-	kingpin.Parse()
+func setupParams() models.SetupDBParams {
+	var opts flags
+	kong.Parse(
+		&opts,
+		kong.Name("encryption-rotation"),
+		kong.UsageOnError(),
+		kong.ConfigureHelp(kong.HelpOptions{
+			Compact:             true,
+			NoExpandSubcommands: true,
+		}),
+		kong.Vars{
+			"address":             models.DefaultPostgreSQLAddr,
+			"disable_sslmode":     models.DisableSSLMode,
+			"require_sslmode":     models.RequireSSLMode,
+			"verify_sslmode":      models.VerifyCaSSLMode,
+			"verify_full_sslmode": models.VerifyFullSSLMode,
+		},
+	)
 
 	return models.SetupDBParams{
-		Address:     *postgresAddrF,
-		Name:        *postgresDBNameF,
-		Username:    *postgresDBUsernameF,
-		Password:    *postgresDBPasswordF,
-		SSLMode:     *postgresSSLModeF,
-		SSLCAPath:   *postgresSSLCAPathF,
-		SSLKeyPath:  *postgresSSLKeyPathF,
-		SSLCertPath: *postgresSSLCertPathF,
+		Address:     opts.Address,
+		Name:        opts.DBName,
+		Username:    opts.DBUsername,
+		Password:    opts.DBPassword,
+		SSLMode:     opts.SSLMode,
+		SSLCAPath:   opts.SSLCAPath,
+		SSLKeyPath:  opts.SSLKeyPath,
+		SSLCertPath: opts.SSLCertPath,
 	}
 }
