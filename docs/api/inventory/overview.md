@@ -25,7 +25,10 @@ This section will provide you with information on how to add, update or remove s
 - [Remove a node](ref:removenode)
 - [Remove an agent](ref:removeagent)
 
-### Updating services, nodes and agents:
+### Updating services and agents:
 - [Update a service](ref:changeservice)
-- Update a node ℹ️ This won't be implemented; you can only remove a node and then add it back with new attributes.
 - [Update an agent](ref:changeagent)
+
+> ℹ️ Note
+>
+> Updating a node won't be implemented. You can only remove a node and then add it back with new attributes.
