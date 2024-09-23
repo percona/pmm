@@ -150,11 +150,11 @@ func (s *PostgresExporterConfigTestSuite) TestSocket() {
 }
 
 func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
-	s.pmmAgentVersion = &version.Parsed{}
+	s.pmmAgentVersion = version.MustParse("2.42.0")
 	s.postgresql.Address = nil
 	s.postgresql.Port = nil
 	s.postgresql.Socket = pointer.ToString("/var/run/postgres")
-	s.exporter.DisabledCollectors = []string{"custom_query.hr", "custom_query.hr.directory"}
+	s.exporter.DisabledCollectors = []string{"custom_query.hr", "custom_query.hr.directory", "locks"}
 
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, exposeSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
@@ -164,11 +164,15 @@ func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
+			"--auto-discover-databases",
 			"--collect.custom_query.lr",
-			"--collect.custom_query.lr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
+			"--collect.custom_query.lr.directory={{ .paths_base }}/collectors/custom-queries/postgresql/low-resolution",
 			"--collect.custom_query.mr",
-			"--collect.custom_query.mr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
+			"--collect.custom_query.mr.directory={{ .paths_base }}/collectors/custom-queries/postgresql/medium-resolution",
+			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
+			"--no-collector.locks",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
+			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
 		},
 	}
 	requireNoDuplicateFlags(s.T(), actual.Args)

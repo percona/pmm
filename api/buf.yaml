@@ -13,12 +13,12 @@ lint:
     - PACKAGE_NO_IMPORT_CYCLE
   ignore_only:
     PACKAGE_VERSION_SUFFIX:
-      - api/common/common.proto
-      - api/common/metrics_resolutions.proto
+      - common/common.proto
+      - common/metrics_resolutions.proto
     RPC_REQUEST_STANDARD_NAME:
-      - api/agent/v1/agent.proto
+      - agent/v1/agent.proto
     RPC_RESPONSE_STANDARD_NAME:
-      - api/agent/v1/agent.proto
+      - agent/v1/agent.proto
   disallow_comment_ignores: true
 breaking:
   use:

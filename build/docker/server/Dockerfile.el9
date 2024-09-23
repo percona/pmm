@@ -36,9 +36,9 @@ COPY gitCommit /tmp/gitCommit
 COPY pmm-client.tar.gz /tmp/
 
 RUN install -T -p -m 644 /opt/ansible/ansible.cfg /etc/ansible/ansible.cfg && \
-    ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm-docker/main.yml && \
-    ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm-docker/update.yml && \
-    ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm/post-build-actions.yml
+    ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm-docker/main.yml -e "pmm_running_in_docker=true" && \
+    ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm-docker/update.yml -e "pmm_running_in_docker=true" && \
+    ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm/post-build-actions.yml -e "pmm_running_in_docker=true"
 
 USER pmm
 

@@ -69,7 +69,6 @@ main() {
     prepare_tarball postgres_exporter
     prepare_tarball proxysql_exporter
     prepare_tarball node_exporter
-    prepare_tarball clickhouse_exporter
     prepare_tarball rds_exporter
     prepare_tarball azure_metrics_exporter
 

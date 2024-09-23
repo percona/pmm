@@ -39,9 +39,9 @@ source "amazon-ebs" "agent" {
     iit-billing-tag = "pmm-worker"
   }
   launch_block_device_mappings {
-    device_name           = "/dev/xvda"
-    volume_size           = 50
-    volume_type           = "gp3"
+    device_name = "/dev/sda1"
+    volume_size = 50
+    volume_type = "gp3"
     delete_on_termination = true
   }
   vpc_filter {
@@ -85,7 +85,7 @@ source "amazon-ebs" "arm-agent" {
     iit-billing-tag = "pmm-worker"
   }
   launch_block_device_mappings {
-    device_name           = "/dev/xvda"
+    device_name           = "/dev/sda1"
     volume_size           = 30
     volume_type           = "gp3"
     delete_on_termination = true
@@ -114,7 +114,7 @@ build {
     user                   = "ec2-user"
     ansible_env_vars       = ["ANSIBLE_NOCOLOR=True"]
     extra_arguments = [
-      "--ssh-extra-args", "-o HostKeyAlgorithms=+ssh-rsa -o StrictHostKeyChecking=no -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null", "-v"
+      "--ssh-extra-args", "-o HostKeyAlgorithms=+ssh-rsa -o StrictHostKeyChecking=no -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null", "-vvv"
     ]
     playbook_file          = "./ansible/agent-aws.yml"
   }
