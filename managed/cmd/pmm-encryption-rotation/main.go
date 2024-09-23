@@ -51,7 +51,7 @@ type flags struct {
 	DBName      string `name:"postgres-name" default:"pmm-managed" help:"PostgreSQL database name"`
 	DBUsername  string `name:"postgres-username" default:"pmm-managed" help:"PostgreSQL database username name"`
 	DBPassword  string `name:"postgres-password" default:"pmm-managed" help:"PostgreSQL database password"`
-	SSLMode     string `name:"postgres-ssl-mode" default:"${disable_sslmode}" help:"PostgreSQL SSL mode" enum:"${disable_sslmode}, ${require_sslmode},${verify_sslmode}, ${verify_full_sslmode}"`
+	SSLMode     string `name:"postgres-ssl-mode" default:"${disable_sslmode}" help:"PostgreSQL SSL mode" enum:"${disable_sslmode}, ${require_sslmode},${verify_sslmode}, ${verify_full_sslmode}"` //nolint:lll
 	SSLCAPath   string `name:"postgres-ssl-ca-path" help:"PostgreSQL SSL CA root certificate path" type:"path"`
 	SSLKeyPath  string `name:"postgres-ssl-key-path" help:"PostgreSQL SSL key path" type:"path"`
 	SSLCertPath string `name:"postgres-ssl-cert-path" help:"PostgreSQL SSL certificate path" type:"path"`
