@@ -10,6 +10,9 @@
 
   vars:
     pmm_packages:
+      - percona-dashboards
+      - percona-grafana
+      - percona-release
       - percona-victoriametrics
       - percona-qan-api2
       - percona-alertmanager
@@ -94,25 +97,12 @@
         state: absent
       register: experimental_repo_existed
 
-    - name: Update percona-dashboards package
-      yum:
-        name:
-          - percona-dashboards
-          - percona-grafana
-        state: latest
+    - name: Enable percona telemetry repo
+      command: percona-release enable telemetry release
+      when: not ansible_check_mode
 
     - name: Cleanup yum metadata
-      command: yum clean metadata
-      register: yum_clean_result
-      changed_when: "'Cleaning repos' in yum_clean_result.stdout"
-      when: experimental_repo_existed.changed
-      tags:
-        - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
-        # The handler looks bad in this case
-
-    # TODO: join with the command above
-    - name: Cleanup yum metadata
-      command: yum clean metadata
+      command: yum clean all
       become: true
       tags:
         - skip_ansible_lint
