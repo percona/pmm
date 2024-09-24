@@ -22,7 +22,7 @@ fetch-el9:
 		-o ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	chmod 600 ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	test -f ${PACKER_CACHE_DIR}/box/oracle9.ova \
-		|| wget --progress=dot:giga  https://vagrantcloud.com/bento/boxes/oracle-9.0/versions/202207.20.0/providers/virtualbox.box -O ${PACKER_CACHE_DIR}/box/oracle9.ova
+		|| curl -fL https://pmm-build-cache.s3.us-east-2.amazonaws.com/VBOXES/oracle9-202401.31.0.box -o ${PACKER_CACHE_DIR}/box/oracle9.ova
 
 	# NOTE: image from vagrant registry is twice as large
 	test -f ${PACKER_CACHE_DIR}/box/box.ovf \
