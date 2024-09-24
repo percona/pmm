@@ -1,9 +1,9 @@
 %global debug_package   %{nil}
-%global commit          f2a6d70344f94674f731e6e9b031a6f147de46cc
+%global commit          7dd51483f34ce324e603160f415395fce0bc55a1
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         105
-%define grafana_version 10.4.2
+%define release         106
+%define grafana_version 11.1.5
 %define full_pmm_version 2.0.0
 %define full_version    v%{grafana_version}-%{full_pmm_version}
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
@@ -17,8 +17,8 @@ Version:        %{grafana_version}
 Release:        %{rpm_release}
 Summary:        Grafana is an open source, feature rich metrics dashboard and graph editor
 License:        AGPLv3
-URL:            https://github.com/percona-platform/grafana
-Source0:        https://github.com/percona-platform/grafana/archive/%{commit}.tar.gz
+URL:            https://github.com/percona/grafana
+Source0:        https://github.com/percona/grafana/archive/%{commit}.tar.gz
 ExclusiveArch:  %{ix86} x86_64 %{arm}
 
 BuildRequires: fontconfig
@@ -82,6 +82,15 @@ getent passwd pmm >/dev/null || echo "User pmm does not exist. Please create it 
 exit 0
 
 %changelog
+* Fri Sep 06 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.1.5-1
+- PMM-13235 Grafana 11.1.5
+
+* Thu Aug 15 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.1.4-1
+- PMM-13235 Grafana 11.1.4
+
+* Wed Jul 17 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.1.0-1
+- PMM-13235 Grafana 11.1.0
+
 * Tue Apr 16 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 10.4.2-1
 - PMM-13059 Grafana 10.4.2
 
