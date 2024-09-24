@@ -438,6 +438,7 @@ func TestMongodbExporterConfig2430(t *testing.T) {
 		TemplateRightDelim: "}}",
 		Args: []string{
 			"--collector.diagnosticdata",
+			"--collector.fcv",
 			"--collector.pbm",
 			"--collector.replicasetstatus",
 			"--compatible-mode",
@@ -472,6 +473,7 @@ func TestMongodbExporterConfig2430(t *testing.T) {
 			"--collector.currentopmetrics",
 			"--collector.dbstats",
 			"--collector.diagnosticdata",
+			"--collector.fcv",
 			"--collector.indexstats",
 			"--collector.pbm",
 			"--collector.replicasetstatus",
