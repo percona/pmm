@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -32,6 +33,8 @@ import (
 )
 
 const (
+	retries              = 5
+	interval             = 5 * time.Second
 	statusRunning        = "RUNNING"
 	statusStopped        = "STOPPED"
 	codeOK               = 0
@@ -66,7 +69,8 @@ func RotateEncryptionKey(sqlDB *sql.DB, dbName string) int {
 }
 
 func startPMMServer() error {
-	if isPMMServerStatus(statusRunning) {
+	logrus.Infoln("Starting PMM Server")
+	if pmmServerStatus(statusRunning) {
 		return nil
 	}
 
@@ -76,7 +80,7 @@ func startPMMServer() error {
 		return fmt.Errorf("%w: %s", err, output)
 	}
 
-	if !isPMMServerStatus(statusRunning) {
+	if !pmmServerStatusWithRetries(statusRunning) {
 		return errors.New("cannot start pmm-managed")
 	}
 
@@ -84,7 +88,8 @@ func startPMMServer() error {
 }
 
 func stopPMMServer() error {
-	if isPMMServerStatus(statusStopped) {
+	logrus.Infoln("Stopping PMM Server")
+	if pmmServerStatus(statusStopped) {
 		return nil
 	}
 
@@ -94,18 +99,32 @@ func stopPMMServer() error {
 		return fmt.Errorf("%w: %s", err, output)
 	}
 
-	if !isPMMServerStatus(statusStopped) {
+	if !pmmServerStatusWithRetries(statusStopped) {
 		return errors.New("cannot stop pmm-managed")
 	}
 
 	return nil
 }
 
-func isPMMServerStatus(status string) bool {
+func pmmServerStatus(status string) bool {
 	cmd := exec.Command("supervisorctl", "status pmm-managed")
 	output, _ := cmd.CombinedOutput()
 
 	return strings.Contains(string(output), strings.ToUpper(status))
+}
+
+func pmmServerStatusWithRetries(status string) bool {
+	for i := 0; i < retries; i++ {
+		if !pmmServerStatus(status) {
+			logrus.Infoln("Retry...")
+			time.Sleep(interval)
+			continue
+		}
+
+		return true
+	}
+
+	return false
 }
 
 func rotateEncryptionKey(db *reform.DB, dbName string) error {
