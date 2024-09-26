@@ -1,23 +1,38 @@
+- name: Create user-specific volume directory
+  file:
+    path: /home/admin/volume/srv/
+    state: directory
+    owner: admin
+    group: admin
+    mode: '0755'
+
 - name: Set distribution for OVF
   when: ansible_virtualization_type == "virtualbox"
-  copy:
-    content: ovf
-    dest: /srv/pmm-distribution
+  set_fact:
+    pmm_distribution_method: ovf
 
 - name: Set distribution for AMI
   when: >
     ( ansible_virtualization_type == "xen"
     or ansible_virtualization_type == "kvm" )
     and ansible_system_vendor != "DigitalOcean"
-  copy:
-    content: ami
-    dest: /srv/pmm-distribution
+  set_fact:
+    pmm_distribution_method: ami
 
-- name: Pull the PMM image
-  command: podman pull {{ pmm_server_image_name }}
+- name: Set SELinux in permissive mode for watchtower
+  selinux:
+    policy: targeted
+    state: permissive
 
 - name: Create a volume on the host
   command: podman volume create pmm-data
+  become: true
+  become_user: admin
+
+- name: Create a network
+  command: podman network create pmm_default
+  become: true
+  become_user: admin
 
 - name: Enable privileged port
   become: true
@@ -33,9 +48,33 @@
     group: admin
     mode: '0755'
 
-- name: Copy systemd service file to user-specific directory
+- name: Copy pmm-server environment file for service to user-specific directory
+  template:
+    src: pmm-server.env
+    dest: /home/admin/.config/systemd/user/
+    owner: admin
+    group: admin
+    mode: '0644'
+
+- name: Display the contents of the environment file
+  command: cat /home/admin/.config/systemd/user/pmm-server.env
+  register: command_output
+
+- name: Print to console
+  debug:
+    msg: "{{command_output.stdout}}"
+
+- name: Copy pmm-server systemd service file to user-specific directory
   template:
     src: pmm-server.service
+    dest: /home/admin/.config/systemd/user/
+    owner: admin
+    group: admin
+    mode: '0644'
+
+- name: Copy watchtower systemd service file to user-specific directory
+  template:
+    src: watchtower.service
     dest: /home/admin/.config/systemd/user/
     owner: admin
     group: admin
@@ -48,9 +87,32 @@
 - name: Enable linger for the admin user
   command: loginctl enable-linger {{ admin_user_id.stdout }}
 
+- name: Pull the PMM image
+  command: podman pull {{ pmm_server_image_name }}
+  become: true
+  become_user: admin
+
 - name: Enable and start PMM container as a user service
   command: systemctl --user enable --now pmm-server
   become: true
   become_user: admin
   environment:
     DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ admin_user_id.stdout }}/bus"
+
+- name: Enable socket
+  command: systemctl --user enable --now podman.socket
+  become: true
+  become_user: admin
+  environment:
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ admin_user_id.stdout }}/bus"
+
+- name: Enable and start watchtower container as a user service
+  command: systemctl --user enable --now watchtower
+  become: true
+  become_user: admin
+  environment:
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ admin_user_id.stdout }}/bus"
+
+- name: Sleep for 1 minute
+  pause:
+    minutes: 1

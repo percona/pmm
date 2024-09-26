@@ -1,7 +1,7 @@
 ---
 title: Add an Agent
 slug: addagent
-category: 626de009b977e3003179f7dd
+category: 66aca9bf17142b005ad4e9fa
 ---
 
 ## Add an Agent

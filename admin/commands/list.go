@@ -61,7 +61,7 @@ func (a listResultAgent) HumanReadableAgentType() string {
 }
 
 func (a listResultAgent) NiceAgentStatus() string {
-	res := a.Status
+	res, _ := strings.CutPrefix(a.Status, "AGENT_STATUS_")
 	if res == "" {
 		res = "unknown" //nolint:goconst
 	}

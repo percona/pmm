@@ -22,6 +22,7 @@ Requires(postun): systemd
 
 AutoReq:        no
 Conflicts:      pmm-client
+Obsoletes:	pmm2-client < 3.0.0
 
 %description
 Percona Monitoring and Management (PMM) is an open-source platform for managing and monitoring MySQL and MongoDB
@@ -35,6 +36,24 @@ as possible.
 %prep
 %setup -q
 
+%pretrans
+if [ -f /usr/local/percona/pmm2/config/pmm-agent.yaml ]; then
+    cp -a /usr/local/percona/pmm2/config/pmm-agent.yaml /usr/local/percona/pmm2/config/pmm-agent.yaml.bak
+fi
+
+%posttrans
+if [ -f /usr/local/percona/pmm2/config/pmm-agent.yaml.bak ]; then
+    mv /usr/local/percona/pmm/config/pmm-agent.yaml /usr/local/percona/pmm/config/pmm-agent.yaml.new
+    mv /usr/local/percona/pmm2/config/pmm-agent.yaml.bak /usr/local/percona/pmm/config/pmm-agent.yaml
+
+    if [ -d /usr/local/percona/pmm2/config ] && [ ! "$(ls -A /usr/local/percona/pmm2/config)" ]; then
+       rmdir /usr/local/percona/pmm2/config
+    fi
+
+    if [ -d /usr/local/percona/pmm2 ] && [ ! "$(ls -A /usr/local/percona/pmm2)" ]; then
+       rmdir /usr/local/percona/pmm2
+    fi
+fi
 
 %build
 
@@ -131,6 +150,10 @@ fi
 
 %preun
 %systemd_preun pmm-agent.service
+
+if [ -f /usr/local/percona/pmm/config/pmm-agent.yaml.new ]; then
+    rm -f /usr/local/percona/pmm/config/pmm-agent.yaml.new
+fi
 
 %postun
 case "$1" in

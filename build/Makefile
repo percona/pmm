@@ -1,5 +1,6 @@
 export PACKER_CACHE_DIR := .cache
 export PACKER_VERSION := 1.9.4
+export PMM_SERVER_IMAGE ?= docker.io/perconalab/pmm-server:3-dev-latest
 
 ## ----------------- PACKER ------------------
 fetch:
@@ -9,7 +10,7 @@ fetch:
 		-o ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	chmod 600 ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	test -f ${PACKER_CACHE_DIR}/box/oracle9.ova \
-		|| curl -fL https://vagrantcloud.com/bento/boxes/oracle-9.3/versions/202401.31.0/providers/virtualbox.box -o ${PACKER_CACHE_DIR}/box/oracle9.ova
+		|| curl -fL https://pmm-build-cache.s3.us-east-2.amazonaws.com/VBOXES/oracle9-202401.31.0.box -o ${PACKER_CACHE_DIR}/box/oracle9.ova
 
 	# NOTE: image from vagrant registry is twice as large
 	test -f ${PACKER_CACHE_DIR}/box/box.ovf \
@@ -21,8 +22,7 @@ deps:
 	unzip -o ${PACKER_CACHE_DIR}/packer.zip -d ~/bin
 
 pmm-ovf: fetch
-	/usr/bin/packer build \
-			-only virtualbox-ovf -color=false packer/pmm.json | tee build.log
+	/usr/bin/packer build -var 'pmm_server_image_name=${PMM_SERVER_IMAGE}'  -only virtualbox-ovf -color=false packer/pmm.json | tee build.log
 
 pmm-digitalocean:
 	packer build -only digitalocean -var 'single_disk=true' packer/pmm.json
@@ -32,7 +32,7 @@ pmm-azure:
 
 pmm-ami:
 	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build \hashicorp/packer:${PACKER_VERSION} \
-		build -only amazon-ebs -color=false packer/pmm.json | tee build.log
+		build -var 'pmm_server_image_name=${PMM_SERVER_IMAGE}' -only amazon-ebs -color=false packer/pmm.json | tee build.log
 ## ----------------- PACKER ------------------
 
 check:                          ## Run required checks and linters

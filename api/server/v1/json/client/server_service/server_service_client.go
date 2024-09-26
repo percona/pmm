@@ -30,8 +30,6 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AWSInstanceCheck(params *AWSInstanceCheckParams, opts ...ClientOption) (*AWSInstanceCheckOK, error)
-
 	ChangeSettings(params *ChangeSettingsParams, opts ...ClientOption) (*ChangeSettingsOK, error)
 
 	CheckUpdates(params *CheckUpdatesParams, opts ...ClientOption) (*CheckUpdatesOK, error)
@@ -39,6 +37,8 @@ type ClientService interface {
 	GetSettings(params *GetSettingsParams, opts ...ClientOption) (*GetSettingsOK, error)
 
 	LeaderHealthCheck(params *LeaderHealthCheckParams, opts ...ClientOption) (*LeaderHealthCheckOK, error)
+
+	ListChangeLogs(params *ListChangeLogsParams, opts ...ClientOption) (*ListChangeLogsOK, error)
 
 	Logs(params *LogsParams, writer io.Writer, opts ...ClientOption) (*LogsOK, error)
 
@@ -51,45 +51,6 @@ type ClientService interface {
 	Version(params *VersionParams, opts ...ClientOption) (*VersionOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
-}
-
-/*
-AWSInstanceCheck AWSs instance check
-
-Checks AWS EC2 instance ID.
-*/
-func (a *Client) AWSInstanceCheck(params *AWSInstanceCheckParams, opts ...ClientOption) (*AWSInstanceCheckOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewAWSInstanceCheckParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "AWSInstanceCheck",
-		Method:             "GET",
-		PathPattern:        "/v1/server/AWSInstance",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &AWSInstanceCheckReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*AWSInstanceCheckOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*AWSInstanceCheckDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -245,6 +206,45 @@ func (a *Client) LeaderHealthCheck(params *LeaderHealthCheckParams, opts ...Clie
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*LeaderHealthCheckDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListChangeLogs lists all the changes between the installed version and the latest available version
+
+List all the changes between the installed version and the latest available version
+*/
+func (a *Client) ListChangeLogs(params *ListChangeLogsParams, opts ...ClientOption) (*ListChangeLogsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListChangeLogsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListChangeLogs",
+		Method:             "GET",
+		PathPattern:        "/v1/server/updates/changelogs",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListChangeLogsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListChangeLogsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListChangeLogsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
