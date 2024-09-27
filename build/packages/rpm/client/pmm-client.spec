@@ -44,6 +44,7 @@ fi
 %posttrans
 if [ -f /usr/local/percona/pmm2/config/pmm-agent.yaml.bak ]; then
     mv /usr/local/percona/pmm/config/pmm-agent.yaml /usr/local/percona/pmm/config/pmm-agent.yaml.new
+    # Take a backup of pmm-agent.yaml and then modify it to remove paths properties
     mv /usr/local/percona/pmm2/config/pmm-agent.yaml.bak /usr/local/percona/pmm/config/pmm-agent.yaml.bak
     cp /usr/local/percona/pmm/config/pmm-agent.yaml.bak /usr/local/percona/pmm/config/pmm-agent.yaml
     sed '/^paths:/,/^[^[:space:]]/ {
