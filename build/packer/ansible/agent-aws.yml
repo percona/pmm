@@ -113,9 +113,9 @@
         mode: "u+x,g+x,o+x"
 
     - name: Install chromium
-      shell: "dnf install -y https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm"
-      when: ansible_architecture == "x86_64"
-      # NOTE: no chromium package for arm64
+      yum:
+        name: chromium
+        state: latest
 
     - name: Install doctl client for digital ocean
       get_url:

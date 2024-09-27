@@ -287,7 +287,7 @@ func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart tim
 		return nil, err
 	}
 
-	buckets := makeBuckets(current, prev, m.disableCommentsParsing, m.l)
+	buckets := m.makeBuckets(current, prev)
 	startS := uint32(periodStart.Unix())
 	m.l.Debugf("Made %d buckets out of %d stat statements in %s+%d interval.",
 		len(buckets), len(current), periodStart.Format("15:04:05"), periodLengthSecs)
@@ -312,8 +312,9 @@ func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart tim
 
 // makeBuckets uses current state of pg_stat_statements table and accumulated previous state
 // to make metrics buckets. It's a pure function for easier testing.
-func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *logrus.Entry) []*agentpb.MetricsBucket {
+func (m *PGStatStatementsQAN) makeBuckets(current, prev statementsMap) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(current))
+	l := m.l
 
 	for queryID, currentPSS := range current {
 		prevPSS := prev[queryID]
@@ -339,10 +340,10 @@ func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *lo
 		}
 
 		if len(currentPSS.Tables) == 0 {
-			currentPSS.Tables = extractTables(currentPSS.Query, l)
+			currentPSS.Tables = extractTables(currentPSS.Query, m.maxQueryLength, l)
 		}
 
-		if !disableCommentsParsing {
+		if !m.disableCommentsParsing {
 			comments, err := queryparser.PostgreSQLComments(currentPSS.Query)
 			if err != nil {
 				l.Errorf("failed to parse comments for query: %s", currentPSS.Query)
