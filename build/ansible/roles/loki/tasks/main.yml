@@ -1,0 +1,7 @@
+---
+# This role install and configures Loki (https://github.com/grafana/loki).
+- name: detect /srv/pmm-distribution
+  slurp:
+    path: /srv/pmm-distribution
+  register: pmm_distribution
+  ignore_errors: True

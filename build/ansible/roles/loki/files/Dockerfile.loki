@@ -1,0 +1,24 @@
+# TODO: the image should be percona/pmm-server:3 once PMM v3 is released.
+
+# To build the image, run the following in the project root directory:
+# docker buildx build --progress plain -t perconalab/pmm-server:loki-3.2 -f ./build/ansible/roles/loki/files/Dockerfile.loki . # mind the dot
+FROM perconalab/pmm-server:3-dev-latest
+
+USER root
+
+RUN sed -i '/^assumeyes/d' /etc/dnf/dnf.conf
+
+COPY build/ansible/roles/loki/files/loki.sh /tmp/
+COPY build/ansible/roles/loki/files/pmm.conf /etc/nginx/conf.d/pmm.conf
+COPY build/ansible/roles/loki/files/nginx.conf /etc/nginx/nginx.conf
+RUN chown pmm:pmm /etc/nginx/conf.d/pmm.conf /etc/nginx/nginx.conf
+RUN chmod +x /tmp/loki.sh && /bin/bash -e /tmp/loki.sh && rm /tmp/loki.sh
+
+USER pmm
+
+VOLUME /srv
+
+ENV GF_ANALYTICS_CHECK_FOR_UPDATES=false
+ENV GF_ANALYTICS_REPORTING_ENABLED=false
+ENV GF_SECURITY_DISABLE_GRAVATAR=true
+ENV GF_UNIFIED_ALERTING_ENABLED=true
