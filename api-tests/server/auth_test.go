@@ -17,6 +17,8 @@ package server
 
 import (
 	"bytes"
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -357,12 +359,23 @@ func setRole(t *testing.T, userID int, role string) {
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to set role for user, response: %s", b)
 }
 
+func generateRandomString(length int) (string, error) {
+	buffer := make([]byte, length)
+	_, err := rand.Read(buffer)
+	if err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(buffer)[:length], nil
+}
+
 func TestServiceAccountPermissions(t *testing.T) {
 	// service account role options: viewer, editor, admin
 	// service token role options: editor, admin
 	// basic auth format is skipped, endpoint /auth/serviceaccount (to get info about currently used token in request) requires Bearer authorization
 	// service_token:token format could be used in pmm-agent and pmm-admin (its transformed into Bearer authorization)
-	nodeName := "test-node"
+	postfix, err := generateRandomString(256)
+	require.NoError(t, err)
+	nodeName := fmt.Sprintf("test-node-%s", postfix)
 
 	viewerNodeName := fmt.Sprintf("%s-viewer", nodeName)
 	viewerAccountID := createServiceAccountWithRole(t, "Viewer", viewerNodeName)
