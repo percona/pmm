@@ -11,6 +11,7 @@ export const Messages = {
     "To complete this update, it's crucial to also update all of your PMM Client instances. Before proceeding with the Client update process, check the instances that require updates in the list below and review the provided instructions.",
   howToUpdate: 'How to update PMM Client',
   refreshList: 'Refresh list',
+  refreshing: 'Refreshing...',
   table: {
     node: 'Node',
     client: 'PMM Client (UUID)',

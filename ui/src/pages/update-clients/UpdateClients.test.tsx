@@ -8,6 +8,7 @@ import {
 import { AgentUpdateSeverity, GetAgentVersionItem } from 'types/agent.types';
 import { Messages } from './UpdateClients.messages';
 import * as AgentsApi from 'api/agents';
+import * as UpdatesUtils from 'contexts/updates/updates.utils';
 
 vi.mock('api/agents');
 
@@ -26,6 +27,7 @@ const renderWithProviders = (clients: GetAgentVersionItem[] = [getClient()]) =>
       {wrapWithQueryProvider(
         wrapWithUpdatesProvider(<UpdateClients />, {
           clients,
+          areClientsUpToDate: UpdatesUtils.areClientsUpToDate(clients),
         })
       )}
     </TestWrapper>
@@ -34,6 +36,22 @@ const renderWithProviders = (clients: GetAgentVersionItem[] = [getClient()]) =>
 describe('UpdateClients', () => {
   beforeEach(() => {
     getAgentVersionsMock.mockClear();
+  });
+
+  it('shows message when pmm server is up-to-date', () => {
+    renderWithProviders();
+
+    expect(
+      screen.queryByTestId('pmm-server-up-to-date-alert')
+    ).toBeInTheDocument();
+  });
+
+  it("doesn't show up-to-date message if clients require updating", () => {
+    renderWithProviders([getClient(AgentUpdateSeverity.REQUIRED)]);
+
+    expect(
+      screen.queryByTestId('pmm-server-up-to-date-alert')
+    ).not.toBeInTheDocument();
   });
 
   it('shows correct buttons when all clients are up-to-date', () => {

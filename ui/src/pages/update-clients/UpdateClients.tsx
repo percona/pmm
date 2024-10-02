@@ -17,7 +17,7 @@ import { useAgentVersions } from 'hooks/api/useAgents';
 import { SeverityChip } from './severity-chip';
 import { VersionsFilter } from './UpdateClients.types';
 import { filterClients } from './UpdateClients.utils';
-import { AgentUpdateSeverity, GetAgentVersionItem } from 'types/agent.types';
+import { GetAgentVersionItem } from 'types/agent.types';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { UpdateStatus } from 'types/updates.types';
 import { PMM_DOCS_UPDATE_CLIENT_URL } from 'constants';
@@ -29,19 +29,17 @@ import { type MRT_ColumnDef } from 'material-react-table';
 import { HomeLink } from 'components/home-link';
 
 export const UpdateClients: FC = () => {
-  const { versionInfo, clients: data, status } = useUpdates();
+  const {
+    versionInfo,
+    clients: data,
+    status,
+    areClientsUpToDate: isUpToDate,
+  } = useUpdates();
   const { isRefetching, refetch } = useAgentVersions();
   const [filter, setFilter] = useState<VersionsFilter>(VersionsFilter.All);
   const clients = useMemo(
     () => filterClients(data || [], filter),
     [data, filter]
-  );
-  const isUpToDate = useMemo(
-    () =>
-      (data || []).every(
-        (item) => item.severity === AgentUpdateSeverity.UP_TO_DATE
-      ),
-    [data]
   );
 
   const columns: MRT_ColumnDef<GetAgentVersionItem>[] = useMemo(
@@ -73,7 +71,10 @@ export const UpdateClients: FC = () => {
         <CardContent>
           <Stack spacing={2}>
             {isUpToDate && (
-              <Alert icon={<CheckCircleOutlineIcon />}>
+              <Alert
+                icon={<CheckCircleOutlineIcon />}
+                data-testid="pmm-server-up-to-date-alert"
+              >
                 {Messages.title}
                 {!!versionInfo?.latestNewsUrl && (
                   <>
@@ -125,7 +126,7 @@ export const UpdateClients: FC = () => {
                   onClick={() => refetch()}
                   data-testid="refresh-list-button"
                 >
-                  {Messages.refreshList}
+                  {isRefetching ? Messages.refreshing : Messages.refreshList}
                 </Button>
 
                 {isUpToDate && (

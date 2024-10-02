@@ -3,39 +3,34 @@ import { UpdatesContext } from './updates.context';
 import { UpdateStatus } from 'types/updates.types';
 import { useCheckUpdates } from 'hooks/api/useUpdates';
 import { useAgentVersions } from 'hooks/api/useAgents';
-import { AgentUpdateSeverity } from 'types/agent.types';
+import * as utils from './updates.utils';
 
 export const UpdatesProvider: FC<PropsWithChildren> = ({ children }) => {
   const [status, setStatus] = useState(UpdateStatus.Pending);
   const { isLoading, data, error, isRefetching, refetch } = useCheckUpdates();
   const { data: clients } = useAgentVersions();
-  const inProgress = useMemo(
-    () =>
-      status === UpdateStatus.Updating ||
-      status === UpdateStatus.Restarting ||
-      status === UpdateStatus.Completed,
-    [status]
+  const inProgress = useMemo(() => utils.isUpdateInProgress(status), [status]);
+  const areClientsUpToDate = useMemo(
+    () => utils.areClientsUpToDate(clients),
+    [clients]
   );
 
   useEffect(() => {
     const serverUpToDate =
       data && data?.installed.version === data?.latest?.version;
-    const clientsUpToDate = clients?.every(
-      (client) => client.severity === AgentUpdateSeverity.UP_TO_DATE
-    );
 
     if (error) {
       setStatus(UpdateStatus.Error);
     } else if (isLoading) {
       setStatus(UpdateStatus.Checking);
-    } else if (serverUpToDate && !clientsUpToDate) {
+    } else if (serverUpToDate && !areClientsUpToDate) {
       setStatus(UpdateStatus.UpdateClients);
     } else if (serverUpToDate) {
       setStatus(UpdateStatus.UpToDate);
     } else {
       setStatus(UpdateStatus.Pending);
     }
-  }, [data, error, isLoading, clients]);
+  }, [data, error, isLoading, clients, areClientsUpToDate]);
 
   return (
     <UpdatesContext.Provider
@@ -43,6 +38,7 @@ export const UpdatesProvider: FC<PropsWithChildren> = ({ children }) => {
         isLoading: isLoading || isRefetching,
         inProgress,
         clients,
+        areClientsUpToDate,
         status,
         setStatus,
         versionInfo: data,

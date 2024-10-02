@@ -9,4 +9,5 @@ export interface UpdatesContextProps {
   versionInfo?: GetUpdatesResponse;
   recheck: () => void;
   clients?: GetAgentVersionItem[];
+  areClientsUpToDate: boolean;
 }
