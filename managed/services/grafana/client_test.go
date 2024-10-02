@@ -23,10 +23,11 @@ import (
 	"testing"
 	"time"
 
-	stringsgen "github.com/percona/pmm/managed/utils/strings"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	stringsgen "github.com/percona/pmm/managed/utils/strings"
 )
 
 func TestClient(t *testing.T) {
