@@ -23,7 +23,7 @@ import { UpdateInfo } from '../update-info';
 import { UpdateInProgressCard } from '../update-in-progress-card';
 import { useUpdates } from 'contexts/updates';
 import { useWaitForReadiness } from 'hooks/api/useReadiness';
-import { Changelog } from '../changelog';
+import { ChangeLog } from '../change-log';
 
 export const UpdateCard: FC = () => {
   const { inProgress, status, setStatus } = useUpdates();
@@ -158,7 +158,7 @@ export const UpdateCard: FC = () => {
           </Link>
         </CardActions>
       )}
-      <Changelog />
+      <ChangeLog />
     </Card>
   );
 };
