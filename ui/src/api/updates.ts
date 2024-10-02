@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios';
 import {
+  GetChangeLogsResponse,
   GetUpdateStatusBody,
   GetUpdateStatusResponse,
   GetUpdatesParams,
@@ -31,5 +32,12 @@ export const getUpdateStatus = async (body: GetUpdateStatusBody) => {
     GetUpdateStatusBody,
     AxiosResponse<GetUpdateStatusResponse>
   >('/server/updates:getStatus', body);
+  return res.data;
+};
+
+export const getChangeLogs = async (): Promise<GetChangeLogsResponse> => {
+  const res = await api.get<GetChangeLogsResponse>(
+    '/server/updates/changelogs'
+  );
   return res.data;
 };
