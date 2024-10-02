@@ -19,7 +19,7 @@ package grafana
 import (
 	"bytes"
 	"context"
-	"crypto/md5"
+	"crypto/md5" //nolint:gosec
 	"encoding/json"
 	"fmt"
 	"io"
@@ -681,7 +681,7 @@ func sanitizeSAName(name string) string {
 		return name
 	}
 
-	return fmt.Sprintf("%s%x", name[:158], md5.Sum([]byte(name[158:])))
+	return fmt.Sprintf("%s%x", name[:158], md5.Sum([]byte(name[158:]))) //nolint:gosec
 }
 
 func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName string, reregister bool, authHeaders http.Header) (int, error) {

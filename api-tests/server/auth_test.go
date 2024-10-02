@@ -17,7 +17,7 @@ package server
 
 import (
 	"bytes"
-	"crypto/md5"
+	"crypto/md5" //nolint:gosec
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
@@ -637,5 +637,5 @@ func sanitizeSAName(name string) string {
 		return name
 	}
 
-	return fmt.Sprintf("%s%x", name[:158], md5.Sum([]byte(name[158:])))
+	return fmt.Sprintf("%s%x", name[:158], md5.Sum([]byte(name[158:]))) //nolint:gosec
 }
