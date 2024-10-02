@@ -673,15 +673,15 @@ type serviceToken struct {
 	Role string `json:"role"`
 }
 
-// Max length of service account name is 190 chars (default limit in Grafana Postgres DB).
+// Max length of service account name is 185 chars (limit in Grafana Postgres DB for 190 chars).
 // Sanitizing, ensure its length by hashing postfix when length is exceeded.
 // MD5 is used because it has fixed length 32 chars.
 func sanitizeSAName(name string) string {
-	if len(name) <= 190 {
+	if len(name) <= 185 {
 		return name
 	}
 
-	return fmt.Sprintf("%s%x", name[:158], md5.Sum([]byte(name[158:]))) //nolint:gosec
+	return fmt.Sprintf("%s%x", name[:153], md5.Sum([]byte(name[153:]))) //nolint:gosec
 }
 
 func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName string, reregister bool, authHeaders http.Header) (int, error) {
@@ -690,6 +690,7 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 	}
 
 	serviceAccountName := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
+	fmt.Println(sanitizeSAName(serviceAccountName))
 	b, err := json.Marshal(serviceAccount{Name: sanitizeSAName(serviceAccountName), Role: role.String(), Force: reregister})
 	if err != nil {
 		return 0, errors.WithStack(err)

@@ -23,6 +23,7 @@ import (
 	"testing"
 	"time"
 
+	stringsgen "github.com/percona/pmm/managed/utils/strings"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -144,8 +145,11 @@ func TestClient(t *testing.T) {
 			})
 
 			t.Run(fmt.Sprintf("Service token auth %s", role.String()), func(t *testing.T) {
-				nodeName := fmt.Sprintf("test-node-%s", role)
+				name, err := stringsgen.GenerateRandomString(256)
+				require.NoError(t, err)
+				nodeName := fmt.Sprintf("%s-%s", name, role)
 				serviceAccountID, err := c.createServiceAccount(ctx, role, nodeName, true, authHeaders)
+				fmt.Println(serviceAccountID)
 				require.NoError(t, err)
 				defer func() {
 					err := c.deleteServiceAccount(ctx, serviceAccountID, authHeaders)
@@ -235,13 +239,15 @@ func TestClient(t *testing.T) {
 	})
 }
 
-func Test_sanitizeNodeName(t *testing.T) {
+func Test_sanitizeSAName(t *testing.T) {
 	// max possible length without hashing
-	len190 := "verylongnodenameverylongnodenameverylongnodenameverylongnodenameverylongnodenameverylongnodenameverylongnodenameverylongnodenameverylongnodenameverylongnodenameverylongnodenameverylongn"
-	require.Equal(t, len190, sanitizeSAName(len190))
+	len185, err := stringsgen.GenerateRandomString(185)
+	require.NoError(t, err)
+	require.Equal(t, len185, sanitizeSAName(len185))
 
 	// too long length - postfix hashed
-	len200 := fmt.Sprintf("%s1234567890", len190)
+	len200, err := stringsgen.GenerateRandomString(200)
+	require.NoError(t, err)
 	len200sanitized := sanitizeSAName(len200)
-	require.Equal(t, fmt.Sprintf("%s%s", len200[:158], len200sanitized[158:]), len200sanitized)
+	require.Equal(t, fmt.Sprintf("%s%s", len200[:153], len200sanitized[153:]), len200sanitized)
 }
