@@ -234,3 +234,14 @@ func TestClient(t *testing.T) {
 		require.NoError(t, err)
 	})
 }
+
+func Test_sanitizeNodeName(t *testing.T) {
+	// max possible length without hashing
+	len190 := "verylongnodenameverylongnodenameverylongnodenameverylongnodenameverylongnodenameverylongnodenameverylongnodenameverylongnodenameverylongnodenameverylongnodenameverylongnodenameverylongn"
+	require.Equal(t, len190, sanitizeSAName(len190))
+
+	// too long length - postfix hashed
+	len200 := fmt.Sprintf("%s1234567890", len190)
+	len200sanitized := sanitizeSAName(len200)
+	require.Equal(t, fmt.Sprintf("%s%s", len200[:158], len200sanitized[158:]), len200sanitized)
+}

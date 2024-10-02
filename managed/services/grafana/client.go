@@ -19,6 +19,7 @@ package grafana
 import (
 	"bytes"
 	"context"
+	"crypto/md5"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -350,7 +351,7 @@ type serviceAccountSearch struct {
 
 func (c *Client) getServiceAccountIDFromName(ctx context.Context, nodeName string, authHeaders http.Header) (int, error) {
 	var res serviceAccountSearch
-	serviceAccountName := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
+	serviceAccountName := sanitizeSAName(fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName))
 	if err := c.do(ctx, http.MethodGet, "/api/serviceaccounts/search", fmt.Sprintf("query=%s", serviceAccountName), authHeaders, nil, &res); err != nil {
 		return 0, err
 	}
@@ -383,7 +384,7 @@ func (c *Client) getNotPMMAgentTokenCountForServiceAccount(ctx context.Context, 
 	count := 0
 	for _, token := range tokens {
 		serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
-		if !strings.HasPrefix(token.Name, serviceTokenName) {
+		if !strings.HasPrefix(token.Name, sanitizeSAName(serviceTokenName)) {
 			count++
 		}
 	}
@@ -672,15 +673,24 @@ type serviceToken struct {
 	Role string `json:"role"`
 }
 
+// Max length of service account name is 190 chars (default limit in Grafana Postgres DB).
+// Sanitizing, ensure its length by hashing postfix when length is exceeded.
+// MD5 is used because it has fixed length 32 chars.
+func sanitizeSAName(name string) string {
+	if len(name) <= 190 {
+		return name
+	}
+
+	return fmt.Sprintf("%s%x", name[:158], md5.Sum([]byte(name[158:])))
+}
+
 func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName string, reregister bool, authHeaders http.Header) (int, error) {
 	if role == none {
 		return 0, errors.New("you cannot create service account with empty role")
 	}
 
-	// Max length of service account name is 190 chars (default limit in Grafana). In reality it is 187.
-	// Some tests could fail if you pass a name longer than 187 chars.
 	serviceAccountName := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
-	b, err := json.Marshal(serviceAccount{Name: serviceAccountName, Role: role.String(), Force: reregister})
+	b, err := json.Marshal(serviceAccount{Name: sanitizeSAName(serviceAccountName), Role: role.String(), Force: reregister})
 	if err != nil {
 		return 0, errors.WithStack(err)
 	}
@@ -714,7 +724,7 @@ func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int, n
 		}
 	}
 
-	b, err := json.Marshal(serviceToken{Name: serviceTokenName, Role: admin.String()})
+	b, err := json.Marshal(serviceToken{Name: sanitizeSAName(serviceTokenName), Role: admin.String()})
 	if err != nil {
 		return 0, "", errors.WithStack(err)
 	}
@@ -737,7 +747,7 @@ func (c *Client) serviceTokenExists(ctx context.Context, serviceAccountID int, n
 
 	serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
 	for _, token := range tokens {
-		if !strings.HasPrefix(token.Name, serviceTokenName) {
+		if !strings.HasPrefix(token.Name, sanitizeSAName(serviceTokenName)) {
 			continue
 		}
 
@@ -755,7 +765,7 @@ func (c *Client) deletePMMAgentServiceToken(ctx context.Context, serviceAccountI
 
 	serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
 	for _, token := range tokens {
-		if strings.HasPrefix(token.Name, serviceTokenName) {
+		if strings.HasPrefix(token.Name, sanitizeSAName(serviceTokenName)) {
 			if err := c.do(ctx, "DELETE", fmt.Sprintf("/api/serviceaccounts/%d/tokens/%d", serviceAccountID, token.ID), "", authHeaders, nil, nil); err != nil {
 				return err
 			}

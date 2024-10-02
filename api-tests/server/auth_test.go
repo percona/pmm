@@ -17,6 +17,7 @@ package server
 
 import (
 	"bytes"
+	"crypto/md5"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
@@ -533,7 +534,7 @@ func createServiceAccountWithRole(t *testing.T, role, nodeName string) int {
 
 	name := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
 	data, err := json.Marshal(map[string]string{
-		"name": name,
+		"name": sanitizeSAName(name),
 		"role": role,
 	})
 	require.NoError(t, err)
@@ -595,7 +596,7 @@ func createServiceToken(t *testing.T, serviceAccountID int, nodeName string) (in
 
 	name := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
 	data, err := json.Marshal(map[string]string{
-		"name": name,
+		"name": sanitizeSAName(name),
 	})
 	require.NoError(t, err)
 
@@ -629,4 +630,12 @@ func deleteServiceToken(t *testing.T, serviceAccountID, serviceTokenID int) {
 	defer resp.Body.Close() //nolint:errcheck
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete service token, status code: %d, response: %s", resp.StatusCode, b)
+}
+
+func sanitizeSAName(name string) string {
+	if len(name) <= 190 {
+		return name
+	}
+
+	return fmt.Sprintf("%s%x", name[:158], md5.Sum([]byte(name[158:])))
 }
