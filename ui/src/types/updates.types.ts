@@ -56,7 +56,7 @@ export enum UpdateStatus {
   UpdateClients = 'update-clients',
 }
 
-export interface GetChangelogItem {
+export interface GetChangeLogItem {
   version: string;
   tag: string;
   timestamp: string;
@@ -64,7 +64,7 @@ export interface GetChangelogItem {
   releaseNotesText: string;
 }
 
-export interface GetChangelogsResponse {
-  updates: GetChangelogItem[];
+export interface GetChangeLogsResponse {
+  updates: GetChangeLogItem[];
   lastCheck: string;
 }

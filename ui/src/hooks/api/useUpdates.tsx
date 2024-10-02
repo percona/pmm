@@ -1,4 +1,4 @@
-import { checkForUpdates, getChangelogs, startUpdate } from 'api/updates';
+import { checkForUpdates, getChangeLogs, startUpdate } from 'api/updates';
 import {
   useMutation,
   UseMutationOptions,
@@ -6,7 +6,7 @@ import {
   UseQueryOptions,
 } from '@tanstack/react-query';
 import {
-  GetChangelogsResponse,
+  GetChangeLogsResponse,
   GetUpdatesResponse,
   StartUpdateBody,
   StartUpdateResponse,
@@ -43,11 +43,11 @@ export const useStartUpdate = (
     ...options,
   });
 
-export const useChangelogs = (
-  options?: UseQueryOptions<GetChangelogsResponse>
+export const useChangeLogs = (
+  options?: UseQueryOptions<GetChangeLogsResponse>
 ) =>
   useQuery({
-    queryKey: ['changelogs'],
-    queryFn: getChangelogs,
+    queryKey: ['changeLogs'],
+    queryFn: getChangeLogs,
     ...options,
   });
