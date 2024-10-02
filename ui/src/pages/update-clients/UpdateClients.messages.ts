@@ -31,4 +31,5 @@ export const Messages = {
     unsupported: 'Unsupported',
     unspecified: 'Unspecified',
   },
+  home: 'PMM Home'
 };

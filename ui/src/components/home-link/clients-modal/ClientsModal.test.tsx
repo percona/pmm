@@ -9,6 +9,14 @@ describe('ClientsModal', () => {
     onCloseMock.mockClear();
   });
 
+  it('closes when close icon is clicked', () => {
+    render(<ClientsModal isOpen onClose={onCloseMock} />);
+
+    fireEvent.click(screen.getByTestId('modal-close-button'));
+
+    expect(onCloseMock).toHaveBeenCalled();
+  });
+
   it('closes when close window button is clicked', () => {
     render(<ClientsModal isOpen onClose={onCloseMock} />);
 

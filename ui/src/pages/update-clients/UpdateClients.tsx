@@ -26,6 +26,7 @@ import { TextSelect } from 'components/text-select';
 import { FILTER_OPTIONS } from './UpdateClients.constants';
 import { Table } from '@percona/ui-lib';
 import { type MRT_ColumnDef } from 'material-react-table';
+import { HomeLink } from 'components/home-link';
 
 export const UpdateClients: FC = () => {
   const { versionInfo, clients: data, status } = useUpdates();
@@ -105,23 +106,33 @@ export const UpdateClients: FC = () => {
               justifyContent="space-between"
               alignItems="center"
             >
-              <Stack direction="row" spacing={1}>
-                <Link
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={PMM_DOCS_UPDATE_CLIENT_URL}
-                >
-                  <Button variant="contained" endIcon={<OpenInNew />}>
-                    {Messages.howToUpdate}
-                  </Button>
-                </Link>
+              <Stack direction="row" spacing={1} alignItems="center">
+                {!isUpToDate && (
+                  <Link
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={PMM_DOCS_UPDATE_CLIENT_URL}
+                    data-testid="how-to-update-clients-link"
+                  >
+                    <Button variant="contained" endIcon={<OpenInNew />}>
+                      {Messages.howToUpdate}
+                    </Button>
+                  </Link>
+                )}
                 <Button
                   startIcon={<FetchingIcon isFetching={isRefetching} />}
                   variant="outlined"
                   onClick={() => refetch()}
+                  data-testid="refresh-list-button"
                 >
                   {Messages.refreshList}
                 </Button>
+
+                {isUpToDate && (
+                  <HomeLink data-testid="pmm-home-link">
+                    <Button variant="contained">{Messages.home}</Button>
+                  </HomeLink>
+                )}
               </Stack>
               <TextSelect
                 value={filter}
