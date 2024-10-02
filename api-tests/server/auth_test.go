@@ -622,7 +622,6 @@ func deleteServiceToken(t *testing.T, serviceAccountID, serviceTokenID int) {
 }
 
 func sanitizeSAName(name string) string {
-	fmt.Println(name)
 	if len(name) <= 185 {
 		return name
 	}

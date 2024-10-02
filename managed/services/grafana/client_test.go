@@ -150,7 +150,6 @@ func TestClient(t *testing.T) {
 				require.NoError(t, err)
 				nodeName := fmt.Sprintf("%s-%s", name, role)
 				serviceAccountID, err := c.createServiceAccount(ctx, role, nodeName, true, authHeaders)
-				fmt.Println(serviceAccountID)
 				require.NoError(t, err)
 				defer func() {
 					err := c.deleteServiceAccount(ctx, serviceAccountID, authHeaders)

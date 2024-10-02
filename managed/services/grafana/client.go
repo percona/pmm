@@ -690,7 +690,6 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 	}
 
 	serviceAccountName := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
-	fmt.Println(sanitizeSAName(serviceAccountName))
 	b, err := json.Marshal(serviceAccount{Name: sanitizeSAName(serviceAccountName), Role: role.String(), Force: reregister})
 	if err != nil {
 		return 0, errors.WithStack(err)
