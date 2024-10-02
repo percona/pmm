@@ -627,6 +627,6 @@ func sanitizeSAName(name string) string {
 	}
 
 	res := fmt.Sprintf("%s%x", name[:153], md5.Sum([]byte(name[153:]))) //nolint:gosec
-	fmt.Println(res)
+
 	return res
 }
