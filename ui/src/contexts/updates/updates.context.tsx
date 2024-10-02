@@ -8,4 +8,5 @@ export const UpdatesContext = createContext<UpdatesContextProps>({
   status: UpdateStatus.Pending,
   setStatus: () => {},
   recheck: () => {},
+  areClientsUpToDate: false,
 });

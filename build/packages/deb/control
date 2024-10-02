@@ -9,6 +9,8 @@ Build-Depends: debhelper
 Package: pmm-client
 Architecture: any
 Breaks: pmm-client
+Conflicts: pmm2-client
+Replaces: pmm2-client
 Description: Percona Monitoring and Management Client
  Percona Monitoring and Management (PMM) is an open-source platform for managing and monitoring MySQL and MongoDB
  performance. It is developed by Percona in collaboration with experts in the field of managed database services,

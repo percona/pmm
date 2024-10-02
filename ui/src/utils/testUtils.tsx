@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { UpdatesContext, UpdatesContextProps } from 'contexts/updates';
 import { ReactElement } from 'react';
 import { UpdateStatus } from 'types/updates.types';
@@ -30,9 +31,26 @@ export const wrapWithUpdatesProvider = (
         latestNewsUrl: 'https://per.co.na/pmm/3.0.0',
         lastCheck: '2024-07-30T10:34:05.886739003Z',
       },
+      areClientsUpToDate: true,
       ...value,
     }}
   >
     {children}
   </UpdatesContext.Provider>
+);
+
+export const wrapWithQueryProvider = (children: ReactElement) => (
+  <QueryClientProvider
+    client={
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: false,
+          },
+        },
+      })
+    }
+  >
+    {children}
+  </QueryClientProvider>
 );
