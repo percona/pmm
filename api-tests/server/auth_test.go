@@ -622,11 +622,9 @@ func deleteServiceToken(t *testing.T, serviceAccountID, serviceTokenID int) {
 }
 
 func sanitizeSAName(name string) string {
-	if len(name) <= 185 {
+	if len(name) <= 180 {
 		return name
 	}
 
-	res := fmt.Sprintf("%s%x", name[:153], md5.Sum([]byte(name[153:]))) //nolint:gosec
-
-	return res
+	return fmt.Sprintf("%s%x", name[:148], md5.Sum([]byte(name[148:]))) //nolint:gosec
 }

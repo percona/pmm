@@ -241,13 +241,13 @@ func TestClient(t *testing.T) {
 
 func Test_sanitizeSAName(t *testing.T) {
 	// max possible length without hashing
-	len185, err := stringsgen.GenerateRandomString(185)
+	len180, err := stringsgen.GenerateRandomString(180)
 	require.NoError(t, err)
-	require.Equal(t, len185, sanitizeSAName(len185))
+	require.Equal(t, len180, sanitizeSAName(len180))
 
 	// too long length - postfix hashed
 	len200, err := stringsgen.GenerateRandomString(200)
 	require.NoError(t, err)
 	len200sanitized := sanitizeSAName(len200)
-	require.Equal(t, fmt.Sprintf("%s%s", len200[:153], len200sanitized[153:]), len200sanitized)
+	require.Equal(t, fmt.Sprintf("%s%s", len200[:148], len200sanitized[148:]), len200sanitized)
 }
