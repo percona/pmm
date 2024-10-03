@@ -62,6 +62,7 @@ import (
 	accesscontrolv1 "github.com/percona/pmm/api/accesscontrol/v1beta1"
 	actionsv1 "github.com/percona/pmm/api/actions/v1"
 	advisorsv1 "github.com/percona/pmm/api/advisors/v1"
+	agentpb "github.com/percona/pmm/api/agent/pb"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	alertingv1 "github.com/percona/pmm/api/alerting/v1"
 	backupv1 "github.com/percona/pmm/api/backup/v1"
@@ -261,6 +262,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	}
 	serverv1.RegisterServerServiceServer(gRPCServer, deps.server)
 	agentv1.RegisterAgentServiceServer(gRPCServer, agentgrpc.NewAgentServer(deps.handler))
+	agentpb.RegisterAgentServer(gRPCServer, agentgrpc.NewAgentPBServer(deps.handler))
 
 	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
 	agentsSvc := inventory.NewAgentsService(
