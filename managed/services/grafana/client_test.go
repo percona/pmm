@@ -27,7 +27,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	stringsgen "github.com/percona/pmm/managed/utils/strings"
+	stringsgen "github.com/percona/pmm/utils/strings"
 )
 
 func TestClient(t *testing.T) {
@@ -237,17 +237,4 @@ func TestClient(t *testing.T) {
 		err := c.IsReady(ctx)
 		require.NoError(t, err)
 	})
-}
-
-func Test_sanitizeSAName(t *testing.T) {
-	// max possible length without hashing
-	len180, err := stringsgen.GenerateRandomString(180)
-	require.NoError(t, err)
-	require.Equal(t, len180, sanitizeSAName(len180))
-
-	// too long length - postfix hashed
-	len200, err := stringsgen.GenerateRandomString(200)
-	require.NoError(t, err)
-	len200sanitized := sanitizeSAName(len200)
-	require.Equal(t, fmt.Sprintf("%s%s", len200[:148], len200sanitized[148:]), len200sanitized)
 }

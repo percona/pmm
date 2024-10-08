@@ -16,8 +16,7 @@
 package server
 
 import (
-	"bytes"
-	"crypto/md5" //nolint:gosec
+	"bytes" //nolint:gosec
 	"encoding/json"
 	"fmt"
 	"io"
@@ -36,7 +35,8 @@ import (
 	pmmapitests "github.com/percona/pmm/api-tests"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
-	stringsgen "github.com/percona/pmm/managed/utils/strings"
+	"github.com/percona/pmm/utils/grafana"
+	stringsgen "github.com/percona/pmm/utils/strings"
 )
 
 const (
@@ -523,7 +523,7 @@ func createServiceAccountWithRole(t *testing.T, role, nodeName string) int {
 
 	name := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
 	data, err := json.Marshal(map[string]string{
-		"name": sanitizeSAName(name),
+		"name": grafana.SanitizeSAName(name),
 		"role": role,
 	})
 	require.NoError(t, err)
@@ -585,7 +585,7 @@ func createServiceToken(t *testing.T, serviceAccountID int, nodeName string) (in
 
 	name := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
 	data, err := json.Marshal(map[string]string{
-		"name": sanitizeSAName(name),
+		"name": grafana.SanitizeSAName(name),
 	})
 	require.NoError(t, err)
 
@@ -619,12 +619,4 @@ func deleteServiceToken(t *testing.T, serviceAccountID, serviceTokenID int) {
 	defer resp.Body.Close() //nolint:errcheck
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete service token, status code: %d, response: %s", resp.StatusCode, b)
-}
-
-func sanitizeSAName(name string) string {
-	if len(name) <= 180 {
-		return name
-	}
-
-	return fmt.Sprintf("%s%x", name[:148], md5.Sum([]byte(name[148:]))) //nolint:gosec
 }
