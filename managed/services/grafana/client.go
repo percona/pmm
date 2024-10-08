@@ -18,7 +18,7 @@ package grafana
 
 import (
 	"bytes"
-	"context" //nolint:gosec
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"

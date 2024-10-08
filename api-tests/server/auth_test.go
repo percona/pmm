@@ -16,7 +16,7 @@
 package server
 
 import (
-	"bytes" //nolint:gosec
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"

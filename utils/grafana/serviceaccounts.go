@@ -17,7 +17,7 @@
 package grafana
 
 import (
-	"crypto/md5"
+	"crypto/md5" //nolint:gosec
 	"fmt"
 )
 
