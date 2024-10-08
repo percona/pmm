@@ -11,6 +11,6 @@ This section describes APIs to deal with Percona [Advisors](https://docs.percona
 - In [List of problems detected by Advisors](getfailedchecks) you can find API to get information about potential problems with your Infrastructure detected by Advisors.
 - [List Percona Advisors](ref:listadvisors) lists all Advisors available for your PMM instance.
 - [List Advisor Checks](ref:listadvisorchecks) lists all Advisor Checks available in your PMM.
-- [Changing Advisor Checks](ref:changeadvisorchecks) will help you automate Advisor checks, i.e.:
+- [Changing Advisor Checks](ref:changeadvisorchecks) will help you automate Advisor Checks, i.e.:
   - Enable/Disable Advisor Checks
   - Change Advisor Check execution interval
