@@ -25,7 +25,7 @@ This section will provide you with information on how to add, update or remove s
 - [Remove a node](ref:removenode)
 - [Remove an agent](ref:removeagent)
 
-### Updating services and agents:
+### Updating services and agents
 - [Update a service](ref:changeservice)
 - [Update an agent](ref:changeagent)
 
