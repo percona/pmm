@@ -28,7 +28,7 @@ type agentPBServer struct {
 	agentpb.UnimplementedAgentServer
 }
 
-// NewAgentServer creates new agent server.
+// NewAgentPBServer creates new agent server.
 func NewAgentPBServer(r *agents.Handler) agentpb.AgentServer { //nolint:ireturn
 	return &agentPBServer{
 		handler: r,
