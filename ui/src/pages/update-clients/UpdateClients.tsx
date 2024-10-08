@@ -78,13 +78,14 @@ export const UpdateClients: FC = () => {
                 {Messages.title}
                 {!!versionInfo?.latestNewsUrl && (
                   <>
+                    {Messages.see}
                     <Link
                       color="inherit"
                       target="_blank"
                       rel="noopener noreferrer"
                       href={versionInfo?.latestNewsUrl}
                     >
-                      {Messages.seeReleaseNotes}
+                      {Messages.releaseNotes}
                     </Link>
                     {Messages.dot}
                   </>

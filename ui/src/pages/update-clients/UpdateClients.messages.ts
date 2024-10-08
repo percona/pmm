@@ -1,7 +1,8 @@
 export const Messages = {
   pageTitle: 'Updates',
-  title: 'Your PMM instance is up-to-date. ',
-  seeReleaseNotes: 'See Release Notes',
+  title: 'Your PMM instance is up-to-date.',
+  see: ' See ',
+  releaseNotes: 'Release Notes',
   notify: " We'll notify you when a new update becomes available.",
   dot: '.',
   pmmUpdate: (version?: string) => `PMM ${version} update`,
@@ -32,5 +33,5 @@ export const Messages = {
     unsupported: 'Unsupported',
     unspecified: 'Unspecified',
   },
-  home: 'PMM Home'
+  home: 'PMM Home',
 };
