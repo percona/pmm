@@ -255,7 +255,7 @@ service ServerService {
     option (google.api.http) = {get: "/v1/server/updates/changelogs"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get the changelog"
-      description: "List all the changes between the installed version and the latest available version."
+      description: "Display a changelog comparing the installed version to the latest available version."
     };
   }
   // StartUpdate starts PMM Server update.
