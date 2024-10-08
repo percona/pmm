@@ -4,13 +4,6 @@ package agent.v1;
 
 import "inventory/v1/agents.proto";
 
-// Deprecated: is not used, should not be used, should be removed.
-enum ExampleFormat {
-  EXAMPLE_FORMAT_INVALID = 0 [deprecated = true];
-  EXAMPLE = 1 [deprecated = true];
-  FINGERPRINT = 2 [deprecated = true];
-}
-
 // ExampleType is a type of query example selected for this query class in given period of time.
 enum ExampleType {
   EXAMPLE_TYPE_UNSPECIFIED = 0;
@@ -64,8 +57,9 @@ message MetricsBucket {
     uint32 period_length_secs = 11;
     // One of query example from set found in bucket.
     string example = 12;
-    // Deprecated: should not be used, should be removed.
-    ExampleFormat example_format = 13 [deprecated = true];
+    // Deprecated: should be removed.
+    reserved 13;
+    reserved "example_format";
     ExampleType example_type = 14;
     // Indicates if the query example is truncated.
     bool is_truncated = 24;
