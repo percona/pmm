@@ -6,7 +6,7 @@ hidden: 0
 order: 0
 ---
 
-This section will provide you with information on how to add, update or remove services, nodes and agents.
+This section guides you on how to add, update, or remove services, nodes, and agents.
 
 
 ### Adding services, nodes and agents:
