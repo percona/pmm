@@ -9,6 +9,11 @@ if ! getent passwd pmm-agent >/dev/null 2>&1; then
   adduser --system --home /usr/local/percona --group pmm-agent
 fi
 
+if [ -f /usr/local/percona/pmm2/config/pmm-agent.yaml ]; then
+    echo "Backing up pmm-agent.yaml before removing pmm2-client..."
+    mv /usr/local/percona/pmm2/config/pmm-agent.yaml /usr/local/percona/pmm2/config/pmm-agent.yaml.bak
+fi
+
 #DEBHELPER#
 
 exit 0

@@ -10,7 +10,7 @@ fetch:
 		-o ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	chmod 600 ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	test -f ${PACKER_CACHE_DIR}/box/oracle9.ova \
-		|| curl -fL https://vagrantcloud.com/bento/boxes/oracle-9.3/versions/202401.31.0/providers/virtualbox.box -o ${PACKER_CACHE_DIR}/box/oracle9.ova
+		|| curl -fL https://pmm-build-cache.s3.us-east-2.amazonaws.com/VBOXES/oracle9-202401.31.0.box -o ${PACKER_CACHE_DIR}/box/oracle9.ova
 
 	# NOTE: image from vagrant registry is twice as large
 	test -f ${PACKER_CACHE_DIR}/box/box.ovf \
