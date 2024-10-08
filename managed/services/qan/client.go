@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -57,6 +58,7 @@ func collectAgents(q *reform.Querier, metricsBuckets []*agentv1.MetricsBucket) (
 	agentIDs := make(map[string]struct{})
 	for _, m := range metricsBuckets {
 		if id := m.Common.AgentId; id != "" {
+			id, _ := strings.CutPrefix(id, "/agent_id/")
 			agentIDs[id] = struct{}{}
 		}
 	}
@@ -78,7 +80,8 @@ func collectServices(q *reform.Querier, agents map[string]*models.Agent) (map[st
 	serviceIDs := make(map[string]struct{})
 	for _, a := range agents {
 		if id := a.ServiceID; id != nil {
-			serviceIDs[*id] = struct{}{}
+			id, _ := strings.CutPrefix(*id, "/service_id/")
+			serviceIDs[id] = struct{}{}
 		}
 	}
 
@@ -90,6 +93,7 @@ func collectNodes(q *reform.Querier, services map[string]*models.Service) (map[s
 	nodeIDs := make(map[string]struct{})
 	for _, s := range services {
 		if id := s.NodeID; id != "" {
+			id, _ := strings.CutPrefix(id, "/node_id/")
 			nodeIDs[id] = struct{}{}
 		}
 	}
@@ -180,13 +184,14 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 
 	convertedMetricsBuckets := make([]*qanv1.MetricsBucket, 0, len(metricsBuckets))
 	for _, m := range metricsBuckets {
-		agent := agents[m.Common.AgentId]
+		agentID, _ := strings.CutPrefix(m.Common.AgentId, "/agent_id/")
+		agent := agents[agentID]
 		if agent == nil {
 			c.l.Errorf("No Agent with ID %q for bucket with query_id %q, can't add labels.", m.Common.AgentId, m.Common.Queryid)
 			continue
 		}
 
-		serviceID := pointer.GetString(agent.ServiceID)
+		serviceID, _ := strings.CutPrefix(pointer.GetString(agent.ServiceID), "/service_id/")
 		service := services[serviceID]
 		if service == nil {
 			c.l.Errorf("No Service with ID %q for bucket with query_id %q, can't add labels.", serviceID, m.Common.Queryid)
