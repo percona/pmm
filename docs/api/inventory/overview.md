@@ -31,4 +31,4 @@ This section will provide you with information on how to add, update or remove s
 
 > ℹ️ Note
 >
-> Updating a node won't be implemented. You can only remove a node and then add it back with new attributes.
+> Node updates are not supported. To modify a node's attributes, remove the existing node and add a new one with the new attributes.
