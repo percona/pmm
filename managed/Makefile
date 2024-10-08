@@ -38,6 +38,9 @@ clean:                          ## Remove generated files
 release:                        ## Build pmm-managed release binaries
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
 
+release-encryption-rotation:                        ## Build PMM encryption rotation tool
+	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-encryption-rotation/...
+
 release-starlark:
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-managed-starlark/...
 	$(PMM_RELEASE_PATH)/pmm-managed-starlark --version
