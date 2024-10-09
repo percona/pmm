@@ -20,8 +20,8 @@ import (
 	"strings"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona-platform/saas/pkg/check"
-	"github.com/percona-platform/saas/pkg/common"
+	"github.com/percona/saas/pkg/check"
+	"github.com/percona/saas/pkg/common"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"

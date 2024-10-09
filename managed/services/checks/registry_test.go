@@ -18,8 +18,8 @@ package checks
 import (
 	"testing"
 
-	"github.com/percona-platform/saas/pkg/check"
-	"github.com/percona-platform/saas/pkg/common"
+	"github.com/percona/saas/pkg/check"
+	"github.com/percona/saas/pkg/common"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 

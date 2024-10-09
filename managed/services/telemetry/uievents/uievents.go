@@ -24,7 +24,7 @@ import (
 	"time"
 
 	"github.com/HdrHistogram/hdrhistogram-go"
-	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
+	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
 	"github.com/sirupsen/logrus"
 
 	uieventsv1 "github.com/percona/pmm/api/uievents/v1"

@@ -20,7 +20,7 @@ import (
 	"context"
 	"database/sql"
 
-	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
+	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )

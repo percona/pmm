@@ -24,8 +24,8 @@ import (
 	"io"
 	"net/http"
 
-	api "github.com/percona-platform/saas/gen/check/retrieval"
-	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
+	api "github.com/percona/saas/gen/check/retrieval"
+	reporter "github.com/percona/saas/gen/telemetry/reporter"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"

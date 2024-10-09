@@ -18,7 +18,7 @@ package telemetry
 import (
 	"context"
 
-	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
+	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
 )
 
 // Extension provides dynamic extension point for Telemetry.

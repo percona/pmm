@@ -23,8 +23,8 @@ import (
 	"time"
 
 	_ "github.com/ClickHouse/clickhouse-go/v2"
-	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
-	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
+	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
+	reporter "github.com/percona/saas/gen/telemetry/reporter"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

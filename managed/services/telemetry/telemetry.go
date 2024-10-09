@@ -24,8 +24,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
-	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
+	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
+	reporter "github.com/percona/saas/gen/telemetry/reporter"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/durationpb"

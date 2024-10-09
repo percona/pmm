@@ -3,7 +3,7 @@ module github.com/percona/pmm
 go 1.22.7
 
 // Update saas with
-// go get -v github.com/percona-platform/saas@latest
+// go get -v github.com/percona/saas@latest
 
 replace github.com/grpc-ecosystem/go-grpc-prometheus => github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20230116133345-3487748d4592
 
@@ -49,11 +49,11 @@ require (
 	github.com/jotaen/kong-completion v0.0.5
 	github.com/lib/pq v1.10.9
 	github.com/minio/minio-go/v7 v7.0.55
-	github.com/percona-platform/saas v0.0.0-20230728161159-ad6bdeb8a3d9
 	github.com/percona/exporter_shared v0.7.5
 	github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c
 	github.com/percona/percona-toolkit v3.2.1+incompatible
 	github.com/percona/promconfig v0.2.5
+	github.com/percona/saas v0.0.0-20240923141535-da19f6682c6e
 	github.com/pganalyze/pg_query_go/v5 v5.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.6
@@ -67,14 +67,14 @@ require (
 	github.com/stretchr/testify v1.9.0
 	go.mongodb.org/mongo-driver v1.16.1
 	go.starlark.net v0.0.0-20230717150657-8a3343210976
-	golang.org/x/crypto v0.26.0
+	golang.org/x/crypto v0.27.0
 	golang.org/x/sync v0.8.0
-	golang.org/x/sys v0.24.0
-	golang.org/x/text v0.17.0
+	golang.org/x/sys v0.25.0
+	golang.org/x/text v0.18.0
 	golang.org/x/tools v0.24.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20240723171418-e6d459c13d2a
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240723171418-e6d459c13d2a
-	google.golang.org/grpc v1.65.0
+	google.golang.org/genproto/googleapis/api v0.0.0-20240814211410-ddb44dafa142
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240814211410-ddb44dafa142
+	google.golang.org/grpc v1.67.0
 	google.golang.org/protobuf v1.34.2
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/reform.v1 v1.5.1

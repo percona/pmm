@@ -5,7 +5,7 @@ package telemetry
 import (
 	context "context"
 
-	reporterv1 "github.com/percona-platform/saas/gen/telemetry/reporter"
+	reporterv1 "github.com/percona/saas/gen/telemetry/reporter"
 	mock "github.com/stretchr/testify/mock"
 )
 
