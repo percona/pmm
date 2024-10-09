@@ -90,6 +90,7 @@ func getAgentStatus(status *string) string {
 	if res == "" {
 		res = "UNKNOWN"
 	}
+	res, _ = strings.CutPrefix(res, "AGENT_STATUS_")
 	return res
 }
 
