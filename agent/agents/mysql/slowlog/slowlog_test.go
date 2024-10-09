@@ -71,7 +71,7 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 				PlaceholdersCount:   1,
 				Comments:            map[string]string{"controller": "test"},
 				AgentId:             agentID,
-				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT,
+				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 				PeriodStartUnixSecs: 1557137220,
 				PeriodLengthSecs:    60,
 				Example:             "SELECT /* controller='test' */ * FROM contacts t0 WHERE t0.person_id = '߿�\ufffd\\ud83d\ufffd'",
