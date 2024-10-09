@@ -142,9 +142,17 @@ message Point {
   // Total number of temp blocks written by the statement.
   float m_temp_blks_written_sum_per_sec = 50;
   // Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-  float m_blk_read_time_sum_per_sec = 51;
+  float m_blk_read_time_sum_per_sec = 51 [deprecated = true];
   // Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-  float m_blk_write_time_sum_per_sec = 52;
+  float m_blk_write_time_sum_per_sec = 52 [deprecated = true];
+  // Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_shared_blk_read_time_sum_per_sec = 63;
+  // Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_shared_blk_write_time_sum_per_sec = 64;
+  // Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_local_blk_read_time_sum_per_sec = 65;
+  // Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_local_blk_write_time_sum_per_sec = 66;
   // Total time user spent in query.
   float m_cpu_user_time_sum_per_sec = 56;
   // Total time system spent in query.
