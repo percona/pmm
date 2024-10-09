@@ -80,8 +80,7 @@ func collectServices(q *reform.Querier, agents map[string]*models.Agent) (map[st
 	serviceIDs := make(map[string]struct{})
 	for _, a := range agents {
 		if id := a.ServiceID; id != nil {
-			id, _ := strings.CutPrefix(*id, "/service_id/")
-			serviceIDs[id] = struct{}{}
+			serviceIDs[*id] = struct{}{}
 		}
 	}
 
@@ -93,7 +92,6 @@ func collectNodes(q *reform.Querier, services map[string]*models.Service) (map[s
 	nodeIDs := make(map[string]struct{})
 	for _, s := range services {
 		if id := s.NodeID; id != "" {
-			id, _ := strings.CutPrefix(id, "/node_id/")
 			nodeIDs[id] = struct{}{}
 		}
 	}
@@ -191,7 +189,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 			continue
 		}
 
-		serviceID, _ := strings.CutPrefix(pointer.GetString(agent.ServiceID), "/service_id/")
+		serviceID := pointer.GetString(agent.ServiceID)
 		service := services[serviceID]
 		if service == nil {
 			c.l.Errorf("No Service with ID %q for bucket with query_id %q, can't add labels.", serviceID, m.Common.Queryid)
@@ -226,7 +224,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 			NodeType:             string(node.NodeType),
 			ServiceId:            service.ServiceID,
 			ServiceType:          string(service.ServiceType),
-			AgentId:              m.Common.AgentId,
+			AgentId:              agent.AgentID,
 			AgentType:            m.Common.AgentType,
 			PeriodStartUnixSecs:  m.Common.PeriodStartUnixSecs,
 			PeriodLengthSecs:     m.Common.PeriodLengthSecs,
