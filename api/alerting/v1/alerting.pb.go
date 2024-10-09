@@ -148,17 +148,9 @@ type BoolParamDefinition struct {
 
 func (x *BoolParamDefinition) Reset() {
 	*x = BoolParamDefinition{}
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_alerting_v1_alerting_proto_msgTypes[0]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[0]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 }
 
 func (x *BoolParamDefinition) String() string {
@@ -168,13 +160,8 @@ func (x *BoolParamDefinition) String() string {
 func (*BoolParamDefinition) ProtoMessage() {}
 
 func (x *BoolParamDefinition) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
 	mi := &file_alerting_v1_alerting_proto_msgTypes[0]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[0]
 	if x != nil {
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -212,17 +199,9 @@ type FloatParamDefinition struct {
 
 func (x *FloatParamDefinition) Reset() {
 	*x = FloatParamDefinition{}
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_alerting_v1_alerting_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[1]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 }
 
 func (x *FloatParamDefinition) String() string {
@@ -232,13 +211,8 @@ func (x *FloatParamDefinition) String() string {
 func (*FloatParamDefinition) ProtoMessage() {}
 
 func (x *FloatParamDefinition) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
 	mi := &file_alerting_v1_alerting_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[1]
 	if x != nil {
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -286,17 +260,9 @@ type StringParamDefinition struct {
 
 func (x *StringParamDefinition) Reset() {
 	*x = StringParamDefinition{}
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_alerting_v1_alerting_proto_msgTypes[2]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[2]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 }
 
 func (x *StringParamDefinition) String() string {
@@ -306,13 +272,8 @@ func (x *StringParamDefinition) String() string {
 func (*StringParamDefinition) ProtoMessage() {}
 
 func (x *StringParamDefinition) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
 	mi := &file_alerting_v1_alerting_proto_msgTypes[2]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[2]
 	if x != nil {
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -360,17 +321,9 @@ type ParamDefinition struct {
 
 func (x *ParamDefinition) Reset() {
 	*x = ParamDefinition{}
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_alerting_v1_alerting_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[3]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 }
 
 func (x *ParamDefinition) String() string {
@@ -380,13 +333,8 @@ func (x *ParamDefinition) String() string {
 func (*ParamDefinition) ProtoMessage() {}
 
 func (x *ParamDefinition) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
 	mi := &file_alerting_v1_alerting_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[3]
 	if x != nil {
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -514,17 +462,9 @@ type Template struct {
 
 func (x *Template) Reset() {
 	*x = Template{}
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_alerting_v1_alerting_proto_msgTypes[4]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[4]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 }
 
 func (x *Template) String() string {
@@ -534,13 +474,8 @@ func (x *Template) String() string {
 func (*Template) ProtoMessage() {}
 
 func (x *Template) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
 	mi := &file_alerting_v1_alerting_proto_msgTypes[4]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[4]
 	if x != nil {
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -647,17 +582,9 @@ type ListTemplatesRequest struct {
 
 func (x *ListTemplatesRequest) Reset() {
 	*x = ListTemplatesRequest{}
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_alerting_v1_alerting_proto_msgTypes[5]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[5]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 }
 
 func (x *ListTemplatesRequest) String() string {
@@ -667,13 +594,8 @@ func (x *ListTemplatesRequest) String() string {
 func (*ListTemplatesRequest) ProtoMessage() {}
 
 func (x *ListTemplatesRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
 	mi := &file_alerting_v1_alerting_proto_msgTypes[5]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[5]
 	if x != nil {
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -724,17 +646,9 @@ type ListTemplatesResponse struct {
 
 func (x *ListTemplatesResponse) Reset() {
 	*x = ListTemplatesResponse{}
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_alerting_v1_alerting_proto_msgTypes[6]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[6]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 }
 
 func (x *ListTemplatesResponse) String() string {
@@ -744,13 +658,8 @@ func (x *ListTemplatesResponse) String() string {
 func (*ListTemplatesResponse) ProtoMessage() {}
 
 func (x *ListTemplatesResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
 	mi := &file_alerting_v1_alerting_proto_msgTypes[6]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[6]
 	if x != nil {
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -797,17 +706,9 @@ type CreateTemplateRequest struct {
 
 func (x *CreateTemplateRequest) Reset() {
 	*x = CreateTemplateRequest{}
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_alerting_v1_alerting_proto_msgTypes[7]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[7]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 }
 
 func (x *CreateTemplateRequest) String() string {
@@ -817,13 +718,8 @@ func (x *CreateTemplateRequest) String() string {
 func (*CreateTemplateRequest) ProtoMessage() {}
 
 func (x *CreateTemplateRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
 	mi := &file_alerting_v1_alerting_proto_msgTypes[7]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[7]
 	if x != nil {
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -853,17 +749,9 @@ type CreateTemplateResponse struct {
 
 func (x *CreateTemplateResponse) Reset() {
 	*x = CreateTemplateResponse{}
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_alerting_v1_alerting_proto_msgTypes[8]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[8]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 }
 
 func (x *CreateTemplateResponse) String() string {
@@ -873,13 +761,8 @@ func (x *CreateTemplateResponse) String() string {
 func (*CreateTemplateResponse) ProtoMessage() {}
 
 func (x *CreateTemplateResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
 	mi := &file_alerting_v1_alerting_proto_msgTypes[8]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[8]
 	if x != nil {
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -907,17 +790,9 @@ type UpdateTemplateRequest struct {
 
 func (x *UpdateTemplateRequest) Reset() {
 	*x = UpdateTemplateRequest{}
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_alerting_v1_alerting_proto_msgTypes[9]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[9]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 }
 
 func (x *UpdateTemplateRequest) String() string {
@@ -927,13 +802,8 @@ func (x *UpdateTemplateRequest) String() string {
 func (*UpdateTemplateRequest) ProtoMessage() {}
 
 func (x *UpdateTemplateRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
 	mi := &file_alerting_v1_alerting_proto_msgTypes[9]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[9]
 	if x != nil {
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -970,17 +840,9 @@ type UpdateTemplateResponse struct {
 
 func (x *UpdateTemplateResponse) Reset() {
 	*x = UpdateTemplateResponse{}
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_alerting_v1_alerting_proto_msgTypes[10]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[10]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 }
 
 func (x *UpdateTemplateResponse) String() string {
@@ -990,13 +852,8 @@ func (x *UpdateTemplateResponse) String() string {
 func (*UpdateTemplateResponse) ProtoMessage() {}
 
 func (x *UpdateTemplateResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
 	mi := &file_alerting_v1_alerting_proto_msgTypes[10]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[10]
 	if x != nil {
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1021,17 +878,9 @@ type DeleteTemplateRequest struct {
 
 func (x *DeleteTemplateRequest) Reset() {
 	*x = DeleteTemplateRequest{}
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_alerting_v1_alerting_proto_msgTypes[11]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[11]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 }
 
 func (x *DeleteTemplateRequest) String() string {
@@ -1041,13 +890,8 @@ func (x *DeleteTemplateRequest) String() string {
 func (*DeleteTemplateRequest) ProtoMessage() {}
 
 func (x *DeleteTemplateRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
 	mi := &file_alerting_v1_alerting_proto_msgTypes[11]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[11]
 	if x != nil {
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1077,17 +921,9 @@ type DeleteTemplateResponse struct {
 
 func (x *DeleteTemplateResponse) Reset() {
 	*x = DeleteTemplateResponse{}
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_alerting_v1_alerting_proto_msgTypes[12]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[12]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 }
 
 func (x *DeleteTemplateResponse) String() string {
@@ -1097,13 +933,8 @@ func (x *DeleteTemplateResponse) String() string {
 func (*DeleteTemplateResponse) ProtoMessage() {}
 
 func (x *DeleteTemplateResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
 	mi := &file_alerting_v1_alerting_proto_msgTypes[12]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[12]
 	if x != nil {
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1131,17 +962,9 @@ type Filter struct {
 
 func (x *Filter) Reset() {
 	*x = Filter{}
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_alerting_v1_alerting_proto_msgTypes[13]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[13]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 }
 
 func (x *Filter) String() string {
@@ -1151,13 +974,8 @@ func (x *Filter) String() string {
 func (*Filter) ProtoMessage() {}
 
 func (x *Filter) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
 	mi := &file_alerting_v1_alerting_proto_msgTypes[13]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[13]
 	if x != nil {
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1215,17 +1033,9 @@ type ParamValue struct {
 
 func (x *ParamValue) Reset() {
 	*x = ParamValue{}
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_alerting_v1_alerting_proto_msgTypes[14]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[14]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 }
 
 func (x *ParamValue) String() string {
@@ -1235,13 +1045,8 @@ func (x *ParamValue) String() string {
 func (*ParamValue) ProtoMessage() {}
 
 func (x *ParamValue) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
 	mi := &file_alerting_v1_alerting_proto_msgTypes[14]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[14]
 	if x != nil {
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1352,17 +1157,9 @@ type CreateRuleRequest struct {
 
 func (x *CreateRuleRequest) Reset() {
 	*x = CreateRuleRequest{}
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_alerting_v1_alerting_proto_msgTypes[15]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[15]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 }
 
 func (x *CreateRuleRequest) String() string {
@@ -1372,13 +1169,8 @@ func (x *CreateRuleRequest) String() string {
 func (*CreateRuleRequest) ProtoMessage() {}
 
 func (x *CreateRuleRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
 	mi := &file_alerting_v1_alerting_proto_msgTypes[15]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[15]
 	if x != nil {
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1471,17 +1263,9 @@ type CreateRuleResponse struct {
 
 func (x *CreateRuleResponse) Reset() {
 	*x = CreateRuleResponse{}
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_alerting_v1_alerting_proto_msgTypes[16]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[16]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 }
 
 func (x *CreateRuleResponse) String() string {
@@ -1491,13 +1275,8 @@ func (x *CreateRuleResponse) String() string {
 func (*CreateRuleResponse) ProtoMessage() {}
 
 func (x *CreateRuleResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
 	mi := &file_alerting_v1_alerting_proto_msgTypes[16]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_alerting_alerting_proto_msgTypes[16]
 	if x != nil {
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1853,222 +1632,11 @@ func file_alerting_v1_alerting_proto_init() {
 	if File_alerting_v1_alerting_proto != nil {
 		return
 	}
-<<<<<<< HEAD:api/alerting/v1/alerting.pb.go
 	file_alerting_v1_params_proto_init()
-	if !protoimpl.UnsafeEnabled {
-		file_alerting_v1_alerting_proto_msgTypes[0].Exporter = func(v any, i int) any {
-			switch v := v.(*BoolParamDefinition); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_alerting_v1_alerting_proto_msgTypes[1].Exporter = func(v any, i int) any {
-			switch v := v.(*FloatParamDefinition); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_alerting_v1_alerting_proto_msgTypes[2].Exporter = func(v any, i int) any {
-			switch v := v.(*StringParamDefinition); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_alerting_v1_alerting_proto_msgTypes[3].Exporter = func(v any, i int) any {
-			switch v := v.(*ParamDefinition); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_alerting_v1_alerting_proto_msgTypes[4].Exporter = func(v any, i int) any {
-			switch v := v.(*Template); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_alerting_v1_alerting_proto_msgTypes[5].Exporter = func(v any, i int) any {
-			switch v := v.(*ListTemplatesRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_alerting_v1_alerting_proto_msgTypes[6].Exporter = func(v any, i int) any {
-			switch v := v.(*ListTemplatesResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_alerting_v1_alerting_proto_msgTypes[7].Exporter = func(v any, i int) any {
-			switch v := v.(*CreateTemplateRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_alerting_v1_alerting_proto_msgTypes[8].Exporter = func(v any, i int) any {
-			switch v := v.(*CreateTemplateResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_alerting_v1_alerting_proto_msgTypes[9].Exporter = func(v any, i int) any {
-			switch v := v.(*UpdateTemplateRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_alerting_v1_alerting_proto_msgTypes[10].Exporter = func(v any, i int) any {
-			switch v := v.(*UpdateTemplateResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_alerting_v1_alerting_proto_msgTypes[11].Exporter = func(v any, i int) any {
-			switch v := v.(*DeleteTemplateRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_alerting_v1_alerting_proto_msgTypes[12].Exporter = func(v any, i int) any {
-			switch v := v.(*DeleteTemplateResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_alerting_v1_alerting_proto_msgTypes[13].Exporter = func(v any, i int) any {
-			switch v := v.(*Filter); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_alerting_v1_alerting_proto_msgTypes[14].Exporter = func(v any, i int) any {
-			switch v := v.(*ParamValue); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_alerting_v1_alerting_proto_msgTypes[15].Exporter = func(v any, i int) any {
-			switch v := v.(*CreateRuleRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_alerting_v1_alerting_proto_msgTypes[16].Exporter = func(v any, i int) any {
-			switch v := v.(*CreateRuleResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-	}
 	file_alerting_v1_alerting_proto_msgTypes[0].OneofWrappers = []any{}
 	file_alerting_v1_alerting_proto_msgTypes[1].OneofWrappers = []any{}
 	file_alerting_v1_alerting_proto_msgTypes[2].OneofWrappers = []any{}
 	file_alerting_v1_alerting_proto_msgTypes[3].OneofWrappers = []any{
-=======
-	file_managementpb_alerting_params_proto_init()
-	file_managementpb_alerting_alerting_proto_msgTypes[3].OneofWrappers = []any{
->>>>>>> main:api/managementpb/alerting/alerting.pb.go
 		(*ParamDefinition_Bool)(nil),
 		(*ParamDefinition_Float)(nil),
 		(*ParamDefinition_String_)(nil),

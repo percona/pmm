@@ -94,17 +94,9 @@ type MetricsBucket struct {
 
 func (x *MetricsBucket) Reset() {
 	*x = MetricsBucket{}
-<<<<<<< HEAD:api/agent/v1/collector.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_collector_proto_msgTypes[0]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_collector_proto_msgTypes[0]
+	mi := &file_agent_v1_collector_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/collector.pb.go
 }
 
 func (x *MetricsBucket) String() string {
@@ -114,13 +106,8 @@ func (x *MetricsBucket) String() string {
 func (*MetricsBucket) ProtoMessage() {}
 
 func (x *MetricsBucket) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/collector.pb.go
 	mi := &file_agent_v1_collector_proto_msgTypes[0]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_collector_proto_msgTypes[0]
 	if x != nil {
->>>>>>> main:api/agentpb/collector.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -175,17 +162,9 @@ type HistogramItem struct {
 
 func (x *HistogramItem) Reset() {
 	*x = HistogramItem{}
-<<<<<<< HEAD:api/agent/v1/collector.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_collector_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_collector_proto_msgTypes[1]
+	mi := &file_agent_v1_collector_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/collector.pb.go
 }
 
 func (x *HistogramItem) String() string {
@@ -195,13 +174,8 @@ func (x *HistogramItem) String() string {
 func (*HistogramItem) ProtoMessage() {}
 
 func (x *HistogramItem) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/collector.pb.go
 	mi := &file_agent_v1_collector_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_collector_proto_msgTypes[1]
 	if x != nil {
->>>>>>> main:api/agentpb/collector.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -295,17 +269,9 @@ type MetricsBucket_Common struct {
 
 func (x *MetricsBucket_Common) Reset() {
 	*x = MetricsBucket_Common{}
-<<<<<<< HEAD:api/agent/v1/collector.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_collector_proto_msgTypes[2]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_collector_proto_msgTypes[2]
+	mi := &file_agent_v1_collector_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/collector.pb.go
 }
 
 func (x *MetricsBucket_Common) String() string {
@@ -315,13 +281,8 @@ func (x *MetricsBucket_Common) String() string {
 func (*MetricsBucket_Common) ProtoMessage() {}
 
 func (x *MetricsBucket_Common) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/collector.pb.go
 	mi := &file_agent_v1_collector_proto_msgTypes[2]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_collector_proto_msgTypes[2]
 	if x != nil {
->>>>>>> main:api/agentpb/collector.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -678,17 +639,9 @@ type MetricsBucket_MySQL struct {
 
 func (x *MetricsBucket_MySQL) Reset() {
 	*x = MetricsBucket_MySQL{}
-<<<<<<< HEAD:api/agent/v1/collector.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_collector_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_collector_proto_msgTypes[3]
+	mi := &file_agent_v1_collector_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/collector.pb.go
 }
 
 func (x *MetricsBucket_MySQL) String() string {
@@ -698,13 +651,8 @@ func (x *MetricsBucket_MySQL) String() string {
 func (*MetricsBucket_MySQL) ProtoMessage() {}
 
 func (x *MetricsBucket_MySQL) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/collector.pb.go
 	mi := &file_agent_v1_collector_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_collector_proto_msgTypes[3]
 	if x != nil {
->>>>>>> main:api/agentpb/collector.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1552,17 +1500,9 @@ type MetricsBucket_MongoDB struct {
 
 func (x *MetricsBucket_MongoDB) Reset() {
 	*x = MetricsBucket_MongoDB{}
-<<<<<<< HEAD:api/agent/v1/collector.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_collector_proto_msgTypes[4]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_collector_proto_msgTypes[4]
+	mi := &file_agent_v1_collector_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/collector.pb.go
 }
 
 func (x *MetricsBucket_MongoDB) String() string {
@@ -1572,13 +1512,8 @@ func (x *MetricsBucket_MongoDB) String() string {
 func (*MetricsBucket_MongoDB) ProtoMessage() {}
 
 func (x *MetricsBucket_MongoDB) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/collector.pb.go
 	mi := &file_agent_v1_collector_proto_msgTypes[4]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_collector_proto_msgTypes[4]
 	if x != nil {
->>>>>>> main:api/agentpb/collector.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1786,17 +1721,9 @@ type MetricsBucket_PostgreSQL struct {
 
 func (x *MetricsBucket_PostgreSQL) Reset() {
 	*x = MetricsBucket_PostgreSQL{}
-<<<<<<< HEAD:api/agent/v1/collector.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_collector_proto_msgTypes[5]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_collector_proto_msgTypes[5]
+	mi := &file_agent_v1_collector_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/collector.pb.go
 }
 
 func (x *MetricsBucket_PostgreSQL) String() string {
@@ -1806,13 +1733,8 @@ func (x *MetricsBucket_PostgreSQL) String() string {
 func (*MetricsBucket_PostgreSQL) ProtoMessage() {}
 
 func (x *MetricsBucket_PostgreSQL) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/collector.pb.go
 	mi := &file_agent_v1_collector_proto_msgTypes[5]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_collector_proto_msgTypes[5]
 	if x != nil {
->>>>>>> main:api/agentpb/collector.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -2869,83 +2791,6 @@ func file_agent_v1_collector_proto_init() {
 	if File_agent_v1_collector_proto != nil {
 		return
 	}
-<<<<<<< HEAD:api/agent/v1/collector.pb.go
-	if !protoimpl.UnsafeEnabled {
-		file_agent_v1_collector_proto_msgTypes[0].Exporter = func(v any, i int) any {
-			switch v := v.(*MetricsBucket); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_collector_proto_msgTypes[1].Exporter = func(v any, i int) any {
-			switch v := v.(*HistogramItem); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_collector_proto_msgTypes[2].Exporter = func(v any, i int) any {
-			switch v := v.(*MetricsBucket_Common); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_collector_proto_msgTypes[3].Exporter = func(v any, i int) any {
-			switch v := v.(*MetricsBucket_MySQL); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_collector_proto_msgTypes[4].Exporter = func(v any, i int) any {
-			switch v := v.(*MetricsBucket_MongoDB); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_collector_proto_msgTypes[5].Exporter = func(v any, i int) any {
-			switch v := v.(*MetricsBucket_PostgreSQL); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-	}
-=======
->>>>>>> main:api/agentpb/collector.pb.go
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

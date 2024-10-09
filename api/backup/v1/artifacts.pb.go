@@ -129,17 +129,9 @@ type Artifact struct {
 
 func (x *Artifact) Reset() {
 	*x = Artifact{}
-<<<<<<< HEAD:api/backup/v1/artifacts.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_backup_v1_artifacts_proto_msgTypes[0]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_backup_artifacts_proto_msgTypes[0]
+	mi := &file_backup_v1_artifacts_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/backup/artifacts.pb.go
 }
 
 func (x *Artifact) String() string {
@@ -149,13 +141,8 @@ func (x *Artifact) String() string {
 func (*Artifact) ProtoMessage() {}
 
 func (x *Artifact) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/backup/v1/artifacts.pb.go
 	mi := &file_backup_v1_artifacts_proto_msgTypes[0]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_backup_artifacts_proto_msgTypes[0]
 	if x != nil {
->>>>>>> main:api/managementpb/backup/artifacts.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -276,17 +263,9 @@ type ListArtifactsRequest struct {
 
 func (x *ListArtifactsRequest) Reset() {
 	*x = ListArtifactsRequest{}
-<<<<<<< HEAD:api/backup/v1/artifacts.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_backup_v1_artifacts_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_backup_artifacts_proto_msgTypes[1]
+	mi := &file_backup_v1_artifacts_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/backup/artifacts.pb.go
 }
 
 func (x *ListArtifactsRequest) String() string {
@@ -296,13 +275,8 @@ func (x *ListArtifactsRequest) String() string {
 func (*ListArtifactsRequest) ProtoMessage() {}
 
 func (x *ListArtifactsRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/backup/v1/artifacts.pb.go
 	mi := &file_backup_v1_artifacts_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_backup_artifacts_proto_msgTypes[1]
 	if x != nil {
->>>>>>> main:api/managementpb/backup/artifacts.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -327,17 +301,9 @@ type ListArtifactsResponse struct {
 
 func (x *ListArtifactsResponse) Reset() {
 	*x = ListArtifactsResponse{}
-<<<<<<< HEAD:api/backup/v1/artifacts.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_backup_v1_artifacts_proto_msgTypes[2]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_backup_artifacts_proto_msgTypes[2]
+	mi := &file_backup_v1_artifacts_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/backup/artifacts.pb.go
 }
 
 func (x *ListArtifactsResponse) String() string {
@@ -347,13 +313,8 @@ func (x *ListArtifactsResponse) String() string {
 func (*ListArtifactsResponse) ProtoMessage() {}
 
 func (x *ListArtifactsResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/backup/v1/artifacts.pb.go
 	mi := &file_backup_v1_artifacts_proto_msgTypes[2]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_backup_artifacts_proto_msgTypes[2]
 	if x != nil {
->>>>>>> main:api/managementpb/backup/artifacts.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -388,17 +349,9 @@ type DeleteArtifactRequest struct {
 
 func (x *DeleteArtifactRequest) Reset() {
 	*x = DeleteArtifactRequest{}
-<<<<<<< HEAD:api/backup/v1/artifacts.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_backup_v1_artifacts_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_backup_artifacts_proto_msgTypes[3]
+	mi := &file_backup_v1_artifacts_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/backup/artifacts.pb.go
 }
 
 func (x *DeleteArtifactRequest) String() string {
@@ -408,13 +361,8 @@ func (x *DeleteArtifactRequest) String() string {
 func (*DeleteArtifactRequest) ProtoMessage() {}
 
 func (x *DeleteArtifactRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/backup/v1/artifacts.pb.go
 	mi := &file_backup_v1_artifacts_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_backup_artifacts_proto_msgTypes[3]
 	if x != nil {
->>>>>>> main:api/managementpb/backup/artifacts.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -451,17 +399,9 @@ type DeleteArtifactResponse struct {
 
 func (x *DeleteArtifactResponse) Reset() {
 	*x = DeleteArtifactResponse{}
-<<<<<<< HEAD:api/backup/v1/artifacts.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_backup_v1_artifacts_proto_msgTypes[4]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_backup_artifacts_proto_msgTypes[4]
+	mi := &file_backup_v1_artifacts_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/backup/artifacts.pb.go
 }
 
 func (x *DeleteArtifactResponse) String() string {
@@ -471,13 +411,8 @@ func (x *DeleteArtifactResponse) String() string {
 func (*DeleteArtifactResponse) ProtoMessage() {}
 
 func (x *DeleteArtifactResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/backup/v1/artifacts.pb.go
 	mi := &file_backup_v1_artifacts_proto_msgTypes[4]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_backup_artifacts_proto_msgTypes[4]
 	if x != nil {
->>>>>>> main:api/managementpb/backup/artifacts.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -505,17 +440,9 @@ type PitrTimerange struct {
 
 func (x *PitrTimerange) Reset() {
 	*x = PitrTimerange{}
-<<<<<<< HEAD:api/backup/v1/artifacts.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_backup_v1_artifacts_proto_msgTypes[5]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_backup_artifacts_proto_msgTypes[5]
+	mi := &file_backup_v1_artifacts_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/backup/artifacts.pb.go
 }
 
 func (x *PitrTimerange) String() string {
@@ -525,13 +452,8 @@ func (x *PitrTimerange) String() string {
 func (*PitrTimerange) ProtoMessage() {}
 
 func (x *PitrTimerange) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/backup/v1/artifacts.pb.go
 	mi := &file_backup_v1_artifacts_proto_msgTypes[5]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_backup_artifacts_proto_msgTypes[5]
 	if x != nil {
->>>>>>> main:api/managementpb/backup/artifacts.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -571,17 +493,9 @@ type ListPitrTimerangesRequest struct {
 
 func (x *ListPitrTimerangesRequest) Reset() {
 	*x = ListPitrTimerangesRequest{}
-<<<<<<< HEAD:api/backup/v1/artifacts.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_backup_v1_artifacts_proto_msgTypes[6]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_backup_artifacts_proto_msgTypes[6]
+	mi := &file_backup_v1_artifacts_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/backup/artifacts.pb.go
 }
 
 func (x *ListPitrTimerangesRequest) String() string {
@@ -591,13 +505,8 @@ func (x *ListPitrTimerangesRequest) String() string {
 func (*ListPitrTimerangesRequest) ProtoMessage() {}
 
 func (x *ListPitrTimerangesRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/backup/v1/artifacts.pb.go
 	mi := &file_backup_v1_artifacts_proto_msgTypes[6]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_backup_artifacts_proto_msgTypes[6]
 	if x != nil {
->>>>>>> main:api/managementpb/backup/artifacts.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -629,17 +538,9 @@ type ListPitrTimerangesResponse struct {
 
 func (x *ListPitrTimerangesResponse) Reset() {
 	*x = ListPitrTimerangesResponse{}
-<<<<<<< HEAD:api/backup/v1/artifacts.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_backup_v1_artifacts_proto_msgTypes[7]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_managementpb_backup_artifacts_proto_msgTypes[7]
+	mi := &file_backup_v1_artifacts_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/managementpb/backup/artifacts.pb.go
 }
 
 func (x *ListPitrTimerangesResponse) String() string {
@@ -649,13 +550,8 @@ func (x *ListPitrTimerangesResponse) String() string {
 func (*ListPitrTimerangesResponse) ProtoMessage() {}
 
 func (x *ListPitrTimerangesResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/backup/v1/artifacts.pb.go
 	mi := &file_backup_v1_artifacts_proto_msgTypes[7]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_managementpb_backup_artifacts_proto_msgTypes[7]
 	if x != nil {
->>>>>>> main:api/managementpb/backup/artifacts.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -840,109 +736,7 @@ func file_backup_v1_artifacts_proto_init() {
 	if File_backup_v1_artifacts_proto != nil {
 		return
 	}
-<<<<<<< HEAD:api/backup/v1/artifacts.pb.go
 	file_backup_v1_common_proto_init()
-	if !protoimpl.UnsafeEnabled {
-		file_backup_v1_artifacts_proto_msgTypes[0].Exporter = func(v any, i int) any {
-			switch v := v.(*Artifact); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_backup_v1_artifacts_proto_msgTypes[1].Exporter = func(v any, i int) any {
-			switch v := v.(*ListArtifactsRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_backup_v1_artifacts_proto_msgTypes[2].Exporter = func(v any, i int) any {
-			switch v := v.(*ListArtifactsResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_backup_v1_artifacts_proto_msgTypes[3].Exporter = func(v any, i int) any {
-			switch v := v.(*DeleteArtifactRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_backup_v1_artifacts_proto_msgTypes[4].Exporter = func(v any, i int) any {
-			switch v := v.(*DeleteArtifactResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_backup_v1_artifacts_proto_msgTypes[5].Exporter = func(v any, i int) any {
-			switch v := v.(*PitrTimerange); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_backup_v1_artifacts_proto_msgTypes[6].Exporter = func(v any, i int) any {
-			switch v := v.(*ListPitrTimerangesRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_backup_v1_artifacts_proto_msgTypes[7].Exporter = func(v any, i int) any {
-			switch v := v.(*ListPitrTimerangesResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-	}
-=======
-	file_managementpb_backup_common_proto_init()
->>>>>>> main:api/managementpb/backup/artifacts.pb.go
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

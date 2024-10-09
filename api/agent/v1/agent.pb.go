@@ -149,17 +149,9 @@ type TextFiles struct {
 
 func (x *TextFiles) Reset() {
 	*x = TextFiles{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[0]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[0]
+	mi := &file_agent_v1_agent_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *TextFiles) String() string {
@@ -169,13 +161,8 @@ func (x *TextFiles) String() string {
 func (*TextFiles) ProtoMessage() {}
 
 func (x *TextFiles) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[0]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[0]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -220,17 +207,9 @@ type Ping struct {
 
 func (x *Ping) Reset() {
 	*x = Ping{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[1]
+	mi := &file_agent_v1_agent_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *Ping) String() string {
@@ -240,13 +219,8 @@ func (x *Ping) String() string {
 func (*Ping) ProtoMessage() {}
 
 func (x *Ping) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[1]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -272,17 +246,9 @@ type Pong struct {
 
 func (x *Pong) Reset() {
 	*x = Pong{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[2]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[2]
+	mi := &file_agent_v1_agent_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *Pong) String() string {
@@ -292,13 +258,8 @@ func (x *Pong) String() string {
 func (*Pong) ProtoMessage() {}
 
 func (x *Pong) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[2]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[2]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -331,17 +292,9 @@ type QANCollectRequest struct {
 
 func (x *QANCollectRequest) Reset() {
 	*x = QANCollectRequest{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[3]
+	mi := &file_agent_v1_agent_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *QANCollectRequest) String() string {
@@ -351,13 +304,8 @@ func (x *QANCollectRequest) String() string {
 func (*QANCollectRequest) ProtoMessage() {}
 
 func (x *QANCollectRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[3]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -388,17 +336,9 @@ type QANCollectResponse struct {
 
 func (x *QANCollectResponse) Reset() {
 	*x = QANCollectResponse{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[4]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[4]
+	mi := &file_agent_v1_agent_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *QANCollectResponse) String() string {
@@ -408,13 +348,8 @@ func (x *QANCollectResponse) String() string {
 func (*QANCollectResponse) ProtoMessage() {}
 
 func (x *QANCollectResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[4]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[4]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -444,17 +379,9 @@ type StateChangedRequest struct {
 
 func (x *StateChangedRequest) Reset() {
 	*x = StateChangedRequest{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[5]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[5]
+	mi := &file_agent_v1_agent_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StateChangedRequest) String() string {
@@ -464,13 +391,8 @@ func (x *StateChangedRequest) String() string {
 func (*StateChangedRequest) ProtoMessage() {}
 
 func (x *StateChangedRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[5]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[5]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -529,17 +451,9 @@ type StateChangedResponse struct {
 
 func (x *StateChangedResponse) Reset() {
 	*x = StateChangedResponse{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[6]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[6]
+	mi := &file_agent_v1_agent_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StateChangedResponse) String() string {
@@ -549,13 +463,8 @@ func (x *StateChangedResponse) String() string {
 func (*StateChangedResponse) ProtoMessage() {}
 
 func (x *StateChangedResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[6]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[6]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -582,17 +491,9 @@ type SetStateRequest struct {
 
 func (x *SetStateRequest) Reset() {
 	*x = SetStateRequest{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[7]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[7]
+	mi := &file_agent_v1_agent_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *SetStateRequest) String() string {
@@ -602,13 +503,8 @@ func (x *SetStateRequest) String() string {
 func (*SetStateRequest) ProtoMessage() {}
 
 func (x *SetStateRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[7]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[7]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -646,17 +542,9 @@ type SetStateResponse struct {
 
 func (x *SetStateResponse) Reset() {
 	*x = SetStateResponse{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[8]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[8]
+	mi := &file_agent_v1_agent_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *SetStateResponse) String() string {
@@ -666,13 +554,8 @@ func (x *SetStateResponse) String() string {
 func (*SetStateResponse) ProtoMessage() {}
 
 func (x *SetStateResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[8]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[8]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -710,17 +593,9 @@ type QueryActionValue struct {
 
 func (x *QueryActionValue) Reset() {
 	*x = QueryActionValue{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[9]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[9]
+	mi := &file_agent_v1_agent_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *QueryActionValue) String() string {
@@ -730,13 +605,8 @@ func (x *QueryActionValue) String() string {
 func (*QueryActionValue) ProtoMessage() {}
 
 func (x *QueryActionValue) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[9]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[9]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -903,17 +773,9 @@ type QueryActionSlice struct {
 
 func (x *QueryActionSlice) Reset() {
 	*x = QueryActionSlice{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[10]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[10]
+	mi := &file_agent_v1_agent_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *QueryActionSlice) String() string {
@@ -923,13 +785,8 @@ func (x *QueryActionSlice) String() string {
 func (*QueryActionSlice) ProtoMessage() {}
 
 func (x *QueryActionSlice) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[10]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[10]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -962,17 +819,9 @@ type QueryActionMap struct {
 
 func (x *QueryActionMap) Reset() {
 	*x = QueryActionMap{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[11]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[11]
+	mi := &file_agent_v1_agent_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *QueryActionMap) String() string {
@@ -982,13 +831,8 @@ func (x *QueryActionMap) String() string {
 func (*QueryActionMap) ProtoMessage() {}
 
 func (x *QueryActionMap) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[11]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[11]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1022,17 +866,9 @@ type QueryActionBinary struct {
 
 func (x *QueryActionBinary) Reset() {
 	*x = QueryActionBinary{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[12]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[12]
+	mi := &file_agent_v1_agent_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *QueryActionBinary) String() string {
@@ -1042,13 +878,8 @@ func (x *QueryActionBinary) String() string {
 func (*QueryActionBinary) ProtoMessage() {}
 
 func (x *QueryActionBinary) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[12]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[12]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1093,17 +924,9 @@ type QueryActionResult struct {
 
 func (x *QueryActionResult) Reset() {
 	*x = QueryActionResult{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[13]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[13]
+	mi := &file_agent_v1_agent_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *QueryActionResult) String() string {
@@ -1113,13 +936,8 @@ func (x *QueryActionResult) String() string {
 func (*QueryActionResult) ProtoMessage() {}
 
 func (x *QueryActionResult) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[13]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[13]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1192,17 +1010,9 @@ type StartActionRequest struct {
 
 func (x *StartActionRequest) Reset() {
 	*x = StartActionRequest{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[14]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[14]
+	mi := &file_agent_v1_agent_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest) String() string {
@@ -1212,13 +1022,8 @@ func (x *StartActionRequest) String() string {
 func (*StartActionRequest) ProtoMessage() {}
 
 func (x *StartActionRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[14]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[14]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1540,17 +1345,9 @@ type StartActionResponse struct {
 
 func (x *StartActionResponse) Reset() {
 	*x = StartActionResponse{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[15]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[15]
+	mi := &file_agent_v1_agent_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionResponse) String() string {
@@ -1560,13 +1357,8 @@ func (x *StartActionResponse) String() string {
 func (*StartActionResponse) ProtoMessage() {}
 
 func (x *StartActionResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[15]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[15]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1592,17 +1384,9 @@ type StopActionRequest struct {
 
 func (x *StopActionRequest) Reset() {
 	*x = StopActionRequest{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[16]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[16]
+	mi := &file_agent_v1_agent_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StopActionRequest) String() string {
@@ -1612,13 +1396,8 @@ func (x *StopActionRequest) String() string {
 func (*StopActionRequest) ProtoMessage() {}
 
 func (x *StopActionRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[16]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[16]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1649,17 +1428,9 @@ type StopActionResponse struct {
 
 func (x *StopActionResponse) Reset() {
 	*x = StopActionResponse{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[17]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[17]
+	mi := &file_agent_v1_agent_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StopActionResponse) String() string {
@@ -1669,13 +1440,8 @@ func (x *StopActionResponse) String() string {
 func (*StopActionResponse) ProtoMessage() {}
 
 func (x *StopActionResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[17]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[17]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1708,17 +1474,9 @@ type ActionResultRequest struct {
 
 func (x *ActionResultRequest) Reset() {
 	*x = ActionResultRequest{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[18]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[18]
+	mi := &file_agent_v1_agent_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *ActionResultRequest) String() string {
@@ -1728,13 +1486,8 @@ func (x *ActionResultRequest) String() string {
 func (*ActionResultRequest) ProtoMessage() {}
 
 func (x *ActionResultRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[18]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[18]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1786,17 +1539,9 @@ type ActionResultResponse struct {
 
 func (x *ActionResultResponse) Reset() {
 	*x = ActionResultResponse{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[19]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[19]
+	mi := &file_agent_v1_agent_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *ActionResultResponse) String() string {
@@ -1806,13 +1551,8 @@ func (x *ActionResultResponse) String() string {
 func (*ActionResultResponse) ProtoMessage() {}
 
 func (x *ActionResultResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[19]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[19]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1844,17 +1584,9 @@ type PBMSwitchPITRRequest struct {
 
 func (x *PBMSwitchPITRRequest) Reset() {
 	*x = PBMSwitchPITRRequest{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[20]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[20]
+	mi := &file_agent_v1_agent_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *PBMSwitchPITRRequest) String() string {
@@ -1864,13 +1596,8 @@ func (x *PBMSwitchPITRRequest) String() string {
 func (*PBMSwitchPITRRequest) ProtoMessage() {}
 
 func (x *PBMSwitchPITRRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[20]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[20]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1918,17 +1645,9 @@ type PBMSwitchPITRResponse struct {
 
 func (x *PBMSwitchPITRResponse) Reset() {
 	*x = PBMSwitchPITRResponse{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[21]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[21]
+	mi := &file_agent_v1_agent_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *PBMSwitchPITRResponse) String() string {
@@ -1938,13 +1657,8 @@ func (x *PBMSwitchPITRResponse) String() string {
 func (*PBMSwitchPITRResponse) ProtoMessage() {}
 
 func (x *PBMSwitchPITRResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[21]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[21]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1978,17 +1692,9 @@ type AgentLogsRequest struct {
 
 func (x *AgentLogsRequest) Reset() {
 	*x = AgentLogsRequest{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[22]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[22]
+	mi := &file_agent_v1_agent_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *AgentLogsRequest) String() string {
@@ -1998,13 +1704,8 @@ func (x *AgentLogsRequest) String() string {
 func (*AgentLogsRequest) ProtoMessage() {}
 
 func (x *AgentLogsRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[22]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[22]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -2045,17 +1746,9 @@ type AgentLogsResponse struct {
 
 func (x *AgentLogsResponse) Reset() {
 	*x = AgentLogsResponse{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[23]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[23]
+	mi := &file_agent_v1_agent_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *AgentLogsResponse) String() string {
@@ -2065,13 +1758,8 @@ func (x *AgentLogsResponse) String() string {
 func (*AgentLogsResponse) ProtoMessage() {}
 
 func (x *AgentLogsResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[23]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[23]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -2120,17 +1808,9 @@ type CheckConnectionRequest struct {
 
 func (x *CheckConnectionRequest) Reset() {
 	*x = CheckConnectionRequest{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[24]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[24]
+	mi := &file_agent_v1_agent_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *CheckConnectionRequest) String() string {
@@ -2140,13 +1820,8 @@ func (x *CheckConnectionRequest) String() string {
 func (*CheckConnectionRequest) ProtoMessage() {}
 
 func (x *CheckConnectionRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[24]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[24]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -2208,17 +1883,9 @@ type CheckConnectionResponse struct {
 
 func (x *CheckConnectionResponse) Reset() {
 	*x = CheckConnectionResponse{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[25]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[25]
+	mi := &file_agent_v1_agent_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *CheckConnectionResponse) String() string {
@@ -2228,13 +1895,8 @@ func (x *CheckConnectionResponse) String() string {
 func (*CheckConnectionResponse) ProtoMessage() {}
 
 func (x *CheckConnectionResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[25]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[25]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -2276,17 +1938,9 @@ type ServiceInfoRequest struct {
 
 func (x *ServiceInfoRequest) Reset() {
 	*x = ServiceInfoRequest{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[26]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[26]
+	mi := &file_agent_v1_agent_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *ServiceInfoRequest) String() string {
@@ -2296,13 +1950,8 @@ func (x *ServiceInfoRequest) String() string {
 func (*ServiceInfoRequest) ProtoMessage() {}
 
 func (x *ServiceInfoRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[26]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[26]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -2372,17 +2021,9 @@ type ServiceInfoResponse struct {
 
 func (x *ServiceInfoResponse) Reset() {
 	*x = ServiceInfoResponse{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[27]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[27]
+	mi := &file_agent_v1_agent_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *ServiceInfoResponse) String() string {
@@ -2392,13 +2033,8 @@ func (x *ServiceInfoResponse) String() string {
 func (*ServiceInfoResponse) ProtoMessage() {}
 
 func (x *ServiceInfoResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[27]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[27]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -2459,17 +2095,9 @@ type JobStatusRequest struct {
 
 func (x *JobStatusRequest) Reset() {
 	*x = JobStatusRequest{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[28]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[28]
+	mi := &file_agent_v1_agent_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *JobStatusRequest) String() string {
@@ -2479,13 +2107,8 @@ func (x *JobStatusRequest) String() string {
 func (*JobStatusRequest) ProtoMessage() {}
 
 func (x *JobStatusRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[28]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[28]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -2518,17 +2141,9 @@ type JobStatusResponse struct {
 
 func (x *JobStatusResponse) Reset() {
 	*x = JobStatusResponse{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[29]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[29]
+	mi := &file_agent_v1_agent_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *JobStatusResponse) String() string {
@@ -2538,13 +2153,8 @@ func (x *JobStatusResponse) String() string {
 func (*JobStatusResponse) ProtoMessage() {}
 
 func (x *JobStatusResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[29]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[29]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -2581,17 +2191,9 @@ type S3LocationConfig struct {
 
 func (x *S3LocationConfig) Reset() {
 	*x = S3LocationConfig{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[30]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[30]
+	mi := &file_agent_v1_agent_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *S3LocationConfig) String() string {
@@ -2601,13 +2203,8 @@ func (x *S3LocationConfig) String() string {
 func (*S3LocationConfig) ProtoMessage() {}
 
 func (x *S3LocationConfig) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[30]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[30]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -2668,17 +2265,9 @@ type FilesystemLocationConfig struct {
 
 func (x *FilesystemLocationConfig) Reset() {
 	*x = FilesystemLocationConfig{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[31]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[31]
+	mi := &file_agent_v1_agent_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *FilesystemLocationConfig) String() string {
@@ -2688,13 +2277,8 @@ func (x *FilesystemLocationConfig) String() string {
 func (*FilesystemLocationConfig) ProtoMessage() {}
 
 func (x *FilesystemLocationConfig) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[31]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[31]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -2736,17 +2320,9 @@ type StartJobRequest struct {
 
 func (x *StartJobRequest) Reset() {
 	*x = StartJobRequest{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[32]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[32]
+	mi := &file_agent_v1_agent_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartJobRequest) String() string {
@@ -2756,13 +2332,8 @@ func (x *StartJobRequest) String() string {
 func (*StartJobRequest) ProtoMessage() {}
 
 func (x *StartJobRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[32]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[32]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -2865,17 +2436,9 @@ type StartJobResponse struct {
 
 func (x *StartJobResponse) Reset() {
 	*x = StartJobResponse{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[33]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[33]
+	mi := &file_agent_v1_agent_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartJobResponse) String() string {
@@ -2885,13 +2448,8 @@ func (x *StartJobResponse) String() string {
 func (*StartJobResponse) ProtoMessage() {}
 
 func (x *StartJobResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[33]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[33]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -2924,17 +2482,9 @@ type StopJobRequest struct {
 
 func (x *StopJobRequest) Reset() {
 	*x = StopJobRequest{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[34]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[34]
+	mi := &file_agent_v1_agent_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StopJobRequest) String() string {
@@ -2944,13 +2494,8 @@ func (x *StopJobRequest) String() string {
 func (*StopJobRequest) ProtoMessage() {}
 
 func (x *StopJobRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[34]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[34]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -2981,17 +2526,9 @@ type StopJobResponse struct {
 
 func (x *StopJobResponse) Reset() {
 	*x = StopJobResponse{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[35]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[35]
+	mi := &file_agent_v1_agent_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StopJobResponse) String() string {
@@ -3001,13 +2538,8 @@ func (x *StopJobResponse) String() string {
 func (*StopJobResponse) ProtoMessage() {}
 
 func (x *StopJobResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[35]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[35]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -3042,17 +2574,9 @@ type JobResult struct {
 
 func (x *JobResult) Reset() {
 	*x = JobResult{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[36]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[36]
+	mi := &file_agent_v1_agent_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *JobResult) String() string {
@@ -3062,13 +2586,8 @@ func (x *JobResult) String() string {
 func (*JobResult) ProtoMessage() {}
 
 func (x *JobResult) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[36]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[36]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -3191,17 +2710,9 @@ type JobProgress struct {
 
 func (x *JobProgress) Reset() {
 	*x = JobProgress{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[37]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[37]
+	mi := &file_agent_v1_agent_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *JobProgress) String() string {
@@ -3211,13 +2722,8 @@ func (x *JobProgress) String() string {
 func (*JobProgress) ProtoMessage() {}
 
 func (x *JobProgress) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[37]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[37]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -3307,17 +2813,9 @@ type GetVersionsRequest struct {
 
 func (x *GetVersionsRequest) Reset() {
 	*x = GetVersionsRequest{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[38]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[38]
+	mi := &file_agent_v1_agent_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *GetVersionsRequest) String() string {
@@ -3327,13 +2825,8 @@ func (x *GetVersionsRequest) String() string {
 func (*GetVersionsRequest) ProtoMessage() {}
 
 func (x *GetVersionsRequest) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[38]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[38]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -3366,17 +2859,9 @@ type GetVersionsResponse struct {
 
 func (x *GetVersionsResponse) Reset() {
 	*x = GetVersionsResponse{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[39]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[39]
+	mi := &file_agent_v1_agent_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *GetVersionsResponse) String() string {
@@ -3386,13 +2871,8 @@ func (x *GetVersionsResponse) String() string {
 func (*GetVersionsResponse) ProtoMessage() {}
 
 func (x *GetVersionsResponse) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[39]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[39]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -3451,17 +2931,9 @@ type AgentMessage struct {
 
 func (x *AgentMessage) Reset() {
 	*x = AgentMessage{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[40]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[40]
+	mi := &file_agent_v1_agent_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *AgentMessage) String() string {
@@ -3471,13 +2943,8 @@ func (x *AgentMessage) String() string {
 func (*AgentMessage) ProtoMessage() {}
 
 func (x *AgentMessage) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[40]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[40]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -3788,17 +3255,9 @@ type ServerMessage struct {
 
 func (x *ServerMessage) Reset() {
 	*x = ServerMessage{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[41]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[41]
+	mi := &file_agent_v1_agent_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *ServerMessage) String() string {
@@ -3808,13 +3267,8 @@ func (x *ServerMessage) String() string {
 func (*ServerMessage) ProtoMessage() {}
 
 func (x *ServerMessage) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[41]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[41]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -4081,17 +3535,9 @@ type SetStateRequest_AgentProcess struct {
 
 func (x *SetStateRequest_AgentProcess) Reset() {
 	*x = SetStateRequest_AgentProcess{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[43]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[43]
+	mi := &file_agent_v1_agent_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *SetStateRequest_AgentProcess) String() string {
@@ -4101,13 +3547,8 @@ func (x *SetStateRequest_AgentProcess) String() string {
 func (*SetStateRequest_AgentProcess) ProtoMessage() {}
 
 func (x *SetStateRequest_AgentProcess) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[43]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[43]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -4197,17 +3638,9 @@ type SetStateRequest_BuiltinAgent struct {
 
 func (x *SetStateRequest_BuiltinAgent) Reset() {
 	*x = SetStateRequest_BuiltinAgent{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[45]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[45]
+	mi := &file_agent_v1_agent_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *SetStateRequest_BuiltinAgent) String() string {
@@ -4217,13 +3650,8 @@ func (x *SetStateRequest_BuiltinAgent) String() string {
 func (*SetStateRequest_BuiltinAgent) ProtoMessage() {}
 
 func (x *SetStateRequest_BuiltinAgent) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[45]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[45]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -4321,17 +3749,9 @@ type StartActionRequest_MySQLExplainParams struct {
 
 func (x *StartActionRequest_MySQLExplainParams) Reset() {
 	*x = StartActionRequest_MySQLExplainParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[49]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[49]
+	mi := &file_agent_v1_agent_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_MySQLExplainParams) String() string {
@@ -4341,13 +3761,8 @@ func (x *StartActionRequest_MySQLExplainParams) String() string {
 func (*StartActionRequest_MySQLExplainParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MySQLExplainParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[49]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[49]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -4428,17 +3843,9 @@ type StartActionRequest_MySQLShowCreateTableParams struct {
 
 func (x *StartActionRequest_MySQLShowCreateTableParams) Reset() {
 	*x = StartActionRequest_MySQLShowCreateTableParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[50]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[50]
+	mi := &file_agent_v1_agent_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_MySQLShowCreateTableParams) String() string {
@@ -4448,13 +3855,8 @@ func (x *StartActionRequest_MySQLShowCreateTableParams) String() string {
 func (*StartActionRequest_MySQLShowCreateTableParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MySQLShowCreateTableParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[50]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[50]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -4514,17 +3916,9 @@ type StartActionRequest_MySQLShowTableStatusParams struct {
 
 func (x *StartActionRequest_MySQLShowTableStatusParams) Reset() {
 	*x = StartActionRequest_MySQLShowTableStatusParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[51]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[51]
+	mi := &file_agent_v1_agent_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_MySQLShowTableStatusParams) String() string {
@@ -4534,13 +3928,8 @@ func (x *StartActionRequest_MySQLShowTableStatusParams) String() string {
 func (*StartActionRequest_MySQLShowTableStatusParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MySQLShowTableStatusParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[51]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[51]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -4600,17 +3989,9 @@ type StartActionRequest_MySQLShowIndexParams struct {
 
 func (x *StartActionRequest_MySQLShowIndexParams) Reset() {
 	*x = StartActionRequest_MySQLShowIndexParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[52]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[52]
+	mi := &file_agent_v1_agent_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_MySQLShowIndexParams) String() string {
@@ -4620,13 +4001,8 @@ func (x *StartActionRequest_MySQLShowIndexParams) String() string {
 func (*StartActionRequest_MySQLShowIndexParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MySQLShowIndexParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[52]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[52]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -4686,17 +4062,9 @@ type StartActionRequest_PostgreSQLShowCreateTableParams struct {
 
 func (x *StartActionRequest_PostgreSQLShowCreateTableParams) Reset() {
 	*x = StartActionRequest_PostgreSQLShowCreateTableParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[53]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[53]
+	mi := &file_agent_v1_agent_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_PostgreSQLShowCreateTableParams) String() string {
@@ -4706,13 +4074,8 @@ func (x *StartActionRequest_PostgreSQLShowCreateTableParams) String() string {
 func (*StartActionRequest_PostgreSQLShowCreateTableParams) ProtoMessage() {}
 
 func (x *StartActionRequest_PostgreSQLShowCreateTableParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[53]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[53]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -4772,17 +4135,9 @@ type StartActionRequest_PostgreSQLShowIndexParams struct {
 
 func (x *StartActionRequest_PostgreSQLShowIndexParams) Reset() {
 	*x = StartActionRequest_PostgreSQLShowIndexParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[54]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[54]
+	mi := &file_agent_v1_agent_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_PostgreSQLShowIndexParams) String() string {
@@ -4792,13 +4147,8 @@ func (x *StartActionRequest_PostgreSQLShowIndexParams) String() string {
 func (*StartActionRequest_PostgreSQLShowIndexParams) ProtoMessage() {}
 
 func (x *StartActionRequest_PostgreSQLShowIndexParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[54]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[54]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -4857,17 +4207,9 @@ type StartActionRequest_MongoDBExplainParams struct {
 
 func (x *StartActionRequest_MongoDBExplainParams) Reset() {
 	*x = StartActionRequest_MongoDBExplainParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[55]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[55]
+	mi := &file_agent_v1_agent_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_MongoDBExplainParams) String() string {
@@ -4877,13 +4219,8 @@ func (x *StartActionRequest_MongoDBExplainParams) String() string {
 func (*StartActionRequest_MongoDBExplainParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MongoDBExplainParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[55]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[55]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -4928,17 +4265,9 @@ type StartActionRequest_PTSummaryParams struct {
 
 func (x *StartActionRequest_PTSummaryParams) Reset() {
 	*x = StartActionRequest_PTSummaryParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[56]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[56]
+	mi := &file_agent_v1_agent_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_PTSummaryParams) String() string {
@@ -4948,13 +4277,8 @@ func (x *StartActionRequest_PTSummaryParams) String() string {
 func (*StartActionRequest_PTSummaryParams) ProtoMessage() {}
 
 func (x *StartActionRequest_PTSummaryParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[56]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[56]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -4983,17 +4307,9 @@ type StartActionRequest_PTPgSummaryParams struct {
 
 func (x *StartActionRequest_PTPgSummaryParams) Reset() {
 	*x = StartActionRequest_PTPgSummaryParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[57]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[57]
+	mi := &file_agent_v1_agent_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_PTPgSummaryParams) String() string {
@@ -5003,13 +4319,8 @@ func (x *StartActionRequest_PTPgSummaryParams) String() string {
 func (*StartActionRequest_PTPgSummaryParams) ProtoMessage() {}
 
 func (x *StartActionRequest_PTPgSummaryParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[57]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[57]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -5066,17 +4377,9 @@ type StartActionRequest_PTMongoDBSummaryParams struct {
 
 func (x *StartActionRequest_PTMongoDBSummaryParams) Reset() {
 	*x = StartActionRequest_PTMongoDBSummaryParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[58]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[58]
+	mi := &file_agent_v1_agent_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_PTMongoDBSummaryParams) String() string {
@@ -5086,13 +4389,8 @@ func (x *StartActionRequest_PTMongoDBSummaryParams) String() string {
 func (*StartActionRequest_PTMongoDBSummaryParams) ProtoMessage() {}
 
 func (x *StartActionRequest_PTMongoDBSummaryParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[58]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[58]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -5150,17 +4448,9 @@ type StartActionRequest_PTMySQLSummaryParams struct {
 
 func (x *StartActionRequest_PTMySQLSummaryParams) Reset() {
 	*x = StartActionRequest_PTMySQLSummaryParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[59]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[59]
+	mi := &file_agent_v1_agent_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_PTMySQLSummaryParams) String() string {
@@ -5170,13 +4460,8 @@ func (x *StartActionRequest_PTMySQLSummaryParams) String() string {
 func (*StartActionRequest_PTMySQLSummaryParams) ProtoMessage() {}
 
 func (x *StartActionRequest_PTMySQLSummaryParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[59]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[59]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -5244,17 +4529,9 @@ type StartActionRequest_MySQLQueryShowParams struct {
 
 func (x *StartActionRequest_MySQLQueryShowParams) Reset() {
 	*x = StartActionRequest_MySQLQueryShowParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[60]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[60]
+	mi := &file_agent_v1_agent_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_MySQLQueryShowParams) String() string {
@@ -5264,13 +4541,8 @@ func (x *StartActionRequest_MySQLQueryShowParams) String() string {
 func (*StartActionRequest_MySQLQueryShowParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MySQLQueryShowParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[60]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[60]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -5331,17 +4603,9 @@ type StartActionRequest_MySQLQuerySelectParams struct {
 
 func (x *StartActionRequest_MySQLQuerySelectParams) Reset() {
 	*x = StartActionRequest_MySQLQuerySelectParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[61]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[61]
+	mi := &file_agent_v1_agent_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_MySQLQuerySelectParams) String() string {
@@ -5351,13 +4615,8 @@ func (x *StartActionRequest_MySQLQuerySelectParams) String() string {
 func (*StartActionRequest_MySQLQuerySelectParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MySQLQuerySelectParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[61]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[61]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -5416,17 +4675,9 @@ type StartActionRequest_PostgreSQLQueryShowParams struct {
 
 func (x *StartActionRequest_PostgreSQLQueryShowParams) Reset() {
 	*x = StartActionRequest_PostgreSQLQueryShowParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[62]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[62]
+	mi := &file_agent_v1_agent_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_PostgreSQLQueryShowParams) String() string {
@@ -5436,13 +4687,8 @@ func (x *StartActionRequest_PostgreSQLQueryShowParams) String() string {
 func (*StartActionRequest_PostgreSQLQueryShowParams) ProtoMessage() {}
 
 func (x *StartActionRequest_PostgreSQLQueryShowParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[62]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[62]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -5496,17 +4742,9 @@ type StartActionRequest_PostgreSQLQuerySelectParams struct {
 
 func (x *StartActionRequest_PostgreSQLQuerySelectParams) Reset() {
 	*x = StartActionRequest_PostgreSQLQuerySelectParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[63]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[63]
+	mi := &file_agent_v1_agent_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_PostgreSQLQuerySelectParams) String() string {
@@ -5516,13 +4754,8 @@ func (x *StartActionRequest_PostgreSQLQuerySelectParams) String() string {
 func (*StartActionRequest_PostgreSQLQuerySelectParams) ProtoMessage() {}
 
 func (x *StartActionRequest_PostgreSQLQuerySelectParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[63]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[63]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -5580,17 +4813,9 @@ type StartActionRequest_MongoDBQueryGetParameterParams struct {
 
 func (x *StartActionRequest_MongoDBQueryGetParameterParams) Reset() {
 	*x = StartActionRequest_MongoDBQueryGetParameterParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[64]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[64]
+	mi := &file_agent_v1_agent_proto_msgTypes[64]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_MongoDBQueryGetParameterParams) String() string {
@@ -5600,13 +4825,8 @@ func (x *StartActionRequest_MongoDBQueryGetParameterParams) String() string {
 func (*StartActionRequest_MongoDBQueryGetParameterParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MongoDBQueryGetParameterParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[64]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[64]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -5650,17 +4870,9 @@ type StartActionRequest_MongoDBQueryBuildInfoParams struct {
 
 func (x *StartActionRequest_MongoDBQueryBuildInfoParams) Reset() {
 	*x = StartActionRequest_MongoDBQueryBuildInfoParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[65]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[65]
+	mi := &file_agent_v1_agent_proto_msgTypes[65]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_MongoDBQueryBuildInfoParams) String() string {
@@ -5670,13 +4882,8 @@ func (x *StartActionRequest_MongoDBQueryBuildInfoParams) String() string {
 func (*StartActionRequest_MongoDBQueryBuildInfoParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MongoDBQueryBuildInfoParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[65]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[65]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -5720,17 +4927,9 @@ type StartActionRequest_MongoDBQueryGetCmdLineOptsParams struct {
 
 func (x *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) Reset() {
 	*x = StartActionRequest_MongoDBQueryGetCmdLineOptsParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[66]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[66]
+	mi := &file_agent_v1_agent_proto_msgTypes[66]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) String() string {
@@ -5740,13 +4939,8 @@ func (x *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) String() string {
 func (*StartActionRequest_MongoDBQueryGetCmdLineOptsParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[66]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[66]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -5790,17 +4984,9 @@ type StartActionRequest_MongoDBQueryReplSetGetStatusParams struct {
 
 func (x *StartActionRequest_MongoDBQueryReplSetGetStatusParams) Reset() {
 	*x = StartActionRequest_MongoDBQueryReplSetGetStatusParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[67]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[67]
+	mi := &file_agent_v1_agent_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_MongoDBQueryReplSetGetStatusParams) String() string {
@@ -5810,13 +4996,8 @@ func (x *StartActionRequest_MongoDBQueryReplSetGetStatusParams) String() string 
 func (*StartActionRequest_MongoDBQueryReplSetGetStatusParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MongoDBQueryReplSetGetStatusParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[67]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[67]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -5860,17 +5041,9 @@ type StartActionRequest_MongoDBQueryGetDiagnosticDataParams struct {
 
 func (x *StartActionRequest_MongoDBQueryGetDiagnosticDataParams) Reset() {
 	*x = StartActionRequest_MongoDBQueryGetDiagnosticDataParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[68]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[68]
+	mi := &file_agent_v1_agent_proto_msgTypes[68]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_MongoDBQueryGetDiagnosticDataParams) String() string {
@@ -5880,13 +5053,8 @@ func (x *StartActionRequest_MongoDBQueryGetDiagnosticDataParams) String() string
 func (*StartActionRequest_MongoDBQueryGetDiagnosticDataParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MongoDBQueryGetDiagnosticDataParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[68]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[68]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -5926,17 +5094,9 @@ type StartActionRequest_RestartSystemServiceParams struct {
 
 func (x *StartActionRequest_RestartSystemServiceParams) Reset() {
 	*x = StartActionRequest_RestartSystemServiceParams{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[69]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[69]
+	mi := &file_agent_v1_agent_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartActionRequest_RestartSystemServiceParams) String() string {
@@ -5946,13 +5106,8 @@ func (x *StartActionRequest_RestartSystemServiceParams) String() string {
 func (*StartActionRequest_RestartSystemServiceParams) ProtoMessage() {}
 
 func (x *StartActionRequest_RestartSystemServiceParams) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[69]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[69]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -5986,17 +5141,9 @@ type CheckConnectionResponse_Stats struct {
 
 func (x *CheckConnectionResponse_Stats) Reset() {
 	*x = CheckConnectionResponse_Stats{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[70]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[70]
+	mi := &file_agent_v1_agent_proto_msgTypes[70]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *CheckConnectionResponse_Stats) String() string {
@@ -6006,13 +5153,8 @@ func (x *CheckConnectionResponse_Stats) String() string {
 func (*CheckConnectionResponse_Stats) ProtoMessage() {}
 
 func (x *CheckConnectionResponse_Stats) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[70]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[70]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -6064,17 +5206,9 @@ type StartJobRequest_MySQLBackup struct {
 
 func (x *StartJobRequest_MySQLBackup) Reset() {
 	*x = StartJobRequest_MySQLBackup{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[71]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[71]
+	mi := &file_agent_v1_agent_proto_msgTypes[71]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartJobRequest_MySQLBackup) String() string {
@@ -6084,13 +5218,8 @@ func (x *StartJobRequest_MySQLBackup) String() string {
 func (*StartJobRequest_MySQLBackup) ProtoMessage() {}
 
 func (x *StartJobRequest_MySQLBackup) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[71]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[71]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -6200,17 +5329,9 @@ type StartJobRequest_MySQLRestoreBackup struct {
 
 func (x *StartJobRequest_MySQLRestoreBackup) Reset() {
 	*x = StartJobRequest_MySQLRestoreBackup{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[72]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[72]
+	mi := &file_agent_v1_agent_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartJobRequest_MySQLRestoreBackup) String() string {
@@ -6220,13 +5341,8 @@ func (x *StartJobRequest_MySQLRestoreBackup) String() string {
 func (*StartJobRequest_MySQLRestoreBackup) ProtoMessage() {}
 
 func (x *StartJobRequest_MySQLRestoreBackup) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[72]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[72]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -6317,17 +5433,9 @@ type StartJobRequest_MongoDBBackup struct {
 
 func (x *StartJobRequest_MongoDBBackup) Reset() {
 	*x = StartJobRequest_MongoDBBackup{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[73]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[73]
+	mi := &file_agent_v1_agent_proto_msgTypes[73]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartJobRequest_MongoDBBackup) String() string {
@@ -6337,13 +5445,8 @@ func (x *StartJobRequest_MongoDBBackup) String() string {
 func (*StartJobRequest_MongoDBBackup) ProtoMessage() {}
 
 func (x *StartJobRequest_MongoDBBackup) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[73]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[73]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -6468,17 +5571,9 @@ type StartJobRequest_MongoDBRestoreBackup struct {
 
 func (x *StartJobRequest_MongoDBRestoreBackup) Reset() {
 	*x = StartJobRequest_MongoDBRestoreBackup{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[74]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[74]
+	mi := &file_agent_v1_agent_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *StartJobRequest_MongoDBRestoreBackup) String() string {
@@ -6488,13 +5583,8 @@ func (x *StartJobRequest_MongoDBRestoreBackup) String() string {
 func (*StartJobRequest_MongoDBRestoreBackup) ProtoMessage() {}
 
 func (x *StartJobRequest_MongoDBRestoreBackup) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[74]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[74]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -6601,17 +5691,9 @@ type JobResult_Error struct {
 
 func (x *JobResult_Error) Reset() {
 	*x = JobResult_Error{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[75]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[75]
+	mi := &file_agent_v1_agent_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *JobResult_Error) String() string {
@@ -6621,13 +5703,8 @@ func (x *JobResult_Error) String() string {
 func (*JobResult_Error) ProtoMessage() {}
 
 func (x *JobResult_Error) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[75]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[75]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -6662,17 +5739,9 @@ type JobResult_MongoDBBackup struct {
 
 func (x *JobResult_MongoDBBackup) Reset() {
 	*x = JobResult_MongoDBBackup{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[76]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[76]
+	mi := &file_agent_v1_agent_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *JobResult_MongoDBBackup) String() string {
@@ -6682,13 +5751,8 @@ func (x *JobResult_MongoDBBackup) String() string {
 func (*JobResult_MongoDBBackup) ProtoMessage() {}
 
 func (x *JobResult_MongoDBBackup) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[76]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[76]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -6729,17 +5793,9 @@ type JobResult_MySQLBackup struct {
 
 func (x *JobResult_MySQLBackup) Reset() {
 	*x = JobResult_MySQLBackup{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[77]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[77]
+	mi := &file_agent_v1_agent_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *JobResult_MySQLBackup) String() string {
@@ -6749,13 +5805,8 @@ func (x *JobResult_MySQLBackup) String() string {
 func (*JobResult_MySQLBackup) ProtoMessage() {}
 
 func (x *JobResult_MySQLBackup) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[77]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[77]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -6786,17 +5837,9 @@ type JobResult_MySQLRestoreBackup struct {
 
 func (x *JobResult_MySQLRestoreBackup) Reset() {
 	*x = JobResult_MySQLRestoreBackup{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[78]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[78]
+	mi := &file_agent_v1_agent_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *JobResult_MySQLRestoreBackup) String() string {
@@ -6806,13 +5849,8 @@ func (x *JobResult_MySQLRestoreBackup) String() string {
 func (*JobResult_MySQLRestoreBackup) ProtoMessage() {}
 
 func (x *JobResult_MySQLRestoreBackup) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[78]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[78]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -6836,17 +5874,9 @@ type JobResult_MongoDBRestoreBackup struct {
 
 func (x *JobResult_MongoDBRestoreBackup) Reset() {
 	*x = JobResult_MongoDBRestoreBackup{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[79]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[79]
+	mi := &file_agent_v1_agent_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *JobResult_MongoDBRestoreBackup) String() string {
@@ -6856,13 +5886,8 @@ func (x *JobResult_MongoDBRestoreBackup) String() string {
 func (*JobResult_MongoDBRestoreBackup) ProtoMessage() {}
 
 func (x *JobResult_MongoDBRestoreBackup) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[79]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[79]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -6886,17 +5911,9 @@ type JobProgress_MySQLBackup struct {
 
 func (x *JobProgress_MySQLBackup) Reset() {
 	*x = JobProgress_MySQLBackup{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[80]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[80]
+	mi := &file_agent_v1_agent_proto_msgTypes[80]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *JobProgress_MySQLBackup) String() string {
@@ -6906,13 +5923,8 @@ func (x *JobProgress_MySQLBackup) String() string {
 func (*JobProgress_MySQLBackup) ProtoMessage() {}
 
 func (x *JobProgress_MySQLBackup) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[80]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[80]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -6936,17 +5948,9 @@ type JobProgress_MySQLRestoreBackup struct {
 
 func (x *JobProgress_MySQLRestoreBackup) Reset() {
 	*x = JobProgress_MySQLRestoreBackup{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[81]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[81]
+	mi := &file_agent_v1_agent_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *JobProgress_MySQLRestoreBackup) String() string {
@@ -6956,13 +5960,8 @@ func (x *JobProgress_MySQLRestoreBackup) String() string {
 func (*JobProgress_MySQLRestoreBackup) ProtoMessage() {}
 
 func (x *JobProgress_MySQLRestoreBackup) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[81]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[81]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -6990,17 +5989,9 @@ type JobProgress_Logs struct {
 
 func (x *JobProgress_Logs) Reset() {
 	*x = JobProgress_Logs{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[82]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[82]
+	mi := &file_agent_v1_agent_proto_msgTypes[82]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *JobProgress_Logs) String() string {
@@ -7010,13 +6001,8 @@ func (x *JobProgress_Logs) String() string {
 func (*JobProgress_Logs) ProtoMessage() {}
 
 func (x *JobProgress_Logs) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[82]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[82]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -7061,17 +6047,9 @@ type GetVersionsRequest_MySQLd struct {
 
 func (x *GetVersionsRequest_MySQLd) Reset() {
 	*x = GetVersionsRequest_MySQLd{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[83]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[83]
+	mi := &file_agent_v1_agent_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *GetVersionsRequest_MySQLd) String() string {
@@ -7081,13 +6059,8 @@ func (x *GetVersionsRequest_MySQLd) String() string {
 func (*GetVersionsRequest_MySQLd) ProtoMessage() {}
 
 func (x *GetVersionsRequest_MySQLd) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[83]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[83]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -7111,17 +6084,9 @@ type GetVersionsRequest_Xtrabackup struct {
 
 func (x *GetVersionsRequest_Xtrabackup) Reset() {
 	*x = GetVersionsRequest_Xtrabackup{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[84]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[84]
+	mi := &file_agent_v1_agent_proto_msgTypes[84]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *GetVersionsRequest_Xtrabackup) String() string {
@@ -7131,13 +6096,8 @@ func (x *GetVersionsRequest_Xtrabackup) String() string {
 func (*GetVersionsRequest_Xtrabackup) ProtoMessage() {}
 
 func (x *GetVersionsRequest_Xtrabackup) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[84]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[84]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -7161,17 +6121,9 @@ type GetVersionsRequest_Xbcloud struct {
 
 func (x *GetVersionsRequest_Xbcloud) Reset() {
 	*x = GetVersionsRequest_Xbcloud{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[85]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[85]
+	mi := &file_agent_v1_agent_proto_msgTypes[85]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *GetVersionsRequest_Xbcloud) String() string {
@@ -7181,13 +6133,8 @@ func (x *GetVersionsRequest_Xbcloud) String() string {
 func (*GetVersionsRequest_Xbcloud) ProtoMessage() {}
 
 func (x *GetVersionsRequest_Xbcloud) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[85]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[85]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -7211,17 +6158,9 @@ type GetVersionsRequest_Qpress struct {
 
 func (x *GetVersionsRequest_Qpress) Reset() {
 	*x = GetVersionsRequest_Qpress{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[86]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[86]
+	mi := &file_agent_v1_agent_proto_msgTypes[86]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *GetVersionsRequest_Qpress) String() string {
@@ -7231,13 +6170,8 @@ func (x *GetVersionsRequest_Qpress) String() string {
 func (*GetVersionsRequest_Qpress) ProtoMessage() {}
 
 func (x *GetVersionsRequest_Qpress) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[86]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[86]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -7261,17 +6195,9 @@ type GetVersionsRequest_MongoDB struct {
 
 func (x *GetVersionsRequest_MongoDB) Reset() {
 	*x = GetVersionsRequest_MongoDB{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[87]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[87]
+	mi := &file_agent_v1_agent_proto_msgTypes[87]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *GetVersionsRequest_MongoDB) String() string {
@@ -7281,13 +6207,8 @@ func (x *GetVersionsRequest_MongoDB) String() string {
 func (*GetVersionsRequest_MongoDB) ProtoMessage() {}
 
 func (x *GetVersionsRequest_MongoDB) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[87]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[87]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -7311,17 +6232,9 @@ type GetVersionsRequest_PBM struct {
 
 func (x *GetVersionsRequest_PBM) Reset() {
 	*x = GetVersionsRequest_PBM{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[88]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[88]
+	mi := &file_agent_v1_agent_proto_msgTypes[88]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *GetVersionsRequest_PBM) String() string {
@@ -7331,13 +6244,8 @@ func (x *GetVersionsRequest_PBM) String() string {
 func (*GetVersionsRequest_PBM) ProtoMessage() {}
 
 func (x *GetVersionsRequest_PBM) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[88]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[88]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -7371,17 +6279,9 @@ type GetVersionsRequest_Software struct {
 
 func (x *GetVersionsRequest_Software) Reset() {
 	*x = GetVersionsRequest_Software{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[89]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[89]
+	mi := &file_agent_v1_agent_proto_msgTypes[89]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *GetVersionsRequest_Software) String() string {
@@ -7391,13 +6291,8 @@ func (x *GetVersionsRequest_Software) String() string {
 func (*GetVersionsRequest_Software) ProtoMessage() {}
 
 func (x *GetVersionsRequest_Software) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[89]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[89]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -7514,17 +6409,9 @@ type GetVersionsResponse_Version struct {
 
 func (x *GetVersionsResponse_Version) Reset() {
 	*x = GetVersionsResponse_Version{}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agent_v1_agent_proto_msgTypes[90]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[90]
+	mi := &file_agent_v1_agent_proto_msgTypes[90]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
->>>>>>> main:api/agentpb/agent.pb.go
 }
 
 func (x *GetVersionsResponse_Version) String() string {
@@ -7534,13 +6421,8 @@ func (x *GetVersionsResponse_Version) String() string {
 func (*GetVersionsResponse_Version) ProtoMessage() {}
 
 func (x *GetVersionsResponse_Version) ProtoReflect() protoreflect.Message {
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	mi := &file_agent_v1_agent_proto_msgTypes[90]
-	if protoimpl.UnsafeEnabled && x != nil {
-=======
-	mi := &file_agentpb_agent_proto_msgTypes[90]
 	if x != nil {
->>>>>>> main:api/agentpb/agent.pb.go
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -8896,1047 +7778,8 @@ func file_agent_v1_agent_proto_init() {
 	if File_agent_v1_agent_proto != nil {
 		return
 	}
-<<<<<<< HEAD:api/agent/v1/agent.pb.go
 	file_agent_v1_collector_proto_init()
-	if !protoimpl.UnsafeEnabled {
-		file_agent_v1_agent_proto_msgTypes[0].Exporter = func(v any, i int) any {
-			switch v := v.(*TextFiles); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[1].Exporter = func(v any, i int) any {
-			switch v := v.(*Ping); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[2].Exporter = func(v any, i int) any {
-			switch v := v.(*Pong); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[3].Exporter = func(v any, i int) any {
-			switch v := v.(*QANCollectRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[4].Exporter = func(v any, i int) any {
-			switch v := v.(*QANCollectResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[5].Exporter = func(v any, i int) any {
-			switch v := v.(*StateChangedRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[6].Exporter = func(v any, i int) any {
-			switch v := v.(*StateChangedResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[7].Exporter = func(v any, i int) any {
-			switch v := v.(*SetStateRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[8].Exporter = func(v any, i int) any {
-			switch v := v.(*SetStateResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[9].Exporter = func(v any, i int) any {
-			switch v := v.(*QueryActionValue); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[10].Exporter = func(v any, i int) any {
-			switch v := v.(*QueryActionSlice); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[11].Exporter = func(v any, i int) any {
-			switch v := v.(*QueryActionMap); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[12].Exporter = func(v any, i int) any {
-			switch v := v.(*QueryActionBinary); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[13].Exporter = func(v any, i int) any {
-			switch v := v.(*QueryActionResult); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[14].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[15].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[16].Exporter = func(v any, i int) any {
-			switch v := v.(*StopActionRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[17].Exporter = func(v any, i int) any {
-			switch v := v.(*StopActionResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[18].Exporter = func(v any, i int) any {
-			switch v := v.(*ActionResultRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[19].Exporter = func(v any, i int) any {
-			switch v := v.(*ActionResultResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[20].Exporter = func(v any, i int) any {
-			switch v := v.(*PBMSwitchPITRRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[21].Exporter = func(v any, i int) any {
-			switch v := v.(*PBMSwitchPITRResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[22].Exporter = func(v any, i int) any {
-			switch v := v.(*AgentLogsRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[23].Exporter = func(v any, i int) any {
-			switch v := v.(*AgentLogsResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[24].Exporter = func(v any, i int) any {
-			switch v := v.(*CheckConnectionRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[25].Exporter = func(v any, i int) any {
-			switch v := v.(*CheckConnectionResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[26].Exporter = func(v any, i int) any {
-			switch v := v.(*ServiceInfoRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[27].Exporter = func(v any, i int) any {
-			switch v := v.(*ServiceInfoResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[28].Exporter = func(v any, i int) any {
-			switch v := v.(*JobStatusRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[29].Exporter = func(v any, i int) any {
-			switch v := v.(*JobStatusResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[30].Exporter = func(v any, i int) any {
-			switch v := v.(*S3LocationConfig); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[31].Exporter = func(v any, i int) any {
-			switch v := v.(*FilesystemLocationConfig); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[32].Exporter = func(v any, i int) any {
-			switch v := v.(*StartJobRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[33].Exporter = func(v any, i int) any {
-			switch v := v.(*StartJobResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[34].Exporter = func(v any, i int) any {
-			switch v := v.(*StopJobRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[35].Exporter = func(v any, i int) any {
-			switch v := v.(*StopJobResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[36].Exporter = func(v any, i int) any {
-			switch v := v.(*JobResult); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[37].Exporter = func(v any, i int) any {
-			switch v := v.(*JobProgress); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[38].Exporter = func(v any, i int) any {
-			switch v := v.(*GetVersionsRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[39].Exporter = func(v any, i int) any {
-			switch v := v.(*GetVersionsResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[40].Exporter = func(v any, i int) any {
-			switch v := v.(*AgentMessage); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[41].Exporter = func(v any, i int) any {
-			switch v := v.(*ServerMessage); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[43].Exporter = func(v any, i int) any {
-			switch v := v.(*SetStateRequest_AgentProcess); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[45].Exporter = func(v any, i int) any {
-			switch v := v.(*SetStateRequest_BuiltinAgent); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[49].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_MySQLExplainParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[50].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_MySQLShowCreateTableParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[51].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_MySQLShowTableStatusParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[52].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_MySQLShowIndexParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[53].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_PostgreSQLShowCreateTableParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[54].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_PostgreSQLShowIndexParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[55].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_MongoDBExplainParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[56].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_PTSummaryParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[57].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_PTPgSummaryParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[58].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_PTMongoDBSummaryParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[59].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_PTMySQLSummaryParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[60].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_MySQLQueryShowParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[61].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_MySQLQuerySelectParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[62].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_PostgreSQLQueryShowParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[63].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_PostgreSQLQuerySelectParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[64].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_MongoDBQueryGetParameterParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[65].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_MongoDBQueryBuildInfoParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[66].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_MongoDBQueryGetCmdLineOptsParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[67].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_MongoDBQueryReplSetGetStatusParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[68].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_MongoDBQueryGetDiagnosticDataParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[69].Exporter = func(v any, i int) any {
-			switch v := v.(*StartActionRequest_RestartSystemServiceParams); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[70].Exporter = func(v any, i int) any {
-			switch v := v.(*CheckConnectionResponse_Stats); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[71].Exporter = func(v any, i int) any {
-			switch v := v.(*StartJobRequest_MySQLBackup); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[72].Exporter = func(v any, i int) any {
-			switch v := v.(*StartJobRequest_MySQLRestoreBackup); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[73].Exporter = func(v any, i int) any {
-			switch v := v.(*StartJobRequest_MongoDBBackup); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[74].Exporter = func(v any, i int) any {
-			switch v := v.(*StartJobRequest_MongoDBRestoreBackup); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[75].Exporter = func(v any, i int) any {
-			switch v := v.(*JobResult_Error); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[76].Exporter = func(v any, i int) any {
-			switch v := v.(*JobResult_MongoDBBackup); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[77].Exporter = func(v any, i int) any {
-			switch v := v.(*JobResult_MySQLBackup); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[78].Exporter = func(v any, i int) any {
-			switch v := v.(*JobResult_MySQLRestoreBackup); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[79].Exporter = func(v any, i int) any {
-			switch v := v.(*JobResult_MongoDBRestoreBackup); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[80].Exporter = func(v any, i int) any {
-			switch v := v.(*JobProgress_MySQLBackup); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[81].Exporter = func(v any, i int) any {
-			switch v := v.(*JobProgress_MySQLRestoreBackup); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[82].Exporter = func(v any, i int) any {
-			switch v := v.(*JobProgress_Logs); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[83].Exporter = func(v any, i int) any {
-			switch v := v.(*GetVersionsRequest_MySQLd); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[84].Exporter = func(v any, i int) any {
-			switch v := v.(*GetVersionsRequest_Xtrabackup); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[85].Exporter = func(v any, i int) any {
-			switch v := v.(*GetVersionsRequest_Xbcloud); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[86].Exporter = func(v any, i int) any {
-			switch v := v.(*GetVersionsRequest_Qpress); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[87].Exporter = func(v any, i int) any {
-			switch v := v.(*GetVersionsRequest_MongoDB); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[88].Exporter = func(v any, i int) any {
-			switch v := v.(*GetVersionsRequest_PBM); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[89].Exporter = func(v any, i int) any {
-			switch v := v.(*GetVersionsRequest_Software); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agent_v1_agent_proto_msgTypes[90].Exporter = func(v any, i int) any {
-			switch v := v.(*GetVersionsResponse_Version); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-	}
 	file_agent_v1_agent_proto_msgTypes[9].OneofWrappers = []any{
-=======
-	file_agentpb_collector_proto_init()
-	file_agentpb_agent_proto_msgTypes[9].OneofWrappers = []any{
->>>>>>> main:api/agentpb/agent.pb.go
 		(*QueryActionValue_Nil)(nil),
 		(*QueryActionValue_Bool)(nil),
 		(*QueryActionValue_Int64)(nil),
