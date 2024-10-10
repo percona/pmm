@@ -25,10 +25,9 @@ import (
 
 	"github.com/google/uuid"
 	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
-	reporter "github.com/percona/saas/gen/telemetry/reporter"
+	genericv1 "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
@@ -53,7 +52,7 @@ type Service struct {
 	os                  string
 	sDistributionMethod serverv1.DistributionMethod
 	tDistributionMethod pmmv1.DistributionMethod
-	sendCh              chan *pmmv1.ServerMetric
+	sendCh              chan *genericv1.GenericReport
 	dataSourcesMap      map[DataSourceName]DataSource
 
 	extensions map[ExtensionType]Extension
@@ -89,7 +88,7 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 		config:       config,
 		dsRegistry:   registry,
 		dus:          dus,
-		sendCh:       make(chan *pmmv1.ServerMetric, sendChSize),
+		sendCh:       make(chan *genericv1.GenericReport, sendChSize),
 		extensions:   extensions,
 	}
 
@@ -167,7 +166,7 @@ func (s *Service) DistributionMethod() serverv1.DistributionMethod {
 
 func (s *Service) processSendCh(ctx context.Context) {
 	var reportsBufSync sync.Mutex
-	var reportsBuf []*pmmv1.ServerMetric
+	var reportsBuf []*genericv1.GenericReport
 	var sendCtx context.Context //nolint:contextcheck
 	var cancel context.CancelFunc
 
@@ -184,12 +183,12 @@ func (s *Service) processSendCh(ctx context.Context) {
 				reportsBufSync.Lock()
 				reportsBuf = append(reportsBuf, report)
 				reportsToSend := reportsBuf
-				reportsBuf = []*pmmv1.ServerMetric{}
+				reportsBuf = []*genericv1.GenericReport{}
 				reportsBufSync.Unlock()
 
 				go func(ctx context.Context) {
-					err := s.send(ctx, &reporter.ReportRequest{
-						Metrics: reportsToSend,
+					err := s.send(ctx, &genericv1.ReportRequest{
+						Reports: reportsToSend,
 					})
 					if err != nil {
 						s.l.Debugf("Telemetry info not sent, due to error: %s.", err)
@@ -211,7 +210,7 @@ func (s *Service) processSendCh(ctx context.Context) {
 	}
 }
 
-func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
+func (s *Service) prepareReport(ctx context.Context) *genericv1.GenericReport {
 	initializedDataSources := make(map[DataSourceName]DataSource)
 	telemetryMetric, _ := s.makeMetric(ctx)
 	var totalTime time.Duration
@@ -324,7 +323,7 @@ func (s *Service) locateDataSources(telemetryConfig []Config) map[DataSourceName
 	return dataSources
 }
 
-func (s *Service) makeMetric(ctx context.Context) (*pmmv1.ServerMetric, error) {
+func (s *Service) makeMetric(ctx context.Context) (*genericv1.GenericReport, error) {
 	var settings *models.Settings
 	useServerID := false
 	err := s.db.InTransaction(func(tx *reform.TX) error {
@@ -359,16 +358,19 @@ func (s *Service) makeMetric(ctx context.Context) (*pmmv1.ServerMetric, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to decode UUID %s", serverIDToUse)
 	}
-	_, distMethod, _ := s.dus.GetDistributionMethodAndOS()
+	//_, distMethod, _ := s.dus.GetDistributionMethodAndOS()
+
+	// todo
+	// PmmServerVersion:   s.pmmVersion,
+	// UpDuration:         durationpb.New(time.Since(s.start)),
+	// DistributionMethod: distMethod,
 
 	eventID := uuid.New()
-	return &pmmv1.ServerMetric{
-		Id:                   eventID[:],
-		Time:                 timestamppb.New(time.Now()),
-		PmmServerTelemetryId: serverID,
-		PmmServerVersion:     s.pmmVersion,
-		UpDuration:           durationpb.New(time.Since(s.start)),
-		DistributionMethod:   distMethod,
+	return &genericv1.GenericReport{
+		Id:            string(eventID[:]),
+		CreateTime:    timestamppb.New(time.Now()),
+		InstanceId:    string(serverID),
+		ProductFamily: genericv1.ProductFamily_PRODUCT_FAMILY_PMM,
 	}, nil
 }
 
@@ -383,7 +385,7 @@ func generateUUID() (string, error) {
 	return cleanUUID, nil
 }
 
-func (s *Service) send(ctx context.Context, report *reporter.ReportRequest) error {
+func (s *Service) send(ctx context.Context, report *genericv1.ReportRequest) error {
 	var err error
 	var attempt int
 	for {
@@ -412,7 +414,7 @@ func (s *Service) send(ctx context.Context, report *reporter.ReportRequest) erro
 }
 
 // Format returns the formatted representation of the provided server metric.
-func (s *Service) Format(report *pmmv1.ServerMetric) string {
+func (s *Service) Format(report *genericv1.GenericReport) string {
 	var builder strings.Builder
 	for _, m := range report.Metrics {
 		builder.WriteString(m.Key)

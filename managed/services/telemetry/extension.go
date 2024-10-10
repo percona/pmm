@@ -18,10 +18,10 @@ package telemetry
 import (
 	"context"
 
-	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
+	genericv1 "github.com/percona/saas/gen/telemetry/generic"
 )
 
 // Extension provides dynamic extension point for Telemetry.
 type Extension interface {
-	FetchMetrics(ctx context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error)
+	FetchMetrics(ctx context.Context, config Config) ([]*genericv1.GenericReport_Metric, error)
 }
