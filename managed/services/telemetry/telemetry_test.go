@@ -23,8 +23,8 @@ import (
 	"time"
 
 	_ "github.com/ClickHouse/clickhouse-go/v2"
-	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
-	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
+	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
+	reporter "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -82,7 +82,11 @@ func TestRunTelemetryService(t *testing.T) {
 	logger.SetLevel(logrus.DebugLevel)
 	logEntry := logrus.NewEntry(logger)
 
-	expectedServerMetrics := []*pmmv1.ServerMetric_Metric{
+	expectedServerMetrics := []*reporter.GenericReport_Metric{
+		{
+			Key:   "DistributionMethod",
+			Value: pmmv1.DistributionMethod_AMI.String(),
+		},
 		{
 			Key:   "key",
 			Value: "value",
@@ -97,10 +101,9 @@ func TestRunTelemetryService(t *testing.T) {
 		},
 	}
 	expectedReport := &reporter.ReportRequest{
-		Metrics: []*pmmv1.ServerMetric{
+		Reports: []*reporter.GenericReport{
 			{
-				DistributionMethod: pmmv1.DistributionMethod_AMI,
-				Metrics:            expectedServerMetrics,
+				Metrics: expectedServerMetrics,
 			},
 		},
 	}
@@ -176,7 +179,7 @@ func TestRunTelemetryService(t *testing.T) {
 				tDistributionMethod: 0,
 				dus:                 tt.fields.dus,
 				portalClient:        tt.mockTelemetrySender(),
-				sendCh:              make(chan *pmmv1.ServerMetric, sendChSize),
+				sendCh:              make(chan *reporter.GenericReport, sendChSize),
 			}
 			s.Run(ctx)
 		})
@@ -295,9 +298,18 @@ func initMockTelemetrySender(t *testing.T, expectedReport *reporter.ReportReques
 	}
 }
 
+func valueIsInArray(items []*reporter.GenericReport_Metric, value string) bool {
+	for _, item := range items {
+		if item.Value == value {
+			return true
+		}
+	}
+
+	return false
+}
+
 func matchExpectedReport(report *reporter.ReportRequest, expectedReport *reporter.ReportRequest) bool {
-	return len(report.Metrics) == 1 &&
-		expectedReport.Metrics[0].DistributionMethod.String() == "AMI"
+	return len(report.Reports) == 1 && valueIsInArray(expectedReport.Reports[0].Metrics, "AMI")
 }
 
 func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval time.Duration) ServiceConfig {

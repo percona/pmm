@@ -21,7 +21,9 @@ linters-settings:
           - pkg: "github.com/percona/go-mysql/log/slow"
             desc: only use the forked parser
           - pkg: "github.com/percona-platform/platform"
-            desc: use "github.com/percona-platform/saas" instead
+            desc: use "github.com/percona/saas" instead
+          - pkg: "github.com/percona/platform"
+            desc: use "github.com/percona/saas" instead
           - pkg: "gopkg.in/yaml.v2"
             desc: use "gopkg.in/yaml.v3" instead
 
