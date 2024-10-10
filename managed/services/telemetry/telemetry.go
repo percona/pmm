@@ -28,6 +28,7 @@ import (
 	genericv1 "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
@@ -358,19 +359,18 @@ func (s *Service) makeMetric(ctx context.Context) (*genericv1.GenericReport, err
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to decode UUID %s", serverIDToUse)
 	}
-	//_, distMethod, _ := s.dus.GetDistributionMethodAndOS()
-
-	// todo
-	// PmmServerVersion:   s.pmmVersion,
-	// UpDuration:         durationpb.New(time.Since(s.start)),
-	// DistributionMethod: distMethod,
+	_, distMethod, _ := s.dus.GetDistributionMethodAndOS()
 
 	eventID := uuid.New()
 	return &genericv1.GenericReport{
-		Id:            string(eventID[:]),
-		CreateTime:    timestamppb.New(time.Now()),
-		InstanceId:    string(serverID),
-		ProductFamily: genericv1.ProductFamily_PRODUCT_FAMILY_PMM,
+		Id:         string(eventID[:]),
+		CreateTime: timestamppb.New(time.Now()),
+		InstanceId: string(serverID),
+		Metrics: []*genericv1.GenericReport_Metric{
+			{Key: "PMMServerVersion", Value: s.pmmVersion},
+			{Key: "UpDuration", Value: durationpb.New(time.Since(s.start)).String()},
+			{Key: "DistributionMethod", Value: distMethod.String()},
+		},
 	}, nil
 }
 

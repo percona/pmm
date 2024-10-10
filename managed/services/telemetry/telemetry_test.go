@@ -17,6 +17,7 @@ package telemetry
 
 import (
 	"context"
+	"fmt"
 	"io/fs"
 	"os"
 	"testing"
@@ -83,6 +84,10 @@ func TestRunTelemetryService(t *testing.T) {
 	logEntry := logrus.NewEntry(logger)
 
 	expectedServerMetrics := []*reporter.GenericReport_Metric{
+		{
+			Key:   "DistributionMethod",
+			Value: pmmv1.DistributionMethod_AMI.String(),
+		},
 		{
 			Key:   "key",
 			Value: "value",
@@ -295,9 +300,19 @@ func initMockTelemetrySender(t *testing.T, expectedReport *reporter.ReportReques
 	}
 }
 
+func valueIsInArray(items []*reporter.GenericReport_Metric, value string) bool {
+	for _, item := range items {
+		if item.Value == value {
+			return true
+		}
+	}
+
+	return false
+}
+
 func matchExpectedReport(report *reporter.ReportRequest, expectedReport *reporter.ReportRequest) bool {
-	return len(report.Reports) == 1 //&&
-	// expectedReport.Reports[0].Metrics.DistributionMethod.String() == "AMI"
+	fmt.Println(expectedReport)
+	return len(report.Reports) == 1 && valueIsInArray(expectedReport.Reports[0].Metrics, "AMI")
 }
 
 func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval time.Duration) ServiceConfig {
