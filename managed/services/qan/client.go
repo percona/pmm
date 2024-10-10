@@ -58,6 +58,7 @@ func collectAgents(q *reform.Querier, metricsBuckets []*agentv1.MetricsBucket) (
 	agentIDs := make(map[string]struct{})
 	for _, m := range metricsBuckets {
 		if id := m.Common.AgentId; id != "" {
+			// TODO: remove once v2 hits end-of-support
 			id, _ := strings.CutPrefix(id, "/agent_id/")
 			agentIDs[id] = struct{}{}
 		}
@@ -182,6 +183,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 
 	convertedMetricsBuckets := make([]*qanv1.MetricsBucket, 0, len(metricsBuckets))
 	for _, m := range metricsBuckets {
+		// TODO: remove once v2 hits end-of-support
 		agentID, _ := strings.CutPrefix(m.Common.AgentId, "/agent_id/")
 		agent := agents[agentID]
 		if agent == nil {
