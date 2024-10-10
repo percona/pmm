@@ -224,7 +224,7 @@ func (up *Updater) latest(ctx context.Context) ([]*version.DockerVersionInfo, *v
 }
 
 func (up *Updater) readFromFile() (*version.DockerVersionInfo, error) {
-	// Read from file, if it's not exist read from ENV variable, if it's not exist get the latest tag from DockerHub.
+	// Read from file, if it does not exist read from ENV variable, if it does not exist get the latest tag from DockerHub.
 	content, err := os.ReadFile(fileName)
 	if err != nil && !os.IsNotExist(err) {
 		up.l.WithError(err).Error("Failed to read file")
