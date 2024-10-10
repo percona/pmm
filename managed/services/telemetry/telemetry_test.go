@@ -17,7 +17,6 @@ package telemetry
 
 import (
 	"context"
-	"fmt"
 	"io/fs"
 	"os"
 	"testing"
@@ -310,7 +309,6 @@ func valueIsInArray(items []*reporter.GenericReport_Metric, value string) bool {
 }
 
 func matchExpectedReport(report *reporter.ReportRequest, expectedReport *reporter.ReportRequest) bool {
-	fmt.Println(expectedReport)
 	return len(report.Reports) == 1 && valueIsInArray(expectedReport.Reports[0].Metrics, "AMI")
 }
 
