@@ -104,7 +104,6 @@ func TestRunTelemetryService(t *testing.T) {
 	expectedReport := &reporter.ReportRequest{
 		Reports: []*reporter.GenericReport{
 			{
-				// DistributionMethod: pmmv1.DistributionMethod_AMI,
 				Metrics: expectedServerMetrics,
 			},
 		},
