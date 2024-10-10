@@ -1,7 +1,7 @@
 ---
 title: List Nodes
 slug: listnodes
-category: 66aca9bf17142b005ad4e9fa
+categorySlug: inventory-api
 ---
 
 ## List Nodes
@@ -12,19 +12,17 @@ Example:
 
 ```shell
 curl --insecure -X POST \
-  -H 'Authorization: Basic YWRtaW46YWRtaW4=' \
-	-H 'Accept: application/json' \
-	-H 'Content-Type: application/json' \
-	--url https://127.0.0.1/v1/inventory/Nodes/List \
-	--data '{"node_type": "GENERIC_NODE"}'
+  --header 'Authorization: Bearer XXXXX' \
+	--header 'Accept: application/json' \
+	--url https://127.0.0.1/v1/inventory/nodes?node_type=NODE_TYPE_GENERIC_NODE
 ```
 
-First, get the [authentication token](ref:authentication).
+To get the authentication token, check [Authentication](ref:authentication).
 
-Then, choose from the following Node types:
+Then, choose one of the following Node types:
 
-- GENERIC_NODE
-- CONTAINER_NODE
-- REMOTE_NODE
-- REMOTE_RDS_NODE
-- REMOTE_AZURE_DATABASE_NODE`
+- NODE_TYPE_GENERIC_NODE
+- NODE_TYPE_CONTAINER_NODE
+- NODE_TYPE_REMOTE_NODE
+- NODE_TYPE_REMOTE_RDS_NODE
+- NODE_TYPE_REMOTE_AZURE_DATABASE_NODE`

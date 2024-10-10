@@ -21,7 +21,7 @@
         "tags": [
           "AdvisorService"
         ],
-        "summary": "List advisors",
+        "summary": "List Advisors",
         "operationId": "ListAdvisors",
         "responses": {
           "200": {
@@ -160,7 +160,7 @@
         "tags": [
           "AdvisorService"
         ],
-        "summary": "List advisor checks",
+        "summary": "List Advisor Checks",
         "operationId": "ListAdvisorChecks",
         "responses": {
           "200": {
@@ -264,7 +264,7 @@
         "tags": [
           "AdvisorService"
         ],
-        "summary": "Get Failed Checks",
+        "summary": "Get Failed Advisor Checks",
         "operationId": "GetFailedChecks",
         "parameters": [
           {

@@ -46,6 +46,7 @@ type ServerServiceClient interface {
 	LeaderHealthCheck(ctx context.Context, in *LeaderHealthCheckRequest, opts ...grpc.CallOption) (*LeaderHealthCheckResponse, error)
 	// CheckUpdates checks for available PMM Server updates.
 	CheckUpdates(ctx context.Context, in *CheckUpdatesRequest, opts ...grpc.CallOption) (*CheckUpdatesResponse, error)
+	// ListChangeLogs delivers the changelog.
 	ListChangeLogs(ctx context.Context, in *ListChangeLogsRequest, opts ...grpc.CallOption) (*ListChangeLogsResponse, error)
 	// StartUpdate starts PMM Server update.
 	StartUpdate(ctx context.Context, in *StartUpdateRequest, opts ...grpc.CallOption) (*StartUpdateResponse, error)
@@ -170,6 +171,7 @@ type ServerServiceServer interface {
 	LeaderHealthCheck(context.Context, *LeaderHealthCheckRequest) (*LeaderHealthCheckResponse, error)
 	// CheckUpdates checks for available PMM Server updates.
 	CheckUpdates(context.Context, *CheckUpdatesRequest) (*CheckUpdatesResponse, error)
+	// ListChangeLogs delivers the changelog.
 	ListChangeLogs(context.Context, *ListChangeLogsRequest) (*ListChangeLogsResponse, error)
 	// StartUpdate starts PMM Server update.
 	StartUpdate(context.Context, *StartUpdateRequest) (*StartUpdateResponse, error)

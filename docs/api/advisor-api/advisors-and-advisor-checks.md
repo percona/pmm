@@ -1,7 +1,7 @@
 ---
-title: Percona Advisors and Advisors checks
+title: Percona Advisors and Advisor Checks
 slug: advisors-and-advisor-checks
-category: 66acabbe485c6000126b0499
+categorySlug: advisor-api
 order: 1
-hidden: 0
+hidden: 1
 ---

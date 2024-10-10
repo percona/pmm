@@ -12,7 +12,7 @@ on:
 
 jobs:
   sync:
-    name: Sync
+    name: Sync API Docs
     runs-on: ubuntu-22.04
 
     steps:
@@ -29,11 +29,12 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "ID=$ID" >> $GITHUB_ENV
 
-      - name: Provision rdme
-        run: npm install -g rdme
-
       - name: Sync API spec
-        run: rdme openapi ./api/swagger/swagger.json --id=${{ env.ID }} --key=${{ secrets.README_TOKEN }}
+        uses: readmeio/rdme@v8
+        with:
+          rdme: openapi ./api/swagger/swagger.json --version=${{ env.VERSION }} --id=${{ env.ID }} --key=${{ secrets.README_TOKEN }}
 
       - name: Sync Markdown docs
-        run: rdme docs docs/api --version=${{ env.VERSION }} --key=${{ secrets.README_TOKEN }}
+        uses: readmeio/rdme@v8
+        with: 
+          rdme: docs ./docs/api --version=${{ env.VERSION }} --key=${{ secrets.README_TOKEN }}

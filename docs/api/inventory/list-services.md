@@ -1,7 +1,7 @@
 ---
 title: List Services
 slug: listservices
-category: 66aca9bf17142b005ad4e9fa
+categorySlug: inventory-api
 ---
 
 ## List Services
@@ -9,31 +9,25 @@ category: 66aca9bf17142b005ad4e9fa
 The following API call lists the available services on a Node:
 
 ```shell
-curl --insecure -X POST \
-  -H 'Authorization: Basic YWRtaW46YWRtaW4=' \
-	-H 'Accept: application/json' \
-	-H 'Content-Type: application/json' \
-	--url https://127.0.0.1/v1/inventory/Services/List \
-  --data '
-{
-  "node_id": "7d07a712-7fb9-4265-8a7d-a0db8aa35762",
-  "service_type": "MYSQL_SERVICE"
-}'
+curl --insecure -X GET \
+     --header 'Authorization: Bearer XXXXX' \
+     --header 'Accept: application/json' \
+     --url https://127.0.0.1/v1/inventory/services?node_id=7d07a712-7fb9-4265-8a7d-a0db8aa35762&service_type=SERVICE_TYPE_MYSQL_SERVICE
 ```
 
-First, get the [authentication token](ref:authentication).
+To get the authentication token, check [Authentication](ref:authentication).
 
-Then, you need to know the [node_id](ref:listnodes).
+If you need to know the `node_id`, refer to [List Nodes endpoint](ref:listnodes).
 
 Choose the `service_type` that you want to list. The options are:
 
-- MYSQL_SERVICE
-- MONGODB_SERVICE
-- POSTGRESQL_SERVICE
-- PROXYSQL_SERVICE
-- HAPROXY_SERVICE
-- EXTERNAL_SERVICE
+- SERVICE_TYPE_MYSQL_SERVICE
+- SERVICE_TYPE_MONGODB_SERVICE
+- SERVICE_TYPE_POSTGRESQL_SERVICE
+- SERVICE_TYPE_PROXYSQL_SERVICE
+- SERVICE_TYPE_HAPROXY_SERVICE
+- SERVICE_TYPE_EXTERNAL_SERVICE
 
 If you prefer to get all services running on the node, you can omit the `service_type` parameter.
 
-Otherwise, calling the same endpoint with no parameters will return all services known to this PMM instance.
+Otherwise, calling the same endpoint with no parameters will return all services known to this node.

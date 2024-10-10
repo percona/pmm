@@ -83,7 +83,7 @@ func (a *Client) ChangeAdvisorChecks(params *ChangeAdvisorChecksParams, opts ...
 }
 
 /*
-GetFailedChecks gets failed checks
+GetFailedChecks gets failed advisor checks
 
 Returns the latest check results for a given service.
 */

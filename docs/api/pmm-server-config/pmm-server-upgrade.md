@@ -1,7 +1,7 @@
 ---
 title: Upgrade your PMM Server
 slug: pmm-server-upgrade
-category: 66acab7b0bf230001846b5e2
+categorySlug: pmm-server-maintenance
 order: 3
 ---
 
