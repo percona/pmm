@@ -21,43 +21,46 @@ message MetricsBucket {
     // md5 of digest_text/fingerprint.
     string queryid = 1;
     // contains fingerprint prepared by sql parser, which can be different than fingerprint.
-    string explain_fingerprint = 2;
+    string explain_fingerprint = 25;
     // ammount of variables in query.
-    uint32 placeholders_count = 3;
+    uint32 placeholders_count = 26;
     // List of keys and values of comments.
-    map<string, string> comments = 4;
+    map<string, string> comments = 27;
     // digest_text - query signature. Query without values.
-    string fingerprint = 5;
+    string fingerprint = 2;
     //
     // Dimension Group.
     //
     // MongoDB or PostgreSQL database.
     // Several databases can't be combined in a single declarative query.
-    string database = 10;
+    string database = 3;
     // MySQL database or PostgreSQL schema.
     // Several schemas can be combined in a single declarative query.
-    string schema = 11;
+    string schema = 4;
     // Tables or Collections list.
-    repeated string tables = 12;
+    repeated string tables = 5;
     // client user name.
-    string username = 13;
+    string username = 6;
     // client IP or hostname.
-    string client_host = 14;
+    string client_host = 7;
     // Identifier of agent that collect and send metrics.
-    string agent_id = 15;
+    string agent_id = 8;
     // Metrics source.
-    inventory.v1.AgentType agent_type = 16;
+    inventory.v1.AgentType agent_type = 9;
     //
     // Period and Query Example Group.
     //
 
     // Time when collection of bucket started.
-    uint32 period_start_unix_secs = 20;
+    uint32 period_start_unix_secs = 10;
     // Duration of bucket.
-    uint32 period_length_secs = 21;
+    uint32 period_length_secs = 11;
     // One of query example from set found in bucket.
-    string example = 22;
-    ExampleType example_type = 23;
+    string example = 12;
+    // Deprecated: should be removed.
+    reserved 13;
+    reserved "example_format";
+    ExampleType example_type = 14;
     // Indicates if the query example is truncated.
     bool is_truncated = 24;
     //
@@ -65,23 +68,23 @@ message MetricsBucket {
     //
 
     // How many queries was with warnings in bucket.
-    float num_queries_with_warnings = 30;
+    float num_queries_with_warnings = 15;
     // How many queries was with error in bucket.
-    float num_queries_with_errors = 31;
+    float num_queries_with_errors = 16;
     // List of errors: {code: count}.
-    map<uint64, uint64> errors = 32;
+    map<uint64, uint64> errors = 17;
     // Amount queries in this bucket.
-    float num_queries = 33;
+    float num_queries = 18;
     // How many times query_time was found.
-    float m_query_time_cnt = 34;
+    float m_query_time_cnt = 19;
     // The statement execution time in seconds.
-    float m_query_time_sum = 35;
+    float m_query_time_sum = 20;
     // Smallest value of query_time in bucket.
-    float m_query_time_min = 36;
+    float m_query_time_min = 21;
     // Biggest value of query_time in bucket.
-    float m_query_time_max = 37;
+    float m_query_time_max = 22;
     // 99 percentile of value of query_time in bucket.
-    float m_query_time_p99 = 38;
+    float m_query_time_p99 = 23;
   }
   // MySQL contains metrics for MySQL.
   message MySQL {
