@@ -17,9 +17,10 @@ package version
 
 // versions list.
 var (
-	V3_0_0 = MustParse("3.0.0")
+	V3_0_0 = MustParse("3.0.0") //nolint:revive
 )
 
+// FeatureVersion represents a minimum version feature being supported.
 type FeatureVersion *Parsed
 
 // features list.
@@ -27,6 +28,7 @@ var (
 	NodeExporterNewTLSConfigVersion FeatureVersion = V3_0_0
 )
 
+// IsFeatureSupported checks if the feature is supported by the version.
 func (p *Parsed) IsFeatureSupported(f FeatureVersion) bool {
 	return !p.Less(f)
 }

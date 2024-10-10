@@ -31,8 +31,7 @@ import (
 // Starting with pmm 2.28, the exporter uses Prometheus Web Toolkit and needs a config file
 // with the basic auth users.
 var (
-	v2_27_99 = version.MustParse("2.27.99")
-	v1_5_0   = version.MustParse("1.5.0")
+	v2_28_00 = version.MustParse("2.28.0-0")
 )
 
 func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed) (*agentv1.SetStateRequest_AgentProcess, error) {
@@ -145,7 +144,7 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 		Args:               args,
 	}
 
-	if err := ensureAuthParams(exporter, params, agentVersion, v2_27_99, agentVersion.IsFeatureSupported(version.NodeExporterNewTLSConfigVersion)); err != nil {
+	if err := ensureAuthParams(exporter, params, agentVersion, v2_28_00, agentVersion.IsFeatureSupported(version.NodeExporterNewTLSConfigVersion)); err != nil {
 		return nil, err
 	}
 
