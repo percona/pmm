@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,17 +21,17 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 func TestAddAgentMysqldExporter(t *testing.T) {
 	t.Run("TablestatEnabled", func(t *testing.T) {
 		res := &addAgentMysqldExporterResult{
-			Agent: &agents.AddMySQLdExporterOKBodyMysqldExporter{
-				AgentID:    "/agent_id/1",
-				PMMAgentID: "/agent_id/2",
+			Agent: &agents.AddAgentOKBodyMysqldExporter{
+				AgentID:    "1",
+				PMMAgentID: "2",
 				Username:   "username",
-				ServiceID:  "/service_id/1",
+				ServiceID:  "1",
 				ListenPort: 42001,
 				Status:     pointer.ToString("RUNNING"),
 
@@ -42,9 +42,9 @@ func TestAddAgentMysqldExporter(t *testing.T) {
 		}
 		expected := strings.TrimSpace(`
 Mysqld Exporter added.
-Agent ID              : /agent_id/1
-PMM-Agent ID          : /agent_id/2
-Service ID            : /service_id/1
+Agent ID              : 1
+PMM-Agent ID          : 2
+Service ID            : 1
 Username              : username
 Listen port           : 42001
 TLS enabled           : false
@@ -61,11 +61,11 @@ Tablestat collectors  : enabled (the limit is 1000, the actual table count is 50
 
 	t.Run("TablestatEnabledNoLimit", func(t *testing.T) {
 		res := &addAgentMysqldExporterResult{
-			Agent: &agents.AddMySQLdExporterOKBodyMysqldExporter{
-				AgentID:    "/agent_id/1",
-				PMMAgentID: "/agent_id/2",
+			Agent: &agents.AddAgentOKBodyMysqldExporter{
+				AgentID:    "1",
+				PMMAgentID: "2",
 				Username:   "username",
-				ServiceID:  "/service_id/1",
+				ServiceID:  "1",
 				ListenPort: 42001,
 				Status:     pointer.ToString("RUNNING"),
 
@@ -76,9 +76,9 @@ Tablestat collectors  : enabled (the limit is 1000, the actual table count is 50
 		}
 		expected := strings.TrimSpace(`
 Mysqld Exporter added.
-Agent ID              : /agent_id/1
-PMM-Agent ID          : /agent_id/2
-Service ID            : /service_id/1
+Agent ID              : 1
+PMM-Agent ID          : 2
+Service ID            : 1
 Username              : username
 Listen port           : 42001
 TLS enabled           : false
@@ -95,11 +95,11 @@ Tablestat collectors  : enabled (the table count limit is not set).
 
 	t.Run("TablestatEnabledUnknown", func(t *testing.T) {
 		res := &addAgentMysqldExporterResult{
-			Agent: &agents.AddMySQLdExporterOKBodyMysqldExporter{
-				AgentID:    "/agent_id/1",
-				PMMAgentID: "/agent_id/2",
+			Agent: &agents.AddAgentOKBodyMysqldExporter{
+				AgentID:    "1",
+				PMMAgentID: "2",
 				Username:   "username",
-				ServiceID:  "/service_id/1",
+				ServiceID:  "1",
 				ListenPort: 42001,
 				Status:     pointer.ToString("RUNNING"),
 
@@ -110,9 +110,9 @@ Tablestat collectors  : enabled (the table count limit is not set).
 		}
 		expected := strings.TrimSpace(`
 Mysqld Exporter added.
-Agent ID              : /agent_id/1
-PMM-Agent ID          : /agent_id/2
-Service ID            : /service_id/1
+Agent ID              : 1
+PMM-Agent ID          : 2
+Service ID            : 1
 Username              : username
 Listen port           : 42001
 TLS enabled           : false
@@ -129,11 +129,11 @@ Tablestat collectors  : enabled (the limit is 1000, the actual table count is un
 
 	t.Run("TablestatDisabled", func(t *testing.T) {
 		res := &addAgentMysqldExporterResult{
-			Agent: &agents.AddMySQLdExporterOKBodyMysqldExporter{
-				AgentID:    "/agent_id/1",
-				PMMAgentID: "/agent_id/2",
+			Agent: &agents.AddAgentOKBodyMysqldExporter{
+				AgentID:    "1",
+				PMMAgentID: "2",
 				Username:   "username",
-				ServiceID:  "/service_id/1",
+				ServiceID:  "1",
 				ListenPort: 42001,
 				Status:     pointer.ToString("RUNNING"),
 
@@ -144,9 +144,9 @@ Tablestat collectors  : enabled (the limit is 1000, the actual table count is un
 		}
 		expected := strings.TrimSpace(`
 Mysqld Exporter added.
-Agent ID              : /agent_id/1
-PMM-Agent ID          : /agent_id/2
-Service ID            : /service_id/1
+Agent ID              : 1
+PMM-Agent ID          : 2
+Service ID            : 1
 Username              : username
 Listen port           : 42001
 TLS enabled           : false
@@ -163,11 +163,11 @@ Tablestat collectors  : disabled (the limit is 1000, the actual table count is 2
 
 	t.Run("TablestatDisabledAlways", func(t *testing.T) {
 		res := &addAgentMysqldExporterResult{
-			Agent: &agents.AddMySQLdExporterOKBodyMysqldExporter{
-				AgentID:    "/agent_id/1",
-				PMMAgentID: "/agent_id/2",
+			Agent: &agents.AddAgentOKBodyMysqldExporter{
+				AgentID:    "1",
+				PMMAgentID: "2",
 				Username:   "username",
-				ServiceID:  "/service_id/1",
+				ServiceID:  "1",
 				ListenPort: 42001,
 				Status:     pointer.ToString("RUNNING"),
 
@@ -178,9 +178,9 @@ Tablestat collectors  : disabled (the limit is 1000, the actual table count is 2
 		}
 		expected := strings.TrimSpace(`
 Mysqld Exporter added.
-Agent ID              : /agent_id/1
-PMM-Agent ID          : /agent_id/2
-Service ID            : /service_id/1
+Agent ID              : 1
+PMM-Agent ID          : 2
+Service ID            : 1
 Username              : username
 Listen port           : 42001
 TLS enabled           : false

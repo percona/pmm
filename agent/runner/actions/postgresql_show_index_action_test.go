@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/agent/utils/tests"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 func TestPostgreSQLShowIndex(t *testing.T) {
@@ -38,11 +38,13 @@ func TestPostgreSQLShowIndex(t *testing.T) {
 	t.Run("Default", func(t *testing.T) {
 		t.Parallel()
 
-		params := &agentpb.StartActionRequest_PostgreSQLShowIndexParams{
+		params := &agentv1.StartActionRequest_PostgreSQLShowIndexParams{
 			Dsn:   dsn,
 			Table: "city",
 		}
-		a := NewPostgreSQLShowIndexAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLShowIndexAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -64,11 +66,13 @@ func TestPostgreSQLShowIndex(t *testing.T) {
 	t.Run("WithSchemaName", func(t *testing.T) {
 		t.Parallel()
 
-		params := &agentpb.StartActionRequest_PostgreSQLShowIndexParams{
+		params := &agentv1.StartActionRequest_PostgreSQLShowIndexParams{
 			Dsn:   dsn,
 			Table: "public.city",
 		}
-		a := NewPostgreSQLShowIndexAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLShowIndexAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -26,11 +26,13 @@ import (
 )
 
 func TestLabels(t *testing.T) {
-	var b []byte
-	var err error
+	t.Parallel()
 
 	t.Run("Normal", func(t *testing.T) {
-		err = setLabels(map[string]string{"_1foo": "bar", "baz": "  "}, &b)
+		t.Parallel()
+
+		var b []byte
+		err := setLabels(map[string]string{"_1foo": "bar", "baz": "  "}, &b)
 		assert.NoError(t, err)
 		assert.Equal(t, `{"_1foo":"bar","baz":""}`, string(b))
 		m, err := getLabels(b)
@@ -39,7 +41,10 @@ func TestLabels(t *testing.T) {
 	})
 
 	t.Run("Empty", func(t *testing.T) {
-		err = setLabels(make(map[string]string), &b)
+		t.Parallel()
+
+		var b []byte
+		err := setLabels(make(map[string]string), &b)
 		assert.NoError(t, err)
 		assert.Nil(t, b)
 		m, err := getLabels(b)
@@ -48,12 +53,18 @@ func TestLabels(t *testing.T) {
 	})
 
 	t.Run("Invalid", func(t *testing.T) {
-		err = setLabels(map[string]string{"1": "bar"}, &b)
+		t.Parallel()
+
+		var b []byte
+		err := setLabels(map[string]string{"1": "bar"}, &b)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Invalid label name "1".`), err)
 	})
 
 	t.Run("Reserved", func(t *testing.T) {
-		err = setLabels(map[string]string{"__1": "bar"}, &b)
+		t.Parallel()
+
+		var b []byte
+		err := setLabels(map[string]string{"__1": "bar"}, &b)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Invalid label name "__1".`), err)
 	})
 }

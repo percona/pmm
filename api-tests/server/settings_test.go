@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -22,46 +22,40 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"strings"
 	"testing"
-	"time"
 
-	"github.com/brianvoe/gofakeit/v6"
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/alertmanager/amclient"
-	"github.com/percona/pmm/api/alertmanager/amclient/alert"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
 func TestSettings(t *testing.T) {
 	t.Run("GetSettings", func(t *testing.T) {
-		res, err := serverClient.Default.Server.GetSettings(nil)
+		res, err := serverClient.Default.ServerService.GetSettings(nil)
 		require.NoError(t, err)
 		assert.True(t, res.Payload.Settings.TelemetryEnabled)
-		assert.True(t, res.Payload.Settings.SttEnabled)
+		assert.True(t, res.Payload.Settings.AdvisorEnabled)
 		expected := &server.GetSettingsOKBodySettingsMetricsResolutions{
 			Hr: "5s",
 			Mr: "10s",
 			Lr: "60s",
 		}
 		assert.Equal(t, expected, res.Payload.Settings.MetricsResolutions)
-		expectedSTTCheckIntervals := &server.GetSettingsOKBodySettingsSttCheckIntervals{
+		expectedAdvisorRunIntervals := &server.GetSettingsOKBodySettingsAdvisorRunIntervals{
 			FrequentInterval: "14400s",
 			StandardInterval: "86400s",
 			RareInterval:     "280800s",
 		}
-		assert.Equal(t, expectedSTTCheckIntervals, res.Payload.Settings.SttCheckIntervals)
+		assert.Equal(t, expectedAdvisorRunIntervals, res.Payload.Settings.AdvisorRunIntervals)
 		assert.Equal(t, "2592000s", res.Payload.Settings.DataRetention)
 		assert.Equal(t, []string{"aws"}, res.Payload.Settings.AWSPartitions)
-		assert.False(t, res.Payload.Settings.UpdatesDisabled)
+		assert.True(t, res.Payload.Settings.UpdatesEnabled)
 		assert.True(t, res.Payload.Settings.AlertingEnabled)
-		assert.Empty(t, res.Payload.Settings.EmailAlertingSettings)
-		assert.Empty(t, res.Payload.Settings.SlackAlertingSettings)
 
 		t.Run("ChangeSettings", func(t *testing.T) {
 			defer restoreSettingsDefaults(t)
@@ -69,361 +63,211 @@ func TestSettings(t *testing.T) {
 			t.Run("Updates", func(t *testing.T) {
 				t.Run("DisableAndEnableUpdatesSettingsUpdate", func(t *testing.T) {
 					defer restoreSettingsDefaults(t)
-					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
-							DisableUpdates: true,
+							EnableUpdates: pointer.ToBool(false),
 						},
 						Context: pmmapitests.Context,
 					})
 					require.NoError(t, err)
-					assert.True(t, res.Payload.Settings.UpdatesDisabled)
+					assert.False(t, res.Payload.Settings.UpdatesEnabled)
 
-					resg, err := serverClient.Default.Server.GetSettings(nil)
+					resg, err := serverClient.Default.ServerService.GetSettings(nil)
 					require.NoError(t, err)
-					assert.True(t, resg.Payload.Settings.UpdatesDisabled)
+					assert.False(t, resg.Payload.Settings.UpdatesEnabled)
 
-					res, err = serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					res, err = serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
-							EnableUpdates: true,
+							EnableUpdates: pointer.ToBool(true),
 						},
 						Context: pmmapitests.Context,
 					})
 					require.NoError(t, err)
-					assert.False(t, res.Payload.Settings.UpdatesDisabled)
+					assert.True(t, res.Payload.Settings.UpdatesEnabled)
 
-					resg, err = serverClient.Default.Server.GetSettings(nil)
+					resg, err = serverClient.Default.ServerService.GetSettings(nil)
 					require.NoError(t, err)
-					assert.False(t, resg.Payload.Settings.UpdatesDisabled)
-				})
-
-				t.Run("InvalidBothEnableAndDisableUpdates", func(t *testing.T) {
-					defer restoreSettingsDefaults(t)
-
-					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-						Body: server.ChangeSettingsBody{
-							EnableUpdates:  true,
-							DisableUpdates: true,
-						},
-						Context: pmmapitests.Context,
-					})
-					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-						`Invalid argument: both enable_updates and disable_updates are present.`)
-					assert.Empty(t, res)
+					assert.True(t, resg.Payload.Settings.UpdatesEnabled)
 				})
 			})
 
 			t.Run("ValidAlertingSettingsUpdate", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				email := gofakeit.Email()
-				smarthost := "0.0.0.0:8080"
-				username := "username"
-				password := "password"
-				identity := "identity"
-				secret := "secret"
-				slackURL := gofakeit.URL()
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableAlerting: true,
-						EmailAlertingSettings: &server.ChangeSettingsParamsBodyEmailAlertingSettings{
-							From:      email,
-							Smarthost: smarthost,
-							Username:  username,
-							Password:  password,
-							Identity:  identity,
-							Secret:    secret,
-						},
-						SlackAlertingSettings: &server.ChangeSettingsParamsBodySlackAlertingSettings{
-							URL: slackURL,
-						},
+						EnableAlerting: pointer.ToBool(false),
 					},
 					Context: pmmapitests.Context,
 				})
 				require.NoError(t, err)
-				assert.True(t, res.Payload.Settings.AlertingEnabled)
-				assert.Equal(t, email, res.Payload.Settings.EmailAlertingSettings.From)
-				assert.Equal(t, smarthost, res.Payload.Settings.EmailAlertingSettings.Smarthost)
-				assert.Equal(t, username, res.Payload.Settings.EmailAlertingSettings.Username)
-				// check that we don't expose password through the API.
-				assert.Empty(t, res.Payload.Settings.EmailAlertingSettings.Password)
-				assert.Equal(t, identity, res.Payload.Settings.EmailAlertingSettings.Identity)
-				assert.Equal(t, secret, res.Payload.Settings.EmailAlertingSettings.Secret)
-				assert.Equal(t, slackURL, res.Payload.Settings.SlackAlertingSettings.URL)
+				assert.False(t, res.Payload.Settings.AlertingEnabled)
 			})
 
-			t.Run("InvalidBothSlackAlertingSettingsAndRemoveSlackAlertingSettings", func(t *testing.T) {
+			t.Run("EnableAdviorsAndEnableTelemetry", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						SlackAlertingSettings: &server.ChangeSettingsParamsBodySlackAlertingSettings{
-							URL: gofakeit.URL(),
-						},
-						RemoveSlackAlertingSettings: true,
-					},
-					Context: pmmapitests.Context,
-				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-					`Invalid argument: both slack_alerting_settings and remove_slack_alerting_settings are present.`)
-				assert.Empty(t, res)
-			})
-
-			t.Run("InvalidBothEmailAlertingSettingsAndRemoveEmailAlertingSettings", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
-
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-					Body: server.ChangeSettingsBody{
-						EmailAlertingSettings: &server.ChangeSettingsParamsBodyEmailAlertingSettings{
-							From:      gofakeit.Email(),
-							Smarthost: "0.0.0.0:8080",
-							Username:  "username",
-							Password:  "password",
-							Identity:  "identity",
-							Secret:    "secret",
-						},
-						RemoveEmailAlertingSettings: true,
-					},
-					Context: pmmapitests.Context,
-				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-					`Invalid argument: both email_alerting_settings and remove_email_alerting_settings are present.`)
-				assert.Empty(t, res)
-			})
-
-			t.Run("InvalidBothEnableAndDisableSTT", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
-
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-					Body: server.ChangeSettingsBody{
-						EnableStt:  true,
-						DisableStt: true,
-					},
-					Context: pmmapitests.Context,
-				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-					`Invalid argument: both enable_stt and disable_stt are present.`)
-				assert.Empty(t, res)
-			})
-
-			t.Run("EnableSTTAndEnableTelemetry", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
-
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-					Body: server.ChangeSettingsBody{
-						EnableStt:       true,
-						EnableTelemetry: true,
+						EnableAdvisor:   pointer.ToBool(true),
+						EnableTelemetry: pointer.ToBool(true),
 					},
 					Context: pmmapitests.Context,
 				})
 				require.NoError(t, err)
-				assert.True(t, res.Payload.Settings.SttEnabled)
+				assert.True(t, res.Payload.Settings.AdvisorEnabled)
 				assert.True(t, res.Payload.Settings.TelemetryEnabled)
 
-				resg, err := serverClient.Default.Server.GetSettings(nil)
+				resg, err := serverClient.Default.ServerService.GetSettings(nil)
 				require.NoError(t, err)
 				assert.True(t, resg.Payload.Settings.TelemetryEnabled)
-				assert.True(t, resg.Payload.Settings.SttEnabled)
+				assert.True(t, resg.Payload.Settings.AdvisorEnabled)
 			})
 
-			t.Run("EnableSTTAndDisableTelemetry", func(t *testing.T) {
+			t.Run("EnableAdvisorsAndDisableTelemetry", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableStt:        true,
-						DisableTelemetry: true,
+						EnableAdvisor:   pointer.ToBool(true),
+						EnableTelemetry: pointer.ToBool(false),
 					},
 					Context: pmmapitests.Context,
 				})
 				require.NoError(t, err)
-				assert.True(t, res.Payload.Settings.SttEnabled)
+				assert.True(t, res.Payload.Settings.AdvisorEnabled)
 				assert.False(t, res.Payload.Settings.TelemetryEnabled)
 			})
 
-			t.Run("DisableSTTAndEnableTelemetry", func(t *testing.T) {
+			t.Run("DisableAdvisorsAndEnableTelemetry", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						DisableStt:      true,
-						EnableTelemetry: true,
+						EnableAdvisor:   pointer.ToBool(false),
+						EnableTelemetry: pointer.ToBool(true),
 					},
 					Context: pmmapitests.Context,
 				})
 				require.NoError(t, err)
-				assert.False(t, res.Payload.Settings.SttEnabled)
+				assert.False(t, res.Payload.Settings.AdvisorEnabled)
 				assert.True(t, res.Payload.Settings.TelemetryEnabled)
 
-				resg, err := serverClient.Default.Server.GetSettings(nil)
+				resg, err := serverClient.Default.ServerService.GetSettings(nil)
 				require.NoError(t, err)
 				assert.True(t, resg.Payload.Settings.TelemetryEnabled)
-				assert.False(t, resg.Payload.Settings.SttEnabled)
+				assert.False(t, resg.Payload.Settings.AdvisorEnabled)
 			})
 
-			t.Run("DisableSTTAndDisableTelemetry", func(t *testing.T) {
+			t.Run("DisableAdvisorsAndDisableTelemetry", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						DisableStt:       true,
-						DisableTelemetry: true,
+						EnableAdvisor:   pointer.ToBool(false),
+						EnableTelemetry: pointer.ToBool(false),
 					},
 					Context: pmmapitests.Context,
 				})
 				require.NoError(t, err)
-				assert.False(t, res.Payload.Settings.SttEnabled)
+				assert.False(t, res.Payload.Settings.AdvisorEnabled)
 				assert.False(t, res.Payload.Settings.TelemetryEnabled)
 
-				resg, err := serverClient.Default.Server.GetSettings(nil)
+				resg, err := serverClient.Default.ServerService.GetSettings(nil)
 				require.NoError(t, err)
 				assert.False(t, resg.Payload.Settings.TelemetryEnabled)
-				assert.False(t, resg.Payload.Settings.SttEnabled)
+				assert.False(t, resg.Payload.Settings.AdvisorEnabled)
 			})
 
-			t.Run("EnableSTTWhileTelemetryEnabled", func(t *testing.T) {
+			t.Run("EnableAdvisorsWhileTelemetryEnabled", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
 				// Ensure Telemetry is enabled
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableTelemetry: true,
+						EnableTelemetry: pointer.ToBool(true),
 					},
 					Context: pmmapitests.Context,
 				})
 				require.NoError(t, err)
 				assert.True(t, res.Payload.Settings.TelemetryEnabled)
 
-				res, err = serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err = serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableStt: true,
+						EnableAdvisor: pointer.ToBool(true),
 					},
 					Context: pmmapitests.Context,
 				})
 				require.NoError(t, err)
-				assert.True(t, res.Payload.Settings.SttEnabled)
+				assert.True(t, res.Payload.Settings.AdvisorEnabled)
 
-				resg, err := serverClient.Default.Server.GetSettings(nil)
+				resg, err := serverClient.Default.ServerService.GetSettings(nil)
 				require.NoError(t, err)
 				assert.True(t, resg.Payload.Settings.TelemetryEnabled)
-				assert.True(t, resg.Payload.Settings.SttEnabled)
+				assert.True(t, resg.Payload.Settings.AdvisorEnabled)
 			})
 
-			t.Run("VerifyFailedChecksInAlertmanager", func(t *testing.T) {
-				if !pmmapitests.RunSTTTests {
-					t.Skip("Skipping STT tests until we have environment: https://jira.percona.com/browse/PMM-5106")
-				}
-
+			t.Run("DisableAdvisorsWhileItIsDisabled", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				// Enabling STT
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableStt: true,
+						EnableAdvisor: pointer.ToBool(false),
 					},
 					Context: pmmapitests.Context,
 				})
 				require.NoError(t, err)
-				assert.True(t, res.Payload.Settings.TelemetryEnabled)
+				assert.False(t, res.Payload.Settings.AdvisorEnabled)
 
-				// 120 sec ping for failed checks alerts to appear in alertmanager
-				var alertsCount int
-				for i := 0; i < 120; i++ {
-					res, err := amclient.Default.Alert.GetAlerts(&alert.GetAlertsParams{
-						Filter:  []string{"stt_check=1"},
-						Context: pmmapitests.Context,
-					})
-					require.NoError(t, err)
-					if len(res.Payload) == 0 {
-						time.Sleep(1 * time.Second)
-						continue
-					}
-
-					for _, v := range res.Payload {
-						t.Logf("%+v", v)
-
-						assert.Contains(t, v.Annotations, "summary")
-
-						assert.Equal(t, "1", v.Labels["stt_check"])
-
-						assert.Contains(t, v.Labels, "agent_id")
-						assert.Contains(t, v.Labels, "agent_type")
-						assert.Contains(t, v.Labels, "alert_id")
-						assert.Contains(t, v.Labels, "alertname")
-						assert.Contains(t, v.Labels, "node_id")
-						assert.Contains(t, v.Labels, "node_name")
-						assert.Contains(t, v.Labels, "node_type")
-						assert.Contains(t, v.Labels, "service_id")
-						assert.Contains(t, v.Labels, "service_name")
-						assert.Contains(t, v.Labels, "service_type")
-						assert.Contains(t, v.Labels, "severity")
-					}
-					alertsCount = len(res.Payload)
-					break
-				}
-				assert.Greater(t, alertsCount, 0, "No alerts met")
-			})
-
-			t.Run("DisableSTTWhileItIsDisabled", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
-
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-					Body: server.ChangeSettingsBody{
-						DisableStt: true,
-					},
-					Context: pmmapitests.Context,
-				})
-				require.NoError(t, err)
-				assert.False(t, res.Payload.Settings.SttEnabled)
-
-				resg, err := serverClient.Default.Server.GetSettings(nil)
+				resg, err := serverClient.Default.ServerService.GetSettings(nil)
 				require.NoError(t, err)
 				assert.True(t, resg.Payload.Settings.TelemetryEnabled)
-				assert.False(t, resg.Payload.Settings.SttEnabled)
+				assert.False(t, resg.Payload.Settings.AdvisorEnabled)
 			})
 
-			t.Run("STTEnabledState", func(t *testing.T) {
+			t.Run("AdvisorsEnabledState", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableStt: true,
+						EnableAdvisor: pointer.ToBool(true),
 					},
 					Context: pmmapitests.Context,
 				})
 
 				require.NoError(t, err)
-				assert.True(t, res.Payload.Settings.SttEnabled)
+				assert.True(t, res.Payload.Settings.AdvisorEnabled)
 
-				resg, err := serverClient.Default.Server.GetSettings(nil)
+				resg, err := serverClient.Default.ServerService.GetSettings(nil)
 				require.NoError(t, err)
 				assert.True(t, resg.Payload.Settings.TelemetryEnabled)
-				assert.True(t, resg.Payload.Settings.SttEnabled)
+				assert.True(t, resg.Payload.Settings.AdvisorEnabled)
 
-				t.Run("EnableSTTWhileItIsEnabled", func(t *testing.T) {
-					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				t.Run("EnableAdvisorsWhileItIsEnabled", func(t *testing.T) {
+					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
-							EnableStt: true,
+							EnableAdvisor: pointer.ToBool(true),
 						},
 						Context: pmmapitests.Context,
 					})
 					require.NoError(t, err)
-					assert.True(t, res.Payload.Settings.SttEnabled)
+					assert.True(t, res.Payload.Settings.AdvisorEnabled)
 
-					resg, err := serverClient.Default.Server.GetSettings(nil)
+					resg, err := serverClient.Default.ServerService.GetSettings(nil)
 					require.NoError(t, err)
 					assert.True(t, resg.Payload.Settings.TelemetryEnabled)
-					assert.True(t, resg.Payload.Settings.SttEnabled)
+					assert.True(t, resg.Payload.Settings.AdvisorEnabled)
 				})
 
-				t.Run("DisableTelemetryWhileSTTEnabled", func(t *testing.T) {
-					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				t.Run("DisableTelemetryWhileAdvisorsEnabled", func(t *testing.T) {
+					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
-							DisableTelemetry: true,
+							EnableTelemetry: pointer.ToBool(false),
 						},
 						Context: pmmapitests.Context,
 					})
 					require.NoError(t, err)
-					assert.True(t, res.Payload.Settings.SttEnabled)
+					assert.True(t, res.Payload.Settings.AdvisorEnabled)
 					assert.False(t, res.Payload.Settings.TelemetryEnabled)
 				})
 			})
@@ -431,9 +275,9 @@ func TestSettings(t *testing.T) {
 			t.Run("TelemetryDisabledState", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						DisableTelemetry: true,
+						EnableTelemetry: pointer.ToBool(false),
 					},
 					Context: pmmapitests.Context,
 				})
@@ -441,70 +285,55 @@ func TestSettings(t *testing.T) {
 				require.NoError(t, err)
 				assert.False(t, res.Payload.Settings.TelemetryEnabled)
 
-				resg, err := serverClient.Default.Server.GetSettings(nil)
+				resg, err := serverClient.Default.ServerService.GetSettings(nil)
 				require.NoError(t, err)
 				assert.False(t, resg.Payload.Settings.TelemetryEnabled)
-				assert.True(t, resg.Payload.Settings.SttEnabled)
+				assert.True(t, resg.Payload.Settings.AdvisorEnabled)
 
-				t.Run("EnableSTTWhileTelemetryDisabled", func(t *testing.T) {
+				t.Run("EnableAdvisorsWhileTelemetryDisabled", func(t *testing.T) {
 					defer restoreSettingsDefaults(t)
 
-					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
-							EnableStt: true,
+							EnableAdvisor: pointer.ToBool(true),
 						},
 						Context: pmmapitests.Context,
 					})
 					require.NoError(t, err)
-					assert.True(t, res.Payload.Settings.SttEnabled)
+					assert.True(t, res.Payload.Settings.AdvisorEnabled)
 					assert.False(t, res.Payload.Settings.TelemetryEnabled)
 
-					resg, err := serverClient.Default.Server.GetSettings(nil)
+					resg, err := serverClient.Default.ServerService.GetSettings(nil)
 					require.NoError(t, err)
-					assert.True(t, resg.Payload.Settings.SttEnabled)
+					assert.True(t, resg.Payload.Settings.AdvisorEnabled)
 					assert.False(t, resg.Payload.Settings.TelemetryEnabled)
 				})
 
 				t.Run("EnableTelemetryWhileItIsDisabled", func(t *testing.T) {
 					defer restoreSettingsDefaults(t)
 
-					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
-							EnableTelemetry: true,
+							EnableTelemetry: pointer.ToBool(true),
 						},
 						Context: pmmapitests.Context,
 					})
 					require.NoError(t, err)
 					assert.True(t, res.Payload.Settings.TelemetryEnabled)
 
-					resg, err := serverClient.Default.Server.GetSettings(nil)
+					resg, err := serverClient.Default.ServerService.GetSettings(nil)
 					require.NoError(t, err)
 					assert.True(t, resg.Payload.Settings.TelemetryEnabled)
-					assert.True(t, resg.Payload.Settings.SttEnabled)
+					assert.True(t, resg.Payload.Settings.AdvisorEnabled)
 				})
-			})
-
-			t.Run("InvalidBothEnableAndDisableTelemetry", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
-
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-					Body: server.ChangeSettingsBody{
-						EnableTelemetry:  true,
-						DisableTelemetry: true,
-					},
-					Context: pmmapitests.Context,
-				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-					`Invalid argument: both enable_telemetry and disable_telemetry are present.`)
-				assert.Empty(t, res)
 			})
 
 			t.Run("InvalidPartition", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						AWSPartitions: []string{"aws-123"},
+						AWSPartitions: &server.ChangeSettingsParamsBodyAWSPartitions{Values: []string{"aws-123"}},
 					},
 					Context: pmmapitests.Context,
 				})
@@ -516,10 +345,10 @@ func TestSettings(t *testing.T) {
 			t.Run("TooManyPartitions", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
 						// We're expecting that 10 elements will be more than number of default partitions, which currently equals 6.
-						AWSPartitions: []string{"aws", "aws", "aws", "aws", "aws", "aws", "aws", "aws", "aws", "aws"},
+						AWSPartitions: &server.ChangeSettingsParamsBodyAWSPartitions{Values: []string{"aws", "aws", "aws", "aws", "aws", "aws", "aws", "aws", "aws", "aws"}},
 					},
 					Context: pmmapitests.Context,
 				})
@@ -531,7 +360,7 @@ func TestSettings(t *testing.T) {
 			t.Run("HRInvalid", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
 						MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
 							Hr: "1",
@@ -547,7 +376,7 @@ func TestSettings(t *testing.T) {
 			t.Run("HRTooSmall", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
 						MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
 							Hr: "0.5s",
@@ -563,7 +392,7 @@ func TestSettings(t *testing.T) {
 			t.Run("HRFractional", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
 						MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
 							Hr: "1.5s",
@@ -576,12 +405,12 @@ func TestSettings(t *testing.T) {
 				assert.Empty(t, res)
 			})
 
-			t.Run("STTCheckIntervalInvalid", func(t *testing.T) {
+			t.Run("AdvisorsCheckIntervalInvalid", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						SttCheckIntervals: &server.ChangeSettingsParamsBodySttCheckIntervals{
+						AdvisorRunIntervals: &server.ChangeSettingsParamsBodyAdvisorRunIntervals{
 							FrequentInterval: "1",
 						},
 					},
@@ -592,12 +421,25 @@ func TestSettings(t *testing.T) {
 				assert.Empty(t, res)
 			})
 
-			t.Run("STTCheckIntervalTooSmall", func(t *testing.T) {
+			t.Run("SetPMMPublicAddressWithoutScheme", func(t *testing.T) {
+				defer restoreSettingsDefaults(t)
+				publicAddress := "192.168.0.42:8443"
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						PMMPublicAddress: pointer.ToString(publicAddress),
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+				assert.Equal(t, publicAddress, res.Payload.Settings.PMMPublicAddress)
+			})
+
+			t.Run("AdvisorsCheckIntervalTooSmall", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						SttCheckIntervals: &server.ChangeSettingsParamsBodySttCheckIntervals{
+						AdvisorRunIntervals: &server.ChangeSettingsParamsBodyAdvisorRunIntervals{
 							StandardInterval: "0.9s",
 						},
 					},
@@ -608,12 +450,12 @@ func TestSettings(t *testing.T) {
 				assert.Empty(t, res)
 			})
 
-			t.Run("STTCheckIntervalFractional", func(t *testing.T) {
+			t.Run("AdviorsCheckIntervalFractional", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						SttCheckIntervals: &server.ChangeSettingsParamsBodySttCheckIntervals{
+						AdvisorRunIntervals: &server.ChangeSettingsParamsBodyAdvisorRunIntervals{
 							RareInterval: "1.5s",
 						},
 					},
@@ -627,7 +469,7 @@ func TestSettings(t *testing.T) {
 			t.Run("DataRetentionInvalid", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
 						DataRetention: "1",
 					},
@@ -641,7 +483,7 @@ func TestSettings(t *testing.T) {
 			t.Run("DataRetentionInvalidToSmall", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
 						DataRetention: "10s",
 					},
@@ -655,7 +497,7 @@ func TestSettings(t *testing.T) {
 			t.Run("DataRetentionFractional", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
 						DataRetention: "36h",
 					},
@@ -669,9 +511,9 @@ func TestSettings(t *testing.T) {
 			t.Run("InvalidSSHKey", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						SSHKey: "some-invalid-ssh-key",
+						SSHKey: pointer.ToString("some-invalid-ssh-key"),
 					},
 					Context: pmmapitests.Context,
 				})
@@ -679,7 +521,7 @@ func TestSettings(t *testing.T) {
 				assert.Empty(t, res)
 			})
 
-			t.Run("NoAdminUserForSSH", func(t *testing.T) {
+			t.Run("ChangeSSHKey only on AMI and OVF", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
 				sshKey := "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQClY/8sz3w03vA2bY6mBFgUzrvb2FIoHw8ZjUXGGClJzJg5HC" +
@@ -687,29 +529,29 @@ func TestSettings(t *testing.T) {
 					"NRGpqQW0ZEAxVMz4a8puaZmVNicYSVYs4kV3QZsHuqn7jHbxs5NGAO+uRRSjcuPXregsyd87RAUHkGmNrwNFln/XddMz" +
 					"dGMwqZOuZWuxIXBqSrSX927XGHAJlUaOmLz5etZXHzfAY1Zxfu39r66Sx95bpm3JBmc/Ewfr8T2WL0cqynkpH+3QQBCj" +
 					"weTHzBE+lpXHdR2se1 qsandbox"
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						SSHKey: sshKey,
+						SSHKey: pointer.ToString(sshKey),
 					},
 					Context: pmmapitests.Context,
 				})
-				pmmapitests.AssertAPIErrorf(t, err, 500, codes.Internal, `Internal server error.`)
+				pmmapitests.AssertAPIErrorf(t, err, 500, codes.Internal, `SSH key can be set only on AMI and OVF distributions`)
 				assert.Empty(t, res)
 			})
 
 			t.Run("OK", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						DisableTelemetry: true,
+						EnableTelemetry: pointer.ToBool(false),
 						MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
 							Hr: "2s",
 							Mr: "15s",
 							Lr: "120s", // 2 minutes
 						},
-						DataRetention: "864000s",                           // 240 hours
-						AWSPartitions: []string{"aws-cn", "aws", "aws-cn"}, // duplicates are ok
+						DataRetention: "864000s",                                                                                  // 240 hours
+						AWSPartitions: &server.ChangeSettingsParamsBodyAWSPartitions{Values: []string{"aws-cn", "aws", "aws-cn"}}, // duplicates are ok
 					},
 					Context: pmmapitests.Context,
 				})
@@ -723,7 +565,7 @@ func TestSettings(t *testing.T) {
 				assert.Equal(t, expected, res.Payload.Settings.MetricsResolutions)
 				assert.Equal(t, []string{"aws", "aws-cn"}, res.Payload.Settings.AWSPartitions)
 
-				getRes, err := serverClient.Default.Server.GetSettings(nil)
+				getRes, err := serverClient.Default.ServerService.GetSettings(nil)
 				require.NoError(t, err)
 				assert.False(t, getRes.Payload.Settings.TelemetryEnabled)
 				getExpected := &server.GetSettingsOKBodySettingsMetricsResolutions{
@@ -738,7 +580,7 @@ func TestSettings(t *testing.T) {
 				t.Run("DefaultsAreNotRestored", func(t *testing.T) {
 					defer restoreSettingsDefaults(t)
 
-					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body:    server.ChangeSettingsBody{},
 						Context: pmmapitests.Context,
 					})
@@ -753,7 +595,7 @@ func TestSettings(t *testing.T) {
 					assert.Equal(t, []string{"aws", "aws-cn"}, res.Payload.Settings.AWSPartitions)
 
 					// Check if the values were persisted
-					getRes, err := serverClient.Default.Server.GetSettings(nil)
+					getRes, err := serverClient.Default.ServerService.GetSettings(nil)
 					require.NoError(t, err)
 					assert.False(t, getRes.Payload.Settings.TelemetryEnabled)
 					getExpected := &server.GetSettingsOKBodySettingsMetricsResolutions{
@@ -767,12 +609,12 @@ func TestSettings(t *testing.T) {
 				})
 			})
 
-			t.Run("STTCheckIntervalsValid", func(t *testing.T) {
+			t.Run("AdvisorCheckIntervalsValid", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						SttCheckIntervals: &server.ChangeSettingsParamsBodySttCheckIntervals{
+						AdvisorRunIntervals: &server.ChangeSettingsParamsBodyAdvisorRunIntervals{
 							RareInterval:     "28800s", // 8 hours
 							StandardInterval: "1800s",  // 30 minutes
 							FrequentInterval: "20s",
@@ -781,137 +623,46 @@ func TestSettings(t *testing.T) {
 					Context: pmmapitests.Context,
 				})
 				require.NoError(t, err)
-				expected := &server.ChangeSettingsOKBodySettingsSttCheckIntervals{
+				expected := &server.ChangeSettingsOKBodySettingsAdvisorRunIntervals{
 					RareInterval:     "28800s",
 					StandardInterval: "1800s",
 					FrequentInterval: "20s",
 				}
-				assert.Equal(t, expected, res.Payload.Settings.SttCheckIntervals)
+				assert.Equal(t, expected, res.Payload.Settings.AdvisorRunIntervals)
 
-				getRes, err := serverClient.Default.Server.GetSettings(nil)
+				getRes, err := serverClient.Default.ServerService.GetSettings(nil)
 				require.NoError(t, err)
-				getExpected := &server.GetSettingsOKBodySettingsSttCheckIntervals{
+				getExpected := &server.GetSettingsOKBodySettingsAdvisorRunIntervals{
 					RareInterval:     "28800s",
 					StandardInterval: "1800s",
 					FrequentInterval: "20s",
 				}
-				assert.Equal(t, getExpected, getRes.Payload.Settings.SttCheckIntervals)
+				assert.Equal(t, getExpected, getRes.Payload.Settings.AdvisorRunIntervals)
 
 				t.Run("DefaultsAreNotRestored", func(t *testing.T) {
 					defer restoreSettingsDefaults(t)
 
-					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body:    server.ChangeSettingsBody{},
 						Context: pmmapitests.Context,
 					})
 					require.NoError(t, err)
-					expected := &server.ChangeSettingsOKBodySettingsSttCheckIntervals{
+					expected := &server.ChangeSettingsOKBodySettingsAdvisorRunIntervals{
 						RareInterval:     "28800s",
 						StandardInterval: "1800s",
 						FrequentInterval: "20s",
 					}
-					assert.Equal(t, expected, res.Payload.Settings.SttCheckIntervals)
+					assert.Equal(t, expected, res.Payload.Settings.AdvisorRunIntervals)
 
 					// Check if the values were persisted
-					getRes, err := serverClient.Default.Server.GetSettings(nil)
+					getRes, err := serverClient.Default.ServerService.GetSettings(nil)
 					require.NoError(t, err)
-					getExpected := &server.GetSettingsOKBodySettingsSttCheckIntervals{
+					getExpected := &server.GetSettingsOKBodySettingsAdvisorRunIntervals{
 						RareInterval:     "28800s",
 						StandardInterval: "1800s",
 						FrequentInterval: "20s",
 					}
-					assert.Equal(t, getExpected, getRes.Payload.Settings.SttCheckIntervals)
-				})
-			})
-
-			t.Run("AlertManager", func(t *testing.T) {
-				t.Run("SetInvalid", func(t *testing.T) {
-					defer restoreSettingsDefaults(t)
-
-					url := "http://localhost:1234/"
-					rules := `invalid rules`
-
-					_, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-						Body: server.ChangeSettingsBody{
-							AlertManagerURL:   url,
-							AlertManagerRules: rules,
-						},
-						Context: pmmapitests.Context,
-					})
-					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Invalid alerting rules.`)
-
-					gets, err := serverClient.Default.Server.GetSettings(nil)
-					require.NoError(t, err)
-					assert.Empty(t, gets.Payload.Settings.AlertManagerURL)
-					assert.Empty(t, gets.Payload.Settings.AlertManagerRules)
-				})
-
-				t.Run("SetAndRemoveInvalid", func(t *testing.T) {
-					defer restoreSettingsDefaults(t)
-
-					_, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-						Body: server.ChangeSettingsBody{
-							AlertManagerURL:       "invalid url",
-							RemoveAlertManagerURL: true,
-						},
-						Context: pmmapitests.Context,
-					})
-					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-						`Invalid argument: both alert_manager_url and remove_alert_manager_url are present.`)
-
-					gets, err := serverClient.Default.Server.GetSettings(nil)
-					require.NoError(t, err)
-					assert.Empty(t, gets.Payload.Settings.AlertManagerURL)
-					assert.Empty(t, gets.Payload.Settings.AlertManagerRules)
-				})
-
-				t.Run("SetValid", func(t *testing.T) {
-					defer restoreSettingsDefaults(t)
-
-					url := "http://localhost:1234/"
-					rules := strings.TrimSpace(`
-groups:
-- name: example
-  rules:
-  - alert: HighRequestLatency
-    expr: job:request_latency_seconds:mean5m{job="myjob"} > 0.5
-    for: 10m
-    labels:
-      severity: page
-    annotations:
-      summary: High request latency
-					`) + "\n"
-
-					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-						Body: server.ChangeSettingsBody{
-							AlertManagerURL:   url,
-							AlertManagerRules: rules,
-						},
-						Context: pmmapitests.Context,
-					})
-					require.NoError(t, err)
-					assert.Equal(t, url, res.Payload.Settings.AlertManagerURL)
-					assert.Equal(t, rules, res.Payload.Settings.AlertManagerRules)
-
-					gets, err := serverClient.Default.Server.GetSettings(nil)
-					require.NoError(t, err)
-					assert.Equal(t, url, gets.Payload.Settings.AlertManagerURL)
-					assert.Equal(t, rules, gets.Payload.Settings.AlertManagerRules)
-
-					t.Run("EmptyShouldNotRemove", func(t *testing.T) {
-						defer restoreSettingsDefaults(t)
-
-						_, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-							Body:    server.ChangeSettingsBody{},
-							Context: pmmapitests.Context,
-						})
-						require.NoError(t, err)
-
-						gets, err = serverClient.Default.Server.GetSettings(nil)
-						require.NoError(t, err)
-						assert.Equal(t, url, gets.Payload.Settings.AlertManagerURL)
-						assert.Equal(t, rules, gets.Payload.Settings.AlertManagerRules)
-					})
+					assert.Equal(t, getExpected, getRes.Payload.Settings.AdvisorRunIntervals)
 				})
 			})
 
@@ -928,10 +679,10 @@ groups:
 					} `json:"settings"`
 				}
 				changeURI := pmmapitests.BaseURL.ResolveReference(&url.URL{
-					Path: "v1/Settings/Change",
+					Path: "v1/server/settings",
 				})
 				getURI := pmmapitests.BaseURL.ResolveReference(&url.URL{
-					Path: "v1/Settings/Get",
+					Path: "v1/server/settings",
 				})
 
 				for change, get := range map[string]string{
@@ -952,7 +703,7 @@ groups:
 						p.Settings.MetricsResolutions.LR = change
 						b, err := json.Marshal(p.Settings)
 						require.NoError(t, err)
-						req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, changeURI.String(), bytes.NewReader(b))
+						req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPut, changeURI.String(), bytes.NewReader(b))
 						require.NoError(t, err)
 						if pmmapitests.Debug {
 							b, err = httputil.DumpRequestOut(req, true)
@@ -982,7 +733,7 @@ groups:
 						require.NoError(t, err)
 						assert.Equal(t, get, p.Settings.MetricsResolutions.LR, "Change")
 
-						req, err = http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, getURI.String(), nil)
+						req, err = http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, getURI.String(), nil)
 						require.NoError(t, err)
 						if pmmapitests.Debug {
 							b, err = httputil.DumpRequestOut(req, true)

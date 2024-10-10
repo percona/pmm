@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -21,225 +21,91 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
-func addRemoteRDSNode(t pmmapitests.TestingT, nodeName string) *nodes.AddRemoteRDSNodeOKBody {
+func addRemoteRDSNode(t pmmapitests.TestingT, nodeName string) *nodes.AddNodeOKBody {
 	t.Helper()
 
-	params := &nodes.AddRemoteRDSNodeParams{
-		Body: nodes.AddRemoteRDSNodeBody{
-			NodeName: nodeName,
-			Address:  "some-address",
-			Region:   "region",
+	params := &nodes.AddNodeParams{
+		Body: nodes.AddNodeBody{
+			RemoteRDS: &nodes.AddNodeParamsBodyRemoteRDS{
+				NodeName: nodeName,
+				Address:  "some-address",
+				Region:   "region",
+			},
 		},
-
 		Context: pmmapitests.Context,
 	}
-	res, err := client.Default.Nodes.AddRemoteRDSNode(params)
-	assert.NoError(t, err)
+	res, err := client.Default.NodesService.AddNode(params)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 
 	return res.Payload
 }
 
-func addRDSExporter(t pmmapitests.TestingT, body agents.AddRDSExporterBody) *agents.AddRDSExporterOKBody {
+func addRemoteAzureDatabaseNode(t pmmapitests.TestingT, nodeName string) *nodes.AddNodeOKBody {
 	t.Helper()
 
-	res, err := client.Default.Agents.AddRDSExporter(&agents.AddRDSExporterParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	})
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-
-	return res.Payload
-}
-
-func addRemoteAzureDatabaseNode(t pmmapitests.TestingT, nodeName string) *nodes.AddRemoteAzureDatabaseNodeOKBody {
-	t.Helper()
-
-	params := &nodes.AddRemoteAzureDatabaseNodeParams{
-		Body: nodes.AddRemoteAzureDatabaseNodeBody{
-			NodeName: nodeName,
-			Address:  "some-address",
-			Region:   "region",
+	params := &nodes.AddNodeParams{
+		Body: nodes.AddNodeBody{
+			RemoteAzure: &nodes.AddNodeParamsBodyRemoteAzure{
+				NodeName: nodeName,
+				Address:  "some-address",
+				Region:   "region",
+			},
 		},
-
 		Context: pmmapitests.Context,
 	}
-	res, err := client.Default.Nodes.AddRemoteAzureDatabaseNode(params)
-	assert.NoError(t, err)
+	res, err := client.Default.NodesService.AddNode(params)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 
 	return res.Payload
 }
 
-func addAzureDatabaseExporter(t pmmapitests.TestingT, body agents.AddAzureDatabaseExporterBody) *agents.AddAzureDatabaseExporterOKBody {
+func addService(t pmmapitests.TestingT, body services.AddServiceBody) *services.AddServiceOKBody {
 	t.Helper()
 
-	res, err := client.Default.Agents.AddAzureDatabaseExporter(&agents.AddAzureDatabaseExporterParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	})
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-
-	return res.Payload
-}
-
-func addMySQLService(t pmmapitests.TestingT, body services.AddMySQLServiceBody) *services.AddMySQLServiceOKBody {
-	t.Helper()
-
-	params := &services.AddMySQLServiceParams{
+	params := &services.AddServiceParams{
 		Body:    body,
 		Context: pmmapitests.Context,
 	}
-	res, err := client.Default.Services.AddMySQLService(params)
-	assert.NoError(t, err)
+
+	res, err := client.Default.ServicesService.AddService(params)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
 }
 
-func addMongoDBService(t pmmapitests.TestingT, body services.AddMongoDBServiceBody) *services.AddMongoDBServiceOKBody {
-	t.Helper()
-
-	params := &services.AddMongoDBServiceParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	}
-	res, err := client.Default.Services.AddMongoDBService(params)
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addPostgreSQLService(t pmmapitests.TestingT, body services.AddPostgreSQLServiceBody) *services.AddPostgreSQLServiceOKBody {
-	t.Helper()
-
-	params := &services.AddPostgreSQLServiceParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	}
-	res, err := client.Default.Services.AddPostgreSQLService(params)
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addProxySQLService(t pmmapitests.TestingT, body services.AddProxySQLServiceBody) *services.AddProxySQLServiceOKBody {
-	t.Helper()
-
-	params := &services.AddProxySQLServiceParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	}
-	res, err := client.Default.Services.AddProxySQLService(params)
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addExternalService(t pmmapitests.TestingT, body services.AddExternalServiceBody) *services.AddExternalServiceOKBody {
-	t.Helper()
-
-	params := &services.AddExternalServiceParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	}
-	res, err := client.Default.Services.AddExternalService(params)
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addHAProxyService(t pmmapitests.TestingT, body services.AddHAProxyServiceBody) *services.AddHAProxyServiceOKBody {
-	t.Helper()
-
-	params := &services.AddHAProxyServiceParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	}
-	res, err := client.Default.Services.AddHAProxyService(params)
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addNodeExporter(t pmmapitests.TestingT, pmmAgentID string, customLabels map[string]string) *agents.AddNodeExporterOK {
-	res, err := client.Default.Agents.AddNodeExporter(&agents.AddNodeExporterParams{
-		Body: agents.AddNodeExporterBody{
-			PMMAgentID:   pmmAgentID,
-			CustomLabels: customLabels,
+func addNodeExporter(t pmmapitests.TestingT, pmmAgentID string, customLabels map[string]string) *agents.AddAgentOK {
+	res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			NodeExporter: &agents.AddAgentParamsBodyNodeExporter{
+				PMMAgentID:   pmmAgentID,
+				CustomLabels: customLabels,
+			},
 		},
 		Context: pmmapitests.Context,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 	require.NotNil(t, res.Payload.NodeExporter)
 	require.Equal(t, pmmAgentID, res.Payload.NodeExporter.PMMAgentID)
 	return res
 }
 
-func addMySQLdExporter(t pmmapitests.TestingT, body agents.AddMySQLdExporterBody) *agents.AddMySQLdExporterOKBody {
+func addAgent(t pmmapitests.TestingT, body agents.AddAgentBody) *agents.AddAgentOKBody {
 	t.Helper()
 
-	res, err := client.Default.Agents.AddMySQLdExporter(&agents.AddMySQLdExporterParams{
+	res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 		Body:    body,
 		Context: pmmapitests.Context,
 	})
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addMongoDBExporter(t pmmapitests.TestingT, body agents.AddMongoDBExporterBody) *agents.AddMongoDBExporterOKBody {
-	t.Helper()
-
-	res, err := client.Default.Agents.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	})
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addPostgresExporter(t pmmapitests.TestingT, body agents.AddPostgresExporterBody) *agents.AddPostgresExporterOKBody {
-	t.Helper()
-
-	res, err := client.Default.Agents.AddPostgresExporter(&agents.AddPostgresExporterParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	})
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addProxySQLExporter(t pmmapitests.TestingT, body agents.AddProxySQLExporterBody) *agents.AddProxySQLExporterOKBody {
-	t.Helper()
-
-	res, err := client.Default.Agents.AddProxySQLExporter(&agents.AddProxySQLExporterParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	})
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addExternalExporter(t pmmapitests.TestingT, body agents.AddExternalExporterBody) *agents.AddExternalExporterOKBody {
-	t.Helper()
-
-	res, err := client.Default.Agents.AddExternalExporter(&agents.AddExternalExporterParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
 }
@@ -354,7 +220,7 @@ func assertMySQLExporterNotExists(t pmmapitests.TestingT, res *agents.ListAgents
 			}
 		}
 		return true
-	}, "There should be MySQL agent with id `%s`", mySqldExporterID)
+	}, "There should not be MySQL agent with id `%s`", mySqldExporterID)
 }
 
 func assertPMMAgentExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, pmmAgentID string) bool {
@@ -376,7 +242,7 @@ func assertPMMAgentNotExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, p
 			}
 		}
 		return true
-	}, "There should be PMM-agent with id `%s`", pmmAgentID)
+	}, "There should not be PMM-agent with id `%s`", pmmAgentID)
 }
 
 func assertNodeExporterExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, nodeExporterID string) bool { //nolint:unparam
@@ -398,5 +264,5 @@ func assertNodeExporterNotExists(t pmmapitests.TestingT, res *agents.ListAgentsO
 			}
 		}
 		return true
-	}, "There should be Node exporter with id `%s`", nodeExporterID)
+	}, "There should not be Node exporter with id `%s`", nodeExporterID)
 }

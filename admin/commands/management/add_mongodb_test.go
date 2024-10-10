@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,20 +20,20 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	mongodb "github.com/percona/pmm/api/managementpb/json/client/mongo_db"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 func TestAddMongoDB(t *testing.T) {
 	t.Run("TablestatEnabled", func(t *testing.T) {
 		res := &addMongoDBResult{
-			Service: &mongodb.AddMongoDBOKBodyService{
-				ServiceID:   "/service_id/1",
+			Service: &mservice.AddServiceOKBodyMongodbService{
+				ServiceID:   "1",
 				ServiceName: "mysql-1",
 			},
 		}
 		expected := strings.TrimSpace(`
 MongoDB Service added.
-Service ID  : /service_id/1
+Service ID  : 1
 Service name: mysql-1
 		`)
 		assert.Equal(t, expected, strings.TrimSpace(res.String()))

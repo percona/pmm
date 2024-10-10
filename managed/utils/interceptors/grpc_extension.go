@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -32,19 +32,22 @@ const (
 	externalCallerOrigin = callerOrigin("external")
 )
 
-// GRPCMetricsExtension for extra labels in /debug/metrics
+// GRPCMetricsExtension for extra labels in /debug/metrics.
 type GRPCMetricsExtension struct {
 	grpc_prometheus.DefaultExtension
 }
 
+// MetricsNameAdjust adjusts the given metric name and returns the adjusted name.
 func (e GRPCMetricsExtension) MetricsNameAdjust(name string) string {
 	return "pmm_" + name
 }
 
+// ServerStreamMsgReceivedCounterCustomLabels returns custom labels for the server stream message received counter.
 func (e *GRPCMetricsExtension) ServerStreamMsgReceivedCounterCustomLabels() []string {
 	return []string{"caller_origin"}
 }
 
+// ServerStreamMsgReceivedCounterValues returns custom values for the server stream message received counter.
 func (e *GRPCMetricsExtension) ServerStreamMsgReceivedCounterValues(ctx context.Context) []string {
 	return []string{getCallerOriginStr(ctx)}
 }
@@ -65,7 +68,7 @@ func getCallerOriginStr(ctx context.Context) string {
 }
 
 func callerOriginFromRequest(ctx context.Context, method string) callerOrigin {
-	if method == "/server.Server/Readiness" || method == "/agent.Agent/Connect" {
+	if method == "/server.v1.ServerService/Readiness" || method == "/agent.v1.AgentService/Connect" {
 		return internalCallerOrigin
 	}
 

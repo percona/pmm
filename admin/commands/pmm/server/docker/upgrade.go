@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/strslice"
 	"github.com/pkg/errors"
@@ -36,7 +37,7 @@ import (
 
 // UpgradeCommand is used by Kong for CLI flags and commands.
 type UpgradeCommand struct {
-	DockerImage            string `default:"percona/pmm-server:2" help:"Docker image to use to upgrade PMM Server. Defaults to latest version"`
+	DockerImage            string `default:"percona/pmm-server:3" help:"Docker image to use to upgrade PMM Server. Defaults to latest version"`
 	ContainerID            string `default:"pmm-server" help:"Container ID of the PMM Server to upgrade"`
 	NewContainerName       string `help:"Name of the new container for PMM Server. If this flag is set, --new-container-name-prefix is ignored. Must be different from the current container name"` //nolint:lll
 	NewContainerNamePrefix string `default:"pmm-server" help:"Prefix for the name of the new container for PMM Server"`
@@ -74,7 +75,7 @@ func (u *upgradeResult) String() string {
 }
 
 // RunCmdWithContext runs upgrade command.
-func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) { //nolint:unparam
+func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) { //nolint:unparam,revive
 	logrus.Info("Starting PMM Server upgrade via Docker")
 
 	d, err := prepareDocker(ctx, c.dockerFn, prepareOpts{install: false})
@@ -137,6 +138,7 @@ func (c *UpgradeCommand) isInstalledViaCli(container types.ContainerJSON) bool {
 }
 
 func (c *UpgradeCommand) confirmToContinue(containerID string) bool {
+	//nolint:forbidigo
 	fmt.Printf(`
 PMM Server in the container %[1]q was not installed via pmm cli.
 We will attempt to upgrade the container and perform the following actions:
@@ -154,7 +156,7 @@ The container %[1]q will NOT be removed. You can remove it manually later, if ne
 		return true
 	}
 
-	fmt.Print("Are you sure you want to continue? [y/N] ")
+	fmt.Print("Are you sure you want to continue? [y/N] ") //nolint:forbidigo
 
 	s := bufio.NewScanner(os.Stdin)
 	s.Scan()
@@ -203,7 +205,7 @@ func (c *UpgradeCommand) backupVolumes(ctx context.Context, container *types.Con
 }
 
 func (c *UpgradeCommand) pullImage(ctx context.Context, imageName string) error {
-	reader, err := c.dockerFn.PullImage(ctx, imageName, types.ImagePullOptions{})
+	reader, err := c.dockerFn.PullImage(ctx, imageName, image.PullOptions{})
 	if err != nil {
 		return err
 	}

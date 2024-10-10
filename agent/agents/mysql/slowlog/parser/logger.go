@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 
 package parser
 
+// Logger defines the interface for a MySQL slow log parser logger.
 type Logger interface {
 	Warnf(format string, v ...interface{})
 	Infof(format string, v ...interface{})

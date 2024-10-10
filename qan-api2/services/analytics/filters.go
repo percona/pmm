@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -19,13 +19,13 @@ import (
 	"context"
 	"fmt"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qan/v1"
 )
 
 // Get implements rpc to get list of available labels.
 //
 //nolint:goconst
-func (s *Service) Get(ctx context.Context, in *qanpb.FiltersRequest) (*qanpb.FiltersReply, error) {
+func (s *Service) GetFilteredMetricsNames(ctx context.Context, in *qanpb.GetFilteredMetricsNamesRequest) (*qanpb.GetFilteredMetricsNamesResponse, error) {
 	if in.PeriodStartFrom == nil || in.PeriodStartTo == nil {
 		err := fmt.Errorf("from-date: %s or to-date: %s cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
 		return nil, err

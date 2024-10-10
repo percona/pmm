@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package cli stores cli configuration and common logic for commands
+// Package cli stores cli configuration and common logic for commands.
 package cli
 
 import (
@@ -68,6 +68,7 @@ func (c *PMMAdminCommands) Run(ctx *kong.Context, globals *flags.GlobalFlags) er
 	return run(ctx, globals)
 }
 
+// GetGlobalFlags returns the global flags for PMMAdminCommands.
 func (c *PMMAdminCommands) GetGlobalFlags() *flags.GlobalFlags {
 	return &c.GlobalFlags
 }
@@ -81,6 +82,7 @@ type PMMCommands struct {
 	Completion commands.CompletionCommand `cmd:"" help:"Outputs shell code for initialising tab completions"`
 }
 
+// GetGlobalFlags returns the global flags for PMMAdminCommands.
 func (c *PMMCommands) GetGlobalFlags() *flags.GlobalFlags {
 	return &c.GlobalFlags
 }

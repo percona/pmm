@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -36,15 +36,14 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
-	"github.com/percona/pmm/api/alertmanager/amclient"
-	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
-	alertingClient "github.com/percona/pmm/api/managementpb/alerting/json/client"
-	backupsClient "github.com/percona/pmm/api/managementpb/backup/json/client"
-	dbaasClient "github.com/percona/pmm/api/managementpb/dbaas/json/client"
-	iaClient "github.com/percona/pmm/api/managementpb/ia/json/client"
-	managementClient "github.com/percona/pmm/api/managementpb/json/client"
-	platformClient "github.com/percona/pmm/api/platformpb/json/client"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
+	actionsClient "github.com/percona/pmm/api/actions/v1/json/client"
+	advisorClient "github.com/percona/pmm/api/advisors/v1/json/client"
+	alertingClient "github.com/percona/pmm/api/alerting/v1/json/client"
+	backupsClient "github.com/percona/pmm/api/backup/v1/json/client"
+	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	platformClient "github.com/percona/pmm/api/platform/v1/json/client"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 
@@ -59,20 +58,14 @@ var (
 	// Hostname contains local hostname that is used for generating test data.
 	Hostname string
 
-	// True if -debug or -trace flag is passed.
+	// Debug is true if -debug or -trace flag is passed.
 	Debug bool
 
 	// RunUpdateTest is true if PMM Server update should be tested.
 	RunUpdateTest bool
 
-	// RunSTTTests is true if STT tests should be run.
-	RunSTTTests bool
-
-	// RunIATests is true if IA tests should be run.
-	RunIATests bool
-
-	// Kubeconfig contains kubeconfig.
-	Kubeconfig string
+	// RunAdvisorTests is true if Advisor tests should be run.
+	RunAdvisorTests bool
 )
 
 // NginxError is an error type for nginx HTML response.
@@ -134,13 +127,9 @@ func init() {
 	serverURLF := flag.String("pmm.server-url", "https://admin:admin@localhost/", "PMM Server URL [PMM_SERVER_URL].")
 	serverInsecureTLSF := flag.Bool("pmm.server-insecure-tls", false, "Skip PMM Server TLS certificate validation [PMM_SERVER_INSECURE_TLS].")
 	runUpdateTestF := flag.Bool("pmm.run-update-test", false, "Run PMM Server update test [PMM_RUN_UPDATE_TEST].")
-	kubeconfigF := flag.String("pmm.kubeconfig", "", "Pass kubeconfig file to run DBaaS tests.")
 
 	// FIXME we should rethink it once https://jira.percona.com/browse/PMM-5106 is implemented
-	runSTTTestsF := flag.Bool("pmm.run-stt-tests", false, "Run STT tests that require connected clients [PMM_RUN_STT_TESTS].")
-
-	// TODO remove once IA is out of beta: https://jira.percona.com/browse/PMM-7001
-	runIATestsF := flag.Bool("pmm.run-ia-tests", false, "Run IA tests that require connected clients [PMM_RUN_IA_TESTS].")
+	runAdvisorsTestF := flag.Bool("pmm.run-advisor-tests", false, "Run Advisor tests that require connected clients [PMM_RUN_ADVISOR_TESTS].")
 
 	testing.Init()
 	flag.Parse()
@@ -151,8 +140,7 @@ func init() {
 		"PMM_SERVER_URL":          flag.Lookup("pmm.server-url"),
 		"PMM_SERVER_INSECURE_TLS": flag.Lookup("pmm.server-insecure-tls"),
 		"PMM_RUN_UPDATE_TEST":     flag.Lookup("pmm.run-update-test"),
-		"PMM_RUN_STT_TESTS":       flag.Lookup("pmm.run-stt-tests"),
-		"PMM_KUBECONFIG":          flag.Lookup("pmm.kubeconfig"),
+		"PMM_RUN_ADVISOR_TESTS":   flag.Lookup("pmm.run-advisor-tests"),
 	} {
 		env, ok := os.LookupEnv(envVar)
 		if ok {
@@ -172,8 +160,7 @@ func init() {
 	}
 	Debug = *debugF || *traceF
 	RunUpdateTest = *runUpdateTestF
-	RunSTTTests = *runSTTTestsF
-	RunIATests = *runIATestsF
+	RunAdvisorTests = *runAdvisorsTestF
 
 	var cancel context.CancelFunc
 	Context, cancel = context.WithCancel(context.Background())
@@ -206,36 +193,25 @@ func init() {
 		logrus.Fatalf("Failed to detect hostname: %s", err)
 	}
 
-	if *kubeconfigF != "" {
-		data, err := os.ReadFile(*kubeconfigF)
-		if err != nil {
-			logrus.Fatalf("Failed to read kubeconfig: %s", err)
-		}
-		Kubeconfig = string(data)
-	}
-
 	transport := Transport(BaseURL, *serverInsecureTLSF)
-	alertmanagerTransport := Transport(BaseURL, *serverInsecureTLSF)
-	alertmanagerTransport.BasePath = "/alertmanager/api/v2"
 	transport.Consumers["application/zip"] = runtime.ByteStreamConsumer()
 	inventoryClient.Default = inventoryClient.New(transport, nil)
 	managementClient.Default = managementClient.New(transport, nil)
-	dbaasClient.Default = dbaasClient.New(transport, nil)
 	serverClient.Default = serverClient.New(transport, nil)
-	amclient.Default = amclient.New(alertmanagerTransport, nil)
-	iaClient.Default = iaClient.New(transport, nil)
 	backupsClient.Default = backupsClient.New(transport, nil)
 	platformClient.Default = platformClient.New(transport, nil)
 	alertingClient.Default = alertingClient.New(transport, nil)
+	advisorClient.Default = advisorClient.New(transport, nil)
+	actionsClient.Default = actionsClient.New(transport, nil)
 
 	// do not run tests if server is not available
-	_, err = serverClient.Default.Server.Readiness(nil)
+	_, err = serverClient.Default.ServerService.Readiness(nil)
 	if err != nil {
-		panic(err)
+		logrus.Fatalf("Failed to pass the server readiness probe: %s", err)
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ error          = (*NginxError)(nil)
 	_ fmt.GoStringer = (*NginxError)(nil)

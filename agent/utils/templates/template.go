@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 // "_" at the begginging is reserved for possible extensions.
@@ -91,7 +91,7 @@ func (tr *TemplateRenderer) RenderFiles(templateParams map[string]interface{}) (
 }
 
 // RenderDSN creates temporary files and replaces placeholders with real paths.
-func RenderDSN(dsn string, files *agentpb.TextFiles, tempDir string) (string, error) {
+func RenderDSN(dsn string, files *agentv1.TextFiles, tempDir string) (string, error) {
 	if files != nil {
 		tr := &TemplateRenderer{
 			TextFiles:          files.Files,

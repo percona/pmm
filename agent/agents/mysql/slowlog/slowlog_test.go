@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ import (
 	"github.com/percona/pmm/agent/utils/tests"
 	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/agent/utils/version"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 func getDataFromFile(t *testing.T, filePath string, data interface{}) {
@@ -47,7 +47,7 @@ func getDataFromFile(t *testing.T, filePath string, data interface{}) {
 }
 
 func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
-	const agentID = "/agent_id/73ee2f92-d5aa-45f0-8b09-6d3df605fd44"
+	const agentID = "73ee2f92-d5aa-45f0-8b09-6d3df605fd44"
 	periodStart := time.Unix(1557137220, 0)
 
 	parsingResult := event.Result{
@@ -63,25 +63,25 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 	}
 
 	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, false, truncate.GetDefaultMaxQueryLength(), logrus.NewEntry(logrus.New()))
-	expectedBuckets := []*agentpb.MetricsBucket{
+	expectedBuckets := []*agentv1.MetricsBucket{
 		{
-			Common: &agentpb.MetricsBucket_Common{
+			Common: &agentv1.MetricsBucket_Common{
 				Fingerprint:         "select * from contacts t0 where t0.person_id = ?",
 				ExplainFingerprint:  "select * from contacts t0 where t0.person_id = :1",
 				PlaceholdersCount:   1,
 				Comments:            map[string]string{"controller": "test"},
 				AgentId:             agentID,
-				AgentType:           inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
+				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT,
 				PeriodStartUnixSecs: 1557137220,
 				PeriodLengthSecs:    60,
 				Example:             "SELECT /* controller='test' */ * FROM contacts t0 WHERE t0.person_id = '߿�\ufffd\\ud83d\ufffd'",
-				ExampleType:         agentpb.ExampleType_RANDOM,
+				ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
 			},
-			Mysql: &agentpb.MetricsBucket_MySQL{},
+			Mysql: &agentv1.MetricsBucket_MySQL{},
 		},
 	}
 
-	require.Equal(t, 1, len(actualBuckets))
+	require.Len(t, actualBuckets, 1)
 	assert.True(t, utf8.ValidString(actualBuckets[0].Common.Example))
 	tests.AssertBucketsEqual(t, expectedBuckets[0], actualBuckets[0])
 }
@@ -89,7 +89,7 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 func TestSlowLogMakeBuckets(t *testing.T) {
 	t.Parallel()
 
-	const agentID = "/agent_id/73ee2f92-d5aa-45f0-8b09-6d3df605fd44"
+	const agentID = "73ee2f92-d5aa-45f0-8b09-6d3df605fd44"
 	periodStart := time.Unix(1557137220, 0)
 
 	parsingResult := event.Result{}
@@ -97,7 +97,7 @@ func TestSlowLogMakeBuckets(t *testing.T) {
 
 	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, false, truncate.GetDefaultMaxQueryLength(), logrus.NewEntry(logrus.New()))
 
-	var expectedBuckets []*agentpb.MetricsBucket
+	var expectedBuckets []*agentv1.MetricsBucket
 	getDataFromFile(t, "slowlog_expected.json", &expectedBuckets)
 
 	countActualBuckets := len(actualBuckets)
@@ -153,9 +153,9 @@ func TestSlowLog(t *testing.T) {
 		go s.Run(ctx)
 
 		// collect first 3 status changes, skip QAN data
-		var actual []inventorypb.AgentStatus
+		var actual []inventoryv1.AgentStatus
 		for c := range s.Changes() {
-			if c.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
+			if c.Status != inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED {
 				actual = append(actual, c.Status)
 				if len(actual) == 3 {
 					break
@@ -163,15 +163,15 @@ func TestSlowLog(t *testing.T) {
 			}
 		}
 
-		expected := []inventorypb.AgentStatus{
-			inventorypb.AgentStatus_STARTING,
-			inventorypb.AgentStatus_RUNNING,
-			inventorypb.AgentStatus_WAITING,
+		expected := []inventoryv1.AgentStatus{
+			inventoryv1.AgentStatus_AGENT_STATUS_STARTING,
+			inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
+			inventoryv1.AgentStatus_AGENT_STATUS_WAITING,
 		}
 		assert.Equal(t, expected, actual)
 
 		cancel()
-		for range s.Changes() {
+		for range s.Changes() { //nolint:revive
 		}
 	})
 
@@ -204,9 +204,9 @@ func TestSlowLog(t *testing.T) {
 		go s.Run(ctx)
 
 		// collect first 3 status changes, skip QAN data
-		var actual []inventorypb.AgentStatus
+		var actual []inventoryv1.AgentStatus
 		for c := range s.Changes() {
-			if c.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
+			if c.Status != inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED {
 				actual = append(actual, c.Status)
 				if len(actual) == 3 {
 					break
@@ -214,15 +214,15 @@ func TestSlowLog(t *testing.T) {
 			}
 		}
 
-		expected := []inventorypb.AgentStatus{
-			inventorypb.AgentStatus_STARTING,
-			inventorypb.AgentStatus_WAITING,
-			inventorypb.AgentStatus_STARTING,
+		expected := []inventoryv1.AgentStatus{
+			inventoryv1.AgentStatus_AGENT_STATUS_STARTING,
+			inventoryv1.AgentStatus_AGENT_STATUS_WAITING,
+			inventoryv1.AgentStatus_AGENT_STATUS_STARTING,
 		}
 		assert.Equal(t, expected, actual)
 
 		cancel()
-		for range s.Changes() {
+		for range s.Changes() { //nolint:revive
 		}
 	})
 
@@ -253,9 +253,9 @@ func TestSlowLog(t *testing.T) {
 		go s.Run(ctx)
 
 		// collect first 3 status changes, skip QAN data
-		var actual []inventorypb.AgentStatus
+		var actual []inventoryv1.AgentStatus
 		for c := range s.Changes() {
-			if c.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
+			if c.Status != inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED {
 				actual = append(actual, c.Status)
 				if len(actual) == 3 {
 					break
@@ -263,15 +263,15 @@ func TestSlowLog(t *testing.T) {
 			}
 		}
 
-		expected := []inventorypb.AgentStatus{
-			inventorypb.AgentStatus_STARTING,
-			inventorypb.AgentStatus_RUNNING,
-			inventorypb.AgentStatus_WAITING,
+		expected := []inventoryv1.AgentStatus{
+			inventoryv1.AgentStatus_AGENT_STATUS_STARTING,
+			inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
+			inventoryv1.AgentStatus_AGENT_STATUS_WAITING,
 		}
 		assert.Equal(t, expected, actual)
 
 		cancel()
-		for range s.Changes() {
+		for range s.Changes() { //nolint:revive
 		}
 	})
 }

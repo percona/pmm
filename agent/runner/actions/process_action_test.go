@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ func TestProcessActionRun(t *testing.T) {
 	t.Parallel()
 
 	// setup
-	id := "/action_id/6a479303-5081-46d0-baa0-87d6248c987b"
+	id := "6a479303-5081-46d0-baa0-87d6248c987b"
 	cmd := "echo"
 	timeout := time.Second
 	p := NewProcessAction(id, timeout, cmd, nil)
@@ -49,7 +49,7 @@ func TestProcessActionRunAndCancel(t *testing.T) {
 	t.Parallel()
 
 	// setup
-	p := NewProcessAction("/action_id/14b2422d-32ec-44fb-9019-8b70e3cc8a3a", time.Second, "sleep", []string{"10"})
+	p := NewProcessAction("14b2422d-32ec-44fb-9019-8b70e3cc8a3a", time.Second, "sleep", []string{"10"})
 
 	ctx, cancel := context.WithTimeout(context.Background(), p.Timeout())
 	// run

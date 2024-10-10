@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - v3
       - pmm-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
@@ -14,21 +15,22 @@ jobs:
   check:
     name: Checks
     runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
+
+    env:
+      PMM_ENCRYPTION_KEY_PATH: pmm-encryption.key
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Go release
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version-file: ${{ github.workspace }}/go.mod
           cache: false
 
       - name: Enable Go build cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/go-build
           key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
@@ -37,7 +39,7 @@ jobs:
             ${{ runner.os }}-go-build-
 
       - name: Enable Go modules cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
@@ -69,7 +71,7 @@ jobs:
       - name: Update API compatibility descriptors
         run: |
           # log if descriptors changed, useful for "update descriptors" PRs
-          make descriptors
+          make -C api descriptors
           git diff --text
 
       - name: Run check-license
@@ -80,7 +82,26 @@ jobs:
       - name: Run go-sumtype
         run: bin/go-sumtype ./...
 
-      - name: Run linters
+      - name: Run API linter
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          if out=$(bin/buf lint -v api); code="$?"; test "$code" -eq 0; then
+            echo "$out"
+            exit 0
+          fi
+
+          echo "API linter exited with code: $code"
+          echo "$out"
+          ## buf uses exit code 100 for linter warnings
+          if [ "$code" -ne 100 ] || ${{ github.event.pull_request == null }}; then
+            exit $code
+          fi
+
+          # One may need to suppress passing to reviewdog because of https://github.com/reviewdog/reviewdog/issues/1696
+          echo "$out" | bin/reviewdog -f=buf -reporter=github-pr-review -fail-on-error=true
+
+      - name: Run code linters
         uses: reviewdog/action-golangci-lint@v2
         with:
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
@@ -89,24 +110,23 @@ jobs:
           fail_on_error: true
           cache: false
           golangci_lint_flags: "-c=.golangci.yml"
-          golangci_lint_version: v1.51.2 # Version should match specified in Makefile
+          golangci_lint_version: v1.55.2 # Version should match specified in Makefile
 
       - name: Run go-consistent
         env:
-          COMMAND: 'bin/go-consistent -pedantic -exclude "tests" ./...'
-          REDIRECT: "| bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-on-error=true"
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
-          if out=$( ${{ env.COMMAND }} ); exit_code=$?; [ $exit_code -ne 0 ]; then
-            if [ $exit_code -gt 1 ] || ${{ github.event.pull_request == null }}; then
-              echo "$out"
-              exit $exit_code
-            else
-              echo "$out" ${{ env.REDIRECT }}
-            fi
-          else
+          if out=$(bin/go-consistent -pedantic -exclude "tests" ./...); exit_code=$?; [ $exit_code -eq 0 ]; then
             echo "$out"
+            exit 0
           fi
+
+          if [ $exit_code -gt 1 ] || ${{ github.event.pull_request == null }}; then
+            echo "$out"
+            exit $exit_code
+          fi
+
+          echo "$out" | bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-on-error=true
 
       - name: Test common API
         run: make test-common
@@ -114,10 +134,8 @@ jobs:
       - name: Run debug commands on failure
         if: ${{ failure() }}
         run: |
-          env
-          go version
-          go env
-          pwd
+          env | sort
+          go env | sort
           git status
 
   merge-gatekeeper:
@@ -133,7 +151,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           interval: 45
           timeout: 1200
-          ignored: "WhiteSource License Check, WhiteSource Security Check"
+          ignored: "license/snyk (Percona Github Org), security/snyk (Percona Github Org)"
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
   workflow_success:
@@ -151,7 +169,7 @@ jobs:
 
     steps:
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2
+        uses: rtCamp/action-slack-notify@v2.2.1
 
   workflow_failure:
     if: ${{ failure() }}
@@ -169,4 +187,4 @@ jobs:
 
     steps:
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2
+        uses: rtCamp/action-slack-notify@v2.2.1

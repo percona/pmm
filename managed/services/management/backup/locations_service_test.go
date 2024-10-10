@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	backuppb "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/backup/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -117,7 +117,7 @@ func TestListBackupLocations(t *testing.T) {
 		},
 	}
 	res1, err := svc.AddLocation(ctx, req1)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	req2 := &backuppb.AddLocationRequest{
 		Name: gofakeit.Name(),
 		S3Config: &backuppb.S3LocationConfig{
@@ -128,11 +128,11 @@ func TestListBackupLocations(t *testing.T) {
 		},
 	}
 	res2, err := svc.AddLocation(ctx, req2)
-	require.Nil(t, err)
+	require.NoError(t, err)
 
 	t.Run("list", func(t *testing.T) {
 		res, err := svc.ListLocations(ctx, &backuppb.ListLocationsRequest{})
-		require.Nil(t, err)
+		require.NoError(t, err)
 
 		checkLocation := func(id string, req *backuppb.AddLocationRequest) func() bool {
 			return func() bool {

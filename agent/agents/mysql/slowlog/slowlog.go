@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@ package slowlog
 
 import (
 	"context"
+	"crypto/md5" //nolint:gosec
 	"database/sql"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"math"
@@ -40,8 +42,8 @@ import (
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/agent/utils/truncate"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 const (
@@ -67,7 +69,7 @@ type Params struct {
 	DisableQueryExamples   bool
 	MaxSlowlogFileSize     int64
 	SlowLogFilePrefix      string // for development and testing
-	TextFiles              *agentpb.TextFiles
+	TextFiles              *agentv1.TextFiles
 	TLS                    bool
 	TLSSkipVerify          bool
 }
@@ -82,7 +84,7 @@ type slowLogInfo struct {
 // New creates new SlowLog QAN service.
 func New(params *Params, l *logrus.Entry) (*SlowLog, error) {
 	if params.TextFiles != nil {
-		err := tlshelpers.RegisterMySQLCerts(params.TextFiles.Files)
+		err := tlshelpers.RegisterMySQLCerts(params.TextFiles.Files, params.TLSSkipVerify)
 		if err != nil {
 			return nil, err
 		}
@@ -98,7 +100,7 @@ func New(params *Params, l *logrus.Entry) (*SlowLog, error) {
 // Run extracts performance data and sends it to the channel until ctx is canceled.
 func (s *SlowLog) Run(ctx context.Context) {
 	defer func() {
-		s.changes <- agents.Change{Status: inventorypb.AgentStatus_DONE}
+		s.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(s.changes)
 	}()
 
@@ -134,7 +136,7 @@ func (s *SlowLog) Run(ctx context.Context) {
 	b := backoff.New(backoffMinDelay, backoffMaxDelay)
 	fileInfo := <-fileInfos
 	for fileInfo != nil {
-		s.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
+		s.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
 		// process file until fileCtx is done, or fatal processing error is encountered
 		path, outlierTime := fileInfo.path, fileInfo.outlierTime
@@ -155,7 +157,7 @@ func (s *SlowLog) Run(ctx context.Context) {
 			fileCancel()
 		}
 
-		s.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+		s.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 
 		if err == nil {
 			b.Reset()
@@ -343,7 +345,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 		}
 	}()
 
-	s.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
+	s.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 
 	aggregator := event.NewAggregator(true, 0, outlierTime)
 	ctxDone := ctx.Done()
@@ -370,7 +372,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 
 			s.l.Tracef("Parsed slowlog event: %+v.", e)
 			fingerprint := query.Fingerprint(e.Query)
-			digest := query.Id(fingerprint)
+			digest := hashIntoQueryID(fingerprint)
 			aggregator.AddEvent(e, digest, e.User, e.Host, e.Db, e.Server, e.Query)
 
 		case <-t.C:
@@ -391,9 +393,21 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 	}
 }
 
+// hashIntoQueryID returns slowlog query ID hashed by MD5 from given fingerprint.
+func hashIntoQueryID(fingerprint string) string {
+	// MD5 is used only to hash fingerprint into query ID, so there is no risk.
+	// It is ideal due to its length (32 chars) and it corresponds to Perfschema query ID length.
+	id := md5.New() //nolint:gosec
+	_, err := io.WriteString(id, fingerprint)
+	if err != nil {
+		logrus.Debugf("cannot hash fingerprint into query ID: %s", err.Error())
+	}
+	return strings.ToUpper(hex.EncodeToString(id.Sum(nil)))
+}
+
 // makeBuckets is a pure function for easier testing.
 //
-//nolint:cyclop
+//nolint:cyclop,maintidx
 func makeBuckets(
 	agentID string,
 	res event.Result,
@@ -403,8 +417,8 @@ func makeBuckets(
 	disableQueryExamples bool,
 	maxQueryLength int32,
 	l *logrus.Entry,
-) []*agentpb.MetricsBucket {
-	buckets := make([]*agentpb.MetricsBucket, 0, len(res.Class))
+) []*agentv1.MetricsBucket {
+	buckets := make([]*agentv1.MetricsBucket, 0, len(res.Class))
 
 	for _, v := range res.Class {
 		if v.Metrics == nil {
@@ -414,12 +428,12 @@ func makeBuckets(
 		// In fingerprint field there is no fingerprint yet.
 		// It contains whole query without any changes.
 		// This in workaround to keep original query until field "Query" will be
-		// added here: https://github.com/percona/go-mysql/blob/PMM-2.0/event/class.go#L56
+		// added here: https://github.com/percona/go-mysql/blob/v3/event/class.go#L56
 		q := v.Fingerprint
 		v.Fingerprint = query.Fingerprint(v.Fingerprint)
 		fingerprint, isTruncated := truncate.Query(v.Fingerprint, maxQueryLength)
-		mb := &agentpb.MetricsBucket{
-			Common: &agentpb.MetricsBucket_Common{
+		mb := &agentv1.MetricsBucket{
+			Common: &agentv1.MetricsBucket_Common{
 				Queryid:              v.Id,
 				Fingerprint:          fingerprint,
 				IsTruncated:          isTruncated,
@@ -428,14 +442,14 @@ func makeBuckets(
 				Username:             v.User,
 				ClientHost:           v.Host,
 				AgentId:              agentID,
-				AgentType:            inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
+				AgentType:            inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT,
 				PeriodStartUnixSecs:  uint32(periodStart.Unix()),
 				PeriodLengthSecs:     periodLengthSecs,
 				NumQueries:           float32(v.TotalQueries),
 				Errors:               errListsToMap(v.ErrorsCode, v.ErrorsCount),
 				NumQueriesWithErrors: v.NumQueriesWithErrors,
 			},
-			Mysql: &agentpb.MetricsBucket_MySQL{},
+			Mysql: &agentv1.MetricsBucket_MySQL{},
 		}
 
 		if q != "" {
@@ -462,7 +476,7 @@ func makeBuckets(
 				mb.Common.IsTruncated = truncated
 			}
 			mb.Common.Example = example
-			mb.Common.ExampleType = agentpb.ExampleType_RANDOM
+			mb.Common.ExampleType = agentv1.ExampleType_EXAMPLE_TYPE_RANDOM
 		}
 
 		// If key has suffix _time or _wait than field is TimeMetrics.
@@ -715,16 +729,16 @@ func errListsToMap(k, v []uint64) map[uint64]uint64 {
 }
 
 // Describe implements prometheus.Collector.
-func (s *SlowLog) Describe(ch chan<- *prometheus.Desc) {
+func (s *SlowLog) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (s *SlowLog) Collect(ch chan<- prometheus.Metric) {
+func (s *SlowLog) Collect(ch chan<- prometheus.Metric) { //nolint:revive
 	// This method is needed to satisfy interface.
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*SlowLog)(nil)
 )

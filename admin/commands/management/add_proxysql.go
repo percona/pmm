@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	proxysql "github.com/percona/pmm/api/managementpb/json/client/proxy_sql"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 var addProxySQLResultT = commands.ParseTemplate(`
@@ -33,7 +33,7 @@ Service name: {{ .Service.ServiceName }}
 `)
 
 type addProxySQLResult struct {
-	Service *proxysql.AddProxySQLOKBodyService `json:"service"`
+	Service *mservice.AddServiceOKBodyProxysqlService `json:"service"`
 }
 
 func (res *addProxySQLResult) Result() {}
@@ -64,27 +64,33 @@ type AddProxySQLCommand struct {
 	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
 	MetricsMode         string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	ExposeExporter      bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 
 	AddCommonFlags
 	AddLogLevelFatalFlags
 }
 
+// GetServiceName returns the service name for AddProxySQLCommand.
 func (cmd *AddProxySQLCommand) GetServiceName() string {
 	return cmd.ServiceName
 }
 
+// GetAddress returns the address for AddProxySQLCommand.
 func (cmd *AddProxySQLCommand) GetAddress() string {
 	return cmd.Address
 }
 
+// GetDefaultAddress returns the default address for AddProxySQLCommand.
 func (cmd *AddProxySQLCommand) GetDefaultAddress() string {
 	return "127.0.0.1:6032"
 }
 
+// GetSocket returns the socket for AddProxySQLCommand.
 func (cmd *AddProxySQLCommand) GetSocket() string {
 	return cmd.Socket
 }
 
+// GetCredentials returns the credentials for AddProxySQLCommand.
 func (cmd *AddProxySQLCommand) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
@@ -98,6 +104,7 @@ func (cmd *AddProxySQLCommand) GetCredentials() error {
 	return nil
 }
 
+// RunCmd runs the command for AddProxySQLCommand.
 func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
@@ -125,37 +132,40 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &proxysql.AddProxySQLParams{
-		Body: proxysql.AddProxySQLBody{
-			NodeID:         cmd.NodeID,
-			ServiceName:    serviceName,
-			Address:        host,
-			Port:           int64(port),
-			Socket:         socket,
-			PMMAgentID:     cmd.PMMAgentID,
-			Environment:    cmd.Environment,
-			Cluster:        cmd.Cluster,
-			ReplicationSet: cmd.ReplicationSet,
-			Username:       cmd.Username,
-			Password:       cmd.Password,
-			AgentPassword:  cmd.AgentPassword,
+	params := &mservice.AddServiceParams{
+		Body: mservice.AddServiceBody{
+			Proxysql: &mservice.AddServiceParamsBodyProxysql{
+				NodeID:         cmd.NodeID,
+				ServiceName:    serviceName,
+				Address:        host,
+				Socket:         socket,
+				Port:           int64(port),
+				ExposeExporter: cmd.ExposeExporter,
+				PMMAgentID:     cmd.PMMAgentID,
+				Environment:    cmd.Environment,
+				Cluster:        cmd.Cluster,
+				ReplicationSet: cmd.ReplicationSet,
+				Username:       cmd.Username,
+				Password:       cmd.Password,
+				AgentPassword:  cmd.AgentPassword,
 
-			CustomLabels:        customLabels,
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
-			TLS:                 cmd.TLS,
-			TLSSkipVerify:       cmd.TLSSkipVerify,
-			MetricsMode:         pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
-			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
-			LogLevel:            &cmd.AddLogLevel,
+				CustomLabels:        customLabels,
+				SkipConnectionCheck: cmd.SkipConnectionCheck,
+				TLS:                 cmd.TLS,
+				TLSSkipVerify:       cmd.TLSSkipVerify,
+				MetricsMode:         pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
+				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
+				LogLevel:            &cmd.AddLogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.ProxySQL.AddProxySQL(params)
+	resp, err := client.Default.ManagementService.AddService(params)
 	if err != nil {
 		return nil, err
 	}
 
 	return &addProxySQLResult{
-		Service: resp.Payload.Service,
+		Service: resp.Payload.Proxysql.Service,
 	}, nil
 }

@@ -1,26 +1,35 @@
 #!/bin/bash
 set -o errexit
 
-# init /srv if empty
+PMM_DISTRIBUTION_METHOD="${PMM_DISTRIBUTION_METHOD:-docker}"
+
+if [ ! -w /srv ]; then
+    echo "FATAL: /srv is not writable for $(whoami) user." >&2
+    echo "Please make sure that /srv is owned by uid $(id -u) and gid $(id -g) and try again." >&2
+    echo "You can change ownership by running: sudo chown -R $(id -u):$(id -g) /srv" >&2
+    exit 1
+fi
+
+# Initialize /srv if empty
 DIST_FILE=/srv/pmm-distribution
 if [ ! -f $DIST_FILE ]; then
-    echo "File $DIST_FILE doesn't exist. Initialize /srv..."
-    echo docker > $DIST_FILE
-    mkdir -p /srv/{clickhouse,grafana,logs,postgres14,prometheus,nginx,victoriametrics}
-    echo "Copying plugins and VERSION file"
-    cp /usr/share/percona-dashboards/VERSION /srv/grafana/PERCONA_DASHBOARDS_VERSION
-    cp -r /usr/share/percona-dashboards/panels/ /srv/grafana/plugins
-    chown -R grafana:grafana /srv/grafana
-    chown pmm:pmm /srv/{victoriametrics,prometheus,logs}
-    chown postgres:postgres /srv/postgres14
-    echo "Generating self-signed certificates for nginx"
+    echo $PMM_DISTRIBUTION_METHOD > $DIST_FILE
+    echo "Initializing /srv..."
+    mkdir -p /srv/{backup,clickhouse,grafana,logs,nginx,postgres14,prometheus,victoriametrics}
+    echo "Copying grafana plugins and the VERSION file..."
+    mkdir -p /srv/grafana/plugins
+    cp -r /usr/share/percona-dashboards/panels/* /srv/grafana/plugins
+    
+    echo "Generating self-signed certificates for nginx..."
     bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
-    echo "Initializing Postgres"
-    su postgres -c "/usr/pgsql-14/bin/initdb -D /srv/postgres14"
-    echo "Enable pg_stat_statements extension"
-    su postgres -c "/usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14"
-    su postgres -c "psql postgres postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'"
-    su postgres -c "/usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14"
+    
+    echo "Initializing Postgres..."
+    /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust --username=postgres
+    
+    echo "Enabling pg_stat_statements extension for PostgreSQL..."
+    /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o '-c logging_collector=off'
+    /usr/bin/psql postgres postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
+    /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
 fi
 
 # pmm-managed-init validates environment variables.

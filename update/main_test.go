@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,7 @@ func TestPackages(t *testing.T) {
 	cmd := exec.Command("pmm-update", "-h")
 	b, err := cmd.CombinedOutput()
 	if err != nil {
-		// This branch is required for tests with pmm-server:2.0.0
+		// This branch is required for tests with pmm-server:3.0.0
 		// In this case the exit code is 2.
 		e, ok := err.(*exec.ExitError) //nolint:errorlint
 		require.True(t, ok)

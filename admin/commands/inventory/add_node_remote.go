@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 )
 
 var addNodeRemoteResultT = commands.ParseTemplate(`
@@ -33,7 +33,7 @@ Az        : {{ .Node.Az }}
 `)
 
 type addNodeRemoteResult struct {
-	Node *nodes.AddRemoteNodeOKBodyRemote `json:"remote"`
+	Node *nodes.AddNodeOKBodyRemote `json:"remote"`
 }
 
 func (res *addNodeRemoteResult) Result() {}
@@ -51,21 +51,24 @@ type AddNodeRemoteCommand struct {
 	Az           string            `help:"Node availability zone"`
 }
 
+// RunCmd executes the AddNodeRemoteCommand and returns the result.
 func (cmd *AddNodeRemoteCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-	params := &nodes.AddRemoteNodeParams{
-		Body: nodes.AddRemoteNodeBody{
-			NodeName:     cmd.NodeName,
-			Address:      cmd.Address,
-			CustomLabels: customLabels,
+	params := &nodes.AddNodeParams{
+		Body: nodes.AddNodeBody{
+			Remote: &nodes.AddNodeParamsBodyRemote{
+				NodeName:     cmd.NodeName,
+				Address:      cmd.Address,
+				CustomLabels: customLabels,
 
-			Region: cmd.Region,
-			Az:     cmd.Az,
+				Region: cmd.Region,
+				Az:     cmd.Az,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Nodes.AddRemoteNode(params)
+	resp, err := client.Default.NodesService.AddNode(params)
 	if err != nil {
 		return nil, err
 	}

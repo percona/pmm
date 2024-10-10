@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -27,10 +27,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/platformpb"
+	platformv1 "github.com/percona/pmm/api/platform/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/managed/utils/platform"
@@ -57,7 +56,7 @@ type Service struct {
 	supervisord   supervisordService
 	checksService checksService
 
-	platformpb.UnimplementedPlatformServer
+	platformv1.UnimplementedPlatformServiceServer
 }
 
 // New returns platform Service.
@@ -78,7 +77,7 @@ func New(client *platform.Client, db *reform.DB, supervisord supervisordService,
 }
 
 // Connect connects a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
-func (s *Service) Connect(ctx context.Context, req *platformpb.ConnectRequest) (*platformpb.ConnectResponse, error) {
+func (s *Service) Connect(ctx context.Context, req *platformv1.ConnectRequest) (*platformv1.ConnectResponse, error) {
 	_, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
 	if err == nil {
 		return nil, errPMMServerAlreadyConnected
@@ -117,7 +116,7 @@ func (s *Service) Connect(ctx context.Context, req *platformpb.ConnectRequest) (
 		return nil, err
 	}
 
-	if !settings.SaaS.STTDisabled {
+	if settings.IsAdvisorsEnabled() {
 		s.checksService.CollectAdvisors(ctx)
 	}
 
@@ -125,11 +124,11 @@ func (s *Service) Connect(ctx context.Context, req *platformpb.ConnectRequest) (
 		s.l.Errorf("Failed to update configuration of grafana after connecting PMM to Portal: %s", err)
 		return nil, err
 	}
-	return &platformpb.ConnectResponse{}, nil
+	return &platformv1.ConnectResponse{}, nil
 }
 
 // Disconnect disconnects a PMM server from the organization created on Percona Portal.
-func (s *Service) Disconnect(ctx context.Context, req *platformpb.DisconnectRequest) (*platformpb.DisconnectResponse, error) {
+func (s *Service) Disconnect(ctx context.Context, req *platformv1.DisconnectRequest) (*platformv1.DisconnectResponse, error) {
 	_, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
 	if err != nil {
 		s.l.Errorf("Failed to get SSO details: %s", err)
@@ -148,7 +147,7 @@ func (s *Service) Disconnect(ctx context.Context, req *platformpb.DisconnectRequ
 			s.l.Errorf("Force disconnect failed: %s", err)
 			return nil, err
 		}
-		return &platformpb.DisconnectResponse{}, nil
+		return &platformv1.DisconnectResponse{}, nil
 	}
 
 	userAccessToken, err := s.grafanaClient.GetCurrentUserAccessToken(ctx)
@@ -175,7 +174,7 @@ func (s *Service) Disconnect(ctx context.Context, req *platformpb.DisconnectRequ
 		return nil, err
 	}
 
-	if !settings.SaaS.STTDisabled {
+	if settings.IsAdvisorsEnabled() {
 		s.checksService.CollectAdvisors(ctx)
 	}
 
@@ -184,7 +183,7 @@ func (s *Service) Disconnect(ctx context.Context, req *platformpb.DisconnectRequ
 		return nil, err
 	}
 
-	return &platformpb.DisconnectResponse{}, nil
+	return &platformv1.DisconnectResponse{}, nil
 }
 
 // forceDisconnect cleans up records of platform connection only from PMM side.
@@ -203,6 +202,7 @@ func (s *Service) forceDisconnect(ctx context.Context) error {
 	return nil
 }
 
+// UpdateSupervisordConfigurations updates supervisord configurations for the service.
 func (s *Service) UpdateSupervisordConfigurations(ctx context.Context) error {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
@@ -221,7 +221,7 @@ func (s *Service) UpdateSupervisordConfigurations(ctx context.Context) error {
 }
 
 // SearchOrganizationTickets fetches the list of ticket associated with the Portal organization this PMM server is registered with.
-func (s *Service) SearchOrganizationTickets(ctx context.Context, _ *platformpb.SearchOrganizationTicketsRequest) (*platformpb.SearchOrganizationTicketsResponse, error) { //nolint:lll
+func (s *Service) SearchOrganizationTickets(ctx context.Context, _ *platformv1.SearchOrganizationTicketsRequest) (*platformv1.SearchOrganizationTicketsResponse, error) { //nolint:lll
 	accessToken, err := s.grafanaClient.GetCurrentUserAccessToken(ctx)
 	if err != nil {
 		if errors.Is(err, grafana.ErrFailedToGetToken) {
@@ -242,7 +242,7 @@ func (s *Service) SearchOrganizationTickets(ctx context.Context, _ *platformpb.S
 		return nil, err
 	}
 
-	response := &platformpb.SearchOrganizationTicketsResponse{}
+	response := &platformv1.SearchOrganizationTicketsResponse{}
 	for _, t := range resp.Tickets {
 		ticket, err := convertTicket(t)
 		if err != nil {
@@ -255,13 +255,13 @@ func (s *Service) SearchOrganizationTickets(ctx context.Context, _ *platformpb.S
 	return response, nil
 }
 
-func convertTicket(t *platform.TicketResponse) (*platformpb.OrganizationTicket, error) {
+func convertTicket(t *platform.TicketResponse) (*platformv1.OrganizationTicket, error) {
 	createTime, err := time.Parse(time.RFC3339, t.CreateTime)
 	if err != nil {
 		return nil, err
 	}
 
-	return &platformpb.OrganizationTicket{
+	return &platformv1.OrganizationTicket{
 		Number:           t.Number,
 		ShortDescription: t.ShortDescription,
 		Priority:         t.Priority,
@@ -275,7 +275,7 @@ func convertTicket(t *platform.TicketResponse) (*platformpb.OrganizationTicket, 
 }
 
 // SearchOrganizationEntitlements fetches customer entitlements for a particular organization.
-func (s *Service) SearchOrganizationEntitlements(ctx context.Context, _ *platformpb.SearchOrganizationEntitlementsRequest) (*platformpb.SearchOrganizationEntitlementsResponse, error) { //nolint:lll
+func (s *Service) SearchOrganizationEntitlements(ctx context.Context, _ *platformv1.SearchOrganizationEntitlementsRequest) (*platformv1.SearchOrganizationEntitlementsResponse, error) { //nolint:lll
 	accessToken, err := s.grafanaClient.GetCurrentUserAccessToken(ctx)
 	if err != nil {
 		if errors.Is(err, grafana.ErrFailedToGetToken) {
@@ -296,7 +296,7 @@ func (s *Service) SearchOrganizationEntitlements(ctx context.Context, _ *platfor
 		return nil, err
 	}
 
-	response := &platformpb.SearchOrganizationEntitlementsResponse{}
+	response := &platformv1.SearchOrganizationEntitlementsResponse{}
 	for _, e := range resp.Entitlement {
 		entitlement, err := convertEntitlement(e)
 		if err != nil {
@@ -309,7 +309,7 @@ func (s *Service) SearchOrganizationEntitlements(ctx context.Context, _ *platfor
 	return response, nil
 }
 
-func convertEntitlement(ent *platform.EntitlementResponse) (*platformpb.OrganizationEntitlement, error) {
+func convertEntitlement(ent *platform.EntitlementResponse) (*platformv1.OrganizationEntitlement, error) {
 	startDate, err := time.Parse(time.RFC3339, ent.StartDate)
 	if err != nil {
 		return nil, err
@@ -320,26 +320,26 @@ func convertEntitlement(ent *platform.EntitlementResponse) (*platformpb.Organiza
 		return nil, err
 	}
 
-	return &platformpb.OrganizationEntitlement{
+	return &platformv1.OrganizationEntitlement{
 		Number:           ent.Number,
 		Name:             ent.Name,
 		Summary:          ent.Summary,
-		Tier:             &wrapperspb.StringValue{Value: ent.Tier},
-		TotalUnits:       &wrapperspb.StringValue{Value: ent.TotalUnits},
-		UnlimitedUnits:   &wrapperspb.BoolValue{Value: ent.UnlimitedUnits},
-		SupportLevel:     &wrapperspb.StringValue{Value: ent.SupportLevel},
+		Tier:             &ent.Tier,
+		TotalUnits:       &ent.TotalUnits,
+		UnlimitedUnits:   &ent.UnlimitedUnits,
+		SupportLevel:     &ent.SupportLevel,
 		SoftwareFamilies: ent.SoftwareFamilies,
 		StartDate:        timestamppb.New(startDate),
 		EndDate:          timestamppb.New(endDate),
-		Platform: &platformpb.OrganizationEntitlement_Platform{
-			ConfigAdvisor:   &wrapperspb.StringValue{Value: ent.Platform.ConfigAdvisor},
-			SecurityAdvisor: &wrapperspb.StringValue{Value: ent.Platform.SecurityAdvisor},
+		Platform: &platformv1.OrganizationEntitlement_Platform{
+			ConfigAdvisor:   &ent.Platform.ConfigAdvisor,
+			SecurityAdvisor: &ent.Platform.SecurityAdvisor,
 		},
 	}, nil
 }
 
 // GetContactInformation fetches contact information of the Customer Success employee assigned to the Percona customer from Percona Portal.
-func (s *Service) GetContactInformation(ctx context.Context, _ *platformpb.GetContactInformationRequest) (*platformpb.GetContactInformationResponse, error) {
+func (s *Service) GetContactInformation(ctx context.Context, _ *platformv1.GetContactInformationRequest) (*platformv1.GetContactInformationResponse, error) {
 	accessToken, err := s.grafanaClient.GetCurrentUserAccessToken(ctx)
 	if err != nil {
 		if errors.Is(err, grafana.ErrFailedToGetToken) {
@@ -361,8 +361,8 @@ func (s *Service) GetContactInformation(ctx context.Context, _ *platformpb.GetCo
 		return nil, err
 	}
 
-	response := &platformpb.GetContactInformationResponse{
-		CustomerSuccess: &platformpb.GetContactInformationResponse_CustomerSuccess{
+	response := &platformv1.GetContactInformationResponse{
+		CustomerSuccess: &platformv1.GetContactInformationResponse_CustomerSuccess{
 			Name:  resp.Contacts.CustomerSuccess.Name,
 			Email: resp.Contacts.CustomerSuccess.Email,
 		},
@@ -378,7 +378,8 @@ func (s *Service) GetContactInformation(ctx context.Context, _ *platformpb.GetCo
 	return response, nil
 }
 
-func (s *Service) ServerInfo(ctx context.Context, _ *platformpb.ServerInfoRequest) (*platformpb.ServerInfoResponse, error) {
+// ServerInfo retrieves server information based on the provided context and request.
+func (s *Service) ServerInfo(ctx context.Context, _ *platformv1.ServerInfoRequest) (*platformv1.ServerInfoResponse, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		s.l.Errorf("Failed to fetch PMM server ID: %s", err)
@@ -397,7 +398,7 @@ func (s *Service) ServerInfo(ctx context.Context, _ *platformpb.ServerInfoReques
 		connectedToPortal = true
 	}
 
-	return &platformpb.ServerInfoResponse{
+	return &platformv1.ServerInfoResponse{
 		PmmServerName:        serverName,
 		PmmServerId:          settings.PMMServerID,
 		PmmServerTelemetryId: settings.Telemetry.UUID,
@@ -406,7 +407,7 @@ func (s *Service) ServerInfo(ctx context.Context, _ *platformpb.ServerInfoReques
 }
 
 // UserStatus API tells whether the logged-in user is a Platform organization member or not.
-func (s *Service) UserStatus(ctx context.Context, _ *platformpb.UserStatusRequest) (*platformpb.UserStatusResponse, error) {
+func (s *Service) UserStatus(ctx context.Context, _ *platformv1.UserStatusRequest) (*platformv1.UserStatusResponse, error) {
 	// We use the access token instead of `models.GetPerconaSSODetails()`.
 	// The reason for that is Frontend needs to use this API to know whether they can
 	// show certain menu items to users "logged in with their Percona Accounts" after PMM
@@ -422,7 +423,7 @@ func (s *Service) UserStatus(ctx context.Context, _ *platformpb.UserStatusReques
 		return nil, err
 	}
 
-	return &platformpb.UserStatusResponse{
+	return &platformv1.UserStatusResponse{
 		IsPlatformUser: true,
 	}, nil
 }

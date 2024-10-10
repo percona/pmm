@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,16 +19,16 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 func TestAddServiceExternal(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		res := &addServiceExternalResult{
-			Service: &services.AddExternalServiceOKBodyExternal{
-				ServiceID:      "/service_id/1",
+			Service: &services.AddServiceOKBodyExternal{
+				ServiceID:      "1",
 				ServiceName:    "ClickHouse Service",
-				NodeID:         "/node_id/1",
+				NodeID:         "1",
 				Environment:    "environment",
 				Cluster:        "clickhouse-cluster",
 				ReplicationSet: "clickhouse-replication-set",
@@ -37,9 +37,9 @@ func TestAddServiceExternal(t *testing.T) {
 			},
 		}
 		expected := `External Service added.
-Service ID     : /service_id/1
+Service ID     : 1
 Service name   : ClickHouse Service
-Node ID        : /node_id/1
+Node ID        : 1
 Environment    : environment
 Cluster name   : clickhouse-cluster
 Replication set: clickhouse-replication-set

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,10 +16,13 @@ package actions
 
 import (
 	"context"
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"os"
 	"path/filepath"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -29,9 +32,224 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/percona/pmm/agent/utils/tests"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/version"
 )
+
+func TestQueryExplain(t *testing.T) {
+	database := "testdb"
+	ctx := context.TODO()
+
+	dsn := tests.GetTestMongoDBDSN(t)
+	client := tests.OpenTestMongoDB(t, dsn)
+	t.Cleanup(func() {
+		defer client.Disconnect(ctx)              //nolint:errcheck
+		defer client.Database(database).Drop(ctx) //nolint:errcheck
+	})
+
+	t.Run("Find", func(t *testing.T) {
+		query := `{
+			"ns": "config.collections",
+			"op": "query",
+			"command": {
+			  "find": "collections",
+			  "filter": {
+				"_id": {
+				  "$regex": "^admin.",
+				  "$options": "i"
+				}
+			  },
+			  "$db": "config"
+			}
+		  }`
+		runExplain(ctx, t, prepareParams(t, query))
+	})
+
+	t.Run("Count", func(t *testing.T) {
+		query := `{
+			"ns": "testdb.collection",
+			"op": "command",
+			"command": {
+			  "count": "collection",
+			  "query": {
+				"a": {
+				  "$numberDouble": "5.0"
+				},
+				"b": {
+				  "$numberDouble": "5.0"
+				}
+			  },
+			  "$db": "testdb"
+			}
+		  }`
+		runExplain(ctx, t, prepareParams(t, query))
+	})
+
+	t.Run("Count with aggregate", func(t *testing.T) {
+		query := `{
+			"ns": "testdb.collection",
+			"op": "command",
+			"command": {
+			  "aggregate": "collection",
+			  "pipeline": [
+				{
+				  "$group": {
+					"_id": null,
+					"count": {
+					  "$sum": {
+						"$numberDouble": "1.0"
+					  }
+					}
+				  }
+				},
+				{
+				  "$project": {
+					"_id": {
+					  "$numberDouble": "0.0"
+					}
+				  }
+				}
+			  ],
+			  "cursor": {},
+			  "$db": "testdb"
+			}
+		  }`
+		runExplain(ctx, t, prepareParams(t, query))
+	})
+
+	t.Run("Update", func(t *testing.T) {
+		query := `{
+			"ns": "testdb.inventory",
+			"op": "update",
+			"command": {
+			  "q": {
+				"item": "paper"
+			  },
+			  "u": {
+				"$set": {
+				  "size.uom": "cm",
+				  "status": "P"
+				},
+				"$currentDate": {
+				  "lastModified": true
+				}
+			  },
+			  "multi": false,
+			  "upsert": false
+			}
+		  }`
+		runExplain(ctx, t, prepareParams(t, query))
+	})
+
+	t.Run("Remove", func(t *testing.T) {
+		query := `{
+			"ns": "testdb.inventory",
+			"op": "remove",
+			"command": {
+			  "q": {
+				"_id": {
+				  "id": {
+					"$binary": {
+					  "base64": "vN9ImShsRBaCIFJ23YkysA==",
+					  "subType": "04"
+					}
+				  },
+				  "uid": {
+					"$binary": {
+					  "base64": "Y5mrDaxi8gv8RmdTsQ+1j7fmkr7JUsabhNmXAheU0fg=",
+					  "subType": "00"
+					}
+				  }
+				}
+			  },
+			  "limit": {
+				"$numberInt": "0"
+			  }
+			}
+		  }`
+		runExplain(ctx, t, prepareParams(t, query))
+	})
+
+	t.Run("Distinct", func(t *testing.T) {
+		query := `{
+			"ns": "testdb.inventory",
+			"op": "command",
+			"command": {
+			  "distinct": "inventory",
+			  "key": "dept",
+			  "query": {}
+			  },
+			  "$db": "testdb"
+			}
+		  }`
+		runExplain(ctx, t, prepareParams(t, query))
+	})
+
+	t.Run("Insert - not supported", func(t *testing.T) {
+		query := `{
+			"ns": "testdb.listingsAndReviews",
+			"op": "insert",
+			"command": {
+			  "insert": "listingsAndReviews",
+			  "ordered": true,
+			  "$db": "testdb"
+			}
+		  }`
+		runExplainExpectError(ctx, t, prepareParams(t, query))
+	})
+
+	t.Run("Drop - not supported", func(t *testing.T) {
+		query := `{
+			"ns": "testdb.listingsAndReviews",
+			"op": "command",
+			"command": {
+			  "drop": "listingsAndReviews",
+			  "$db": "testdb"
+			}
+		  }`
+		runExplainExpectError(ctx, t, prepareParams(t, query))
+	})
+
+	t.Run("PMM-12451", func(t *testing.T) {
+		// Query from customer to prevent wrong date/time, timestamp parsing in future and prevent regression.
+		query := `{"ns":"testdb.testDoc","op":"query","command":{"find":"testDoc","filter":{"$and":[{"c23":{"$ne":""}},{"c23":{"$ne":null},"delete":{"$ne":true}},{"$and":[{"c23":"985662747"},{"c15":{"$gte":{"$date":"2023-09-19T22:00:00.000Z"}}},{"c15":{"$lte":{"$date":"2023-10-20T21:59:59.000Z"}}},{"c8":{"$in":["X1118630710X","X1118630720X","X1118630730X","X1118630740X","X1118630750X","X1118630760X"]},"c22":{"$in":["X1118630710X","X1118630710XA","X1118630710XB","X1118630710XC","X1118630710XD","X1118630710XE"]},"c34":{"$in":["X1118630710X","X1118630710Y","X1118630710Z","X1118630710U","X1118630710V","X1118630710W"]}},{"c2":"xxxxxxx"},{"c29":{"$in":["X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X"]}}]}]},"lsid":{"id":{"$binary":{"base64":"n/f5RI2jTTCoyt0y+8D9Cw==","subType":"04"}}},"$db":"testdb"}}`
+		runExplain(ctx, t, prepareParams(t, query))
+	})
+}
+
+func prepareParams(t *testing.T, query string) *agentv1.StartActionRequest_MongoDBExplainParams {
+	t.Helper()
+
+	return &agentv1.StartActionRequest_MongoDBExplainParams{
+		Dsn:   tests.GetTestMongoDBDSN(t),
+		Query: query,
+	}
+}
+
+func runExplain(ctx context.Context, t *testing.T, params *agentv1.StartActionRequest_MongoDBExplainParams) {
+	t.Helper()
+
+	big, err := rand.Int(rand.Reader, big.NewInt(27))
+	require.NoError(t, err)
+	id := strconv.FormatUint(big.Uint64(), 10)
+	ex, err := NewMongoDBExplainAction(id, 0, params, os.TempDir())
+	require.NoError(t, err)
+	res, err := ex.Run(ctx)
+	require.NoError(t, err)
+	require.NotEmpty(t, string(res))
+}
+
+func runExplainExpectError(ctx context.Context, t *testing.T, params *agentv1.StartActionRequest_MongoDBExplainParams) {
+	t.Helper()
+
+	big, err := rand.Int(rand.Reader, big.NewInt(27))
+	require.NoError(t, err)
+	id := strconv.FormatUint(big.Uint64(), 10)
+	ex, err := NewMongoDBExplainAction(id, 0, params, os.TempDir())
+	require.NoError(t, err)
+	_, err = ex.Run(ctx)
+	require.Error(t, err)
+}
 
 func TestMongoDBExplain(t *testing.T) {
 	database := "test"
@@ -47,14 +265,16 @@ func TestMongoDBExplain(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("Valid MongoDB query", func(t *testing.T) {
-		params := &agentpb.StartActionRequest_MongoDBExplainParams{
+		params := &agentv1.StartActionRequest_MongoDBExplainParams{
 			Dsn:   tests.GetTestMongoDBDSN(t),
 			Query: `{"ns":"test.coll","op":"query","query":{"k":{"$lte":{"$numberInt":"1"}}}}`,
 		}
 
-		ex := NewMongoDBExplainAction(id, 0, params, os.TempDir())
+		ex, err := NewMongoDBExplainAction(id, 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		res, err := ex.Run(ctx)
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 
 		want := map[string]interface{}{
 			"indexFilterSet": false,
@@ -69,15 +289,15 @@ func TestMongoDBExplain(t *testing.T) {
 
 		explainM := make(map[string]interface{})
 		err = json.Unmarshal(res, &explainM)
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 		queryPlanner, ok := explainM["queryPlanner"]
-		assert.Equal(t, ok, true)
+		assert.True(t, ok)
 		assert.NotEmpty(t, queryPlanner)
 		assert.Equal(t, want, queryPlanner)
 	})
 }
 
-// These tests are based on PMM-2.0 tests. The previous ones are inherited from PMM 1/Toolkit.
+// These tests are based on v3 tests. The previous ones are inherited from PMM 1/Toolkit.
 func TestNewMongoDBExplain(t *testing.T) {
 	database := "sbtest"
 	id := "abcd1234"
@@ -125,12 +345,14 @@ func TestNewMongoDBExplain(t *testing.T) {
 		t.Run(tf.in, func(t *testing.T) {
 			query, err := os.ReadFile(filepath.Join("testdata/", filepath.Clean(tf.in)))
 			assert.NoError(t, err)
-			params := &agentpb.StartActionRequest_MongoDBExplainParams{
+			params := &agentv1.StartActionRequest_MongoDBExplainParams{
 				Dsn:   tests.GetTestMongoDBDSN(t),
 				Query: string(query),
 			}
 
-			ex := NewMongoDBExplainAction(id, 0, params, os.TempDir())
+			ex, err := NewMongoDBExplainAction(id, 0, params, os.TempDir())
+			require.NoError(t, err)
+
 			res, err := ex.Run(ctx)
 			assert.NoError(t, err)
 

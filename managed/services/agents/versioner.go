@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -50,79 +50,105 @@ type Software interface {
 	// Name returns string name, one of defined in the models package.
 	Name() models.SoftwareName
 	// GetVersionRequest returns prepared struct for gRPC request.
-	GetVersionRequest() *agentpb.GetVersionsRequest_Software
+	GetVersionRequest() *agentv1.GetVersionsRequest_Software
 }
 
 // Mysqld represents mysqld software.
 type Mysqld struct{}
 
-func (*Mysqld) isSoftware()               {}
+func (*Mysqld) isSoftware() {}
+
+// Name returns the software name for Mysqld.
 func (*Mysqld) Name() models.SoftwareName { return models.MysqldSoftwareName }
-func (*Mysqld) GetVersionRequest() *agentpb.GetVersionsRequest_Software {
-	return &agentpb.GetVersionsRequest_Software{
-		Software: &agentpb.GetVersionsRequest_Software_Mysqld{},
+
+// GetVersionRequest constructs a request for MySQL software.
+func (*Mysqld) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
+	return &agentv1.GetVersionsRequest_Software{
+		Software: &agentv1.GetVersionsRequest_Software_Mysqld{},
 	}
 }
 
 // Xtrabackup represents xtrabackup software.
 type Xtrabackup struct{}
 
-func (*Xtrabackup) isSoftware()               {}
+func (*Xtrabackup) isSoftware() {}
+
+// Name returns the software name for Xtrabackup.
 func (*Xtrabackup) Name() models.SoftwareName { return models.XtrabackupSoftwareName }
-func (*Xtrabackup) GetVersionRequest() *agentpb.GetVersionsRequest_Software {
-	return &agentpb.GetVersionsRequest_Software{
-		Software: &agentpb.GetVersionsRequest_Software_Xtrabackup{},
+
+// GetVersionRequest constructs a request for XtraBackup software.
+func (*Xtrabackup) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
+	return &agentv1.GetVersionsRequest_Software{
+		Software: &agentv1.GetVersionsRequest_Software_Xtrabackup{},
 	}
 }
 
 // Xbcloud represents xbcloud software.
 type Xbcloud struct{}
 
-func (*Xbcloud) isSoftware()               {}
+func (*Xbcloud) isSoftware() {}
+
+// Name returns the software name for Qpress.
 func (*Xbcloud) Name() models.SoftwareName { return models.XbcloudSoftwareName }
-func (*Xbcloud) GetVersionRequest() *agentpb.GetVersionsRequest_Software {
-	return &agentpb.GetVersionsRequest_Software{
-		Software: &agentpb.GetVersionsRequest_Software_Xbcloud{},
+
+// GetVersionRequest constructs a request for Xbcloud software.
+func (*Xbcloud) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
+	return &agentv1.GetVersionsRequest_Software{
+		Software: &agentv1.GetVersionsRequest_Software_Xbcloud{},
 	}
 }
 
 // Qpress represents qpress software.
 type Qpress struct{}
 
-func (*Qpress) isSoftware()               {}
+func (*Qpress) isSoftware() {}
+
+// Name returns the software name for Qpress.
 func (*Qpress) Name() models.SoftwareName { return models.QpressSoftwareName }
-func (*Qpress) GetVersionRequest() *agentpb.GetVersionsRequest_Software {
-	return &agentpb.GetVersionsRequest_Software{
-		Software: &agentpb.GetVersionsRequest_Software_Qpress{},
+
+// GetVersionRequest constructs a request for Qpress software.
+func (*Qpress) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
+	return &agentv1.GetVersionsRequest_Software{
+		Software: &agentv1.GetVersionsRequest_Software_Qpress{},
 	}
 }
 
 // MongoDB represents mongod software.
 type MongoDB struct{}
 
-func (*MongoDB) isSoftware()               {}
+func (*MongoDB) isSoftware() {}
+
+// Name returns the software name for MongoDB.
 func (*MongoDB) Name() models.SoftwareName { return models.MongoDBSoftwareName }
-func (*MongoDB) GetVersionRequest() *agentpb.GetVersionsRequest_Software {
-	return &agentpb.GetVersionsRequest_Software{
-		Software: &agentpb.GetVersionsRequest_Software_Mongod{},
+
+// GetVersionRequest constructs a request for MongoDB software.
+func (*MongoDB) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
+	return &agentv1.GetVersionsRequest_Software{
+		Software: &agentv1.GetVersionsRequest_Software_Mongod{},
 	}
 }
 
 // PBM represents pbm software.
 type PBM struct{}
 
-func (*PBM) isSoftware()               {}
+func (*PBM) isSoftware() {}
+
+// Name returns the software name for PBM.
 func (*PBM) Name() models.SoftwareName { return models.PBMSoftwareName }
-func (*PBM) GetVersionRequest() *agentpb.GetVersionsRequest_Software {
-	return &agentpb.GetVersionsRequest_Software{
-		Software: &agentpb.GetVersionsRequest_Software_Pbm{},
+
+// GetVersionRequest constructs a request for PBM software.
+func (*PBM) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
+	return &agentv1.GetVersionsRequest_Software{
+		Software: &agentv1.GetVersionsRequest_Software_Pbm{},
 	}
 }
 
+// getMysqlSoftwareList returns list of software required for MySQL backups.
 func getMysqlSoftwareList() []Software {
 	return []Software{&Mysqld{}, &Xtrabackup{}, &Xbcloud{}, &Qpress{}}
 }
 
+// getMongodbSoftwareList returns list of software required for MongoDB backups.
 func getMongodbSoftwareList() []Software {
 	return []Software{&MongoDB{}, &PBM{}}
 }
@@ -141,7 +167,7 @@ func GetRequiredBackupSoftwareList(serviceType models.ServiceType) []Software {
 
 // GetVersions retrieves software versions.
 func (s *VersionerService) GetVersions(pmmAgentID string, softwareList []Software) ([]Version, error) {
-	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+	if err := models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 		"versions retrieving", pmmAgentMinVersionForSoftwareVersions); err != nil {
 		return nil, err
 	}
@@ -151,18 +177,18 @@ func (s *VersionerService) GetVersions(pmmAgentID string, softwareList []Softwar
 		return nil, errors.WithStack(err)
 	}
 
-	softwareRequest := make([]*agentpb.GetVersionsRequest_Software, 0, len(softwareList))
+	softwareRequest := make([]*agentv1.GetVersionsRequest_Software, 0, len(softwareList))
 	for _, software := range softwareList {
 		softwareRequest = append(softwareRequest, software.GetVersionRequest())
 	}
 
-	request := &agentpb.GetVersionsRequest{Softwares: softwareRequest}
+	request := &agentv1.GetVersionsRequest{Softwares: softwareRequest}
 	response, err := agent.channel.SendAndWaitResponse(request)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	versionsResponse := response.(*agentpb.GetVersionsResponse).Versions //nolint:forcetypeassert
+	versionsResponse := response.(*agentv1.GetVersionsResponse).Versions //nolint:forcetypeassert
 	if len(versionsResponse) != len(softwareRequest) {
 		return nil, errors.Errorf("response and request slice length mismatch %d != %d",
 			len(versionsResponse), len(softwareRequest))

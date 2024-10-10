@@ -1,9 +1,9 @@
 %global debug_package   %{nil}
-%global commit          f84a7c35000e11a2f4684852fd657f814381558c
+%global commit          7dd51483f34ce324e603160f415395fce0bc55a1
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         99
-%define grafana_version 9.2.18
+%define release         106
+%define grafana_version 11.1.5
 %define full_pmm_version 2.0.0
 %define full_version    v%{grafana_version}-%{full_pmm_version}
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
@@ -17,8 +17,8 @@ Version:        %{grafana_version}
 Release:        %{rpm_release}
 Summary:        Grafana is an open source, feature rich metrics dashboard and graph editor
 License:        AGPLv3
-URL:            https://github.com/percona-platform/grafana
-Source0:        https://github.com/percona-platform/grafana/archive/%{commit}.tar.gz
+URL:            https://github.com/percona/grafana
+Source0:        https://github.com/percona/grafana/archive/%{commit}.tar.gz
 ExclusiveArch:  %{ix86} x86_64 %{arm}
 
 BuildRequires: fontconfig
@@ -65,25 +65,47 @@ mv conf/ldap.toml %{buildroot}%{_sysconfdir}/grafana/
 install -d -p %{buildroot}%{_sharedstatedir}/grafana
 
 %files
-%defattr(-, grafana, grafana, -)
+%defattr(-, pmm, pmm, -)
 %{_datadir}/grafana
 %doc CHANGELOG.md README.md
 %license LICENSE
-%attr(0755, root, root) %{_sbindir}/grafana
-%attr(0755, root, root) %{_sbindir}/grafana-server
-%attr(0755, root, root) %{_bindir}/grafana-cli
+%attr(0755, pmm, pmm) %{_sbindir}/grafana
+%attr(0755, pmm, pmm) %{_sbindir}/grafana-server
+%attr(0755, pmm, pmm) %{_bindir}/grafana-cli
 %{_sysconfdir}/grafana/grafana.ini
 %{_sysconfdir}/grafana/ldap.toml
 %dir %{_sharedstatedir}/grafana
 
 %pre
-getent group grafana >/dev/null || groupadd -r grafana
-getent passwd grafana >/dev/null || \
-    useradd -r -g grafana -d /etc/grafana -s /sbin/nologin \
-    -c "Grafana Server" grafana
+getent group pmm >/dev/null || echo "Group pmm does not exist. Please create it manually."
+getent passwd pmm >/dev/null || echo "User pmm does not exist. Please create it manually."
 exit 0
 
 %changelog
+* Fri Sep 06 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.1.5-1
+- PMM-13235 Grafana 11.1.5
+
+* Thu Aug 15 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.1.4-1
+- PMM-13235 Grafana 11.1.4
+
+* Wed Jul 17 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.1.0-1
+- PMM-13235 Grafana 11.1.0
+
+* Tue Apr 16 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 10.4.2-1
+- PMM-13059 Grafana 10.4.2
+
+* Tue Mar 12 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 10.4.0-1
+- PMM-12991 Grafana 10.4.0
+
+* Tue Jan 16 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 10.2.3-1
+- PMM-12314 Grafana 10.2.3
+
+* Mon Nov 27 2023 Alex Demidoff <alexander.demidoff@percona.com> - 9.2.20-2
+- PMM-12693 Run Grafana as non-root user
+
+* Tue Jun 27 2023 Matej Kubinec <matej.kubinec@ext.percona.com> - 9.2.20-1
+- PMM-12254 Grafana 9.2.20
+
 * Thu May 18 2023 Matej Kubinec <matej.kubinec@ext.percona.com> - 9.2.18-1
 - PMM-12114 Grafana 9.2.18
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -23,22 +23,20 @@ import (
 	"testing"
 	"time"
 
-	// TODO replace with 'google.golang.org/protobuf/encoding/protojson' since this one is deprecated
-	"github.com/golang/protobuf/jsonpb" //nolint:staticcheck
-	// TODO replace with 'google.golang.org/protobuf/proto' since this one is deprecated
-	"github.com/golang/protobuf/proto" //nolint:staticcheck
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
+	jsonpb "google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
 )
 
 func setup() *sqlx.DB {
 	dsn, ok := os.LookupEnv("QANAPI_DSN_TEST")
 	if !ok {
-		dsn = "clickhouse://127.0.0.1:19000?database=pmm_test"
+		dsn = "clickhouse://127.0.0.1:19000/pmm_test"
 	}
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
@@ -51,14 +49,14 @@ func setup() *sqlx.DB {
 func getExpectedJSON(t *testing.T, got proto.Message, filename string) []byte {
 	t.Helper()
 	if os.Getenv("REFRESH_TEST_DATA") != "" {
-		marshaler := jsonpb.Marshaler{
+		marshaler := jsonpb.MarshalOptions{
 			Indent: "\t",
 		}
-		json, err := marshaler.MarshalToString(got)
+		json, err := marshaler.Marshal(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		err = os.WriteFile(filename, []byte(json), 0o644) //nolint:gosec
+		err = os.WriteFile(filename, json, 0o644) //nolint:gosec
 		if err != nil {
 			t.Errorf("cannot write:%v", err)
 		}
@@ -76,7 +74,7 @@ func TestService_GetReport(t *testing.T) {
 	mm := models.NewMetrics(db)
 	t1, _ := time.Parse(time.RFC3339, "2019-01-01T00:00:00Z")
 	t2, _ := time.Parse(time.RFC3339, "2019-01-01T10:00:00Z")
-	var want qanpb.ReportReply
+	var want qanpb.GetReportResponse
 	type fields struct {
 		rm models.Reporter
 		mm models.Metrics
@@ -84,16 +82,16 @@ func TestService_GetReport(t *testing.T) {
 	tests := []struct {
 		name    string
 		fields  fields
-		in      *qanpb.ReportRequest
-		want    *qanpb.ReportReply
+		in      *qanpb.GetReportRequest
+		want    *qanpb.GetReportResponse
 		wantErr bool
 	}{
 		{
 			"success",
 			fields{rm: rm, mm: mm},
-			&qanpb.ReportRequest{
-				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+			&qanpb.GetReportRequest{
+				PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+				PeriodStartTo:   &timestamppb.Timestamp{Seconds: t2.Unix()},
 				GroupBy:         "queryid",
 				Columns:         []string{"query_time", "lock_time", "sort_scan"},
 				OrderBy:         "query_time",
@@ -106,9 +104,9 @@ func TestService_GetReport(t *testing.T) {
 		{
 			"load without query_time",
 			fields{rm: rm, mm: mm},
-			&qanpb.ReportRequest{
-				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+			&qanpb.GetReportRequest{
+				PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+				PeriodStartTo:   &timestamppb.Timestamp{Seconds: t2.Unix()},
 				GroupBy:         "queryid",
 				Columns:         []string{"load", "lock_time", "sort_scan"},
 				OrderBy:         "-load",
@@ -121,9 +119,9 @@ func TestService_GetReport(t *testing.T) {
 		{
 			"wrong_time_range",
 			fields{rm: rm, mm: mm},
-			&qanpb.ReportRequest{
-				PeriodStartFrom: &timestamp.Timestamp{Seconds: t2.Unix()},
-				PeriodStartTo:   &timestamp.Timestamp{Seconds: t1.Unix()},
+			&qanpb.GetReportRequest{
+				PeriodStartFrom: &timestamppb.Timestamp{Seconds: t2.Unix()},
+				PeriodStartTo:   &timestamppb.Timestamp{Seconds: t1.Unix()},
 			},
 			nil,
 			true,
@@ -131,7 +129,7 @@ func TestService_GetReport(t *testing.T) {
 		{
 			"empty_fail",
 			fields{rm: rm, mm: mm},
-			&qanpb.ReportRequest{},
+			&qanpb.GetReportRequest{},
 			nil,
 			true,
 		},
@@ -153,12 +151,12 @@ func TestService_GetReport(t *testing.T) {
 				return
 			}
 			expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_"+tt.name+".json")
-			marshaler := jsonpb.Marshaler{Indent: "\t"}
-			gotJSON, err := marshaler.MarshalToString(got)
+			marshaler := jsonpb.MarshalOptions{Indent: "\t"}
+			gotJSON, err := marshaler.Marshal(got)
 			if err != nil {
 				t.Errorf("cannot marshal:%v", err)
 			}
-			assert.JSONEq(t, string(expectedJSON), gotJSON)
+			assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 		})
 	}
 }
@@ -169,23 +167,21 @@ func TestService_GetReport_Mix(t *testing.T) {
 	mm := models.NewMetrics(db)
 	t1, _ := time.Parse(time.RFC3339, "2019-01-01T00:00:00Z")
 	t2, _ := time.Parse(time.RFC3339, "2019-01-01T10:00:00Z")
-	var want qanpb.ReportReply
+	var want qanpb.GetReportResponse
 	type fields struct {
 		rm models.Reporter
 		mm models.Metrics
 	}
 	test := struct {
-		name    string
 		fields  fields
-		in      *qanpb.ReportRequest
-		want    *qanpb.ReportReply
+		in      *qanpb.GetReportRequest
+		want    *qanpb.GetReportResponse
 		wantErr bool
 	}{
-		"reverce_order",
 		fields{rm: rm, mm: mm},
-		&qanpb.ReportRequest{
-			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+		&qanpb.GetReportRequest{
+			PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamppb.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "queryid",
 			Columns:         []string{"query_time", "lock_time", "sort_scan"},
 			OrderBy:         "-query_time",
@@ -205,7 +201,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 		&want,
 		false,
 	}
-	t.Run(test.name, func(t *testing.T) {
+	t.Run("reverce_order", func(t *testing.T) {
 		s := &Service{
 			rm: test.fields.rm,
 			mm: test.fields.mm,
@@ -216,17 +212,16 @@ func TestService_GetReport_Mix(t *testing.T) {
 			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
 			return
 		}
-		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Mix_"+test.name+".json")
-		marshaler := jsonpb.Marshaler{Indent: "\t"}
-		gotJSON, err := marshaler.MarshalToString(got)
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Mix_reverce_order.json")
+		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
+		gotJSON, err := marshaler.Marshal(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), gotJSON)
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
-	test.name = "correct_load"
-	t.Run(test.name, func(t *testing.T) {
+	t.Run("correct_load", func(t *testing.T) {
 		s := &Service{
 			rm: test.fields.rm,
 			mm: test.fields.mm,
@@ -236,17 +231,16 @@ func TestService_GetReport_Mix(t *testing.T) {
 			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
 			return
 		}
-		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Mix_"+test.name+".json")
-		marshaler := jsonpb.Marshaler{Indent: "\t"}
-		gotJSON, err := marshaler.MarshalToString(got)
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Mix_correct_load.json")
+		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
+		gotJSON, err := marshaler.Marshal(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), string(gotJSON)) //nolint:unconvert //keeps converting automatically
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
-	test.name = "correct_latency"
-	t.Run(test.name, func(t *testing.T) {
+	t.Run("correct_latency", func(t *testing.T) {
 		s := &Service{
 			rm: test.fields.rm,
 			mm: test.fields.mm,
@@ -257,13 +251,13 @@ func TestService_GetReport_Mix(t *testing.T) {
 			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
 			return
 		}
-		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Mix_"+test.name+".json")
-		marshaler := jsonpb.Marshaler{Indent: "\t"}
-		gotJSON, err := marshaler.MarshalToString(got)
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Mix_correct_latency.json")
+		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
+		gotJSON, err := marshaler.Marshal(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), string(gotJSON)) //nolint:unconvert //keeps converting automatically
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
 	t.Run("no error on limit is 0", func(t *testing.T) {
@@ -309,9 +303,9 @@ func TestService_GetReport_Groups(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
-			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+		in := qanpb.GetReportRequest{
+			PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamppb.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "queryid",
 			Columns: []string{
 				"query_time", "lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
@@ -333,12 +327,12 @@ func TestService_GetReport_Groups(t *testing.T) {
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_queryid.json")
 
-		marshaler := jsonpb.Marshaler{Indent: "\t"}
-		gotJSON, err := marshaler.MarshalToString(got)
+		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
+		gotJSON, err := marshaler.Marshal(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), gotJSON)
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
 	t.Run("group_by_service_name", func(t *testing.T) {
@@ -347,9 +341,9 @@ func TestService_GetReport_Groups(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
-			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+		in := qanpb.GetReportRequest{
+			PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamppb.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "service_name",
 			Columns: []string{
 				"query_time", "lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
@@ -371,12 +365,12 @@ func TestService_GetReport_Groups(t *testing.T) {
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_service_name.json")
 
-		marshaler := jsonpb.Marshaler{Indent: "\t"}
-		gotJSON, err := marshaler.MarshalToString(got)
+		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
+		gotJSON, err := marshaler.Marshal(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), gotJSON)
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
 	t.Run("group_by_database", func(t *testing.T) {
@@ -385,9 +379,9 @@ func TestService_GetReport_Groups(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
-			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+		in := qanpb.GetReportRequest{
+			PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamppb.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "database",
 			Columns: []string{
 				"query_time", "lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
@@ -409,12 +403,12 @@ func TestService_GetReport_Groups(t *testing.T) {
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_database.json")
 
-		marshaler := jsonpb.Marshaler{Indent: "\t"}
-		gotJSON, err := marshaler.MarshalToString(got)
+		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
+		gotJSON, err := marshaler.Marshal(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), gotJSON)
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
 	t.Run("group_by_schema", func(t *testing.T) {
@@ -423,9 +417,9 @@ func TestService_GetReport_Groups(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
-			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+		in := qanpb.GetReportRequest{
+			PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamppb.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "schema",
 			Columns: []string{
 				"query_time", "lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
@@ -447,12 +441,12 @@ func TestService_GetReport_Groups(t *testing.T) {
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_schema.json")
 
-		marshaler := jsonpb.Marshaler{Indent: "\t"}
-		gotJSON, err := marshaler.MarshalToString(got)
+		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
+		gotJSON, err := marshaler.Marshal(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), gotJSON)
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
 	t.Run("group_by_username", func(t *testing.T) {
@@ -461,9 +455,9 @@ func TestService_GetReport_Groups(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
-			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+		in := qanpb.GetReportRequest{
+			PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamppb.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "username",
 			Columns: []string{
 				"query_time", "lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
@@ -485,12 +479,12 @@ func TestService_GetReport_Groups(t *testing.T) {
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_username.json")
 
-		marshaler := jsonpb.Marshaler{Indent: "\t"}
-		gotJSON, err := marshaler.MarshalToString(got)
+		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
+		gotJSON, err := marshaler.Marshal(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), gotJSON)
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
 	t.Run("group_by_client_host", func(t *testing.T) {
@@ -499,9 +493,9 @@ func TestService_GetReport_Groups(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
-			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+		in := qanpb.GetReportRequest{
+			PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamppb.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "client_host",
 			Columns: []string{
 				"query_time", "lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
@@ -523,12 +517,12 @@ func TestService_GetReport_Groups(t *testing.T) {
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_client_host.json")
 
-		marshaler := jsonpb.Marshaler{Indent: "\t"}
-		gotJSON, err := marshaler.MarshalToString(got)
+		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
+		gotJSON, err := marshaler.Marshal(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), string(gotJSON)) //nolint:unconvert //keeps converting automatically
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 }
 
@@ -553,14 +547,14 @@ func TestService_GetReport_AllLabels(t *testing.T) {
 	test := struct {
 		name    string
 		fields  fields
-		in      *qanpb.ReportRequest
+		in      *qanpb.GetReportRequest
 		wantErr bool
 	}{
 		"",
 		fields{rm: rm, mm: mm},
-		&qanpb.ReportRequest{
-			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+		&qanpb.GetReportRequest{
+			PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamppb.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "queryid",
 			Columns:         []string{"query_time", "lock_time", "sort_scan"},
 			OrderBy:         "-query_time",
@@ -659,9 +653,9 @@ func TestService_GetReport_Sparklines(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
-			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+		in := qanpb.GetReportRequest{
+			PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamppb.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "queryid",
 			Columns: []string{
 				"query_time", "lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
@@ -683,12 +677,12 @@ func TestService_GetReport_Sparklines(t *testing.T) {
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_sparklines_60_points.json")
 
-		marshaler := jsonpb.Marshaler{Indent: "\t"}
-		gotJSON, err := marshaler.MarshalToString(got)
+		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
+		gotJSON, err := marshaler.Marshal(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), string(gotJSON)) //nolint:unconvert //keeps converting automatically
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
 	t3, _ := time.Parse(time.RFC3339, "2019-01-01T01:30:00Z")
@@ -698,9 +692,9 @@ func TestService_GetReport_Sparklines(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
-			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-			PeriodStartTo:   &timestamp.Timestamp{Seconds: t3.Unix()},
+		in := qanpb.GetReportRequest{
+			PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamppb.Timestamp{Seconds: t3.Unix()},
 			GroupBy:         "queryid",
 			Columns: []string{
 				"query_time", "lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
@@ -722,12 +716,12 @@ func TestService_GetReport_Sparklines(t *testing.T) {
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_sparklines_90_points.json")
 
-		marshaler := jsonpb.Marshaler{Indent: "\t"}
-		gotJSON, err := marshaler.MarshalToString(got)
+		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
+		gotJSON, err := marshaler.Marshal(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), gotJSON)
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 }
 
@@ -744,9 +738,9 @@ func TestService_GetReport_Search(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
-			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+		in := qanpb.GetReportRequest{
+			PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamppb.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "queryid",
 			Columns: []string{
 				"query_time",
@@ -761,12 +755,12 @@ func TestService_GetReport_Search(t *testing.T) {
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Search_search_queryid.json")
 
-		marshaler := jsonpb.Marshaler{Indent: "\t"}
-		gotJSON, err := marshaler.MarshalToString(got)
+		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
+		gotJSON, err := marshaler.Marshal(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), gotJSON)
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
 	t.Run("search_fingerprint", func(t *testing.T) {
@@ -775,9 +769,9 @@ func TestService_GetReport_Search(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
-			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+		in := qanpb.GetReportRequest{
+			PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamppb.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "queryid",
 			Columns: []string{
 				"query_time",
@@ -792,12 +786,12 @@ func TestService_GetReport_Search(t *testing.T) {
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Search_search_fingerprint.json")
 
-		marshaler := jsonpb.Marshaler{Indent: "\t"}
-		gotJSON, err := marshaler.MarshalToString(got)
+		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
+		gotJSON, err := marshaler.Marshal(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), gotJSON)
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
 	t.Run("search_service_name", func(t *testing.T) {
@@ -806,9 +800,9 @@ func TestService_GetReport_Search(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
-			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+		in := qanpb.GetReportRequest{
+			PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamppb.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "service_name",
 			Columns: []string{
 				"query_time",
@@ -823,12 +817,12 @@ func TestService_GetReport_Search(t *testing.T) {
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Search_search_service_name.json")
 
-		marshaler := jsonpb.Marshaler{Indent: "\t"}
-		gotJSON, err := marshaler.MarshalToString(got)
+		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
+		gotJSON, err := marshaler.Marshal(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), gotJSON)
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 }
 
@@ -845,9 +839,9 @@ func TestServiceGetReportSpecialMetrics(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
-			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+		in := qanpb.GetReportRequest{
+			PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamppb.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "queryid",
 			Columns: []string{
 				"num_queries_with_errors", "num_queries_with_warnings", "num_queries", "load",
@@ -861,11 +855,11 @@ func TestServiceGetReportSpecialMetrics(t *testing.T) {
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestServiceGetReportSpecialMetrics_num_queries_with_errors.json")
 
-		marshaler := jsonpb.Marshaler{Indent: "\t"}
-		gotJSON, err := marshaler.MarshalToString(got)
+		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
+		gotJSON, err := marshaler.Marshal(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), string(gotJSON)) //nolint:unconvert //keeps converting automatically
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,7 @@ const (
 
 var errUnsupportedLocation = errors.New("unsupported location config")
 
-// PBMPITRService helps to perform PITR chunks lookup in a backup storage
+// PBMPITRService helps to perform PITR chunks lookup in a backup storage.
 type PBMPITRService struct {
 	l *logrus.Entry
 }
@@ -49,7 +49,7 @@ func NewPBMPITRService() *PBMPITRService {
 	}
 }
 
-// oplogChunk is index metadata for the oplog chunks
+// oplogChunk is index metadata for the oplog chunks.
 type oplogChunk struct {
 	RS          string              `bson:"rs"`
 	FName       string              `bson:"fname"`
@@ -59,7 +59,7 @@ type oplogChunk struct {
 	size        int64               `bson:"-"`
 }
 
-// Timeline is an internal representation of a PITR Timeline
+// Timeline is an internal representation of a PITR Timeline.
 type Timeline struct {
 	ReplicaSet string `json:"replica_set"`
 	Start      uint32 `json:"start"`
@@ -79,7 +79,7 @@ func (x gaps) Less(i, j int) bool {
 }
 func (x gaps) Swap(i, j int) { x[i], x[j] = x[j], x[i] }
 
-// compressionType is the type of compression used for PITR oplog
+// compressionType is the type of compression used for PITR oplog.
 type compressionType string
 
 const (
@@ -91,7 +91,7 @@ const (
 	compressionTypeZstandard compressionType = "zstd"
 )
 
-// file return compression alg based on given file extension
+// file return compression alg based on given file extension.
 func file(ext string) compressionType {
 	switch ext {
 	case "gz":
@@ -181,7 +181,7 @@ func (s *PBMPITRService) ListPITRTimeranges(ctx context.Context, storage Storage
 // trimTimelines adds one second to the Start value of every timeline record. Required to fit PBM values.
 func trimTimelines(timelines []Timeline) {
 	for i := range timelines {
-		timelines[i].Start += 1
+		timelines[i].Start += 1 //nolint:revive
 	}
 }
 
@@ -190,7 +190,7 @@ func trimTimelines(timelines []Timeline) {
 // current format is 20200715155939-0.20200715160029-1.oplog.snappy
 // (https://github.com/percona/percona-backup-mongodb/wiki/PITR:-storage-layout)
 //
-// !!! Should be agreed with pbm/pitr.chunkPath()
+// !!! Should be agreed with pbm/pitr.chunkPath().
 func pitrMetaFromFileName(prefix, f string) *oplogChunk {
 	ppath := strings.Split(f, "/")
 	if len(ppath) < 2 {
@@ -251,7 +251,7 @@ func getTimelines(slices []*oplogChunk) []Timeline {
 	var timelines []Timeline
 	var prevEnd primitive.Timestamp
 	for _, s := range slices {
-		if prevEnd.T != 0 && primitive.CompareTimestamp(prevEnd, s.StartTS) == -1 {
+		if prevEnd.T != 0 && prevEnd.Compare(s.StartTS) == -1 {
 			timelines = append(timelines, tl)
 			tl = Timeline{}
 		}
@@ -269,7 +269,7 @@ func getTimelines(slices []*oplogChunk) []Timeline {
 }
 
 // mergeTimelines merges overlapping sets on timelines
-// it presumes timelines are sorted and don't start from 0
+// it presumes timelines are sorted and don't start from 0.
 func mergeTimelines(timelines ...[]Timeline) []Timeline {
 	// fast paths
 	if len(timelines) == 0 {

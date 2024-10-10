@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -17,7 +17,7 @@
 package grpc
 
 import (
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/services/agents"
 )
 
@@ -25,22 +25,22 @@ import (
 type agentServer struct {
 	handler *agents.Handler
 
-	agentpb.UnimplementedAgentServer
+	agentv1.UnimplementedAgentServiceServer
 }
 
 // NewAgentServer creates new agent server.
-func NewAgentServer(r *agents.Handler) agentpb.AgentServer {
+func NewAgentServer(r *agents.Handler) agentv1.AgentServiceServer { //nolint:ireturn
 	return &agentServer{
 		handler: r,
 	}
 }
 
 // Connect establishes two-way communication channel between pmm-agent and pmm-managed.
-func (s *agentServer) Connect(stream agentpb.Agent_ConnectServer) error {
+func (s *agentServer) Connect(stream agentv1.AgentService_ConnectServer) error {
 	return s.handler.Run(stream)
 }
 
-// check interfaces
+// check interfaces.
 var (
-	_ agentpb.AgentServer = (*agentServer)(nil)
+	_ agentv1.AgentServiceServer = (*agentServer)(nil)
 )

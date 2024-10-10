@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/helpers"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/ha_proxy"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 var addHAProxyResultT = commands.ParseTemplate(`
@@ -34,7 +34,7 @@ Service name: {{ .Service.ServiceName }}
 `)
 
 type addHAProxyResult struct {
-	Service *ha_proxy.AddHAProxyOKBodyService `json:"service"`
+	Service *mservice.AddServiceOKBodyHaproxyService `json:"service"`
 }
 
 func (res *addHAProxyResult) Result() {}
@@ -63,6 +63,7 @@ type AddHAProxyCommand struct {
 	SkipConnectionCheck bool              `help:"Skip connection check"`
 }
 
+// GetCredentials returns the credentials for AddHAProxyCommand.
 func (cmd *AddHAProxyCommand) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
@@ -75,6 +76,7 @@ func (cmd *AddHAProxyCommand) GetCredentials() error {
 	return nil
 }
 
+// RunCmd runs the command for AddHAProxyCommand.
 func (cmd *AddHAProxyCommand) RunCmd() (commands.Result, error) {
 	isSupported, err := helpers.IsHAProxySupported()
 	if !isSupported {
@@ -103,30 +105,32 @@ func (cmd *AddHAProxyCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &ha_proxy.AddHAProxyParams{
-		Body: ha_proxy.AddHAProxyBody{
-			ServiceName:         cmd.ServiceName,
-			Username:            cmd.Username,
-			Password:            cmd.Password,
-			Scheme:              cmd.Scheme,
-			MetricsPath:         cmd.MetricsPath,
-			ListenPort:          int64(cmd.ListenPort),
-			NodeID:              cmd.NodeID,
-			Environment:         cmd.Environment,
-			Cluster:             cmd.Cluster,
-			ReplicationSet:      cmd.ReplicationSet,
-			CustomLabels:        customLabels,
-			MetricsMode:         pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
+	params := &mservice.AddServiceParams{
+		Body: mservice.AddServiceBody{
+			Haproxy: &mservice.AddServiceParamsBodyHaproxy{
+				ServiceName:         cmd.ServiceName,
+				Username:            cmd.Username,
+				Password:            cmd.Password,
+				Scheme:              cmd.Scheme,
+				MetricsPath:         cmd.MetricsPath,
+				ListenPort:          int64(cmd.ListenPort),
+				NodeID:              cmd.NodeID,
+				Environment:         cmd.Environment,
+				Cluster:             cmd.Cluster,
+				ReplicationSet:      cmd.ReplicationSet,
+				CustomLabels:        customLabels,
+				MetricsMode:         pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
+				SkipConnectionCheck: cmd.SkipConnectionCheck,
+			},
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.HAProxy.AddHAProxy(params)
+	resp, err := client.Default.ManagementService.AddService(params)
 	if err != nil {
 		return nil, err
 	}
 
 	return &addHAProxyResult{
-		Service: resp.Payload.Service,
+		Service: resp.Payload.Haproxy.Service,
 	}, nil
 }

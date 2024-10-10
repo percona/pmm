@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//nolint:goconst
 package models_test
 
 import (
@@ -167,9 +166,22 @@ func TestArtifacts(t *testing.T) {
 			Mode:       models.Snapshot,
 		}
 
+		params3 := models.CreateArtifactParams{
+			Name:       "backup_name_3",
+			Vendor:     "mongodb",
+			LocationID: locationID2,
+			ServiceID:  serviceID2,
+			DataModel:  models.LogicalDataModel,
+			Status:     models.SuccessBackupStatus,
+			Mode:       models.Snapshot,
+			Folder:     "some_folder",
+		}
+
 		a1, err := models.CreateArtifact(q, params1)
 		require.NoError(t, err)
 		a2, err := models.CreateArtifact(q, params2)
+		require.NoError(t, err)
+		a3, err := models.CreateArtifact(q, params3)
 		require.NoError(t, err)
 
 		actual, err := models.FindArtifacts(q, models.ArtifactFilters{})
@@ -188,6 +200,19 @@ func TestArtifacts(t *testing.T) {
 
 		assert.Condition(t, found(a1.ID), "The first artifact not found")
 		assert.Condition(t, found(a2.ID), "The second artifact not found")
+
+		// Check artifacts can be found by folder.
+		actual2, err := models.FindArtifacts(q, models.ArtifactFilters{Folder: &a3.Folder})
+		require.NoError(t, err)
+		assert.Equal(t, []*models.Artifact{a3}, actual2)
+
+		actual3, err := models.FindArtifacts(q, models.ArtifactFilters{})
+		require.NoError(t, err)
+		require.Equal(t, 3, len(actual3))
+
+		for _, a := range actual3 {
+			assert.Contains(t, []models.Artifact{*a1, *a2, *a3}, *a)
+		}
 	})
 
 	t.Run("remove", func(t *testing.T) {

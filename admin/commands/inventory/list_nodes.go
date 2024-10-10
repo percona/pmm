@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/api/inventorypb/types"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
+	"github.com/percona/pmm/api/inventory/v1/types"
 )
 
 var listNodesResultT = commands.ParseTemplate(`
@@ -63,6 +63,7 @@ type ListNodesCommand struct {
 	NodeType string `help:"Filter by Node type"`
 }
 
+// RunCmd executes the ListNodesCommand and returns the result.
 func (cmd *ListNodesCommand) RunCmd() (commands.Result, error) {
 	nodeType, err := formatTypeValue(acceptableNodeTypes, cmd.NodeType)
 	if err != nil {
@@ -70,10 +71,10 @@ func (cmd *ListNodesCommand) RunCmd() (commands.Result, error) {
 	}
 
 	params := &nodes.ListNodesParams{
-		Body:    nodes.ListNodesBody{NodeType: nodeType},
-		Context: commands.Ctx,
+		NodeType: nodeType,
+		Context:  commands.Ctx,
 	}
-	result, err := client.Default.Nodes.ListNodes(params)
+	result, err := client.Default.NodesService.ListNodes(params)
 	if err != nil {
 		return nil, err
 	}

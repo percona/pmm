@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -41,13 +41,13 @@ func TestScrapeConfig(t *testing.T) {
 	t.Run("scrapeConfigsForNodeExporter", func(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
 			node := &models.Node{
-				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:     "node_name",
 				Address:      "1.2.3.4",
 				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
 			}
 			agent := &models.Agent{
-				AgentID:            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentID:            "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:          models.NodeExporterType,
 				CustomLabels:       []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:         pointer.ToUint16(12345),
@@ -55,14 +55,14 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
+				JobName:        "node_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config.HTTPClientConfig{
 					BasicAuth: &config.BasicAuth{
 						Username: "pmm",
-						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+						Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
 					},
 				},
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -71,10 +71,10 @@ func TestScrapeConfig(t *testing.T) {
 						Labels: map[string]string{
 							"_some_agent_label": "baz",
 							"_some_node_label":  "foo",
-							"agent_id":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_id":          "75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type":        "node_exporter",
-							"instance":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":           "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"instance":          "75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":           "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":         "node_name",
 						},
 					}},
@@ -98,14 +98,14 @@ func TestScrapeConfig(t *testing.T) {
 					"vmstat",
 				}},
 			}, {
-				JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
+				JobName:        "node_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.MR),
 				ScrapeTimeout:  scrapeTimeout(s.MR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config.HTTPClientConfig{
 					BasicAuth: &config.BasicAuth{
 						Username: "pmm",
-						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+						Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
 					},
 				},
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -114,10 +114,10 @@ func TestScrapeConfig(t *testing.T) {
 						Labels: map[string]string{
 							"_some_agent_label": "baz",
 							"_some_node_label":  "foo",
-							"agent_id":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_id":          "75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type":        "node_exporter",
-							"instance":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":           "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"instance":          "75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":           "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":         "node_name",
 						},
 					}},
@@ -127,14 +127,14 @@ func TestScrapeConfig(t *testing.T) {
 					"textfile.mr",
 				}},
 			}, {
-				JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
+				JobName:        "node_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
 				ScrapeInterval: config.Duration(s.LR),
 				ScrapeTimeout:  scrapeTimeout(s.LR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config.HTTPClientConfig{
 					BasicAuth: &config.BasicAuth{
 						Username: "pmm",
-						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+						Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
 					},
 				},
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -143,10 +143,10 @@ func TestScrapeConfig(t *testing.T) {
 						Labels: map[string]string{
 							"_some_agent_label": "baz",
 							"_some_node_label":  "foo",
-							"agent_id":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_id":          "75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type":        "node_exporter",
-							"instance":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":           "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"instance":          "75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":           "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":         "node_name",
 						},
 					}},
@@ -159,10 +159,11 @@ func TestScrapeConfig(t *testing.T) {
 				}},
 			}}
 
-			actual, err := scrapeConfigsForNodeExporter(s, &scrapeConfigParams{
-				host:  "1.2.3.4",
-				node:  node,
-				agent: agent,
+			actual, err := scrapeConfigsForNodeExporter(&scrapeConfigParams{
+				host:              "1.2.3.4",
+				node:              node,
+				agent:             agent,
+				metricsResolution: s,
 			})
 
 			require.NoError(t, err)
@@ -174,14 +175,14 @@ func TestScrapeConfig(t *testing.T) {
 
 		t.Run("MacOS", func(t *testing.T) {
 			node := &models.Node{
-				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:     "node_name",
 				Distro:       "darwin",
 				Address:      "1.2.3.4",
 				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
 			}
 			agent := &models.Agent{
-				AgentID:            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentID:            "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:          models.NodeExporterType,
 				CustomLabels:       []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:         pointer.ToUint16(12345),
@@ -189,14 +190,14 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
+				JobName:        "node_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config.HTTPClientConfig{
 					BasicAuth: &config.BasicAuth{
 						Username: "pmm",
-						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+						Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
 					},
 				},
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -205,10 +206,10 @@ func TestScrapeConfig(t *testing.T) {
 						Labels: map[string]string{
 							"_some_agent_label": "baz",
 							"_some_node_label":  "foo",
-							"agent_id":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_id":          "75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type":        "node_exporter",
-							"instance":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":           "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"instance":          "75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":           "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":         "node_name",
 						},
 					}},
@@ -222,10 +223,11 @@ func TestScrapeConfig(t *testing.T) {
 				}},
 			}}
 
-			actual, err := scrapeConfigsForNodeExporter(s, &scrapeConfigParams{
-				host:  "1.2.3.4",
-				node:  node,
-				agent: agent,
+			actual, err := scrapeConfigsForNodeExporter(&scrapeConfigParams{
+				host:              "1.2.3.4",
+				node:              node,
+				agent:             agent,
+				metricsResolution: s,
 			})
 
 			require.NoError(t, err)
@@ -239,33 +241,33 @@ func TestScrapeConfig(t *testing.T) {
 	t.Run("scrapeConfigsForMySQLdExporter", func(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
 			node := &models.Node{
-				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:     "node_name",
 				Address:      "1.2.3.4",
 				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
 			}
 			service := &models.Service{
-				ServiceID:    "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
-				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				ServiceID:    "014647c3-b2f5-44eb-94f4-d943260a968c",
+				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				Address:      pointer.ToString("5.6.7.8"),
 				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
 			}
 			agent := &models.Agent{
-				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.MySQLdExporterType,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
+				JobName:        "mysqld_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config.HTTPClientConfig{
 					BasicAuth: &config.BasicAuth{
 						Username: "pmm",
-						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+						Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
 					},
 				},
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -275,12 +277,12 @@ func TestScrapeConfig(t *testing.T) {
 							"_some_agent_label":   "baz",
 							"_some_node_label":    "foo",
 							"_some_service_label": "bar",
-							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_id":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type":          "mysqld_exporter",
-							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"instance":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":           "node_name",
-							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							"service_id":          "014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
@@ -292,14 +294,14 @@ func TestScrapeConfig(t *testing.T) {
 					"standard.process",
 				}},
 			}, {
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
+				JobName:        "mysqld_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.MR),
 				ScrapeTimeout:  scrapeTimeout(s.MR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config.HTTPClientConfig{
 					BasicAuth: &config.BasicAuth{
 						Username: "pmm",
-						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+						Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
 					},
 				},
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -309,12 +311,12 @@ func TestScrapeConfig(t *testing.T) {
 							"_some_agent_label":   "baz",
 							"_some_node_label":    "foo",
 							"_some_service_label": "bar",
-							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_id":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type":          "mysqld_exporter",
-							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"instance":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":           "node_name",
-							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							"service_id":          "014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
@@ -331,14 +333,14 @@ func TestScrapeConfig(t *testing.T) {
 					"slave_status",
 				}},
 			}, {
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
+				JobName:        "mysqld_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
 				ScrapeInterval: config.Duration(s.LR),
 				ScrapeTimeout:  scrapeTimeout(s.LR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config.HTTPClientConfig{
 					BasicAuth: &config.BasicAuth{
 						Username: "pmm",
-						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+						Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
 					},
 				},
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -348,12 +350,12 @@ func TestScrapeConfig(t *testing.T) {
 							"_some_agent_label":   "baz",
 							"_some_node_label":    "foo",
 							"_some_service_label": "bar",
-							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_id":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type":          "mysqld_exporter",
-							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"instance":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":           "node_name",
-							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							"service_id":          "014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
@@ -377,11 +379,12 @@ func TestScrapeConfig(t *testing.T) {
 				}},
 			}}
 
-			actual, err := scrapeConfigsForMySQLdExporter(s, &scrapeConfigParams{
-				host:    "4.5.6.7",
-				node:    node,
-				service: service,
-				agent:   agent,
+			actual, err := scrapeConfigsForMySQLdExporter(&scrapeConfigParams{
+				host:              "4.5.6.7",
+				node:              node,
+				service:           service,
+				agent:             agent,
+				metricsResolution: s,
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
@@ -392,19 +395,19 @@ func TestScrapeConfig(t *testing.T) {
 
 		t.Run("DisabledCollectors", func(t *testing.T) {
 			node := &models.Node{
-				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:     "node_name",
 				Address:      "1.2.3.4",
 				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
 			}
 			service := &models.Service{
-				ServiceID:    "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
-				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				ServiceID:    "014647c3-b2f5-44eb-94f4-d943260a968c",
+				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				Address:      pointer.ToString("5.6.7.8"),
 				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
 			}
 			agent := &models.Agent{
-				AgentID:            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentID:            "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:          models.MySQLdExporterType,
 				CustomLabels:       []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:         pointer.ToUint16(12345),
@@ -412,14 +415,14 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
+				JobName:        "mysqld_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config.HTTPClientConfig{
 					BasicAuth: &config.BasicAuth{
 						Username: "pmm",
-						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+						Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
 					},
 				},
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -429,12 +432,12 @@ func TestScrapeConfig(t *testing.T) {
 							"_some_agent_label":   "baz",
 							"_some_node_label":    "foo",
 							"_some_service_label": "bar",
-							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_id":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type":          "mysqld_exporter",
-							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"instance":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":           "node_name",
-							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							"service_id":          "014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
@@ -445,14 +448,14 @@ func TestScrapeConfig(t *testing.T) {
 					"standard.process",
 				}},
 			}, {
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
+				JobName:        "mysqld_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.MR),
 				ScrapeTimeout:  scrapeTimeout(s.MR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config.HTTPClientConfig{
 					BasicAuth: &config.BasicAuth{
 						Username: "pmm",
-						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+						Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
 					},
 				},
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -462,12 +465,12 @@ func TestScrapeConfig(t *testing.T) {
 							"_some_agent_label":   "baz",
 							"_some_node_label":    "foo",
 							"_some_service_label": "bar",
-							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_id":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type":          "mysqld_exporter",
-							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"instance":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":           "node_name",
-							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							"service_id":          "014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
@@ -482,14 +485,14 @@ func TestScrapeConfig(t *testing.T) {
 					"slave_status",
 				}},
 			}, {
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
+				JobName:        "mysqld_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
 				ScrapeInterval: config.Duration(s.LR),
 				ScrapeTimeout:  scrapeTimeout(s.LR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config.HTTPClientConfig{
 					BasicAuth: &config.BasicAuth{
 						Username: "pmm",
-						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+						Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
 					},
 				},
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -499,12 +502,12 @@ func TestScrapeConfig(t *testing.T) {
 							"_some_agent_label":   "baz",
 							"_some_node_label":    "foo",
 							"_some_service_label": "bar",
-							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_id":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type":          "mysqld_exporter",
-							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"instance":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":           "node_name",
-							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							"service_id":          "014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
@@ -526,11 +529,12 @@ func TestScrapeConfig(t *testing.T) {
 				}},
 			}}
 
-			actual, err := scrapeConfigsForMySQLdExporter(s, &scrapeConfigParams{
-				host:    "4.5.6.7",
-				node:    node,
-				service: service,
-				agent:   agent,
+			actual, err := scrapeConfigsForMySQLdExporter(&scrapeConfigParams{
+				host:              "4.5.6.7",
+				node:              node,
+				service:           service,
+				agent:             agent,
+				metricsResolution: s,
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
@@ -541,17 +545,17 @@ func TestScrapeConfig(t *testing.T) {
 
 		t.Run("ManyTables", func(t *testing.T) {
 			node := &models.Node{
-				NodeID:   "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				NodeID:   "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName: "node_name",
 				Address:  "1.2.3.4",
 			}
 			service := &models.Service{
-				ServiceID: "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
-				NodeID:    "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				ServiceID: "014647c3-b2f5-44eb-94f4-d943260a968c",
+				NodeID:    "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				Address:   pointer.ToString("5.6.7.8"),
 			}
 			agent := &models.Agent{
-				AgentID:                        "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentID:                        "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:                      models.MySQLdExporterType,
 				ListenPort:                     pointer.ToUint16(12345),
 				TableCount:                     pointer.ToInt32(100500),
@@ -559,26 +563,26 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
+				JobName:        "mysqld_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config.HTTPClientConfig{
 					BasicAuth: &config.BasicAuth{
 						Username: "pmm",
-						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+						Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
 					},
 				},
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 					StaticConfigs: []*config.Group{{
 						Targets: []string{"4.5.6.7:12345"},
 						Labels: map[string]string{
-							"agent_id":   "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_id":   "75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type": "mysqld_exporter",
-							"instance":   "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":    "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"instance":   "75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":    "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":  "node_name",
-							"service_id": "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							"service_id": "014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
@@ -590,26 +594,26 @@ func TestScrapeConfig(t *testing.T) {
 					"standard.process",
 				}},
 			}, {
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
+				JobName:        "mysqld_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.MR),
 				ScrapeTimeout:  scrapeTimeout(s.MR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config.HTTPClientConfig{
 					BasicAuth: &config.BasicAuth{
 						Username: "pmm",
-						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+						Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
 					},
 				},
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 					StaticConfigs: []*config.Group{{
 						Targets: []string{"4.5.6.7:12345"},
 						Labels: map[string]string{
-							"agent_id":   "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_id":   "75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type": "mysqld_exporter",
-							"instance":   "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":    "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"instance":   "75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":    "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":  "node_name",
-							"service_id": "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							"service_id": "014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
@@ -625,26 +629,26 @@ func TestScrapeConfig(t *testing.T) {
 					"slave_status",
 				}},
 			}, {
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
+				JobName:        "mysqld_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
 				ScrapeInterval: config.Duration(s.LR),
 				ScrapeTimeout:  scrapeTimeout(s.LR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config.HTTPClientConfig{
 					BasicAuth: &config.BasicAuth{
 						Username: "pmm",
-						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+						Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
 					},
 				},
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 					StaticConfigs: []*config.Group{{
 						Targets: []string{"4.5.6.7:12345"},
 						Labels: map[string]string{
-							"agent_id":   "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_id":   "75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type": "mysqld_exporter",
-							"instance":   "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":    "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"instance":   "75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":    "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":  "node_name",
-							"service_id": "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							"service_id": "014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
@@ -662,11 +666,12 @@ func TestScrapeConfig(t *testing.T) {
 				}},
 			}}
 
-			actual, err := scrapeConfigsForMySQLdExporter(s, &scrapeConfigParams{
-				host:    "4.5.6.7",
-				node:    node,
-				service: service,
-				agent:   agent,
+			actual, err := scrapeConfigsForMySQLdExporter(&scrapeConfigParams{
+				host:              "4.5.6.7",
+				node:              node,
+				service:           service,
+				agent:             agent,
+				metricsResolution: s,
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
@@ -683,11 +688,12 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			_, err := scrapeConfigsForMySQLdExporter(s, &scrapeConfigParams{
-				host:    "4.5.6.7",
-				node:    node,
-				service: service,
-				agent:   agent,
+			_, err := scrapeConfigsForMySQLdExporter(&scrapeConfigParams{
+				host:              "4.5.6.7",
+				node:              node,
+				service:           service,
+				agent:             agent,
+				metricsResolution: s,
 			})
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
@@ -696,19 +702,19 @@ func TestScrapeConfig(t *testing.T) {
 	t.Run("scrapeConfigsForMongoDBExporter", func(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
 			node := &models.Node{
-				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:     "node_name",
 				Address:      "1.2.3.4",
 				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
 			}
 			service := &models.Service{
-				ServiceID:    "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
-				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				ServiceID:    "014647c3-b2f5-44eb-94f4-d943260a968c",
+				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				Address:      pointer.ToString("5.6.7.8"),
 				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
 			}
 			agent := &models.Agent{
-				AgentID:        "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentID:        "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:      models.MongoDBExporterType,
 				CustomLabels:   []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:     pointer.ToUint16(12345),
@@ -717,7 +723,7 @@ func TestScrapeConfig(t *testing.T) {
 
 			expected := []*config.ScrapeConfig{
 				{
-					JobName:        "mongodb_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
+					JobName:        "mongodb_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 					ScrapeInterval: config.Duration(s.HR),
 					ScrapeTimeout:  scrapeTimeout(s.HR),
 					MetricsPath:    "/metrics",
@@ -727,7 +733,7 @@ func TestScrapeConfig(t *testing.T) {
 					HTTPClientConfig: config.HTTPClientConfig{
 						BasicAuth: &config.BasicAuth{
 							Username: "pmm",
-							Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
 						},
 					},
 					ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -737,27 +743,27 @@ func TestScrapeConfig(t *testing.T) {
 								"_some_agent_label":   "baz",
 								"_some_node_label":    "foo",
 								"_some_service_label": "bar",
-								"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"agent_id":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
 								"agent_type":          "mongodb_exporter",
-								"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-								"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+								"instance":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"node_id":             "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 								"node_name":           "node_name",
-								"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+								"service_id":          "014647c3-b2f5-44eb-94f4-d943260a968c",
 							},
 						}},
 					},
 				}, {
-					JobName:        "mongodb_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
+					JobName:        "mongodb_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
 					ScrapeInterval: config.Duration(s.LR),
 					ScrapeTimeout:  scrapeTimeout(s.LR),
 					MetricsPath:    "/metrics",
 					Params: map[string][]string{
-						"collect[]": {"collstats", "dbstats", "indexstats"},
+						"collect[]": {"collstats", "currentopmetrics", "dbstats", "indexstats", "shards"},
 					},
 					HTTPClientConfig: config.HTTPClientConfig{
 						BasicAuth: &config.BasicAuth{
 							Username: "pmm",
-							Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
 						},
 					},
 					ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -767,24 +773,25 @@ func TestScrapeConfig(t *testing.T) {
 								"_some_agent_label":   "baz",
 								"_some_node_label":    "foo",
 								"_some_service_label": "bar",
-								"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"agent_id":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
 								"agent_type":          "mongodb_exporter",
-								"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-								"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+								"instance":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"node_id":             "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 								"node_name":           "node_name",
-								"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+								"service_id":          "014647c3-b2f5-44eb-94f4-d943260a968c",
 							},
 						}},
 					},
 				},
 			}
 
-			actual, err := scrapeConfigsForMongoDBExporter(s, &scrapeConfigParams{
-				host:            "4.5.6.7",
-				node:            node,
-				service:         service,
-				agent:           agent,
-				pmmAgentVersion: version.MustParse("2.26.0"),
+			actual, err := scrapeConfigsForMongoDBExporter(&scrapeConfigParams{
+				host:              "4.5.6.7",
+				node:              node,
+				service:           service,
+				agent:             agent,
+				pmmAgentVersion:   version.MustParse("2.42.0"),
+				metricsResolution: s,
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
@@ -801,12 +808,13 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			_, err := scrapeConfigsForMongoDBExporter(s, &scrapeConfigParams{
-				host:            "4.5.6.7",
-				node:            node,
-				service:         service,
-				agent:           agent,
-				pmmAgentVersion: version.MustParse("2.26.0"),
+			_, err := scrapeConfigsForMongoDBExporter(&scrapeConfigParams{
+				host:              "4.5.6.7",
+				node:              node,
+				service:           service,
+				agent:             agent,
+				pmmAgentVersion:   version.MustParse("2.26.0"),
+				metricsResolution: s,
 			})
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
@@ -815,19 +823,19 @@ func TestScrapeConfig(t *testing.T) {
 	t.Run("scrapeConfigsForPostgresExporter", func(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
 			node := &models.Node{
-				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:     "node_name",
 				Address:      "1.2.3.4",
 				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
 			}
 			service := &models.Service{
-				ServiceID:    "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
-				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				ServiceID:    "014647c3-b2f5-44eb-94f4-d943260a968c",
+				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				Address:      pointer.ToString("5.6.7.8"),
 				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
 			}
 			agent := &models.Agent{
-				AgentID:            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentID:            "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:          models.PostgresExporterType,
 				CustomLabels:       []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:         pointer.ToUint16(12345),
@@ -835,14 +843,14 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "postgres_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
+				JobName:        "postgres_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config.HTTPClientConfig{
 					BasicAuth: &config.BasicAuth{
 						Username: "pmm",
-						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+						Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
 					},
 				},
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -852,12 +860,12 @@ func TestScrapeConfig(t *testing.T) {
 							"_some_agent_label":   "baz",
 							"_some_node_label":    "foo",
 							"_some_service_label": "bar",
-							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_id":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type":          "postgres_exporter",
-							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"instance":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":           "node_name",
-							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							"service_id":          "014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
@@ -868,14 +876,14 @@ func TestScrapeConfig(t *testing.T) {
 					"standard.go",
 				}},
 			}, {
-				JobName:        "postgres_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
+				JobName:        "postgres_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.MR),
 				ScrapeTimeout:  scrapeTimeout(s.MR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config.HTTPClientConfig{
 					BasicAuth: &config.BasicAuth{
 						Username: "pmm",
-						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+						Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
 					},
 				},
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -885,12 +893,12 @@ func TestScrapeConfig(t *testing.T) {
 							"_some_agent_label":   "baz",
 							"_some_node_label":    "foo",
 							"_some_service_label": "bar",
-							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_id":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type":          "postgres_exporter",
-							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"instance":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":           "node_name",
-							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							"service_id":          "014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
@@ -898,14 +906,14 @@ func TestScrapeConfig(t *testing.T) {
 					"custom_query.mr",
 				}},
 			}, {
-				JobName:        "postgres_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
+				JobName:        "postgres_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
 				ScrapeInterval: config.Duration(s.LR),
 				ScrapeTimeout:  scrapeTimeout(s.LR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config.HTTPClientConfig{
 					BasicAuth: &config.BasicAuth{
 						Username: "pmm",
-						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+						Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
 					},
 				},
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -915,23 +923,24 @@ func TestScrapeConfig(t *testing.T) {
 							"_some_agent_label":   "baz",
 							"_some_node_label":    "foo",
 							"_some_service_label": "bar",
-							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_id":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type":          "postgres_exporter",
-							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"instance":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":           "node_name",
-							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							"service_id":          "014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
 				Params: nil,
 			}}
 
-			actual, err := scrapeConfigsForPostgresExporter(s, &scrapeConfigParams{
-				host:    "4.5.6.7",
-				node:    node,
-				service: service,
-				agent:   agent,
+			actual, err := scrapeConfigsForPostgresExporter(&scrapeConfigParams{
+				host:              "4.5.6.7",
+				node:              node,
+				service:           service,
+				agent:             agent,
+				metricsResolution: s,
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
@@ -948,11 +957,12 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			_, err := scrapeConfigsForPostgresExporter(s, &scrapeConfigParams{
-				host:    "4.5.6.7",
-				node:    node,
-				service: service,
-				agent:   agent,
+			_, err := scrapeConfigsForPostgresExporter(&scrapeConfigParams{
+				host:              "4.5.6.7",
+				node:              node,
+				service:           service,
+				agent:             agent,
+				metricsResolution: s,
 			})
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
@@ -961,33 +971,33 @@ func TestScrapeConfig(t *testing.T) {
 	t.Run("scrapeConfigsForProxySQLExporter", func(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
 			node := &models.Node{
-				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:     "node_name",
 				Address:      "1.2.3.4",
 				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
 			}
 			service := &models.Service{
-				ServiceID:    "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
-				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				ServiceID:    "014647c3-b2f5-44eb-94f4-d943260a968c",
+				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				Address:      pointer.ToString("5.6.7.8"),
 				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
 			}
 			agent := &models.Agent{
-				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.ProxySQLExporterType,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "proxysql_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
+				JobName:        "proxysql_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config.HTTPClientConfig{
 					BasicAuth: &config.BasicAuth{
 						Username: "pmm",
-						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+						Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
 					},
 				},
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -997,22 +1007,23 @@ func TestScrapeConfig(t *testing.T) {
 							"_some_agent_label":   "baz",
 							"_some_node_label":    "foo",
 							"_some_service_label": "bar",
-							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_id":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type":          "proxysql_exporter",
-							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"instance":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":           "node_name",
-							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							"service_id":          "014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
 			}}
 
-			actual, err := scrapeConfigsForProxySQLExporter(s, &scrapeConfigParams{
-				host:    "4.5.6.7",
-				node:    node,
-				service: service,
-				agent:   agent,
+			actual, err := scrapeConfigsForProxySQLExporter(&scrapeConfigParams{
+				host:              "4.5.6.7",
+				node:              node,
+				service:           service,
+				agent:             agent,
+				metricsResolution: s,
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
@@ -1029,11 +1040,12 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			_, err := scrapeConfigsForProxySQLExporter(s, &scrapeConfigParams{
-				host:    "4.5.6.7",
-				node:    node,
-				service: service,
-				agent:   agent,
+			_, err := scrapeConfigsForProxySQLExporter(&scrapeConfigParams{
+				host:              "4.5.6.7",
+				node:              node,
+				service:           service,
+				agent:             agent,
+				metricsResolution: s,
 			})
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
@@ -1044,22 +1056,26 @@ func TestScrapeConfig(t *testing.T) {
 			params := []*scrapeConfigParams{
 				// two RDS configs on the same host/port combination: single pmm-agent, single rds_exporter process
 				{
-					host:  "1.1.1.1",
-					agent: &models.Agent{ListenPort: pointer.ToUint16(12345)},
+					host:              "1.1.1.1",
+					agent:             &models.Agent{ListenPort: pointer.ToUint16(12345)},
+					metricsResolution: s,
 				},
 				{
-					host:  "1.1.1.1",
-					agent: &models.Agent{ListenPort: pointer.ToUint16(12345)},
+					host:              "1.1.1.1",
+					agent:             &models.Agent{ListenPort: pointer.ToUint16(12345)},
+					metricsResolution: s,
 				},
 
 				// two RDS configs on the same host, different ports: two pmm-agents, two rds_exporter processes
 				{
-					host:  "2.2.2.2",
-					agent: &models.Agent{ListenPort: pointer.ToUint16(12345)},
+					host:              "2.2.2.2",
+					agent:             &models.Agent{ListenPort: pointer.ToUint16(12345)},
+					metricsResolution: s,
 				},
 				{
-					host:  "2.2.2.2",
-					agent: &models.Agent{ListenPort: pointer.ToUint16(12346)},
+					host:              "2.2.2.2",
+					agent:             &models.Agent{ListenPort: pointer.ToUint16(12346)},
+					metricsResolution: s,
 				},
 			}
 
@@ -1131,7 +1147,7 @@ func TestScrapeConfig(t *testing.T) {
 				},
 			}}
 
-			actual := scrapeConfigsForRDSExporter(s, params)
+			actual := scrapeConfigsForRDSExporter(params)
 			require.Len(t, actual, len(expected))
 			for i := 0; i < len(expected); i++ {
 				assertScrapeConfigsEqual(t, expected[i], actual[i])
@@ -1141,28 +1157,28 @@ func TestScrapeConfig(t *testing.T) {
 
 	t.Run("scrapeConfigsForExternalExporter", func(t *testing.T) {
 		node := &models.Node{
-			NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+			NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 			NodeName:     "node_name",
 			Address:      "1.2.3.4",
 			CustomLabels: []byte(`{"_some_node_label": "foo"}`),
 		}
 		service := &models.Service{
-			ServiceID:     "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
-			NodeID:        "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+			ServiceID:     "014647c3-b2f5-44eb-94f4-d943260a968c",
+			NodeID:        "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 			Address:       pointer.ToString("5.6.7.8"),
 			CustomLabels:  []byte(`{"_some_service_label": "bar"}`),
 			ExternalGroup: "rabbitmq",
 		}
 		t.Run("Normal", func(t *testing.T) {
 			agent := &models.Agent{
-				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.ExternalExporterType,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "external-exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
+				JobName:        "external-exporter75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -1172,13 +1188,13 @@ func TestScrapeConfig(t *testing.T) {
 							"_some_agent_label":   "baz",
 							"_some_node_label":    "foo",
 							"_some_service_label": "bar",
-							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_id":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type":          "external-exporter",
 							"external_group":      "rabbitmq",
-							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"instance":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":           "node_name",
-							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							"service_id":          "014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
@@ -1199,7 +1215,7 @@ func TestScrapeConfig(t *testing.T) {
 
 		t.Run("WithExtraParams", func(t *testing.T) {
 			agent := &models.Agent{
-				AgentID:       "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentID:       "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:     models.ExternalExporterType,
 				CustomLabels:  []byte(`{"_some_agent_label": "baz"}`),
 				Username:      pointer.ToString("username"),
@@ -1210,7 +1226,7 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "external-exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
+				JobName:        "external-exporter75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/some-metric-path",
@@ -1228,13 +1244,13 @@ func TestScrapeConfig(t *testing.T) {
 							"_some_agent_label":   "baz",
 							"_some_node_label":    "foo",
 							"_some_service_label": "bar",
-							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_id":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type":          "external-exporter",
 							"external_group":      "rabbitmq",
-							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"instance":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":           "node_name",
-							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							"service_id":          "014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
@@ -1259,12 +1275,13 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			_, err := scrapeConfigsForMongoDBExporter(s, &scrapeConfigParams{
-				host:            "4.5.6.7",
-				node:            node,
-				service:         service,
-				agent:           agent,
-				pmmAgentVersion: version.MustParse("2.26.0"),
+			_, err := scrapeConfigsForMongoDBExporter(&scrapeConfigParams{
+				host:              "4.5.6.7",
+				node:              node,
+				service:           service,
+				agent:             agent,
+				pmmAgentVersion:   version.MustParse("2.26.0"),
+				metricsResolution: s,
 			})
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})

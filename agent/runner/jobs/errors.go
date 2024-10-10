@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,3 +18,6 @@ import "github.com/pkg/errors"
 
 // ErrNotFound returned when backup record is not found by backup tool.
 var ErrNotFound = errors.New("backup record not found by backup tool")
+
+// ErrPBMArtifactProblem returned when PBM reports artifact error.
+var ErrPBMArtifactProblem = errors.New("pbm artifact problem")

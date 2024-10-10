@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,14 +15,15 @@
 package management
 
 import (
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
-	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/service"
+	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 var removeServiceGenericResultT = commands.ParseTemplate(`
@@ -44,56 +45,61 @@ type RemoveCommand struct {
 	ServiceID   string `help:"Service ID"`
 }
 
+// RunCmd runs the command for RemoveCommand.
 func (cmd *RemoveCommand) RunCmd() (commands.Result, error) {
-	if cmd.ServiceID == "" && cmd.ServiceName == "" {
+	// As RemoveService method accepts only one of the service ID or service name in its `serviceID` parameter.
+	// Therefore, we need to check if both are provided. If only one is provided, we take that one.
+	// If both are provided, we take the service ID.
+	var serviceID string
+
+	switch {
+	case cmd.ServiceID == "" && cmd.ServiceName == "":
 		// Automatic service lookup during removal
 		//
-		// Get services and remove it automatically once it's only one
-		// service registered
+		// Remove the service automatically as long as it's the only service registered
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 		if err != nil {
 			return nil, err
 		}
 
-		servicesRes, err := inventoryClient.Default.Services.ListServices(&services.ListServicesParams{
-			Body: services.ListServicesBody{
-				NodeID:      status.NodeID,
-				ServiceType: cmd.serviceType(),
-			},
-			Context: commands.Ctx,
+		servicesRes, err := inventoryClient.Default.ServicesService.ListServices(&services.ListServicesParams{
+			NodeID:      pointer.ToString(status.NodeID),
+			ServiceType: cmd.serviceType(),
+			Context:     commands.Ctx,
 		})
 		if err != nil {
 			return nil, err
 		}
 		switch {
 		case len(servicesRes.Payload.Mysql) == 1:
-			cmd.ServiceID = servicesRes.Payload.Mysql[0].ServiceID
+			serviceID = servicesRes.Payload.Mysql[0].ServiceID
 		case len(servicesRes.Payload.Mongodb) == 1:
-			cmd.ServiceID = servicesRes.Payload.Mongodb[0].ServiceID
+			serviceID = servicesRes.Payload.Mongodb[0].ServiceID
 		case len(servicesRes.Payload.Postgresql) == 1:
-			cmd.ServiceID = servicesRes.Payload.Postgresql[0].ServiceID
+			serviceID = servicesRes.Payload.Postgresql[0].ServiceID
 		case len(servicesRes.Payload.Proxysql) == 1:
-			cmd.ServiceID = servicesRes.Payload.Proxysql[0].ServiceID
+			serviceID = servicesRes.Payload.Proxysql[0].ServiceID
 		case len(servicesRes.Payload.Haproxy) == 1:
-			cmd.ServiceID = servicesRes.Payload.Haproxy[0].ServiceID
+			serviceID = servicesRes.Payload.Haproxy[0].ServiceID
 		case len(servicesRes.Payload.External) == 1:
-			cmd.ServiceID = servicesRes.Payload.External[0].ServiceID
+			serviceID = servicesRes.Payload.External[0].ServiceID
 		}
 		if cmd.ServiceID == "" {
 			//nolint:revive,golint
 			return nil, errors.New(`We could not find a service associated with the local node. Please provide "Service ID" or "Service name".`)
 		}
+	case cmd.ServiceName != "" && cmd.ServiceID == "":
+		serviceID = cmd.ServiceName
+	default:
+		serviceID = cmd.ServiceID
 	}
 
-	params := &service.RemoveServiceParams{
-		Body: service.RemoveServiceBody{
-			ServiceID:   cmd.ServiceID,
-			ServiceName: cmd.ServiceName,
-			ServiceType: cmd.serviceType(),
-		},
-		Context: commands.Ctx,
+	params := &mservice.RemoveServiceParams{
+		ServiceID:   serviceID,
+		ServiceType: cmd.serviceType(),
+		Context:     commands.Ctx,
 	}
-	_, err := client.Default.Service.RemoveService(params)
+	_, err := client.Default.ManagementService.RemoveService(params)
 	if err != nil {
 		return nil, err
 	}

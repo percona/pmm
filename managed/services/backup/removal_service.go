@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -91,18 +91,12 @@ func (s *RemovalService) DeleteArtifact(storage Storage, artifactID string, remo
 			return
 		}
 
-		service, err := models.FindServiceByID(s.db.Querier, artifact.ServiceID)
-		if err != nil {
-			s.l.WithError(err).Error("couldn't get service")
-			return
-		}
-
 		if err = s.deleteArtifactFiles(context.Background(), storage, location, artifact, len(artifact.MetadataList)); err != nil {
 			s.l.WithError(err).Error("couldn't delete artifact files")
 			return
 		}
 
-		if service.ServiceType == models.MongoDBServiceType && artifact.Mode == models.PITR {
+		if artifact.Vendor == string(models.MongoDBServiceType) && artifact.Mode == models.PITR {
 			if err = s.deleteArtifactPITRChunks(context.Background(), storage, location, artifact, nil); err != nil {
 				s.l.WithError(err).Error("couldn't delete artifact PITR chunks")
 				return
@@ -192,7 +186,7 @@ func (s *RemovalService) lockArtifact(artifactID string, lockingStatus models.Ba
 		err      error
 	)
 
-	if errTx := s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
+	errTx := s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 		artifact, err = models.FindArtifactByID(tx.Querier, artifactID)
 		if err != nil {
 			return err
@@ -224,7 +218,9 @@ func (s *RemovalService) lockArtifact(artifactID string, lockingStatus models.Ba
 		}
 
 		return nil
-	}); errTx != nil {
+	})
+
+	if errTx != nil {
 		return nil, "", errTx
 	}
 

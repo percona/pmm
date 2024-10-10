@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -27,9 +27,10 @@ import (
 //
 //reform:user_flags
 type UserDetails struct {
-	ID           int  `reform:"id,pk"`
-	Tour         bool `reform:"tour_done"`
-	AlertingTour bool `reform:"alerting_tour_done"`
+	ID                int    `reform:"id,pk"`
+	Tour              bool   `reform:"tour_done"`
+	AlertingTour      bool   `reform:"alerting_tour_done"`
+	SnoozedPMMVersion string `reform:"snoozed_pmm_version"`
 
 	CreatedAt time.Time `reform:"created_at"`
 	UpdatedAt time.Time `reform:"updated_at"`

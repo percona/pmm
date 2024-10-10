@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	backuppb "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/backup/v1"
 )
 
 func TestCreateDBURL(t *testing.T) {
@@ -72,7 +72,7 @@ func TestCreateDBURL(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, test.url, createDBURL(test.dbConfig).String())
+			assert.Equal(t, test.url, test.dbConfig.createDBURL().String())
 		})
 	}
 }
@@ -80,7 +80,6 @@ func TestCreateDBURL(t *testing.T) {
 func TestNewMongoDBBackupJob(t *testing.T) {
 	t.Parallel()
 	testJobDuration := 1 * time.Second
-	var dbConfig string
 
 	tests := []struct {
 		name      string
@@ -90,23 +89,23 @@ func TestNewMongoDBBackupJob(t *testing.T) {
 	}{
 		{
 			name:      "logical backup model",
-			dataModel: backuppb.DataModel_LOGICAL,
+			dataModel: backuppb.DataModel_DATA_MODEL_LOGICAL,
 			errMsg:    "",
 		},
 		{
 			name:      "physical backup model",
-			dataModel: backuppb.DataModel_PHYSICAL,
+			dataModel: backuppb.DataModel_DATA_MODEL_PHYSICAL,
 			errMsg:    "",
 		},
 		{
 			name:      "invalid backup model",
-			dataModel: backuppb.DataModel_DATA_MODEL_INVALID,
-			errMsg:    "'DATA_MODEL_INVALID' is not a supported data model for MongoDB backups",
+			dataModel: backuppb.DataModel_DATA_MODEL_UNSPECIFIED,
+			errMsg:    "'DATA_MODEL_UNSPECIFIED' is not a supported data model for MongoDB backups",
 		},
 		{
 			name:      "pitr fails for physical backups",
 			pitr:      true,
-			dataModel: backuppb.DataModel_PHYSICAL,
+			dataModel: backuppb.DataModel_DATA_MODEL_PHYSICAL,
 			errMsg:    "PITR is only supported for logical backups",
 		},
 	}
@@ -115,7 +114,7 @@ func TestNewMongoDBBackupJob(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			_, err := NewMongoDBBackupJob(t.Name(), testJobDuration, t.Name(), &dbConfig, BackupLocationConfig{}, tc.pitr, tc.dataModel, "artifact_folder")
+			_, err := NewMongoDBBackupJob(t.Name(), testJobDuration, t.Name(), "", BackupLocationConfig{}, tc.pitr, tc.dataModel, "artifact_folder")
 			if tc.errMsg == "" {
 				assert.NoError(t, err)
 			} else {

@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -99,4 +100,16 @@ func (p *Parsed) Less(right *Parsed) bool {
 	}
 
 	return p.Rest < right.Rest
+}
+
+// UnmarshalJSON implements json.Unmarshaler interface and allows to unmarshal version information from JSON.
+func (p *Parsed) UnmarshalJSON(b []byte) error {
+	s := string(b)
+	s = strings.Trim(s, `"`)
+	parsed, err := Parse(s)
+	if err != nil {
+		return err
+	}
+	*p = *parsed
+	return nil
 }

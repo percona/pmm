@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -14,11 +14,3 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package grafana
-
-//go:generate ../../../bin/mockery -name=awsInstanceChecker -case=snake -inpkg -testonly
-
-// checker is a subset of methods of server.AWSInstanceChecker used by this package.
-// We use it instead of real type for testing and to avoid dependency cycle.
-type awsInstanceChecker interface {
-	MustCheck() bool
-}

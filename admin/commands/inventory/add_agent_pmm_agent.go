@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 var addPMMAgentResultT = commands.ParseTemplate(`
@@ -29,7 +29,7 @@ Custom labels  : {{ .Agent.CustomLabels }}
 `)
 
 type addPMMAgentResult struct {
-	Agent *agents.AddPMMAgentOKBodyPMMAgent `json:"pmm_agent"`
+	Agent *agents.AddAgentOKBodyPMMAgent `json:"pmm_agent"`
 }
 
 func (res *addPMMAgentResult) Result() {}
@@ -44,17 +44,20 @@ type AddPMMAgentCommand struct {
 	CustomLabels map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 }
 
+// RunCmd executes the AddPMMAgentCommand and returns the result.
 func (cmd *AddPMMAgentCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-	params := &agents.AddPMMAgentParams{
-		Body: agents.AddPMMAgentBody{
-			RunsOnNodeID: cmd.RunsOnNodeID,
-			CustomLabels: customLabels,
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			PMMAgent: &agents.AddAgentParamsBodyPMMAgent{
+				RunsOnNodeID: cmd.RunsOnNodeID,
+				CustomLabels: customLabels,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddPMMAgent(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

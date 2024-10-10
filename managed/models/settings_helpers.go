@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -18,11 +18,9 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"net/url"
-	"strings"
 	"time"
 
-	"github.com/asaskevich/govalidator"
+	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
@@ -52,81 +50,51 @@ func GetSettings(q reform.DBTX) (*Settings, error) {
 
 // ChangeSettingsParams contains values to change data in settings table.
 type ChangeSettingsParams struct {
-	DisableUpdates bool
-	EnableUpdates  bool
+	EnableUpdates *bool
 
-	DisableTelemetry bool
-	EnableTelemetry  bool
+	EnableTelemetry *bool
 
 	MetricsResolutions MetricsResolutions
 
 	DataRetention time.Duration
 
+	// List of AWS partitions to use. If empty - default partitions will be used. If nil - no changes will be made.
 	AWSPartitions []string
 
-	SSHKey string
+	SSHKey *string
 
-	// not url.URL to keep username and password
-	AlertManagerURL       string
-	RemoveAlertManagerURL bool
+	// Enable Advisors
+	EnableAdvisors *bool
 
-	// Enable Security Threat Tool
-	EnableSTT bool
-	// Disable Security Threat Tool
-	DisableSTT bool
-	// List of STT checks to disable
-	DisableSTTChecks []string
-	// List of STT checks to enable
-	EnableSTTChecks []string
-	// STT check intervals
-	STTCheckIntervals STTCheckIntervals
-
-	// Enable DBaaS features.
-	EnableDBaaS bool
-	// Disable DBaaS features.
-	DisableDBaaS bool
+	// List of Advisor checks to disable
+	DisableAdvisorChecks []string
+	// List of Advisor checks to enable
+	EnableAdvisorChecks []string
+	// Advisors run intervals
+	AdvisorsRunInterval AdvisorsRunIntervals
 
 	// Enable Azure Discover features.
-	EnableAzurediscover bool
-	// Disable Azure Discover features.
-	DisableAzurediscover bool
-
-	// Enable Integrated Alerting features.
-	EnableAlerting bool
-	// Disable Integrated Alerting features.
-	DisableAlerting bool
+	EnableAzurediscover *bool
+	// Enable Percona Alerting features.
+	EnableAlerting *bool
 
 	// Enable Access Control features.
-	EnableAccessControl bool
-	// Disable Access Control features.
-	DisableAccessControl bool
-
-	// Email config for Integrated Alerting.
-	EmailAlertingSettings *EmailAlertingSettings
-	// If true removes email alerting settings.
-	RemoveEmailAlertingSettings bool
-
-	// Slack config for Integrated Alerting.
-	SlackAlertingSettings *SlackAlertingSettings
-	// If true removes Slack alerting settings.
-	RemoveSlackAlertingSettings bool
+	EnableAccessControl *bool
 
 	// EnableVMCache enables caching for vmdb search queries
-	EnableVMCache bool
-	// DisableVMCache disables caching for vmdb search queries
-	DisableVMCache bool
+	EnableVMCache *bool
 
 	// PMM Server public address.
-	PMMPublicAddress       string
-	RemovePMMPublicAddress bool
+	PMMPublicAddress *string
 
 	// Enable Backup Management features.
-	EnableBackupManagement bool
-	// Disable Backup Management features.
-	DisableBackupManagement bool
+	EnableBackupManagement *bool
 
 	// DefaultRoleID sets a default role to be assigned to new users.
-	DefaultRoleID int
+	DefaultRoleID *int
+
+	// List of items in format 'db.table.column' to be encrypted.
+	EncryptedItems []string
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -149,13 +117,13 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		return nil, NewInvalidArgumentError(err.Error())
 	}
 
-	if params.DefaultRoleID != 0 {
+	if params.DefaultRoleID != nil {
 		tx, ok := q.(*reform.TX)
 		if !ok {
 			return nil, fmt.Errorf("%w: changing Role ID requires a *reform.TX", ErrTxRequired)
 		}
 
-		if err := lockRoleForChange(tx, params.DefaultRoleID); err != nil {
+		if err := lockRoleForChange(tx, *params.DefaultRoleID); err != nil {
 			return nil, err
 		}
 	}
@@ -165,18 +133,16 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		return nil, err
 	}
 
-	if params.DisableUpdates {
-		settings.Updates.Disabled = true
+	if params.EnableUpdates != nil {
+		settings.Updates.Enabled = params.EnableUpdates
 	}
-	if params.EnableUpdates {
-		settings.Updates.Disabled = false
-	}
-	if params.DisableTelemetry {
-		settings.Telemetry.Disabled = true
-		settings.Telemetry.UUID = ""
-	}
-	if params.EnableTelemetry {
-		settings.Telemetry.Disabled = false
+
+	if params.EnableTelemetry != nil {
+		settings.Telemetry.Enabled = params.EnableTelemetry
+
+		if !*settings.Telemetry.Enabled {
+			settings.Telemetry.UUID = ""
+		}
 	}
 	if params.MetricsResolutions.LR != 0 {
 		settings.MetricsResolutions.LR = params.MetricsResolutions.LR
@@ -191,128 +157,78 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.DataRetention = params.DataRetention
 	}
 
-	if len(params.AWSPartitions) != 0 {
+	if params.AWSPartitions != nil {
 		settings.AWSPartitions = deduplicateStrings(params.AWSPartitions)
 	}
-	if params.SSHKey != "" {
-		settings.SSHKey = params.SSHKey
-	}
-	if params.AlertManagerURL != "" {
-		settings.AlertManagerURL = params.AlertManagerURL
-	}
-	if params.RemoveAlertManagerURL {
-		settings.AlertManagerURL = ""
+
+	if params.SSHKey != nil {
+		settings.SSHKey = pointer.GetString(params.SSHKey)
 	}
 
-	if params.DisableSTT {
-		settings.SaaS.STTDisabled = true
-	}
-	if params.EnableSTT {
-		settings.SaaS.STTDisabled = false
+	if params.EnableAdvisors != nil {
+		settings.SaaS.Enabled = params.EnableAdvisors
 	}
 
-	if params.STTCheckIntervals.RareInterval != 0 {
-		settings.SaaS.STTCheckIntervals.RareInterval = params.STTCheckIntervals.RareInterval
+	if params.AdvisorsRunInterval.RareInterval != 0 {
+		settings.SaaS.AdvisorRunIntervals.RareInterval = params.AdvisorsRunInterval.RareInterval
 	}
-	if params.STTCheckIntervals.StandardInterval != 0 {
-		settings.SaaS.STTCheckIntervals.StandardInterval = params.STTCheckIntervals.StandardInterval
+	if params.AdvisorsRunInterval.StandardInterval != 0 {
+		settings.SaaS.AdvisorRunIntervals.StandardInterval = params.AdvisorsRunInterval.StandardInterval
 	}
-	if params.STTCheckIntervals.FrequentInterval != 0 {
-		settings.SaaS.STTCheckIntervals.FrequentInterval = params.STTCheckIntervals.FrequentInterval
-	}
-
-	if len(params.DisableSTTChecks) != 0 {
-		settings.SaaS.DisabledSTTChecks = deduplicateStrings(append(settings.SaaS.DisabledSTTChecks, params.DisableSTTChecks...))
+	if params.AdvisorsRunInterval.FrequentInterval != 0 {
+		settings.SaaS.AdvisorRunIntervals.FrequentInterval = params.AdvisorsRunInterval.FrequentInterval
 	}
 
-	if len(params.EnableSTTChecks) != 0 {
-		m := make(map[string]struct{}, len(params.EnableSTTChecks))
-		for _, p := range params.EnableSTTChecks {
+	if len(params.DisableAdvisorChecks) != 0 {
+		settings.SaaS.DisabledAdvisors = deduplicateStrings(append(settings.SaaS.DisabledAdvisors, params.DisableAdvisorChecks...))
+	}
+
+	if len(params.EnableAdvisorChecks) != 0 {
+		m := make(map[string]struct{}, len(params.EnableAdvisorChecks))
+		for _, p := range params.EnableAdvisorChecks {
 			m[p] = struct{}{}
 		}
 
 		var res []string
-		for _, c := range settings.SaaS.DisabledSTTChecks {
+		for _, c := range settings.SaaS.DisabledAdvisors {
 			if _, ok := m[c]; !ok {
 				res = append(res, c)
 			}
 		}
-		settings.SaaS.DisabledSTTChecks = res
+		settings.SaaS.DisabledAdvisors = res
 	}
 
-	if params.EnableDBaaS {
-		settings.DBaaS.Enabled = true
+	if params.EnableVMCache != nil {
+		settings.VictoriaMetrics.CacheEnabled = params.EnableVMCache
 	}
 
-	if params.DisableDBaaS {
-		settings.DBaaS.Enabled = false
+	if params.PMMPublicAddress != nil {
+		settings.PMMPublicAddress = pointer.GetString(params.PMMPublicAddress)
 	}
 
-	if params.DisableVMCache {
-		settings.VictoriaMetrics.CacheEnabled = false
+	if params.EnableAzurediscover != nil {
+		settings.Azurediscover.Enabled = params.EnableAzurediscover
 	}
 
-	if params.EnableVMCache {
-		settings.VictoriaMetrics.CacheEnabled = true
+	if params.EnableAlerting != nil {
+		settings.Alerting.Enabled = params.EnableAlerting
 	}
 
-	if params.PMMPublicAddress != "" {
-		settings.PMMPublicAddress = params.PMMPublicAddress
+	if params.EnableAccessControl != nil {
+		settings.AccessControl.Enabled = params.EnableAccessControl
 	}
 
-	if params.RemovePMMPublicAddress {
-		settings.PMMPublicAddress = ""
+	if params.EnableBackupManagement != nil {
+		settings.BackupManagement.Enabled = params.EnableBackupManagement
 	}
 
-	if params.DisableAzurediscover {
-		settings.Azurediscover.Enabled = false
-	}
-	if params.EnableAzurediscover {
-		settings.Azurediscover.Enabled = true
+	if params.DefaultRoleID != nil {
+		settings.DefaultRoleID = *params.DefaultRoleID
 	}
 
-	if params.DisableAlerting {
-		settings.Alerting.Disabled = true
+	if len(params.EncryptedItems) != 0 {
+		settings.EncryptedItems = params.EncryptedItems
 	}
-
-	if params.EnableAlerting {
-		settings.Alerting.Disabled = false
-	}
-
-	if params.DisableAccessControl {
-		settings.AccessControl.Enabled = false
-	}
-	if params.EnableAccessControl {
-		settings.AccessControl.Enabled = true
-	}
-
-	if params.RemoveEmailAlertingSettings {
-		settings.Alerting.EmailAlertingSettings = nil
-	}
-
-	if params.RemoveSlackAlertingSettings {
-		settings.Alerting.SlackAlertingSettings = nil
-	}
-
-	if params.EmailAlertingSettings != nil {
-		settings.Alerting.EmailAlertingSettings = params.EmailAlertingSettings
-	}
-	if params.SlackAlertingSettings != nil {
-		settings.Alerting.SlackAlertingSettings = params.SlackAlertingSettings
-	}
-
-	if params.DisableBackupManagement {
-		settings.BackupManagement.Disabled = true
-	}
-
-	if params.EnableBackupManagement {
-		settings.BackupManagement.Disabled = false
-	}
-
-	if params.DefaultRoleID != 0 {
-		settings.DefaultRoleID = params.DefaultRoleID
-	}
-
 	err = SaveSettings(q, settings)
 	if err != nil {
 		return nil, err
@@ -329,61 +245,9 @@ func lockRoleForChange(tx *reform.TX, roleID int) error {
 	return nil
 }
 
-func validateSlackAlertingSettings(params *ChangeSettingsParams) error {
-	if params.SlackAlertingSettings != nil && params.RemoveSlackAlertingSettings {
-		return errors.New("both slack_alerting_settings and remove_slack_alerting_settings are present")
-	}
-
-	if params.SlackAlertingSettings == nil {
-		return nil
-	}
-
-	if !govalidator.IsURL(params.SlackAlertingSettings.URL) {
-		return errors.New("invalid url value")
-	}
-
-	return nil
-}
-
-func validateEmailAlertingSettings(params *ChangeSettingsParams) error {
-	if params.EmailAlertingSettings != nil && params.RemoveEmailAlertingSettings {
-		return errors.New("both email_alerting_settings and remove_email_alerting_settings are present")
-	}
-
-	if params.EmailAlertingSettings == nil {
-		return nil
-	}
-
-	return params.EmailAlertingSettings.Validate()
-}
-
 // ValidateSettings validates settings changes.
-func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
-	if params.EnableUpdates && params.DisableUpdates {
-		return errors.New("both enable_updates and disable_updates are present")
-	}
-	if params.EnableTelemetry && params.DisableTelemetry {
-		return errors.New("both enable_telemetry and disable_telemetry are present")
-	}
-	if params.EnableSTT && params.DisableSTT {
-		return errors.New("both enable_stt and disable_stt are present")
-	}
-	if params.EnableVMCache && params.DisableVMCache {
-		return errors.New("both enable_vm_cache and disable_vm_cache are present")
-	}
-	if params.EnableAlerting && params.DisableAlerting {
-		return errors.New("both enable_alerting and disable_alerting are present")
-	}
-	if err := validateEmailAlertingSettings(params); err != nil {
-		return err
-	}
-	if err := validateSlackAlertingSettings(params); err != nil {
-		return err
-	}
-	if params.EnableBackupManagement && params.DisableBackupManagement {
-		return errors.New("both enable_backup_management and disable_backup_management are present")
-	}
-	// TODO: consider refactoring this and the validation for STT check intervals
+func ValidateSettings(params *ChangeSettingsParams) error {
+	// TODO: consider refactoring this and the validation for Advisors run intervals
 	checkCases := []struct {
 		dur       time.Duration
 		fieldName string
@@ -413,16 +277,16 @@ func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
 		dur       time.Duration
 		fieldName string
 	}{
-		{params.STTCheckIntervals.RareInterval, "rare_interval"},
-		{params.STTCheckIntervals.StandardInterval, "standard_interval"},
-		{params.STTCheckIntervals.FrequentInterval, "frequent_interval"},
+		{params.AdvisorsRunInterval.RareInterval, "rare_interval"},
+		{params.AdvisorsRunInterval.StandardInterval, "standard_interval"},
+		{params.AdvisorsRunInterval.FrequentInterval, "frequent_interval"},
 	}
 	for _, v := range checkCases {
 		if v.dur == 0 {
 			continue
 		}
 
-		if _, err := validators.ValidateSTTCheckInterval(v.dur); err != nil {
+		if _, err := validators.ValidateAdvisorRunInterval(v.dur); err != nil {
 			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
@@ -449,31 +313,6 @@ func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
 
 	if err := validators.ValidateAWSPartitions(params.AWSPartitions); err != nil {
 		return err
-	}
-
-	if params.AlertManagerURL != "" {
-		if params.RemoveAlertManagerURL {
-			return errors.New("both alert_manager_url and remove_alert_manager_url are present")
-		}
-
-		// custom validation for typical error that is not handled well by url.Parse
-		if !strings.Contains(params.AlertManagerURL, "//") {
-			return errors.Errorf("invalid alert_manager_url: %s - missing protocol scheme", params.AlertManagerURL)
-		}
-		u, err := url.Parse(params.AlertManagerURL)
-		if err != nil {
-			return errors.Errorf("invalid alert_manager_url: %s", err)
-		}
-		if u.Scheme == "" {
-			return errors.Errorf("invalid alert_manager_url: %s - missing protocol scheme", params.AlertManagerURL)
-		}
-		if u.Host == "" {
-			return errors.Errorf("invalid alert_manager_url: %s - missing host", params.AlertManagerURL)
-		}
-	}
-
-	if params.PMMPublicAddress != "" && params.RemovePMMPublicAddress {
-		return errors.New("both pmm_public_address and remove_pmm_public_address are present")
 	}
 
 	return nil

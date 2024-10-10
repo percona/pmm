@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
-	"math"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -39,8 +38,10 @@ import (
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 	"github.com/percona/pmm/agent/utils/templates"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agent_version "github.com/percona/pmm/agent/utils/version"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	"github.com/percona/pmm/version"
 )
 
 // configGetter allows for getting a config.
@@ -63,7 +64,7 @@ func New(cfg configGetter) *ConnectionChecker {
 }
 
 // Check checks connection to a service. It returns context cancelation/timeout or driver errors as is.
-func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentpb.CheckConnectionRequest, id uint32) *agentpb.CheckConnectionResponse {
+func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentv1.CheckConnectionRequest, id uint32) *agentv1.CheckConnectionResponse {
 	timeout := msg.Timeout.AsDuration()
 	if timeout > 0 {
 		var cancel context.CancelFunc
@@ -72,15 +73,15 @@ func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentpb.CheckConnec
 	}
 
 	switch msg.Type {
-	case inventorypb.ServiceType_MYSQL_SERVICE:
+	case inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE:
 		return cc.checkMySQLConnection(ctx, msg.Dsn, msg.TextFiles, msg.TlsSkipVerify, id)
-	case inventorypb.ServiceType_MONGODB_SERVICE:
+	case inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE:
 		return cc.checkMongoDBConnection(ctx, msg.Dsn, msg.TextFiles, id)
-	case inventorypb.ServiceType_POSTGRESQL_SERVICE:
+	case inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE:
 		return cc.checkPostgreSQLConnection(ctx, msg.Dsn, msg.TextFiles, id)
-	case inventorypb.ServiceType_PROXYSQL_SERVICE:
+	case inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:
 		return cc.checkProxySQLConnection(ctx, msg.Dsn)
-	case inventorypb.ServiceType_EXTERNAL_SERVICE, inventorypb.ServiceType_HAPROXY_SERVICE:
+	case inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE, inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:
 		return cc.checkExternalConnection(ctx, msg.Dsn)
 	default:
 		panic(fmt.Sprintf("unknown service type: %v", msg.Type))
@@ -95,12 +96,12 @@ func (cc *ConnectionChecker) sqlPing(ctx context.Context, db *sql.DB) error {
 	return err
 }
 
-func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn string, files *agentpb.TextFiles, tlsSkipVerify bool, id uint32) *agentpb.CheckConnectionResponse { //nolint:lll,unparam
-	var res agentpb.CheckConnectionResponse
+func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn string, files *agentv1.TextFiles, tlsSkipVerify bool, id uint32) *agentv1.CheckConnectionResponse { //nolint:lll
+	var res agentv1.CheckConnectionResponse
 	var err error
 
 	if files != nil {
-		err = tlshelpers.RegisterMySQLCerts(files.Files)
+		err = tlshelpers.RegisterMySQLCerts(files.Files, tlsSkipVerify)
 		if err != nil {
 			cc.l.Debugf("checkMySQLConnection: failed to register cert: %s", err)
 			res.Error = err.Error()
@@ -140,29 +141,15 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 		} else {
 			res.Error = err.Error()
 		}
-		return &res
-	}
-
-	var count uint64
-	if err = db.QueryRowContext(ctx, "SELECT /* agent='connectionchecker' */ COUNT(*) FROM information_schema.tables").Scan(&count); err != nil {
-		res.Error = err.Error()
-		return &res
-	}
-
-	tableCount := int32(count)
-	if count > math.MaxInt32 {
-		tableCount = math.MaxInt32
-	}
-
-	res.Stats = &agentpb.CheckConnectionResponse_Stats{
-		TableCount: tableCount,
 	}
 
 	return &res
 }
 
-func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn string, files *agentpb.TextFiles, id uint32) *agentpb.CheckConnectionResponse {
-	var res agentpb.CheckConnectionResponse
+func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn string, files *agentv1.TextFiles, id uint32) *agentv1.CheckConnectionResponse {
+	const helloCommandVersion = "4.2.10"
+
+	var res agentv1.CheckConnectionResponse
 	var err error
 
 	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("check-mongodb-connection"), strconv.Itoa(int(id)))
@@ -194,18 +181,44 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 		return &res
 	}
 
-	resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: "getDiagnosticData", Value: 1}})
-	if err = resp.Err(); err != nil {
-		cc.l.Debugf("checkMongoDBConnection: failed to runCommand getDiagnosticData: %s", err)
+	mongoVersion, err := agent_version.GetMongoDBVersion(ctx, client)
+	if err != nil {
+		cc.l.Debugf("checkMongoDBConnection: failed to get MongoDB version: %s", err)
 		res.Error = err.Error()
 		return &res
+	}
+
+	serverInfo := struct {
+		ArbiterOnly bool `bson:"arbiterOnly"`
+	}{}
+
+	// use hello command for newer MongoDB versions
+	command := "hello"
+	if mongoVersion.Less(version.MustParse(helloCommandVersion)) {
+		command = "isMaster"
+	}
+
+	err = client.Database("admin").RunCommand(ctx, bson.D{{Key: command, Value: 1}}).Decode(&serverInfo)
+	if err != nil {
+		cc.l.Debugf("checkMongoDBConnection: failed to runCommand %s: %s", command, err)
+		res.Error = err.Error()
+		return &res
+	}
+
+	if !serverInfo.ArbiterOnly {
+		resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: "getDiagnosticData", Value: 1}})
+		if err = resp.Err(); err != nil {
+			cc.l.Debugf("checkMongoDBConnection: failed to runCommand getDiagnosticData: %s", err)
+			res.Error = err.Error()
+			return &res
+		}
 	}
 
 	return &res
 }
 
-func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn string, files *agentpb.TextFiles, id uint32) *agentpb.CheckConnectionResponse {
-	var res agentpb.CheckConnectionResponse
+func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn string, files *agentv1.TextFiles, id uint32) *agentv1.CheckConnectionResponse {
+	var res agentv1.CheckConnectionResponse
 	var err error
 
 	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("check-postgresql-connection"), strconv.Itoa(int(id)))
@@ -231,8 +244,8 @@ func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn 
 	return &res
 }
 
-func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn string) *agentpb.CheckConnectionResponse {
-	var res agentpb.CheckConnectionResponse
+func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn string) *agentv1.CheckConnectionResponse {
+	var res agentv1.CheckConnectionResponse
 
 	cfg, err := mysql.ParseDSN(dsn)
 	if err != nil {
@@ -256,8 +269,8 @@ func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn st
 	return &res
 }
 
-func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri string) *agentpb.CheckConnectionResponse {
-	var res agentpb.CheckConnectionResponse
+func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri string) *agentv1.CheckConnectionResponse {
+	var res agentv1.CheckConnectionResponse
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
 	if err != nil {
@@ -271,7 +284,7 @@ func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri st
 		res.Error = err.Error()
 		return &res
 	}
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	if resp.StatusCode != http.StatusOK {
 		res.Error = fmt.Sprintf("Unexpected HTTP status code: %d. Expected: 200", resp.StatusCode)

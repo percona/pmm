@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestHeap(t *testing.T) {
@@ -30,15 +31,15 @@ func TestHeap(t *testing.T) {
 	t.Run("Heap test", func(t *testing.T) {
 		t.Parallel()
 		heapBytes, err := Heap(true)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		// read gzip
 		reader, err := gzip.NewReader(bytes.NewBuffer(heapBytes))
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		var resB bytes.Buffer
 		_, err = resB.ReadFrom(reader)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotEmpty(t, resB.Bytes())
 	})
 }

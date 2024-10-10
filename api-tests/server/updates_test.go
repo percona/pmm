@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -21,14 +21,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
 func TestCheckUpdates(t *testing.T) {
@@ -41,7 +42,7 @@ func TestCheckUpdates(t *testing.T) {
 	}
 
 	// that call should always be fast
-	version, err := serverClient.Default.Server.Version(server.NewVersionParamsWithTimeout(fast))
+	version, err := serverClient.Default.ServerService.Version(server.NewVersionParamsWithTimeout(fast))
 	require.NoError(t, err)
 	if version.Payload.Server == nil || version.Payload.Server.Version == "" {
 		t.Skip("skipping test in developer's environment")
@@ -51,12 +52,12 @@ func TestCheckUpdates(t *testing.T) {
 		Context: pmmapitests.Context,
 	}
 	params.SetTimeout(slow) // that call can be slow with a cold cache
-	res, err := serverClient.Default.Server.CheckUpdates(params)
+	res, err := serverClient.Default.ServerService.CheckUpdates(params)
 	require.NoError(t, err)
 
 	require.NotEmpty(t, res.Payload.Installed)
-	assert.True(t, strings.HasPrefix(res.Payload.Installed.Version, "2."),
-		"installed.version = %q should have '2.' prefix", res.Payload.Installed.Version)
+	assert.True(t, strings.HasPrefix(res.Payload.Installed.Version, "2.") || strings.HasPrefix(res.Payload.Installed.Version, "3."),
+		"installed.version = %q should have '2.' or '3.' prefix", res.Payload.Installed.Version)
 	assert.NotEmpty(t, res.Payload.Installed.FullVersion)
 	require.NotEmpty(t, res.Payload.Installed.Timestamp)
 	ts := time.Time(res.Payload.Installed.Timestamp)
@@ -65,23 +66,31 @@ func TestCheckUpdates(t *testing.T) {
 	assert.Zero(t, min, "installed.timestamp should contain only date")
 
 	require.NotEmpty(t, res.Payload.Latest)
-	assert.True(t, strings.HasPrefix(res.Payload.Latest.Version, "2."),
-		"latest.version = %q should have '2.' prefix", res.Payload.Latest.Version)
-	assert.NotEmpty(t, res.Payload.Latest.FullVersion)
-	require.NotEmpty(t, res.Payload.Latest.Timestamp)
-	ts = time.Time(res.Payload.Latest.Timestamp)
-	hour, min, _ = ts.Clock()
-	assert.Zero(t, hour, "latest.timestamp should contain only date")
-	assert.Zero(t, min, "latest.timestamp should contain only date")
+	assert.True(t, strings.HasPrefix(res.Payload.Installed.Version, "2.") || strings.HasPrefix(res.Payload.Installed.Version, "3."),
+		"installed.version = %q should have '2.' or '3.' prefix", res.Payload.Installed.Version)
+	assert.NotEmpty(t, res.Payload.Installed.FullVersion)
 
 	if res.Payload.UpdateAvailable {
-		assert.NotEqual(t, res.Payload.Installed.FullVersion, res.Payload.Latest.FullVersion)
+		require.NotEmpty(t, res.Payload.Latest)
+		assert.True(t, strings.HasPrefix(res.Payload.Latest.Version, "2.") || strings.HasPrefix(res.Payload.Installed.Version, "3."),
+			"latest.version = %q should have '2.' or '3.' prefix", res.Payload.Latest.Version)
+		require.NotEmpty(t, res.Payload.Latest.Timestamp)
+		ts = time.Time(res.Payload.Latest.Timestamp)
+		hour, min, _ = ts.Clock()
+		assert.Zero(t, hour, "latest.timestamp should contain only date")
+		assert.Zero(t, min, "latest.timestamp should contain only date")
+
+		assert.NotEmpty(t, res.Payload.Latest.Tag)
+		require.NotEmpty(t, res.Payload.Latest.Timestamp)
+		ts = time.Time(res.Payload.Latest.Timestamp)
+		hour, min, _ = ts.Clock()
+		assert.Zero(t, hour, "latest.timestamp should contain only date")
+		assert.Zero(t, min, "latest.timestamp should contain only date")
+
+		assert.NotEqual(t, res.Payload.Installed.FullVersion, res.Payload.Latest.Version)
 		assert.NotEqual(t, res.Payload.Installed.Timestamp, res.Payload.Latest.Timestamp)
 		assert.True(t, strings.HasPrefix(res.Payload.LatestNewsURL, "https://per.co.na/pmm/2."), "latest_news_url = %q", res.Payload.LatestNewsURL)
-	} else {
-		assert.Equal(t, res.Payload.Installed.FullVersion, res.Payload.Latest.FullVersion)
-		assert.Equal(t, res.Payload.Installed.Timestamp, res.Payload.Latest.Timestamp)
-		assert.Empty(t, res.Payload.LatestNewsURL, "latest_news_url should be empty")
+		assert.True(t, strings.HasPrefix(res.Payload.Latest.ReleaseNotesURL, "https://per.co.na/pmm/2."), "latest_news_url = %q", res.Payload.Latest.ReleaseNotesURL)
 	}
 	assert.NotEmpty(t, res.Payload.LastCheck)
 
@@ -90,7 +99,7 @@ func TestCheckUpdates(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		params.SetTimeout(fast) // that call should be fast with hot cache
-		resAgain, err := serverClient.Default.Server.CheckUpdates(params)
+		resAgain, err := serverClient.Default.ServerService.CheckUpdates(params)
 		require.NoError(t, err)
 
 		assert.Equal(t, res.Payload, resAgain.Payload)
@@ -98,19 +107,43 @@ func TestCheckUpdates(t *testing.T) {
 
 	t.Run("Force", func(t *testing.T) {
 		params = &server.CheckUpdatesParams{
-			Body: server.CheckUpdatesBody{
-				Force: true,
-			},
+			Force:   pointer.ToBool(true),
 			Context: pmmapitests.Context,
 		}
 		params.SetTimeout(slow) // that call with force can be slow
-		resForce, err := serverClient.Default.Server.CheckUpdates(params)
+		resForce, err := serverClient.Default.ServerService.CheckUpdates(params)
 		require.NoError(t, err)
 
 		assert.Equal(t, res.Payload.Installed, resForce.Payload.Installed)
-		assert.Equal(t, resForce.Payload.Installed.FullVersion != resForce.Payload.Latest.FullVersion, resForce.Payload.UpdateAvailable)
+		assert.Equal(t, resForce.Payload.Latest.Tag != "", resForce.Payload.UpdateAvailable)
 		assert.NotEqual(t, res.Payload.LastCheck, resForce.Payload.LastCheck)
 	})
+}
+
+func TestListUpdates(t *testing.T) {
+	const fast, slow = 5 * time.Second, 60 * time.Second
+
+	if !pmmapitests.RunUpdateTest {
+		t.Skip("skipping PMM Server check update test")
+	}
+
+	version, err := serverClient.Default.ServerService.Version(server.NewVersionParamsWithTimeout(fast))
+	require.NoError(t, err)
+	if version.Payload.Server == nil || version.Payload.Server.Version == "" {
+		t.Skip("skipping test in developer's environment")
+	}
+
+	params := &server.ListChangeLogsParams{
+		Context: pmmapitests.Context,
+	}
+	params.SetTimeout(slow)
+	res, err := serverClient.Default.ServerService.ListChangeLogs(params)
+	require.NoError(t, err)
+
+	if len(res.Payload.Updates) > 0 {
+		assert.True(t, strings.HasPrefix(res.Payload.Updates[0].Version, "3."),
+			"installed.version = %q should have '3.' prefix", res.Payload.Updates[0].Version)
+	}
 }
 
 func TestUpdate(t *testing.T) {
@@ -121,7 +154,7 @@ func TestUpdate(t *testing.T) {
 	}
 
 	// check that pmm-managed and pmm-update versions match
-	version, err := serverClient.Default.Server.Version(nil)
+	version, err := serverClient.Default.ServerService.Version(nil)
 	require.NoError(t, err)
 	require.NotNil(t, version.Payload)
 	t.Logf("Before update: %s", spew.Sdump(version.Payload))
@@ -137,22 +170,22 @@ func TestUpdate(t *testing.T) {
 	noAuthClient := serverClient.New(pmmapitests.Transport(baseURL, true), nil)
 
 	// without authentication
-	_, err = noAuthClient.Server.StartUpdate(nil)
+	_, err = noAuthClient.ServerService.StartUpdate(nil)
 	pmmapitests.AssertAPIErrorf(t, err, 401, codes.Unauthenticated, "Unauthorized")
 
 	// with authentication
-	startRes, err := serverClient.Default.Server.StartUpdate(nil)
+	startRes, err := serverClient.Default.ServerService.StartUpdate(nil)
 	require.NoError(t, err)
 	authToken := startRes.Payload.AuthToken
 	logOffset := startRes.Payload.LogOffset
 	require.NotEmpty(t, authToken)
 	assert.Zero(t, logOffset)
 
-	_, err = serverClient.Default.Server.StartUpdate(nil)
+	_, err = serverClient.Default.ServerService.StartUpdate(nil)
 	pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "Update is already running.")
 
 	// without token
-	_, err = noAuthClient.Server.UpdateStatus(&server.UpdateStatusParams{
+	_, err = noAuthClient.ServerService.UpdateStatus(&server.UpdateStatusParams{
 		Body: server.UpdateStatusBody{
 			LogOffset: logOffset,
 		},
@@ -165,7 +198,7 @@ func TestUpdate(t *testing.T) {
 	var retries int
 	for {
 		start := time.Now()
-		statusRes, err := noAuthClient.Server.UpdateStatus(&server.UpdateStatusParams{
+		statusRes, err := noAuthClient.ServerService.UpdateStatus(&server.UpdateStatusParams{
 			Body: server.UpdateStatusBody{
 				AuthToken: authToken,
 				LogOffset: logOffset,
@@ -222,7 +255,7 @@ func TestUpdate(t *testing.T) {
 	assert.Contains(t, lastLine, "Waiting for Grafana dashboards update to finish...")
 
 	// extra check for done
-	statusRes, err := noAuthClient.Server.UpdateStatus(&server.UpdateStatusParams{
+	statusRes, err := noAuthClient.ServerService.UpdateStatus(&server.UpdateStatusParams{
 		Body: server.UpdateStatusBody{
 			AuthToken: authToken,
 			LogOffset: logOffset,
@@ -235,7 +268,7 @@ func TestUpdate(t *testing.T) {
 	assert.Equal(t, logOffset, statusRes.Payload.LogOffset)
 
 	// whole log
-	statusRes, err = noAuthClient.Server.UpdateStatus(&server.UpdateStatusParams{
+	statusRes, err = noAuthClient.ServerService.UpdateStatus(&server.UpdateStatusParams{
 		Body: server.UpdateStatusBody{
 			AuthToken: authToken,
 		},
@@ -250,7 +283,7 @@ func TestUpdate(t *testing.T) {
 	assert.Contains(t, lastLine, "Waiting for Grafana dashboards update to finish...")
 
 	// check that both pmm-managed and pmm-update were updated
-	version, err = serverClient.Default.Server.Version(nil)
+	version, err = serverClient.Default.ServerService.Version(nil)
 	require.NoError(t, err)
 	require.NotNil(t, version.Payload)
 	t.Logf("After update: %s", spew.Sdump(version.Payload))

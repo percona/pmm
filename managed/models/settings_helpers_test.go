@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -19,14 +19,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/brianvoe/gofakeit/v6"
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
-	"github.com/percona/pmm/managed/utils/tests"
 )
 
 func TestSettings(t *testing.T) {
@@ -38,6 +37,7 @@ func TestSettings(t *testing.T) {
 	t.Run("Defaults", func(t *testing.T) {
 		actual, err := models.GetSettings(sqlDB)
 		require.NoError(t, err)
+		require.NotEmpty(t, actual.EncryptedItems)
 		expected := &models.Settings{
 			MetricsResolutions: models.MetricsResolutions{
 				HR: 5 * time.Second,
@@ -46,14 +46,15 @@ func TestSettings(t *testing.T) {
 			},
 			DataRetention: 30 * 24 * time.Hour,
 			AWSPartitions: []string{"aws"},
-			SaaS: models.SaaS{
-				STTCheckIntervals: models.STTCheckIntervals{
+			SaaS: models.Advisors{
+				AdvisorRunIntervals: models.AdvisorsRunIntervals{
 					StandardInterval: 24 * time.Hour,
 					RareInterval:     78 * time.Hour,
 					FrequentInterval: 4 * time.Hour,
 				},
 			},
-			DefaultRoleID: 1,
+			DefaultRoleID:  1,
+			EncryptedItems: actual.EncryptedItems,
 		}
 		assert.Equal(t, expected, actual)
 	})
@@ -70,8 +71,8 @@ func TestSettings(t *testing.T) {
 			},
 			DataRetention: 30 * 24 * time.Hour,
 			AWSPartitions: []string{"aws"},
-			SaaS: models.SaaS{
-				STTCheckIntervals: models.STTCheckIntervals{
+			SaaS: models.Advisors{
+				AdvisorRunIntervals: models.AdvisorsRunIntervals{
 					StandardInterval: 24 * time.Hour,
 					RareInterval:     78 * time.Hour,
 					FrequentInterval: 4 * time.Hour,
@@ -105,54 +106,17 @@ func TestSettings(t *testing.T) {
 			require.NoError(t, err)
 			assert.Equal(t, []string{"aws", "aws-cn"}, settings.AWSPartitions)
 
-			s = &models.ChangeSettingsParams{
-				AWSPartitions: []string{},
-			}
+			// Nil is treated as not changed
+			s = &models.ChangeSettingsParams{AWSPartitions: nil}
 			settings, err = models.UpdateSettings(sqlDB, s)
 			require.NoError(t, err)
 			assert.Equal(t, []string{"aws", "aws-cn"}, settings.AWSPartitions)
 
-			settings = &models.Settings{AWSPartitions: []string{}}
-			err = models.SaveSettings(sqlDB, settings)
-			assert.NoError(t, err)
+			// Empty list is treated as reset to default
+			s = &models.ChangeSettingsParams{AWSPartitions: []string{}}
+			settings, err = models.UpdateSettings(sqlDB, s)
+			require.NoError(t, err)
 			assert.Equal(t, []string{"aws"}, settings.AWSPartitions)
-		})
-
-		t.Run("AlertManagerURL", func(t *testing.T) {
-			_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				AlertManagerURL: "mailto:hello@example.com",
-			})
-			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: invalid alert_manager_url: mailto:hello@example.com - missing protocol scheme`)
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				AlertManagerURL: "1.2.3.4:1234",
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: invalid alert_manager_url: 1.2.3.4:1234 - missing protocol scheme`)
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				AlertManagerURL: "1.2.3.4",
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: invalid alert_manager_url: 1.2.3.4 - missing protocol scheme`)
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				AlertManagerURL: "1.2.3.4//",
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: invalid alert_manager_url: 1.2.3.4// - missing protocol scheme`)
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				AlertManagerURL: "https://",
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: invalid alert_manager_url: https:// - missing host`)
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				AlertManagerURL: "https://1.2.3.4",
-			})
-			assert.NoError(t, err)
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				AlertManagerURL: "https://1.2.3.4:1234/",
-			})
-			assert.NoError(t, err)
 		})
 
 		t.Run("", func(t *testing.T) {
@@ -186,106 +150,84 @@ func TestSettings(t *testing.T) {
 
 		t.Run("Updates validation", func(t *testing.T) {
 			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				DisableUpdates: false,
+				EnableUpdates: pointer.ToBool(true),
 			})
 			require.NoError(t, err)
-			assert.False(t, ns.Updates.Disabled)
-
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableUpdates:  true,
-				DisableUpdates: true,
-			})
-			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: both enable_updates and disable_updates are present`)
+			assert.True(t, *ns.Updates.Enabled)
 
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				DisableUpdates: true,
+				EnableUpdates: pointer.ToBool(false),
 			})
 			require.NoError(t, err)
-			assert.True(t, ns.Updates.Disabled)
+			assert.False(t, *ns.Updates.Enabled)
 		})
 
-		t.Run("Telemetry and STT validation", func(t *testing.T) {
+		t.Run("Telemetry and Advisors validation", func(t *testing.T) {
 			// ensure initial default state
 			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableTelemetry: true,
-				EnableSTT:       true,
+				EnableTelemetry: pointer.ToBool(true),
+				EnableAdvisors:  pointer.ToBool(true),
 			})
 			require.NoError(t, err)
-			assert.False(t, ns.Telemetry.Disabled)
-			assert.False(t, ns.SaaS.STTDisabled)
+			assert.True(t, *ns.Telemetry.Enabled)
+			assert.True(t, *ns.SaaS.Enabled)
 
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableTelemetry:  true,
-				DisableTelemetry: true,
-			})
-			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: both enable_telemetry and disable_telemetry are present`)
-
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableSTT:  true,
-				DisableSTT: true,
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: both enable_stt and disable_stt are present`)
-
-			// disable telemetry, enable STT
+			// disable telemetry, enable Advisors
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				DisableTelemetry: true,
-				EnableSTT:        true,
+				EnableTelemetry: pointer.ToBool(false),
+				EnableAdvisors:  pointer.ToBool(true),
 			})
 			require.NoError(t, err)
-			assert.True(t, ns.Telemetry.Disabled)
-			assert.False(t, ns.SaaS.STTDisabled)
+			assert.False(t, *ns.Telemetry.Enabled)
+			assert.True(t, *ns.SaaS.Enabled)
 
-			// disable STT, enable Telemetry
+			// disable Advisors, enable Telemetry
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableTelemetry: true,
-				DisableSTT:      true,
+				EnableTelemetry: pointer.ToBool(true),
+				EnableAdvisors:  pointer.ToBool(false),
 			})
 			require.NoError(t, err)
-			assert.False(t, ns.Telemetry.Disabled)
-			assert.True(t, ns.SaaS.STTDisabled)
+			assert.True(t, *ns.Telemetry.Enabled)
+			assert.False(t, *ns.SaaS.Enabled)
 
 			// enable both
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableSTT:       true,
-				EnableTelemetry: true,
+				EnableAdvisors:  pointer.ToBool(true),
+				EnableTelemetry: pointer.ToBool(true),
 			})
 			require.NoError(t, err)
-			assert.False(t, ns.Telemetry.Disabled)
-			assert.False(t, ns.SaaS.STTDisabled)
+			assert.True(t, *ns.Telemetry.Enabled)
+			assert.True(t, *ns.SaaS.Enabled)
 
-			// disable STT
+			// disable Advisors
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				DisableSTT: true,
+				EnableAdvisors: pointer.ToBool(false),
 			})
 			require.NoError(t, err)
-			assert.False(t, ns.Telemetry.Disabled)
-			assert.True(t, ns.SaaS.STTDisabled)
+			assert.True(t, *ns.Telemetry.Enabled)
+			assert.False(t, *ns.SaaS.Enabled)
 
+			// enable Advisors
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableSTT: true,
+				EnableAdvisors: pointer.ToBool(true),
 			})
 			require.NoError(t, err)
-			assert.False(t, ns.Telemetry.Disabled)
-			assert.False(t, ns.SaaS.STTDisabled)
+			assert.True(t, *ns.Telemetry.Enabled)
+			assert.True(t, *ns.SaaS.Enabled)
 
 			// restore initial default state
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableTelemetry: true,
-				EnableSTT:       true,
+				EnableAdvisors:  pointer.ToBool(true),
+				EnableTelemetry: pointer.ToBool(true),
 			})
 			require.NoError(t, err)
-			assert.False(t, ns.Telemetry.Disabled)
-			assert.False(t, ns.SaaS.STTDisabled)
+			assert.True(t, *ns.Telemetry.Enabled)
+			assert.True(t, *ns.SaaS.Enabled)
 		})
 
 		t.Run("Check that telemetry disabling resets telemetry UUID", func(t *testing.T) {
 			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableTelemetry: true,
+				EnableTelemetry: pointer.ToBool(true),
 			})
 			require.NoError(t, err)
 
@@ -299,7 +241,7 @@ func TestSettings(t *testing.T) {
 			assert.Equal(t, uuid, ns.Telemetry.UUID)
 
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				DisableTelemetry: true,
+				EnableTelemetry: pointer.ToBool(false),
 			})
 			require.NoError(t, err)
 			assert.Empty(t, ns.Telemetry.UUID)
@@ -309,167 +251,82 @@ func TestSettings(t *testing.T) {
 			disChecks := []string{"one", "two", "three"}
 
 			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				DisableSTTChecks: disChecks,
+				DisableAdvisorChecks: disChecks,
 			})
 			require.NoError(t, err)
-			assert.ElementsMatch(t, ns.SaaS.DisabledSTTChecks, disChecks)
+			assert.ElementsMatch(t, ns.SaaS.DisabledAdvisors, disChecks)
 		})
 
 		t.Run("enable checks", func(t *testing.T) {
 			disChecks := []string{"one", "two", "three"}
 
-			_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{DisableSTTChecks: disChecks})
+			_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{DisableAdvisorChecks: disChecks})
 			require.NoError(t, err)
 
-			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableSTTChecks: []string{"two"}})
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAdvisorChecks: []string{"two"}})
 			require.NoError(t, err)
-			assert.ElementsMatch(t, ns.SaaS.DisabledSTTChecks, []string{"one", "three"})
+			assert.ElementsMatch(t, ns.SaaS.DisabledAdvisors, []string{"one", "three"})
 		})
 
 		t.Run("enable azure discover", func(t *testing.T) {
-			_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{DisableAzurediscover: true})
+			s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAzurediscover: pointer.ToBool(false)})
 			require.NoError(t, err)
+			assert.False(t, *s.Azurediscover.Enabled)
 
-			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAzurediscover: true})
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAzurediscover: pointer.ToBool(true)})
 			require.NoError(t, err)
-			assert.True(t, ns.Azurediscover.Enabled)
+			assert.True(t, *ns.Azurediscover.Enabled)
 		})
 
 		t.Run("enable Access Control", func(t *testing.T) {
-			s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{DisableAccessControl: true})
+			s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAccessControl: pointer.ToBool(false)})
 			require.NoError(t, err)
-			assert.False(t, s.AccessControl.Enabled)
+			assert.False(t, *s.AccessControl.Enabled)
 
-			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAccessControl: true})
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAccessControl: pointer.ToBool(true)})
 			require.NoError(t, err)
-			assert.True(t, ns.AccessControl.Enabled)
+			assert.True(t, *ns.AccessControl.Enabled)
 		})
 
-		t.Run("Integrated Alerting settings validation", func(t *testing.T) {
-			emailSettings := &models.EmailAlertingSettings{
-				From:      tests.GenEmail(t),
-				Smarthost: "0.0.0.0:8080",
-				Hello:     "smtp_host",
-				Username:  "smtp_username",
-				Password:  "smtp_password",
-				Secret:    "smtp_secret",
-			}
-			slackSettings := &models.SlackAlertingSettings{URL: gofakeit.URL()}
-			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableAlerting:        true,
-				EmailAlertingSettings: emailSettings,
-				SlackAlertingSettings: slackSettings,
-			})
+		t.Run("disable percona alerting", func(t *testing.T) {
+			s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAlerting: pointer.ToBool(false)})
 			require.NoError(t, err)
-			assert.False(t, ns.Alerting.Disabled)
-			assert.Equal(t, ns.Alerting.EmailAlertingSettings, emailSettings)
-			assert.Equal(t, ns.Alerting.SlackAlertingSettings, slackSettings)
+			assert.False(t, *s.Alerting.Enabled)
 
-			// check that we don't lose settings on empty updates
-			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{})
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAlerting: pointer.ToBool(true)})
 			require.NoError(t, err)
-			assert.False(t, ns.Alerting.Disabled)
-			assert.Equal(t, ns.Alerting.EmailAlertingSettings, emailSettings)
-			assert.Equal(t, ns.Alerting.SlackAlertingSettings, slackSettings)
-
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				RemoveEmailAlertingSettings: true,
-				EmailAlertingSettings:       emailSettings,
-			})
-			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, "invalid argument: both email_alerting_settings and remove_email_alerting_settings are present")
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EmailAlertingSettings: &models.EmailAlertingSettings{
-					From:      "from",
-					Smarthost: "example.com:1234",
-					Hello:     "example.com",
-				},
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, "invalid argument: invalid \"from\" email \"from\"")
-
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EmailAlertingSettings: &models.EmailAlertingSettings{
-					From:      "from@example.com",
-					Smarthost: "@invalid-host",
-					Hello:     "example.com",
-				},
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, "invalid argument: invalid server address, expected format host:port")
-
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EmailAlertingSettings: &models.EmailAlertingSettings{
-					From:      "from@example.com",
-					Smarthost: "example.com:1234",
-					Hello:     "%",
-				},
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, "invalid argument: invalid hello field, expected valid host")
-
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				RemoveSlackAlertingSettings: true,
-				SlackAlertingSettings:       slackSettings,
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, "invalid argument: both slack_alerting_settings and remove_slack_alerting_settings are present")
-
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				SlackAlertingSettings: &models.SlackAlertingSettings{
-					URL: "invalid@url",
-				},
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, "invalid argument: invalid url value")
-
-			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				DisableAlerting:             true,
-				RemoveEmailAlertingSettings: true,
-				RemoveSlackAlertingSettings: true,
-			})
-			require.NoError(t, err)
-			assert.Empty(t, ns.Alerting.EmailAlertingSettings)
-			assert.True(t, ns.Alerting.Disabled)
-
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				DisableAlerting: true,
-				EnableAlerting:  true,
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, "invalid argument: both enable_alerting and disable_alerting are present")
+			assert.True(t, *ns.Alerting.Enabled)
 		})
-	})
 
-	t.Run("Set PMM server ID", func(t *testing.T) {
-		t.Run("not set", func(t *testing.T) {
-			settings, err := models.GetSettings(sqlDB)
-			require.NoError(t, err)
-			require.NotNil(t, settings)
-			assert.Empty(t, settings.PMMServerID)
+		t.Run("Set PMM server ID", func(t *testing.T) {
+			t.Run("not set", func(t *testing.T) {
+				settings, err := models.GetSettings(sqlDB)
+				require.NoError(t, err)
+				require.NotNil(t, settings)
+				assert.Empty(t, settings.PMMServerID)
 
-			err = models.SetPMMServerID(sqlDB)
-			require.NoError(t, err)
+				err = models.SetPMMServerID(sqlDB)
+				require.NoError(t, err)
 
-			settings, err = models.GetSettings(sqlDB)
-			require.NoError(t, err)
-			require.NotNil(t, settings)
-			assert.NotEmpty(t, settings.PMMServerID)
-		})
-		t.Run("already set", func(t *testing.T) {
-			settings, err := models.GetSettings(sqlDB)
-			require.NoError(t, err)
-			require.NotNil(t, settings)
-			pmmServerID := settings.PMMServerID
+				settings, err = models.GetSettings(sqlDB)
+				require.NoError(t, err)
+				require.NotNil(t, settings)
+				assert.NotEmpty(t, settings.PMMServerID)
+			})
+			t.Run("already set", func(t *testing.T) {
+				settings, err := models.GetSettings(sqlDB)
+				require.NoError(t, err)
+				require.NotNil(t, settings)
+				pmmServerID := settings.PMMServerID
 
-			err = models.SetPMMServerID(sqlDB)
-			require.NoError(t, err)
+				err = models.SetPMMServerID(sqlDB)
+				require.NoError(t, err)
 
-			settings, err = models.GetSettings(sqlDB)
-			require.NoError(t, err)
-			require.NotNil(t, settings)
-			assert.Equal(t, pmmServerID, settings.PMMServerID)
+				settings, err = models.GetSettings(sqlDB)
+				require.NoError(t, err)
+				require.NotNil(t, settings)
+				assert.Equal(t, pmmServerID, settings.PMMServerID)
+			})
 		})
 	})
 }

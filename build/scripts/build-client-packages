@@ -18,7 +18,7 @@ Usage: $0 [OPTIONS]
         --build_rpm         If it is 1 rpm will be built
         --build_deb         If it is 1 deb will be built
         --install_deps      Install build dependencies(root previlages are required)
-        --branch            Branch from which submodules should be taken(default PMM-2.0)
+        --branch            Branch from which submodules should be taken(default v3)
         --help) usage ;;
 Example $0 --builddir=/tmp/PMM_CLIENT --get_sources=1 --build_src_rpm=1 --build_rpm=1
 EOF
@@ -198,9 +198,9 @@ install_deps() {
 
 get_tar(){
     TARBALL=$1
-    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'pmm2-client*.tar.gz' | sort | tail -n1) || :)
+    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'pmm-client*.tar.gz' | sort | tail -n1) || :)
     if [ -z $TARFILE ]; then
-        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'pmm2-client*.tar.gz' | sort | tail -n1) || :)
+        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'pmm-client*.tar.gz' | sort | tail -n1) || :)
         if [ -z $TARFILE ]; then
             echo "There is no $TARBALL for build"
             exit 1
@@ -216,9 +216,9 @@ get_tar(){
 get_deb_sources(){
     param=$1
     echo $param
-    FILE=$(basename $(find $WORKDIR/source_deb -name "pmm2-client*.$param" | sort | tail -n1) || :)
+    FILE=$(basename $(find $WORKDIR/source_deb -name "pmm-client*.$param" | sort | tail -n1) || :)
     if [ -z $FILE ]; then
-        FILE=$(basename $(find $CURDIR/source_deb -name "pmm2-client*.$param" | sort | tail -n1) || :)
+        FILE=$(basename $(find $CURDIR/source_deb -name "pmm-client*.$param" | sort | tail -n1) || :)
         if [ -z $FILE ]; then
             echo "There is no sources for build"
             exit 1
@@ -248,7 +248,7 @@ build_srpm(){
     ls | grep -v tar.gz | xargs rm -rf
     
     #
-    TARFILE=$(basename $(find . -name 'pmm2-client-*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find . -name 'pmm-client-*.tar.gz' | sort | tail -n1))
     NAME=$(echo ${TARFILE}| awk -F '-' '{print $1"-"$2}')
     VERSION_TMP=$(echo ${TARFILE}| awk -F '-' '{print $3}')
     VERSION=${VERSION_TMP%.tar.gz}
@@ -263,7 +263,7 @@ build_srpm(){
     cp ${WORKDIR}/${NAME}-${VERSION}/rpm/*.spec .
     cp ${WORKDIR}/${TARFILE} ../SOURCES/
     cd ${WORKDIR}
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "version $VERSION" --define "release $RPM_RELEASE" --define "dist %{nil}" rpmbuild/SPECS/pmm2-client.spec
+    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "version $VERSION" --define "release $RPM_RELEASE" --define "dist %{nil}" rpmbuild/SPECS/pmm-client.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -280,9 +280,9 @@ build_rpm(){
         exit 1
     fi
 
-    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'pmm2-client*.src.rpm' | sort | tail -n1) || :)
+    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'pmm-client*.src.rpm' | sort | tail -n1) || :)
     if [ -z $SRC_RPM ]; then
-        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'pmm2-client*.src.rpm' | sort | tail -n1) || :)
+        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'pmm-client*.src.rpm' | sort | tail -n1) || :)
         if [ -z $SRC_RPM ]; then
             echo "There is no src rpm for build"
             echo "You can create it using key --build_src_rpm=1"
@@ -327,7 +327,7 @@ build_source_deb(){
     get_tar "tarball"
     rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
     #
-    TARFILE=$(basename $(find . -name 'pmm2-client-*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find . -name 'pmm-client-*.tar.gz' | sort | tail -n1))
     NAME=$(echo ${TARFILE}| awk -F '-' '{print $1"-"$2}')
     VERSION_TMP=$(echo ${TARFILE}| awk -F '-' '{print $3}')
     VERSION=${VERSION_TMP%.tar.gz}
@@ -360,8 +360,10 @@ build_source_deb(){
     mv queries-mysqld-group-replication.yml ../${NAME}-${VERSION}_all/distro/
     mv example-queries-postgres.yml ../${NAME}-${VERSION}_all/distro/
     mv queries-postgres-uptime.yml ../${NAME}-${VERSION}_all/distro/
+    mv queries-mr.yaml ../${NAME}-${VERSION}_all/distro/
+    mv queries-lr.yaml ../${NAME}-${VERSION}_all/distro/
     mv debian ../${NAME}-${VERSION}_all/
-    mv config/pmm-agent.service ../${NAME}-${VERSION}_all/debian/pmm2-client.pmm-agent.service
+    mv config/pmm-agent.service ../${NAME}-${VERSION}_all/debian/pmm-client.pmm-agent.service
     cd ../
 
     rm -rf ${NAME}-${VERSION}
@@ -442,7 +444,7 @@ TARBALL=0
 OS_NAME=
 ARCH=
 OS=
-SUBMODULE_BRANCH="PMM-2.0"
+SUBMODULE_BRANCH="v3"
 INSTALL=0
 RPM_RELEASE=6
 DEB_RELEASE=6
@@ -457,7 +459,7 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 get_system
 install_deps
 
-BRANCH="PMM-2.0"
+BRANCH="v3"
 REPO="https://github.com/Percona-Lab/pmm-submodules.git"
 
 if [ "$TARBALL" = '1' -o "$SOURCE" = '1' ]; then
@@ -473,8 +475,6 @@ if [ "$TARBALL" = '1' -o "$SOURCE" = '1' ]; then
     ProxysqlExp_REPO=$(get_repos "proxysql_exporter")
     NodeExp_BRANCH_NAME=$(get_branches "node_exporter")
     NodeExp_REPO=$(get_repos "node_exporter")
-    ClickhouseExp_BRANCH_NAME=$(get_branches "clickhouse_exporter")
-    ClickhouseExp_REPO=$(get_repos "clickhouse_exporter")
     AzureExp_BRANCH_NAME=$(get_branches "azure_metrics_exporter")
     AzureExp_REPO=$(get_repos "azure_metrics_exporter")
 fi

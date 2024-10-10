@@ -1,8 +1,7 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 
 # See CONTRIBUTING.md.
 
-from __future__ import print_function, unicode_literals
 import os
 import subprocess
 import time
@@ -10,7 +9,7 @@ import time
 
 GO_VERSION = os.getenv("GO_VERSION")
 if GO_VERSION is None:
-    raise "GO_VERSION is not set"
+    raise RuntimeError("GO_VERSION is not set")
 
 
 def run_commands(commands):
@@ -25,21 +24,16 @@ def install_packages():
     """Installs required and useful RPM packages."""
 
     run_commands([
-        # to install man pages
-        "sed -i '/nodocs/d' /etc/yum.conf",
-
-        # reinstall with man pages
-        "yum reinstall -y yum rpm",
-
-        "yum install -y gcc git make pkgconfig glibc-static \
+        "dnf install -y gcc git make pkgconfig \
             vim \
-            ansible-lint \
-            mc tmux psmisc lsof which iproute \
-            bash-completion bash-completion-extras \
+            mc tmux psmisc lsof which iproute diffutils \
+            bash-completion \
             man man-pages \
-            dh-autoreconf \
             openssl-devel \
-            wget"
+            wget",
+        
+        "dnf install -y ansible-lint glibc-static --enablerepo=ol9_codeready_builder"
+
     ])
 
 
@@ -51,18 +45,9 @@ def install_go():
         "chmod +x /usr/local/bin/gimme"
     ])
 
-    go_version = str(subprocess.check_output("gimme -r " + GO_VERSION, shell=True).strip())
+    go_version = str(subprocess.check_output("gimme -r " + GO_VERSION, shell=True).strip().decode())
 
-    if GO_VERSION == "tip":
-        run_commands([
-            "mkdir $HOME/git_source",
-            "wget https://github.com/git/git/archive/refs/tags/v2.34.4.tar.gz -O $HOME/git.tar.gz",
-            "tar -xzf $HOME/git.tar.gz -C $HOME/git_source --strip-components 1",
-            "cd $HOME/git_source && make configure && ./configure --prefix=/usr && make all && make install",
-        ])
-        gimme_go_dir = "go"
-    else:
-        gimme_go_dir = "go{go_version}.linux.amd64".format(go_version=go_version)
+    gimme_go_dir = "go{go_version}.linux.amd64".format(go_version=go_version)
 
     run_commands([
         "gimme " + go_version,
@@ -95,7 +80,7 @@ def setup():
         # Having fsync off in dev environment is fine.
         "sed -i -e \"s/#fsync = on/fsync = off/\" /srv/postgres14/postgresql.conf",
         "echo 'host    all         all     0.0.0.0/0     trust' >> /srv/postgres14/pg_hba.conf",
-        "supervisorctl restart postgresql",
+        # "supervisorctl restart postgresql",
     ])
 
 

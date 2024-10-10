@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package user provides API for user related tasks
+// Package user provides API for user related tasks.
 package user
 
 import (
@@ -25,7 +25,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/userpb"
+	userv1 "github.com/percona/pmm/api/user/v1"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -35,7 +35,7 @@ type Service struct {
 	l  *logrus.Entry
 	c  grafanaClient
 
-	userpb.UnimplementedUserServer
+	userv1.UnimplementedUserServiceServer
 }
 
 type grafanaClient interface {
@@ -55,8 +55,8 @@ func NewUserService(db *reform.DB, client grafanaClient) *Service {
 	return &s
 }
 
-// GetUser creates a new user
-func (s *Service) GetUser(ctx context.Context, _ *userpb.UserDetailsRequest) (*userpb.UserDetailsResponse, error) {
+// GetUser creates a new user.
+func (s *Service) GetUser(ctx context.Context, _ *userv1.GetUserRequest) (*userv1.GetUserResponse, error) {
 	userID, err := s.c.GetUserID(ctx)
 	if err != nil {
 		return nil, err
@@ -67,16 +67,17 @@ func (s *Service) GetUser(ctx context.Context, _ *userpb.UserDetailsRequest) (*u
 		return nil, err
 	}
 
-	resp := &userpb.UserDetailsResponse{
+	resp := &userv1.GetUserResponse{
 		UserId:                uint32(userInfo.ID),
 		ProductTourCompleted:  userInfo.Tour,
 		AlertingTourCompleted: userInfo.AlertingTour,
+		SnoozedPmmVersion:     userInfo.SnoozedPMMVersion,
 	}
 	return resp, nil
 }
 
 // UpdateUser updates data for given user.
-func (s *Service) UpdateUser(ctx context.Context, req *userpb.UserUpdateRequest) (*userpb.UserDetailsResponse, error) {
+func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest) (*userv1.UpdateUserResponse, error) {
 	userID, err := s.c.GetUserID(ctx)
 	if err != nil {
 		return nil, err
@@ -95,16 +96,11 @@ func (s *Service) UpdateUser(ctx context.Context, req *userpb.UserUpdateRequest)
 
 		params := &models.UpdateUserParams{
 			UserID:       userInfo.ID,
-			Tour:         userInfo.Tour,
-			AlertingTour: userInfo.AlertingTour,
+			Tour:         req.ProductTourCompleted,
+			AlertingTour: req.AlertingTourCompleted,
 		}
-
-		// Only allow to set flags
-		if req.ProductTourCompleted {
-			params.Tour = req.ProductTourCompleted
-		}
-		if req.AlertingTourCompleted {
-			params.AlertingTour = req.AlertingTourCompleted
+		if req.SnoozedPmmVersion != nil {
+			params.SnoozedPMMVersion = req.SnoozedPmmVersion
 		}
 
 		userInfo, err = models.UpdateUser(tx.Querier, params)
@@ -118,26 +114,27 @@ func (s *Service) UpdateUser(ctx context.Context, req *userpb.UserUpdateRequest)
 		return nil, e
 	}
 
-	resp := &userpb.UserDetailsResponse{
+	resp := &userv1.UpdateUserResponse{
 		UserId:                uint32(userInfo.ID),
 		ProductTourCompleted:  userInfo.Tour,
 		AlertingTourCompleted: userInfo.AlertingTour,
+		SnoozedPmmVersion:     userInfo.SnoozedPMMVersion,
 	}
 	return resp, nil
 }
 
 // ListUsers lists all users and their details.
-func (s *Service) ListUsers(_ context.Context, _ *userpb.ListUsersRequest) (*userpb.ListUsersResponse, error) {
+func (s *Service) ListUsers(_ context.Context, _ *userv1.ListUsersRequest) (*userv1.ListUsersResponse, error) {
 	userRoles, err := models.ListUsers(s.db.Querier)
 	if err != nil {
 		return nil, err
 	}
 
-	resp := &userpb.ListUsersResponse{
-		Users: make([]*userpb.ListUsersResponse_UserDetail, 0, len(userRoles)),
+	resp := &userv1.ListUsersResponse{
+		Users: make([]*userv1.ListUsersResponse_UserDetail, 0, len(userRoles)),
 	}
 	for userID, roleIDs := range userRoles {
-		resp.Users = append(resp.Users, &userpb.ListUsersResponse_UserDetail{
+		resp.Users = append(resp.Users, &userv1.ListUsersResponse_UserDetail{
 			UserId:  uint32(userID),
 			RoleIds: roleIDs,
 		})

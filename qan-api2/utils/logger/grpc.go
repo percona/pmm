@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -26,19 +26,24 @@ type GRPC struct {
 }
 
 // V reports whether verbosity level l is at least the requested verbose level.
-func (v *GRPC) V(l int) bool {
+func (v *GRPC) V(l int) bool { //nolint:revive
 	// we don't need real implementation ATM
 	return true
 }
 
+// Info logs a message at the Info level.
 // Override InfoXXX methods with TraceXXX to keep gRPC and logrus levels in sync.
 //
-//nolint:stylecheck
-func (v *GRPC) Info(args ...interface{})                 { v.Trace(args...) }
-func (v *GRPC) Infoln(args ...interface{})               { v.Traceln(args...) }
+// Info logs a message at the Info level.
+func (v *GRPC) Info(args ...interface{}) { v.Trace(args...) }
+
+// Infoln logs a message at the Info level.
+func (v *GRPC) Infoln(args ...interface{}) { v.Traceln(args...) }
+
+// Infof logs a formatted message at the Info level.
 func (v *GRPC) Infof(format string, args ...interface{}) { v.Tracef(format, args...) }
 
-// check interfaces
+// check interfaces.
 var (
 	_ grpclog.LoggerV2 = (*GRPC)(nil)
 )

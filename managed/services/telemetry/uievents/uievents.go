@@ -27,7 +27,7 @@ import (
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/sirupsen/logrus"
 
-	uievents "github.com/percona/pmm/api/uieventspb"
+	uieventsv1 "github.com/percona/pmm/api/uievents/v1"
 	"github.com/percona/pmm/managed/services/telemetry"
 )
 
@@ -43,13 +43,14 @@ type Service struct {
 	l               *logrus.Entry
 	dashboardUsage  map[string]*DashboardUsageStat
 	componentsUsage map[string]*ComponentsUsageStat
-	userFlowEvents  []*uievents.UserFlowEvent
+	userFlowEvents  []*uieventsv1.UserFlowEvent
 
 	stateM sync.RWMutex
 
-	uievents.UnimplementedUIEventsServer
+	uieventsv1.UnimplementedUIEventsServiceServer
 }
 
+// DashboardUsageStat represents a structure for dashboard usage statistics.
 type DashboardUsageStat struct {
 	title    string
 	uid      string
@@ -57,6 +58,7 @@ type DashboardUsageStat struct {
 	loadTime *hdrhistogram.Histogram
 }
 
+// ComponentsUsageStat represents a structure for component usage statistics.
 type ComponentsUsageStat struct {
 	uid      string
 	useCount int32
@@ -93,6 +95,7 @@ func (s *Service) ScheduleCleanup(ctx context.Context) {
 	}()
 }
 
+// FetchMetrics fetches metrics for the service based on the provided context and telemetry configuration.
 func (s *Service) FetchMetrics(_ context.Context, _ telemetry.Config) ([]*pmmv1.ServerMetric_Metric, error) { //nolint:unparam
 	s.stateM.RLock()
 	defer s.stateM.RUnlock()
@@ -239,7 +242,7 @@ func (s *Service) processUserFlowEvents() []*pmmv1.ServerMetric_Metric {
 }
 
 // Store stores metrics for further processing and sending to Portal.
-func (s *Service) Store(_ context.Context, request *uievents.StoreRequest) (*uievents.StoreResponse, error) { //nolint:unparam
+func (s *Service) Store(_ context.Context, request *uieventsv1.StoreRequest) (*uieventsv1.StoreResponse, error) { //nolint:unparam
 	s.stateM.Lock()
 	defer s.stateM.Unlock()
 
@@ -254,7 +257,7 @@ func (s *Service) Store(_ context.Context, request *uievents.StoreRequest) (*uie
 			}
 			s.dashboardUsage[event.Uid] = stat
 		}
-		stat.useCount = stat.useCount + 1
+		stat.useCount++
 		err := stat.loadTime.RecordValue(int64(event.LoadTime))
 		if err != nil {
 			s.l.Error("failed to record value", err)
@@ -270,7 +273,7 @@ func (s *Service) Store(_ context.Context, request *uievents.StoreRequest) (*uie
 			}
 			s.componentsUsage[event.Component] = stat
 		}
-		stat.useCount = stat.useCount + 1
+		stat.useCount++
 		err := stat.loadTime.RecordValue(int64(event.LoadTime))
 		if err != nil {
 			s.l.Error("failed to record value", err)
@@ -279,7 +282,7 @@ func (s *Service) Store(_ context.Context, request *uievents.StoreRequest) (*uie
 
 	s.userFlowEvents = append(s.userFlowEvents, request.UserFlowEvents...)
 
-	return &uievents.StoreResponse{}, nil
+	return &uieventsv1.StoreResponse{}, nil
 }
 
 func (s *Service) cleanup() {
@@ -288,5 +291,5 @@ func (s *Service) cleanup() {
 
 	s.dashboardUsage = make(map[string]*DashboardUsageStat)
 	s.componentsUsage = make(map[string]*ComponentsUsageStat)
-	s.userFlowEvents = []*uievents.UserFlowEvent{}
+	s.userFlowEvents = []*uieventsv1.UserFlowEvent{}
 }

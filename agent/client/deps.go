@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,17 +19,19 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 
-	"github.com/percona/pmm/api/agentlocalpb"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
 )
-
-//go:generate ../../bin/mockery -name=connectionChecker -case=snake -inpkg -testonly
-//go:generate ../../bin/mockery -name=supervisor -case=snake -inpkg -testonly
 
 // connectionChecker is a subset of methods of connectionchecker.ConnectionChecker used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type connectionChecker interface {
-	Check(ctx context.Context, req *agentpb.CheckConnectionRequest, id uint32) *agentpb.CheckConnectionResponse
+	Check(ctx context.Context, req *agentv1.CheckConnectionRequest, id uint32) *agentv1.CheckConnectionResponse
+}
+
+// serviceInfoBroker is a subset of methods of serviceinfobroker.ServiceInfoBroker used by this package.
+type serviceInfoBroker interface {
+	GetInfoFromService(ctx context.Context, req *agentv1.ServiceInfoRequest, id uint32) *agentv1.ServiceInfoResponse
 }
 
 // softwareVersioner is a subset of methods of version.Versioner used by this package.
@@ -46,12 +48,12 @@ type softwareVersioner interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type supervisor interface {
 	ClearChangesChannel()
-	Changes() <-chan *agentpb.StateChangedRequest
-	QANRequests() <-chan *agentpb.QANCollectRequest
-	SetState(*agentpb.SetStateRequest)
+	Changes() <-chan *agentv1.StateChangedRequest
+	QANRequests() <-chan *agentv1.QANCollectRequest
+	SetState(*agentv1.SetStateRequest) //nolint:inamedparam
 	RestartAgents()
 	AgentLogByID(string) ([]string, uint)
-	AgentsList() []*agentlocalpb.AgentInfo
+	AgentsList() []*agentlocal.AgentInfo
 	// Collector added to use client as Prometheus collector
 	prometheus.Collector
 }

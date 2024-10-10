@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,9 +22,9 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/types"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	"github.com/percona/pmm/api/inventory/v1/types"
 )
 
 //nolint:lll
@@ -90,6 +90,7 @@ func getAgentStatus(status *string) string {
 	if res == "" {
 		res = "UNKNOWN"
 	}
+	res, _ = strings.CutPrefix(res, "AGENT_STATUS_")
 	return res
 }
 
@@ -101,24 +102,21 @@ type ListAgentsCommand struct {
 	AgentType  string `help:"Filter by Agent type"`
 }
 
+// RunCmd executes the ListAgentsCommand and returns the result.
 func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 	agentType, err := formatTypeValue(acceptableAgentTypes, cmd.AgentType)
 	if err != nil {
 		return nil, err
 	}
 
-	filters := agents.ListAgentsBody{
-		PMMAgentID: cmd.PMMAgentID,
-		ServiceID:  cmd.ServiceID,
-		NodeID:     cmd.NodeID,
-		AgentType:  agentType,
-	}
-
 	params := &agents.ListAgentsParams{
-		Body:    filters,
-		Context: commands.Ctx,
+		PMMAgentID: pointer.ToString(cmd.PMMAgentID),
+		ServiceID:  pointer.ToString(cmd.ServiceID),
+		NodeID:     pointer.ToString(cmd.NodeID),
+		AgentType:  agentType,
+		Context:    commands.Ctx,
 	}
-	agentsRes, err := client.Default.Agents.ListAgents(params)
+	agentsRes, err := client.Default.AgentsService.ListAgents(params)
 	if err != nil {
 		return nil, err
 	}

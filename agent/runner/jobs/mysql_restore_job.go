@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,14 +31,14 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 const (
 	xbstreamBin          = "xbstream"
 	mySQLSystemUserName  = "mysql"
 	mySQLSystemGroupName = "mysql"
-	// TODO make mySQLDirectory autorecognized as done in 'xtrabackup' utility; see 'xtrabackup --help' --datadir parameter
+	// TODO make mySQLDirectory autorecognized as done in 'xtrabackup' utility; see 'xtrabackup --help' --datadir parameter.
 	mySQLDirectory   = "/var/lib/mysql"
 	systemctlTimeout = 10 * time.Second
 )
@@ -80,6 +80,11 @@ func (j *MySQLRestoreJob) Type() JobType {
 // Timeout returns job timeout.
 func (j *MySQLRestoreJob) Timeout() time.Duration {
 	return j.timeout
+}
+
+// DSN returns DSN for the Job.
+func (j *MySQLRestoreJob) DSN() string {
+	return "" // not used for MySQL restore
 }
 
 // Run executes backup restore steps.
@@ -134,11 +139,11 @@ func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) error {
 		return errors.WithStack(err)
 	}
 
-	send(&agentpb.JobResult{
+	send(&agentv1.JobResult{
 		JobId:     j.id,
 		Timestamp: timestamppb.Now(),
-		Result: &agentpb.JobResult_MysqlRestoreBackup{
-			MysqlRestoreBackup: &agentpb.JobResult_MySQLRestoreBackup{},
+		Result: &agentv1.JobResult_MysqlRestoreBackup{
+			MysqlRestoreBackup: &agentv1.JobResult_MySQLRestoreBackup{},
 		},
 	})
 
@@ -228,7 +233,7 @@ func (j *MySQLRestoreJob) restoreMySQLFromS3(ctx context.Context, targetDirector
 	}
 
 	wrapError := func(err error) error {
-		return errors.Wrapf(err, "stderr: %s\n stdout: %s\n", stderr.String(), stdout.String())
+		return errors.Wrapf(err, "stderr: %s\n stdout: %s\n", stderr.String(), stdout.String()) //nolint:revive
 	}
 
 	if err := xbcloudCmd.Start(); err != nil {
@@ -428,7 +433,7 @@ func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) 
 	return nil
 }
 
-// getMysqlServiceName returns MySQL system service name
+// getMysqlServiceName returns MySQL system service name.
 func getMysqlServiceName(ctx context.Context) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()

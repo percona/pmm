@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -96,13 +96,29 @@ func (s *CompatibilityService) findCompatibleServiceIDs(artifactModel *models.Ar
 	compatibleServiceIDs := make([]string, 0, len(svs))
 	for _, sv := range svs {
 		svm := softwareVersionsToMap(sv.SoftwareVersions)
+		var (
+			serviceDBVersion string
+			err              error
+		)
 
-		if err := mySQLBackupSoftwareInstalledAndCompatible(svm); err != nil {
+		switch artifactModel.Vendor {
+		case "mysql":
+			serviceDBVersion = svm[models.MysqldSoftwareName]
+			err = mySQLBackupSoftwareInstalledAndCompatible(svm)
+
+		case "mongodb":
+			serviceDBVersion = svm[models.MongoDBSoftwareName]
+			err = mongoDBBackupSoftwareInstalledAndCompatible(svm)
+
+		default:
+			return nil
+		}
+
+		if err != nil {
 			s.l.WithError(err).Debugf("skip incompatible service id %q", sv.ServiceID)
 			continue
 		}
 
-		serviceDBVersion := svm[models.MysqldSoftwareName]
 		if artifactModel.DBVersion != serviceDBVersion {
 			s.l.Debugf("skip incompatible service id %q: artifact version %q != db version %q\"", sv.ServiceID,
 				artifactModel.DBVersion, serviceDBVersion)
@@ -143,9 +159,9 @@ func (s *CompatibilityService) CheckSoftwareCompatibilityForService(ctx context.
 	}
 
 	if serviceModel.ServiceType == models.MongoDBServiceType {
-		if err := agents.PMMAgentSupported(s.db.Querier, agentModel.AgentID, "get mongodb backup software versions",
+		if err := models.PMMAgentSupported(s.db.Querier, agentModel.AgentID, "get mongodb backup software versions",
 			pmmAgentMinVersionForMongoBackupSoftwareCheck); err != nil {
-			var agentNotSupportedError *agents.AgentNotSupportedError
+			var agentNotSupportedError models.AgentNotSupportedError
 			if errors.As(err, &agentNotSupportedError) {
 				s.l.Warnf("Got versioner error message: %s.", err.Error())
 				return "", nil
@@ -174,7 +190,7 @@ func (s *CompatibilityService) FindArtifactCompatibleServices(
 			return err
 		}
 
-		onlySameService := isOnlySameService(artifactModel.DBVersion, serviceType)
+		onlySameService := isOnlySameService(artifactModel.DBVersion)
 
 		if onlySameService {
 			service, err := models.FindServiceByID(tx.Querier, artifactModel.ServiceID)
@@ -230,7 +246,7 @@ func (s *CompatibilityService) CheckArtifactCompatibility(artifactID, targetDBVe
 	return s.artifactCompatibility(artifactModel, serviceModel, targetDBVersion)
 }
 
-// artifactCompatibility contains logic for CheckArtifactCompatibility
+// artifactCompatibility contains logic for CheckArtifactCompatibility.
 func (s *CompatibilityService) artifactCompatibility(artifactModel *models.Artifact, serviceModel *models.Service, targetDBVersion string) error {
 	var err error
 	if artifactModel.DBVersion != "" && artifactModel.DBVersion != targetDBVersion {

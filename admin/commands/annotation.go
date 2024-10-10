@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,15 +17,16 @@ package commands
 import (
 	"strings"
 
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/helpers"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
-	managementClient "github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/annotation"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 var annotationResultT = ParseTemplate(`
@@ -77,13 +78,11 @@ func (cmd *AnnotationCommand) getCurrentNode() (*nodes.GetNodeOKBody, error) {
 	}
 
 	params := &nodes.GetNodeParams{
-		Body: nodes.GetNodeBody{
-			NodeID: status.NodeID,
-		},
+		NodeID:  status.NodeID,
 		Context: Ctx,
 	}
 
-	result, err := client.Default.Nodes.GetNode(params)
+	result, err := client.Default.NodesService.GetNode(params)
 	if err != nil {
 		return nil, errors.Wrap(err, "default get node")
 	}
@@ -109,13 +108,11 @@ func (cmd *AnnotationCommand) getCurrentNodeAllServices() ([]string, error) {
 	}
 
 	params := &services.ListServicesParams{
-		Body: services.ListServicesBody{
-			NodeID: status.NodeID,
-		},
+		NodeID:  pointer.ToString(status.NodeID),
 		Context: Ctx,
 	}
 
-	result, err := client.Default.Services.ListServices(params)
+	result, err := client.Default.ServicesService.ListServices(params)
 	if err != nil {
 		return nil, err
 	}
@@ -156,8 +153,8 @@ func (cmd *AnnotationCommand) RunCmd() (Result, error) {
 		return nil, err
 	}
 
-	_, err = managementClient.Default.Annotation.AddAnnotation(&annotation.AddAnnotationParams{
-		Body: annotation.AddAnnotationBody{
+	_, err = managementClient.Default.ManagementService.AddAnnotation(&mservice.AddAnnotationParams{
+		Body: mservice.AddAnnotationBody{
 			Text:         cmd.Text,
 			Tags:         cmd.Tags,
 			NodeName:     nodeName,

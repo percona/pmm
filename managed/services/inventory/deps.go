@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -22,14 +22,6 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 )
-
-//go:generate ../../../bin/mockery -name=agentsRegistry -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=agentService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=agentsStateUpdater -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=prometheusService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=connectionChecker -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=versionCache -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=inventoryMetrics -case=snake -inpkg -testonly
 
 // agentsRegistry is a subset of methods of agents.Registry used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -62,6 +54,11 @@ type prometheusService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type connectionChecker interface {
 	CheckConnectionToService(ctx context.Context, q *reform.Querier, service *models.Service, agent *models.Agent) error
+}
+
+// serviceInfoBroker is a subset of methods of serviceinfobroker.ServiceInfoBroker used by this package.
+type serviceInfoBroker interface {
+	GetInfoFromService(ctx context.Context, q *reform.Querier, service *models.Service, agent *models.Agent) error
 }
 
 // versionCache is a subset of methods of versioncache.Service used by this package.

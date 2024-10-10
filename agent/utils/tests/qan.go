@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,18 +21,18 @@ import (
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/encoding/prototext"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 // AssertBucketsEqual asserts that two MetricsBuckets are equal while providing a good diff.
-func AssertBucketsEqual(t *testing.T, expected, actual *agentpb.MetricsBucket) bool {
+func AssertBucketsEqual(t *testing.T, expected, actual *agentv1.MetricsBucket) bool {
 	t.Helper()
 
 	return assert.Equal(t, prototext.Format(expected), prototext.Format(actual))
 }
 
 // FormatBuckets formats MetricsBuckets to string for tests.
-func FormatBuckets(mb []*agentpb.MetricsBucket) string {
+func FormatBuckets(mb []*agentv1.MetricsBucket) string {
 	res := make([]string, len(mb))
 	for i, b := range mb {
 		res[i] = prototext.Format(b)

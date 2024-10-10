@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -23,14 +23,6 @@ import (
 	"github.com/percona/pmm/managed/services/agents"
 	"github.com/percona/pmm/managed/services/minio"
 )
-
-//go:generate ../../../bin/mockery -name=jobsService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=agentService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=versioner -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=compatibilityService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=pbmPITRService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=Storage -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=removalService -case=snake -inpkg -testonly
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -60,7 +52,6 @@ type jobsService interface {
 		pmmAgentID string,
 		timeout time.Duration,
 		name string,
-		dbConfig *models.DBConfig,
 		mode models.BackupMode,
 		dataModel models.DataModel,
 		locationConfig *models.BackupLocationConfig,
@@ -73,7 +64,6 @@ type jobsService interface {
 		timeout time.Duration,
 		name string,
 		pbmBackupName string,
-		dbConfig *models.DBConfig,
 		dataModel models.DataModel,
 		locationConfig *models.BackupLocationConfig,
 		pitrTimestamp time.Time,
@@ -116,6 +106,7 @@ type pbmPITRService interface {
 	GetPITRFiles(ctx context.Context, locationClient Storage, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) ([]*oplogChunk, error)
 }
 
+// Storage represents the interface for interacting with storage.
 type Storage interface {
 	// FileStat returns file info. It returns error if file is empty or not exists.
 	FileStat(ctx context.Context, endpoint, accessKey, secretKey, bucketName, name string) (minio.FileInfo, error)

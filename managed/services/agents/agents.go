@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
@@ -46,7 +46,7 @@ func (a *AgentService) Logs(_ context.Context, pmmAgentID, agentID string, limit
 		return nil, 0, err
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(&agentpb.AgentLogsRequest{
+	resp, err := agent.channel.SendAndWaitResponse(&agentv1.AgentLogsRequest{
 		AgentId: agentID,
 		Limit:   limit,
 	})
@@ -54,7 +54,7 @@ func (a *AgentService) Logs(_ context.Context, pmmAgentID, agentID string, limit
 		return nil, 0, err
 	}
 
-	agentLogsResponse, ok := resp.(*agentpb.AgentLogsResponse)
+	agentLogsResponse, ok := resp.(*agentv1.AgentLogsResponse)
 	if !ok {
 		return nil, 0, errors.New("wrong response from agent (not AgentLogsResponse model)")
 	}
@@ -69,9 +69,9 @@ func (a *AgentService) PBMSwitchPITR(pmmAgentID, dsn string, files map[string]st
 		return err
 	}
 
-	req := &agentpb.PBMSwitchPITRRequest{
+	req := &agentv1.PBMSwitchPITRRequest{
 		Dsn: dsn,
-		TextFiles: &agentpb.TextFiles{
+		TextFiles: &agentv1.TextFiles{
 			Files:              files,
 			TemplateLeftDelim:  tdp.Left,
 			TemplateRightDelim: tdp.Right,
@@ -109,20 +109,39 @@ func redactWords(agent *models.Agent) []string {
 			words = append(words, s)
 		}
 	}
+	if agent.MySQLOptions != nil {
+		if s := agent.MySQLOptions.TLSKey; s != "" {
+			words = append(words, s)
+		}
+	}
+	if agent.PostgreSQLOptions != nil {
+		if s := agent.PostgreSQLOptions.SSLKey; s != "" {
+			words = append(words, s)
+		}
+	}
+	if agent.MongoDBOptions != nil {
+		if s := agent.MongoDBOptions.TLSCertificateKey; s != "" {
+			words = append(words, s)
+		}
+		if s := agent.MongoDBOptions.TLSCertificateKeyFilePassword; s != "" {
+			words = append(words, s)
+		}
+	}
+
 	return words
 }
 
 // pathsBase returns paths base and in case of unsupported PMM client old hardcoded value.
 func pathsBase(agentVersion *version.Parsed, tdpLeft, tdpRight string) string {
 	if agentVersion == nil || agentVersion.Less(pmmAgentPathsBaseSupport) {
-		return "/usr/local/percona/pmm2"
+		return "/usr/local/percona/pmm"
 	}
 
 	return tdpLeft + " .paths_base " + tdpRight
 }
 
 // ensureAuthParams updates agent start parameters to contain prometheus webconfig.
-func ensureAuthParams(exporter *models.Agent, params *agentpb.SetStateRequest_AgentProcess,
+func ensureAuthParams(exporter *models.Agent, params *agentv1.SetStateRequest_AgentProcess,
 	agentVersion *version.Parsed, minAuthVersion *version.Parsed, useNewTLSConfig bool,
 ) error {
 	if agentVersion.Less(minAuthVersion) {
@@ -146,4 +165,16 @@ func ensureAuthParams(exporter *models.Agent, params *agentpb.SetStateRequest_Ag
 	}
 
 	return nil
+}
+
+// getExporterListenAddress returns the appropriate listen address to use for a given exporter.
+func getExporterListenAddress(_ *models.Node, exporter *models.Agent) string {
+	switch {
+	case exporter.ExposeExporter:
+		return "0.0.0.0"
+	case exporter.PushMetrics:
+		return "127.0.0.1"
+	default:
+		return "0.0.0.0"
+	}
 }

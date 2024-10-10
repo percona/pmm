@@ -7,13 +7,13 @@
 %global commit		ad4af6808bcd361284e8eb8cd1f36b1e98e32bce
 %global shortcommit	%(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         19
+%define release         22
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
 Name:		percona-dashboards
 Version:	%{version}
 Release:	%{rpm_release}
-Summary:	Grafana dashboards for MySQL and MongoDB monitoring using Prometheus
+Summary:	Grafana dashboards for monitoring
 
 License:	AGPLv3
 URL:		https://%{provider}
@@ -42,21 +42,28 @@ make release
 %install
 install -d %{buildroot}%{_datadir}/%{name}
 install -d %{buildroot}%{_datadir}/%{name}/panels/pmm-app
-install -d %{buildroot}%{_datadir}/%{name}/setup-page
 
-cp -pa ./panels %{buildroot}%{_datadir}/%{name}
-cp -pa ./pmm-app/dist %{buildroot}%{_datadir}/%{name}/panels/pmm-app
-cp -rpa ./setup-page/build/* %{buildroot}%{_datadir}/%{name}/setup-page
+cp -a ./panels %{buildroot}%{_datadir}/%{name}
+cp -a ./pmm-app/dist %{buildroot}%{_datadir}/%{name}/panels/pmm-app
 echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 
 
 %files
 %license LICENSE
 %doc README.md LICENSE
-%{_datadir}/%{name}
+%attr(-,pmm,pmm) %{_datadir}/%{name}
 
 
 %changelog
+* Tue Jul 23 2024 Nurlan Moldomurov <nurlan.moldomurov@percona.com> - 3.0.0-22
+- PMM-13053 Remove /setup page
+
+* Wed Nov 29 2023 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-21
+- PMM-12693 Run Grafana as non-root user
+
+* Wed Jul 12 2023 Alex Tymchuk <alexander.tymchuk@percona.com> - 2.39.0-20
+- PMM-12231 Set grafana user as owner of plugins directory
+
 * Tue May 16 2023 Oleksii Kysil <oleksii.kysil@ext.percona.com> - 2.38.0-1
 - PMM-12118 Skip stripping of plugin binaries
 

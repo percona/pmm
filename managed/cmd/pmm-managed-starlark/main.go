@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -12,7 +12,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+// Package main.
 package main
 
 import (
@@ -31,9 +31,9 @@ import (
 	"golang.org/x/sys/unix"
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/services/checks"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
 )
 
@@ -42,7 +42,7 @@ const (
 	memoryLimitBytes = 1024 * 1024 * 1024
 
 	// Only used for testing.
-	starlarkRecursionFlag = "PERCONA_TEST_STARLARK_ALLOW_RECURSION"
+	starlarkRecursionFlag = "PMM_DEV_ADVISOR_STARLARK_ALLOW_RECURSION"
 
 	// Warning messages.
 	cpuUsageWarning    = "Failed to limit CPU usage"
@@ -129,13 +129,13 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 				if !ok {
 					return nil, errors.Errorf("unexpected query result type: %T", dbQr)
 				}
-				if dbRes[dbName], err = unmarshallQueryResult(s); err != nil {
+				if dbRes[dbName], err = unmarshalQueryResult(s); err != nil {
 					return nil, err
 				}
 			}
 			res[i] = dbRes
 		case string: // used for all other databases
-			if res[i], err = unmarshallQueryResult(qr); err != nil {
+			if res[i], err = unmarshalQueryResult(qr); err != nil {
 				return nil, err
 			}
 		default:
@@ -158,13 +158,13 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 	return results, nil
 }
 
-func unmarshallQueryResult(qr string) ([]map[string]any, error) {
+func unmarshalQueryResult(qr string) ([]map[string]any, error) {
 	b, err := base64.StdEncoding.DecodeString(qr)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to decode base64 encoded query result")
 	}
 
-	res, err := agentpb.UnmarshalActionQueryResult(b)
+	res, err := agentv1.UnmarshalActionQueryResult(b)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal query result")
 	}

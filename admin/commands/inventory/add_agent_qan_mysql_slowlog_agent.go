@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import (
 	"github.com/alecthomas/units"
 
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 var addAgentQANMySQLSlowlogAgentResultT = commands.ParseTemplate(`
@@ -41,7 +41,7 @@ Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentQANMySQLSlowlogAgentResult struct {
-	Agent *agents.AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent `json:"qan_mysql_slowlog_agent"`
+	Agent *agents.AddAgentOKBodyQANMysqlSlowlogAgent `json:"qan_mysql_slowlog_agent"`
 }
 
 func (res *addAgentQANMySQLSlowlogAgentResult) Result() {}
@@ -84,6 +84,7 @@ type AddAgentQANMySQLSlowlogAgentCommand struct {
 	LogLevel             string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
 }
 
+// RunCmd executes the AddAgentQANMySQLSlowlogAgentCommand and returns the result.
 func (cmd *AddAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
@@ -113,29 +114,31 @@ func (cmd *AddAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error
 		disableCommentsParsing = false
 	}
 
-	params := &agents.AddQANMySQLSlowlogAgentParams{
-		Body: agents.AddQANMySQLSlowlogAgentBody{
-			PMMAgentID:             cmd.PMMAgentID,
-			ServiceID:              cmd.ServiceID,
-			Username:               cmd.Username,
-			Password:               cmd.Password,
-			CustomLabels:           customLabels,
-			SkipConnectionCheck:    cmd.SkipConnectionCheck,
-			DisableCommentsParsing: disableCommentsParsing,
-			MaxQueryLength:         cmd.MaxQueryLength,
-			DisableQueryExamples:   cmd.DisableQueryExamples,
-			MaxSlowlogFileSize:     strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
-			TLS:                    cmd.TLS,
-			TLSSkipVerify:          cmd.TLSSkipVerify,
-			TLSCa:                  tlsCa,
-			TLSCert:                tlsCert,
-			TLSKey:                 tlsKey,
-			LogLevel:               &cmd.LogLevel,
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			QANMysqlSlowlogAgent: &agents.AddAgentParamsBodyQANMysqlSlowlogAgent{
+				PMMAgentID:             cmd.PMMAgentID,
+				ServiceID:              cmd.ServiceID,
+				Username:               cmd.Username,
+				Password:               cmd.Password,
+				CustomLabels:           customLabels,
+				SkipConnectionCheck:    cmd.SkipConnectionCheck,
+				DisableCommentsParsing: disableCommentsParsing,
+				MaxQueryLength:         cmd.MaxQueryLength,
+				DisableQueryExamples:   cmd.DisableQueryExamples,
+				MaxSlowlogFileSize:     strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
+				TLS:                    cmd.TLS,
+				TLSSkipVerify:          cmd.TLSSkipVerify,
+				TLSCa:                  tlsCa,
+				TLSCert:                tlsCert,
+				TLSKey:                 tlsKey,
+				LogLevel:               &cmd.LogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddQANMySQLSlowlogAgent(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

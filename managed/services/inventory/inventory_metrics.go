@@ -24,9 +24,9 @@ import (
 	prom "github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 )
 
 const (
@@ -36,19 +36,20 @@ const (
 	prometheusSubsystem         = "inventory"
 )
 
+// Metric represents a metric for inventory purposes.
 type Metric struct {
 	labels []string
 	value  float64
 }
 
-//goland:noinspection GoNameStartsWithPackageName
-type InventoryMetrics struct {
+// InventoryMetrics represents a collection of inventory metrics.
+type InventoryMetrics struct { //nolint:revive
 	db       *reform.DB
 	registry agentsRegistry
 }
 
-//goland:noinspection GoNameStartsWithPackageName
-type InventoryMetricsCollector struct {
+// InventoryMetricsCollector collects inventory metrics.
+type InventoryMetricsCollector struct { //nolint:revive
 	mAgentsDesc   *prom.Desc
 	mNodesDesc    *prom.Desc
 	mServicesDesc *prom.Desc
@@ -56,6 +57,7 @@ type InventoryMetricsCollector struct {
 	metrics inventoryMetrics
 }
 
+// NewInventoryMetrics creates a new instance of InventoryMetrics.
 func NewInventoryMetrics(db *reform.DB, registry agentsRegistry) *InventoryMetrics {
 	return &InventoryMetrics{
 		db:       db,
@@ -63,12 +65,13 @@ func NewInventoryMetrics(db *reform.DB, registry agentsRegistry) *InventoryMetri
 	}
 }
 
+// NewInventoryMetricsCollector creates a new instance of InventoryMetricsCollector.
 func NewInventoryMetricsCollector(metrics inventoryMetrics) *InventoryMetricsCollector {
 	return &InventoryMetricsCollector{
 		mAgentsDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "agents"),
 			"Inventory Agent",
-			[]string{"agent_id", "agent_type", "service_id", "node_id", "pmm_agent_id", "disabled", "version"},
+			[]string{"agent_id", "agent_type", "service_id", "node_id", "node_name", "pmm_agent_id", "disabled", "version"},
 			nil),
 		mNodesDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "nodes"),
@@ -85,7 +88,7 @@ func NewInventoryMetricsCollector(metrics inventoryMetrics) *InventoryMetricsCol
 	}
 }
 
-func GetRunsOnNodeIDByPMMAgentID(agents []*models.Agent, pmmAgentID string) string {
+func getRunsOnNodeIDByPMMAgentID(agents []*models.Agent, pmmAgentID string) string {
 	for _, agent := range agents {
 		if agent.AgentID == pmmAgentID {
 			return pointer.GetString(agent.RunsOnNodeID)
@@ -94,6 +97,7 @@ func GetRunsOnNodeIDByPMMAgentID(agents []*models.Agent, pmmAgentID string) stri
 	return ""
 }
 
+// GetAgentMetrics retrieves agent metrics from InventoryMetrics.
 func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) ([]Metric, error) {
 	metrics := []Metric{}
 
@@ -101,6 +105,16 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) ([]Metric, error
 		dbAgents, err := models.FindAgents(tx.Querier, models.AgentFilters{})
 		if err != nil {
 			return err
+		}
+
+		dbNodes, err := models.FindNodes(tx.Querier, models.NodeFilters{})
+		if err != nil {
+			return err
+		}
+
+		nodeMap := make(map[string]string, len(dbNodes))
+		for _, node := range dbNodes {
+			nodeMap[node.NodeID] = node.NodeName
 		}
 
 		for _, agent := range dbAgents {
@@ -120,15 +134,17 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) ([]Metric, error
 				}
 				runsOnNodeID = pointer.GetString(agent.RunsOnNodeID)
 			} else {
-				metricValue = float64(inventorypb.AgentStatus_value[agent.Status])
-				runsOnNodeID = GetRunsOnNodeIDByPMMAgentID(dbAgents, pmmAgentID)
+				metricValue = float64(inventoryv1.AgentStatus_value[agent.Status])
+				runsOnNodeID = getRunsOnNodeIDByPMMAgentID(dbAgents, pmmAgentID)
 			}
 
+			nodeName := nodeMap[runsOnNodeID]
 			agentMetricLabels := []string{
 				agent.AgentID,
 				string(agent.AgentType),
 				pointer.GetString(agent.ServiceID),
 				runsOnNodeID,
+				nodeName,
 				pmmAgentID,
 				disabled,
 				pointer.GetString(agent.Version),
@@ -145,6 +161,7 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) ([]Metric, error
 	return metrics, nil
 }
 
+// GetNodeMetrics retrieves node metrics from InventoryMetrics.
 func (i *InventoryMetrics) GetNodeMetrics(ctx context.Context) ([]Metric, error) {
 	var metrics []Metric
 
@@ -174,6 +191,7 @@ func (i *InventoryMetrics) GetNodeMetrics(ctx context.Context) ([]Metric, error)
 	return metrics, nil
 }
 
+// GetServiceMetrics retrieves service metrics from InventoryMetrics.
 func (i *InventoryMetrics) GetServiceMetrics(ctx context.Context) ([]Metric, error) {
 	var metrics []Metric
 
@@ -202,10 +220,12 @@ func (i *InventoryMetrics) GetServiceMetrics(ctx context.Context) ([]Metric, err
 	return metrics, nil
 }
 
+// Describe describes the InventoryMetricsCollector for Prometheus.
 func (i *InventoryMetricsCollector) Describe(ch chan<- *prom.Desc) {
 	prom.DescribeByCollect(i, ch)
 }
 
+// Collect collects metrics for the InventoryMetricsCollector.
 func (i *InventoryMetricsCollector) Collect(ch chan<- prom.Metric) {
 	ctx, cancelCtx := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancelCtx()

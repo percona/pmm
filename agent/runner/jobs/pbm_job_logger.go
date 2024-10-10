@@ -1,4 +1,4 @@
-// Copyright 2022 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 type pbmJob string
@@ -34,13 +34,13 @@ const (
 )
 
 type pbmJobLogger struct {
-	dbURL      *string
+	dbURL      string
 	jobID      string
 	jobType    pbmJob
 	logChunkID uint32
 }
 
-func newPbmJobLogger(jobID string, jobType pbmJob, mongoURL *string) *pbmJobLogger {
+func newPbmJobLogger(jobID string, jobType pbmJob, mongoURL string) *pbmJobLogger {
 	return &pbmJobLogger{
 		jobID:      jobID,
 		jobType:    jobType,
@@ -50,11 +50,11 @@ func newPbmJobLogger(jobID string, jobType pbmJob, mongoURL *string) *pbmJobLogg
 }
 
 func (l *pbmJobLogger) sendLog(send Send, data string, done bool) {
-	send(&agentpb.JobProgress{
+	send(&agentv1.JobProgress{
 		JobId:     l.jobID,
 		Timestamp: timestamppb.Now(),
-		Result: &agentpb.JobProgress_Logs_{
-			Logs: &agentpb.JobProgress_Logs{
+		Result: &agentv1.JobProgress_Logs_{
+			Logs: &agentv1.JobProgress_Logs{
 				ChunkId: atomic.AddUint32(&l.logChunkID, 1) - 1,
 				Data:    data,
 				Done:    done,

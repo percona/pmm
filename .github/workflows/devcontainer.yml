@@ -1,0 +1,61 @@
+name: Devcontainer
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "The branch to build the devcontainer from"
+        default: "v3"
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      branch:
+        description: "The branch to build the devcontainer from"
+        default: "v3"
+        required: true
+        type: string
+
+jobs:
+  devcontainer:
+    name: Devcontainer
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    permissions:
+      packages: write
+
+    env:
+      LAB_DEVCONTAINER_IMAGE: perconalab/pmm-server:3-dev-container
+      GH_DEVCONTAINER_IMAGE: ghcr.io/percona/pmm:3-dev-container
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to ghcr.io registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to docker.io registry
+        uses: docker/login-action@v3
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build and push to registries
+        uses: docker/build-push-action@v6
+        with:
+          file: ./.devcontainer/Dockerfile
+          context: .
+          push: true
+          tags: |
+            ${{ env.GH_DEVCONTAINER_IMAGE }}
+            ${{ env.LAB_DEVCONTAINER_IMAGE }}

@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -12,7 +12,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+// Package main.
 package main
 
 import (
@@ -22,7 +22,7 @@ import (
 	"net/url"
 	"strings"
 
-	clickhouse "github.com/ClickHouse/clickhouse-go/151" // register database/sql driver
+	clickhouse "github.com/ClickHouse/clickhouse-go/v2" // register database/sql driver
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/clickhouse" // register golang-migrate driver
 	"github.com/golang-migrate/migrate/v4/source/iofs"
@@ -78,19 +78,16 @@ func createDB(dsn string) error {
 	if err != nil {
 		return err
 	}
-	q := clickhouseURL.Query()
-	databaseName := q.Get("database")
-	q.Set("database", "default")
-
-	clickhouseURL.RawQuery = q.Encode()
+	databaseName := strings.Replace(clickhouseURL.Path, "/", "", 1)
+	clickhouseURL.Path = "/default"
 
 	defaultDB, err := sqlx.Connect("clickhouse", clickhouseURL.String())
 	if err != nil {
 		return err
 	}
-	defer defaultDB.Close()
+	defer defaultDB.Close() //nolint:errcheck
 
-	result, err := defaultDB.Exec(fmt.Sprintf(`CREATE DATABASE %s ENGINE = Ordinary`, databaseName))
+	result, err := defaultDB.Exec(fmt.Sprintf(`CREATE DATABASE %s ENGINE = Atomic`, databaseName))
 	if err != nil {
 		log.Printf("Result: %v", result)
 		return err
@@ -123,17 +120,18 @@ func runMigrations(dsn string) error {
 }
 
 // DropOldPartition drops number of days old partitions of pmm.metrics in ClickHouse.
-func DropOldPartition(db *sqlx.DB, days uint) {
+func DropOldPartition(db *sqlx.DB, dbName string, days uint) {
 	partitions := []string{}
 	const query = `
 		SELECT DISTINCT partition
 		FROM system.parts
-		WHERE toUInt32(partition) < toYYYYMMDD(now() - toIntervalDay(?)) ORDER BY partition
+		WHERE toUInt32(partition) < toYYYYMMDD(now() - toIntervalDay(?)) AND database = ? and visible = 1 ORDER BY partition
 	`
 	err := db.Select(
 		&partitions,
 		query,
-		days)
+		days,
+		dbName)
 	if err != nil {
 		log.Printf("Select %d days old partitions of system.parts. Result: %v, Error: %v", days, partitions, err)
 		return

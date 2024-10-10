@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
 
@@ -42,9 +43,51 @@ func requireNoDuplicateFlags(t *testing.T, flags []string) {
 func TestPathsBaseForDifferentVersions(t *testing.T) {
 	left := "{{"
 	right := "}}"
-	assert.Equal(t, "/usr/local/percona/pmm2", pathsBase(version.MustParse("2.22.01"), left, right))
+	assert.Equal(t, "/usr/local/percona/pmm", pathsBase(version.MustParse("2.22.01"), left, right))
 	assert.Equal(t, "{{ .paths_base }}", pathsBase(version.MustParse("2.23.0"), left, right))
 	assert.Equal(t, "{{ .paths_base }}", pathsBase(version.MustParse("2.23.0-3-g7aa417c"), left, right))
 	assert.Equal(t, "{{ .paths_base }}", pathsBase(version.MustParse("2.23.0-beta4"), left, right))
 	assert.Equal(t, "{{ .paths_base }}", pathsBase(version.MustParse("2.23.0-rc1"), left, right))
+}
+
+func TestGetExporterListenAddress(t *testing.T) {
+	t.Run("uses 127.0.0.1 in push mode", func(t *testing.T) {
+		node := &models.Node{
+			Address: "1.2.3.4",
+		}
+		exporter := &models.Agent{
+			PushMetrics: true,
+		}
+
+		assert.Equal(t, "127.0.0.1", getExporterListenAddress(node, exporter))
+	})
+	t.Run("exposes exporter address when enabled in push mode", func(t *testing.T) {
+		node := &models.Node{
+			Address: "1.2.3.4",
+		}
+		exporter := &models.Agent{
+			PushMetrics:    true,
+			ExposeExporter: true,
+		}
+
+		assert.Equal(t, "0.0.0.0", getExporterListenAddress(node, exporter))
+	})
+	t.Run("exposes exporter address when enabled in pull mode", func(t *testing.T) {
+		node := &models.Node{
+			Address: "1.2.3.4",
+		}
+		exporter := &models.Agent{
+			PushMetrics:    false,
+			ExposeExporter: true,
+		}
+
+		assert.Equal(t, "0.0.0.0", getExporterListenAddress(node, exporter))
+	})
+	t.Run("exposes exporter address if node IP is unavailable in pull mode", func(t *testing.T) {
+		exporter := &models.Agent{
+			PushMetrics: false,
+		}
+
+		assert.Equal(t, "0.0.0.0", getExporterListenAddress(nil, exporter))
+	})
 }

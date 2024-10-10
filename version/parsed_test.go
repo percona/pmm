@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -40,6 +40,12 @@ func TestParsed(t *testing.T) {
 			}, {
 				s: "2.1.2",
 				p: &Parsed{Major: 2, Minor: 1, Patch: 2, Num: 20102},
+			}, {
+				s: "2.1.3-0",
+				p: &Parsed{Major: 2, Minor: 1, Patch: 3, Rest: "-0", Num: 20103},
+			}, {
+				s: "2.1.3-HEAD-abcd12",
+				p: &Parsed{Major: 2, Minor: 1, Patch: 3, Rest: "-HEAD-abcd12", Num: 20103},
 			}, {
 				s: "2.1.3",
 				p: &Parsed{Major: 2, Minor: 1, Patch: 3, Num: 20103},

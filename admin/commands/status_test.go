@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,17 +34,17 @@ func TestStatus(t *testing.T) {
 		ServerVersion: "2.4.0",
 		AgentVersion:  "2.5.1",
 		Agents: []agentlocal.AgentStatus{{
-			AgentID:   "/agent_id/1afe233f-b319-4645-be6c-a1e05d4a545b",
-			AgentType: "NODE_EXPORTER",
+			AgentID:   "1afe233f-b319-4645-be6c-a1e05d4a545b",
+			AgentType: "AGENT_TYPE_NODE_EXPORTER",
 			Status:    "RUNNING",
 			Port:      3310,
 		}, {
-			AgentID:   "/agent_id/2c7c0e04-6eef-411d-bcce-51e138e771cc",
-			AgentType: "QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
+			AgentID:   "2c7c0e04-6eef-411d-bcce-51e138e771cc",
+			AgentType: "AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
 			Status:    "RUNNING",
 		}, {
-			AgentID:   "/agent_id/4824ac2b-3f1f-4e9b-90d1-3f56b891bb8b",
-			AgentType: "POSTGRES_EXPORTER",
+			AgentID:   "4824ac2b-3f1f-4e9b-90d1-3f56b891bb8b",
+			AgentType: "AGENT_TYPE_POSTGRES_EXPORTER",
 			Status:    "RUNNING",
 			Port:      5432,
 		}},
@@ -65,9 +65,9 @@ PMM Client:
 	pmm-admin version: unknown
 	pmm-agent version: 2.5.1
 Agents:
-	/agent_id/1afe233f-b319-4645-be6c-a1e05d4a545b node_exporter Running 3310
-	/agent_id/2c7c0e04-6eef-411d-bcce-51e138e771cc postgresql_pgstatements_agent Running 0
-	/agent_id/4824ac2b-3f1f-4e9b-90d1-3f56b891bb8b postgres_exporter Running 5432
+	1afe233f-b319-4645-be6c-a1e05d4a545b node_exporter Running 3310
+	2c7c0e04-6eef-411d-bcce-51e138e771cc postgresql_pgstatements_agent Running 0
+	4824ac2b-3f1f-4e9b-90d1-3f56b891bb8b postgres_exporter Running 5432
 	`) + "\n"
 	assert.Equal(t, expected, res.String())
 }

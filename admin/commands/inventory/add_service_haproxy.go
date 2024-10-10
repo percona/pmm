@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ package inventory
 import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/helpers"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 var addHAProxyServiceResultT = commands.ParseTemplate(`
@@ -33,7 +33,7 @@ Custom labels  : {{ .Service.CustomLabels }}
 `)
 
 type addServiceHAProxyResult struct {
-	Service *services.AddHAProxyServiceOKBodyHaproxy `json:"haproxy"`
+	Service *services.AddServiceOKBodyHaproxy `json:"haproxy"`
 }
 
 func (res *addServiceHAProxyResult) Result() {}
@@ -52,6 +52,7 @@ type AddServiceHAProxyCommand struct {
 	CustomLabels   map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 }
 
+// RunCmd executes the AddServiceHAProxyCommand and returns the result.
 func (cmd *AddServiceHAProxyCommand) RunCmd() (commands.Result, error) {
 	isSupported, err := helpers.IsHAProxySupported()
 	if !isSupported {
@@ -60,19 +61,21 @@ func (cmd *AddServiceHAProxyCommand) RunCmd() (commands.Result, error) {
 
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
-	params := &services.AddHAProxyServiceParams{
-		Body: services.AddHAProxyServiceBody{
-			ServiceName:    cmd.ServiceName,
-			NodeID:         cmd.NodeID,
-			Environment:    cmd.Environment,
-			Cluster:        cmd.Cluster,
-			ReplicationSet: cmd.ReplicationSet,
-			CustomLabels:   customLabels,
+	params := &services.AddServiceParams{
+		Body: services.AddServiceBody{
+			Haproxy: &services.AddServiceParamsBodyHaproxy{
+				ServiceName:    cmd.ServiceName,
+				NodeID:         cmd.NodeID,
+				Environment:    cmd.Environment,
+				Cluster:        cmd.Cluster,
+				ReplicationSet: cmd.ReplicationSet,
+				CustomLabels:   customLabels,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Services.AddHAProxyService(params)
+	resp, err := client.Default.ServicesService.AddService(params)
 	if err != nil {
 		return nil, err
 	}

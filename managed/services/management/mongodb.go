@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -21,35 +21,17 @@ import (
 	"github.com/AlekSi/pointer"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
 
-// MongoDBService MongoDB Management Service.
-type MongoDBService struct {
-	db    *reform.DB
-	state agentsStateUpdater
-	cc    connectionChecker
-	vc    versionCache
-}
+// AddMongoDB adds "MongoDB Service", "MongoDB Exporter Agent" and "QAN MongoDB Profiler".
+func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.AddMongoDBServiceParams) (*managementv1.AddServiceResponse, error) {
+	mongodb := &managementv1.MongoDBServiceResult{}
 
-// NewMongoDBService creates new MongoDB Management Service.
-func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, vc versionCache) *MongoDBService {
-	return &MongoDBService{
-		db:    db,
-		state: state,
-		cc:    cc,
-		vc:    vc,
-	}
-}
-
-// Add adds "MongoDB Service", "MongoDB Exporter Agent" and "QAN MongoDB Profiler".
-func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRequest) (*managementpb.AddMongoDBResponse, error) {
-	res := &managementpb.AddMongoDBResponse{}
-
-	if e := s.db.InTransaction(func(tx *reform.TX) error {
+	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {
 			return err
@@ -73,9 +55,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.MongoDBService) //nolint:forcetypeassert
-
-		mongoDBOptions := models.MongoDBOptionsFromRequest(req)
+		mongodb.Service = invService.(*inventoryv1.MongoDBService) //nolint:forcetypeassert
 
 		req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, req.PmmAgentId)
 		if err != nil {
@@ -90,10 +70,11 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 			AgentPassword:     req.AgentPassword,
 			TLS:               req.Tls,
 			TLSSkipVerify:     req.TlsSkipVerify,
-			MongoDBOptions:    mongoDBOptions,
+			MongoDBOptions:    models.MongoDBOptionsFromRequest(req),
 			PushMetrics:       isPushMode(req.MetricsMode),
+			ExposeExporter:    req.ExposeExporter,
 			DisableCollectors: req.DisableCollectors,
-			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		})
 		if err != nil {
 			return err
@@ -103,13 +84,17 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
+
+			if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
 		}
 
 		agent, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
-		res.MongodbExporter = agent.(*inventorypb.MongoDBExporter) //nolint:forcetypeassert
+		mongodb.MongodbExporter = agent.(*inventoryv1.MongoDBExporter) //nolint:forcetypeassert
 
 		if req.QanMongodbProfiler {
 			row, err = models.CreateAgent(tx.Querier, models.QANMongoDBProfilerAgentType, &models.CreateAgentParams{
@@ -119,10 +104,10 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 				Password:       req.Password,
 				TLS:            req.Tls,
 				TLSSkipVerify:  req.TlsSkipVerify,
-				MongoDBOptions: mongoDBOptions,
+				MongoDBOptions: models.MongoDBOptionsFromRequest(req),
 				MaxQueryLength: req.MaxQueryLength,
-				LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
-				// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
+				LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+				// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-7860
 			})
 			if err != nil {
 				return err
@@ -132,7 +117,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 			if err != nil {
 				return err
 			}
-			res.QanMongodbProfiler = agent.(*inventorypb.QANMongoDBProfilerAgent) //nolint:forcetypeassert
+			mongodb.QanMongodbProfiler = agent.(*inventoryv1.QANMongoDBProfilerAgent) //nolint:forcetypeassert
 		}
 
 		return nil
@@ -142,6 +127,12 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 
 	s.state.RequestStateUpdate(ctx, req.PmmAgentId)
 	s.vc.RequestSoftwareVersionsUpdate()
+
+	res := &managementv1.AddServiceResponse{
+		Service: &managementv1.AddServiceResponse_Mongodb{
+			Mongodb: mongodb,
+		},
+	}
 
 	return res, nil
 }

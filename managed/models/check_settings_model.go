@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ const (
 	Rare     Interval = "rare"
 )
 
-// CheckSettings represents any changes to an STT check loaded in pmm-managed.
+// CheckSettings represents any changes to an Advisor check loaded in pmm-managed.
 //
 //reform:check_settings
 type CheckSettings struct {

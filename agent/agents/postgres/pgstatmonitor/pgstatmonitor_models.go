@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ var (
 	v08 = version.Must(version.NewVersion("0.8"))
 )
 
-// pgStatMonitor represents a row in pg_stat_monitor view
+// pgStatMonitor represents a row in pg_stat_monitor view.
 type pgStatMonitor struct {
 	// PGSM < 0.6.0
 	DBID   int64
@@ -105,7 +105,7 @@ type field struct {
 	pointer interface{}
 }
 
-func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStatMonitor, reform.View) {
+func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStatMonitor, reform.View) { //nolint:ireturn
 	s := &pgStatMonitor{}
 	fields := []field{
 		{info: parse.FieldInfo{Name: "Bucket", Type: "int64", Column: "bucket"}, pointer: &s.Bucket},
@@ -133,8 +133,7 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 		// versions older than 0.8
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "Relations", Type: "pq.StringArray", Column: "tables_names"}, pointer: &s.Relations},
-			field{info: parse.FieldInfo{Name: "DBID", Type: "int64", Column: "dbid"}, pointer: &s.DBID},
-			field{info: parse.FieldInfo{Name: "UserID", Type: "int64", Column: "userid"}, pointer: &s.UserID})
+			field{info: parse.FieldInfo{Name: "DBID", Type: "int64", Column: "dbid"}, pointer: &s.DBID})
 	}
 	if vPGSM <= pgStatMonitorVersion08 || vPGSM >= pgStatMonitorVersion20PG12 {
 		fields = append(fields,
@@ -214,10 +213,12 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 
 	if vPGSM >= pgStatMonitorVersion08 && vPGSM < pgStatMonitorVersion20PG12 {
 		fields = append(fields,
-			field{info: parse.FieldInfo{Name: "BucketStartTimeString", Type: "string", Column: "bucket_start_time"}, pointer: &s.BucketStartTimeString})
+			field{info: parse.FieldInfo{Name: "BucketStartTimeString", Type: "string", Column: "bucket_start_time"}, pointer: &s.BucketStartTimeString},
+			field{info: parse.FieldInfo{Name: "UserName", Type: "string", Column: "userid"}, pointer: &s.UserName})
 	} else {
 		fields = append(fields,
-			field{info: parse.FieldInfo{Name: "BucketStartTime", Type: "time.Time", Column: "bucket_start_time"}, pointer: &s.BucketStartTime})
+			field{info: parse.FieldInfo{Name: "BucketStartTime", Type: "time.Time", Column: "bucket_start_time"}, pointer: &s.BucketStartTime},
+			field{info: parse.FieldInfo{Name: "UserName", Type: "string", Column: "username"}, pointer: &s.UserName})
 	}
 
 	s.pointers = make([]interface{}, len(fields))
@@ -266,7 +267,7 @@ func (v *pgStatMonitorAllViewType) Columns() []string {
 }
 
 // NewStruct makes a new struct for that view or table.
-func (v *pgStatMonitorAllViewType) NewStruct() reform.Struct {
+func (v *pgStatMonitorAllViewType) NewStruct() reform.Struct { //nolint:ireturn
 	str, _ := newPgStatMonitorStructs(v.vPGSM, v.vPG)
 	return str
 }
@@ -343,12 +344,12 @@ func (s *pgStatMonitor) Pointers() []interface{} {
 }
 
 // View returns View object for that struct.
-func (s *pgStatMonitor) View() reform.View {
+func (s *pgStatMonitor) View() reform.View { //nolint:ireturn
 	return s.view
 }
 
 var (
-	// Check interfaces
+	// Check interfaces.
 	_ reform.Struct = (*pgStatMonitor)(nil)
 	_ fmt.Stringer  = (*pgStatMonitor)(nil)
 )

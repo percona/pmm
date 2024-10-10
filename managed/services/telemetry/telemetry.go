@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -32,15 +32,13 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/serverpb"
+	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/platform"
 )
 
 const (
-	distributionInfoFilePath = "/srv/pmm-distribution"
-	osInfoFilePath           = "/proc/version"
-	sendChSize               = 10
+	sendChSize = 10
 )
 
 // Service reports telemetry.
@@ -53,23 +51,25 @@ type Service struct {
 	dsRegistry          DataSourceLocator
 	pmmVersion          string
 	os                  string
-	sDistributionMethod serverpb.DistributionMethod
+	sDistributionMethod serverv1.DistributionMethod
 	tDistributionMethod pmmv1.DistributionMethod
 	sendCh              chan *pmmv1.ServerMetric
-	dataSourcesMap      map[string]DataSource
+	dataSourcesMap      map[DataSourceName]DataSource
 
 	extensions map[ExtensionType]Extension
 
 	dus distributionUtilService
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ DataSourceLocator = (*Service)(nil)
 )
 
 // NewService creates a new service.
-func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string, config ServiceConfig, extensions map[ExtensionType]Extension) (*Service, error) {
+func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
+	dus distributionUtilService, config ServiceConfig, extensions map[ExtensionType]Extension,
+) (*Service, error) {
 	if config.SaasHostname == "" {
 		return nil, errors.New("empty host")
 	}
@@ -80,7 +80,6 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 	if err != nil {
 		return nil, err
 	}
-	dus := newDistributionUtilServiceImpl(distributionInfoFilePath, osInfoFilePath, l)
 	s := &Service{
 		db:           db,
 		l:            l,
@@ -94,14 +93,14 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 		extensions:   extensions,
 	}
 
-	s.sDistributionMethod, s.tDistributionMethod, s.os = dus.getDistributionMethodAndOS()
+	s.sDistributionMethod, s.tDistributionMethod, s.os = dus.GetDistributionMethodAndOS()
 	s.dataSourcesMap = s.locateDataSources(config.telemetry)
 
 	return s, nil
 }
 
 // LocateTelemetryDataSource retrieves DataSource by name.
-func (s *Service) LocateTelemetryDataSource(name string) (DataSource, error) { //nolint:ireturn
+func (s *Service) LocateTelemetryDataSource(name string) (DataSource, error) {
 	return s.dsRegistry.LocateTelemetryDataSource(name)
 }
 
@@ -117,7 +116,7 @@ func (s *Service) Run(ctx context.Context) {
 
 	doSend := func() {
 		var settings *models.Settings
-		err := s.db.InTransaction(func(tx *reform.TX) error {
+		err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 			var e error
 			if settings, e = models.GetSettings(tx); e != nil {
 				return e
@@ -128,7 +127,7 @@ func (s *Service) Run(ctx context.Context) {
 			s.l.Debugf("Failed to retrieve settings: %s.", err)
 			return
 		}
-		if settings.Telemetry.Disabled {
+		if !settings.IsTelemetryEnabled() {
 			s.l.Info("Disabled via settings.")
 			return
 		}
@@ -140,12 +139,12 @@ func (s *Service) Run(ctx context.Context) {
 		if s.config.Reporting.Send {
 			s.sendCh <- report
 		} else {
-			s.l.Info("Telemetry sent is disabled.")
+			s.l.Info("Sending telemetry is disabled.")
 		}
 	}
 
 	if s.config.Reporting.SendOnStart {
-		s.l.Debug("Telemetry on start is enabled, sending...")
+		s.l.Debug("Sending telemetry on start is enabled, in progress...")
 		doSend()
 	}
 
@@ -162,14 +161,14 @@ func (s *Service) Run(ctx context.Context) {
 }
 
 // DistributionMethod returns PMM Server distribution method where this pmm-managed runs.
-func (s *Service) DistributionMethod() serverpb.DistributionMethod {
+func (s *Service) DistributionMethod() serverv1.DistributionMethod {
 	return s.sDistributionMethod
 }
 
 func (s *Service) processSendCh(ctx context.Context) {
 	var reportsBufSync sync.Mutex
 	var reportsBuf []*pmmv1.ServerMetric
-	var sendCtx context.Context
+	var sendCtx context.Context //nolint:contextcheck
 	var cancel context.CancelFunc
 
 	for {
@@ -188,8 +187,8 @@ func (s *Service) processSendCh(ctx context.Context) {
 				reportsBuf = []*pmmv1.ServerMetric{}
 				reportsBufSync.Unlock()
 
-				go func() {
-					err := s.send(sendCtx, &reporter.ReportRequest{
+				go func(ctx context.Context) {
+					err := s.send(ctx, &reporter.ReportRequest{
 						Metrics: reportsToSend,
 					})
 					if err != nil {
@@ -201,7 +200,7 @@ func (s *Service) processSendCh(ctx context.Context) {
 					}
 
 					s.l.Debug("Telemetry info sent.")
-				}()
+				}(sendCtx)
 			}
 		case <-ctx.Done():
 			if cancel != nil {
@@ -213,15 +212,19 @@ func (s *Service) processSendCh(ctx context.Context) {
 }
 
 func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
-	initializedDataSources := make(map[string]DataSource)
+	initializedDataSources := make(map[DataSourceName]DataSource)
 	telemetryMetric, _ := s.makeMetric(ctx)
 	var totalTime time.Duration
 
 	// initialize datasources
 	for sourceName, dataSource := range s.dataSourcesMap {
+		if !dataSource.Enabled() {
+			s.l.Warnf("Datasource %s is disabled, skipping initialization.", sourceName)
+			continue
+		}
 		err := dataSource.Init(ctx)
 		if err != nil {
-			s.l.Warnf("Telemetry datasource %s init failed: %v", sourceName, err)
+			s.l.Warnf("Telemetry datasource %s init failed: %s", sourceName, err)
 			continue
 		}
 		initializedDataSources[sourceName] = dataSource
@@ -246,13 +249,13 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 		}
 
 		// locate DS in initialized state
-		ds := initializedDataSources[telemetry.Source]
+		ds := initializedDataSources[DataSourceName(telemetry.Source)]
 		if ds == nil {
-			s.l.Debugf("cannot find initialized telemetry datasource: %s", telemetry.Source)
+			s.l.Debugf("Cannot find initialized telemetry datasource: %s", telemetry.Source)
 			continue
 		}
 		if !ds.Enabled() {
-			s.l.Debugf("datasource %s is disabled", telemetry.Source)
+			s.l.Debugf("Datasource %s is disabled", telemetry.Source)
 			continue
 		}
 
@@ -263,20 +266,28 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 		s.l.Debugf("fetching [%s] took [%s]", telemetry.ID, metricFetchTook)
 		totalTime += metricFetchTook
 		if err != nil {
-			s.l.Debugf("failed to extract metric from datasource for [%s]:[%s]: %v", telemetry.Source, telemetry.ID, err)
+			s.l.Debugf("Failed to extract metric from datasource for [%s]:[%s]: %s", telemetry.Source, telemetry.ID, err)
 			continue
 		}
 
 		if telemetry.Transform != nil {
-			if telemetry.Transform.Type == JSONTransformType {
+			switch telemetry.Transform.Type {
+			case JSONTransform:
 				telemetryCopy := telemetry // G601: Implicit memory aliasing in for loop. (gosec)
 				metrics, err = transformToJSON(&telemetryCopy, metrics)
 				if err != nil {
-					s.l.Debugf("failed to transform to JSON: %s", err)
+					s.l.Debugf("Failed to transform to JSON: %s", err)
 					continue
 				}
-			} else {
-				s.l.Errorf("Unsupported transform type: %s", telemetry.Transform.Type)
+			case StripValuesTransform:
+				telemetryCopy := telemetry // G601: Implicit memory aliasing in for loop. (gosec)
+				metrics, err = transformExportValues(&telemetryCopy, metrics)
+				if err != nil {
+					s.l.Debugf("failed to strip values: %s", err)
+					continue
+				}
+			default:
+				s.l.Errorf("unsupported transform type: %s", telemetry.Transform.Type)
 			}
 		}
 
@@ -287,27 +298,27 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 	for sourceName, dataSource := range initializedDataSources {
 		err := dataSource.Dispose(ctx)
 		if err != nil {
-			s.l.Debugf("Dispose of %s datasource failed: %v", sourceName, err)
+			s.l.Debugf("Disposing of %s datasource failed: %s", sourceName, err)
 			continue
 		}
 	}
 
 	telemetryMetric.Metrics = removeEmpty(telemetryMetric.Metrics)
 
-	s.l.Debugf("fetching all metrics took [%s]", totalTime)
+	s.l.Debugf("Fetching all metrics took [%s]", totalTime)
 
 	return telemetryMetric
 }
 
-func (s *Service) locateDataSources(telemetryConfig []Config) map[string]DataSource {
-	dataSources := make(map[string]DataSource)
+func (s *Service) locateDataSources(telemetryConfig []Config) map[DataSourceName]DataSource {
+	dataSources := make(map[DataSourceName]DataSource)
 	for _, telemetry := range telemetryConfig {
 		ds, err := s.LocateTelemetryDataSource(telemetry.Source)
 		if err != nil {
-			s.l.Debugf("failed to lookup telemetry datasource for [%s]:[%s]", telemetry.Source, telemetry.ID)
+			s.l.Debugf("Failed to lookup telemetry datasource for [%s]:[%s]", telemetry.Source, telemetry.ID)
 			continue
 		}
-		dataSources[telemetry.Source] = ds
+		dataSources[DataSourceName(telemetry.Source)] = ds
 	}
 
 	return dataSources
@@ -346,9 +357,9 @@ func (s *Service) makeMetric(ctx context.Context) (*pmmv1.ServerMetric, error) {
 
 	serverID, err := hex.DecodeString(serverIDToUse)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to decode UUID %q", serverIDToUse)
+		return nil, errors.Wrapf(err, "failed to decode UUID %s", serverIDToUse)
 	}
-	_, distMethod, _ := s.dus.getDistributionMethodAndOS()
+	_, distMethod, _ := s.dus.GetDistributionMethodAndOS()
 
 	eventID := uuid.New()
 	return &pmmv1.ServerMetric{
@@ -379,7 +390,7 @@ func (s *Service) send(ctx context.Context, report *reporter.ReportRequest) erro
 		s.l.Debugf("Using %s as telemetry host.", s.config.SaasHostname)
 		err = s.portalClient.SendTelemetry(ctx, report)
 		attempt++
-		s.l.Debugf("sendV2Request (attempt %d/%d) result: %v", attempt, s.config.Reporting.RetryCount, err)
+		s.l.Debugf("SendV2Request (attempt %d/%d) result: %s", attempt, s.config.Reporting.RetryCount, err)
 		if err == nil {
 			return nil
 		}
@@ -400,6 +411,7 @@ func (s *Service) send(ctx context.Context, report *reporter.ReportRequest) erro
 	}
 }
 
+// Format returns the formatted representation of the provided server metric.
 func (s *Service) Format(report *pmmv1.ServerMetric) string {
 	var builder strings.Builder
 	for _, m := range report.Metrics {
@@ -412,7 +424,7 @@ func (s *Service) Format(report *pmmv1.ServerMetric) string {
 	return builder.String()
 }
 
-// GetSummaries returns the list of gathered telemetry
+// GetSummaries returns the list of gathered telemetry.
 func (s *Service) GetSummaries() []string {
 	result := make([]string, 0, len(s.config.telemetry))
 	for _, c := range s.config.telemetry {

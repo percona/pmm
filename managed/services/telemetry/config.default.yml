@@ -1,12 +1,12 @@
 telemetry:
   # PMM - generic information
-  - id: PMMServerIAEnabled
+  - id: PMMServerAlertingEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN alerting->'disabled' = 'false' THEN '1' ELSE '0' END) AS ia_enabled FROM settings s, jsonb_extract_path(s.settings, 'alerting') AS alerting
+    query: (CASE WHEN alerting->'enabled' = 'false' THEN '0' ELSE '1' END) AS alerting_enabled FROM settings s, jsonb_extract_path(s.settings, 'alerting') AS alerting
     summary: "PMM Server Integration Alerting feature enabled/disabled"
     data:
-      - metric_name: "pmm_server_ia_enabled"
-        column: "ia_enabled"
+      - metric_name: "pmm_server_alerting_enabled"
+        column: "alerting_enabled"
 
   - id: PMMServerAlertsFire
     source: VM
@@ -24,62 +24,53 @@ telemetry:
       - metric_name: "pmm_server_alert_rules_number"
         value: 1
 
-  - id: PMMServerSTTEnabled
+  - id: PMMServerAdvisorsEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN stt->'stt_disabled' = 'false' THEN '1' ELSE '0' END) AS stt_enabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS stt
-    summary: "PMM Server Security Thread Tool feature enabled/disabled"
+    query: (CASE WHEN advisors->'enabled' = 'false' THEN '0' ELSE '1' END) AS advisors_enabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS advisors
+    summary: "PMM Advisors Enabled"
     data:
-      - metric_name: "pmm_server_stt_enabled"
-        column: "stt_enabled"
-
-  - id: PMMServerAdvisorsDisabled
-    source: PMMDB_SELECT
-    query: (CASE WHEN stt->'stt_disabled' = 'true' THEN '1' ELSE '0' END) AS advisors_disabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS stt
-    summary: "PMM Advisors Disabled"
-    data:
-      - metric_name: "pmm_server_advisors_disabled"
-        column: "advisors_disabled"
+      - metric_name: "pmm_server_advisors_enabled"
+        column: "advisors_enabled"
 
   - id: PMMServerBackupManagementEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN backup_management->'disabled' = 'false' THEN '1' ELSE '0' END) AS backup_management_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS backup_management
+    query: (CASE WHEN backup_management->'enabled' = 'false' THEN '0' ELSE '1' END) AS backup_management_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS backup_management
     summary: "PMM Server Backup Management feature enabled"
     data:
       - metric_name: "pmm_server_backup_management_enabled"
         column: "backup_management_enabled"
 
-  - id: PMMServerAlertManagerUsed
-    source: PMMDB_SELECT
-    query: (CASE alert_manager_url WHEN '""' THEN 'false' ELSE 'true' END) as alert_manager_set FROM settings s, jsonb_extract_path(s.settings, 'alert_manager_url') AS alert_manager_url
-    summary: "PMM Server alert manager integration  - used/not used"
-    data:
-      - metric_name: "pmm_server_alert_manager_enabled"
-        column: "alert_manager_set"
-
-
-  - id: PMMServerDBaaSEnabled
-    source: PMMDB_SELECT
-    query: (CASE WHEN dbaas->'enabled' = 'true' THEN '1' ELSE '0' END) AS dbaas_enabled FROM settings s, jsonb_extract_path(s.settings, 'dbaas') AS dbaas
-    summary: "PMM Server DBaaS feature enabled/disabled"
-    data:
-      - metric_name: "pmm_server_dbaas_enabled"
-        column: "dbaas_enabled"
-
   - id: PMMServerAccessControlEnabled
     source: PMMDB_SELECT
     query: (CASE WHEN access_control->'enabled' = 'true' THEN '1' ELSE '0' END) AS access_control_enabled FROM settings s, jsonb_extract_path(s.settings, 'access_control') AS access_control
-    summary: "PMM Server Access Control feature enabled/disabled"
+    summary: "PMM Server Access Control feature enabled"
     data:
       - metric_name: "pmm_server_access_control_enabled"
         column: "access_control_enabled"
 
-  - id: PMMServerUpdatesDisabled
+  - id: PMMServerUpdatesEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN updates->'disabled' = 'true' THEN '1' ELSE '0' END) AS updates_disabled FROM settings s, jsonb_extract_path(s.settings, 'updates') AS updates
-    summary: "PMM Server Check Updates feature disabled"
+    query: (CASE WHEN updates->'enabled' = 'true' THEN '1' ELSE '0' END) AS updates_enabled FROM settings s, jsonb_extract_path(s.settings, 'updates') AS updates
+    summary: "PMM Server Check Updates feature enabled"
     data:
-      - metric_name: "pmm_server_updates_disabled"
-        column: "updates_disabled"
+      - metric_name: "pmm_server_updates_enabled"
+        column: "updates_enabled"
+
+  - id: PMMAzureMonitoringEnabled
+    source: PMMDB_SELECT
+    query: (CASE WHEN azure->'enabled' = 'true' THEN '1' ELSE '0' END) AS azure_enabled FROM settings s, jsonb_extract_path(s.settings, 'azure') AS azure
+    summary: "PMM Azure monitoring feature enabled"
+    data:
+      - metric_name: "pmm_server_azure_enabled"
+        column: "azure_enabled"
+
+  - id: PMMServerFirstServiceAdded
+    source: PMMDB_SELECT
+    query:  EXTRACT(EPOCH FROM y.created_at::timestamp) - EXTRACT(EPOCH FROM x.created_at::timestamp)  AS value_difference_sec FROM services x JOIN services y ON y.service_name != 'pmm-server-postgresql' WHERE x.service_name = 'pmm-server-postgresql' AND y.created_at = (SELECT MIN(created_at) FROM services WHERE service_name != 'pmm-server-postgresql');
+    summary: "Difference between PMM installation and the first real service added to PMM"
+    data:
+      - metric_name: "pmm_server_first_service_added_sec"
+        column: "value_difference_sec"
 
   # Services Information
   - id: MySQLVersion
@@ -165,7 +156,7 @@ telemetry:
     summary: "Runtime for general collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_general"
-        value : 1
+        value: 1
 
   - id: MongoDBExporterMetricsDiagnosticDataStats
     source: VM
@@ -173,7 +164,7 @@ telemetry:
     summary: "Runtime for diagnostic data collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_diagnostic_data"
-        value : 1
+        value: 1
 
   - id: MongoDBExporterMetricsCollectionStats
     source: VM
@@ -181,7 +172,7 @@ telemetry:
     summary: "Runtime for collection statistics collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_collstats"
-        value : 1
+        value: 1
 
   - id: MongoDBExporterMetricsDBStats
     source: VM
@@ -189,7 +180,7 @@ telemetry:
     summary: "Runtime for database statistics collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_dbstats"
-        value : 1
+        value: 1
 
   - id: MongoDBExporterMetricsIndexStats
     source: VM
@@ -197,7 +188,7 @@ telemetry:
     summary: "Runtime for index statistics collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_indexstats"
-        value : 1
+        value: 1
 
   - id: MongoDBExporterMetricsTopStats
     source: VM
@@ -205,7 +196,7 @@ telemetry:
     summary: "Runtime for top metrics collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_top"
-        value : 1
+        value: 1
 
   - id: MongoDBExporterMetricsReplicationStatus
     source: VM
@@ -213,7 +204,7 @@ telemetry:
     summary: "Runtime for replication status collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_replset_status"
-        value : 1
+        value: 1
 
   - id: MongoDBEdition
     source: VM
@@ -362,7 +353,7 @@ telemetry:
 
   - id: GrafanaStatDailyActiveUsers
     source: GRAFANADB_SELECT
-    query: count(*) AS count FROM user WHERE last_seen_at > datetime('now', '-1 day')
+    query: count(*) AS count FROM public.user WHERE last_seen_at > now() - interval '1 day'
     summary: "Daily active users"
     data:
       - metric_name: "pmm_server_grafana_stat_daily_active_users"
@@ -658,6 +649,22 @@ telemetry:
       - metric_name: "pmm_server_node_os_version"
         label: "release"
 
+  - id: PMMClientNodeOSName
+    source: VM
+    query: node_uname_info{node_id!="pmm-server"}
+    summary: "PMM Client node OS name"
+    data:
+      - metric_name: "pmm_client_node_os_name"
+        label: "sysname"
+
+  - id: PMMClientNodeOSVersion
+    source: VM
+    query: node_uname_info{node_id!="pmm-server"}
+    summary: "PMM Client node OS version"
+    data:
+      - metric_name: "pmm_client_node_os_version"
+        label: "release"
+
   - id: PMMOSNameAndVersion
     source: VM
     query: node_os_info{node_id=~"pmm-server"}
@@ -665,32 +672,6 @@ telemetry:
     data:
       - metric_name: "pmm_server_node_os_pretty_name_and_version"
         label: "pretty_name"
-
-  # DBaaS
-  - id: DBaaSServicesCount
-    source: PMMDB_SELECT
-    query: count(service_name) AS count from services where service_name ~ concat('default-', cluster,'-(pxc|rs0)-\d+')
-    summary: "DBaaS Services Count"
-    data:
-      - metric_name: "dbaas_services_count"
-        column: "count"
-
-  - id: DBaaSClustersCount
-    source: PMMDB_SELECT
-    query: count(distinct cluster) AS count from services where service_name ~ concat('default-', cluster,'-(pxc|rs0)-\d+')
-    summary: "DBaaS Clusters Count"
-    data:
-      - metric_name: "dbaas_clusters_count"
-        column: "count"
-
-  # K8s Clusters
-  - id: K8sClustersCount
-    source: PMMDB_SELECT
-    query: count(*) AS count FROM kubernetes_clusters
-    summary: "K8s Clusters Count"
-    data:
-      - metric_name: "k8s_clusters_count"
-        column: "count"
 
   # Advisor
   - id: AdvisorChecksAvailable
@@ -747,7 +728,7 @@ telemetry:
 
   - id: AdvisorsChecksDisabled
     source: PMMDB_SELECT
-    query: settings->'sass'->'disabled_stt_checks' as disabled_checks from settings;
+    query: settings->'sass'->'disabled_advisors' as disabled_checks from settings;
     summary: "Advisor - Checks that are disabled on the PMM instance"
     transform:
       type: JSON
@@ -761,7 +742,7 @@ telemetry:
   #Grafana
   - id: GrafanaUsersCount
     source: GRAFANADB_SELECT
-    query: count(*) AS count FROM user
+    query: count(*) AS count FROM public.user
     summary: "Grafana Users Count"
     data:
       - metric_name: "grafana_users_count"
@@ -769,7 +750,7 @@ telemetry:
 
   - id: GrafanaDarkThemeUsersCount
     source: GRAFANADB_SELECT
-    query: count(u.id) as count from user u left join preferences p on p.user_id = u.id where p.theme = 'dark'
+    query: count(u.id) as count from public.user u left join preferences p on p.user_id = u.id where p.theme = 'dark'
     summary: "Grafana Dark Theme Users Count"
     data:
       - metric_name: "grafana_dark_theme_users_count"
@@ -777,7 +758,7 @@ telemetry:
 
   - id: GrafanaLightThemeUsersCount
     source: GRAFANADB_SELECT
-    query: count(u.id) as count from user u left join preferences p on p.user_id = u.id where p.theme = 'light'
+    query: count(u.id) as count from public.user u left join preferences p on p.user_id = u.id where p.theme = 'light'
     summary: "Grafana Light Theme Users Count"
     data:
       - metric_name: "grafana_light_theme_users_count"
@@ -785,7 +766,7 @@ telemetry:
 
   - id: GrafanaDefaultThemeUsersCount
     source: GRAFANADB_SELECT
-    query: count(u.id) as count from user u left join preferences p on p.user_id = u.id where p.theme = '' or p.theme is null
+    query: count(u.id) as count from public.user u left join preferences p on p.user_id = u.id where p.theme = '' or p.theme is null
     summary: "Grafana Default Theme Users Count"
     data:
       - metric_name: "grafana_default_theme_users_count"
@@ -793,7 +774,7 @@ telemetry:
 
   - id: GrafanaCustomDashboardsCount
     source: GRAFANADB_SELECT
-    query: count(*) as count from dashboard where created_by != -1 and is_folder = 0
+    query: count(*) as count from dashboard where created_by != -1 and is_folder = false
     summary: "Grafana Custom Dashboards Count"
     data:
       - metric_name: "grafana_custom_dashboards_count"
@@ -801,7 +782,7 @@ telemetry:
 
   - id: GrafanaCustomDashboardsPerPillar
     source: GRAFANADB_SELECT
-    query: inn.title as pillar, count(d.title) as count from dashboard d left join dashboard inn ON d.folder_id =  inn.id where d.created_by != -1 and d.is_folder = 0 group by inn.title
+    query: inn.title as pillar, count(d.title) as count from dashboard d left join dashboard inn ON d.folder_id = inn.id where d.created_by != -1 and d.is_folder = false group by inn.title
     summary: "Grafana Custom Dashboards Count By Pillar"
     transform:
       type: JSON
@@ -810,6 +791,7 @@ telemetry:
       - metric_name: "pillar"
         column: "pillar"
       - metric_name: "count"
+        column: "count"
 
   # API usage
   - id: APIUsageMetrics
@@ -870,31 +852,31 @@ telemetry:
       	j.job_status bm_job_status,
       	coalesce(bl_backup.type, bl_restore.type, 'N/A') bm_location_type,
       	count(*) count
-      from (select type, 
-      			"data"->"type"->>'mode' mod, 
-      			"data"->"type"->>'data_model' dm, 
+      from (select type,
+      			"data"->"type"->>'mode' mod,
+      			"data"->"type"->>'data_model' dm,
       			"data"->"type"->>'artifact_id' artifact_id,
       			"data"->"type"->>'restore_id' restore_id,
       			case error when '' then 'success' else 'failed' end job_status
-      		from jobs 
-      		where created_at BETWEEN NOW() - INTERVAL '24 HOURS' AND NOW() 
+      		from jobs
+      		where created_at BETWEEN NOW() - INTERVAL '24 HOURS' AND NOW()
       			group by type, mod, dm, artifact_id, restore_id, job_status) j
       left join artifacts a_backup
       	on a_backup.id = j.artifact_id
       left join backup_locations bl_backup
-      	on bl_backup.id = a_backup.location_id 
+      	on bl_backup.id = a_backup.location_id
       left join restore_history rh
       	on rh.id = j.restore_id
       left join artifacts a_restore
       	on a_restore.id = rh.artifact_id
       left join backup_locations bl_restore
       	on bl_restore.id = a_restore.location_id
-      group by 
-      	bm_job_type, 
-      	bm_backup_mode, 
-      	bm_data_model, 
-      	bm_job_run_type, 
-      	bm_job_status, 
+      group by
+      	bm_job_type,
+      	bm_backup_mode,
+      	bm_data_model,
+      	bm_job_run_type,
+      	bm_job_status,
       	bm_location_type
     transform:
       type: JSON
@@ -914,6 +896,37 @@ telemetry:
       - metric_name: "6"
         column: "bm_location_type"
       - metric_name: "7"
+        column: "count"
+
+  # PMM-Dump information
+  - id: PMMDumpsPerformed
+    source: PMMDB_SELECT
+    query: >
+      status,
+      ARRAY_LENGTH(service_names,1) as services_count,
+      end_time - start_time as timerange,
+      ignore_load,
+      export_qan,
+      count(*)
+      from dumps
+      where created_at BETWEEN NOW() - INTERVAL '24 HOURS' AND NOW()
+      group by status, services_count, timerange, ignore_load, export_qan;
+    transform:
+      type: JSON
+      metric: pmm_dumps_performed
+    summary: "How many PMM dumps were created"
+    data:
+      - metric_name: "1"
+        column: "status"
+      - metric_name: "2"
+        column: "services_count"
+      - metric_name: "3"
+        column: "timerange"
+      - metric_name: "4"
+        column: "ignore_load"
+      - metric_name: "5"
+        column: "export_qan"
+      - metric_name: "6"
         column: "count"
 
   - id: PXCClusterNodesCount
@@ -936,3 +949,30 @@ telemetry:
     data:
       - metric_name: "postgresql_db_count"
         value: 1
+
+  - id: PMMServerHAEnabled
+    source: ENV_VARS
+    summary: "Use of HA feature"
+    data:
+      - metric_name: "pmm_server_ha_enable"
+        column: "PMM_TEST_HA_ENABLE"
+
+  - id: PMMServerBuiltinDatabaseDisabled
+    source: ENV_VARS
+    summary: "Use of external PMM database"
+    data:
+      - metric_name: "pmm_server_builtin_postgres_disable"
+        column: "PMM_DISABLE_BUILTIN_POSTGRES"
+
+  - id: PMMServerHAUseOfDBs
+    source: ENV_VARS
+    transform:
+      type: StripValues
+    summary: "Use of External DBs"
+    data:
+      - metric_name: "pmm_server_ha_clickhouse_address"
+        column: "PMM_CLICKHOUSE_ADDR"
+      - metric_name: "pmm_server_ha_postgres_address"
+        column: "PMM_POSTGRES_ADDR"
+      - metric_name: "pmm_server_ha_vm_url"
+        column: "PMM_VM_URL"

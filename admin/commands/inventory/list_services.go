@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,10 +19,12 @@ import (
 	"net"
 	"strconv"
 
+	"github.com/AlekSi/pointer"
+
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
-	"github.com/percona/pmm/api/inventorypb/types"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	"github.com/percona/pmm/api/inventory/v1/types"
 )
 
 var listServicesResultT = commands.ParseTemplate(`
@@ -78,23 +80,20 @@ type ListServicesCommand struct {
 	ExternalGroup string `help:"Filter by external group"`
 }
 
+// RunCmd executes the ListServicesCommand and returns the result.
 func (cmd *ListServicesCommand) RunCmd() (commands.Result, error) {
 	serviceType, err := formatTypeValue(acceptableServiceTypes, cmd.ServiceType)
 	if err != nil {
 		return nil, err
 	}
 
-	filters := services.ListServicesBody{
-		ExternalGroup: cmd.ExternalGroup,
-		NodeID:        cmd.NodeID,
-		ServiceType:   serviceType,
-	}
-
 	params := &services.ListServicesParams{
-		Body:    filters,
-		Context: commands.Ctx,
+		NodeID:        pointer.ToString(cmd.NodeID),
+		ExternalGroup: pointer.ToString(cmd.ExternalGroup),
+		ServiceType:   serviceType,
+		Context:       commands.Ctx,
 	}
-	result, err := client.Default.Services.ListServices(params)
+	result, err := client.Default.ServicesService.ListServices(params)
 	if err != nil {
 		return nil, err
 	}

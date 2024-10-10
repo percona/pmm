@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@ package analytics
 import (
 	"context"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qan/v1"
 )
 
 // metricsNames is a map of metrics names and keys.
@@ -89,6 +89,6 @@ var metricsNames = map[string]string{
 }
 
 // GetMetricsNames implements rpc to get list of available metrics.
-func (s *Service) GetMetricsNames(_ context.Context, _ *qanpb.MetricsNamesRequest) (*qanpb.MetricsNamesReply, error) { //nolint:unparam
-	return &qanpb.MetricsNamesReply{Data: metricsNames}, nil
+func (s *Service) GetMetricsNames(_ context.Context, _ *qanpb.GetMetricsNamesRequest) (*qanpb.GetMetricsNamesResponse, error) { //nolint:unparam
+	return &qanpb.GetMetricsNamesResponse{Data: metricsNames}, nil
 }

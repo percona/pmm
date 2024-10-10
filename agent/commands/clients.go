@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,9 +34,9 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/config"
-	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/json/client"
-	managementpb "github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/node"
+	agentlocalClient "github.com/percona/pmm/api/agentlocal/v1/json/client"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 
@@ -57,7 +57,7 @@ func setLocalTransport(host string, port uint16, l *logrus.Entry) {
 	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
 	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 
-	agentlocalpb.Default.SetTransport(transport)
+	agentlocalClient.Default.SetTransport(transport)
 }
 
 type statusResult struct {
@@ -69,7 +69,7 @@ type statusResult struct {
 //
 // This method is not thread-safe.
 func localStatus() (*statusResult, error) {
-	res, err := agentlocalpb.Default.AgentLocal.Status(nil)
+	res, err := agentlocalClient.Default.AgentLocalService.Status(nil)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func localStatus() (*statusResult, error) {
 //
 // This method is not thread-safe.
 func localReload() error {
-	_, err := agentlocalpb.Default.AgentLocal.Reload(nil)
+	_, err := agentlocalClient.Default.AgentLocalService.Reload(nil)
 	return err
 }
 
@@ -104,8 +104,13 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	// use JSON APIs over HTTP/1.1
 	transport := httptransport.New(u.Host, u.Path, []string{u.Scheme})
 	if u.User != nil {
+		user := u.User.Username()
 		password, _ := u.User.Password()
-		transport.DefaultAuthentication = httptransport.BasicAuth(u.User.Username(), password)
+		if user == "service_token" || user == "api_key" {
+			transport.DefaultAuthentication = httptransport.BearerToken(password)
+		} else {
+			transport.DefaultAuthentication = httptransport.BasicAuth(user, password)
+		}
 	}
 	transport.SetLogger(l)
 	transport.SetDebug(l.Logger.GetLevel() >= logrus.DebugLevel)
@@ -132,7 +137,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 		httpTransport.TLSClientConfig.InsecureSkipVerify = insecureTLS
 	}
 
-	managementpb.Default.SetTransport(transport)
+	managementClient.Default.SetTransport(transport)
 }
 
 // ParseCustomLabels parses --custom-labels flag value.
@@ -162,8 +167,8 @@ func ParseCustomLabels(labels string) (map[string]string, error) {
 // This method is not thread-safe.
 func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { //nolint:nonamedreturns
 	nodeTypes := map[string]string{
-		"generic":   node.RegisterNodeBodyNodeTypeGENERICNODE,
-		"container": node.RegisterNodeBodyNodeTypeCONTAINERNODE,
+		"generic":   mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE,
+		"container": mservice.RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE,
 	}
 
 	var disableCollectors []string
@@ -179,8 +184,8 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 		return "", "", err
 	}
 
-	res, err := managementpb.Default.Node.RegisterNode(&node.RegisterNodeParams{
-		Body: node.RegisterNodeBody{
+	res, err := managementClient.Default.ManagementService.RegisterNode(&mservice.RegisterNodeParams{
+		Body: mservice.RegisterNodeBody{
 			NodeType:      pointer.ToString(nodeTypes[cfgSetup.NodeType]),
 			NodeName:      cfgSetup.NodeName,
 			MachineID:     cfgSetup.MachineID,
@@ -197,6 +202,7 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 			Reregister:        cfgSetup.Force,
 			MetricsMode:       pointer.ToString(strings.ToUpper(cfgSetup.MetricsMode)),
 			DisableCollectors: disableCollectors,
+			ExposeExporter:    cfgSetup.ExposeExporter,
 		},
 		Context: context.Background(),
 	})
@@ -206,7 +212,7 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 	return res.Payload.PMMAgent.AgentID, res.Payload.Token, nil
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ error          = nginxError("")
 	_ fmt.GoStringer = nginxError("")

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -17,16 +17,18 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"os"
 	"os/exec"
 	"testing"
+	"time"
 
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/services/checks"
 )
 
@@ -35,7 +37,7 @@ const (
 
 	// Possible errors:
 	// fatal error: runtime: out of memory
-	// fatal error: out of memory allocating heap arena metadata
+	// fatal error: out of memory allocating heap arena metadatai.
 	memoryConsumingScriptStderr = "out of memory"
 )
 
@@ -103,8 +105,13 @@ func TestStarlarkSandbox(t *testing.T) { //nolint:tparallel
 		},
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
+	t.Cleanup(cancel)
 	// since we run the binary as a child process to test it we need to build it first.
-	err := exec.Command("make", "-C", "../..", "release").Run()
+	command := exec.CommandContext(ctx, "make", "-C", "../..", "release-starlark")
+	command.Stdout = os.Stdout
+	command.Stderr = os.Stderr
+	err := command.Run()
 	require.NoError(t, err)
 
 	for _, tc := range testCases {
@@ -112,7 +119,7 @@ func TestStarlarkSandbox(t *testing.T) { //nolint:tparallel
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			result, err := agentpb.MarshalActionQueryDocsResult(validQueryActionResult)
+			result, err := agentv1.MarshalActionQueryDocsResult(validQueryActionResult)
 			require.NoError(t, err)
 
 			data := &checks.StarlarkScriptData{

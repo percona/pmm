@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 )
 
 var addNodeGenericResultT = commands.ParseTemplate(`
@@ -36,7 +36,7 @@ Node model: {{ .Node.NodeModel }}
 `)
 
 type addNodeGenericResult struct {
-	Node *nodes.AddGenericNodeOKBodyGeneric `json:"generic"`
+	Node *nodes.AddNodeOKBodyGeneric `json:"generic"`
 }
 
 func (res *addNodeGenericResult) Result() {}
@@ -57,24 +57,27 @@ type AddNodeGenericCommand struct {
 	NodeModel    string            `help:"Node mddel"`
 }
 
+// RunCmd executes the AddNodeGenericCommand and returns the result.
 func (cmd *AddNodeGenericCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-	params := &nodes.AddGenericNodeParams{
-		Body: nodes.AddGenericNodeBody{
-			NodeName:     cmd.NodeName,
-			MachineID:    cmd.MachineID,
-			Distro:       cmd.Distro,
-			Address:      cmd.Address,
-			CustomLabels: customLabels,
+	params := &nodes.AddNodeParams{
+		Body: nodes.AddNodeBody{
+			Generic: &nodes.AddNodeParamsBodyGeneric{
+				NodeName:     cmd.NodeName,
+				MachineID:    cmd.MachineID,
+				Distro:       cmd.Distro,
+				Address:      cmd.Address,
+				CustomLabels: customLabels,
 
-			Region:    cmd.Region,
-			Az:        cmd.Az,
-			NodeModel: cmd.NodeModel,
+				Region:    cmd.Region,
+				Az:        cmd.Az,
+				NodeModel: cmd.NodeModel,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Nodes.AddGenericNode(params)
+	resp, err := client.Default.NodesService.AddNode(params)
 	if err != nil {
 		return nil, err
 	}

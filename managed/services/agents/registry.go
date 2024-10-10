@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -29,10 +29,10 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents/channel"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
 )
 
@@ -68,7 +68,7 @@ type pmmAgentInfo struct {
 	channel         *channel.Channel
 	id              string
 	stateChangeChan chan struct{}
-	kick            chan struct{}
+	kickChan        chan struct{}
 }
 
 // Registry keeps track of all connected pmm-agents.
@@ -85,10 +85,12 @@ type Registry struct {
 	mRoundTrip   prom.Summary
 	mClockDrift  prom.Summary
 	mAgents      prom.GaugeFunc
+
+	isExternalVM bool
 }
 
 // NewRegistry creates a new registry with given database connection.
-func NewRegistry(db *reform.DB) *Registry {
+func NewRegistry(db *reform.DB, externalVMChecker victoriaMetricsParams) *Registry {
 	agents := make(map[string]*pmmAgentInfo)
 	r := &Registry{
 		db: db,
@@ -123,6 +125,8 @@ func NewRegistry(db *reform.DB) *Registry {
 			Help:       "Clock drift.",
 			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
 		}),
+
+		isExternalVM: externalVMChecker.ExternalVM(),
 	}
 
 	r.mAgents = prom.NewGaugeFunc(prom.GaugeOpts{
@@ -149,18 +153,18 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 	return err == nil
 }
 
-func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, error) {
+func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgentInfo, error) {
 	ctx := stream.Context()
 	l := logger.Get(ctx)
 	r.mConnects.Inc()
 
-	agentMD, err := agentpb.ReceiveAgentConnectMetadata(stream)
+	agentMD, err := agentv1.ReceiveAgentConnectMetadata(stream)
 	if err != nil {
 		return nil, err
 	}
 	var node *models.Node
 	err = r.db.InTransaction(func(tx *reform.TX) error {
-		node, err = authenticate(agentMD, tx.Querier)
+		node, err = r.authenticate(agentMD, tx.Querier)
 		if err != nil {
 			return err
 		}
@@ -172,13 +176,13 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	}
 	l.Infof("Connected pmm-agent: %+v.", agentMD)
 
-	serverMD := agentpb.ServerConnectMetadata{
+	serverMD := agentv1.ServerConnectMetadata{
 		AgentRunsOnNodeID: node.NodeID,
 		NodeName:          node.NodeName,
 		ServerVersion:     version.Version,
 	}
 	l.Debugf("Sending metadata: %+v.", serverMD)
-	if err = agentpb.SendServerConnectMetadata(stream, &serverMD); err != nil {
+	if err = agentv1.SendServerConnectMetadata(stream, &serverMD); err != nil {
 		return nil, err
 	}
 
@@ -195,16 +199,16 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	defer r.rw.Unlock()
 
 	agent := &pmmAgentInfo{
-		channel:         channel.New(stream),
+		channel:         channel.New(ctx, stream),
 		id:              agentMD.ID,
 		stateChangeChan: make(chan struct{}, 1),
-		kick:            make(chan struct{}),
+		kickChan:        make(chan struct{}),
 	}
 	r.agents[agentMD.ID] = agent
 	return agent, nil
 }
 
-func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (*models.Node, error) {
+func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Querier) (*models.Node, error) {
 	if md.ID == "" {
 		return nil, status.Error(codes.PermissionDenied, "Empty Agent ID.")
 	}
@@ -233,7 +237,7 @@ func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (*models.
 		return nil, status.Errorf(codes.InvalidArgument, "Can't parse 'version' for pmm-agent with ID %q.", md.ID)
 	}
 
-	if err := addOrRemoveVMAgent(q, md.ID, runsOnNodeID, agentVersion); err != nil {
+	if err := r.addOrRemoveVMAgent(q, md.ID, runsOnNodeID, agentVersion); err != nil {
 		return nil, err
 	}
 
@@ -274,7 +278,7 @@ func (r *Registry) unregister(pmmAgentID, disconnectReason string) *pmmAgentInfo
 func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 	l := logger.Get(ctx)
 	start := time.Now()
-	resp, err := agent.channel.SendAndWaitResponse(&agentpb.Ping{})
+	resp, err := agent.channel.SendAndWaitResponse(&agentv1.Ping{})
 	if err != nil {
 		return err
 	}
@@ -282,7 +286,7 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 		return nil
 	}
 	roundtrip := time.Since(start)
-	agentTime := resp.(*agentpb.Pong).CurrentTime.AsTime() //nolint:forcetypeassert
+	agentTime := resp.(*agentv1.Pong).CurrentTime.AsTime() //nolint:forcetypeassert
 	clockDrift := agentTime.Sub(start) - roundtrip/2
 	if clockDrift < 0 {
 		clockDrift = -clockDrift
@@ -296,18 +300,18 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 // addOrRemoveVMAgent - creates vmAgent agentType if pmm-agent's version supports it and agent not exists yet,
 // otherwise ensures that vmAgent not exist for pmm-agent and pmm-agent's agents don't have push_metrics mode,
 // removes it if needed.
-func addOrRemoveVMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string, pmmAgentVersion *version.Parsed) error {
+func (r *Registry) addOrRemoveVMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string, pmmAgentVersion *version.Parsed) error {
 	if pmmAgentVersion.Less(models.PMMAgentWithPushMetricsSupport) {
 		// ensure that vmagent not exists and agents dont have push_metrics.
 		return removeVMAgentFromPMMAgent(q, pmmAgentID)
 	}
-	return addVMAgentToPMMAgent(q, pmmAgentID, runsOnNodeID)
+	return r.addVMAgentToPMMAgent(q, pmmAgentID, runsOnNodeID)
 }
 
-func addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string) error {
+func (r *Registry) addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string) error {
 	// TODO remove it after fix
 	// https://jira.percona.com/browse/PMM-4420
-	if runsOnNodeID == "pmm-server" {
+	if runsOnNodeID == "pmm-server" && !r.isExternalVM {
 		return nil
 	}
 	vmAgentType := models.VMAgentType
@@ -364,13 +368,13 @@ func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
 	}
 
 	l := logger.Get(ctx)
-	l.Debugf("pmm-agent with ID %q will be kicked in a moment.", pmmAgentID)
+	l.Debugf("pmm-agent with ID %s will be kicked in a moment.", pmmAgentID)
 
 	// see Run method
-	close(agent.kick)
+	close(agent.kickChan)
 
 	// Do not close agent.stateChangeChan to avoid breaking RequestStateUpdate;
-	// closing agent.kick is enough to exit runStateChangeHandler goroutine.
+	// closing agent.kickChan is enough to exit runStateChangeHandler goroutine.
 }
 
 func (r *Registry) get(pmmAgentID string) (*pmmAgentInfo, error) {
@@ -378,7 +382,7 @@ func (r *Registry) get(pmmAgentID string) (*pmmAgentInfo, error) {
 	pmmAgent := r.agents[pmmAgentID]
 	r.rw.RUnlock()
 	if pmmAgent == nil {
-		return nil, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %q is not currently connected", pmmAgentID)
+		return nil, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %s is not currently connected", pmmAgentID)
 	}
 	return pmmAgent, nil
 }
@@ -411,6 +415,13 @@ func (r *Registry) Collect(ch chan<- prom.Metric) {
 	r.mDisconnects.Collect(ch)
 	r.mRoundTrip.Collect(ch)
 	r.mClockDrift.Collect(ch)
+}
+
+// KickAll sends a signal to all registered agents in the registry to perform a kick action.
+func (r *Registry) KickAll(ctx context.Context) {
+	for _, agentInfo := range r.agents {
+		r.Kick(ctx, agentInfo.id)
+	}
 }
 
 // check interfaces.

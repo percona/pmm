@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,7 @@
 package analytics
 
 import (
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
 )
 
@@ -25,10 +25,7 @@ type Service struct {
 	rm models.Reporter
 	mm models.Metrics
 
-	qanpb.UnimplementedProfileServer
-	qanpb.UnimplementedFiltersServer
-	qanpb.UnimplementedObjectDetailsServer
-	qanpb.UnimplementedMetricsNamesServer
+	qanpb.UnimplementedQANServiceServer
 }
 
 // NewService create new insstance of Service.

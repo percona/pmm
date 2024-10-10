@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/agents/process"
-	"github.com/percona/pmm/api/inventorypb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 func main() {
@@ -44,14 +44,15 @@ func main() {
 
 	// Wait until the process is running.
 	state := <-p.Changes()
-	if state != inventorypb.AgentStatus_STARTING {
+	if state != inventoryv1.AgentStatus_AGENT_STATUS_STARTING {
 		panic("process isn't moved to starting state.")
 	}
 	state = <-p.Changes()
-	if state != inventorypb.AgentStatus_RUNNING {
+	if state != inventoryv1.AgentStatus_AGENT_STATUS_RUNNING {
 		panic("process isn't moved to running state.")
 	}
 
-	fmt.Println(process.GetPID(p)) // Printing PID of the child process to let test check if the child process is dead or not.
+	// Printing PID of the child process to let test check if the child process is dead or not.
+	fmt.Println(process.GetPID(p)) //nolint:forbidigo
 	time.Sleep(30 * time.Second)   // Waiting until test kills this process.
 }

@@ -6698,15 +6698,13 @@
 		}
 	},
 	"metadata": {
-		"serviceName": "server0",
-		"schema": "schema12",
-		"username": "user19",
+		"serviceName": "server0, server1, server2, server3, server4, server5, server6, server7, server8, server9",
+		"schema": "schema0, schema1, schema10, schema11, schema12, schema13, schema14, schema15, schema16, schema17, schema18, schema19, schema2, schema20, schema21, schema22, schema23, schema24, schema25, schema26, schema27, schema28, schema29, schema3, schema30, schema31, schema32, schema33, schema34, schema35, schema36, schema37, schema38, schema39, schema4, schema40, schema41, schema42, schema43, schema44, schema45, schema46, schema47, schema48, schema49, schema5, schema50, schema51, schema52, schema53, schema54, schema55, schema56, schema57, schema58, schema59, schema6, schema60, schema61, schema62, schema63, schema64, schema65, schema66, schema67, schema68, schema69, schema7, schema70, schema71, schema72, schema73, schema74, schema75, schema76, schema77, schema78, schema79, schema8, schema80, schema81, schema82, schema83, schema84, schema85, schema86, schema87, schema88, schema89, schema9, schema90, schema91, schema92, schema93, schema94, schema95, schema96, schema97, schema98, schema99",
+		"username": "user0, user1, user10, user11, user12, user13, user14, user15, user16, user17, user18, user19, user2, user20, user21, user22, user23, user24, user25, user26, user27, user28, user29, user3, user30, user31, user32, user33, user34, user35, user36, user37, user38, user39, user4, user40, user41, user42, user43, user44, user45, user46, user47, user48, user49, user5, user50, user51, user52, user53, user54, user55, user56, user57, user58, user59, user6, user60, user61, user62, user63, user64, user65, user66, user67, user68, user69, user7, user70, user71, user72, user73, user74, user75, user76, user77, user78, user79, user8, user80, user81, user82, user83, user84, user85, user86, user87, user88, user89, user9, user90, user91, user92, user93, user94, user95, user96, user97, user98, user99",
 		"replicationSet": "replication_set1",
 		"cluster": "cluster1",
 		"serviceType": "service_type1",
-		"serviceId": "service_id1",
 		"environment": "environment1",
-		"nodeId": "node_id1",
 		"nodeName": "node_name1",
 		"nodeType": "node_type1"
 	}

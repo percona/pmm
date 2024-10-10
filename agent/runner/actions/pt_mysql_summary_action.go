@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package actions
 import (
 	"context"
 	"fmt"
+	"net"
 	"os"
 	"os/exec"
 	"strconv"
@@ -24,7 +25,7 @@ import (
 
 	"golang.org/x/sys/unix"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/utils/pdeathsig"
 )
 
@@ -32,14 +33,14 @@ type ptMySQLSummaryAction struct {
 	id      string
 	timeout time.Duration
 	command string
-	params  *agentpb.StartActionRequest_PTMySQLSummaryParams
+	params  *agentv1.StartActionRequest_PTMySQLSummaryParams
 }
 
 // NewPTMySQLSummaryAction creates a new process Action.
 //
 // PTMySQL Summary Action, it's an abstract Action that can run an external commands.
 // This commands can be a shell script, script written on interpreted language, or binary file.
-func NewPTMySQLSummaryAction(id string, timeout time.Duration, cmd string, params *agentpb.StartActionRequest_PTMySQLSummaryParams) Action {
+func NewPTMySQLSummaryAction(id string, timeout time.Duration, cmd string, params *agentv1.StartActionRequest_PTMySQLSummaryParams) Action {
 	return &ptMySQLSummaryAction{
 		id:      id,
 		timeout: timeout,
@@ -61,6 +62,15 @@ func (a *ptMySQLSummaryAction) Timeout() time.Duration {
 // Type returns an Action type.
 func (a *ptMySQLSummaryAction) Type() string {
 	return a.command
+}
+
+// DSN returns a DSN for the Action.
+func (a *ptMySQLSummaryAction) DSN() string {
+	if a.params.Socket != "" {
+		return a.params.Socket
+	}
+
+	return net.JoinHostPort(a.params.Host, strconv.FormatUint(uint64(a.params.Port), 10))
 }
 
 // Run runs an Action and returns output and error.

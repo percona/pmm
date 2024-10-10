@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 var addAgentMongodbExporterResultT = commands.ParseTemplate(`
@@ -36,7 +36,7 @@ Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentMongodbExporterResult struct {
-	Agent *agents.AddMongoDBExporterOKBodyMongodbExporter `json:"mongodb_exporter"`
+	Agent *agents.AddAgentOKBodyMongodbExporter `json:"mongodb_exporter"`
 }
 
 func (res *addAgentMongodbExporterResult) Result() {}
@@ -69,6 +69,7 @@ type AddAgentMongodbExporterCommand struct {
 	LogLevel                      string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
 }
 
+// RunCmd executes the AddAgentMongodbExporterCommand and returns the result.
 func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
@@ -81,31 +82,33 @@ func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	params := &agents.AddMongoDBExporterParams{
-		Body: agents.AddMongoDBExporterBody{
-			PMMAgentID:                    cmd.PMMAgentID,
-			ServiceID:                     cmd.ServiceID,
-			Username:                      cmd.Username,
-			Password:                      cmd.Password,
-			AgentPassword:                 cmd.AgentPassword,
-			CustomLabels:                  customLabels,
-			SkipConnectionCheck:           cmd.SkipConnectionCheck,
-			TLS:                           cmd.TLS,
-			TLSSkipVerify:                 cmd.TLSSkipVerify,
-			TLSCertificateKey:             tlsCertificateKey,
-			TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
-			TLSCa:                         tlsCa,
-			AuthenticationMechanism:       cmd.AuthenticationMechanism,
-			PushMetrics:                   cmd.PushMetrics,
-			DisableCollectors:             commands.ParseDisableCollectors(cmd.DisableCollectors),
-			StatsCollections:              commands.ParseDisableCollectors(cmd.StatsCollections),
-			CollectionsLimit:              cmd.CollectionsLimit,
-			LogLevel:                      &cmd.LogLevel,
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
+				PMMAgentID:                    cmd.PMMAgentID,
+				ServiceID:                     cmd.ServiceID,
+				Username:                      cmd.Username,
+				Password:                      cmd.Password,
+				AgentPassword:                 cmd.AgentPassword,
+				CustomLabels:                  customLabels,
+				SkipConnectionCheck:           cmd.SkipConnectionCheck,
+				TLS:                           cmd.TLS,
+				TLSSkipVerify:                 cmd.TLSSkipVerify,
+				TLSCertificateKey:             tlsCertificateKey,
+				TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
+				TLSCa:                         tlsCa,
+				AuthenticationMechanism:       cmd.AuthenticationMechanism,
+				PushMetrics:                   cmd.PushMetrics,
+				DisableCollectors:             commands.ParseDisableCollectors(cmd.DisableCollectors),
+				StatsCollections:              commands.ParseDisableCollectors(cmd.StatsCollections),
+				CollectionsLimit:              cmd.CollectionsLimit,
+				LogLevel:                      &cmd.LogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddMongoDBExporter(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

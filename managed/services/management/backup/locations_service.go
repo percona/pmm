@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	backuppb "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/backup/v1"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -35,7 +35,7 @@ type LocationsService struct {
 	s3 awsS3
 	l  *logrus.Entry
 
-	backuppb.UnimplementedLocationsServer
+	backuppb.UnimplementedLocationsServiceServer
 }
 
 // NewLocationsService creates new backup locations API service.
@@ -54,11 +54,11 @@ func (s *LocationsService) Enabled() bool {
 		s.l.WithError(err).Error("can't get settings")
 		return false
 	}
-	return !settings.BackupManagement.Disabled
+	return settings.IsBackupManagementEnabled()
 }
 
 // ListLocations returns list of all available backup locations.
-func (s *LocationsService) ListLocations(ctx context.Context, req *backuppb.ListLocationsRequest) (*backuppb.ListLocationsResponse, error) {
+func (s *LocationsService) ListLocations(_ context.Context, _ *backuppb.ListLocationsRequest) (*backuppb.ListLocationsResponse, error) {
 	locations, err := models.FindBackupLocations(s.db.Querier)
 	if err != nil {
 		return nil, err
@@ -228,7 +228,7 @@ func (s *LocationsService) RemoveLocation(ctx context.Context, req *backuppb.Rem
 		mode = models.RemoveCascade
 	}
 
-	err := s.db.InTransaction(func(tx *reform.TX) error {
+	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		return models.RemoveBackupLocation(tx.Querier, req.LocationId, mode)
 	})
 	if err != nil {
@@ -299,5 +299,5 @@ func (s *LocationsService) checkBucket(ctx context.Context, c *models.S3Location
 
 // Check interfaces.
 var (
-	_ backuppb.LocationsServer = (*LocationsService)(nil)
+	_ backuppb.LocationsServiceServer = (*LocationsService)(nil)
 )

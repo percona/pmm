@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -12,7 +12,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+// Package main provides the entry point for the pmm-managed-init application.
 package main
 
 import (
@@ -24,7 +24,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/supervisord"
 	"github.com/percona/pmm/managed/utils/envvars"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 )
 
 func main() {
@@ -53,7 +53,8 @@ func main() {
 	}
 
 	pmmConfigParams := make(map[string]any)
-	pmmConfigParams["DisableInternalDB"], _ = strconv.ParseBool(os.Getenv("PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES"))
+	pmmConfigParams["DisableInternalDB"], _ = strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_POSTGRES"))
+	pmmConfigParams["DisableInternalClickhouse"], _ = strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_CLICKHOUSE"))
 	if err := supervisord.SavePMMConfig(pmmConfigParams); err != nil {
 		logrus.Errorf("PMM Server configuration error: %s.", err)
 		os.Exit(1)

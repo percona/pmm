@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,8 +36,8 @@ import (
 	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/agent/utils/tests"
 	"github.com/percona/pmm/agent/utils/truncate"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 type MongoVersion struct {
@@ -140,8 +140,8 @@ func testProfiler(t *testing.T, url string) {
 
 	require.GreaterOrEqual(t, len(ms.reports), 1)
 
-	var findBucket *agentpb.MetricsBucket
-	bucketsMap := make(map[string]*agentpb.MetricsBucket)
+	var findBucket *agentv1.MetricsBucket
+	bucketsMap := make(map[string]*agentv1.MetricsBucket)
 
 	for _, r := range ms.reports {
 		for _, bucket := range r.Buckets {
@@ -176,7 +176,7 @@ func testProfiler(t *testing.T, url string) {
 	}
 
 	assert.Equal(t, dbsCount, len(bucketsMap)) // 300 sample docs / 10 = different database names
-	var buckets []*agentpb.MetricsBucket
+	var buckets []*agentv1.MetricsBucket
 	for _, bucket := range bucketsMap {
 		buckets = append(buckets, bucket)
 	}
@@ -188,8 +188,8 @@ func testProfiler(t *testing.T, url string) {
 		assert.Equal(t, "INSERT people", bucket.Common.Fingerprint)
 		assert.Equal(t, []string{"people"}, bucket.Common.Tables)
 		assert.Equal(t, "test-id", bucket.Common.AgentId)
-		assert.Equal(t, inventorypb.AgentType(9), bucket.Common.AgentType)
-		expected := &agentpb.MetricsBucket_MongoDB{
+		assert.Equal(t, inventoryv1.AgentType(10), bucket.Common.AgentType)
+		expected := &agentv1.MetricsBucket_MongoDB{
 			MDocsReturnedCnt:   docsCount,
 			MResponseLengthCnt: docsCount,
 			MResponseLengthSum: responseLength * docsCount,
@@ -217,12 +217,14 @@ func testProfiler(t *testing.T, url string) {
 	t.Run("TestMongoDBExplain", func(t *testing.T) {
 		id := "abcd1234"
 
-		params := &agentpb.StartActionRequest_MongoDBExplainParams{
+		params := &agentv1.StartActionRequest_MongoDBExplainParams{
 			Dsn:   tests.GetTestMongoDBDSN(t),
 			Query: findBucket.Common.Example,
 		}
 
-		ex := actions.NewMongoDBExplainAction(id, 5*time.Second, params, os.TempDir())
+		ex, err := actions.NewMongoDBExplainAction(id, 5*time.Second, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), ex.Timeout())
 		defer cancel()
 		res, err := ex.Run(ctx)

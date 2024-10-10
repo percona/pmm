@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -38,7 +38,7 @@ const (
 )
 
 // PMMServerNodeID is a special Node ID representing PMM Server Node.
-const PMMServerNodeID = string("pmm-server") // no /node_id/ prefix
+const PMMServerNodeID = string("pmm-server") // A special ID reserved for PMM Server Node.
 
 // Node represents Node as stored in database.
 //
@@ -134,7 +134,7 @@ func (s *Node) UnifiedLabels() (map[string]string, error) {
 	return res, nil
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ reform.BeforeInserter = (*Node)(nil)
 	_ reform.BeforeUpdater  = (*Node)(nil)

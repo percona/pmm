@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,18 +19,18 @@ import (
 	"time"
 
 	"github.com/percona/pmm/agent/tlshelpers"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 type mysqlShowCreateTableAction struct {
 	id      string
 	timeout time.Duration
-	params  *agentpb.StartActionRequest_MySQLShowCreateTableParams
+	params  *agentv1.StartActionRequest_MySQLShowCreateTableParams
 }
 
 // NewMySQLShowCreateTableAction creates MySQL SHOW CREATE TABLE Action.
 // This is an Action that can run `SHOW CREATE TABLE` command on MySQL service with given DSN.
-func NewMySQLShowCreateTableAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_MySQLShowCreateTableParams) Action {
+func NewMySQLShowCreateTableAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_MySQLShowCreateTableParams) Action {
 	return &mysqlShowCreateTableAction{
 		id:      id,
 		timeout: timeout,
@@ -53,9 +53,14 @@ func (a *mysqlShowCreateTableAction) Type() string {
 	return "mysql-show-create-table"
 }
 
+// DSN returns a DSN for the Action.
+func (a *mysqlShowCreateTableAction) DSN() string {
+	return a.params.Dsn
+}
+
 // Run runs an Action and returns output and error.
 func (a *mysqlShowCreateTableAction) Run(ctx context.Context) ([]byte, error) {
-	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles)
+	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles, a.params.TlsSkipVerify)
 	if err != nil {
 		return nil, err
 	}

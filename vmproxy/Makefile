@@ -16,7 +16,7 @@ ifeq ($(GOBIN),)
 endif
 
 LD_FLAGS = -ldflags " \
-			-X 'github.com/percona/pmm/version.ProjectName=pmm-admin' \
+			-X 'github.com/percona/pmm/version.ProjectName=vmproxy' \
 			-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
 			-X 'github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
 			-X 'github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \

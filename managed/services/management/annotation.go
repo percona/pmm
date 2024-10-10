@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -17,37 +17,30 @@ package management
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
-	"gopkg.in/reform.v1"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 
-	"github.com/percona/pmm/api/managementpb"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 )
 
-// AnnotationService Annotation Service.
-type AnnotationService struct {
-	db            *reform.DB
-	grafanaClient grafanaClient
-}
-
-// NewAnnotationService create new Annotation Service.
-func NewAnnotationService(db *reform.DB, grafanaClient grafanaClient) *AnnotationService {
-	return &AnnotationService{
-		db:            db,
-		grafanaClient: grafanaClient,
+// AddAnnotation creates an annotation in grafana.
+func (s *ManagementService) AddAnnotation(ctx context.Context, req *managementv1.AddAnnotationRequest) (*managementv1.AddAnnotationResponse, error) {
+	headers, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, fmt.Errorf("cannot get headers from metadata")
 	}
-}
+	// get authorization from headers.
+	authorizationHeaders := headers.Get("Authorization")
+	if len(authorizationHeaders) == 0 {
+		return nil, status.Error(codes.Unauthenticated, "Authorization error.")
+	}
 
-// AddAnnotation create annotation in grafana.
-//
-//nolint:unparam
-func (as *AnnotationService) AddAnnotation(
-	ctx context.Context,
-	authorizationHeaders []string,
-	req *managementpb.AddAnnotationRequest,
-) (*managementpb.AddAnnotationResponse, error) {
 	tags := req.Tags
 	if len(req.ServiceNames) == 0 && req.NodeName == "" {
 		tags = append([]string{"pmm_annotation"}, tags...)
@@ -55,7 +48,7 @@ func (as *AnnotationService) AddAnnotation(
 	var postfix []string
 	if len(req.ServiceNames) != 0 {
 		for _, sn := range req.ServiceNames {
-			_, err := models.FindServiceByName(as.db.Querier, sn)
+			_, err := models.FindServiceByName(s.db.Querier, sn)
 			if err != nil {
 				return nil, err
 			}
@@ -66,7 +59,7 @@ func (as *AnnotationService) AddAnnotation(
 	}
 
 	if req.NodeName != "" {
-		_, err := models.FindNodeByName(as.db.Querier, req.NodeName)
+		_, err := models.FindNodeByName(s.db.Querier, req.NodeName)
 		if err != nil {
 			return nil, err
 		}
@@ -75,14 +68,21 @@ func (as *AnnotationService) AddAnnotation(
 		postfix = append(postfix, "Node Name: "+req.NodeName)
 	}
 
+	for _, tag := range tags {
+		if len(tag) > 100 {
+			msg := fmt.Sprintf("tag length cannot exceed 100 characters, tag: %s", tag)
+			return nil, status.Error(codes.InvalidArgument, msg)
+		}
+	}
+
 	if len(postfix) != 0 {
 		req.Text += " (" + strings.Join(postfix, ". ") + ")"
 	}
 
-	_, err := as.grafanaClient.CreateAnnotation(ctx, tags, time.Now(), req.Text, authorizationHeaders[0])
+	_, err := s.grafanaClient.CreateAnnotation(ctx, tags, time.Now(), req.Text, authorizationHeaders[0])
 	if err != nil {
 		return nil, err
 	}
 
-	return &managementpb.AddAnnotationResponse{}, nil
+	return &managementv1.AddAnnotationResponse{}, nil
 }

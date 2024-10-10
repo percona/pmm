@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -32,8 +32,30 @@ type UpdateInstalledResult struct {
 
 // UpdateCheckResult represents `pmm-update -check` result.
 type UpdateCheckResult struct {
-	Installed       PackageInfo `json:"installed"`
-	Latest          PackageInfo `json:"latest,omitempty"`
-	UpdateAvailable bool        `json:"update_available"`
-	LatestNewsURL   string      `json:"latest_news_url"`
+	Installed       PackageInfo       `json:"installed"`
+	Latest          DockerVersionInfo `json:"latest,omitempty"`
+	UpdateAvailable bool              `json:"update_available"`
+	LatestNewsURL   string            `json:"latest_news_url"`
+}
+
+// DockerVersionInfo describes the version of the Docker image.
+type DockerVersionInfo struct {
+	Version          Parsed    `json:"version"`
+	DockerImage      string    `json:"docker_image"`
+	BuildTime        time.Time `json:"build_time"`
+	ReleaseNotesURL  string    `json:"release_notes_url"`
+	ReleaseNotesText string    `json:"release_notes_text"`
+}
+
+// DockerVersionsInfo is a wrapper around a DockerVersionInfo array to implement sorting.
+type DockerVersionsInfo []*DockerVersionInfo
+
+func (d DockerVersionsInfo) Len() int { return len(d) }
+
+func (d DockerVersionsInfo) Less(i, j int) bool {
+	return d[i].Version.Less(&d[j].Version)
+}
+
+func (d DockerVersionsInfo) Swap(i, j int) {
+	d[i], d[j] = d[j], d[i]
 }

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,25 +15,22 @@
 // Package management provides management commands.
 package management
 
-import (
-	"github.com/percona/pmm/api/managementpb/json/client/node"
-	"github.com/percona/pmm/api/managementpb/json/client/service"
-)
+import "github.com/percona/pmm/api/inventory/v1/types"
 
 var (
 	allNodeTypes = map[string]string{
-		"generic":   node.RegisterNodeBodyNodeTypeGENERICNODE,
-		"container": node.RegisterNodeBodyNodeTypeCONTAINERNODE,
-		"remote":    node.RegisterNodeBodyNodeTypeREMOTENODE,
+		"generic":   types.NodeTypeGenericNode,
+		"container": types.NodeTypeContainerNode,
+		"remote":    types.NodeTypeRemoteNode,
 	}
 
 	allServiceTypes = map[string]string{
-		"mysql":      service.RemoveServiceBodyServiceTypeMYSQLSERVICE,
-		"mongodb":    service.RemoveServiceBodyServiceTypeMONGODBSERVICE,
-		"postgresql": service.RemoveServiceBodyServiceTypePOSTGRESQLSERVICE,
-		"proxysql":   service.RemoveServiceBodyServiceTypePROXYSQLSERVICE,
-		"haproxy":    service.RemoveServiceBodyServiceTypeHAPROXYSERVICE,
-		"external":   service.RemoveServiceBodyServiceTypeEXTERNALSERVICE,
+		"mysql":      types.ServiceTypeMySQLService,
+		"mongodb":    types.ServiceTypeMongoDBService,
+		"postgresql": types.ServiceTypePostgreSQLService,
+		"proxysql":   types.ServiceTypeProxySQLService,
+		"haproxy":    types.ServiceTypeHAProxyService,
+		"external":   types.ServiceTypeExternalService,
 	}
 
 	// AllServiceTypesKeys lists all possible service types.

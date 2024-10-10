@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,8 @@ import (
 
 	"github.com/AlekSi/pointer"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/collectors"
 	"github.com/percona/pmm/version"
@@ -31,8 +31,16 @@ import (
 
 var mysqlExporterVersionWithPluginCollector = version.MustParse("2.36.0-0")
 
-// mysqldExporterConfig returns desired configuration of mysqld_exporter process.
-func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode, pmmAgentVersion *version.Parsed) *agentpb.SetStateRequest_AgentProcess {
+// The mysqldExporterConfig returns desired configuration of mysqld_exporter process.
+
+func mysqldExporterConfig(
+	node *models.Node,
+	service *models.Service,
+	exporter *models.Agent,
+	redactMode redactMode,
+	pmmAgentVersion *version.Parsed,
+) *agentv1.SetStateRequest_AgentProcess {
+	listenAddress := getExporterListenAddress(node, exporter)
 	tdp := exporter.TemplateDelimiters(service)
 
 	args := []string{
@@ -72,7 +80,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 		"--exporter.max-open-conns=3",
 		"--exporter.conn-max-lifetime=55s",
 		"--exporter.global-conn-pool",
-		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
+		"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 
 	if !pmmAgentVersion.Less(mysqlExporterVersionWithPluginCollector) {
@@ -128,13 +136,13 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 
 	sort.Strings(args)
 
-	res := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
+	res := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, time.Second, "", nil)),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion)),
 			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
 		},
 		TextFiles: exporter.Files(),
@@ -146,15 +154,15 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 }
 
 // qanMySQLPerfSchemaAgentConfig returns desired configuration of qan-mysql-perfschema built-in agent.
-func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
+func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
-	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type:                   inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
-		Dsn:                    agent.DSN(service, time.Second, "", nil),
+	return &agentv1.SetStateRequest_BuiltinAgent{
+		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
+		Dsn:                    agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
 		MaxQueryLength:         agent.MaxQueryLength,
 		DisableQueryExamples:   agent.QueryExamplesDisabled,
 		DisableCommentsParsing: agent.CommentsParsingDisabled,
-		TextFiles: &agentpb.TextFiles{
+		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,
 			TemplateRightDelim: tdp.Right,
@@ -164,16 +172,16 @@ func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent)
 }
 
 // qanMySQLSlowlogAgentConfig returns desired configuration of qan-mysql-slowlog built-in agent.
-func qanMySQLSlowlogAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
+func qanMySQLSlowlogAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
-	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type:                   inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
-		Dsn:                    agent.DSN(service, time.Second, "", nil),
+	return &agentv1.SetStateRequest_BuiltinAgent{
+		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT,
+		Dsn:                    agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
 		MaxQueryLength:         agent.MaxQueryLength,
 		DisableQueryExamples:   agent.QueryExamplesDisabled,
 		DisableCommentsParsing: agent.CommentsParsingDisabled,
 		MaxQueryLogSize:        agent.MaxQueryLogSize,
-		TextFiles: &agentpb.TextFiles{
+		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,
 			TemplateRightDelim: tdp.Right,

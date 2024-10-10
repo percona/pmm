@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@ package server
 import (
 	"archive/zip"
 	"bytes"
-	"os"
 	"sort"
 	"strings"
 	"testing"
@@ -27,13 +26,13 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	"github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
 func TestDownloadLogs(t *testing.T) {
 	var buf bytes.Buffer
-	res, err := serverClient.Default.Server.Logs(&server.LogsParams{
+	res, err := serverClient.Default.ServerService.Logs(&server_service.LogsParams{
 		Context: pmmapitests.Context,
 	}, &buf)
 	require.NoError(t, err)
@@ -44,10 +43,6 @@ func TestDownloadLogs(t *testing.T) {
 	assert.NoError(t, err)
 
 	expected := []string{
-		"alertmanager.base.yml",
-		"alertmanager.ini",
-		"alertmanager.log",
-		"alertmanager.yml",
 		"clickhouse-server.log",
 		"client/list.txt",
 		"client/pmm-admin-version.txt",
@@ -74,19 +69,14 @@ func TestDownloadLogs(t *testing.T) {
 		"supervisorctl_status.log",
 		"supervisord.conf",
 		"supervisord.log",
-		"systemctl_status.log",
 		"victoriametrics-promscrape.yml",
 		"victoriametrics.ini",
 		"victoriametrics.log",
 		"victoriametrics_targets.json",
 		"vmalert.ini",
 		"vmalert.log",
+		"vmproxy.ini",
 		"vmproxy.log",
-	}
-
-	if os.Getenv("PERCONA_TEST_DBAAS") == "1" {
-		expected = append(expected, "dbaas-controller.log")
-		sort.Strings(expected)
 	}
 
 	actual := make([]string, 0, len(zipR.File))

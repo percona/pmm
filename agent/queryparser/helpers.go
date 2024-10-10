@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -201,7 +201,7 @@ func parseKeyValueFromComment(s string) (map[string]bool, error) {
 func prepareMultilineRegexp() error {
 	// to compile regexp only once
 	multilineOnce.Do(func() {
-		multilineRegexp, errMultiline = regexp.Compile(`(?s)\/\*(.*?)\*\/`)
+		multilineRegexp, errMultiline = regexp.Compile(`(?s)\/\*(.*?)\*\/`) //nolint:gocritic
 	})
 	if errMultiline != nil {
 		return errMultiline
@@ -213,7 +213,7 @@ func prepareMultilineRegexp() error {
 func prepareSpaceRegexp() error {
 	// to compile regexp only once
 	spaceOnce.Do(func() {
-		spaceRegexp, errSpace = regexp.Compile(`\s+`)
+		spaceRegexp, errSpace = regexp.Compile(`\s+`) //nolint:gocritic
 	})
 	if errSpace != nil {
 		return errSpace
@@ -225,7 +225,7 @@ func prepareSpaceRegexp() error {
 func prepareDashRegexp() error {
 	// to compile regexp only once
 	dashOnce.Do(func() {
-		dashRegexp, errDash = regexp.Compile(`--.*`)
+		dashRegexp, errDash = regexp.Compile(`--.*`) //nolint:gocritic
 	})
 	if errDash != nil {
 		return errDash
@@ -237,7 +237,7 @@ func prepareDashRegexp() error {
 func prepareSharpRegexp() error {
 	// to compile regexp only once
 	sharpOnce.Do(func() {
-		sharpRegexp, errSharp = regexp.Compile(`#.*`)
+		sharpRegexp, errSharp = regexp.Compile(`#.*`) //nolint:gocritic
 	})
 	if errSharp != nil {
 		return errSharp
@@ -249,7 +249,7 @@ func prepareSharpRegexp() error {
 func prepareKeyValueRegexp() error {
 	// to compile regexp only once
 	keyValueOnce.Do(func() {
-		keyValueRegexp, errKeyValue = regexp.Compile(`(?s)([a-zA-Z-\d]+='.+?')`)
+		keyValueRegexp, errKeyValue = regexp.Compile(`(?s)([a-zA-Z-\d]+='.+?')`) //nolint:gocritic
 	})
 	if errKeyValue != nil {
 		return errKeyValue

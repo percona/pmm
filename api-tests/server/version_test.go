@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -28,14 +28,13 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
 func TestVersion(t *testing.T) {
 	t.Parallel()
 	paths := []string{
-		"managed/v1/version",
-		"v1/version",
+		"v1/server/version",
 	}
 	for _, path := range paths {
 		path := path
@@ -50,7 +49,7 @@ func TestVersion(t *testing.T) {
 			req, _ := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 			resp, err := http.DefaultClient.Do(req)
 			require.NoError(t, err)
-			defer resp.Body.Close() //nolint:gosec
+			defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 			b, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)
@@ -61,12 +60,12 @@ func TestVersion(t *testing.T) {
 			err = json.Unmarshal(b, &res)
 			require.NoError(t, err)
 
-			require.True(t, strings.HasPrefix(res.Version, "2."),
-				"version = %q must have '2.' prefix for PMM 1.x's pmm-client compatibility checking", res.Version)
+			require.True(t, strings.HasPrefix(res.Version, "3."),
+				"version = %q must have '3.' prefix for PMM 1.x's and 2.x's pmm-client compatibility checking", res.Version)
 
 			require.NotEmpty(t, res.Managed)
-			assert.True(t, strings.HasPrefix(res.Managed.Version, "2."),
-				"managed.version = %q must have '2.' prefix ", res.Managed.Version)
+			assert.True(t, strings.HasPrefix(res.Managed.Version, "3."),
+				"managed.version = %q must have '3.' prefix ", res.Managed.Version)
 			assert.NotEmpty(t, res.Managed.FullVersion)
 
 			// check that timestamp is not XX:00:00

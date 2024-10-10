@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 var addServicePostgreSQLResultT = commands.ParseTemplate(`
@@ -38,7 +38,7 @@ Custom labels  : {{ .Service.CustomLabels }}
 `)
 
 type addServicePostgreSQLResult struct {
-	Service *services.AddPostgreSQLServiceOKBodyPostgresql `json:"postgresql"`
+	Service *services.AddServiceOKBodyPostgresql `json:"postgresql"`
 }
 
 func (res *addServicePostgreSQLResult) Result() {}
@@ -60,25 +60,28 @@ type AddServicePostgreSQLCommand struct {
 	CustomLabels   map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 }
 
+// RunCmd executes the AddServicePostgreSQLCommand and returns the result.
 func (cmd *AddServicePostgreSQLCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
-	params := &services.AddPostgreSQLServiceParams{
-		Body: services.AddPostgreSQLServiceBody{
-			ServiceName:    cmd.ServiceName,
-			NodeID:         cmd.NodeID,
-			Address:        cmd.Address,
-			Port:           cmd.Port,
-			Socket:         cmd.Socket,
-			Environment:    cmd.Environment,
-			Cluster:        cmd.Cluster,
-			ReplicationSet: cmd.ReplicationSet,
-			CustomLabels:   customLabels,
+	params := &services.AddServiceParams{
+		Body: services.AddServiceBody{
+			Postgresql: &services.AddServiceParamsBodyPostgresql{
+				ServiceName:    cmd.ServiceName,
+				NodeID:         cmd.NodeID,
+				Address:        cmd.Address,
+				Port:           cmd.Port,
+				Socket:         cmd.Socket,
+				Environment:    cmd.Environment,
+				Cluster:        cmd.Cluster,
+				ReplicationSet: cmd.ReplicationSet,
+				CustomLabels:   customLabels,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Services.AddPostgreSQLService(params)
+	resp, err := client.Default.ServicesService.AddService(params)
 	if err != nil {
 		return nil, err
 	}

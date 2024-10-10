@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,19 +23,19 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/tlshelpers"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/utils/sqlrows"
 )
 
 type mysqlShowTableStatusAction struct {
 	id      string
 	timeout time.Duration
-	params  *agentpb.StartActionRequest_MySQLShowTableStatusParams
+	params  *agentv1.StartActionRequest_MySQLShowTableStatusParams
 }
 
 // NewMySQLShowTableStatusAction creates MySQL SHOW TABLE STATUS Action.
 // This is an Action that can run `SHOW TABLE STATUS` command on MySQL service with given DSN.
-func NewMySQLShowTableStatusAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_MySQLShowTableStatusParams) Action {
+func NewMySQLShowTableStatusAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_MySQLShowTableStatusParams) Action {
 	return &mysqlShowTableStatusAction{
 		id:      id,
 		timeout: timeout,
@@ -58,9 +58,14 @@ func (a *mysqlShowTableStatusAction) Type() string {
 	return "mysql-show-table-status"
 }
 
+// DSN returns a DSN for the Action.
+func (a *mysqlShowTableStatusAction) DSN() string {
+	return a.params.Dsn
+}
+
 // Run runs an Action and returns output and error.
 func (a *mysqlShowTableStatusAction) Run(ctx context.Context) ([]byte, error) {
-	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles)
+	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles, a.params.TlsSkipVerify)
 	if err != nil {
 		return nil, err
 	}

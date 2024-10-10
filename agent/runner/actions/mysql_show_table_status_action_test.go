@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/agent/utils/tests"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 func TestShowTableStatus(t *testing.T) {
@@ -36,7 +36,7 @@ func TestShowTableStatus(t *testing.T) {
 
 	t.Run("Default", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_MySQLShowTableStatusParams{
+		params := &agentv1.StartActionRequest_MySQLShowTableStatusParams{
 			Dsn:   dsn,
 			Table: "city",
 		}
@@ -81,7 +81,7 @@ func TestShowTableStatus(t *testing.T) {
 
 	t.Run("Error", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_MySQLShowTableStatusParams{
+		params := &agentv1.StartActionRequest_MySQLShowTableStatusParams{
 			Dsn:   dsn,
 			Table: "no_such_table",
 		}
@@ -95,7 +95,7 @@ func TestShowTableStatus(t *testing.T) {
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_MySQLShowTableStatusParams{
+		params := &agentv1.StartActionRequest_MySQLShowTableStatusParams{
 			Dsn:   dsn,
 			Table: `city"; DROP TABLE city; --`,
 		}

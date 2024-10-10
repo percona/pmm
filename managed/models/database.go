@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -12,7 +12,11 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
+// Package models provides the data models for the managed package.
+//
 
+// Package models provides functionality for handling database models and related tasks.
+//
 //nolint:lll
 package models
 
@@ -23,6 +27,7 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -32,6 +37,8 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
+
+	"github.com/percona/pmm/managed/utils/encryption"
 )
 
 const (
@@ -862,7 +869,7 @@ var databaseSchema = [][]string{
 		`CREATE TABLE onboarding_system_tips (
 			 id INTEGER PRIMARY KEY,
 			 is_completed BOOLEAN NOT NULL,
-		
+
 			 created_at TIMESTAMP NOT NULL,
 			 updated_at TIMESTAMP NOT NULL
 		);
@@ -873,13 +880,13 @@ var databaseSchema = [][]string{
 			(1, false, current_timestamp, current_timestamp),
 			(2, false, current_timestamp, current_timestamp),
 			(3, false, current_timestamp, current_timestamp);
-		
+
 		CREATE TABLE onboarding_user_tips (
 		   id SERIAL PRIMARY KEY,
 		   tip_id INTEGER NOT NULL,
 		   user_id INTEGER NOT NULL,
 		   is_completed BOOLEAN NOT NULL,
-		
+
 		   created_at TIMESTAMP NOT NULL,
 		   updated_at TIMESTAMP NOT NULL,
 		   UNIQUE (user_id, tip_id)
@@ -900,7 +907,7 @@ var databaseSchema = [][]string{
     		ADD COLUMN folder VARCHAR NOT NULL DEFAULT '',
 			ADD COLUMN metadata_list JSONB;
 
-		UPDATE scheduled_tasks 
+		UPDATE scheduled_tasks
 		SET data = jsonb_set(data, '{mongodb_backup, folder}', data->'mongodb_backup'->'name')
 		WHERE type = 'mongodb_backup';`,
 	},
@@ -909,19 +916,156 @@ var databaseSchema = [][]string{
 		`DROP TABLE IF EXISTS onboarding_user_tips`,
 	},
 	84: {
-		`ALTER TABLE agents 
+		`ALTER TABLE agents
 		ADD COLUMN comments_parsing_disabled BOOLEAN NOT NULL DEFAULT TRUE`,
 
 		`ALTER TABLE agents
 		ALTER COLUMN comments_parsing_disabled DROP DEFAULT`,
 	},
+	85: {
+		`ALTER TABLE services ADD COLUMN version VARCHAR`,
+	},
+	86: {
+		`ALTER TABLE agents
+		ADD COLUMN expose_exporter BOOLEAN NOT NULL DEFAULT TRUE;`,
+
+		`ALTER TABLE agents
+		ALTER COLUMN expose_exporter DROP DEFAULT`,
+	},
+	87: {
+		`CREATE TABLE dumps (
+			id VARCHAR NOT NULL,
+			status VARCHAR NOT NULL CHECK (status <> ''),
+			service_names VARCHAR[],
+			start_time TIMESTAMP,
+			end_time TIMESTAMP,
+			export_qan BOOLEAN NOT NULL,
+			ignore_load BOOLEAN NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id)
+			)`,
+
+		`CREATE TABLE dump_logs (
+			dump_id VARCHAR NOT NULL,
+			chunk_id INTEGER NOT NULL,
+			data TEXT NOT NULL,
+			last_chunk BOOLEAN NOT NULL,
+			FOREIGN KEY (dump_id) REFERENCES dumps (id) ON DELETE CASCADE,
+			PRIMARY KEY (dump_id, chunk_id)
+		)`,
+	},
+	88: {
+		`ALTER TABLE agents ADD COLUMN metrics_resolutions JSONB`,
+	},
+	100: {
+		`DROP TABLE kubernetes_clusters`,
+	},
+	101: {
+		`DROP TABLE IF EXISTS ia_channels`,
+		`DROP TABLE IF EXISTS ia_rules`,
+		`ALTER TABLE ia_templates RENAME TO alert_rule_templates`,
+		`UPDATE settings SET settings = settings #- '{alerting, email_settings}';`,
+		`UPDATE settings SET settings = settings #- '{alerting, slack_settings}';`,
+	},
+	102: {
+		`UPDATE settings SET settings = settings - 'alert_manager_url'`,
+	},
+	103: {
+		`UPDATE settings SET settings = jsonb_insert(settings, '{alerting,enabled}', to_jsonb(NOT ((settings#>'{alerting,disabled}')::boolean))) WHERE (settings#>'{alerting,disabled}') IS NOT NULL`,
+		`UPDATE settings SET settings = settings #- '{alerting, disabled}';`,
+
+		`UPDATE settings SET settings = settings || jsonb_set(settings, '{updates,enabled}', to_jsonb( NOT ((settings#>'{updates,disabled}')::boolean))) WHERE (settings#>'{updates,disabled}') IS NOT NULL`,
+		`UPDATE settings SET settings = settings #- '{updates, disabled}';`,
+
+		`UPDATE settings SET settings = settings || jsonb_set(settings, '{telemetry,enabled}', to_jsonb( NOT ((settings#>'{telemetry,disabled}')::boolean))) WHERE (settings#>'{telemetry,disabled}') IS NOT NULL`,
+		`UPDATE settings SET settings = settings #- '{telemetry, disabled}';`,
+
+		`UPDATE settings SET settings = settings || jsonb_set(settings, '{backup_management,enabled}', to_jsonb( NOT ((settings#>'{backup_management,disabled}')::boolean))) WHERE (settings#>'{backup_management,disabled}') IS NOT NULL`,
+		`UPDATE settings SET settings = settings #- '{backup_management, disabled}';`,
+
+		`UPDATE settings SET settings = settings || jsonb_set(settings, '{sass,enabled}', to_jsonb( NOT ((settings#>'{sass,stt_disabled}')::boolean))) WHERE (settings#>'{sass,stt_disabled}') IS NOT NULL`,
+		`UPDATE settings SET settings = settings #- '{sass, stt_disabled}';`,
+	},
+	104: {
+		`UPDATE settings SET settings = settings || jsonb_set(settings, '{sass,disabled_advisors}', settings#>'{sass,disabled_stt_checks}') WHERE (settings#>'{sass,disabled_stt_checks}') IS NOT NULL`,
+		`UPDATE settings SET settings = settings #- '{sass,disabled_stt_checks}';`,
+
+		`UPDATE settings SET settings = settings || jsonb_set(settings, '{sass,advisor_run_intervals}', settings#>'{sass,stt_check_intervals}') WHERE (settings#>'{sass,disabled_stt_checks}') IS NOT NULL`,
+		`UPDATE settings SET settings = settings #- '{sass,stt_check_intervals}';`,
+	},
+	105: {
+		`ALTER TABLE agents DROP CONSTRAINT agents_node_id_fkey;`,
+		`ALTER TABLE agents DROP CONSTRAINT agents_pmm_agent_id_fkey;`,
+		`ALTER TABLE agents DROP CONSTRAINT agents_runs_on_node_id_fkey;`,
+		`ALTER TABLE agents DROP CONSTRAINT agents_service_id_fkey;`,
+		`ALTER TABLE artifacts DROP CONSTRAINT artifacts_location_id_fkey;`,
+		`ALTER TABLE dump_logs DROP CONSTRAINT dump_logs_dump_id_fkey;`,
+		`ALTER TABLE job_logs DROP CONSTRAINT job_logs_job_id_fkey;`,
+		`ALTER TABLE restore_history DROP CONSTRAINT restore_history_artifact_id_fkey;`,
+		`ALTER TABLE restore_history DROP CONSTRAINT restore_history_service_id_fkey;`,
+		`ALTER TABLE service_software_versions DROP CONSTRAINT service_software_versions_service_id_fkey;`,
+		`ALTER TABLE services DROP CONSTRAINT services_node_id_fkey;`,
+
+		`UPDATE action_results SET id = SUBSTRING(id, 12) WHERE id LIKE '/action_id/%';`,
+		`UPDATE action_results SET pmm_agent_id = SUBSTRING(pmm_agent_id, 11) WHERE pmm_agent_id LIKE '/agent_id/%';`,
+
+		`UPDATE agents SET agent_id = SUBSTRING(agent_id, 11) WHERE agent_id LIKE '/agent_id/%';`,
+		`UPDATE agents SET pmm_agent_id = SUBSTRING(pmm_agent_id, 11) WHERE pmm_agent_id LIKE '/agent_id/%';`,
+		`UPDATE agents SET runs_on_node_id = SUBSTRING(runs_on_node_id, 10) WHERE runs_on_node_id LIKE '/node_id/%';`,
+		`UPDATE agents SET node_id = SUBSTRING(node_id, 10) WHERE node_id LIKE '/node_id/%';`,
+		`UPDATE agents SET service_id = SUBSTRING(service_id, 13) WHERE service_id LIKE '/service_id/%';`,
+
+		`UPDATE artifacts SET id = SUBSTRING(id, 14) WHERE id LIKE '/artifact_id/%';`,
+		`UPDATE artifacts SET location_id = SUBSTRING(location_id, 14) WHERE location_id LIKE '/location_id/%';`,
+		`UPDATE artifacts SET service_id = SUBSTRING(service_id, 13) WHERE service_id LIKE '/service_id/%';`,
+		`UPDATE artifacts SET schedule_id = SUBSTRING(schedule_id, 20) WHERE schedule_id LIKE '/scheduled_task_id/%';`,
+
+		`UPDATE backup_locations SET id = SUBSTRING(id, 14) WHERE id LIKE '/location_id/%';`,
+
+		`UPDATE job_logs SET job_id = SUBSTRING(job_id, 9) WHERE job_id LIKE '/job_id/%';`,
+
+		`UPDATE jobs SET id = SUBSTRING(id, 9) WHERE id LIKE '/job_id/%';`,
+		`UPDATE jobs SET pmm_agent_id = SUBSTRING(pmm_agent_id, 11) WHERE pmm_agent_id LIKE '/agent_id/%';`,
+
+		`UPDATE nodes SET node_id = SUBSTRING(node_id, 10) WHERE node_id LIKE '/node_id/%';`,
+		`UPDATE nodes SET machine_id = SUBSTRING(machine_id, 13) WHERE machine_id LIKE '/machine_id/%';`,
+
+		`UPDATE restore_history SET id = SUBSTRING(id, 13) WHERE id LIKE '/restore_id/%';`,
+		`UPDATE restore_history SET artifact_id = SUBSTRING(artifact_id, 14) WHERE artifact_id LIKE '/artifact_id/%';`,
+		`UPDATE restore_history SET service_id = SUBSTRING(service_id, 13) WHERE service_id LIKE '/service_id/%';`,
+
+		`UPDATE scheduled_tasks SET id = SUBSTRING(id, 20) WHERE id LIKE '/scheduled_task_id/%';`,
+
+		`UPDATE service_software_versions SET service_id = SUBSTRING(service_id, 13) WHERE service_id LIKE '/service_id/%';`,
+
+		`UPDATE services SET service_id = SUBSTRING(service_id, 13) WHERE service_id LIKE '/service_id/%';`,
+		`UPDATE services SET node_id = SUBSTRING(node_id, 10) WHERE node_id LIKE '/node_id/%';`,
+
+		`ALTER TABLE agents ADD CONSTRAINT agents_node_id_fkey FOREIGN KEY (node_id) REFERENCES nodes (node_id);`,
+		`ALTER TABLE agents ADD CONSTRAINT agents_pmm_agent_id_fkey FOREIGN KEY (pmm_agent_id) REFERENCES agents (agent_id);`,
+		`ALTER TABLE agents ADD CONSTRAINT agents_runs_on_node_id_fkey FOREIGN KEY (runs_on_node_id) REFERENCES nodes (node_id);`,
+		`ALTER TABLE agents ADD CONSTRAINT agents_service_id_fkey FOREIGN KEY (service_id) REFERENCES services (service_id);`,
+		`ALTER TABLE artifacts ADD CONSTRAINT artifacts_location_id_fkey FOREIGN KEY (location_id) REFERENCES backup_locations (id);`,
+		`ALTER TABLE dump_logs ADD CONSTRAINT dump_logs_dump_id_fkey FOREIGN KEY (dump_id) REFERENCES dumps (id) ON DELETE CASCADE;`,
+		`ALTER TABLE job_logs ADD CONSTRAINT job_logs_job_id_fkey FOREIGN KEY (job_id) REFERENCES jobs (id) ON DELETE CASCADE;`,
+		`ALTER TABLE restore_history ADD CONSTRAINT restore_history_artifact_id_fkey FOREIGN KEY (artifact_id) REFERENCES artifacts (id);`,
+		`ALTER TABLE restore_history ADD CONSTRAINT restore_history_service_id_fkey FOREIGN KEY (service_id) REFERENCES services (service_id);`,
+		`ALTER TABLE service_software_versions ADD CONSTRAINT service_software_versions_service_id_fkey FOREIGN KEY (service_id) REFERENCES services (service_id) ON DELETE CASCADE;`,
+		`ALTER TABLE services ADD CONSTRAINT services_node_id_fkey FOREIGN KEY (node_id) REFERENCES nodes (node_id);`,
+	},
+	106: {
+		`ALTER TABLE user_flags
+			ADD COLUMN snoozed_pmm_version VARCHAR NOT NULL DEFAULT ''`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
-// aleksi: Go's zero values and non-zero default values in database do play nicely together in INSERTs and UPDATEs.
+// Go's zero values and non-zero default values in database do play nicely together in INSERTs and UPDATEs.
 
 // OpenDB returns configured connection pool for PostgreSQL.
-// OpenDB just validate its arguments without creating a connection to the database.
+// OpenDB just validates its arguments without creating a connection to the database.
 func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	q := make(url.Values)
 	if params.SSLMode == "" {
@@ -1005,10 +1149,85 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, errCV
 	}
 
-	if err := migrateDB(db, params); err != nil {
+	agentColumnsToEncrypt := []encryption.Column{
+		{Name: "username"},
+		{Name: "password"},
+		{Name: "aws_access_key"},
+		{Name: "aws_secret_key"},
+		{Name: "mongo_db_tls_options", CustomHandler: EncryptMongoDBOptionsHandler},
+		{Name: "azure_options", CustomHandler: EncryptAzureOptionsHandler},
+		{Name: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler},
+		{Name: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler},
+		{Name: "agent_password"},
+	}
+
+	itemsToEncrypt := []encryption.Table{
+		{
+			Name:        "agents",
+			Identifiers: []string{"agent_id"},
+			Columns:     agentColumnsToEncrypt,
+		},
+	}
+
+	if err := migrateDB(db, params, itemsToEncrypt); err != nil {
 		return nil, err
 	}
+
 	return db, nil
+}
+
+// EncryptDB encrypts a set of columns in a specific database and table.
+func EncryptDB(tx *reform.TX, params SetupDBParams, itemsToEncrypt []encryption.Table) error {
+	if len(itemsToEncrypt) == 0 {
+		return nil
+	}
+
+	settings, err := GetSettings(tx)
+	if err != nil {
+		return err
+	}
+	alreadyEncrypted := make(map[string]bool)
+	for _, v := range settings.EncryptedItems {
+		alreadyEncrypted[v] = true
+	}
+
+	notEncrypted := []encryption.Table{}
+	newlyEncrypted := []string{}
+	for _, table := range itemsToEncrypt {
+		columns := []encryption.Column{}
+		for _, column := range table.Columns {
+			dbTableColumn := fmt.Sprintf("%s.%s.%s", params.Name, table.Name, column.Name)
+			if alreadyEncrypted[dbTableColumn] {
+				continue
+			}
+
+			columns = append(columns, column)
+			newlyEncrypted = append(newlyEncrypted, dbTableColumn)
+		}
+		if len(columns) == 0 {
+			continue
+		}
+
+		table.Columns = columns
+		notEncrypted = append(notEncrypted, table)
+	}
+
+	if len(notEncrypted) == 0 {
+		return nil
+	}
+
+	err = encryption.EncryptItems(tx, notEncrypted)
+	if err != nil {
+		return err
+	}
+	_, err = UpdateSettings(tx, &ChangeSettingsParams{
+		EncryptedItems: slices.Concat(settings.EncryptedItems, newlyEncrypted),
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // checkVersion checks minimal required PostgreSQL server version.
@@ -1070,7 +1289,7 @@ func initWithRoot(params SetupDBParams) error {
 }
 
 // migrateDB runs PostgreSQL database migrations.
-func migrateDB(db *reform.DB, params SetupDBParams) error {
+func migrateDB(db *reform.DB, params SetupDBParams, itemsToEncrypt []encryption.Table) error {
 	var currentVersion int
 	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
@@ -1106,6 +1325,11 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			}
 		}
 
+		err := EncryptDB(tx, params, itemsToEncrypt)
+		if err != nil {
+			return err
+		}
+
 		if params.SetupFixtures == SkipFixtures {
 			return nil
 		}
@@ -1119,17 +1343,16 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			return err
 		}
 
-		if err = setupFixture1(tx.Querier, params); err != nil {
+		err = setupPMMServerAgents(tx.Querier, params)
+		if err != nil {
 			return err
 		}
-		if err = setupFixture2(tx.Querier, params.Username, params.Password); err != nil {
-			return err
-		}
+
 		return nil
 	})
 }
 
-func setupFixture1(q *reform.Querier, params SetupDBParams) error {
+func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents
 	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
 		NodeName: "pmm-server",
@@ -1145,7 +1368,7 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	if _, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil); err != nil {
 		return err
 	}
-	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, []string{}, nil, ""); err != nil {
+	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, ""); err != nil {
 		return err
 	}
 	address, port, err := parsePGAddress(params.Address)
@@ -1209,12 +1432,6 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	if err != nil {
 		return err
 	}
-	return nil
-}
-
-func setupFixture2(q *reform.Querier, username, password string) error {
-	// TODO add clickhouse_exporter
-
 	return nil
 }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -20,10 +20,8 @@ import (
 
 	"google.golang.org/grpc"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qan/v1"
 )
-
-//go:generate ../../../bin/mockery -name=qanCollectorClient  -case=snake -inpkg -testonly
 
 // qanClient is a subset of methods of qanpb.CollectorClient used by this package.
 // We use it instead of real type for testing.

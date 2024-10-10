@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -45,7 +45,7 @@ func FindActionResultByID(q *reform.Querier, id string) (*ActionResult, error) {
 
 // CreateActionResult stores an action result in action results storage.
 func CreateActionResult(q *reform.Querier, pmmAgentID string) (*ActionResult, error) {
-	result := &ActionResult{ID: "/action_id/" + uuid.New().String(), PMMAgentID: pmmAgentID}
+	result := &ActionResult{ID: uuid.New().String(), PMMAgentID: pmmAgentID}
 	if err := q.Insert(result); err != nil {
 		return nil, errors.WithStack(err)
 	}

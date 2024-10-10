@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,14 +20,14 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 // Change represents built-in Agent status change and/or QAN collect request.
 type Change struct {
-	Status        inventorypb.AgentStatus
-	MetricsBucket []*agentpb.MetricsBucket
+	Status        inventoryv1.AgentStatus
+	MetricsBucket []*agentv1.MetricsBucket
 }
 
 // BuiltinAgent is a common interface for all built-in Agents.

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -20,101 +20,43 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/percona/pmm/api/managementpb"
+	advisorsv1 "github.com/percona/pmm/api/advisors/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
-func TestStartSecurityChecks(t *testing.T) {
+func TestStartAdvisorChecks(t *testing.T) {
 	t.Run("internal error", func(t *testing.T) {
 		var checksService mockChecksService
 		checksService.On("StartChecks", []string(nil)).Return(errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.StartSecurityChecks(context.Background(), &managementpb.StartSecurityChecksRequest{})
-		assert.EqualError(t, err, "failed to start security checks: random error")
+		resp, err := s.StartAdvisorChecks(context.Background(), &advisorsv1.StartAdvisorChecksRequest{})
+		assert.EqualError(t, err, "failed to start advisor checks: random error")
 		assert.Nil(t, resp)
 	})
 
-	t.Run("STT disabled error", func(t *testing.T) {
+	t.Run("Advisors disabled error", func(t *testing.T) {
 		var checksService mockChecksService
 		checksService.On("StartChecks", []string(nil)).Return(services.ErrAdvisorsDisabled)
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.StartSecurityChecks(context.Background(), &managementpb.StartSecurityChecksRequest{})
+		resp, err := s.StartAdvisorChecks(context.Background(), &advisorsv1.StartAdvisorChecksRequest{})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Advisor checks are disabled."), err)
 		assert.Nil(t, resp)
-	})
-}
-
-func TestGetSecurityCheckResults(t *testing.T) {
-	t.Run("internal error", func(t *testing.T) {
-		var checksService mockChecksService
-		checksService.On("GetSecurityCheckResults", mock.Anything).Return(nil, errors.New("random error"))
-
-		s := NewChecksAPIService(&checksService)
-
-		resp, err := s.GetSecurityCheckResults(context.Background(), nil)
-		assert.EqualError(t, err, "failed to get security check results: random error")
-		assert.Nil(t, resp)
-	})
-
-	t.Run("STT disabled error", func(t *testing.T) {
-		var checksService mockChecksService
-		checksService.On("GetSecurityCheckResults", mock.Anything).Return(nil, services.ErrAdvisorsDisabled)
-
-		s := NewChecksAPIService(&checksService)
-
-		resp, err := s.GetSecurityCheckResults(context.Background(), nil)
-		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Advisor checks are disabled."), err)
-		assert.Nil(t, resp)
-	})
-
-	t.Run("STT enabled", func(t *testing.T) {
-		checkResult := []services.CheckResult{
-			{
-				Result: check.Result{
-					Summary:     "Check summary",
-					Description: "Check Description",
-					ReadMoreURL: "https://www.example.com",
-					Severity:    1,
-					Labels:      map[string]string{"label_key": "label_value"},
-				},
-				Target: services.Target{ServiceName: "svc"},
-			},
-		}
-		response := &managementpb.GetSecurityCheckResultsResponse{ //nolint:staticcheck
-			Results: []*managementpb.SecurityCheckResult{
-				{
-					Summary:     "Check summary",
-					Description: "Check Description",
-					ReadMoreUrl: "https://www.example.com",
-					Severity:    1,
-					Labels:      map[string]string{"label_key": "label_value"},
-					ServiceName: "svc",
-				},
-			},
-		}
-		var checksService mockChecksService
-		checksService.On("GetSecurityCheckResults", mock.Anything).Return(checkResult, nil)
-
-		s := NewChecksAPIService(&checksService)
-
-		resp, err := s.GetSecurityCheckResults(context.Background(), nil)
-		require.NoError(t, err)
-		assert.Equal(t, resp, response)
 	})
 }
 
@@ -130,14 +72,14 @@ func TestGetFailedChecks(t *testing.T) {
 		s := NewChecksAPIService(&checksService)
 		serviceID := "test_svc"
 
-		resp, err := s.GetFailedChecks(context.Background(), &managementpb.GetFailedChecksRequest{
+		resp, err := s.GetFailedChecks(context.Background(), &advisorsv1.GetFailedChecksRequest{
 			ServiceId: serviceID,
 		})
 		assert.EqualError(t, err, fmt.Sprintf("failed to get check results for service '%s': random error", serviceID))
 		assert.Nil(t, resp)
 	})
 
-	t.Run("STT disabled error", func(t *testing.T) {
+	t.Run("Advisors disabled error", func(t *testing.T) {
 		t.Parallel()
 
 		var checksService mockChecksService
@@ -145,7 +87,7 @@ func TestGetFailedChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.GetFailedChecks(context.Background(), &managementpb.GetFailedChecksRequest{
+		resp, err := s.GetFailedChecks(context.Background(), &advisorsv1.GetFailedChecksRequest{
 			ServiceId: "test_svc",
 		})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Advisor checks are disabled."), err)
@@ -168,30 +110,28 @@ func TestGetFailedChecks(t *testing.T) {
 				CheckName: "test_check",
 			},
 		}
-		response := &managementpb.GetFailedChecksResponse{
-			Results: []*managementpb.CheckResult{
+		response := &advisorsv1.GetFailedChecksResponse{
+			Results: []*advisorsv1.CheckResult{
 				{
 					Summary:     "Check summary",
 					Description: "Check Description",
 					ReadMoreUrl: "https://www.example.com",
-					Severity:    managementpb.Severity(common.Emergency),
+					Severity:    managementv1.Severity(common.Emergency),
 					Labels:      map[string]string{"label_key": "label_value"},
 					ServiceName: "svc",
 					ServiceId:   "test_svc",
 					CheckName:   "test_check",
 				},
 			},
-			PageTotals: &managementpb.PageTotals{
-				TotalPages: 1,
-				TotalItems: 1,
-			},
+			TotalPages: 1,
+			TotalItems: 1,
 		}
 		var checksService mockChecksService
 		checksService.On("GetChecksResults", mock.Anything, mock.Anything).Return(checkResult, nil)
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.GetFailedChecks(context.Background(), &managementpb.GetFailedChecksRequest{
+		resp, err := s.GetFailedChecks(context.Background(), &advisorsv1.GetFailedChecksRequest{
 			ServiceId: "test_svc",
 		})
 		require.NoError(t, err)
@@ -236,35 +176,31 @@ func TestGetFailedChecks(t *testing.T) {
 				CheckName: "test_check3",
 			},
 		}
-		response := &managementpb.GetFailedChecksResponse{
-			Results: []*managementpb.CheckResult{
+		response := &advisorsv1.GetFailedChecksResponse{
+			Results: []*advisorsv1.CheckResult{
 				{
 					Summary:     "Check summary 2",
 					Description: "Check Description 2",
 					ReadMoreUrl: "https://www.example.com",
-					Severity:    managementpb.Severity(common.Warning),
+					Severity:    managementv1.Severity(common.Warning),
 					Labels:      map[string]string{"label_key": "label_value"},
 					ServiceName: "svc",
 					ServiceId:   "test_svc",
 					CheckName:   "test_check2",
 				},
 			},
-			PageTotals: &managementpb.PageTotals{
-				TotalPages: 3,
-				TotalItems: 3,
-			},
+			TotalPages: 3,
+			TotalItems: 3,
 		}
 		var checksService mockChecksService
 		checksService.On("GetChecksResults", mock.Anything, mock.Anything).Return(checkResult, nil)
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.GetFailedChecks(context.Background(), &managementpb.GetFailedChecksRequest{
+		resp, err := s.GetFailedChecks(context.Background(), &advisorsv1.GetFailedChecksRequest{
 			ServiceId: "test_svc",
-			PageParams: &managementpb.PageParams{
-				PageSize: 1,
-				Index:    1,
-			},
+			PageSize:  pointer.ToInt32(1),
+			PageIndex: pointer.ToInt32(1),
 		})
 		require.NoError(t, err)
 		assert.Equal(t, response, resp)
@@ -278,11 +214,11 @@ func TestListFailedServices(t *testing.T) {
 		t.Parallel()
 
 		var checksService mockChecksService
-		checksService.On("GetSecurityCheckResults", mock.Anything).Return(nil, errors.New("random error"))
+		checksService.On("GetChecksResults", mock.Anything, mock.Anything).Return(nil, errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListFailedServices(context.Background(), &managementpb.ListFailedServicesRequest{})
+		resp, err := s.ListFailedServices(context.Background(), &advisorsv1.ListFailedServicesRequest{})
 		assert.EqualError(t, err, "failed to get check results: random error")
 		assert.Nil(t, resp)
 	})
@@ -336,8 +272,8 @@ func TestListFailedServices(t *testing.T) {
 				CheckName: "test_check",
 			},
 		}
-		response := &managementpb.ListFailedServicesResponse{
-			Result: []*managementpb.CheckResultSummary{
+		response := &advisorsv1.ListFailedServicesResponse{
+			Result: []*advisorsv1.CheckResultSummary{
 				{
 					ServiceName:    "svc1",
 					ServiceId:      "test_svc1",
@@ -353,17 +289,17 @@ func TestListFailedServices(t *testing.T) {
 			},
 		}
 		var checksService mockChecksService
-		checksService.On("GetSecurityCheckResults", mock.Anything).Return(checkResult, nil)
+		checksService.On("GetChecksResults", mock.Anything, mock.Anything).Return(checkResult, nil)
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListFailedServices(context.Background(), &managementpb.ListFailedServicesRequest{})
+		resp, err := s.ListFailedServices(context.Background(), &advisorsv1.ListFailedServicesRequest{})
 		require.NoError(t, err)
 		assert.ElementsMatch(t, resp.Result, response.Result)
 	})
 }
 
-func TestListSecurityChecks(t *testing.T) {
+func TestListAdvisorChecks(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
 		var checksService mockChecksService
 		checksService.On("GetDisabledChecks", mock.Anything).Return([]string{"two"}, nil)
@@ -377,16 +313,16 @@ func TestListSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListSecurityChecks(context.Background(), nil)
+		resp, err := s.ListAdvisorChecks(context.Background(), nil)
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 
 		assert.ElementsMatch(t, resp.Checks,
-			[]*managementpb.SecurityCheck{
-				{Name: "one", Disabled: false, Interval: managementpb.SecurityCheckInterval_STANDARD},
-				{Name: "two", Disabled: true, Interval: managementpb.SecurityCheckInterval_FREQUENT},
-				{Name: "three", Disabled: false, Interval: managementpb.SecurityCheckInterval_RARE},
-				{Name: "four", Disabled: false, Interval: managementpb.SecurityCheckInterval_STANDARD},
+			[]*advisorsv1.AdvisorCheck{
+				{Name: "one", Enabled: true, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD},
+				{Name: "two", Enabled: false, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT},
+				{Name: "three", Enabled: true, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE},
+				{Name: "four", Enabled: true, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD},
 			},
 		)
 	})
@@ -397,33 +333,33 @@ func TestListSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListSecurityChecks(context.Background(), nil)
+		resp, err := s.ListAdvisorChecks(context.Background(), nil)
 		assert.EqualError(t, err, "failed to get disabled checks list: random error")
 		assert.Nil(t, resp)
 	})
 }
 
-func TestUpdateSecurityChecks(t *testing.T) {
-	t.Run("enable security checks error", func(t *testing.T) {
+func TestUpdateAdvisorChecks(t *testing.T) {
+	t.Run("enable advisor checks error", func(t *testing.T) {
 		var checksService mockChecksService
 		checksService.On("EnableChecks", mock.Anything).Return(errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeSecurityChecks(context.Background(), &managementpb.ChangeSecurityChecksRequest{})
-		assert.EqualError(t, err, "failed to enable disabled security checks: random error")
+		resp, err := s.ChangeAdvisorChecks(context.Background(), &advisorsv1.ChangeAdvisorChecksRequest{})
+		assert.EqualError(t, err, "failed to enable disabled advisor checks: random error")
 		assert.Nil(t, resp)
 	})
 
-	t.Run("disable security checks error", func(t *testing.T) {
+	t.Run("disable advisor checks error", func(t *testing.T) {
 		var checksService mockChecksService
 		checksService.On("EnableChecks", mock.Anything).Return(nil)
 		checksService.On("DisableChecks", mock.Anything).Return(errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeSecurityChecks(context.Background(), &managementpb.ChangeSecurityChecksRequest{})
-		assert.EqualError(t, err, "failed to disable security checks: random error")
+		resp, err := s.ChangeAdvisorChecks(context.Background(), &advisorsv1.ChangeAdvisorChecksRequest{})
+		assert.EqualError(t, err, "failed to disable advisor checks: random error")
 		assert.Nil(t, resp)
 	})
 
@@ -433,13 +369,13 @@ func TestUpdateSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeSecurityChecks(context.Background(), &managementpb.ChangeSecurityChecksRequest{
-			Params: []*managementpb.ChangeSecurityCheckParams{{
+		resp, err := s.ChangeAdvisorChecks(context.Background(), &advisorsv1.ChangeAdvisorChecksRequest{
+			Params: []*advisorsv1.ChangeAdvisorCheckParams{{
 				Name:     "check-name",
-				Interval: managementpb.SecurityCheckInterval_STANDARD,
+				Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD,
 			}},
 		})
-		assert.EqualError(t, err, "failed to change security check interval: random error")
+		assert.EqualError(t, err, "failed to change advisor check interval: random error")
 		assert.Nil(t, resp)
 	})
 
@@ -451,21 +387,19 @@ func TestUpdateSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeSecurityChecks(context.Background(), &managementpb.ChangeSecurityChecksRequest{
-			Params: []*managementpb.ChangeSecurityCheckParams{{
+		resp, err := s.ChangeAdvisorChecks(context.Background(), &advisorsv1.ChangeAdvisorChecksRequest{
+			Params: []*advisorsv1.ChangeAdvisorCheckParams{{
 				Name:     "check-name",
-				Interval: managementpb.SecurityCheckInterval_STANDARD,
+				Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED,
 			}},
 		})
 		require.NoError(t, err)
-		assert.Equal(t, &managementpb.ChangeSecurityChecksResponse{}, resp)
+		assert.Equal(t, &advisorsv1.ChangeAdvisorChecksResponse{}, resp)
 	})
 }
 
 func TestCreateComment(t *testing.T) {
 	t.Parallel()
-
-	l := logrus.WithField("component", "tests")
 
 	testCases := []struct {
 		Name    string
@@ -502,7 +436,7 @@ func TestCreateComment(t *testing.T) {
 
 		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tc.Comment, createComment(l, tc.Checks))
+			assert.Equal(t, tc.Comment, createComment(tc.Checks))
 		})
 	}
 }

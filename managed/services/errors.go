@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -17,8 +17,16 @@ package services
 
 import "github.com/pkg/errors"
 
-// ErrAdvisorsDisabled means that advisors checks are disabled and can't be executed.
-var ErrAdvisorsDisabled = errors.New("Advisor checks are disabled")
+var (
+	// ErrAdvisorsDisabled means that advisors checks are disabled and can't be called.
+	ErrAdvisorsDisabled = errors.New("Advisor checks are disabled")
 
-// ErrAlertingDisabled means Integrated Alerting is disabled and IA APIs can't be executed.
-var ErrAlertingDisabled = errors.New("Alerting is disabled")
+	// ErrLocationFolderPairAlreadyUsed returned when location-folder pair already in use and cannot be used for backup.
+	ErrLocationFolderPairAlreadyUsed = errors.New("location-folder pair already used")
+
+	// ErrAlertingDisabled means Percona Alerting is disabled and its APIs can't be called.
+	ErrAlertingDisabled = errors.New("Alerting is disabled")
+
+	// ErrAzureDisabled means Azure Monitoring is disabled and its APIs can't be called.
+	ErrAzureDisabled = errors.New("Azure monitoring is disabled")
+)

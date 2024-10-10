@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,13 +15,17 @@
 package management
 
 import (
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/helpers"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 type unregisterResult struct {
@@ -45,6 +49,7 @@ type UnregisterCommand struct {
 	NodeName string `help:"Node name (autodetected default: ${hostname})"`
 }
 
+// RunCmd runs the command for UnregisterCommand.
 func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 	var nodeName string
 	var nodeID string
@@ -62,11 +67,9 @@ func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 		}
 
 		nodeID = status.NodeID
-		node, err := client.Default.Nodes.GetNode(&nodes.GetNodeParams{
+		node, err := client.Default.NodesService.GetNode(&nodes.GetNodeParams{
 			Context: commands.Ctx,
-			Body: nodes.GetNodeBody{
-				NodeID: nodeID,
-			},
+			NodeID:  nodeID,
 		})
 		if err != nil {
 			return nil, err
@@ -77,17 +80,19 @@ func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &nodes.RemoveNodeParams{
-		Body: nodes.RemoveNodeBody{
-			NodeID: nodeID,
-			Force:  cmd.Force,
-		},
+	params := &mservice.UnregisterNodeParams{
+		NodeID:  nodeID,
+		Force:   pointer.ToBool(cmd.Force),
 		Context: commands.Ctx,
 	}
 
-	_, err = client.Default.Nodes.RemoveNode(params)
+	res, err := managementClient.Default.ManagementService.UnregisterNode(params)
 	if err != nil {
 		return nil, err
+	}
+
+	if res.Payload.Warning != "" {
+		logrus.Warning(res.Payload.Warning)
 	}
 
 	return &unregisterResult{
@@ -97,7 +102,7 @@ func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 }
 
 func nodeIDFromNodeName(nodeName string) (string, error) {
-	listNodes, err := client.Default.Nodes.ListNodes(nil)
+	listNodes, err := client.Default.NodesService.ListNodes(nil)
 	if err != nil {
 		return "", err
 	}

@@ -3,39 +3,48 @@ FROM oraclelinux:9-slim
 ARG VERSION
 ARG BUILD_DATE
 
+ENV LANG=en_US.utf8
+ENV LC_ALL=en_US.utf8
+ENV GF_PLUGIN_DIR=/srv/grafana/plugins
+ENV PS1="[\u@\h \W] # "
+
+WORKDIR /opt
+
+RUN microdnf -y install epel-release && \
+    microdnf -y install ansible-core \
+                        ansible-collection-community-general \
+                        ansible-collection-community-postgresql \
+                        ansible-collection-ansible-posix \
+                        glibc-langpack-en \
+                        yum \
+                        vi
+
+COPY entrypoint.sh /opt/entrypoint.sh
+COPY ansible /opt/ansible
+COPY RPMS /tmp/RPMS
+COPY gitCommit /tmp/gitCommit
+
+# Use COPY as we want to unarchive it with ansible
+COPY pmm-client.tar.gz /tmp/
+
+RUN install -T -p -m 644 /opt/ansible/ansible.cfg /etc/ansible/ansible.cfg && \
+    ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm-docker/main.yml && \
+    ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm-docker/update.yml && \
+    ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm/post-build-actions.yml && \
+    sed -i '/^assumeyes/d' /etc/dnf/dnf.conf
+
 LABEL org.opencontainers.image.created ${BUILD_DATE}
 LABEL org.opencontainers.image.licenses AGPL-3.0
 LABEL org.opencontainers.image.title Percona Monitoring and Management
 LABEL org.opencontainers.image.vendor Percona LLC
 LABEL org.opencontainers.image.version ${VERSION}
 
-EXPOSE 80 443
+USER pmm
 
-WORKDIR /opt
+VOLUME [ "/srv" ]
 
-# NOTE: Ansible should NOT be installed via yum/dnf
-# Read more: https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#pip-install
-# RUN microdnf -y install yum && yum -y install python3-pip && \
-#     yum -y install oracle-epel-release-el9 ansible-core && \
-#     python3 -m pip install ansible && \
-#     python3 -m pip install setuptools && \
-#     yum -y install epel-release
+EXPOSE 8080 8443
 
-RUN microdnf -y install yum && yum -y install python3-pip && \
-    yum -y install oracle-epel-release-el9 ansible-core && \
-    yum -y install epel-release && \
-    yum -y install ansible vi
+HEALTHCHECK --interval=3s --timeout=2s --start-period=10s --retries=3 CMD curl -sf http://127.0.0.1:8080/v1/server/readyz
 
-COPY RPMS /tmp/RPMS
-COPY gitCommit /tmp/gitCommit
-
-COPY ansible /opt/ansible
-# NOTE: this needs to be refactored, since some of the playbooks are duplicates
-RUN cp -r /opt/ansible/roles /opt/ansible/pmm2-docker/roles
-RUN ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm2-docker/main.yml \
-    && ansible-playbook -vvv -i 'localhost,' -c local /usr/share/pmm-update/ansible/playbook/tasks/update.yml \
-    && ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm2/post-build-actions.yml
-
-COPY entrypoint.sh /opt/entrypoint.sh
-HEALTHCHECK --interval=3s --timeout=2s --start-period=10s --retries=3 CMD curl -f http://127.0.0.1/v1/readyz || exit 1
 CMD ["/opt/entrypoint.sh"]

@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -35,38 +35,38 @@ func TestImports(t *testing.T) {
 
 	for path, c := range map[string]constraint{
 		// public pmm-managed APIs should not import private APIs
-		"github.com/percona/pmm/api/inventorypb": {
+		"github.com/percona/pmm/api/inventory": {
 			blacklistPrefixes: []string{
-				"github.com/percona/pmm/api/agentlocalpb",
-				"github.com/percona/pmm/api/agentpb",
+				"github.com/percona/pmm/api/agentlocal",
+				"github.com/percona/pmm/api/agent",
 			},
 		},
-		"github.com/percona/pmm/api/managementpb": {
+		"github.com/percona/pmm/api/management": {
 			blacklistPrefixes: []string{
-				"github.com/percona/pmm/api/agentlocalpb",
-				"github.com/percona/pmm/api/agentpb",
+				"github.com/percona/pmm/api/agentlocal",
+				"github.com/percona/pmm/api/agent",
 			},
 		},
-		"github.com/percona/pmm/api/serverpb": {
+		"github.com/percona/pmm/api/server": {
 			blacklistPrefixes: []string{
-				"github.com/percona/pmm/api/agentlocalpb",
-				"github.com/percona/pmm/api/agentpb",
+				"github.com/percona/pmm/api/agentlocal",
+				"github.com/percona/pmm/api/agent",
 			},
 		},
 
 		// public qan-api APIs should not import private APIs
-		"github.com/percona/pmm/api/qanpb": {
+		"github.com/percona/pmm/api/qan/v1": {
 			blacklistPrefixes: []string{
-				"github.com/percona/pmm/api/agentlocalpb",
-				"github.com/percona/pmm/api/agentpb",
+				"github.com/percona/pmm/api/agentlocal",
+				"github.com/percona/pmm/api/agent",
 			},
 		},
 
 		// pmm-agent<->pmm-managed and pmm-managed<->qan-api APIs should be independent from each other
-		"github.com/percona/pmm/api/agentpb": {
+		"github.com/percona/pmm/api/agent": {
 			blacklistPrefixes: []string{
-				"github.com/percona/pmm/api/agentlocalpb",
-				"github.com/percona/pmm/api/qanpb",
+				"github.com/percona/pmm/api/agentlocal",
+				"github.com/percona/pmm/api/qan/v1",
 			},
 		},
 	} {

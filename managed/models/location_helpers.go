@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -82,7 +82,7 @@ func checkFilesystemLocationConfig(c *FilesystemLocationConfig) error {
 		return status.Error(codes.InvalidArgument, "Folder should be an absolute path (should contain leading slash).")
 	}
 
-	if !pathRe.Match([]byte(c.Path)) {
+	if !pathRe.MatchString(c.Path) {
 		return status.Error(codes.InvalidArgument, "Filesystem path can contain only dots, colons, slashes, letters, digits, underscores and dashes.")
 	}
 
@@ -281,7 +281,7 @@ func CreateBackupLocation(q *reform.Querier, params CreateBackupLocationParams) 
 		return nil, err
 	}
 
-	id := "/location_id/" + uuid.New().String()
+	id := uuid.New().String()
 
 	if err := checkUniqueBackupLocationID(q, id); err != nil {
 		return nil, err

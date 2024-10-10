@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/agent/utils/tests"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 func TestPostgreSQLShowCreateTable(t *testing.T) {
@@ -36,11 +36,13 @@ func TestPostgreSQLShowCreateTable(t *testing.T) {
 
 	t.Run("With Schema Name", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_PostgreSQLShowCreateTableParams{
+		params := &agentv1.StartActionRequest_PostgreSQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: "public.country",
 		}
-		a := NewPostgreSQLShowCreateTableAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLShowCreateTableAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -79,11 +81,13 @@ Referenced by:
 
 	t.Run("Without constraints", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_PostgreSQLShowCreateTableParams{
+		params := &agentv1.StartActionRequest_PostgreSQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: "city",
 		}
-		a := NewPostgreSQLShowCreateTableAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLShowCreateTableAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -108,11 +112,13 @@ Referenced by:
 
 	t.Run("Without references", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_PostgreSQLShowCreateTableParams{
+		params := &agentv1.StartActionRequest_PostgreSQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: "countrylanguage",
 		}
-		a := NewPostgreSQLShowCreateTableAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLShowCreateTableAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -136,15 +142,17 @@ Foreign-key constraints:
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_PostgreSQLShowCreateTableParams{
+		params := &agentv1.StartActionRequest_PostgreSQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: `city; DROP TABLE city; --`,
 		}
-		a := NewPostgreSQLShowCreateTableAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLShowCreateTableAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
-		_, err := a.Run(ctx)
+		_, err = a.Run(ctx)
 		expected := "Table not found: sql: no rows in result set"
 		assert.EqualError(t, err, expected)
 

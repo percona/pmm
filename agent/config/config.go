@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package config
 
 import (
 	"fmt"
+	"io/fs"
 	"net"
 	"net/url"
 	"os"
@@ -25,6 +26,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -34,7 +36,11 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-const pathBaseDefault = "/usr/local/percona/pmm2"
+const (
+	pathBaseDefault = "/usr/local/percona/pmm"
+	agentTmpPath    = "tmp" // temporary directory to keep exporters' config files, relative to pathBase
+	agentPrefix     = "/agent_id/"
+)
 
 // Server represents PMM Server configuration.
 type Server struct {
@@ -132,6 +138,7 @@ type Setup struct {
 
 	Force            bool
 	SkipRegistration bool
+	ExposeExporter   bool
 }
 
 // Config represents pmm-agent's configuration.
@@ -140,10 +147,11 @@ type Setup struct {
 type Config struct { //nolint:musttag
 	// no config file there
 
-	ID             string `yaml:"id"`
-	ListenAddress  string `yaml:"listen-address"`
-	ListenPort     uint16 `yaml:"listen-port"`
-	RunnerCapacity uint16 `yaml:"runner-capacity,omitempty"`
+	ID                             string `yaml:"id"`
+	ListenAddress                  string `yaml:"listen-address"`
+	ListenPort                     uint16 `yaml:"listen-port"`
+	RunnerCapacity                 uint16 `yaml:"runner-capacity,omitempty"`
+	RunnerMaxConnectionsPerService uint16 `yaml:"runner-max-connections-per-service,omitempty"`
 
 	Server Server `yaml:"server"`
 	Paths  Paths  `yaml:"paths"`
@@ -162,7 +170,7 @@ type Config struct { //nolint:musttag
 
 // ConfigFileDoesNotExistError error is returned from Get method if configuration file is expected,
 // but does not exist.
-type ConfigFileDoesNotExistError string
+type ConfigFileDoesNotExistError string //nolint:revive
 
 func (e ConfigFileDoesNotExistError) Error() string {
 	return fmt.Sprintf("configuration file %s does not exist", string(e))
@@ -179,7 +187,9 @@ func getFromCmdLine(cfg *Config, l *logrus.Entry) (string, error) {
 }
 
 // get is Get for unit tests: it parses args instead of command-line.
-func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err error) { //nolint:nonamedreturns
+func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint:cyclop
+	var configFileF string
+	var err error
 	// tweak configuration on exit to cover all return points
 	defer func() {
 		if cfg == nil {
@@ -187,6 +197,10 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 		}
 
 		// set default values
+		if strings.HasPrefix(cfg.ID, agentPrefix) {
+			l.Warnf("The agent ID '%s' contains a legacy prefix '%s'. It will be used without it.", cfg.ID, agentPrefix)
+			cfg.ID, _ = strings.CutPrefix(cfg.ID, agentPrefix)
+		}
 		if cfg.ListenAddress == "" {
 			cfg.ListenAddress = "127.0.0.1"
 		}
@@ -212,7 +226,6 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 			&cfg.Paths.RDSExporter:      "rds_exporter",
 			&cfg.Paths.AzureExporter:    "azure_exporter",
 			&cfg.Paths.VMAgent:          "vmagent",
-			&cfg.Paths.TempDir:          os.TempDir(),
 			&cfg.Paths.PTSummary:        "tools/pt-summary",
 			&cfg.Paths.PTPGSummary:      "tools/pt-pg-summary",
 			&cfg.Paths.PTMongoDBSummary: "tools/pt-mongodb-summary",
@@ -235,6 +248,16 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 		}
 		if abs, _ := filepath.Abs(cfg.Paths.ExportersBase); abs != "" {
 			cfg.Paths.ExportersBase = abs
+		}
+
+		if cfg.Paths.TempDir == "" {
+			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, agentTmpPath)
+			l.Infof("Temporary directory is not configured and will be set to %s", cfg.Paths.TempDir)
+		}
+
+		if !filepath.IsAbs(cfg.Paths.TempDir) {
+			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.TempDir)
+			l.Debugf("Temporary directory is configured as %s", cfg.Paths.TempDir)
 		}
 
 		if !filepath.IsAbs(cfg.Paths.PTSummary) {
@@ -286,29 +309,29 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 	// parse command-line flags and environment variables
 	app, cfgFileF := Application(cfg)
 	if _, err = app.Parse(args); err != nil {
-		return
+		return configFileF, err
 	}
 	if *cfgFileF == "" {
-		return
+		return configFileF, err
 	}
 
 	if configFileF, err = filepath.Abs(*cfgFileF); err != nil {
-		return
+		return configFileF, err
 	}
 	l.Infof("Loading configuration file %s.", configFileF)
 	fileCfg, err := loadFromFile(configFileF)
 	if err != nil {
-		return
+		return configFileF, err
 	}
 
 	// re-parse flags into configuration from file
 	app, _ = Application(fileCfg)
 	if _, err = app.Parse(args); err != nil {
-		return
+		return configFileF, err
 	}
 
 	*cfg = *fileCfg
-	return //nolint:nakedret
+	return configFileF, nil
 }
 
 // Application returns kingpin application that will parse command-line flags and environment variables
@@ -328,13 +351,15 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_CONFIG_FILE").PlaceHolder("</path/to/pmm-agent.yaml>").String()
 
 	app.Flag("id", "ID of this pmm-agent [PMM_AGENT_ID]").
-		Envar("PMM_AGENT_ID").PlaceHolder("</agent_id/...>").StringVar(&cfg.ID)
+		Envar("PMM_AGENT_ID").StringVar(&cfg.ID)
 	app.Flag("listen-address", "Agent local API address [PMM_AGENT_LISTEN_ADDRESS]").
 		Envar("PMM_AGENT_LISTEN_ADDRESS").StringVar(&cfg.ListenAddress)
 	app.Flag("listen-port", "Agent local API port [PMM_AGENT_LISTEN_PORT]").
 		Envar("PMM_AGENT_LISTEN_PORT").Uint16Var(&cfg.ListenPort)
 	app.Flag("runner-capacity", "Agent internal actions/jobs runner capacity [PMM_AGENT_RUNNER_CAPACITY]").
 		Envar("PMM_AGENT_RUNNER_CAPACITY").Uint16Var(&cfg.RunnerCapacity)
+	app.Flag("runner-max-connections-per-service", "Agent internal action/job runner connection limit per DB instance").
+		Envar("PMM_AGENT_RUNNER_MAX_CONNECTIONS_PER_SERVICE").Uint16Var(&cfg.RunnerMaxConnectionsPerService)
 
 	app.Flag("server-address", "PMM Server address [PMM_AGENT_SERVER_ADDRESS]").
 		Envar("PMM_AGENT_SERVER_ADDRESS").PlaceHolder("<host:port>").StringVar(&cfg.Server.Address)
@@ -396,10 +421,11 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	}).Bool()
 
 	app.Flag("version", "Show application version").Short('v').Action(func(*kingpin.ParseContext) error {
+		// We use fmt instead of log package to provide proper output for --json flag.
 		if *jsonF {
-			fmt.Println(version.FullInfoJSON())
+			fmt.Println(version.FullInfoJSON()) //nolint:forbidigo
 		} else {
-			fmt.Println(version.FullInfo())
+			fmt.Println(version.FullInfo()) //nolint:forbidigo
 		}
 		os.Exit(0)
 
@@ -435,7 +461,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 
 	var defaultMachineID string
 	if nodeinfo.MachineID != "" {
-		defaultMachineID = "/machine_id/" + nodeinfo.MachineID
+		defaultMachineID = nodeinfo.MachineID
 	}
 	setupCmd.Flag("machine-id", "Node machine-id (default is autodetected) [PMM_AGENT_SETUP_MACHINE_ID]").Default(defaultMachineID).
 		Envar("PMM_AGENT_SETUP_MACHINE_ID").StringVar(&cfg.Setup.MachineID)
@@ -465,6 +491,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_SETUP_CUSTOM_LABELS").StringVar(&cfg.Setup.CustomLabels)
 	setupCmd.Flag("agent-password", "Custom password for /metrics endpoint [PMM_AGENT_SETUP_NODE_PASSWORD]").
 		Envar("PMM_AGENT_SETUP_NODE_PASSWORD").StringVar(&cfg.Setup.AgentPassword)
+	setupCmd.Flag("expose-exporter", "Expose the address of the agent's node-exporter publicly on 0.0.0.0").
+		Envar("PMM_AGENT_EXPOSE_EXPORTER").BoolVar(&cfg.Setup.ExposeExporter)
 
 	return app, configFileF
 }
@@ -474,7 +502,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 // Other errors are returned if file exists, but configuration can't be loaded due to permission problems,
 // YAML parsing problems, etc.
 func loadFromFile(path string) (*Config, error) {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
+	if _, err := os.Stat(path); errors.Is(err, fs.ErrNotExist) {
 		return nil, ConfigFileDoesNotExistError(path)
 	}
 
@@ -510,8 +538,8 @@ func SaveToFile(path string, cfg *Config, comment string) error {
 func IsWritable(path string) error {
 	_, err := os.Stat(path)
 	if err != nil {
-		// File doesn't exists, check if folder is writable.
-		if os.IsNotExist(err) {
+		// File doesn't exist, check if folder is writable.
+		if errors.Is(err, fs.ErrNotExist) {
 			return unix.Access(filepath.Dir(path), unix.W_OK)
 		}
 		return err

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,8 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
@@ -32,7 +32,7 @@ func TestAzureExporterConfig(t *testing.T) {
 	pmmAgentVersion := version.MustParse("2.28.0")
 
 	node1 := &models.Node{
-		NodeID:    "/node_id/node1",
+		NodeID:    "node1",
 		NodeType:  models.RemoteAzureDatabaseNodeType,
 		NodeName:  "prod-mysql56",
 		NodeModel: "B_Gen5_1",
@@ -46,7 +46,7 @@ func TestAzureExporterConfig(t *testing.T) {
 	require.NoError(t, err)
 
 	service1 := &models.Service{
-		ServiceID:   "/service_id/service1",
+		ServiceID:   "service1",
 		NodeID:      node1.NodeID,
 		Address:     pointer.ToString("pmm-dev-mysql-db1.mysql.database.azure.com"),
 		Port:        pointer.ToUint16(3306),
@@ -55,7 +55,7 @@ func TestAzureExporterConfig(t *testing.T) {
 	}
 
 	agent := &models.Agent{
-		AgentID:   "/agent_id/agent1",
+		AgentID:   "agent1",
 		AgentType: models.AzureDatabaseExporterType,
 		NodeID:    &node1.NodeID,
 		ServiceID: &service1.ServiceID,
@@ -70,8 +70,8 @@ func TestAzureExporterConfig(t *testing.T) {
 
 	actual, err := azureDatabaseExporterConfig(agent, service1, redactSecrets, pmmAgentVersion)
 	require.NoError(t, err)
-	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_AZURE_DATABASE_EXPORTER,
+	expected := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{

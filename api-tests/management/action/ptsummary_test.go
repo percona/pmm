@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -23,15 +23,15 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/actions"
+	"github.com/percona/pmm/api/actions/v1/json/client"
+	actions "github.com/percona/pmm/api/actions/v1/json/client/actions_service"
 )
 
 func TestPTSummary(t *testing.T) {
 	ctx, cancel := context.WithTimeout(pmmapitests.Context, 30*time.Second)
 	defer cancel()
 
-	explainActionOK, err := client.Default.Actions.StartPTSummaryAction(&actions.StartPTSummaryActionParams{
+	explainActionOK, err := client.Default.ActionsService.StartPTSummaryAction(&actions.StartPTSummaryActionParams{
 		Context: ctx,
 		Body: actions.StartPTSummaryActionBody{
 			NodeID: "pmm-server",
@@ -41,11 +41,9 @@ func TestPTSummary(t *testing.T) {
 	require.NotEmpty(t, explainActionOK.Payload.ActionID)
 
 	for {
-		actionOK, err := client.Default.Actions.GetAction(&actions.GetActionParams{
-			Context: ctx,
-			Body: actions.GetActionBody{
-				ActionID: explainActionOK.Payload.ActionID,
-			},
+		actionOK, err := client.Default.ActionsService.GetAction(&actions.GetActionParams{
+			Context:  ctx,
+			ActionID: explainActionOK.Payload.ActionID,
 		})
 		require.NoError(t, err)
 

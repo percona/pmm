@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -21,33 +21,17 @@ import (
 	"github.com/AlekSi/pointer"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
 
-// ProxySQLService ProxySQL Management Service.
-type ProxySQLService struct {
-	db    *reform.DB
-	state agentsStateUpdater
-	cc    connectionChecker
-}
+// AddProxySQL adds "ProxySQL Service", "ProxySQL Exporter Agent" and "QAN ProxySQL PerfSchema Agent".
+func (s *ManagementService) addProxySQL(ctx context.Context, req *managementv1.AddProxySQLServiceParams) (*managementv1.AddServiceResponse, error) {
+	proxysql := &managementv1.ProxySQLServiceResult{}
 
-// NewProxySQLService creates new ProxySQL Management Service.
-func NewProxySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker) *ProxySQLService {
-	return &ProxySQLService{
-		db:    db,
-		state: state,
-		cc:    cc,
-	}
-}
-
-// Add adds "ProxySQL Service", "ProxySQL Exporter Agent" and "QAN ProxySQL PerfSchema Agent".
-func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQLRequest) (*managementpb.AddProxySQLResponse, error) {
-	res := &managementpb.AddProxySQLResponse{}
-
-	if e := s.db.InTransaction(func(tx *reform.TX) error {
+	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {
 			return err
@@ -71,7 +55,7 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.ProxySQLService) //nolint:forcetypeassert
+		proxysql.Service = invService.(*inventoryv1.ProxySQLService) //nolint:forcetypeassert
 
 		req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, req.PmmAgentId)
 		if err != nil {
@@ -87,8 +71,9 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 			TLS:               req.Tls,
 			TLSSkipVerify:     req.TlsSkipVerify,
 			PushMetrics:       isPushMode(req.MetricsMode),
+			ExposeExporter:    req.ExposeExporter,
 			DisableCollectors: req.DisableCollectors,
-			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		})
 		if err != nil {
 			return err
@@ -98,19 +83,32 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
+
+			if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
 		}
 
 		agent, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
-		res.ProxysqlExporter = agent.(*inventorypb.ProxySQLExporter) //nolint:forcetypeassert
+		proxysql.ProxysqlExporter = agent.(*inventoryv1.ProxySQLExporter) //nolint:forcetypeassert
 
 		return nil
-	}); e != nil {
-		return nil, e
+	})
+
+	if errTx != nil {
+		return nil, errTx
 	}
 
 	s.state.RequestStateUpdate(ctx, req.PmmAgentId)
+
+	res := &managementv1.AddServiceResponse{
+		Service: &managementv1.AddServiceResponse_Proxysql{
+			Proxysql: proxysql,
+		},
+	}
+
 	return res, nil
 }

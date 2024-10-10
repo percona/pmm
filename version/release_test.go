@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ import (
 
 func setupDataForManaged() {
 	ProjectName = "pmm-managed"
-	Version = "2.1.2" //nolint:goconst
+	Version = "2.1.2"
 	PMMVersion = "2.1.2"
 	Timestamp = "1545226908"
 	FullCommit = "6559a94ab33831deeda04193f74413b735edb1a1"

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//nolint:forbidigo,revive
 package commands
 
 import (
@@ -25,8 +26,8 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/percona/pmm/agent/config"
-	"github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
-	"github.com/percona/pmm/api/managementpb/json/client/node"
+	agent_local "github.com/percona/pmm/api/agentlocal/v1/json/client/agent_local_service"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 // Setup implements `pmm-agent setup` command.
@@ -50,7 +51,7 @@ func Setup() {
 
 	var e config.ConfigFileDoesNotExistError
 	if err != nil && !errors.As(err, &e) {
-		fmt.Printf("Failed to load configuration: %s.\n", err) //nolint:forbidigo
+		fmt.Printf("Failed to load configuration: %s.\n", err)
 		os.Exit(1)
 	}
 
@@ -60,12 +61,12 @@ func Setup() {
 	configFilepath, running := checkStatus(configFilepath, l)
 
 	if cfg.ID == "" && cfg.Setup.SkipRegistration {
-		fmt.Printf("Can't skip registration: pmm-agent ID is empty.\n") //nolint:forbidigo
+		fmt.Printf("Can't skip registration: pmm-agent ID is empty.\n")
 		os.Exit(1)
 	}
 
 	if err := config.IsWritable(configFilepath); err != nil {
-		fmt.Printf("Config file %s is not writable: %v.\n", configFilepath, err) //nolint:forbidigo
+		fmt.Printf("Config file %s is not writable: %v.\n", configFilepath, err)
 		os.Exit(1)
 	}
 
@@ -74,13 +75,13 @@ func Setup() {
 	}
 
 	if err = config.SaveToFile(configFilepath, cfg, "Updated by `pmm-agent setup`."); err != nil {
-		fmt.Printf("Failed to write configuration file %s: %s.\n", configFilepath, err) //nolint:forbidigo
+		fmt.Printf("Failed to write configuration file %s: %s.\n", configFilepath, err)
 		os.Exit(1)
 	}
-	fmt.Printf("Configuration file %s updated.\n", configFilepath) //nolint:forbidigo
+	fmt.Printf("Configuration file %s updated.\n", configFilepath)
 
 	if !running {
-		fmt.Printf("Please start pmm-agent: `pmm-agent --config-file=%s`.\n", configFilepath) //nolint:forbidigo
+		fmt.Printf("Please start pmm-agent: `pmm-agent --config-file=%s`.\n", configFilepath)
 		return
 	}
 
@@ -141,7 +142,7 @@ func register(cfg *config.Config, l *logrus.Entry) {
 	l.Debugf("Register error: %#v", err)
 	if err != nil {
 		msg := err.Error()
-		if e, _ := err.(*node.RegisterNodeDefault); e != nil { //nolint:errorlint
+		if e, _ := err.(*mservice.RegisterNodeDefault); e != nil { //nolint:errorlint
 			msg = e.Payload.Message + ""
 			switch e.Code() {
 			case http.StatusConflict:
@@ -159,10 +160,10 @@ func register(cfg *config.Config, l *logrus.Entry) {
 	}
 	cfg.ID = agentID
 	if token != "" {
-		cfg.Server.Username = "api_key"
+		cfg.Server.Username = "service_token"
 		cfg.Server.Password = token
 	} else {
-		l.Info("PMM Server responded with an empty api key token. Consider upgrading PMM Server to the latest version.")
+		l.Info("PMM Server responded with an empty service token. Consider upgrading PMM Server to the latest version.")
 	}
 	fmt.Printf("Registered.\n")
 }

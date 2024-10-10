@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/percona/pmm/admin/agentlocal"
-	"github.com/percona/pmm/api/inventorypb/types"
+	"github.com/percona/pmm/api/inventory/v1/types"
 	"github.com/percona/pmm/version"
 )
 
@@ -60,7 +60,8 @@ func (res *statusResult) HumanReadableAgentType(agentType string) string {
 }
 
 func (res *statusResult) NiceAgentStatus(status string) string {
-	return cases.Title(language.English).String(strings.ToLower(status))
+	s, _ := strings.CutPrefix(status, "AGENT_STATUS_")
+	return cases.Title(language.English).String(strings.ToLower(s))
 }
 
 func (res *statusResult) Result() {}
@@ -127,7 +128,7 @@ func (cmd *StatusCommand) RunCmd() (Result, error) {
 				return newStatusResult(status), nil
 			}
 
-			return nil, errors.Errorf("Failed to get PMM Agent status from local pmm-agent: %s.", err) //nolint:golint
+			return nil, errors.Errorf("Failed to get PMM Agent status from local pmm-agent: %s.", err) //nolint:golint,revive
 		default:
 			time.Sleep(1 * time.Second)
 		}

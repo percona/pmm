@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -72,7 +72,7 @@ func validateDBConnectionOptions(socket, host *string, port *uint16) error {
 		}
 
 		if port == nil {
-			return status.Errorf(codes.InvalidArgument, "Port are expected to be passed with address.")
+			return status.Errorf(codes.InvalidArgument, "Port is expected to be passed along with the host address.")
 		}
 	}
 
@@ -264,7 +264,7 @@ func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSSe
 		return nil, status.Errorf(codes.InvalidArgument, "Unknown service type: %q.", serviceType)
 	}
 
-	id := "/service_id/" + uuid.New().String()
+	id := uuid.New().String()
 	if err := checkServiceUniqueID(q, id); err != nil {
 		return nil, err
 	}
@@ -400,6 +400,56 @@ func ValidateServiceType(serviceType ServiceType) error {
 	default:
 		return errors.Wrapf(ErrInvalidServiceType, "unknown service type '%s'", string(serviceType))
 	}
+}
+
+// ChangeStandardLabelsParams contains parameters for changing standard labels for a service.
+type ChangeStandardLabelsParams struct {
+	ServiceID      string
+	Cluster        *string
+	Environment    *string
+	ReplicationSet *string
+	ExternalGroup  *string
+}
+
+// ChangeStandardLabels changes standard labels for a service.
+func ChangeStandardLabels(q *reform.Querier, serviceID string, labels ServiceStandardLabelsParams) error {
+	s, err := FindServiceByID(q, serviceID)
+	if err != nil {
+		return err
+	}
+
+	columns := []string{}
+
+	if labels.Cluster != nil {
+		columns = append(columns, "cluster")
+		s.Cluster = *labels.Cluster
+	}
+
+	if labels.Environment != nil {
+		columns = append(columns, "environment")
+		s.Environment = *labels.Environment
+	}
+
+	if labels.ReplicationSet != nil {
+		columns = append(columns, "replication_set")
+		s.ReplicationSet = *labels.ReplicationSet
+	}
+
+	if labels.ExternalGroup != nil {
+		columns = append(columns, "external_group")
+		s.ExternalGroup = *labels.ExternalGroup
+	}
+
+	// to avoid "reform: nothing to update" error
+	if len(columns) == 0 {
+		return nil
+	}
+
+	if err = q.UpdateColumns(s, columns...); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func initSoftwareVersions(q *reform.Querier, serviceID string, serviceType ServiceType) error {

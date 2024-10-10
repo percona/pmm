@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 var addAgentNodeExporterResultT = commands.ParseTemplate(`
@@ -32,7 +32,7 @@ Custom labels: {{ .Agent.CustomLabels }}
 `)
 
 type addAgentNodeExporterResult struct {
-	Agent *agents.AddNodeExporterOKBodyNodeExporter `json:"node_exporter"`
+	Agent *agents.AddAgentOKBodyNodeExporter `json:"node_exporter"`
 }
 
 func (res *addAgentNodeExporterResult) Result() {}
@@ -46,24 +46,29 @@ type AddAgentNodeExporterCommand struct {
 	PMMAgentID        string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	CustomLabels      map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	PushMetrics       bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+	ExposeExporter    bool              `help:"Expose the address of the exporter publicly on 0.0.0.0"`
 	DisableCollectors []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	LogLevel          string            `enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [debug, info, warn, error]"`
 }
 
+// RunCmd runs the command for AddAgentNodeExporterCommand.
 func (cmd *AddAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-	params := &agents.AddNodeExporterParams{
-		Body: agents.AddNodeExporterBody{
-			PMMAgentID:        cmd.PMMAgentID,
-			CustomLabels:      customLabels,
-			PushMetrics:       cmd.PushMetrics,
-			DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
-			LogLevel:          &cmd.LogLevel,
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			NodeExporter: &agents.AddAgentParamsBodyNodeExporter{
+				PMMAgentID:        cmd.PMMAgentID,
+				CustomLabels:      customLabels,
+				PushMetrics:       cmd.PushMetrics,
+				ExposeExporter:    cmd.ExposeExporter,
+				DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
+				LogLevel:          &cmd.LogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddNodeExporter(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

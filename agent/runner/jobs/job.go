@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 // JobType represents Job type.
@@ -34,7 +34,7 @@ const (
 )
 
 // Send is interface for function that used by jobs to send messages back to pmm-server.
-type Send func(payload agentpb.AgentResponsePayload)
+type Send func(payload agentv1.AgentResponsePayload)
 
 // Job represents job interface.
 type Job interface {
@@ -44,6 +44,8 @@ type Job interface {
 	Type() JobType
 	// Timeout returns Job timeout.
 	Timeout() time.Duration
+	// DSN returns Data Source Name required for the Action.
+	DSN() string
 	// Run starts Job execution.
 	Run(ctx context.Context, send Send) error
 }

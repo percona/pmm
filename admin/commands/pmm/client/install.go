@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import (
 
 // InstallCommand is used by Kong for CLI flags and commands.
 type InstallCommand struct {
-	InstallPath  string `default:"/usr/local/percona/pmm2" help:"Path where PMM Client shall be installed"`
+	InstallPath  string `default:"/usr/local/percona/pmm" help:"Path where PMM Client shall be installed"`
 	User         string `help:"Set file ownership instead of the current user"`
 	Group        string `help:"Set group ownership instead of the current group"`
 	Version      string `name:"use-version" help:"PMM Server version to install (default: latest)"`

@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qan/v1"
 )
 
 const (
@@ -71,7 +71,6 @@ const insertSQL = `
     period_length,
     fingerprint,
     example,
-    example_format,
     is_truncated,
     example_type,
     example_metrics,
@@ -297,9 +296,8 @@ const insertSQL = `
     :period_length_secs,
     :fingerprint,
     :example,
-    CAST( :example_format_s AS Enum8('EXAMPLE' = 0, 'FINGERPRINT' = 1)) AS example_format,
     :is_query_truncated,
-    CAST( :example_type_s AS Enum8('RANDOM' = 0, 'SLOWEST' = 1, 'FASTEST' = 2, 'WITH_ERROR' = 3)) AS example_type,
+    CAST( :example_type_s AS Enum8('EXAMPLE_TYPE_INVALID' = 0, 'RANDOM' = 1, 'SLOWEST' = 2, 'FASTEST' = 3, 'WITH_ERROR' = 4)) AS example_type,
     :example_metrics,
     :num_queries_with_warnings,
     :warnings_code,
@@ -498,7 +496,6 @@ type MetricsBucketExtended struct {
 	PeriodStart      time.Time `json:"period_start_ts"`
 	AgentType        string    `json:"agent_type_s"`
 	ExampleType      string    `json:"example_type_s"`
-	ExampleFormat    string    `json:"example_format_s"`
 	LabelsKey        []string  `json:"labels_key"`
 	LabelsValues     []string  `json:"labels_value"`
 	WarningsCode     []uint64  `json:"warnings_code"`
@@ -509,7 +506,7 @@ type MetricsBucketExtended struct {
 	*qanpb.MetricsBucket
 }
 
-// MetricsBucket implements models to store metrics bucket
+// MetricsBucket implements models to store metrics bucket.
 type MetricsBucket struct {
 	db         *sqlx.DB
 	l          *logrus.Entry
@@ -600,14 +597,15 @@ func (mb *MetricsBucket) Run(ctx context.Context) {
 	_ = mb.insertBatch(0)
 }
 
-func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
+func (mb *MetricsBucket) insertBatch(timeout time.Duration) error {
 	// wait for first request before doing anything, ignore timeout
 	req, ok := <-mb.requestsCh
 	if !ok {
 		mb.l.Warn("Requests channel closed, nothing to store.")
-		return
+		return nil
 	}
 
+	var err error
 	var buckets int
 	start := time.Now()
 	defer func() {
@@ -629,24 +627,22 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
 	// begin "transaction" and commit or rollback it on exit
 	var tx *sqlx.Tx
 	if tx, err = mb.db.Beginx(); err != nil {
-		err = errors.Wrap(err, "failed to begin transaction")
-		return
+		return errors.Wrap(err, "failed to begin transaction")
 	}
 	defer func() {
-		if err != nil {
+		if err == nil {
+			if err = tx.Commit(); err != nil {
+				err = errors.Wrap(err, "failed to commit transaction")
+			}
+		} else {
 			_ = tx.Rollback()
-			return
-		}
-		if err = tx.Commit(); err != nil {
-			err = errors.Wrap(err, "failed to commit transaction")
 		}
 	}()
 
 	// prepare INSERT statement and close it on exit
 	var stmt *sqlx.NamedStmt
 	if stmt, err = tx.PrepareNamed(insertSQL); err != nil {
-		err = errors.Wrap(err, "failed to prepare statement")
-		return
+		return errors.Wrap(err, "failed to prepare statement")
 	}
 	defer func() {
 		if e := stmt.Close(); e != nil && err == nil {
@@ -680,9 +676,7 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
 			q := MetricsBucketExtended{
 				time.Unix(int64(metricsBucket.GetPeriodStartUnixSecs()), 0).UTC(),
 				agentTypeToClickHouseEnum(metricsBucket.GetAgentType()),
-				metricsBucket.GetExampleType().String(),
-				// TODO should we remove this field since it's deprecated?
-				metricsBucket.GetExampleFormat().String(), //nolint:staticcheck
+				exampleTypeToClickHouseEnum(metricsBucket.GetExampleType()),
 				lk,
 				lv,
 				wk,
@@ -694,8 +688,7 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
 			}
 
 			if _, err = stmt.Exec(q); err != nil {
-				err = errors.Wrap(err, "failed to exec")
-				return
+				return errors.Wrap(err, "failed to exec")
 			}
 		}
 
@@ -704,10 +697,10 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
 		case req, ok = <-mb.requestsCh:
 			if !ok {
 				mb.l.Warn("Requests channel closed, exiting.")
-				return
+				return nil
 			}
 		case <-timeoutCh:
-			return
+			return nil
 		}
 	}
 }
@@ -747,7 +740,7 @@ func mapToArrsIntInt(m map[uint64]uint64) ([]uint64, []uint64) {
 	return keys, values
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*MetricsBucket)(nil)
 )

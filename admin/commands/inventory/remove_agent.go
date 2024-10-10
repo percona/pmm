@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,9 +15,11 @@
 package inventory
 
 import (
+	"github.com/AlekSi/pointer"
+
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 var removeAgentResultT = commands.ParseTemplate(`
@@ -38,15 +40,14 @@ type RemoveAgentCommand struct {
 	Force   bool   `help:"Remove agent with all dependencies"`
 }
 
+// RunCmd executes the RemoveAgentCommand and returns the result.
 func (cmd *RemoveAgentCommand) RunCmd() (commands.Result, error) {
 	params := &agents.RemoveAgentParams{
-		Body: agents.RemoveAgentBody{
-			AgentID: cmd.AgentID,
-			Force:   cmd.Force,
-		},
+		AgentID: cmd.AgentID,
+		Force:   pointer.ToBool(cmd.Force),
 		Context: commands.Ctx,
 	}
-	_, err := client.Default.Agents.RemoveAgent(params)
+	_, err := client.Default.AgentsService.RemoveAgent(params)
 	if err != nil {
 		return nil, err
 	}

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/api/agentlocalpb/json/client"
-	agentlocal "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
+	"github.com/percona/pmm/api/agentlocal/v1/json/client"
+	agentlocal "github.com/percona/pmm/api/agentlocal/v1/json/client/agent_local_service"
 )
 
 // SetTransport configures transport for accessing local pmm-agent API.
@@ -46,13 +46,14 @@ func SetTransport(ctx context.Context, debug bool, port uint32) {
 	client.Default.SetTransport(transport)
 }
 
+// NetworkInfo represents information about the network.
 type NetworkInfo bool
 
 const (
-	RequestNetworkInfo        NetworkInfo = true
-	DoNotRequestNetworkInfo   NetworkInfo = false
-	Localhost                             = "127.0.0.1"
-	DefaultPMMAgentListenPort             = 7777
+	RequestNetworkInfo        NetworkInfo = true        //nolint:revive
+	DoNotRequestNetworkInfo   NetworkInfo = false       //nolint:revive
+	Localhost                             = "127.0.0.1" //nolint:revive
+	DefaultPMMAgentListenPort             = 7777        //nolint:revive
 )
 
 // ErrNotSetUp is returned by GetStatus when pmm-agent is running, but not set up.
@@ -81,6 +82,7 @@ type Status struct {
 	ConnectionUptime float32 `json:"connection_uptime"`
 }
 
+// AgentStatus represents the status of the agent.
 type AgentStatus struct {
 	AgentID   string `json:"agent_id"`
 	AgentType string `json:"agent_type"`
@@ -98,7 +100,7 @@ func GetRawStatus(ctx context.Context, requestNetworkInfo NetworkInfo) (*agentlo
 		Context: ctx,
 	}
 
-	res, err := client.Default.AgentLocal.Status(params)
+	res, err := client.Default.AgentLocalService.Status(params)
 	if err != nil {
 		if res == nil {
 			return nil, err

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/percona/pmm/agent/agents"
-	"github.com/percona/pmm/api/inventorypb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 // NoOp is built-in Agent for testing.
@@ -39,15 +39,15 @@ func New() *NoOp {
 
 // Run is doing nothing until ctx is canceled.
 func (n *NoOp) Run(ctx context.Context) {
-	n.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
+	n.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
 	time.Sleep(time.Second)
-	n.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
+	n.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 
 	<-ctx.Done()
 
-	n.changes <- agents.Change{Status: inventorypb.AgentStatus_STOPPING}
-	n.changes <- agents.Change{Status: inventorypb.AgentStatus_DONE}
+	n.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}
+	n.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 	close(n.changes)
 }
 
@@ -57,16 +57,16 @@ func (n *NoOp) Changes() <-chan agents.Change {
 }
 
 // Describe implements prometheus.Collector.
-func (n *NoOp) Describe(ch chan<- *prometheus.Desc) {
+func (n *NoOp) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (n *NoOp) Collect(ch chan<- prometheus.Metric) {
+func (n *NoOp) Collect(ch chan<- prometheus.Metric) { //nolint:revive
 	// This method is needed to satisfy interface.
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*NoOp)(nil)
 )

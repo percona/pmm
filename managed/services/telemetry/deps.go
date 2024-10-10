@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -21,20 +21,15 @@ import (
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
 
-	"github.com/percona/pmm/api/serverpb"
+	serverv1 "github.com/percona/pmm/api/server/v1"
 )
 
-//go:generate ../../../bin/mockery -name=distributionUtilService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=sender -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=DataSourceLocator -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=DataSource -case=snake -inpkg -testonly
-
-// distributionUtilService service to get info about OS on which pmm server is running
+// distributionUtilService service to get info about OS on which pmm server is running.
 type distributionUtilService interface {
-	getDistributionMethodAndOS() (serverpb.DistributionMethod, pmmv1.DistributionMethod, string)
+	GetDistributionMethodAndOS() (serverv1.DistributionMethod, pmmv1.DistributionMethod, string)
 }
 
-// sender is interface which defines method for client which sends report with metrics
+// sender is interface which defines method for client which sends report with metrics.
 type sender interface {
 	SendTelemetry(ctx context.Context, report *reporter.ReportRequest) error
 }

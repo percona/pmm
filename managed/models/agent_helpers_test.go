@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -45,12 +45,12 @@ func TestAgentHelpers(t *testing.T) {
 		require.NoError(t, sqlDB.Close())
 	}()
 
-	setup := func(t *testing.T) (q *reform.Querier, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (*reform.Querier, func(t *testing.T)) {
 		t.Helper()
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		tx, err := db.Begin()
 		require.NoError(t, err)
-		q = tx.Querier
+		q := tx.Querier
 
 		for _, str := range []reform.Struct{
 			&models.Node{
@@ -130,6 +130,11 @@ func TestAgentHelpers(t *testing.T) {
 					SSLCert: "ssl_cert",
 					SSLKey:  "ssl_key",
 				},
+				MetricsResolutions: &models.MetricsResolutions{
+					HR: 1 * time.Minute,
+					MR: 5 * time.Minute,
+					LR: 15 * time.Minute,
+				},
 			},
 			&models.Agent{
 				AgentID:       "A8",
@@ -188,11 +193,11 @@ func TestAgentHelpers(t *testing.T) {
 			require.NoError(t, q.Insert(str))
 		}
 
-		teardown = func(t *testing.T) {
+		teardown := func(t *testing.T) {
 			t.Helper()
 			require.NoError(t, tx.Rollback())
 		}
-		return
+		return q, teardown
 	}
 
 	t.Run("AgentsForNode", func(t *testing.T) {
@@ -242,6 +247,11 @@ func TestAgentHelpers(t *testing.T) {
 					SSLCa:   "ssl_ca",
 					SSLCert: "ssl_cert",
 					SSLKey:  "ssl_key",
+				},
+				MetricsResolutions: &models.MetricsResolutions{
+					HR: 1 * time.Minute,
+					MR: 5 * time.Minute,
+					LR: 15 * time.Minute,
 				},
 			},
 			{
@@ -389,11 +399,11 @@ func TestAgentHelpers(t *testing.T) {
 
 		agent, err = models.RemoveAgent(q, "A0", models.RemoveRestrict)
 		assert.Nil(t, agent)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "A0" not found.`), err)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID A0 not found.`), err)
 
 		agent, err = models.RemoveAgent(q, "A1", models.RemoveRestrict)
 		assert.Nil(t, agent)
-		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `pmm-agent with ID "A1" has agents.`), err)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `pmm-agent with ID A1 has agents.`), err)
 
 		expected := &models.Agent{
 			AgentID:      "A1",
@@ -406,7 +416,7 @@ func TestAgentHelpers(t *testing.T) {
 		assert.Equal(t, expected, agent)
 		assert.NoError(t, err)
 		_, err = models.FindAgentByID(q, "A1")
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "A1" not found.`), err)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID A1 not found.`), err)
 	})
 
 	t.Run("FindPMMAgentsForNode", func(t *testing.T) {

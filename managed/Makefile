@@ -5,13 +5,10 @@ help:                           ## Display this help message
 	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | \
 		awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 	@echo
-	@echo "To test DBaaS components with minikube:"
-	@echo "Start minikube: minikube start --cpus=2 --nodes=3 --kubernetes-version=v1.20.0"
-	@echo "ENABLE_DBAAS=1 NETWORK=minikube make env-up"
 
 # `cut` is used to remove first `v` from `git describe` output
 PMM_RELEASE_PATH ?= ../bin
-PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
+PMM_RELEASE_VERSION ?= $(shell git describe --always | cut -b2-)
 PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
@@ -25,28 +22,28 @@ PMM_LD_FLAGS = -ldflags " \
 			-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 			"
 
+IS_ARM        := $(filter arm64,$(shell uname -m))
+PMM_RACE_FLAG ?= $(if $(IS_ARM),,-race)
+
+PMM_TEST_FLAGS ?= -timeout=180s
+PMM_TEST_RUN_UPDATE ?= 0
+PMM_TEST_FILES ?= ./...
+
 gen: clean                      ## Generate files
 	go generate ./...
 
 clean:                          ## Remove generated files
 	find . -name *_reform.go -delete
-	find . -name mock_*.go -delete
 
 release:                        ## Build pmm-managed release binaries
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
-	$(PMM_RELEASE_PATH)/pmm-managed --version
 
-ARCH=$(shell uname -m)
+release-starlark:
+	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-managed-starlark/...
+	$(PMM_RELEASE_PATH)/pmm-managed-starlark --version
+
 release-dev:										## Build pmm-managed binaries for development
-	if [ $(ARCH) = "aarch64" ]; then \
-		go build -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/... ; \
-	else \
-		go build -race -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/... ; \
-    fi
-
-PMM_TEST_FLAGS ?= -timeout=180s
-PMM_TEST_RUN_UPDATE ?= 0
-PMM_TEST_FILES ?= ./...
+	go build $(PMM_RACE_FLAG) -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
 
 test:                           ## Run tests
 	go test $(PMM_TEST_FLAGS) -p 1 -race $(PMM_TEST_FILES)

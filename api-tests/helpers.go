@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -17,21 +17,28 @@ package apitests
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
-	"math/rand"
+	"math"
+	"math/big"
 	"reflect"
+	"strings"
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
+// ErrorResponse represents the response structure for error scenarios.
 type ErrorResponse interface {
 	Code() int
 }
@@ -48,8 +55,11 @@ type TestingT interface {
 func TestString(t TestingT, name string) string {
 	t.Helper()
 
-	n := rand.Int() //nolint:gosec
-	return fmt.Sprintf("pmm-api-tests/%s/%s/%s/%d", Hostname, t.Name(), name, n)
+	// Without proper seed parallel tests can generate same "random" number.
+	rnd, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt32))
+	require.NoError(t, err)
+
+	return strings.ReplaceAll(fmt.Sprintf("api-test-%s-%s-%d", t.Name(), name, rnd), "/", "-")
 }
 
 // AssertAPIErrorf check that actual API error equals expected.
@@ -80,7 +90,8 @@ func AssertAPIErrorf(t TestingT, actual error, httpStatus int, grpcCode codes.Co
 	assert.Contains(t, errorField.String(), format)
 }
 
-func ExpectFailure(t *testing.T, link string) *expectedFailureTestingT {
+// ExpectFailure sets up expectations for a test case to fail.
+func ExpectFailure(t *testing.T, link string) *expectedFailureTestingT { //nolint:revive
 	t.Helper()
 	return &expectedFailureTestingT{
 		t:    t,
@@ -128,104 +139,161 @@ func (tt *expectedFailureTestingT) Check() {
 	tt.t.Fatalf("%s expected to fail, but didn't: %s", tt.Name(), tt.link)
 }
 
+// UnregisterNodes unregister specified nodes.
+func UnregisterNodes(t TestingT, nodeIDs ...string) {
+	t.Helper()
+
+	for _, nodeID := range nodeIDs {
+		params := &mservice.UnregisterNodeParams{
+			NodeID:  nodeID,
+			Force:   pointer.ToBool(true),
+			Context: context.Background(),
+		}
+
+		res, err := managementClient.Default.ManagementService.UnregisterNode(params)
+		require.NoError(t, err)
+		assert.NotNil(t, res)
+		assert.NotNil(t, res.Payload)
+		assert.Empty(t, res.Payload.Warning)
+	}
+}
+
+// RemoveNodes removes specified nodes.
 func RemoveNodes(t TestingT, nodeIDs ...string) {
 	t.Helper()
 
 	for _, nodeID := range nodeIDs {
 		params := &nodes.RemoveNodeParams{
-			Body: nodes.RemoveNodeBody{
-				NodeID: nodeID,
-			},
+			NodeID:  nodeID,
 			Context: context.Background(),
 		}
-		res, err := client.Default.Nodes.RemoveNode(params)
-		assert.NoError(t, err)
+		res, err := client.Default.NodesService.RemoveNode(params)
+		require.NoError(t, err)
 		assert.NotNil(t, res)
 	}
 }
 
+// RemoveServices removes specified services.
 func RemoveServices(t TestingT, serviceIDs ...string) {
 	t.Helper()
 
 	for _, serviceID := range serviceIDs {
 		params := &services.RemoveServiceParams{
-			Body: services.RemoveServiceBody{
-				ServiceID: serviceID,
-				Force:     true,
-			},
-			Context: context.Background(),
+			ServiceID: serviceID,
+			Force:     pointer.ToBool(true),
+			Context:   context.Background(),
 		}
-		res, err := client.Default.Services.RemoveService(params)
-		assert.NoError(t, err)
+		res, err := client.Default.ServicesService.RemoveService(params)
+		require.NoError(t, err)
 		assert.NotNil(t, res)
 	}
 }
 
+// RemoveAgents removes specified agents.
 func RemoveAgents(t TestingT, agentIDs ...string) {
 	t.Helper()
 
 	for _, agentID := range agentIDs {
 		params := &agents.RemoveAgentParams{
-			Body: agents.RemoveAgentBody{
-				AgentID: agentID,
-			},
+			AgentID: agentID,
 			Context: context.Background(),
 		}
-		res, err := client.Default.Agents.RemoveAgent(params)
-		assert.NoError(t, err)
+		res, err := client.Default.AgentsService.RemoveAgent(params)
+		require.NoError(t, err)
 		assert.NotNil(t, res)
 	}
 }
 
-func AddGenericNode(t TestingT, nodeName string) *nodes.AddGenericNodeOKBodyGeneric {
+// RemoveAgentsWithForce removes specified agents along with dependents.
+func RemoveAgentsWithForce(t TestingT, agentIDs ...string) {
 	t.Helper()
 
-	params := &nodes.AddGenericNodeParams{
-		Body: nodes.AddGenericNodeBody{
-			NodeName: nodeName,
-			Address:  "10.10.10.10",
+	for _, agentID := range agentIDs {
+		params := &agents.RemoveAgentParams{
+			AgentID: agentID,
+			Force:   pointer.ToBool(true),
+			Context: context.Background(),
+		}
+		res, err := client.Default.AgentsService.RemoveAgent(params)
+		require.NoError(t, err)
+		assert.NotNil(t, res)
+	}
+}
+
+// AddGenericNode adds a generic node.
+func AddGenericNode(t TestingT, nodeName string) *nodes.AddNodeOKBodyGeneric {
+	t.Helper()
+
+	params := &nodes.AddNodeParams{
+		Body: nodes.AddNodeBody{
+			Generic: &nodes.AddNodeParamsBodyGeneric{
+				NodeName: nodeName,
+				Address:  "10.10.10.10",
+			},
 		},
 		Context: Context,
 	}
-	res, err := client.Default.Nodes.AddGenericNode(params)
-	assert.NoError(t, err)
+	res, err := client.Default.NodesService.AddNode(params)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 	require.NotNil(t, res.Payload)
 	require.NotNil(t, res.Payload.Generic)
 	return res.Payload.Generic
 }
 
-func AddRemoteNode(t TestingT, nodeName string) *nodes.AddRemoteNodeOKBody {
+// AddRemoteNode adds a remote node.
+func AddRemoteNode(t TestingT, nodeName string) *nodes.AddNodeOKBody {
 	t.Helper()
 
-	params := &nodes.AddRemoteNodeParams{
-		Body: nodes.AddRemoteNodeBody{
-			NodeName: nodeName,
-			Address:  "10.10.10.10",
+	params := &nodes.AddNodeParams{
+		Body: nodes.AddNodeBody{
+			Remote: &nodes.AddNodeParamsBodyRemote{
+				NodeName: nodeName,
+				Address:  "10.10.10.10",
+			},
 		},
 		Context: Context,
 	}
-	res, err := client.Default.Nodes.AddRemoteNode(params)
-	assert.NoError(t, err)
+	res, err := client.Default.NodesService.AddNode(params)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
 }
 
-func AddPMMAgent(t TestingT, nodeID string) *agents.AddPMMAgentOKBody {
+// AddNode adds a node.
+func AddNode(t TestingT, nodeBody *nodes.AddNodeBody) *nodes.AddNodeOKBody {
 	t.Helper()
 
-	res, err := client.Default.Agents.AddPMMAgent(&agents.AddPMMAgentParams{
-		Body: agents.AddPMMAgentBody{
-			RunsOnNodeID: nodeID,
+	params := &nodes.AddNodeParams{
+		Body:    *nodeBody,
+		Context: Context,
+	}
+
+	res, err := client.Default.NodesService.AddNode(params)
+	require.NoError(t, err)
+	require.NotNil(t, res)
+
+	return res.Payload
+}
+
+// AddPMMAgent adds a PMM agent.
+func AddPMMAgent(t TestingT, nodeID string) *agents.AddAgentOKBody {
+	t.Helper()
+
+	res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			PMMAgent: &agents.AddAgentParamsBodyPMMAgent{
+				RunsOnNodeID: nodeID,
+			},
 		},
 		Context: Context,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ assert.TestingT  = (*expectedFailureTestingT)(nil)
 	_ require.TestingT = (*expectedFailureTestingT)(nil)

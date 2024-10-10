@@ -6,20 +6,24 @@ linters-settings:
   cyclop:
     max-complexity: 30
 
+  inamedparam:
+    # Skips check for interface methods with only a single parameter.
+    skip-single-param: true    
+
   depguard:
-    list-type: blacklist
-    include-go-root: true
-    packages:
-      # use "github.com/pkg/errors" instead
-      - errors
-      # use "github.com/golang/protobuf/proto" instead
-      - github.com/gogo/protobuf/proto
-      # use only forked parser
-      - github.com/percona/go-mysql/log/slow
-      # use "github.com/percona-platform/saas" instead
-      - github.com/percona-platform/platform
-      # use "gopkg.in/yaml.v3" instead
-      - gopkg.in/yaml.v2
+    rules:
+      main:
+        deny:
+          - pkg: "errors"
+            desc: use "github.com/pkg/errors" instead
+          - pkg: "github.com/gogo/protobuf/proto"
+            desc: use "github.com/golang/protobuf/proto" instead
+          - pkg: "github.com/percona/go-mysql/log/slow"
+            desc: only use the forked parser
+          - pkg: "github.com/percona-platform/platform"
+            desc: use "github.com/percona-platform/saas" instead
+          - pkg: "gopkg.in/yaml.v2"
+            desc: use "gopkg.in/yaml.v3" instead
 
   gci:
     sections:
@@ -29,7 +33,7 @@ linters-settings:
 
   godot:
     capital: true
-    period: false
+    period: true
     scope: toplevel
     exclude:
       - go-sumtype:decl 
@@ -37,10 +41,6 @@ linters-settings:
 
   goimports:
     local-prefixes: github.com/percona/pmm
-
-  gomoddirectives:
-    replace-allow-list:
-      - github.com/percona-platform/dbaas-api
 
   ireturn:
     allow:
@@ -50,10 +50,15 @@ linters-settings:
       - stdlib
       - github.com/charmbracelet/bubbletea.Model
       - github.com/percona/pmm/admin/commands.Result
+      - github.com/percona/pmm/agent/runner/actions.Action
+      - github.com/percona/pmm/managed/services/telemetry.DataSource
 
   lll:
     line-length: 170
     tab-width: 4
+
+  maintidx:
+    under: 20
 
   nestif:
     min-complexity: 7
@@ -80,11 +85,11 @@ linters:
   enable-all: true
   disable:
     # keep the rules sorted alpahbetically
+    - deadcode         # unmaintained, we leverage `unused`
+    - dupl             # we can't avoid duplicating code
     - execinquery      # false positives only
     - exhaustivestruct # too annoying
     - exhaustruct      # too many files to fix/nolint
-    - deadcode         # unmaintained, we leverage `unused`
-    - dupl             # we can't avoid duplicating code
     - funlen           # useless
     - gochecknoglobals # mostly useless
     - gochecknoinits   # we use init functions
@@ -99,23 +104,24 @@ linters:
     - maligned         # deprecated
     - nlreturn         # too annoying
     - nosnakecase      # deprecated
+    - protogetter      # we need direct access to proto fields
+    - rowserrcheck     # disabled because of generics
     - scopelint        # too many false positives
+    - structcheck      # replaced by unused
+    - varcheck         # replaced by unused
     - varnamelen       # useless
+    - wastedassign     # disabled because of generics
     - wrapcheck        # we do not use wrapping everywhere
     - wsl              # too annoying
 
     # TODO: carefully review all the rules below and either fix the code
     # or leave disabled and provide a reason why
-    - tagliatelle
-    - gocritic
-    - revive
+    #- tagliatelle
+    #- revive
     - paralleltest
-    - ireturn
     - gocognit
-    - maintidx
-    - interfacebloat
-    - forbidigo
-    - errcheck
+    - tagalign
+
     # ENDTODO
 
 run:
@@ -143,8 +149,11 @@ issues:
         - forcetypeassert  # for tests' brevity sake
         - funlen           # tests may be long
         - gocognit         # triggered by subtests
+        - goconst          # not critical for tests
         - gomnd            # tests are full of magic numbers
+        - ireturn          # we have exceptions, so need to silence them in tests
         - lll              # tests often require long lines
-        - nonamedreturns   # it's not critical for tests, albeit desirable
+        - maintidx         # not critical for tests
+        - nonamedreturns   # not critical for tests, albeit desirable
         - testpackage      # senseless
         - unused           # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791

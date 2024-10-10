@@ -1,13 +1,12 @@
 ---
-version: '3'
 services:
   pmm-update-server:
-    image: ${PMM_SERVER_IMAGE:-percona/pmm-server:2}
+    image: ${PMM_SERVER_IMAGE:-percona/pmm-server:3}
     container_name: pmm-update-server
     environment:
       # for tests
-      - PMM_SERVER_IMAGE=${PMM_SERVER_IMAGE:-percona/pmm-server:2}
-      - GO_VERSION=${GO_VERSION:-1.17.x}
+      - PMM_SERVER_IMAGE=${PMM_SERVER_IMAGE:-percona/pmm-server:3}
+      - GO_VERSION=${GO_VERSION:-1.22.x}
       - PATH=/root/go/bin:$PATH
       - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
     volumes:

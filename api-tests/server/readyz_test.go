@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -31,10 +31,9 @@ func TestReadyz(t *testing.T) {
 	t.Parallel()
 	paths := []string{
 		"ping",
-		"v1/readyz",
+		"v1/server/readyz",
 	}
 	for _, path := range paths {
-		path := path
 		t.Run(path, func(t *testing.T) {
 			t.Parallel()
 
@@ -47,12 +46,10 @@ func TestReadyz(t *testing.T) {
 				Path: path,
 			})
 
-			t.Logf("URI: %s", uri)
-
 			req, _ := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 			resp, err := http.DefaultClient.Do(req)
 			require.NoError(t, err)
-			defer resp.Body.Close() //nolint:gosec
+			defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 			b, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)

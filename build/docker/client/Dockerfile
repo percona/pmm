@@ -1,10 +1,10 @@
 FROM redhat/ubi9-minimal as users
 
-RUN microdnf install shadow-utils jq -y
+RUN microdnf install shadow-utils jq tar -y
 
 RUN groupadd -g 1002 pmm-agent && \
     useradd -u 1002 -r -g pmm-agent -s /sbin/nologin \
-            -d /usr/local/percona/pmm2 \
+            -d /usr/local/percona/pmm \
             -c "PMM 2.X Client User" pmm-agent
 
 FROM redhat/ubi9-micro
@@ -24,20 +24,37 @@ COPY --from=users --chown=0:0 /etc/group /etc/group
 
 # Install jq along with its dependencies
 COPY --from=users --chown=0:0 /usr/bin/jq /usr/bin/
+COPY --from=users --chown=0:0 /usr/bin/tar /usr/bin/
+COPY --from=users --chown=0:0 /usr/bin/curl /usr/bin/
+
 COPY --from=users --chown=0:0 /usr/lib64/libjq.so.1.0.4 /lib64/libjq.so.1
 COPY --from=users --chown=0:0 /usr/lib64/libonig.so.5.1.0 /lib64/libonig.so.5
 
-RUN install -d -o pmm-agent -g pmm-agent -m 0775 /usr/local/percona/pmm2
+# Dependencies of curl
+COPY --from=users --chown=0:0 /usr/lib64/libkeyutils.so* /lib64/
+COPY --from=users --chown=0:0 /usr/lib64/libz.so* /lib64/
+COPY --from=users --chown=0:0 /usr/lib64/libkrb5support.so* /lib64/
+COPY --from=users --chown=0:0 /usr/lib64/libkrb5.so* /lib64/
+COPY --from=users --chown=0:0 /usr/lib64/libk5crypto.so* /lib64/
+COPY --from=users --chown=0:0 /usr/lib64/libgssapi_krb5.so* /lib64/
+COPY --from=users --chown=0:0 /usr/lib64/libcom_err.so* /lib64/
+COPY --from=users --chown=0:0 /usr/lib64/libssl.so* /lib64/
+COPY --from=users --chown=0:0 /usr/lib64/libcrypto.so* /lib64/
+COPY --from=users --chown=0:0 /usr/lib64/libcurl.so* /lib64/
+COPY --from=users --chown=0:0 /usr/lib64/libnghttp2.so* /lib64/
+COPY --from=users --chown=0:0 /usr/lib64/libresolv.so* /lib64/
 
-ADD pmm2-client.tar.gz /tmp/
+RUN install -d -o pmm-agent -g pmm-agent -m 0775 /usr/local/percona/pmm
 
-RUN cd /tmp/pmm2-client-* \
+ADD pmm-client.tar.gz /tmp/
+
+RUN cd /tmp/pmm-client-* \
     && env PMM_USER=pmm-agent PMM_GROUP=root ./install_tarball \
     && cd /tmp \
-    && rm -rf /tmp/pmm2-client*
+    && rm -rf /tmp/pmm-client*
 
 USER pmm-agent
-WORKDIR /usr/local/percona/pmm2/
-ENV PATH /usr/local/percona/pmm2/bin/:$PATH
+WORKDIR /usr/local/percona/pmm/
+ENV PATH /usr/local/percona/pmm/bin/:$PATH
 
-ENTRYPOINT ["/usr/local/percona/pmm2/bin/pmm-agent-entrypoint"]
+ENTRYPOINT ["/usr/local/percona/pmm/bin/pmm-agent-entrypoint"]

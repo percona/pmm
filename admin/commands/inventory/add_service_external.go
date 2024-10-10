@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 var addExternalServiceResultT = commands.ParseTemplate(`
@@ -33,7 +33,7 @@ Group          : {{ .Service.Group }}
 `)
 
 type addServiceExternalResult struct {
-	Service *services.AddExternalServiceOKBodyExternal `json:"external"`
+	Service *services.AddServiceOKBodyExternal `json:"external"`
 }
 
 func (res *addServiceExternalResult) Result() {}
@@ -53,23 +53,26 @@ type AddServiceExternalCommand struct {
 	Group          string            `help:"Group name of external service"`
 }
 
+// RunCmd executes the AddServiceExternalCommand and returns the result.
 func (cmd *AddServiceExternalCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
-	params := &services.AddExternalServiceParams{
-		Body: services.AddExternalServiceBody{
-			ServiceName:    cmd.ServiceName,
-			NodeID:         cmd.NodeID,
-			Environment:    cmd.Environment,
-			Cluster:        cmd.Cluster,
-			ReplicationSet: cmd.ReplicationSet,
-			CustomLabels:   customLabels,
-			Group:          cmd.Group,
+	params := &services.AddServiceParams{
+		Body: services.AddServiceBody{
+			External: &services.AddServiceParamsBodyExternal{
+				ServiceName:    cmd.ServiceName,
+				NodeID:         cmd.NodeID,
+				Environment:    cmd.Environment,
+				Cluster:        cmd.Cluster,
+				ReplicationSet: cmd.ReplicationSet,
+				CustomLabels:   customLabels,
+				Group:          cmd.Group,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Services.AddExternalService(params)
+	resp, err := client.Default.ServicesService.AddService(params)
 	if err != nil {
 		return nil, err
 	}

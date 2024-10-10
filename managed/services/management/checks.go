@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@ import (
 	"context"
 	"strings"
 
+	"github.com/AlekSi/pointer"
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
@@ -26,16 +27,17 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/percona/pmm/api/managementpb"
+	advisorsv1 "github.com/percona/pmm/api/advisors/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/services"
 )
 
-// ChecksAPIService represents security checks service API.
+// ChecksAPIService represents advisor service API.
 type ChecksAPIService struct {
 	checksService checksService
 	l             *logrus.Entry
 
-	managementpb.UnimplementedSecurityChecksServer
+	advisorsv1.UnimplementedAdvisorServiceServer
 }
 
 // NewChecksAPIService creates new Checks API Service.
@@ -47,8 +49,8 @@ func NewChecksAPIService(checksService checksService) *ChecksAPIService {
 }
 
 // ListFailedServices returns a list of services with failed checks and their summaries.
-func (s *ChecksAPIService) ListFailedServices(_ context.Context, _ *managementpb.ListFailedServicesRequest) (*managementpb.ListFailedServicesResponse, error) {
-	results, err := s.checksService.GetSecurityCheckResults()
+func (s *ChecksAPIService) ListFailedServices(ctx context.Context, _ *advisorsv1.ListFailedServicesRequest) (*advisorsv1.ListFailedServicesResponse, error) {
+	results, err := s.checksService.GetChecksResults(ctx, "")
 	if err != nil {
 		if errors.Is(err, services.ErrAdvisorsDisabled) {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
@@ -90,9 +92,9 @@ func (s *ChecksAPIService) ListFailedServices(_ context.Context, _ *managementpb
 		}
 	}
 
-	failedServices := make([]*managementpb.CheckResultSummary, 0, len(summaries))
+	failedServices := make([]*advisorsv1.CheckResultSummary, 0, len(summaries))
 	for _, result := range summaries {
-		failedServices = append(failedServices, &managementpb.CheckResultSummary{
+		failedServices = append(failedServices, &advisorsv1.CheckResultSummary{
 			ServiceId:      result.ServiceID,
 			ServiceName:    result.ServiceName,
 			EmergencyCount: result.EmergencyCount,
@@ -106,11 +108,11 @@ func (s *ChecksAPIService) ListFailedServices(_ context.Context, _ *managementpb
 		})
 	}
 
-	return &managementpb.ListFailedServicesResponse{Result: failedServices}, nil
+	return &advisorsv1.ListFailedServicesResponse{Result: failedServices}, nil
 }
 
 // GetFailedChecks returns details of failed checks for a given service.
-func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementpb.GetFailedChecksRequest) (*managementpb.GetFailedChecksResponse, error) {
+func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *advisorsv1.GetFailedChecksRequest) (*advisorsv1.GetFailedChecksResponse, error) {
 	results, err := s.checksService.GetChecksResults(ctx, req.ServiceId)
 	if err != nil {
 		if errors.Is(err, services.ErrAdvisorsDisabled) {
@@ -120,31 +122,37 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementp
 		return nil, errors.Wrapf(err, "failed to get check results for service '%s'", req.ServiceId)
 	}
 
-	failedChecks := make([]*managementpb.CheckResult, 0, len(results))
+	failedChecks := make([]*advisorsv1.CheckResult, 0, len(results))
 	for _, result := range results {
-		failedChecks = append(failedChecks, &managementpb.CheckResult{
+		labels := make(map[string]string, len(result.Target.Labels)+len(result.Result.Labels))
+		for k, v := range result.Result.Labels {
+			labels[k] = v
+		}
+		for k, v := range result.Target.Labels {
+			labels[k] = v
+		}
+
+		failedChecks = append(failedChecks, &advisorsv1.CheckResult{
 			Summary:     result.Result.Summary,
 			CheckName:   result.CheckName,
 			Description: result.Result.Description,
 			ReadMoreUrl: result.Result.ReadMoreURL,
-			Severity:    managementpb.Severity(result.Result.Severity),
-			Labels:      result.Result.Labels,
+			Severity:    managementv1.Severity(result.Result.Severity),
+			Labels:      labels,
 			ServiceName: result.Target.ServiceName,
 			ServiceId:   result.Target.ServiceID,
-			AlertId:     result.AlertID,
-			Silenced:    result.Silenced,
 		})
 	}
 
-	pageTotals := &managementpb.PageTotals{
-		TotalPages: 1,
-		TotalItems: int32(len(failedChecks)),
+	var pageIndex, pageSize int
+	totalPages := int32(1)
+	totalItems := int32(len(failedChecks))
+
+	if req.PageIndex != nil {
+		pageIndex = int(pointer.GetInt32(req.PageIndex))
 	}
-	var pageIndex int
-	var pageSize int
-	if req.PageParams != nil {
-		pageIndex = int(req.PageParams.Index)
-		pageSize = int(req.PageParams.PageSize)
+	if req.PageSize != nil {
+		pageSize = int(pointer.GetInt32(req.PageSize))
 	}
 
 	from, to := pageIndex*pageSize, (pageIndex+1)*pageSize
@@ -156,53 +164,21 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementp
 	}
 
 	if pageSize > 0 {
-		pageTotals.TotalPages = int32(len(failedChecks) / pageSize)
+		totalPages = int32(len(failedChecks) / pageSize)
 		if len(failedChecks)%pageSize > 0 {
-			pageTotals.TotalPages++
+			totalPages++
 		}
 	}
 
-	return &managementpb.GetFailedChecksResponse{Results: failedChecks[from:to], PageTotals: pageTotals}, nil
+	return &advisorsv1.GetFailedChecksResponse{
+		Results:    failedChecks[from:to],
+		TotalItems: totalItems,
+		TotalPages: totalPages,
+	}, nil
 }
 
-// ToggleCheckAlert toggles the silence state of the check with the provided alertID.
-func (s *ChecksAPIService) ToggleCheckAlert(ctx context.Context, req *managementpb.ToggleCheckAlertRequest) (*managementpb.ToggleCheckAlertResponse, error) {
-	err := s.checksService.ToggleCheckAlert(ctx, req.AlertId, req.Silence)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to toggle silence status of alert with id: %s", req.AlertId)
-	}
-
-	return &managementpb.ToggleCheckAlertResponse{}, nil
-}
-
-// GetSecurityCheckResults returns Security Thread Tool's latest checks results.
-func (s *ChecksAPIService) GetSecurityCheckResults(_ context.Context, _ *managementpb.GetSecurityCheckResultsRequest) (*managementpb.GetSecurityCheckResultsResponse, error) { //nolint:staticcheck,lll
-	results, err := s.checksService.GetSecurityCheckResults()
-	if err != nil {
-		if errors.Is(err, services.ErrAdvisorsDisabled) {
-			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
-		}
-
-		return nil, errors.Wrap(err, "failed to get security check results")
-	}
-
-	checkResults := make([]*managementpb.SecurityCheckResult, 0, len(results))
-	for _, result := range results {
-		checkResults = append(checkResults, &managementpb.SecurityCheckResult{
-			Summary:     result.Result.Summary,
-			Description: result.Result.Description,
-			ReadMoreUrl: result.Result.ReadMoreURL,
-			Severity:    managementpb.Severity(result.Result.Severity),
-			Labels:      result.Result.Labels,
-			ServiceName: result.Target.ServiceName,
-		})
-	}
-
-	return &managementpb.GetSecurityCheckResultsResponse{Results: checkResults}, nil //nolint:staticcheck
-}
-
-// StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
-func (s *ChecksAPIService) StartSecurityChecks(_ context.Context, req *managementpb.StartSecurityChecksRequest) (*managementpb.StartSecurityChecksResponse, error) {
+// StartAdvisorChecks executes advisor checks and returns when all checks are executed.
+func (s *ChecksAPIService) StartAdvisorChecks(_ context.Context, req *advisorsv1.StartAdvisorChecksRequest) (*advisorsv1.StartAdvisorChecksResponse, error) {
 	// Start only specified checks from any group.
 	err := s.checksService.StartChecks(req.Names)
 	if err != nil {
@@ -210,14 +186,14 @@ func (s *ChecksAPIService) StartSecurityChecks(_ context.Context, req *managemen
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
 		}
 
-		return nil, errors.Wrap(err, "failed to start security checks")
+		return nil, errors.Wrap(err, "failed to start advisor checks")
 	}
 
-	return &managementpb.StartSecurityChecksResponse{}, nil
+	return &advisorsv1.StartAdvisorChecksResponse{}, nil
 }
 
-// ListSecurityChecks returns a list of available advisor checks and their statuses.
-func (s *ChecksAPIService) ListSecurityChecks(_ context.Context, _ *managementpb.ListSecurityChecksRequest) (*managementpb.ListSecurityChecksResponse, error) {
+// ListAdvisorChecks returns a list of available advisor checks and their statuses.
+func (s *ChecksAPIService) ListAdvisorChecks(_ context.Context, _ *advisorsv1.ListAdvisorChecksRequest) (*advisorsv1.ListAdvisorChecksResponse, error) {
 	disChecks, err := s.checksService.GetDisabledChecks()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get disabled checks list")
@@ -233,22 +209,24 @@ func (s *ChecksAPIService) ListSecurityChecks(_ context.Context, _ *managementpb
 		return nil, errors.Wrap(err, "failed to get available checks list")
 	}
 
-	res := make([]*managementpb.SecurityCheck, 0, len(checks))
+	res := make([]*advisorsv1.AdvisorCheck, 0, len(checks))
 	for _, c := range checks {
 		_, disabled := m[c.Name]
-		res = append(res, &managementpb.SecurityCheck{
+		res = append(res, &advisorsv1.AdvisorCheck{
 			Name:        c.Name,
-			Disabled:    disabled,
+			Enabled:     !disabled,
 			Summary:     c.Summary,
+			Family:      convertFamily(c.GetFamily()),
 			Description: c.Description,
 			Interval:    convertInterval(c.Interval),
 		})
 	}
 
-	return &managementpb.ListSecurityChecksResponse{Checks: res}, nil
+	return &advisorsv1.ListAdvisorChecksResponse{Checks: res}, nil
 }
 
-func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *managementpb.ListAdvisorsRequest) (*managementpb.ListAdvisorsResponse, error) {
+// ListAdvisors retrieves a list of advisors based on the provided request.
+func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *advisorsv1.ListAdvisorsRequest) (*advisorsv1.ListAdvisorsResponse, error) {
 	disChecks, err := s.checksService.GetDisabledChecks()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get disabled checks list")
@@ -264,49 +242,55 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *managementpb.ListA
 		return nil, errors.Wrap(err, "failed to get available checks list")
 	}
 
-	res := make([]*managementpb.Advisor, 0, len(advisors))
+	res := make([]*advisorsv1.Advisor, 0, len(advisors))
 	for _, a := range advisors {
-		checks := make([]*managementpb.SecurityCheck, 0, len(a.Checks))
+		checks := make([]*advisorsv1.AdvisorCheck, 0, len(a.Checks))
 		for _, c := range a.Checks {
 			_, disabled := m[c.Name]
-			checks = append(checks, &managementpb.SecurityCheck{
+			checks = append(checks, &advisorsv1.AdvisorCheck{
 				Name:        c.Name,
-				Disabled:    disabled,
+				Enabled:     !disabled,
 				Summary:     c.Summary,
+				Family:      convertFamily(c.GetFamily()),
 				Description: c.Description,
 				Interval:    convertInterval(c.Interval),
 			})
 		}
 
-		res = append(res, &managementpb.Advisor{
+		res = append(res, &advisorsv1.Advisor{
 			Name:        a.Name,
 			Description: a.Description,
 			Summary:     a.Summary,
-			Comment:     createComment(s.l, a.Checks),
+			Comment:     createComment(a.Checks),
 			Category:    a.Category,
 			Checks:      checks,
 		})
 	}
 
-	return &managementpb.ListAdvisorsResponse{Advisors: res}, nil
+	return &advisorsv1.ListAdvisorsResponse{Advisors: res}, nil
 }
 
-func createComment(l *logrus.Entry, checks []check.Check) string {
-	checksM := make(map[string]check.Check, len(checks))
+func createComment(checks []check.Check) string {
+	var mySQL, postgreSQL, mongoDB bool
 	for _, c := range checks {
-		checksM[c.Name] = c
+		switch c.GetFamily() {
+		case check.MySQL:
+			mySQL = true
+		case check.PostgreSQL:
+			postgreSQL = true
+		case check.MongoDB:
+			mongoDB = true
+		}
 	}
-
-	mysqlChecks, portgreSQLChecks, mongoDBChecks := services.GroupChecksByDB(l, checksM)
 
 	b := make([]string, 0, 3)
-	if len(mysqlChecks) != 0 {
+	if mySQL {
 		b = append(b, "MySQL")
 	}
-	if len(portgreSQLChecks) != 0 {
+	if postgreSQL {
 		b = append(b, "PostgreSQL")
 	}
-	if len(mongoDBChecks) != 0 {
+	if mongoDB {
 		b = append(b, "MongoDB")
 	}
 
@@ -317,78 +301,88 @@ func createComment(l *logrus.Entry, checks []check.Check) string {
 	return "Partial support (" + strings.Join(b, ", ") + ")"
 }
 
-// ChangeSecurityChecks enables/disables Security Thread Tool checks by names or changes its execution interval.
-func (s *ChecksAPIService) ChangeSecurityChecks(_ context.Context, req *managementpb.ChangeSecurityChecksRequest) (*managementpb.ChangeSecurityChecksResponse, error) {
+// ChangeAdvisorChecks enables/disables advisor checks by names or changes its execution interval.
+func (s *ChecksAPIService) ChangeAdvisorChecks(_ context.Context, req *advisorsv1.ChangeAdvisorChecksRequest) (*advisorsv1.ChangeAdvisorChecksResponse, error) {
 	var enableChecks, disableChecks []string
 	changeIntervalParams := make(map[string]check.Interval)
 	for _, check := range req.Params {
-		if check.Enable && check.Disable {
-			return nil, status.Errorf(codes.InvalidArgument, "Check %s has enable and disable parameters set to the true.", check.Name)
-		}
-
-		if check.Interval != managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_INVALID {
+		if check.Interval != advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED {
 			interval, err := convertAPIInterval(check.Interval)
 			if err != nil {
-				return nil, errors.Wrap(err, "failed to change security check interval")
+				return nil, err
 			}
 			changeIntervalParams[check.Name] = interval
 		}
 
-		if check.Enable {
-			enableChecks = append(enableChecks, check.Name)
-		}
-
-		if check.Disable {
-			disableChecks = append(disableChecks, check.Name)
+		if check.Enable != nil {
+			if *check.Enable {
+				enableChecks = append(enableChecks, check.Name)
+			} else {
+				disableChecks = append(disableChecks, check.Name)
+			}
 		}
 	}
 
 	if len(changeIntervalParams) != 0 {
 		err := s.checksService.ChangeInterval(changeIntervalParams)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to change security check interval")
+			return nil, errors.Wrap(err, "failed to change advisor check interval")
 		}
 	}
 
 	err := s.checksService.EnableChecks(enableChecks)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to enable disabled security checks")
+		return nil, errors.Wrap(err, "failed to enable disabled advisor checks")
 	}
 
 	err = s.checksService.DisableChecks(disableChecks)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to disable security checks")
+		return nil, errors.Wrap(err, "failed to disable advisor checks")
 	}
 
-	return &managementpb.ChangeSecurityChecksResponse{}, nil
+	return &advisorsv1.ChangeAdvisorChecksResponse{}, nil
 }
 
-// convertInterval converts check.Interval type to managementpb.SecurityCheckInterval.
-func convertInterval(interval check.Interval) managementpb.SecurityCheckInterval {
+// convertInterval converts check.Interval type to advisorsv1.AdvisorCheckInterval.
+func convertInterval(interval check.Interval) advisorsv1.AdvisorCheckInterval {
 	switch interval {
 	case check.Standard, "": // empty interval means standard
-		return managementpb.SecurityCheckInterval_STANDARD
+		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD
 	case check.Frequent:
-		return managementpb.SecurityCheckInterval_FREQUENT
+		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT
 	case check.Rare:
-		return managementpb.SecurityCheckInterval_RARE
+		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE
 	default:
-		return managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_INVALID
+		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED
 	}
 }
 
-// convertAPIInterval converts managementpb.SecurityCheckInterval type to check.Interval.
-func convertAPIInterval(interval managementpb.SecurityCheckInterval) (check.Interval, error) {
-	switch interval {
-	case managementpb.SecurityCheckInterval_STANDARD:
-		return check.Standard, nil
-	case managementpb.SecurityCheckInterval_FREQUENT:
-		return check.Frequent, nil
-	case managementpb.SecurityCheckInterval_RARE:
-		return check.Rare, nil
-	case managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_INVALID:
-		return check.Interval(""), errors.New("invalid security check interval")
+// convertFamily converts check.Family type to advisorsv1.AdvisorCheckFamily.
+func convertFamily(family check.Family) advisorsv1.AdvisorCheckFamily {
+	switch family {
+	case check.MySQL:
+		return advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MYSQL
+	case check.PostgreSQL:
+		return advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_POSTGRESQL
+	case check.MongoDB:
+		return advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MONGODB
 	default:
-		return check.Interval(""), errors.New("unknown security check interval")
+		return advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_UNSPECIFIED
+	}
+}
+
+// convertAPIInterval converts advisorsv1.AdvisorCheckInterval type to check.Interval.
+func convertAPIInterval(interval advisorsv1.AdvisorCheckInterval) (check.Interval, error) {
+	switch interval {
+	case advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD:
+		return check.Standard, nil
+	case advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT:
+		return check.Frequent, nil
+	case advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE:
+		return check.Rare, nil
+	case advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED:
+		return "", errors.New("invalid advisor check interval")
+	default:
+		return "", errors.New("unknown advisor check interval")
 	}
 }

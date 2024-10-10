@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,6 @@ package interceptors
 import (
 	"context"
 	"io"
-	"os"
 	"runtime/debug"
 	"runtime/pprof"
 	"time"
@@ -31,8 +30,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/managed/utils/logger"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	"github.com/percona/pmm/utils/logger"
 )
 
 func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
@@ -79,6 +78,7 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 	return //nolint:nakedret
 }
 
+// UnaryInterceptorType represents the type of a unary gRPC interceptor.
 type UnaryInterceptorType = func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error)
 
 // Unary adds context logger and Prometheus metrics to unary server RPC.
@@ -92,8 +92,7 @@ func Unary(interceptor grpc.UnaryServerInterceptor) UnaryInterceptorType {
 		// set logger
 		l := logrus.WithField("request", logger.MakeRequestID())
 		ctx = logger.SetEntry(ctx, l)
-
-		if info.FullMethod == "/server.Server/Readiness" && os.Getenv("LESS_LOG_NOISE") != "" {
+		if info.FullMethod == "/server.v1.ServerService/Readiness" && l.Level < logrus.DebugLevel {
 			l = logrus.NewEntry(logrus.New())
 			l.Logger.SetOutput(io.Discard)
 		}
@@ -123,8 +122,8 @@ func Stream(interceptor grpc.StreamServerInterceptor) func(srv interface{}, ss g
 
 		// set logger
 		l := logrus.WithField("request", logger.MakeRequestID())
-		if info.FullMethod == "/agent.Agent/Connect" {
-			md, _ := agentpb.ReceiveAgentConnectMetadata(ss)
+		if info.FullMethod == "/agent.v1.AgentService/Connect" {
+			md, _ := agentv1.ReceiveAgentConnectMetadata(ss)
 			if md != nil && md.ID != "" {
 				l = l.WithField("agent_id", md.ID)
 			}
@@ -142,7 +141,7 @@ func Stream(interceptor grpc.StreamServerInterceptor) func(srv interface{}, ss g
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ grpc.UnaryServerInterceptor  = Unary(nil)
 	_ grpc.StreamServerInterceptor = Stream(nil)

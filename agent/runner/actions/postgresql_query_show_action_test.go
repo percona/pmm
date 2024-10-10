@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/agent/utils/tests"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 func TestPostgreSQLQueryShow(t *testing.T) {
@@ -37,10 +37,12 @@ func TestPostgreSQLQueryShow(t *testing.T) {
 
 	t.Run("Default", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_PostgreSQLQueryShowParams{
+		params := &agentv1.StartActionRequest_PostgreSQLQueryShowParams{
 			Dsn: dsn,
 		}
-		a := NewPostgreSQLQueryShowAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLQueryShowAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -49,7 +51,7 @@ func TestPostgreSQLQueryShow(t *testing.T) {
 		assert.LessOrEqual(t, 22000, len(b))
 		assert.LessOrEqual(t, len(b), 33668)
 
-		data, err := agentpb.UnmarshalActionQueryResult(b)
+		data, err := agentv1.UnmarshalActionQueryResult(b)
 		require.NoError(t, err)
 		t.Log(spew.Sdump(data))
 		assert.LessOrEqual(t, 200, len(data))

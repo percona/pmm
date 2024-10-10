@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -16,11 +16,13 @@
 package agents
 
 import (
+	"fmt"
 	"os"
 	"sort"
+	"strings"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/utils/envvars"
 )
 
@@ -30,7 +32,11 @@ var (
 )
 
 // vmAgentConfig returns desired configuration of vmagent process.
-func vmAgentConfig(scrapeCfg string) *agentpb.SetStateRequest_AgentProcess {
+func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentv1.SetStateRequest_AgentProcess {
+	serverURL := "{{.server_url}}/victoriametrics/"
+	if params.ExternalVM() {
+		serverURL = params.URL()
+	}
 	maxScrapeSize := maxScrapeSizeDefault
 	if space := os.Getenv(maxScrapeSizeEnv); space != "" {
 		maxScrapeSize = space
@@ -39,7 +45,7 @@ func vmAgentConfig(scrapeCfg string) *agentpb.SetStateRequest_AgentProcess {
 	interfaceToBind := envvars.GetInterfaceToBind()
 
 	args := []string{
-		"-remoteWrite.url={{.server_url}}/victoriametrics/api/v1/write",
+		fmt.Sprintf("-remoteWrite.url=%sapi/v1/write", serverURL),
 		"-remoteWrite.tlsInsecureSkipVerify={{.server_insecure}}",
 		"-remoteWrite.tmpDataPath={{.tmp_dir}}/vmagent-temp-dir",
 		"-promscrape.config={{.TextFiles.vmagentscrapecfg}}",
@@ -50,18 +56,27 @@ func vmAgentConfig(scrapeCfg string) *agentpb.SetStateRequest_AgentProcess {
 		"-httpListenAddr=" + interfaceToBind + ":{{.listen_port}}",
 		// needed for login/password at client side.
 		"-envflag.enable=true",
+		"-envflag.prefix=VMAGENT_",
 	}
 
 	sort.Strings(args)
 
-	envs := []string{
-		"remoteWrite_basicAuth_username={{.server_username}}",
-		"remoteWrite_basicAuth_password={{.server_password}}",
+	var envs []string
+	if !params.ExternalVM() {
+		envs = []string{
+			"VMAGENT_remoteWrite_basicAuth_username={{.server_username}}",
+			"VMAGENT_remoteWrite_basicAuth_password={{.server_password}}",
+		}
+	}
+	for _, env := range os.Environ() {
+		if strings.HasPrefix(env, envvars.ENVvmAgentPrefix) {
+			envs = append(envs, env)
+		}
 	}
 	sort.Strings(envs)
 
-	res := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_VM_AGENT,
+	res := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_VM_AGENT,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args:               args,

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -199,7 +199,7 @@ func ChangeDefaultRole(tx *reform.TX, roleID int) error {
 	}
 
 	var p ChangeSettingsParams
-	p.DefaultRoleID = roleID
+	p.DefaultRoleID = &roleID
 
 	_, err := UpdateSettings(tx, &p)
 

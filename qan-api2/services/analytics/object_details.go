@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -22,14 +22,13 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
 )
 
 // GetMetrics implements rpc to get metrics for specific filtering.
-func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qanpb.MetricsReply, error) {
+func (s *Service) GetMetrics(ctx context.Context, in *qanpb.GetMetricsRequest) (*qanpb.GetMetricsResponse, error) {
 	if in.PeriodStartFrom == nil {
 		return nil, fmt.Errorf("period_start_from is required:%v", in.PeriodStartFrom)
 	}
@@ -52,7 +51,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 
 	m := make(map[string]*qanpb.MetricValues)
 	t := make(map[string]*qanpb.MetricValues)
-	resp := &qanpb.MetricsReply{
+	resp := &qanpb.GetMetricsResponse{
 		Metrics: m,
 		Totals:  t,
 	}
@@ -75,7 +74,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 
 		if len(metricsList) < 2 {
 			logrus.Debugf("metrics not found for filter: %s and group: %s in given time range", in.FilterBy, in.GroupBy)
-			return &qanpb.MetricsReply{}, nil
+			return &qanpb.GetMetricsResponse{}, nil
 		}
 		// Get metrics of one queryid, server etc. without totals
 		metrics = metricsList[0]
@@ -97,7 +96,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 	totalLen := len(totalsList)
 	if totalLen < 2 {
 		logrus.Debugf("totals not found for filter: %s and group: %s in given time range", in.FilterBy, in.GroupBy)
-		return &qanpb.MetricsReply{}, nil
+		return &qanpb.GetMetricsResponse{}, nil
 	}
 
 	// Get totals for given filter
@@ -225,7 +224,7 @@ func makeMetrics(mm, t models.M, durationSec int64) map[string]*qanpb.MetricValu
 }
 
 // GetQueryExample gets query examples in given time range for queryid.
-func (s *Service) GetQueryExample(ctx context.Context, in *qanpb.QueryExampleRequest) (*qanpb.QueryExampleReply, error) {
+func (s *Service) GetQueryExample(ctx context.Context, in *qanpb.GetQueryExampleRequest) (*qanpb.GetQueryExampleResponse, error) {
 	if in.PeriodStartFrom == nil {
 		return nil, fmt.Errorf("period_start_from is required:%v", in.PeriodStartFrom)
 	}
@@ -272,7 +271,7 @@ func (s *Service) GetQueryExample(ctx context.Context, in *qanpb.QueryExampleReq
 }
 
 // GetLabels gets labels in given time range for object.
-func (s *Service) GetLabels(ctx context.Context, in *qanpb.ObjectDetailsLabelsRequest) (*qanpb.ObjectDetailsLabelsReply, error) {
+func (s *Service) GetLabels(ctx context.Context, in *qanpb.GetLabelsRequest) (*qanpb.GetLabelsResponse, error) {
 	if in.PeriodStartFrom == nil {
 		return nil, fmt.Errorf("period_start_from is required: %v", in.PeriodStartFrom)
 	}
@@ -302,7 +301,7 @@ func (s *Service) GetLabels(ctx context.Context, in *qanpb.ObjectDetailsLabelsRe
 }
 
 // GetQueryPlan gets query plan and plan ID for given queryid.
-func (s *Service) GetQueryPlan(ctx context.Context, in *qanpb.QueryPlanRequest) (*qanpb.QueryPlanReply, error) {
+func (s *Service) GetQueryPlan(ctx context.Context, in *qanpb.GetQueryPlanRequest) (*qanpb.GetQueryPlanResponse, error) {
 	resp, err := s.mm.SelectQueryPlan(
 		ctx,
 		in.Queryid)
@@ -313,7 +312,7 @@ func (s *Service) GetQueryPlan(ctx context.Context, in *qanpb.QueryPlanRequest) 
 }
 
 // GetHistogram gets histogram for given queryid.
-func (s *Service) GetHistogram(ctx context.Context, in *qanpb.HistogramRequest) (*qanpb.HistogramReply, error) {
+func (s *Service) GetHistogram(ctx context.Context, in *qanpb.GetHistogramRequest) (*qanpb.GetHistogramResponse, error) {
 	if in.PeriodStartFrom == nil {
 		return nil, fmt.Errorf("period_start_from is required:%v", in.PeriodStartFrom)
 	}
@@ -353,7 +352,7 @@ func (s *Service) GetHistogram(ctx context.Context, in *qanpb.HistogramRequest) 
 }
 
 // QueryExists check if query value in request exists in clickhouse.
-func (s *Service) QueryExists(ctx context.Context, in *qanpb.QueryExistsRequest) (*wrapperspb.BoolValue, error) {
+func (s *Service) QueryExists(ctx context.Context, in *qanpb.QueryExistsRequest) (*qanpb.QueryExistsResponse, error) {
 	resp, err := s.mm.QueryExists(
 		ctx,
 		in.Serviceid,
@@ -362,14 +361,27 @@ func (s *Service) QueryExists(ctx context.Context, in *qanpb.QueryExistsRequest)
 		return nil, fmt.Errorf("error in checking query:%w", err)
 	}
 
-	return wrapperspb.Bool(resp), nil
+	return &qanpb.QueryExistsResponse{Exists: resp}, nil
 }
 
 // ExplainFingerprintByQueryID get explain fingerprint and placeholders count by query ID.
-func (s *Service) ExplainFingerprintByQueryID(ctx context.Context, in *qanpb.ExplainFingerprintByQueryIDRequest) (*qanpb.ExplainFingerprintByQueryIDReply, error) {
+func (s *Service) ExplainFingerprintByQueryID(ctx context.Context, in *qanpb.ExplainFingerprintByQueryIDRequest) (*qanpb.ExplainFingerprintByQueryIDResponse, error) {
 	res, err := s.mm.ExplainFingerprintByQueryID(
 		ctx,
 		in.Serviceid,
+		in.QueryId)
+	if err != nil {
+		return nil, fmt.Errorf("error in checking query:%w", err)
+	}
+
+	return res, nil
+}
+
+// SchemaByQueryID returns schema for given queryID and serviceID.
+func (s *Service) SchemaByQueryID(ctx context.Context, in *qanpb.SchemaByQueryIDRequest) (*qanpb.SchemaByQueryIDResponse, error) {
+	res, err := s.mm.SchemaByQueryID(
+		ctx,
+		in.ServiceId,
 		in.QueryId)
 	if err != nil {
 		return nil, fmt.Errorf("error in checking query:%w", err)

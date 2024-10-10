@@ -3,19 +3,18 @@ version: '3.7'
 
 services:
   pmm-server:
-    image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:dev-latest}
+    image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:3-dev-latest}
     container_name: pmm-agent_pmm-server
     ports:
-      - 127.0.0.1:80:80
-      - 127.0.0.1:443:443
+      - 127.0.0.1:80:8080
+      - 127.0.0.1:443:8443
     environment:
       - PMM_DEBUG=1
-      - PERCONA_TEST_CHECKS_INTERVAL=10s
       # for local development
-      # - PERCONA_TEST_CHECKS_FILE=/srv/checks/custom-checks.yml
+      # - PMM_DEV_ADVISOR_CHECKS_FILE=/srv/checks/custom-checks.yml
       # for check-dev
-      - PERCONA_TEST_SAAS_HOST=check-dev.percona.com
-      - PERCONA_TEST_CHECKS_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX
+      - PMM_DEV_PERCONA_PLATFORM_ADDRESS=check-dev.percona.com
+      - PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX
     volumes:
       - ./testdata/checks:/srv/checks
 
@@ -36,13 +35,16 @@ services:
       --sql-mode="ANSI_QUOTES"
       --performance-schema --innodb_monitor_enable=all
       --slow_query_log --slow_query_log_file=/mysql/slowlogs/slow.log --long_query_time=0
-    ports:
-      - 127.0.0.1:3306:3306
     environment:
       - MYSQL_ROOT_PASSWORD=root-password
       - MYSQL_USER=pmm-agent
       - MYSQL_PASSWORD=pmm-agent-password
       - UMASK=0777  # for slowlog file
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-uroot", "-proot-password"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
     volumes:
       - test_db_mysql:/docker-entrypoint-initdb.d/:ro
       - ./testdata/mysql:/mysql
@@ -51,8 +53,6 @@ services:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:4.2}
     container_name: pmm-agent_mongo
     command: --profile 2
-    ports:
-      - 127.0.0.1:27017:27017
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=root-password
@@ -67,13 +67,32 @@ services:
       -c pg_stat_statements.track=all
       -c pg_stat_statements.save=off
       -c track_io_timing=on
-    ports:
-      - 127.0.0.1:5432:5432
     environment:
       - POSTGRES_USER=pmm-agent
       - POSTGRES_PASSWORD=pmm-agent-password
     volumes:
       - test_db_postgres:/docker-entrypoint-initdb.d/
+
+
+  pmm-client-mysql:
+    image: percona/pmm-client:2
+    platform: "linux/amd64"
+    container_name: pmm-client-mysql
+    depends_on:
+      pmm-server:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    environment:
+      PMM_AGENT_SERVER_ADDRESS: pmm-server
+      PMM_AGENT_SERVER_USERNAME: admin
+      PMM_AGENT_SERVER_PASSWORD: admin
+      PMM_AGENT_SERVER_INSECURE_TLS: 1
+      PMM_AGENT_CONFIG_FILE: config/pmm-agent.yaml
+      PMM_AGENT_SETUP: 1
+      PMM_AGENT_SETUP_FORCE: 1
+      PMM_AGENT_SIDECAR: 1
+#      PMM_AGENT_PRERUN_SCRIPT: "pmm-admin status --wait=10s; pmm-admin add mysql --username=pmm-agent --password=pmm-agent-password --host=pmm-agent_mysql --port=3306"
 
   sysbench:
     image: perconalab/sysbench

@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package backup.v1;
+
+// ErrorCode is a set of specific errors that are not present in the standard set of errors
+// and returned in the details field of the response.
+enum ErrorCode {
+  ERROR_CODE_UNSPECIFIED = 0;
+  // ERROR_CODE_XTRABACKUP_NOT_INSTALLED is returned if some xtrabackup component is missing.
+  ERROR_CODE_XTRABACKUP_NOT_INSTALLED = 1;
+  // ERROR_CODE_INVALID_XTRABACKUP is returned if xtrabackup components have different version.
+  ERROR_CODE_INVALID_XTRABACKUP = 2;
+  // ERROR_CODE_INCOMPATIBLE_XTRABACKUP is returned if xtrabackup is not compatible with the MySQL.
+  ERROR_CODE_INCOMPATIBLE_XTRABACKUP = 3;
+  // ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL is returned if target version of MySQL is not compatible for restoring selected artifact.
+  ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL = 4;
+  // ERROR_CODE_INCOMPATIBLE_TARGET_MONGODB is returned if target version of MongoDB is not compatible for restoring selected artifact.
+  ERROR_CODE_INCOMPATIBLE_TARGET_MONGODB = 5;
+}
+
+// Error represents error message returned in the details field in the response.
+message Error {
+  ErrorCode code = 1;
+}

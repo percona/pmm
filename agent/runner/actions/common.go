@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/tlshelpers"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 const queryTag = "pmm-agent-tests:MySQLVersion"
@@ -40,7 +40,7 @@ var whiteSpacesRegExp = regexp.MustCompile(`\s+`)
 //	["value 1", 2, …]
 //	…
 //
-// ]
+// ].
 func jsonRows(columns []string, dataRows [][]interface{}) ([]byte, error) {
 	res := make([][]interface{}, len(dataRows)+1)
 
@@ -58,9 +58,9 @@ func jsonRows(columns []string, dataRows [][]interface{}) ([]byte, error) {
 }
 
 // mysqlOpen returns *sql.DB for given MySQL DSN.
-func mysqlOpen(dsn string, tlsFiles *agentpb.TextFiles) (*sql.DB, error) {
+func mysqlOpen(dsn string, tlsFiles *agentv1.TextFiles, tlsSkipVerify bool) (*sql.DB, error) {
 	if tlsFiles != nil {
-		err := tlshelpers.RegisterMySQLCerts(tlsFiles.Files)
+		err := tlshelpers.RegisterMySQLCerts(tlsFiles.Files, tlsSkipVerify)
 		if err != nil {
 			return nil, err
 		}

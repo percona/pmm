@@ -13,10 +13,8 @@ jobs:
       fail-fast: false
       matrix:
         go:
-          - version: 1.20.x
+          - version: 1.22.x
             may-fail: false
-          - version: tip
-            may-fail: true
 
     continue-on-error: ${{ matrix.go.may-fail }}
     runs-on: ubuntu-22.04
@@ -29,14 +27,14 @@ jobs:
       - name: Configure git for private modules
         env:
           ROBOT_TOKEN: ${{ secrets.ROBOT_TOKEN }}
-        run: git config --global url."https://percona-platform-robot:${ROBOT_TOKEN}@github.com".insteadOf "https://github.com"
+        run: echo "machine github.com login percona-robot password ${{ secrets.ROBOT_TOKEN }}" > $HOME/.netrc
 
       - name: Set up Go release
         if: matrix.go.version != 'tip'
         env:
           # to avoid error due to `go version` accepting -v flag with an argument since 1.15
           GOFLAGS: ""
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go.version }}
 
@@ -52,19 +50,19 @@ jobs:
           echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
           echo "$HOME/gotip/bin" >> $GITHUB_PATH
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           lfs: true
 
       - name: Enable Go modules cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/go/pkg/mod
           key: ${{ matrix.os }}-go-${{ matrix.go.version }}-modules-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ matrix.os }}-go-${{ matrix.go.version }}-modules-
       - name: Enable Go build cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/go-build
           key: ${{ matrix.os }}-go-${{ matrix.go.version }}-build-${{ github.ref }}-${{ hashFiles('**') }}

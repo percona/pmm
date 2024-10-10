@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -137,7 +137,7 @@ func CreateJob(q *reform.Querier, params CreateJobParams) (*Job, error) {
 		return nil, err
 	}
 	result := &Job{
-		ID:         "/job_id/" + uuid.New().String(),
+		ID:         uuid.New().String(),
 		PMMAgentID: params.PMMAgentID,
 		Type:       params.Type,
 		Data:       params.Data,

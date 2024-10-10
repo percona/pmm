@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/agent/utils/tests"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 func TestPostgreSQLQuerySelect(t *testing.T) {
@@ -37,11 +37,13 @@ func TestPostgreSQLQuerySelect(t *testing.T) {
 
 	t.Run("Default", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_PostgreSQLQuerySelectParams{
+		params := &agentv1.StartActionRequest_PostgreSQLQuerySelectParams{
 			Dsn:   dsn,
 			Query: "* FROM pg_extension",
 		}
-		a := NewPostgreSQLQuerySelectAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLQuerySelectAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -50,7 +52,7 @@ func TestPostgreSQLQuerySelect(t *testing.T) {
 		assert.LessOrEqual(t, 130, len(b))
 		assert.LessOrEqual(t, len(b), 300)
 
-		data, err := agentpb.UnmarshalActionQueryResult(b)
+		data, err := agentv1.UnmarshalActionQueryResult(b)
 		require.NoError(t, err)
 		t.Log(spew.Sdump(data))
 		assert.LessOrEqual(t, 1, len(data))
@@ -70,11 +72,13 @@ func TestPostgreSQLQuerySelect(t *testing.T) {
 
 	t.Run("Binary", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_PostgreSQLQuerySelectParams{
+		params := &agentv1.StartActionRequest_PostgreSQLQuerySelectParams{
 			Dsn:   dsn,
 			Query: `'\x0001feff'::bytea AS bytes`,
 		}
-		a := NewPostgreSQLQuerySelectAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLQuerySelectAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -82,7 +86,7 @@ func TestPostgreSQLQuerySelect(t *testing.T) {
 		require.NoError(t, err)
 		assert.Len(t, b, 17)
 
-		data, err := agentpb.UnmarshalActionQueryResult(b)
+		data, err := agentv1.UnmarshalActionQueryResult(b)
 		require.NoError(t, err)
 		t.Log(spew.Sdump(data))
 		assert.InDelta(t, 1, len(data), 0)
@@ -94,21 +98,12 @@ func TestPostgreSQLQuerySelect(t *testing.T) {
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_PostgreSQLQuerySelectParams{
+		params := &agentv1.StartActionRequest_PostgreSQLQuerySelectParams{
 			Dsn:   dsn,
 			Query: "* FROM city; DROP TABLE city CASCADE; --",
 		}
-		a := NewPostgreSQLQuerySelectAction("", 0, params, os.TempDir())
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		defer cancel()
-
-		b, err := a.Run(ctx)
+		a, err := NewPostgreSQLQuerySelectAction("", 0, params, os.TempDir())
 		assert.EqualError(t, err, "query contains ';'")
-		assert.Nil(t, b)
-
-		var count int
-		err = db.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
-		require.NoError(t, err)
-		assert.Equal(t, 4079, count)
+		assert.Nil(t, a)
 	})
 }

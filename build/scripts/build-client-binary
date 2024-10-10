@@ -57,8 +57,8 @@ gobuild_component() {
         export PMM_RELEASE_BRANCH=""
         sudo chown -R builder:builder /home/builder/tmp
 
-        source_dir=/home/builder/tmp/source/pmm2-client-${pmm_version}
-        binary_dir=/home/builder/tmp/binary/pmm2-client-${pmm_version}
+        source_dir=/home/builder/tmp/source/pmm-client-${pmm_version}
+        binary_dir=/home/builder/tmp/binary/pmm-client-${pmm_version}
         export PMM_RELEASE_PATH=\${binary_dir}/bin
 
         mkdir -p \$binary_dir/bin
@@ -103,12 +103,11 @@ main() {
     gobuild_component "proxysql_exporter"
     gobuild_component "rds_exporter"
     gobuild_component "azure_metrics_exporter"
-    gobuild_component "clickhouse_exporter" "" "github.com/Percona-Lab/clickhouse_exporter"
 
     gobuild_component "pmm-admin" "pmm" "" "admin"
     gobuild_component "pmm-agent" "pmm" "" "agent"
 
-    echo ${version} > ${binary_dir}/VERSION
+    echo ${pmm_version} > ${binary_dir}/VERSION
 
     copy_component "pmm" "build/packages/rpm/client" "rpm"
     copy_component "pmm" "build/packages/config" "config"
@@ -119,7 +118,8 @@ main() {
     copy_component "mysqld_exporter" "queries-mysqld-group-replication.yml"
     copy_component "postgres_exporter" "example-queries-postgres.yml"
     copy_component "postgres_exporter" "queries-postgres-uptime.yml"
-    copy_component "postgres_exporter" "queries.yaml"
+    copy_component "postgres_exporter" "queries-mr.yaml"
+    copy_component "postgres_exporter" "queries-lr.yaml"
 
     copy_component "percona-toolkit" "bin/pt-summary"
     copy_component "percona-toolkit" "bin/pt-mysql-summary"
@@ -130,7 +130,7 @@ main() {
     mkdir -p $(dirname ${binary_tarball}) || :
     
     # Removes pmm binary in case this is not a PR build - such as RC/GA build
-    if [[ "$(basename ${root_dir})" != pmm2-submodules_PR-* ]]; then
+    if [[ "$(basename ${root_dir})" != pmm-submodules_PR-* ]]; then
         rm -f "${binary_dir}/bin/pmm"
     fi
 

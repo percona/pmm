@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package client provides common methods for working with pmm-client
+// Package client provides common methods for working with pmm-client.
 package client
 
 import (
@@ -69,7 +69,7 @@ func GetLatestVersion(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	defer res.Body.Close() //nolint:errcheck,gosec
+	defer res.Body.Close() //nolint:errcheck,gosec,nolintlint
 
 	url, err := res.Location()
 	if err != nil {
@@ -92,7 +92,7 @@ func DetectDistributionType(ctx context.Context, tarballInstallPath string) (Dis
 	}
 
 	if isTarball {
-		logrus.Debug("Found pmm2-client installed via tarball")
+		logrus.Debug("Found pmm-client installed via tarball")
 		return Tarball, nil
 	}
 
@@ -103,7 +103,7 @@ func DetectDistributionType(ctx context.Context, tarballInstallPath string) (Dis
 	}
 
 	if isPm {
-		logrus.Debug("Found pmm2-client installed via a package manager")
+		logrus.Debug("Found pmm-client installed via a package manager")
 		return PackageManager, nil
 	}
 
@@ -131,7 +131,7 @@ func checkPackageManager(ctx context.Context) (bool, error) {
 }
 
 func detectTarballDistribution(tarballInstallPath string) (bool, error) {
-	p := "/usr/local/percona/pmm2"
+	p := "/usr/local/percona/pmm"
 	if tarballInstallPath != "" {
 		p = tarballInstallPath
 	}
@@ -158,11 +158,11 @@ func detectPackageManagerInstallation(ctx context.Context, pm common.PackageMana
 	switch pm {
 	case common.Dnf:
 		cmds = [][]string{
-			{"dnf", "list", "installed", "pmm2-client"},
+			{"dnf", "list", "installed", "pmm-client"},
 		}
 	case common.Yum:
 		cmds = [][]string{
-			{"yum", "list", "installed", "pmm2-client"},
+			{"yum", "list", "installed", "pmm-client"},
 		}
 	case common.Apt:
 		return queryDpkg(ctx)
@@ -199,7 +199,7 @@ func queryDpkg(ctx context.Context) (bool, error) {
 		"dpkg-query",
 		"--show",
 		"-f=${Package}\t${db:Status-Status}\n",
-		"pmm2-client")
+		"pmm-client")
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {

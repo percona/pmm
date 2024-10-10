@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,32 +18,36 @@ import (
 	"context"
 	"database/sql"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/utils/templates"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/utils/sqlrows"
 )
+
+const postgreSQLQueryShowActionType = "postgresql-query-show"
 
 type postgresqlQueryShowAction struct {
 	id      string
 	timeout time.Duration
-	params  *agentpb.StartActionRequest_PostgreSQLQueryShowParams
-	tempDir string
+	dsn     string
 }
 
 // NewPostgreSQLQueryShowAction creates PostgreSQL SHOW query Action.
-func NewPostgreSQLQueryShowAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_PostgreSQLQueryShowParams, tempDir string) Action {
+func NewPostgreSQLQueryShowAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_PostgreSQLQueryShowParams, tempDir string) (Action, error) {
+	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, filepath.Join(tempDir, postgreSQLQueryShowActionType, id))
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
 	return &postgresqlQueryShowAction{
 		id:      id,
 		timeout: timeout,
-		params:  params,
-		tempDir: tempDir,
-	}
+		dsn:     dsn,
+	}, nil
 }
 
 // ID returns an Action ID.
@@ -58,17 +62,17 @@ func (a *postgresqlQueryShowAction) Timeout() time.Duration {
 
 // Type returns an Action type.
 func (a *postgresqlQueryShowAction) Type() string {
-	return "postgresql-query-show"
+	return postgreSQLQueryShowActionType
+}
+
+// DSN returns a DSN for the Action.
+func (a *postgresqlQueryShowAction) DSN() string {
+	return a.dsn
 }
 
 // Run runs an Action and returns output and error.
 func (a *postgresqlQueryShowAction) Run(ctx context.Context) ([]byte, error) {
-	dsn, err := templates.RenderDSN(a.params.Dsn, a.params.TlsFiles, filepath.Join(a.tempDir, strings.ToLower(a.Type()), a.id))
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	connector, err := pq.NewConnector(dsn)
+	connector, err := pq.NewConnector(a.dsn)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -84,7 +88,7 @@ func (a *postgresqlQueryShowAction) Run(ctx context.Context) ([]byte, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	return agentpb.MarshalActionQuerySQLResult(columns, dataRows)
+	return agentv1.MarshalActionQuerySQLResult(columns, dataRows)
 }
 
 func (a *postgresqlQueryShowAction) sealed() {}

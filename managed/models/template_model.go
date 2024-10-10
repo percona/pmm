@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -20,14 +20,15 @@ import (
 	"time"
 
 	"github.com/percona-platform/saas/pkg/common"
+	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
 //go:generate ../../bin/reform
 
-// Template represents Integrated Alerting rule template.
+// Template represents Percona Alerting rule template.
 //
-//reform:ia_templates
+//reform:alert_rule_templates
 type Template struct {
 	Name        string                     `reform:"name,pk"`
 	Version     uint32                     `reform:"version"`
@@ -111,13 +112,32 @@ func (p *AlertExprParamsDefinitions) Scan(src interface{}) error { return jsonSc
 type AlertExprParamDefinition struct {
 	Name    string    `json:"name"`
 	Summary string    `json:"summary"`
-	Unit    string    `json:"unit"`
+	Unit    ParamUnit `json:"unit"`
 	Type    ParamType `json:"type"`
 
 	FloatParam *FloatParam `json:"float_param"`
 	// BoolParam   *BoolParam   `json:"bool_param"`
 	// StringParam *StringParam `json:"string_param"`
 }
+
+// ParamType represents parameter type.
+type ParamType string
+
+// Available parameter types.
+const (
+	Float  = ParamType("float")
+	Bool   = ParamType("bool")
+	String = ParamType("string")
+)
+
+// ParamUnit parameter unit.
+type ParamUnit string
+
+// Available parameter units.
+const (
+	Percent = ParamUnit("%")
+	Seconds = ParamUnit("s")
+)
 
 // BoolParam represents boolean template parameter.
 type BoolParam struct {
@@ -134,6 +154,35 @@ type FloatParam struct {
 // StringParam represents string template parameter.
 type StringParam struct {
 	Default *string `json:"default,omitempty"`
+}
+
+// Severity represents alert severity.
+// Integer values is the same as common.Severity. Common constants can be used.
+// Database representation is a string and is handled by Value and Scan methods below.
+type Severity common.Severity
+
+// Value implements database/sql/driver Valuer interface.
+func (s Severity) Value() (driver.Value, error) {
+	cs := common.Severity(s)
+	if err := cs.Validate(); err != nil {
+		return nil, err
+	}
+	return cs.String(), nil
+}
+
+// Scan implements database/sql Scanner interface.
+func (s *Severity) Scan(src interface{}) error {
+	switch src := src.(type) {
+	case string:
+		cs := common.ParseSeverity(src)
+		if err := cs.Validate(); err != nil {
+			return err
+		}
+		*s = Severity(cs)
+		return nil
+	default:
+		return errors.Errorf("expected string, got %T (%q)", src, src)
+	}
 }
 
 // Source represents template source.

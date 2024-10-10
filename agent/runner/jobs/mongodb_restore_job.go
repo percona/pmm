@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 const (
@@ -42,7 +42,7 @@ type MongoDBRestoreJob struct {
 	l               *logrus.Entry
 	name            string
 	pitrTimestamp   time.Time
-	dbURL           *string
+	dbURL           string
 	locationConfig  BackupLocationConfig
 	agentsRestarter agentsRestarter
 	jobLogger       *pbmJobLogger
@@ -56,7 +56,7 @@ func NewMongoDBRestoreJob(
 	timeout time.Duration,
 	name string,
 	pitrTimestamp time.Time,
-	dbConfig *string,
+	dbConfig string,
 	locationConfig BackupLocationConfig,
 	restarter agentsRestarter,
 	folder string,
@@ -92,6 +92,11 @@ func (j *MongoDBRestoreJob) Timeout() time.Duration {
 	return j.timeout
 }
 
+// DSN returns DSN required for the Job.
+func (j *MongoDBRestoreJob) DSN() string {
+	return j.dbURL
+}
+
 // Run starts Job execution.
 func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	defer j.jobLogger.sendLog(send, "", true)
@@ -121,7 +126,7 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	configParams := pbmConfigParams{
 		configFilePath: confFile,
 		forceResync:    true,
-		dbURL:          j.dbURL,
+		dsn:            j.dbURL,
 	}
 	if err := pbmConfigure(ctx, j.l, configParams); err != nil {
 		return errors.Wrap(err, "failed to configure pbm")
@@ -134,10 +139,15 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	}
 	cancel()
 
-	snapshot, err := j.findSnapshot(ctx, j.pbmBackupName)
+	snapshot, err := j.findCurrentSnapshot(ctx, j.pbmBackupName)
 	if err != nil {
 		j.jobLogger.sendLog(send, err.Error(), false)
 		return errors.WithStack(err)
+	}
+
+	if snapshot.Status == "error" { //nolint:goconst
+		j.jobLogger.sendLog(send, snapshot.Error, false)
+		return errors.Wrap(ErrPBMArtifactProblem, snapshot.Error)
 	}
 
 	defer j.agentsRestarter.RestartAgents()
@@ -161,55 +171,36 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrap(err, "failed to wait backup restore completion")
 	}
 
-	send(&agentpb.JobResult{
+	send(&agentv1.JobResult{
 		JobId:     j.id,
 		Timestamp: timestamppb.Now(),
-		Result: &agentpb.JobResult_MongodbRestoreBackup{
-			MongodbRestoreBackup: &agentpb.JobResult_MongoDBRestoreBackup{},
+		Result: &agentv1.JobResult_MongodbRestoreBackup{
+			MongodbRestoreBackup: &agentv1.JobResult_MongoDBRestoreBackup{},
 		},
 	})
 
 	return nil
 }
 
-func (j *MongoDBRestoreJob) findSnapshot(ctx context.Context, snapshotName string) (*pbmSnapshot, error) {
+func (j *MongoDBRestoreJob) findCurrentSnapshot(ctx context.Context, snapshotName string) (*pbmSnapshot, error) {
 	j.l.Info("Finding backup entity name.")
 
-	var list pbmList
-	ticker := time.NewTicker(listCheckInterval)
-	defer ticker.Stop()
+	snapshots, err := getSnapshots(ctx, j.l, j.dbURL)
+	if err != nil {
+		return nil, err
+	}
 
-	checks := 0
-	for {
-		select {
-		case <-ticker.C:
-			checks++
-			if err := execPBMCommand(ctx, j.dbURL, &list, "list"); err != nil {
-				return nil, err
-			}
+	// Old artifacts don't contain pbm backup name.
+	if snapshotName == "" {
+		return &snapshots[0], nil
+	}
 
-			if len(list.Snapshots) == 0 {
-				j.l.Debugf("Try number %d of getting list of artifacts from PBM is failed.", checks)
-				if checks > maxListChecks {
-					return nil, errors.Wrap(ErrNotFound, "got no one snapshot")
-				}
-				continue
-			}
-
-			// Old artifacts don't contain pbm backup name.
-			if snapshotName == "" {
-				return &list.Snapshots[len(list.Snapshots)-1], nil
-			}
-
-			for _, s := range list.Snapshots {
-				if s.Name == snapshotName {
-					return &s, nil
-				}
-			}
-		case <-ctx.Done():
-			return nil, ctx.Err()
+	for _, s := range snapshots {
+		if s.Name == snapshotName {
+			return &s, nil
 		}
 	}
+	return nil, errors.WithStack(ErrNotFound)
 }
 
 func (j *MongoDBRestoreJob) startRestore(ctx context.Context, backupName string) (*pbmRestore, error) {

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -17,18 +17,20 @@
 package channel
 
 import (
+	"context"
 	"sync"
 	"sync/atomic"
 
-	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	protostatus "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
+	"google.golang.org/protobuf/encoding/prototext"
+	"google.golang.org/protobuf/proto"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/managed/utils/logger"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	"github.com/percona/pmm/utils/logger"
 )
 
 const (
@@ -36,20 +38,20 @@ const (
 )
 
 // AgentRequest represents an request from agent.
-// It is similar to agentpb.AgentMessage except it can contain only requests,
+// It is similar to agentv1.AgentMessage except it can contain only requests,
 // and the payload is already unwrapped (XXX instead of AgentMessage_XXX).
 type AgentRequest struct {
 	ID      uint32
-	Payload agentpb.AgentRequestPayload
+	Payload agentv1.AgentRequestPayload
 }
 
 // ServerResponse represents server's response.
-// It is similar to agentpb.ServerMessage except it can contain only responses,
+// It is similar to agentv1.ServerMessage except it can contain only responses,
 // and the payload is already unwrapped (XXX instead of ServerMessage_XXX).
 type ServerResponse struct {
 	ID      uint32
 	Status  *grpcstatus.Status
-	Payload agentpb.ServerResponsePayload
+	Payload agentv1.ServerResponsePayload
 }
 
 // Metrics represents useful channel metrics.
@@ -62,8 +64,13 @@ type Metrics struct {
 
 // Response is a type used to pass response from pmm-agent to the subscriber.
 type Response struct {
-	Payload agentpb.AgentResponsePayload
+	Payload agentv1.AgentResponsePayload
 	Error   error
+}
+
+type Stream interface { //nolint:revive
+	Send(*agentv1.ServerMessage) error //nolint:inamedparam
+	Recv() (*agentv1.AgentMessage, error)
 }
 
 // Channel encapsulates two-way communication channel between pmm-managed and pmm-agent.
@@ -72,7 +79,7 @@ type Response struct {
 //
 //nolint:maligned
 type Channel struct {
-	s agentpb.Agent_ConnectServer
+	s Stream
 
 	mSent, mRecv uint32
 
@@ -94,7 +101,7 @@ type Channel struct {
 // New creates new two-way communication channel with given stream.
 //
 // Stream should not be used by the caller after channel is created.
-func New(stream agentpb.Agent_ConnectServer) *Channel {
+func New(ctx context.Context, stream Stream) *Channel {
 	s := &Channel{
 		s: stream,
 
@@ -103,7 +110,7 @@ func New(stream agentpb.Agent_ConnectServer) *Channel {
 
 		closeWait: make(chan struct{}),
 
-		l: logger.Get(stream.Context()),
+		l: logger.Get(ctx),
 	}
 
 	go s.runReceiver()
@@ -142,7 +149,7 @@ func (c *Channel) Requests() <-chan *AgentRequest {
 
 // Send sends message to pmm-managed. It is no-op once channel is closed (see Wait).
 func (c *Channel) Send(resp *ServerResponse) {
-	msg := &agentpb.ServerMessage{
+	msg := &agentv1.ServerMessage{
 		Id:     resp.ID,
 		Status: resp.Status.Proto(),
 	}
@@ -156,11 +163,11 @@ func (c *Channel) Send(resp *ServerResponse) {
 // If error occurred - subscription got canceled - returned payload is nil and error contains reason for cancellation.
 // Response and error will be both nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
-func (c *Channel) SendAndWaitResponse(payload agentpb.ServerRequestPayload) (agentpb.AgentResponsePayload, error) {
+func (c *Channel) SendAndWaitResponse(payload agentv1.ServerRequestPayload) (agentv1.AgentResponsePayload, error) { //nolint:ireturn
 	id := atomic.AddUint32(&c.lastSentRequestID, 1)
 	ch := c.subscribe(id)
 
-	c.send(&agentpb.ServerMessage{
+	c.send(&agentv1.ServerMessage{
 		Id:      id,
 		Payload: payload.ServerMessageRequestPayload(),
 	})
@@ -172,7 +179,7 @@ func (c *Channel) SendAndWaitResponse(payload agentpb.ServerRequestPayload) (age
 	return resp.Payload, resp.Error
 }
 
-func (c *Channel) send(msg *agentpb.ServerMessage) {
+func (c *Channel) send(msg *agentv1.ServerMessage) {
 	c.sendM.Lock()
 	select {
 	case <-c.closeWait:
@@ -188,7 +195,7 @@ func (c *Channel) send(msg *agentpb.ServerMessage) {
 		if size := proto.Size(msg); size < 100 {
 			c.l.Debugf("Sending message (%d bytes): %s.", size, msg)
 		} else {
-			c.l.Debugf("Sending message (%d bytes):\n%s\n", size, proto.MarshalTextString(msg))
+			c.l.Debugf("Sending message (%d bytes):\n%s\n", size, prototext.Format(msg))
 		}
 	}
 
@@ -201,7 +208,7 @@ func (c *Channel) send(msg *agentpb.ServerMessage) {
 	atomic.AddUint32(&c.mSent, 1)
 }
 
-// runReader receives messages from server.
+// runReceiver receives messages from server.
 func (c *Channel) runReceiver() {
 	defer func() {
 		close(c.requests)
@@ -223,68 +230,70 @@ func (c *Channel) runReceiver() {
 			if size := proto.Size(msg); size < 100 {
 				c.l.Debugf("Received message (%d bytes): %s.", size, msg)
 			} else {
-				c.l.Debugf("Received message (%d bytes):\n%s\n", size, proto.MarshalTextString(msg))
+				c.l.Debugf("Received message (%d bytes):\n%s\n", size, prototext.Format(msg))
 			}
 		}
 
 		switch p := msg.Payload.(type) {
 		// requests
-		case *agentpb.AgentMessage_Ping:
+		case *agentv1.AgentMessage_Ping:
 			c.requests <- &AgentRequest{
 				ID:      msg.Id,
 				Payload: p.Ping,
 			}
-		case *agentpb.AgentMessage_StateChanged:
+		case *agentv1.AgentMessage_StateChanged:
 			c.requests <- &AgentRequest{
 				ID:      msg.Id,
 				Payload: p.StateChanged,
 			}
-		case *agentpb.AgentMessage_QanCollect:
+		case *agentv1.AgentMessage_QanCollect:
 			c.requests <- &AgentRequest{
 				ID:      msg.Id,
 				Payload: p.QanCollect,
 			}
-		case *agentpb.AgentMessage_ActionResult:
+		case *agentv1.AgentMessage_ActionResult:
 			c.requests <- &AgentRequest{
 				ID:      msg.Id,
 				Payload: p.ActionResult,
 			}
 
 		// simple messages
-		case *agentpb.AgentMessage_JobResult:
+		case *agentv1.AgentMessage_JobResult:
 			c.requests <- &AgentRequest{
 				ID:      msg.Id,
 				Payload: p.JobResult,
 			}
-		case *agentpb.AgentMessage_JobProgress:
+		case *agentv1.AgentMessage_JobProgress:
 			c.requests <- &AgentRequest{
 				ID:      msg.Id,
 				Payload: p.JobProgress,
 			}
 
 		// responses
-		case *agentpb.AgentMessage_Pong:
+		case *agentv1.AgentMessage_Pong:
 			c.publish(msg.Id, msg.Status, p.Pong)
-		case *agentpb.AgentMessage_SetState:
+		case *agentv1.AgentMessage_SetState:
 			c.publish(msg.Id, msg.Status, p.SetState)
-		case *agentpb.AgentMessage_StartAction:
+		case *agentv1.AgentMessage_StartAction:
 			c.publish(msg.Id, msg.Status, p.StartAction)
-		case *agentpb.AgentMessage_StopAction:
+		case *agentv1.AgentMessage_StopAction:
 			c.publish(msg.Id, msg.Status, p.StopAction)
-		case *agentpb.AgentMessage_StartJob:
+		case *agentv1.AgentMessage_StartJob:
 			c.publish(msg.Id, msg.Status, p.StartJob)
-		case *agentpb.AgentMessage_StopJob:
+		case *agentv1.AgentMessage_StopJob:
 			c.publish(msg.Id, msg.Status, p.StopJob)
-		case *agentpb.AgentMessage_JobStatus:
+		case *agentv1.AgentMessage_JobStatus:
 			c.publish(msg.Id, msg.Status, p.JobStatus)
-		case *agentpb.AgentMessage_CheckConnection:
+		case *agentv1.AgentMessage_CheckConnection:
 			c.publish(msg.Id, msg.Status, p.CheckConnection)
-		case *agentpb.AgentMessage_GetVersions:
+		case *agentv1.AgentMessage_GetVersions:
 			c.publish(msg.Id, msg.Status, p.GetVersions)
-		case *agentpb.AgentMessage_PbmSwitchPitr:
+		case *agentv1.AgentMessage_PbmSwitchPitr:
 			c.publish(msg.Id, msg.Status, p.PbmSwitchPitr)
-		case *agentpb.AgentMessage_AgentLogs:
+		case *agentv1.AgentMessage_AgentLogs:
 			c.publish(msg.Id, msg.Status, p.AgentLogs)
+		case *agentv1.AgentMessage_ServiceInfo:
+			c.publish(msg.Id, msg.Status, p.ServiceInfo)
 
 		case nil:
 			c.cancel(msg.Id, errors.Errorf("unimplemented: failed to handle received message %s", msg))
@@ -296,7 +305,7 @@ func (c *Channel) runReceiver() {
 			}
 			c.Send(&ServerResponse{
 				ID:     msg.Id,
-				Status: grpcstatus.New(codes.Unimplemented, "can't handle message type send, it is not implemented"),
+				Status: grpcstatus.New(codes.Unimplemented, "can't handle message type sent, it is not implemented"),
 			})
 		}
 	}
@@ -346,7 +355,7 @@ func (c *Channel) cancel(id uint32, err error) {
 	}
 }
 
-func (c *Channel) publish(id uint32, status *protostatus.Status, resp agentpb.AgentResponsePayload) {
+func (c *Channel) publish(id uint32, status *protostatus.Status, resp agentv1.AgentResponsePayload) {
 	if status != nil && grpcstatus.FromProto(status).Code() != codes.OK {
 		c.l.Errorf("got response %v with status %v", resp, status)
 		c.cancel(id, grpcstatus.FromProto(status).Err())

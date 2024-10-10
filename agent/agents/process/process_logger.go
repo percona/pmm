@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -55,14 +55,14 @@ func newProcessLogger(l *logrus.Entry, lines int, redactWords []string) *process
 
 // Write implements io.Writer.
 // This method is thread-safe.
-func (pl *processLogger) Write(p []byte) (n int, err error) { //nolint:nonamedreturns
+func (pl *processLogger) Write(p []byte) (int, error) {
 	pl.m.Lock()
 	defer pl.m.Unlock()
 
 	b := bytes.NewBuffer(pl.buf)
-	n, err = b.Write(p)
+	n, err := b.Write(p)
 	if err != nil {
-		return
+		return n, err
 	}
 
 	var line string
@@ -70,8 +70,7 @@ func (pl *processLogger) Write(p []byte) (n int, err error) { //nolint:nonamedre
 		line, err = b.ReadString('\n')
 		if err != nil {
 			pl.buf = []byte(line)
-			err = nil
-			return
+			return n, nil //nolint:nilerr
 		}
 		line = strings.TrimSuffix(line, "\n")
 		if pl.replacer != nil {
@@ -80,17 +79,17 @@ func (pl *processLogger) Write(p []byte) (n int, err error) { //nolint:nonamedre
 		if pl.l != nil {
 			level, found, err := extractLogLevel(line)
 
-			if err != nil {
+			switch {
+			case err != nil:
 				pl.l.Warnf("Extract log level error: %v.", err)
-
 				pl.l.Infoln(line)
-			} else if found {
+			case found:
 				if level < logrus.ErrorLevel {
 					level = logrus.ErrorLevel
 				}
 
 				pl.l.Logln(level, line)
-			} else {
+			default:
 				pl.l.Infoln(line)
 			}
 		}
@@ -148,7 +147,7 @@ func extractLogLevel(line string) (logrus.Level, bool, error) {
 	return level, true, nil
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ io.Writer = (*processLogger)(nil)
 )

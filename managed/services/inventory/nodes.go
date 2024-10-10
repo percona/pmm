@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
@@ -46,11 +46,9 @@ func NewNodesService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, 
 }
 
 // List returns a list of all Nodes.
-//
-//nolint:unparam
-func (s *NodesService) List(ctx context.Context, filters models.NodeFilters) ([]inventorypb.Node, error) {
+func (s *NodesService) List(ctx context.Context, filters models.NodeFilters) ([]inventoryv1.Node, error) {
 	var nodes []*models.Node
-	e := s.db.InTransaction(func(tx *reform.TX) error {
+	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		nodes, err = models.FindNodes(tx.Querier, filters)
 		return err
@@ -59,7 +57,7 @@ func (s *NodesService) List(ctx context.Context, filters models.NodeFilters) ([]
 		return nil, e
 	}
 
-	res := make([]inventorypb.Node, len(nodes))
+	res := make([]inventoryv1.Node, len(nodes))
 	for i, n := range nodes {
 		res[i], e = services.ToAPINode(n)
 		if e != nil {
@@ -70,11 +68,9 @@ func (s *NodesService) List(ctx context.Context, filters models.NodeFilters) ([]
 }
 
 // Get returns a single Node by ID.
-//
-//nolint:unparam
-func (s *NodesService) Get(ctx context.Context, req *inventorypb.GetNodeRequest) (inventorypb.Node, error) {
+func (s *NodesService) Get(ctx context.Context, req *inventoryv1.GetNodeRequest) (inventoryv1.Node, error) { //nolint:ireturn
 	modelNode := &models.Node{}
-	e := s.db.InTransaction(func(tx *reform.TX) error {
+	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		modelNode, err = models.FindNodeByID(tx.Querier, req.NodeId)
 		if err != nil {
@@ -94,10 +90,50 @@ func (s *NodesService) Get(ctx context.Context, req *inventorypb.GetNodeRequest)
 	return node, nil
 }
 
+// AddNode adds any type of Node.
+func (s *NodesService) AddNode(ctx context.Context, req *inventoryv1.AddNodeRequest) (*inventoryv1.AddNodeResponse, error) {
+	res := &inventoryv1.AddNodeResponse{}
+
+	switch req.Node.(type) {
+	case *inventoryv1.AddNodeRequest_Generic:
+		node, err := s.addGenericNode(ctx, req.GetGeneric())
+		if err != nil {
+			return nil, err
+		}
+		res.Node = &inventoryv1.AddNodeResponse_Generic{Generic: node}
+	case *inventoryv1.AddNodeRequest_Container:
+		node, err := s.addContainerNode(ctx, req.GetContainer())
+		if err != nil {
+			return nil, err
+		}
+		res.Node = &inventoryv1.AddNodeResponse_Container{Container: node}
+	case *inventoryv1.AddNodeRequest_Remote:
+		node, err := s.addRemoteNode(ctx, req.GetRemote())
+		if err != nil {
+			return nil, err
+		}
+		res.Node = &inventoryv1.AddNodeResponse_Remote{Remote: node}
+	case *inventoryv1.AddNodeRequest_RemoteRds:
+		node, err := s.AddRemoteRDSNode(ctx, req.GetRemoteRds())
+		if err != nil {
+			return nil, err
+		}
+		res.Node = &inventoryv1.AddNodeResponse_RemoteRds{RemoteRds: node}
+	case *inventoryv1.AddNodeRequest_RemoteAzure:
+		node, err := s.AddRemoteAzureDatabaseNode(ctx, req.GetRemoteAzure())
+		if err != nil {
+			return nil, err
+		}
+		res.Node = &inventoryv1.AddNodeResponse_RemoteAzureDatabase{RemoteAzureDatabase: node}
+	default:
+		return nil, errors.Errorf("invalid request %v", req.GetNode())
+	}
+
+	return res, nil
+}
+
 // AddGenericNode adds Generic Node.
-//
-//nolint:unparam
-func (s *NodesService) AddGenericNode(ctx context.Context, req *inventorypb.AddGenericNodeRequest) (*inventorypb.GenericNode, error) {
+func (s *NodesService) addGenericNode(ctx context.Context, req *inventoryv1.AddGenericNodeParams) (*inventoryv1.GenericNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:     req.NodeName,
 		Address:      req.Address,
@@ -110,7 +146,7 @@ func (s *NodesService) AddGenericNode(ctx context.Context, req *inventorypb.AddG
 	}
 
 	node := &models.Node{}
-	e := s.db.InTransaction(func(tx *reform.TX) error {
+	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		node, err = models.CreateNode(tx.Querier, models.GenericNodeType, params)
 		if err != nil {
@@ -127,13 +163,11 @@ func (s *NodesService) AddGenericNode(ctx context.Context, req *inventorypb.AddG
 		return nil, err
 	}
 
-	return invNode.(*inventorypb.GenericNode), nil //nolint:forcetypeassert
+	return invNode.(*inventoryv1.GenericNode), nil //nolint:forcetypeassert
 }
 
 // AddContainerNode adds Container Node.
-//
-//nolint:unparam
-func (s *NodesService) AddContainerNode(ctx context.Context, req *inventorypb.AddContainerNodeRequest) (*inventorypb.ContainerNode, error) {
+func (s *NodesService) addContainerNode(ctx context.Context, req *inventoryv1.AddContainerNodeParams) (*inventoryv1.ContainerNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:      req.NodeName,
 		Address:       req.Address,
@@ -147,7 +181,7 @@ func (s *NodesService) AddContainerNode(ctx context.Context, req *inventorypb.Ad
 	}
 
 	node := &models.Node{}
-	e := s.db.InTransaction(func(tx *reform.TX) error {
+	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		node, err = models.CreateNode(tx.Querier, models.ContainerNodeType, params)
 		if err != nil {
@@ -164,13 +198,11 @@ func (s *NodesService) AddContainerNode(ctx context.Context, req *inventorypb.Ad
 		return nil, err
 	}
 
-	return invNode.(*inventorypb.ContainerNode), nil //nolint:forcetypeassert
+	return invNode.(*inventoryv1.ContainerNode), nil //nolint:forcetypeassert
 }
 
 // AddRemoteNode adds Remote Node.
-//
-//nolint:unparam
-func (s *NodesService) AddRemoteNode(ctx context.Context, req *inventorypb.AddRemoteNodeRequest) (*inventorypb.RemoteNode, error) {
+func (s *NodesService) addRemoteNode(ctx context.Context, req *inventoryv1.AddRemoteNodeParams) (*inventoryv1.RemoteNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:     req.NodeName,
 		Address:      req.Address,
@@ -181,7 +213,7 @@ func (s *NodesService) AddRemoteNode(ctx context.Context, req *inventorypb.AddRe
 	}
 
 	node := &models.Node{}
-	e := s.db.InTransaction(func(tx *reform.TX) error {
+	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		node, err = models.CreateNode(tx.Querier, models.RemoteNodeType, params)
 		if err != nil {
@@ -198,13 +230,11 @@ func (s *NodesService) AddRemoteNode(ctx context.Context, req *inventorypb.AddRe
 		return nil, err
 	}
 
-	return invNode.(*inventorypb.RemoteNode), nil //nolint:forcetypeassert
+	return invNode.(*inventoryv1.RemoteNode), nil //nolint:forcetypeassert
 }
 
-// AddRemoteRDSNode adds a new RDS node
-//
-//nolint:unparam
-func (s *NodesService) AddRemoteRDSNode(ctx context.Context, req *inventorypb.AddRemoteRDSNodeRequest) (*inventorypb.RemoteRDSNode, error) {
+// AddRemoteRDSNode adds a new RDS node.
+func (s *NodesService) AddRemoteRDSNode(ctx context.Context, req *inventoryv1.AddRemoteRDSNodeParams) (*inventoryv1.RemoteRDSNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:     req.NodeName,
 		Address:      req.Address,
@@ -215,7 +245,7 @@ func (s *NodesService) AddRemoteRDSNode(ctx context.Context, req *inventorypb.Ad
 	}
 
 	node := &models.Node{}
-	e := s.db.InTransaction(func(tx *reform.TX) error {
+	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		node, err = models.CreateNode(tx.Querier, models.RemoteRDSNodeType, params)
 		if err != nil {
@@ -232,13 +262,13 @@ func (s *NodesService) AddRemoteRDSNode(ctx context.Context, req *inventorypb.Ad
 		return nil, err
 	}
 
-	return invNode.(*inventorypb.RemoteRDSNode), nil //nolint:forcetypeassert
+	return invNode.(*inventoryv1.RemoteRDSNode), nil //nolint:forcetypeassert
 }
 
 // AddRemoteAzureDatabaseNode adds a new Azure database node
 //
-//nolint:unparam,dupl
-func (s *NodesService) AddRemoteAzureDatabaseNode(ctx context.Context, req *inventorypb.AddRemoteAzureDatabaseNodeRequest) (*inventorypb.RemoteAzureDatabaseNode, error) {
+//nolint:dupl
+func (s *NodesService) AddRemoteAzureDatabaseNode(ctx context.Context, req *inventoryv1.AddRemoteAzureNodeParams) (*inventoryv1.RemoteAzureDatabaseNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:     req.NodeName,
 		Address:      req.Address,
@@ -249,7 +279,7 @@ func (s *NodesService) AddRemoteAzureDatabaseNode(ctx context.Context, req *inve
 	}
 
 	node := &models.Node{}
-	e := s.db.InTransaction(func(tx *reform.TX) error {
+	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		node, err = models.CreateNode(tx.Querier, models.RemoteAzureDatabaseNodeType, params)
 		if err != nil {
@@ -266,7 +296,7 @@ func (s *NodesService) AddRemoteAzureDatabaseNode(ctx context.Context, req *inve
 		return nil, err
 	}
 
-	return invNode.(*inventorypb.RemoteAzureDatabaseNode), nil //nolint:forcetypeassert
+	return invNode.(*inventoryv1.RemoteAzureDatabaseNode), nil //nolint:forcetypeassert
 }
 
 // Remove removes Node without any Agents and Services.
@@ -276,7 +306,7 @@ func (s *NodesService) Remove(ctx context.Context, id string, force bool) error 
 	idsToKick := make(map[string]struct{})
 	idsToSetState := make(map[string]struct{})
 
-	if e := s.db.InTransaction(func(tx *reform.TX) error {
+	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		mode := models.RemoveRestrict
 		if force {
 			mode = models.RemoveCascade

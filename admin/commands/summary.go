@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,10 +38,10 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/helpers"
-	agents_info "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
-	"github.com/percona/pmm/api/inventorypb/types"
-	"github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	agents_info "github.com/percona/pmm/api/agentlocal/v1/json/client/agent_local_service"
+	"github.com/percona/pmm/api/inventory/v1/types"
+	"github.com/percona/pmm/api/server/v1/json/client"
+	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 	"github.com/percona/pmm/version"
 )
 
@@ -85,7 +85,7 @@ func addFile(zipW *zip.Writer, name string, fileName string) {
 		logrus.Debugf("%s", err)
 		r = io.NopCloser(bytes.NewReader([]byte(err.Error() + "\n")))
 	}
-	defer r.Close() //nolint:gosec
+	defer r.Close() //nolint:gosec,errcheck,nolintlint
 
 	modTime := time.Now()
 	if fi, _ := os.Stat(fileName); fi != nil {
@@ -166,7 +166,7 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 // addServerData adds logs.zip from PMM Server to zip file.
 func addServerData(ctx context.Context, zipW *zip.Writer, usePprof bool) {
 	var buf bytes.Buffer
-	_, err := client.Default.Server.Logs(&server.LogsParams{Context: ctx, Pprof: &usePprof}, &buf)
+	_, err := client.Default.ServerService.Logs(&server.LogsParams{Context: ctx, Pprof: &usePprof}, &buf)
 	if err != nil {
 		logrus.Errorf("%s", err)
 		return
@@ -219,7 +219,7 @@ func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agen
 				addData(zipW, "client/vmagent-targets.html", now, bytes.NewReader([]byte(err.Error())))
 				return
 			}
-			defer res.Body.Close() //nolint:gosec
+			defer res.Body.Close() //nolint:gosec,errcheck,nolintlint
 			html, err = io.ReadAll(res.Body)
 			if err != nil {
 				logrus.Debugf("%s", err)
@@ -241,7 +241,7 @@ func getURL(ctx context.Context, url string) ([]byte, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.Errorf("status code: %d", resp.StatusCode)
@@ -254,7 +254,7 @@ func getURL(ctx context.Context, url string) ([]byte, error) {
 	return b, nil
 }
 
-// downloadFile download file and includes into zip file
+// downloadFile download file and includes into zip file.
 func downloadFile(ctx context.Context, zipW *zip.Writer, url, fileName string) error {
 	b, err := getURL(ctx, url)
 	if err != nil {
@@ -357,12 +357,12 @@ type SummaryCommand struct {
 	Pprof      bool   `name:"pprof" help:"Include performance profiling data"`
 }
 
-func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.GlobalFlags) (err error) {
+func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.GlobalFlags) error {
 	var f *os.File
+	var err error
 
 	if f, err = os.Create(cmd.Filename); err != nil {
-		err = errors.WithStack(err)
-		return
+		return errors.WithStack(err)
 	}
 
 	defer func() {
@@ -389,7 +389,7 @@ func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.Globa
 		addServerData(ctx, zipW, cmd.Pprof)
 	}
 
-	return //nolint:nakedret
+	return nil
 }
 
 // RunCmdWithContext runs summary command.
