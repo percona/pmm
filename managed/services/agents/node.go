@@ -154,9 +154,7 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 
 func isNewTLSConfigSupported(exporter *models.Agent) bool {
 	if agentVersion, err := version.Parse(pointer.GetString(exporter.Version)); err == nil {
-		if !agentVersion.Less(v1_5_0) {
-			return true
-		}
+		return !agentVersion.Less(v1_5_0)
 	}
 	return false
 }
