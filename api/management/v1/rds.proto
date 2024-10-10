@@ -61,6 +61,8 @@ message AddRDSServiceParams {
   uint32 port = 6 [(validate.rules).uint32.gt = 0];
   // Instance engine.
   DiscoverRDSEngine engine = 7;
+  // PMM Agent ID.
+  string pmm_agent_id = 34;
   // Unique across all Nodes user-defined name. Defaults to AWS instance ID.
   string node_name = 8;
   // Unique across all Services user-defined name. Defaults to AWS instance ID.
