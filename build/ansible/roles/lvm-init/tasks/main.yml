@@ -16,6 +16,7 @@
       register: available_drives
       failed_when: available_drives.stdout_lines|length != 1
       changed_when: False
+      ignore_errors: True
 
     - name: Data partition             | Create Volume Group
       when: enable_lvm == "true"
