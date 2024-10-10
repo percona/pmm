@@ -28,7 +28,7 @@ import (
 	"google.golang.org/protobuf/encoding/prototext"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 const (
@@ -39,11 +39,11 @@ const (
 )
 
 // ServerRequest represents a request from server.
-// It is similar to agentpb.ServerMessage except it can contain only requests,
+// It is similar to agentv1.ServerMessage except it can contain only requests,
 // and the payload is already unwrapped (XXX instead of ServerMessage_XXX).
 type ServerRequest struct {
 	ID      uint32
-	Payload agentpb.ServerRequestPayload
+	Payload agentv1.ServerRequestPayload
 }
 
 // AgentResponse represents agent's response.
@@ -52,12 +52,12 @@ type ServerRequest struct {
 type AgentResponse struct {
 	ID      uint32
 	Status  *grpcstatus.Status
-	Payload agentpb.AgentResponsePayload
+	Payload agentv1.AgentResponsePayload
 }
 
 // Response is a type used to pass response from pmm-server to the subscriber.
 type Response struct {
-	Payload agentpb.ServerResponsePayload
+	Payload agentv1.ServerResponsePayload
 	Error   error
 }
 
@@ -65,7 +65,7 @@ type Response struct {
 //
 // All exported methods are thread-safe.
 type Channel struct { //nolint:maligned
-	s agentpb.Agent_ConnectClient
+	s agentv1.AgentService_ConnectClient
 	l *logrus.Entry
 
 	mRecv, mSend prometheus.Counter
@@ -86,7 +86,7 @@ type Channel struct { //nolint:maligned
 // New creates new two-way communication channel with given stream.
 //
 // Stream should not be used by the caller after channel is created.
-func New(stream agentpb.Agent_ConnectClient) *Channel {
+func New(stream agentv1.AgentService_ConnectClient) *Channel {
 	s := &Channel{
 		s: stream,
 		l: logrus.WithField("component", "channel"), // only for debug logging
@@ -149,7 +149,7 @@ func (c *Channel) Requests() <-chan *ServerRequest {
 
 // Send sends message to pmm-managed. It is no-op once channel is closed (see Wait).
 func (c *Channel) Send(resp *AgentResponse) {
-	msg := &agentpb.AgentMessage{
+	msg := &agentv1.AgentMessage{
 		Id: resp.ID,
 	}
 	if resp.Payload != nil {
@@ -165,11 +165,11 @@ func (c *Channel) Send(resp *AgentResponse) {
 // If error occurred - subscription got canceled - returned payload is nil and error contains reason for cancelation.
 // Response and error will be both nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
-func (c *Channel) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error) { //nolint:ireturn
+func (c *Channel) SendAndWaitResponse(payload agentv1.AgentRequestPayload) (agentv1.ServerResponsePayload, error) { //nolint:ireturn
 	id := atomic.AddUint32(&c.lastSentRequestID, 1)
 	ch := c.subscribe(id)
 
-	c.send(&agentpb.AgentMessage{
+	c.send(&agentv1.AgentMessage{
 		Id:      id,
 		Payload: payload.AgentMessageRequestPayload(),
 	})
@@ -178,7 +178,7 @@ func (c *Channel) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agen
 	return resp.Payload, resp.Error
 }
 
-func (c *Channel) send(msg *agentpb.AgentMessage) {
+func (c *Channel) send(msg *agentv1.AgentMessage) {
 	c.sendM.Lock()
 	select {
 	case <-c.closeWait:
@@ -235,75 +235,75 @@ func (c *Channel) runReceiver() {
 
 		switch p := msg.Payload.(type) {
 		// requests
-		case *agentpb.ServerMessage_Ping:
+		case *agentv1.ServerMessage_Ping:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.Ping,
 			}
-		case *agentpb.ServerMessage_SetState:
+		case *agentv1.ServerMessage_SetState:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.SetState,
 			}
-		case *agentpb.ServerMessage_StartAction:
+		case *agentv1.ServerMessage_StartAction:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.StartAction,
 			}
-		case *agentpb.ServerMessage_StopAction:
+		case *agentv1.ServerMessage_StopAction:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.StopAction,
 			}
-		case *agentpb.ServerMessage_CheckConnection:
+		case *agentv1.ServerMessage_CheckConnection:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.CheckConnection,
 			}
-		case *agentpb.ServerMessage_StartJob:
+		case *agentv1.ServerMessage_StartJob:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.StartJob,
 			}
-		case *agentpb.ServerMessage_StopJob:
+		case *agentv1.ServerMessage_StopJob:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.StopJob,
 			}
-		case *agentpb.ServerMessage_JobStatus:
+		case *agentv1.ServerMessage_JobStatus:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.JobStatus,
 			}
-		case *agentpb.ServerMessage_GetVersions:
+		case *agentv1.ServerMessage_GetVersions:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.GetVersions,
 			}
-		case *agentpb.ServerMessage_PbmSwitchPitr:
+		case *agentv1.ServerMessage_PbmSwitchPitr:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.PbmSwitchPitr,
 			}
-		case *agentpb.ServerMessage_AgentLogs:
+		case *agentv1.ServerMessage_AgentLogs:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.AgentLogs,
 			}
-		case *agentpb.ServerMessage_ServiceInfo:
+		case *agentv1.ServerMessage_ServiceInfo:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.ServiceInfo,
 			}
 
 		// responses
-		case *agentpb.ServerMessage_Pong:
+		case *agentv1.ServerMessage_Pong:
 			c.publish(msg.Id, msg.Status, p.Pong)
-		case *agentpb.ServerMessage_StateChanged:
+		case *agentv1.ServerMessage_StateChanged:
 			c.publish(msg.Id, msg.Status, p.StateChanged)
-		case *agentpb.ServerMessage_QanCollect:
+		case *agentv1.ServerMessage_QanCollect:
 			c.publish(msg.Id, msg.Status, p.QanCollect)
-		case *agentpb.ServerMessage_ActionResult:
+		case *agentv1.ServerMessage_ActionResult:
 			c.publish(msg.Id, msg.Status, p.ActionResult)
 
 		default:
@@ -365,7 +365,7 @@ func (c *Channel) subscribe(id uint32) chan Response {
 	return ch
 }
 
-func (c *Channel) publish(id uint32, status *protostatus.Status, resp agentpb.ServerResponsePayload) {
+func (c *Channel) publish(id uint32, status *protostatus.Status, resp agentv1.ServerResponsePayload) {
 	if status != nil && grpcstatus.FromProto(status).Code() != codes.OK {
 		c.l.Errorf("got response %v with status %v", resp, status)
 		c.cancel(id, grpcstatus.FromProto(status).Err())

@@ -24,7 +24,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qan/v1"
 )
 
 const (
@@ -71,7 +71,6 @@ const insertSQL = `
     period_length,
     fingerprint,
     example,
-    example_format,
     is_truncated,
     example_type,
     example_metrics,
@@ -297,9 +296,8 @@ const insertSQL = `
     :period_length_secs,
     :fingerprint,
     :example,
-    CAST( :example_format_s AS Enum8('EXAMPLE' = 0, 'FINGERPRINT' = 1)) AS example_format,
     :is_query_truncated,
-    CAST( :example_type_s AS Enum8('RANDOM' = 0, 'SLOWEST' = 1, 'FASTEST' = 2, 'WITH_ERROR' = 3)) AS example_type,
+    CAST( :example_type_s AS Enum8('EXAMPLE_TYPE_INVALID' = 0, 'RANDOM' = 1, 'SLOWEST' = 2, 'FASTEST' = 3, 'WITH_ERROR' = 4)) AS example_type,
     :example_metrics,
     :num_queries_with_warnings,
     :warnings_code,
@@ -498,7 +496,6 @@ type MetricsBucketExtended struct {
 	PeriodStart      time.Time `json:"period_start_ts"`
 	AgentType        string    `json:"agent_type_s"`
 	ExampleType      string    `json:"example_type_s"`
-	ExampleFormat    string    `json:"example_format_s"`
 	LabelsKey        []string  `json:"labels_key"`
 	LabelsValues     []string  `json:"labels_value"`
 	WarningsCode     []uint64  `json:"warnings_code"`
@@ -679,9 +676,7 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) error {
 			q := MetricsBucketExtended{
 				time.Unix(int64(metricsBucket.GetPeriodStartUnixSecs()), 0).UTC(),
 				agentTypeToClickHouseEnum(metricsBucket.GetAgentType()),
-				metricsBucket.GetExampleType().String(),
-				// TODO should we remove this field since it's deprecated?
-				metricsBucket.GetExampleFormat().String(), //nolint:staticcheck
+				exampleTypeToClickHouseEnum(metricsBucket.GetExampleType()),
 				lk,
 				lv,
 				wk,

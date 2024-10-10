@@ -16,6 +16,8 @@
 package management
 
 import (
+	"regexp"
+
 	"github.com/AlekSi/pointer"
 
 	"github.com/percona/pmm/managed/models"
@@ -34,4 +36,10 @@ func IsVMAgent(agent *models.Agent, service *models.Service) bool {
 // IsServiceAgent checks if the agent relates to a particular service.
 func IsServiceAgent(agent *models.Agent, service *models.Service) bool {
 	return agent.ServiceID != nil && pointer.GetString(agent.ServiceID) == service.ServiceID
+}
+
+// LooksLikeID checks if a string contains a UUID substring in it.
+func LooksLikeID(serviceID string) bool {
+	r := regexp.MustCompile(`[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
+	return r.MatchString(serviceID)
 }

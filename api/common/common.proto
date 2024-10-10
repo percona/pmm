@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package common;
+
+// A wrapper for a string array. This type allows to distinguish between an empty array and a null value.
+message StringArray {
+  repeated string values = 1;
+}
+
+// A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.
+message StringMap {
+  map<string, string> values = 1;
+}

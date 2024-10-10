@@ -22,8 +22,8 @@ import (
 
 	"github.com/AlekSi/pointer"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/collectors"
 	"github.com/percona/pmm/version"
@@ -37,7 +37,7 @@ var (
 // proxysqlExporterConfig returns desired configuration of proxysql_exporter process.
 func proxysqlExporterConfig(node *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
 	pmmAgentVersion *version.Parsed,
-) *agentpb.SetStateRequest_AgentProcess {
+) *agentv1.SetStateRequest_AgentProcess {
 	listenAddress := getExporterListenAddress(node, exporter)
 	tdp := exporter.TemplateDelimiters(service)
 
@@ -67,8 +67,8 @@ func proxysqlExporterConfig(node *models.Node, service *models.Service, exporter
 
 	sort.Strings(args)
 
-	res := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_PROXYSQL_EXPORTER,
+	res := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,

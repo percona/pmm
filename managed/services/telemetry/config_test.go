@@ -63,7 +63,7 @@ reporting:
 `
 	var actual ServiceConfig
 	err := yaml.Unmarshal([]byte(input), &actual)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	expected := ServiceConfig{
 		Enabled:      true,
 		SaasHostname: "check.localhost",
@@ -114,8 +114,8 @@ reporting:
 			},
 		},
 	}
-	assert.Equal(t, actual, expected)
+	assert.Equal(t, expected, actual)
 	logger, _ := test.NewNullLogger()
 	err = actual.Init(logger.WithField("test", t.Name()))
-	require.Nil(t, err)
+	require.NoError(t, err)
 }

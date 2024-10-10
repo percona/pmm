@@ -28,7 +28,7 @@ import (
 
 	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/agent/utils/templates"
-	"github.com/percona/pmm/api/inventorypb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/utils/pdeathsig"
 )
 
@@ -57,7 +57,7 @@ type Process struct {
 	params      *Params
 	l           *logrus.Entry
 	pl          *processLogger
-	changes     chan inventorypb.AgentStatus
+	changes     chan inventoryv1.AgentStatus
 	backoff     *backoff.Backoff
 	ctxDone     chan struct{}
 	err         error
@@ -74,7 +74,7 @@ type Params struct {
 	Path             string
 	Args             []string
 	Env              []string
-	Type             inventorypb.AgentType
+	Type             inventoryv1.AgentType
 	TemplateRenderer *templates.TemplateRenderer
 	TemplateParams   map[string]interface{}
 }
@@ -94,7 +94,7 @@ func New(params *Params, redactWords []string, l *logrus.Entry) *Process {
 		params:      params,
 		l:           l,
 		pl:          newProcessLogger(l, keepLogLines, redactWords),
-		changes:     make(chan inventorypb.AgentStatus, 10),
+		changes:     make(chan inventoryv1.AgentStatus, 10),
 		backoff:     backoff.New(backoffMinDelay, backoffMaxDelay),
 		ctxDone:     make(chan struct{}),
 		initialized: make(chan bool, 1),
@@ -124,7 +124,7 @@ func (p *Process) Run(ctx context.Context) {
 // STARTING -> FAILING.
 func (p *Process) toStarting() {
 	p.l.Tracef("Process: starting.")
-	p.changes <- inventorypb.AgentStatus_STARTING
+	p.changes <- inventoryv1.AgentStatus_AGENT_STATUS_STARTING
 
 	p.cmd = exec.Command(p.params.Path, p.params.Args...) //nolint:gosec
 	p.cmd.Stdout = p.pl
@@ -168,7 +168,7 @@ func (p *Process) toStarting() {
 // RUNNING -> WAITING.
 func (p *Process) toRunning() {
 	p.l.Tracef("Process: running.")
-	p.changes <- inventorypb.AgentStatus_RUNNING
+	p.changes <- inventoryv1.AgentStatus_AGENT_STATUS_RUNNING
 
 	p.backoff.Reset()
 
@@ -187,7 +187,7 @@ func (p *Process) toWaiting() {
 	delay := p.backoff.Delay()
 
 	p.l.Infof("Process: waiting %s.", delay)
-	p.changes <- inventorypb.AgentStatus_WAITING
+	p.changes <- inventoryv1.AgentStatus_AGENT_STATUS_WAITING
 
 	t := time.NewTimer(delay)
 	defer t.Stop()
@@ -210,7 +210,7 @@ func (p *Process) toWaiting() {
 // FAILING -> DONE.
 func (p *Process) toFailing(err error) {
 	p.l.Tracef("Process: failing")
-	p.changes <- inventorypb.AgentStatus_INITIALIZATION_ERROR
+	p.changes <- inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR
 	p.l.Infof("Process: exited: %s.", p.cmd.ProcessState)
 	go p.toDone()
 	p.err = err
@@ -220,7 +220,7 @@ func (p *Process) toFailing(err error) {
 // STOPPING -> DONE.
 func (p *Process) toStopping() {
 	p.l.Tracef("Process: stopping (sending SIGTERM)...")
-	p.changes <- inventorypb.AgentStatus_STOPPING
+	p.changes <- inventoryv1.AgentStatus_AGENT_STATUS_STOPPING
 
 	if err := p.cmd.Process.Signal(unix.SIGTERM); err != nil {
 		p.l.Errorf("Process: failed to send SIGTERM: %s.", err)
@@ -245,13 +245,13 @@ func (p *Process) toStopping() {
 
 func (p *Process) toDone() {
 	p.l.Trace("Process: done.")
-	p.changes <- inventorypb.AgentStatus_DONE
+	p.changes <- inventoryv1.AgentStatus_AGENT_STATUS_DONE
 
 	close(p.changes)
 }
 
 // Changes returns channel that should be read until it is closed.
-func (p *Process) Changes() <-chan inventorypb.AgentStatus {
+func (p *Process) Changes() <-chan inventoryv1.AgentStatus {
 	return p.changes
 }
 

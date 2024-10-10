@@ -21,14 +21,16 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 	"github.com/percona/pmm/version"
 )
 
 var errNoNode = errors.New("no node available")
 
 // HAProxyMinPMMServerVersion contains minimum version for running HAProxy.
-const haProxyMinPMMServerVersion = "2.15.0"
+const (
+	haProxyMinPMMServerVersion = "2.15.0"
+)
 
 // ServerVersionLessThan return if provided version is lower than server version.
 func ServerVersionLessThan(currentVersion string) (bool, error) {

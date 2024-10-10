@@ -60,7 +60,7 @@ func (b *Base) Install(ctx context.Context) error {
 	}
 
 	link := fmt.Sprintf(
-		"https://downloads.percona.com/downloads/pmm2/%s/binary/tarball/pmm2-client-%s.tar.gz",
+		"https://downloads.percona.com/downloads/pmm/%s/binary/tarball/pmm-client-%s.tar.gz",
 		b.Version,
 		b.Version)
 
@@ -84,7 +84,7 @@ func (b *Base) Install(ctx context.Context) error {
 		return err
 	}
 
-	extractedPath := path.Join(os.TempDir(), fmt.Sprintf("pmm2-client-%s", b.Version))
+	extractedPath := path.Join(os.TempDir(), fmt.Sprintf("pmm-client-%s", b.Version))
 	defer os.RemoveAll(extractedPath) //nolint:errcheck
 
 	if err := b.installTarball(ctx, extractedPath); err != nil {
@@ -187,7 +187,7 @@ func (b *Base) checksumTarball(ctx context.Context, link string, path string) er
 }
 
 func (b *Base) extractTarball(tarPath string) error {
-	if err := os.RemoveAll(path.Join(os.TempDir(), fmt.Sprintf("pmm2-client-%s", b.Version))); err != nil {
+	if err := os.RemoveAll(path.Join(os.TempDir(), fmt.Sprintf("pmm-client-%s", b.Version))); err != nil {
 		return err
 	}
 

@@ -21,7 +21,6 @@ import (
 	"database/sql"
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/lib/pq"
@@ -147,42 +146,42 @@ func TestDatabaseChecks(t *testing.T) {
 		now := models.Now()
 		_, err = db.Exec(
 			"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
-				"VALUES ('/node_id/1', 'generic', 'name', '', '', '', '', $1, $2)",
+				"VALUES ('1', 'generic', 'name', '', '', '', '', $1, $2)",
 			now, now)
 		require.NoError(t, err)
 
 		// Try to insert both address and socket
 		_, err = db.Exec(
 			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, address, port, socket, external_group, created_at, updated_at) "+
-				"VALUES ('/service_id/1', 'mysql', 'name', '/node_id/1', '', '', '', '10.10.10.10', 3306, '/var/run/mysqld/mysqld.sock', '', $1, $2)",
+				"VALUES ('1', 'mysql', 'name', '1', '', '', '', '10.10.10.10', 3306, '/var/run/mysqld/mysqld.sock', '', $1, $2)",
 			now, now)
 		require.Error(t, err, `pq: new row for relation "services" violates check constraint "address_socket_check"`)
 
 		// Try to insert both address and socket empty
 		_, err = db.Exec(
 			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, address, port, socket, external_group, created_at, updated_at) "+
-				"VALUES ('/service_id/1', 'mysql', 'name', '/node_id/1', '', '', '', NULL, NULL, NULL, '', $1, $2)",
+				"VALUES ('1', 'mysql', 'name', '1', '', '', '', NULL, NULL, NULL, '', $1, $2)",
 			now, now)
 		require.NoError(t, err)
 
 		// Try to insert invalid port
 		_, err = db.Exec(
 			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, address, port, socket, external_group, created_at, updated_at) "+
-				"VALUES ('/service_id/1', 'mysql', 'name', '/node_id/1', '', '', '', '10.10.10.10', 999999, NULL, '', $1, $2)",
+				"VALUES ('1', 'mysql', 'name', '1', '', '', '', '10.10.10.10', 999999, NULL, '', $1, $2)",
 			now, now)
 		require.Error(t, err, `pq: new row for relation "services" violates check constraint "port_check"`)
 
 		// Try to insert empty group for external exporter
 		_, err = db.Exec(
 			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, address, port, socket, external_group, created_at, updated_at) "+
-				"VALUES ('/service_id/1', 'external', 'name', '/node_id/1', '', '', '', '10.10.10.10', 3333, NULL, '', $1, $2)",
+				"VALUES ('1', 'external', 'name', '1', '', '', '', '10.10.10.10', 3333, NULL, '', $1, $2)",
 			now, now)
 		require.Error(t, err, `pq: new row for relation "services" violates check constraint "services_external_group_check"`)
 
 		// Try to insert non empty group for mysql exporter
 		_, err = db.Exec(
 			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, address, port, socket, external_group, created_at, updated_at) "+
-				"VALUES ('/service_id/1', 'mysql', 'name', '/node_id/1', '', '', '', '10.10.10.10', 3306, NULL, 'non empty group', $1, $2)",
+				"VALUES ('1', 'mysql', 'name', '1', '', '', '', '10.10.10.10', 3306, NULL, 'non empty group', $1, $2)",
 			now, now)
 		require.Error(t, err, `pq: new row for relation "services" violates check constraint "services_external_group_check"`)
 	})
@@ -197,17 +196,17 @@ func TestDatabaseChecks(t *testing.T) {
 
 		_, err = db.Exec(
 			"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
-				"VALUES ('/node_id/1', 'generic', 'name', '', '', '', '', $1, $2)",
+				"VALUES ('1', 'generic', 'name', '', '', '', '', $1, $2)",
 			now, now)
 		require.NoError(t, err)
 		_, err = db.Exec(
 			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, socket, external_group, created_at, updated_at) "+
-				"VALUES ('/service_id/1', 'mysql', 'name', '/node_id/1', '', '', '', '/var/run/mysqld/mysqld.sock', '', $1, $2)",
+				"VALUES ('1', 'mysql', 'name', '1', '', '', '', '/var/run/mysqld/mysqld.sock', '', $1, $2)",
 			now, now)
 		require.NoError(t, err)
 		_, err = db.Exec(
 			"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, max_query_length, query_examples_disabled, comments_parsing_disabled, max_query_log_size, table_count_tablestats_group_limit, rds_basic_metrics_disabled, rds_enhanced_metrics_disabled, push_metrics, expose_exporter) "+
-				"VALUES ('/agent_id/1', 'pmm-agent', '/node_id/1', NULL, false, '', $1, $2, false, false, 0, false, true, 0, 0, true, true, false, false)",
+				"VALUES ('1', 'pmm-agent', '1', NULL, false, '', $1, $2, false, false, 0, false, true, 0, 0, true, true, false, false)",
 			now, now)
 		require.NoError(t, err)
 
@@ -218,12 +217,12 @@ func TestDatabaseChecks(t *testing.T) {
 
 				_, err = tx.Exec(
 					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, max_query_length, query_examples_disabled, comments_parsing_disabled, max_query_log_size, table_count_tablestats_group_limit, rds_basic_metrics_disabled, rds_enhanced_metrics_disabled, push_metrics, expose_exporter) "+
-						"VALUES ('/agent_id/2', 'pmm-agent', '/node_id/1', NULL, false, '', $1, $2, false, false, 0, false, true, 0, 0, false, false, false, false)",
+						"VALUES ('2', 'pmm-agent', '1', NULL, false, '', $1, $2, false, false, 0, false, true, 0, 0, false, false, false, false)",
 					now, now)
 				require.NoError(t, err)
 				_, err = tx.Exec(
 					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, max_query_length, query_examples_disabled, comments_parsing_disabled, max_query_log_size, table_count_tablestats_group_limit, rds_basic_metrics_disabled, rds_enhanced_metrics_disabled, push_metrics, expose_exporter) "+
-						"VALUES ('/agent_id/3', 'mysqld_exporter', NULL, '/agent_id/1', '/node_id/1', false, '', $1, $2, false, false, 0, false, true, 0, 0, false, false, false, false)",
+						"VALUES ('3', 'mysqld_exporter', NULL, '1', '1', false, '', $1, $2, false, false, 0, false, true, 0, 0, false, false, false, false)",
 					now, now)
 				require.NoError(t, err)
 			})
@@ -234,7 +233,7 @@ func TestDatabaseChecks(t *testing.T) {
 
 				_, err = tx.Exec(
 					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, max_query_length, query_examples_disabled, comments_parsing_disabled, max_query_log_size, table_count_tablestats_group_limit, rds_basic_metrics_disabled, rds_enhanced_metrics_disabled, push_metrics, expose_exporter) "+
-						"VALUES ('/agent_id/4', 'mysqld_exporter', NULL, NULL, '/node_id/1', false, '', $1, $2, false, false, 0, false, true, 0, 0, false, false, false, false)",
+						"VALUES ('4', 'mysqld_exporter', NULL, NULL, '1', false, '', $1, $2, false, false, 0, false, true, 0, 0, false, false, false, false)",
 					now, now)
 				assertCheckViolation(t, err, "agents", "runs_on_node_id_xor_pmm_agent_id")
 			})
@@ -245,7 +244,7 @@ func TestDatabaseChecks(t *testing.T) {
 
 				_, err = tx.Exec(
 					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, max_query_length, query_examples_disabled, comments_parsing_disabled, max_query_log_size, table_count_tablestats_group_limit, rds_basic_metrics_disabled, rds_enhanced_metrics_disabled, push_metrics, expose_exporter) "+
-						"VALUES ('/agent_id/5', 'pmm-agent', '/node_id/1', '/agent_id/1', '/node_id/1', false, '', $1, $2, false, false, 0, false, true, 0, 0, false, false, false, false)",
+						"VALUES ('5', 'pmm-agent', '1', '1', '1', false, '', $1, $2, false, false, 0, false, true, 0, 0, false, false, false, false)",
 					now, now)
 				assertCheckViolation(t, err, "agents", "runs_on_node_id_xor_pmm_agent_id")
 			})
@@ -257,7 +256,7 @@ func TestDatabaseChecks(t *testing.T) {
 
 				_, err = tx.Exec(
 					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, max_query_length, query_examples_disabled, comments_parsing_disabled, max_query_log_size, table_count_tablestats_group_limit, rds_basic_metrics_disabled, rds_enhanced_metrics_disabled, push_metrics, expose_exporter) "+
-						"VALUES ('/agent_id/6', 'mysqld_exporter', '/node_id/1', NULL, '/node_id/1', false, '', $1, $2, false, false, 0, false, true, 0, 0, false, false, false, false)",
+						"VALUES ('6', 'mysqld_exporter', '1', NULL, '1', false, '', $1, $2, false, false, 0, false, true, 0, 0, false, false, false, false)",
 					now, now)
 				assertCheckViolation(t, err, "agents", "runs_on_node_id_only_for_pmm_agent")
 			})
@@ -268,7 +267,7 @@ func TestDatabaseChecks(t *testing.T) {
 
 				_, err = tx.Exec(
 					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, max_query_length, query_examples_disabled, comments_parsing_disabled, max_query_log_size, table_count_tablestats_group_limit, rds_basic_metrics_disabled, rds_enhanced_metrics_disabled, push_metrics, expose_exporter) "+
-						"VALUES ('/agent_id/7', 'pmm-agent', NULL, '/agent_id/1', '/node_id/1', false, '', $1, $2, false, false, 0, false, true, 0, 0, false, false, false, false)",
+						"VALUES ('7', 'pmm-agent', NULL, '1', '1', false, '', $1, $2, false, false, 0, false, true, 0, 0, false, false, false, false)",
 					now, now)
 				assertCheckViolation(t, err, "agents", "runs_on_node_id_only_for_pmm_agent")
 			})
@@ -282,7 +281,7 @@ func TestDatabaseChecks(t *testing.T) {
 
 				_, err = tx.Exec(
 					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, service_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, max_query_length, query_examples_disabled, comments_parsing_disabled, max_query_log_size, table_count_tablestats_group_limit, rds_basic_metrics_disabled, rds_enhanced_metrics_disabled, push_metrics, expose_exporter) "+
-						"VALUES ('/agent_id/8', 'node_exporter', NULL, '/agent_id/1', '/node_id/1', NULL, false, '', $1, $2, false, false, 0, false, true, 0, 0, false, false, false, false)",
+						"VALUES ('8', 'node_exporter', NULL, '1', '1', NULL, false, '', $1, $2, false, false, 0, false, true, 0, 0, false, false, false, false)",
 					now, now)
 
 				assert.NoError(t, err)
@@ -294,7 +293,7 @@ func TestDatabaseChecks(t *testing.T) {
 
 				_, err = tx.Exec(
 					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, service_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, max_query_length, query_examples_disabled, comments_parsing_disabled, max_query_log_size, table_count_tablestats_group_limit, rds_basic_metrics_disabled, rds_enhanced_metrics_disabled, push_metrics, expose_exporter) "+
-						"VALUES ('/agent_id/8', 'mysqld_exporter', NULL, '/agent_id/1', NULL, '/service_id/1', false, '', $1, $2, false, false, 0, false, true, 0, 0, false, false, false, false)",
+						"VALUES ('8', 'mysqld_exporter', NULL, '1', NULL, '1', false, '', $1, $2, false, false, 0, false, true, 0, 0, false, false, false, false)",
 					now, now)
 
 				assert.NoError(t, err)
@@ -306,7 +305,7 @@ func TestDatabaseChecks(t *testing.T) {
 
 				_, err = tx.Exec(
 					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, service_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, max_query_length, query_examples_disabled, comments_parsing_disabled, max_query_log_size, table_count_tablestats_group_limit, rds_basic_metrics_disabled, rds_enhanced_metrics_disabled, push_metrics, expose_exporter) "+
-						"VALUES ('/agent_id/8', 'mysqld_exporter', NULL, '/agent_id/1', NULL, NULL, false, '', $1, $2, false, false, 0, false, true, 0, 0, false, false, false, false)",
+						"VALUES ('8', 'mysqld_exporter', NULL, '1', NULL, NULL, false, '', $1, $2, false, false, 0, false, true, 0, 0, false, false, false, false)",
 					now, now)
 
 				assertCheckViolation(t, err, "agents", "node_id_or_service_id_for_non_pmm_agent")
@@ -318,7 +317,7 @@ func TestDatabaseChecks(t *testing.T) {
 
 				_, err = tx.Exec(
 					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, service_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, max_query_length, query_examples_disabled, comments_parsing_disabled, max_query_log_size, table_count_tablestats_group_limit, rds_basic_metrics_disabled, rds_enhanced_metrics_disabled, push_metrics, expose_exporter) "+
-						"VALUES ('/agent_id/8', 'mysqld_exporter', NULL, '/agent_id/1', '/node_id/1', '/service_id/1', false, '', $1, $2, false, false, 0, false, true, 0, 0, false, false, false, false)",
+						"VALUES ('8', 'mysqld_exporter', NULL, '1', '1', '1', false, '', $1, $2, false, false, 0, false, true, 0, 0, false, false, false, false)",
 					now, now)
 				assertCheckViolation(t, err, "agents", "node_id_or_service_id_for_non_pmm_agent")
 			})
@@ -327,60 +326,6 @@ func TestDatabaseChecks(t *testing.T) {
 }
 
 func TestDatabaseMigrations(t *testing.T) {
-	t.Run("Update metrics resolutions", func(t *testing.T) {
-		sqlDB := testdb.Open(t, models.SkipFixtures, pointer.ToInt(9))
-		defer sqlDB.Close() //nolint:errcheck
-		settings, err := models.GetSettings(sqlDB)
-		require.NoError(t, err)
-		metricsResolutions := models.MetricsResolutions{
-			HR: 5 * time.Second,
-			MR: 5 * time.Second,
-			LR: 60 * time.Second,
-		}
-		settings.MetricsResolutions = metricsResolutions
-		err = models.SaveSettings(sqlDB, settings)
-		require.NoError(t, err)
-
-		settings, err = models.GetSettings(sqlDB)
-		require.NoError(t, err)
-		require.Equal(t, metricsResolutions, settings.MetricsResolutions)
-
-		testdb.SetupDB(t, sqlDB, models.SkipFixtures, pointer.ToInt(10))
-		settings, err = models.GetSettings(sqlDB)
-		require.NoError(t, err)
-		require.Equal(t, models.MetricsResolutions{
-			HR: 5 * time.Second,
-			MR: 10 * time.Second,
-			LR: 60 * time.Second,
-		}, settings.MetricsResolutions)
-	})
-	t.Run("Shouldn' update metrics resolutions if it's already changed", func(t *testing.T) {
-		sqlDB := testdb.Open(t, models.SkipFixtures, pointer.ToInt(9))
-		defer sqlDB.Close() //nolint:errcheck
-		settings, err := models.GetSettings(sqlDB)
-		require.NoError(t, err)
-		metricsResolutions := models.MetricsResolutions{
-			HR: 1 * time.Second,
-			MR: 5 * time.Second,
-			LR: 60 * time.Second,
-		}
-		settings.MetricsResolutions = metricsResolutions
-		err = models.SaveSettings(sqlDB, settings)
-		require.NoError(t, err)
-
-		settings, err = models.GetSettings(sqlDB)
-		require.NoError(t, err)
-		require.Equal(t, metricsResolutions, settings.MetricsResolutions)
-
-		testdb.SetupDB(t, sqlDB, models.SkipFixtures, pointer.ToInt(10))
-		settings, err = models.GetSettings(sqlDB)
-		require.NoError(t, err)
-		require.Equal(t, models.MetricsResolutions{
-			HR: 1 * time.Second,
-			MR: 5 * time.Second,
-			LR: 60 * time.Second,
-		}, settings.MetricsResolutions)
-	})
 	t.Run("stats_collections field migration: string to string array", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, pointer.ToInt(57))
 		defer sqlDB.Close() //nolint:errcheck

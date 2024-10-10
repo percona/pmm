@@ -47,7 +47,7 @@ const (
 	certificateKeyFilePlaceholder = "certificateKeyFilePlaceholder"
 	caFilePlaceholder             = "caFilePlaceholder"
 	// AgentStatusUnknown indicates we know nothing about agent because it is not connected.
-	AgentStatusUnknown = "UNKNOWN"
+	AgentStatusUnknown = "AGENT_STATUS_UNKNOWN"
 	tcp                = "tcp"
 	trueStr            = "true"
 	unix               = "unix"
@@ -76,7 +76,7 @@ const (
 var v2_42 = version.MustParse("2.42.0-0")
 
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.
-const PMMServerAgentID = string("pmm-server") // no /agent_id/ prefix
+const PMMServerAgentID = string("pmm-server") // a special ID, reserved for PMM Server
 
 // MySQLOptions represents structure for special MySQL options.
 type MySQLOptions struct {

@@ -1,0 +1,88 @@
+---
+- name: Install supervisor
+  pip:
+    name: supervisor==4.2.4
+
+- name: Create a symlink for supervisord
+  file:
+    src: /usr/local/bin/supervisord
+    dest: /usr/bin/supervisord
+    state: link
+
+- name: Create a default configuration file for supervisord
+  shell: /usr/local/bin/echo_supervisord_conf > /etc/supervisord.conf
+
+- name: Modify supervisord.conf
+  ini_file:
+    dest: /etc/supervisord.conf
+    section: include
+    option: files
+    value: supervisord.d/*.ini
+
+- name: Modify supervisord.conf
+  ini_file:
+    dest: /etc/supervisord.conf
+    section: unix_http_server
+    option: file
+    value: /run/supervisor/supervisor.sock
+
+- name: Modify supervisord.conf
+  ini_file:
+    dest: /etc/supervisord.conf
+    section: supervisord
+    option: logfile
+    value: /srv/logs/supervisord.log
+
+- name: Modify supervisord.conf
+  ini_file:
+    dest: /etc/supervisord.conf
+    section: supervisorctl
+    option: serverurl
+    value: unix:///run/supervisor/supervisor.sock
+
+- name: Create a directory for socket
+  file:
+    path: /run/supervisor
+    state: directory
+    owner: pmm
+    group: pmm
+    mode: 0770
+
+- name: Create /etc/supervisord.d dir
+  file:
+    path: /etc/supervisord.d
+    state: directory
+    owner: pmm
+    group: pmm
+    mode: 0755
+
+- name: Copy *.ini files for PMM components
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/supervisord.d/{{ item }}"
+    owner: pmm
+    group: pmm
+    mode: 0644
+  loop:
+    - supervisord.ini
+    - grafana.ini
+    - pmm.ini
+
+- name: Fix credentials
+  ini_file:
+    dest: /etc/supervisord.conf
+    section: supervisorctl
+    option: username
+    value: dummy
+
+- name: Fix credentials
+  ini_file:
+    dest: /etc/supervisord.conf
+    section: supervisorctl
+    option: password
+    value: dummy
+
+- name: Print the contents of supervisord.conf
+  debug:
+    msg:
+      - "{{ lookup('file', '/etc/supervisord.conf') | split('\n') }}"

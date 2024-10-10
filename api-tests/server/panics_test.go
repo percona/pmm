@@ -22,18 +22,17 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
 func TestPanics(t *testing.T) {
 	t.Parallel()
 	for _, mode := range []string{"panic-error", "panic-fmterror", "panic-string"} {
-		mode := mode
 		t.Run(mode, func(t *testing.T) {
 			t.Parallel()
 
-			res, err := serverClient.Default.Server.Version(&server.VersionParams{
+			res, err := serverClient.Default.ServerService.Version(&server.VersionParams{
 				Dummy:   &mode,
 				Context: pmmapitests.Context,
 			})

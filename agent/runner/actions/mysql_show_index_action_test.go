@@ -27,7 +27,7 @@ import (
 
 	"github.com/percona/pmm/agent/utils/tests"
 	"github.com/percona/pmm/agent/utils/version"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 func TestMySQLShowIndex(t *testing.T) {
@@ -43,7 +43,7 @@ func TestMySQLShowIndex(t *testing.T) {
 
 	t.Run("Default", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_MySQLShowIndexParams{
+		params := &agentv1.StartActionRequest_MySQLShowIndexParams{
 			Dsn:   dsn,
 			Table: "city",
 		}
@@ -104,7 +104,7 @@ func TestMySQLShowIndex(t *testing.T) {
 
 	t.Run("Error", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_MySQLShowIndexParams{
+		params := &agentv1.StartActionRequest_MySQLShowIndexParams{
 			Dsn:   dsn,
 			Table: "no_such_table",
 		}
@@ -118,7 +118,7 @@ func TestMySQLShowIndex(t *testing.T) {
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_MySQLShowIndexParams{
+		params := &agentv1.StartActionRequest_MySQLShowIndexParams{
 			Dsn:   dsn,
 			Table: `city"; DROP TABLE city; --`,
 		}
