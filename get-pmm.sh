@@ -19,7 +19,7 @@ tag=${PMM_TAG:-3}
 repo=${PMM_REPO:-percona/pmm-server}
 port=${PMM_PORT:-443}
 container_name=${CONTAINER_NAME:-pmm-server}
-docker_socker_path=${DOCKER_SOCKER_PATH:-/var/run/docker.sock}
+docker_socket_path=${DOCKER_SOCKET_PATH:-/var/run/docker.sock}
 watchtower_token=${WATCHTOWER_TOKEN:-}
 backup_data=0
 interactive=0
@@ -141,7 +141,7 @@ parse_params() {
       shift
       ;;
     -dsp | --docker-socket-path)
-      docker_socker_path="${2-}"
+      docker_socket_path="${2-}"
       shift
       ;;
     -net | --network-name)
@@ -292,7 +292,7 @@ create_pmm_network() {
 #######################################
 start_watchtower() {
   if ! run_docker "inspect watchtower 1> /dev/null 2> /dev/null"; then
-    run_docker "run -d --name watchtower --restart always --network $network_name -e WATCHTOWER_HTTP_API_TOKEN=$watchtower_token -e WATCHTOWER_HTTP_LISTEN_PORT=8080 -e WATCHTOWER_HTTP_API_UPDATE=1 -v $docker_socker_path:/var/run/docker.sock perconalab/watchtower --cleanup"
+    run_docker "run -d --name watchtower --restart always --network $network_name -e WATCHTOWER_HTTP_API_TOKEN=$watchtower_token -e WATCHTOWER_HTTP_LISTEN_PORT=8080 -e WATCHTOWER_HTTP_API_UPDATE=1 -v $docker_socket_path:/var/run/docker.sock perconalab/watchtower --cleanup"
     msg "Created Watchtower container"
   fi
 }
