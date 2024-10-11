@@ -77,6 +77,10 @@ var sumColumnNames = map[string]struct{}{
 	"temp_blks_written":      {},
 	"blk_read_time":          {},
 	"blk_write_time":         {},
+	"shared_blk_read_time":   {},
+	"shared_blk_write_time":  {},
+	"local_blk_read_time":    {},
+	"local_blk_write_time":   {},
 	"cpu_user_time":          {},
 	"cpu_sys_time":           {},
 	"plans_calls":            {},
@@ -191,16 +195,20 @@ func isDimension(name string) bool {
 // isTimeMetric checks if a metric in the time metrics group.
 func isTimeMetric(name string) bool {
 	timeColumnNames := map[string]struct{}{
-		"query_time":           {},
-		"lock_time":            {},
-		"innodb_io_r_wait":     {},
-		"innodb_rec_lock_wait": {},
-		"innodb_queue_wait":    {},
-		"blk_read_time":        {},
-		"blk_write_time":       {},
-		"cpu_user_time":        {},
-		"cpu_sys_time":         {},
-		"plan_time":            {},
+		"query_time":            {},
+		"lock_time":             {},
+		"innodb_io_r_wait":      {},
+		"innodb_rec_lock_wait":  {},
+		"innodb_queue_wait":     {},
+		"blk_read_time":         {},
+		"blk_write_time":        {},
+		"shared_blk_read_time":  {},
+		"shared_blk_write_time": {},
+		"local_blk_read_time":   {},
+		"local_blk_write_time":  {},
+		"cpu_user_time":         {},
+		"cpu_sys_time":          {},
+		"plan_time":             {},
 	}
 
 	_, ok := timeColumnNames[name]

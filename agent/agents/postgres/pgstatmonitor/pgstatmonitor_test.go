@@ -249,31 +249,33 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
-				MBlkReadTimeCnt:    actual.Postgresql.MBlkReadTimeCnt,
-				MBlkReadTimeSum:    actual.Postgresql.MBlkReadTimeSum,
-				MSharedBlksReadCnt: actual.Postgresql.MSharedBlksReadCnt,
-				MSharedBlksReadSum: actual.Postgresql.MSharedBlksReadSum,
-				MSharedBlksHitCnt:  actual.Postgresql.MSharedBlksHitCnt,
-				MSharedBlksHitSum:  actual.Postgresql.MSharedBlksHitSum,
-				MRowsCnt:           1,
-				MRowsSum:           239,
-				MCpuUserTimeCnt:    actual.Postgresql.MCpuUserTimeCnt,
-				MCpuUserTimeSum:    actual.Postgresql.MCpuUserTimeSum,
-				MCpuSysTimeCnt:     actual.Postgresql.MCpuSysTimeCnt,
-				MCpuSysTimeSum:     actual.Postgresql.MCpuSysTimeSum,
-				CmdType:            selectCMDType,
-				HistogramItems:     actual.Postgresql.HistogramItems,
-				MPlansCallsSum:     actual.Postgresql.MPlansCallsSum,
-				MPlansCallsCnt:     mPlansCallsCnt,
-				MPlanTimeCnt:       mPlansTimeCnt,
-				MPlanTimeSum:       actual.Postgresql.MPlanTimeSum,
-				MPlanTimeMin:       actual.Postgresql.MPlanTimeMin,
-				MPlanTimeMax:       actual.Postgresql.MPlanTimeMax,
+				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
+				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
+				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
+				MSharedBlksReadCnt:    actual.Postgresql.MSharedBlksReadCnt,
+				MSharedBlksReadSum:    actual.Postgresql.MSharedBlksReadSum,
+				MSharedBlksHitCnt:     actual.Postgresql.MSharedBlksHitCnt,
+				MSharedBlksHitSum:     actual.Postgresql.MSharedBlksHitSum,
+				MRowsCnt:              1,
+				MRowsSum:              239,
+				MCpuUserTimeCnt:       actual.Postgresql.MCpuUserTimeCnt,
+				MCpuUserTimeSum:       actual.Postgresql.MCpuUserTimeSum,
+				MCpuSysTimeCnt:        actual.Postgresql.MCpuSysTimeCnt,
+				MCpuSysTimeSum:        actual.Postgresql.MCpuSysTimeSum,
+				CmdType:               selectCMDType,
+				HistogramItems:        actual.Postgresql.HistogramItems,
+				MPlansCallsSum:        actual.Postgresql.MPlansCallsSum,
+				MPlansCallsCnt:        mPlansCallsCnt,
+				MPlanTimeCnt:          mPlansTimeCnt,
+				MPlanTimeSum:          actual.Postgresql.MPlanTimeSum,
+				MPlanTimeMin:          actual.Postgresql.MPlanTimeMin,
+				MPlanTimeMax:          actual.Postgresql.MPlanTimeMax,
 			},
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
-		assert.LessOrEqual(t, actual.Postgresql.MBlkReadTimeSum, actual.Common.MQueryTimeSum)
+		assert.LessOrEqual(t, actual.Postgresql.MSharedBlkReadTimeSum, actual.Common.MQueryTimeSum)
 		assert.Regexp(t, `\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}`, actual.Common.ClientHost)
 
 		_, err = db.Exec(selectAllCountries)
@@ -307,29 +309,31 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
-				MSharedBlksHitCnt: 1,
-				MSharedBlksHitSum: 5,
-				MRowsCnt:          1,
-				MRowsSum:          239,
-				MBlkReadTimeCnt:   actual.Postgresql.MBlkReadTimeCnt,
-				MBlkReadTimeSum:   actual.Postgresql.MBlkReadTimeSum,
-				MCpuUserTimeCnt:   actual.Postgresql.MCpuUserTimeCnt,
-				MCpuUserTimeSum:   actual.Postgresql.MCpuUserTimeSum,
-				MCpuSysTimeCnt:    actual.Postgresql.MCpuSysTimeCnt,
-				MCpuSysTimeSum:    actual.Postgresql.MCpuSysTimeSum,
-				CmdType:           selectCMDType,
-				HistogramItems:    actual.Postgresql.HistogramItems,
-				MPlansCallsSum:    actual.Postgresql.MPlansCallsSum,
-				MPlansCallsCnt:    mPlansCallsCnt,
-				MPlanTimeCnt:      mPlansTimeCnt,
-				MPlanTimeSum:      actual.Postgresql.MPlanTimeSum,
-				MPlanTimeMin:      actual.Postgresql.MPlanTimeMin,
-				MPlanTimeMax:      actual.Postgresql.MPlanTimeMax,
+				MSharedBlksHitCnt:     1,
+				MSharedBlksHitSum:     5,
+				MRowsCnt:              1,
+				MRowsSum:              239,
+				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
+				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
+				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
+				MCpuUserTimeCnt:       actual.Postgresql.MCpuUserTimeCnt,
+				MCpuUserTimeSum:       actual.Postgresql.MCpuUserTimeSum,
+				MCpuSysTimeCnt:        actual.Postgresql.MCpuSysTimeCnt,
+				MCpuSysTimeSum:        actual.Postgresql.MCpuSysTimeSum,
+				CmdType:               selectCMDType,
+				HistogramItems:        actual.Postgresql.HistogramItems,
+				MPlansCallsSum:        actual.Postgresql.MPlansCallsSum,
+				MPlansCallsCnt:        mPlansCallsCnt,
+				MPlanTimeCnt:          mPlansTimeCnt,
+				MPlanTimeSum:          actual.Postgresql.MPlanTimeSum,
+				MPlanTimeMin:          actual.Postgresql.MPlanTimeMin,
+				MPlanTimeMax:          actual.Postgresql.MPlanTimeMax,
 			},
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
-		assert.LessOrEqual(t, actual.Postgresql.MBlkReadTimeSum, actual.Common.MQueryTimeSum)
+		assert.LessOrEqual(t, actual.Postgresql.MSharedBlkReadTimeSum, actual.Common.MQueryTimeSum)
 	})
 
 	t.Run("AllCountriesTruncated", func(t *testing.T) {
@@ -381,31 +385,33 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
-				MBlkReadTimeCnt:    actual.Postgresql.MBlkReadTimeCnt,
-				MBlkReadTimeSum:    actual.Postgresql.MBlkReadTimeSum,
-				MSharedBlksReadCnt: actual.Postgresql.MSharedBlksReadCnt,
-				MSharedBlksReadSum: actual.Postgresql.MSharedBlksReadSum,
-				MSharedBlksHitCnt:  actual.Postgresql.MSharedBlksHitCnt,
-				MSharedBlksHitSum:  actual.Postgresql.MSharedBlksHitSum,
-				MRowsCnt:           1,
-				MRowsSum:           30,
-				MCpuUserTimeCnt:    actual.Postgresql.MCpuUserTimeCnt,
-				MCpuUserTimeSum:    actual.Postgresql.MCpuUserTimeSum,
-				MCpuSysTimeCnt:     actual.Postgresql.MCpuSysTimeCnt,
-				MCpuSysTimeSum:     actual.Postgresql.MCpuSysTimeSum,
-				CmdType:            selectCMDType,
-				HistogramItems:     actual.Postgresql.HistogramItems,
-				MPlansCallsSum:     actual.Postgresql.MPlansCallsSum,
-				MPlansCallsCnt:     mPlansCallsCnt,
-				MPlanTimeCnt:       mPlansTimeCnt,
-				MPlanTimeSum:       actual.Postgresql.MPlanTimeSum,
-				MPlanTimeMin:       actual.Postgresql.MPlanTimeMin,
-				MPlanTimeMax:       actual.Postgresql.MPlanTimeMax,
+				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
+				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
+				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
+				MSharedBlksReadCnt:    actual.Postgresql.MSharedBlksReadCnt,
+				MSharedBlksReadSum:    actual.Postgresql.MSharedBlksReadSum,
+				MSharedBlksHitCnt:     actual.Postgresql.MSharedBlksHitCnt,
+				MSharedBlksHitSum:     actual.Postgresql.MSharedBlksHitSum,
+				MRowsCnt:              1,
+				MRowsSum:              30,
+				MCpuUserTimeCnt:       actual.Postgresql.MCpuUserTimeCnt,
+				MCpuUserTimeSum:       actual.Postgresql.MCpuUserTimeSum,
+				MCpuSysTimeCnt:        actual.Postgresql.MCpuSysTimeCnt,
+				MCpuSysTimeSum:        actual.Postgresql.MCpuSysTimeSum,
+				CmdType:               selectCMDType,
+				HistogramItems:        actual.Postgresql.HistogramItems,
+				MPlansCallsSum:        actual.Postgresql.MPlansCallsSum,
+				MPlansCallsCnt:        mPlansCallsCnt,
+				MPlanTimeCnt:          mPlansTimeCnt,
+				MPlanTimeSum:          actual.Postgresql.MPlanTimeSum,
+				MPlanTimeMin:          actual.Postgresql.MPlanTimeMin,
+				MPlanTimeMax:          actual.Postgresql.MPlanTimeMax,
 			},
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
-		assert.LessOrEqual(t, actual.Postgresql.MBlkReadTimeSum, actual.Common.MQueryTimeSum)
+		assert.LessOrEqual(t, actual.Postgresql.MSharedBlkReadTimeSum, actual.Common.MQueryTimeSum)
 		assert.Regexp(t, `\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}`, actual.Common.ClientHost)
 
 		_, err = db.Exec(q, args...)
@@ -420,7 +426,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		actual = buckets[0]
 		actual.Common.Username = strings.ReplaceAll(actual.Common.Username, `"`, "")
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
-		assert.InDelta(t, 0, actual.Postgresql.MBlkReadTimeCnt, 1)
+		assert.InDelta(t, 0, actual.Postgresql.MSharedBlkReadTimeCnt, 1)
 		assert.InDelta(t, 5, actual.Postgresql.MSharedBlksHitSum, 2)
 		expected = &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
@@ -442,29 +448,31 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
-				MBlkReadTimeCnt:   actual.Postgresql.MBlkReadTimeCnt,
-				MBlkReadTimeSum:   actual.Postgresql.MBlkReadTimeSum,
-				MSharedBlksHitCnt: 1,
-				MSharedBlksHitSum: actual.Postgresql.MSharedBlksHitSum,
-				MRowsCnt:          1,
-				MRowsSum:          30,
-				MCpuUserTimeCnt:   actual.Postgresql.MCpuUserTimeCnt,
-				MCpuUserTimeSum:   actual.Postgresql.MCpuUserTimeSum,
-				MCpuSysTimeCnt:    actual.Postgresql.MCpuSysTimeCnt,
-				MCpuSysTimeSum:    actual.Postgresql.MCpuSysTimeSum,
-				CmdType:           selectCMDType,
-				HistogramItems:    actual.Postgresql.HistogramItems,
-				MPlansCallsSum:    actual.Postgresql.MPlansCallsSum,
-				MPlansCallsCnt:    mPlansCallsCnt,
-				MPlanTimeCnt:      mPlansTimeCnt,
-				MPlanTimeSum:      actual.Postgresql.MPlanTimeSum,
-				MPlanTimeMin:      actual.Postgresql.MPlanTimeMin,
-				MPlanTimeMax:      actual.Postgresql.MPlanTimeMax,
+				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
+				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
+				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
+				MSharedBlksHitCnt:     1,
+				MSharedBlksHitSum:     actual.Postgresql.MSharedBlksHitSum,
+				MRowsCnt:              1,
+				MRowsSum:              30,
+				MCpuUserTimeCnt:       actual.Postgresql.MCpuUserTimeCnt,
+				MCpuUserTimeSum:       actual.Postgresql.MCpuUserTimeSum,
+				MCpuSysTimeCnt:        actual.Postgresql.MCpuSysTimeCnt,
+				MCpuSysTimeSum:        actual.Postgresql.MCpuSysTimeSum,
+				CmdType:               selectCMDType,
+				HistogramItems:        actual.Postgresql.HistogramItems,
+				MPlansCallsSum:        actual.Postgresql.MPlansCallsSum,
+				MPlansCallsCnt:        mPlansCallsCnt,
+				MPlanTimeCnt:          mPlansTimeCnt,
+				MPlanTimeSum:          actual.Postgresql.MPlanTimeSum,
+				MPlanTimeMin:          actual.Postgresql.MPlanTimeMin,
+				MPlanTimeMax:          actual.Postgresql.MPlanTimeMax,
 			},
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
-		assert.LessOrEqual(t, actual.Postgresql.MBlkReadTimeSum, actual.Common.MQueryTimeSum)
+		assert.LessOrEqual(t, actual.Postgresql.MSharedBlkReadTimeSum, actual.Common.MQueryTimeSum)
 	})
 
 	t.Run("CheckMBlkReadTime", func(t *testing.T) {
@@ -518,7 +526,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 
 		actual := buckets[0]
 		actual.Common.Username = strings.ReplaceAll(actual.Common.Username, `"`, "")
-		assert.NotZero(t, actual.Postgresql.MBlkReadTimeSum)
+		assert.NotZero(t, actual.Postgresql.MSharedBlkReadTimeSum)
 		expectedFingerprint := fmt.Sprintf("INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)", tableName)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
@@ -541,8 +549,10 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				Tables: []string{fmt.Sprintf("public.%s", tableName)},
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
-				MBlkReadTimeCnt:       float32(n),
-				MBlkReadTimeSum:       actual.Postgresql.MBlkReadTimeSum,
+				MSharedBlkReadTimeCnt: float32(n),
+				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
+				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
 				MSharedBlksReadCnt:    actual.Postgresql.MSharedBlksReadCnt,
 				MSharedBlksReadSum:    actual.Postgresql.MSharedBlksReadSum,
 				MSharedBlksWrittenCnt: actual.Postgresql.MSharedBlksWrittenCnt,
@@ -572,7 +582,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			},
 		}
 		tests.AssertBucketsEqual(t, expected, actual)
-		assert.LessOrEqual(t, actual.Postgresql.MBlkReadTimeSum, actual.Common.MQueryTimeSum)
+		assert.LessOrEqual(t, actual.Postgresql.MSharedBlkReadTimeSum, actual.Common.MQueryTimeSum)
 		assert.Regexp(t, `\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}`, actual.Common.ClientHost)
 	})
 }
