@@ -44,7 +44,13 @@ fi
 %posttrans
 if [ -f /usr/local/percona/pmm2/config/pmm-agent.yaml.bak ]; then
     mv /usr/local/percona/pmm/config/pmm-agent.yaml /usr/local/percona/pmm/config/pmm-agent.yaml.new
-    mv /usr/local/percona/pmm2/config/pmm-agent.yaml.bak /usr/local/percona/pmm/config/pmm-agent.yaml
+    # Take a backup of pmm-agent.yaml and then modify it to remove paths properties
+    mv /usr/local/percona/pmm2/config/pmm-agent.yaml.bak /usr/local/percona/pmm/config/pmm-agent.yaml.bak
+    cp /usr/local/percona/pmm/config/pmm-agent.yaml.bak /usr/local/percona/pmm/config/pmm-agent.yaml
+    sed '/^paths:/,/^[^[:space:]]/ {
+        /^paths:/d
+        /^[^[:space:]]/!d
+    }' "/usr/local/percona/pmm/config/pmm-agent.yaml" > "/usr/local/percona/pmm/config/pmm-agent.yaml.tmp" && mv "/usr/local/percona/pmm/config/pmm-agent.yaml.tmp" "/usr/local/percona/pmm/config/pmm-agent.yaml"
 
     if [ -d /usr/local/percona/pmm2/config ] && [ ! "$(ls -A /usr/local/percona/pmm2/config)" ]; then
        rmdir /usr/local/percona/pmm2/config

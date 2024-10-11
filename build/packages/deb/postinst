@@ -21,7 +21,13 @@ case "$1" in
             mv /usr/local/percona/pmm/config/pmm-agent.yaml /usr/local/percona/pmm/config/pmm-agent.yaml.new
 
             echo "Restoring pmm-agent.yaml from backup..."
-            mv /usr/local/percona/pmm2/config/pmm-agent.yaml.bak /usr/local/percona/pmm/config/pmm-agent.yaml
+            # Take a backup of pmm-agent.yaml and then modify it to remove paths properties
+            mv /usr/local/percona/pmm2/config/pmm-agent.yaml.bak /usr/local/percona/pmm/config/pmm-agent.yaml.bak
+            cp /usr/local/percona/pmm/config/pmm-agent.yaml.bak /usr/local/percona/pmm/config/pmm-agent.yaml
+            sed '/^paths:/,/^[^[:space:]]/ {
+                 /^paths:/d
+                 /^[^[:space:]]/!d
+            }' "/usr/local/percona/pmm/config/pmm-agent.yaml" > "/usr/local/percona/pmm/config/pmm-agent.yaml.tmp" && mv "/usr/local/percona/pmm/config/pmm-agent.yaml.tmp" "/usr/local/percona/pmm/config/pmm-agent.yaml"
 
             # Clean up old directories if empty
             if [ -d /usr/local/percona/pmm2/config ] && [ -z "$(ls -A /usr/local/percona/pmm2/config)" ]; then

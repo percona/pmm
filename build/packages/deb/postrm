@@ -28,6 +28,9 @@ if [ "$1" = "purge" ]; then
     if [ -f /usr/local/percona/pmm/config/pmm-agent.yaml.new ]; then
         rm -f /usr/local/percona/pmm/config/pmm-agent.yaml.new
     fi
+    if [ -f /usr/local/percona/pmm/config/pmm-agent.yaml.bak ]; then
+        rm -f /usr/local/percona/pmm/config/pmm-agent.yaml.bak
+    fi
 
     if [ -d /usr/local/percona/pmm/config ] && [ -z "$(ls -A /usr/local/percona/pmm/config)" ]; then
         rmdir /usr/local/percona/pmm/config
