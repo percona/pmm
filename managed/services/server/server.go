@@ -98,7 +98,7 @@ type Params struct {
 
 // NewServer returns new server for Server service.
 func NewServer(params *Params) (*Server, error) {
-	path := os.TempDir()
+	path := "/srv"
 	if _, err := os.Stat(path); err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -359,6 +359,12 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateReque
 
 // UpdateStatus returns PMM Server update status.
 func (s *Server) UpdateStatus(ctx context.Context, req *serverv1.UpdateStatusRequest) (*serverv1.UpdateStatusResponse, error) {
+	if _, err := os.Stat(s.pmmUpdateAuthFile); err != nil && os.IsNotExist(err) {
+		return &serverv1.UpdateStatusResponse{
+			Done: true,
+		}, nil
+	}
+
 	token, err := s.readUpdateAuthToken()
 	if err != nil {
 		return nil, err
