@@ -149,7 +149,7 @@ func (b *Base) GetDockerClient() *client.Client {
 
 // FindServerContainers finds all containers running PMM Server.
 func (b *Base) FindServerContainers(ctx context.Context) ([]types.Container, error) {
-	return b.Cli.ContainerList(ctx, types.ContainerListOptions{ //nolint:exhaustruct
+	return b.Cli.ContainerList(ctx, container.ListOptions{ //nolint:exhaustruct
 		All: true,
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
@@ -221,7 +221,7 @@ func (b *Base) RunContainer(ctx context.Context, config *container.Config, hostC
 		return "", err
 	}
 
-	if err := b.Cli.ContainerStart(ctx, res.ID, types.ContainerStartOptions{}); err != nil { //nolint:exhaustruct
+	if err := b.Cli.ContainerStart(ctx, res.ID, container.StartOptions{}); err != nil { //nolint:exhaustruct
 		return "", err
 	}
 
