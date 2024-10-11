@@ -1,6 +1,6 @@
 module github.com/percona/pmm
 
-go 1.22.7
+go 1.23.2
 
 // Update saas with
 // go get -v github.com/percona-platform/saas@latest
@@ -23,7 +23,7 @@ require (
 	github.com/alecthomas/kong v0.9.0
 	github.com/alecthomas/units v0.0.0-20231202071711-9a357b53e9c9
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
-	github.com/aws/aws-sdk-go v1.55.3
+	github.com/aws/aws-sdk-go v1.55.5
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/charmbracelet/bubbles v0.18.0
