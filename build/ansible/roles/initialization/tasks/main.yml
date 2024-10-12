@@ -128,7 +128,7 @@
       method: GET
     retries: 20
     delay: 5
-    ignore_errors: yes
+    ignore_errors: true
 
   - name: init admin password on AMI
     include_role:
