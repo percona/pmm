@@ -35,18 +35,19 @@ export PMM_RELEASE_FULLCOMMIT=%{commit}
 export PMM_RELEASE_BRANCH=""
 
 make -C managed release
-
+make -C ui release
 
 %install
 install -d -p %{buildroot}%{_bindir}
 install -d -p %{buildroot}%{_sbindir}
 install -d -p %{buildroot}%{_datadir}/%{name}
+install -d -p %{buildroot}%{_datadir}/pmm-ui
 install -p -m 0755 bin/pmm-managed %{buildroot}%{_sbindir}/pmm-managed
 install -p -m 0755 bin/pmm-managed-init %{buildroot}%{_sbindir}/pmm-managed-init
 install -p -m 0755 bin/pmm-managed-starlark %{buildroot}%{_sbindir}/pmm-managed-starlark
 
 cp -pa api/swagger %{buildroot}%{_datadir}/%{name}
-
+cp -pa ui/dist/. %{buildroot}%{_datadir}/pmm-ui
 
 %files
 %license managed/LICENSE
@@ -55,11 +56,14 @@ cp -pa api/swagger %{buildroot}%{_datadir}/%{name}
 %{_sbindir}/pmm-managed-init
 %{_sbindir}/pmm-managed-starlark
 %{_datadir}/%{name}
-
+%{_datadir}/pmm-ui
 
 %changelog
-* Mon Apr 1 2024 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-21
+* Mon Apr 1 2024 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-2
 - PMM-12899 Use module and build cache
+
+* Fri Mar 22 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 3.0.0-1
+- PMM-11231 add pmm ui
 
 * Thu Jul 28 2022 Alex Tymchuk <alexander.tymchuk@percona.com> - 2.30.0-1
 - PMM-10036 migrate to monorepo

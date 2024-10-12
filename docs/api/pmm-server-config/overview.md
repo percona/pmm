@@ -1,7 +1,7 @@
 ---
 title: Overview
 slug: pmm-server-configuration
-category: 626bd6a45c6ea70129427eff
+category: 66acab7b0bf230001846b5e2
 order: 0
 ---
 

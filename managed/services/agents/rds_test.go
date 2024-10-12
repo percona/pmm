@@ -22,8 +22,8 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
@@ -32,7 +32,7 @@ func TestRDSExporterConfig(t *testing.T) {
 	pmmAgentVersion := version.MustParse("2.28.0")
 
 	node1 := &models.Node{
-		NodeID:    "/node_id/node1",
+		NodeID:    "node1",
 		NodeType:  models.RemoteRDSNodeType,
 		NodeName:  "prod-mysql56",
 		NodeModel: "db.t2.micro",
@@ -45,7 +45,7 @@ func TestRDSExporterConfig(t *testing.T) {
 	})
 	require.NoError(t, err)
 	agent1 := &models.Agent{
-		AgentID:                 "/agent_id/agent1",
+		AgentID:                 "agent1",
 		AgentType:               models.RDSExporterType,
 		NodeID:                  &node1.NodeID,
 		AWSAccessKey:            pointer.ToString("access_key1"),
@@ -54,7 +54,7 @@ func TestRDSExporterConfig(t *testing.T) {
 	}
 
 	node2 := &models.Node{
-		NodeID:    "/node_id/node2",
+		NodeID:    "node2",
 		NodeType:  models.RemoteRDSNodeType,
 		NodeName:  "test-mysql57",
 		NodeModel: "db.t2.micro",
@@ -67,7 +67,7 @@ func TestRDSExporterConfig(t *testing.T) {
 	})
 	require.NoError(t, err)
 	agent2 := &models.Agent{
-		AgentID:      "/agent_id/agent2",
+		AgentID:      "agent2",
 		AgentType:    models.RDSExporterType,
 		NodeID:       &node2.NodeID,
 		AWSAccessKey: pointer.ToString("access_key2"),
@@ -80,8 +80,8 @@ func TestRDSExporterConfig(t *testing.T) {
 	}
 	actual, err := rdsExporterConfig(pairs, redactSecrets, pmmAgentVersion)
 	require.NoError(t, err)
-	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_RDS_EXPORTER,
+	expected := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_RDS_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -99,11 +99,11 @@ instances:
       disable_basic_metrics: true
       disable_enhanced_metrics: false
       labels:
-        agent_id: /agent_id/agent1
+        agent_id: agent1
         agent_type: rds_exporter
         az: us-east-1c
         foo: bar
-        node_id: /node_id/node1
+        node_id: node1
         node_model: db.t2.micro
         node_name: prod-mysql56
         node_type: remote_rds
@@ -114,11 +114,11 @@ instances:
       disable_basic_metrics: false
       disable_enhanced_metrics: false
       labels:
-        agent_id: /agent_id/agent2
+        agent_id: agent2
         agent_type: rds_exporter
         az: us-east-1c
         baz: qux
-        node_id: /node_id/node2
+        node_id: node2
         node_model: db.t2.micro
         node_name: test-mysql57
         node_type: remote_rds

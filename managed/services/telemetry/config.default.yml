@@ -1,12 +1,12 @@
 telemetry:
   # PMM - generic information
-  - id: PMMServerIAEnabled
+  - id: PMMServerAlertingEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN alerting->'disabled' = 'false' THEN '1' ELSE '0' END) AS ia_enabled FROM settings s, jsonb_extract_path(s.settings, 'alerting') AS alerting
+    query: (CASE WHEN alerting->'enabled' = 'false' THEN '0' ELSE '1' END) AS alerting_enabled FROM settings s, jsonb_extract_path(s.settings, 'alerting') AS alerting
     summary: "PMM Server Integration Alerting feature enabled/disabled"
     data:
-      - metric_name: "pmm_server_ia_enabled"
-        column: "ia_enabled"
+      - metric_name: "pmm_server_alerting_enabled"
+        column: "alerting_enabled"
 
   - id: PMMServerAlertsFire
     source: VM
@@ -24,25 +24,17 @@ telemetry:
       - metric_name: "pmm_server_alert_rules_number"
         value: 1
 
-  - id: PMMServerSTTEnabled
+  - id: PMMServerAdvisorsEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN stt->'stt_disabled' = 'false' THEN '1' ELSE '0' END) AS stt_enabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS stt
-    summary: "PMM Server Security Thread Tool feature enabled/disabled"
+    query: (CASE WHEN advisors->'enabled' = 'false' THEN '0' ELSE '1' END) AS advisors_enabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS advisors
+    summary: "PMM Advisors Enabled"
     data:
-      - metric_name: "pmm_server_stt_enabled"
-        column: "stt_enabled"
-
-  - id: PMMServerAdvisorsDisabled
-    source: PMMDB_SELECT
-    query: (CASE WHEN stt->'stt_disabled' = 'true' THEN '1' ELSE '0' END) AS advisors_disabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS stt
-    summary: "PMM Advisors Disabled"
-    data:
-      - metric_name: "pmm_server_advisors_disabled"
-        column: "advisors_disabled"
+      - metric_name: "pmm_server_advisors_enabled"
+        column: "advisors_enabled"
 
   - id: PMMServerBackupManagementEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN backup_management->'disabled' = 'false' THEN '1' ELSE '0' END) AS backup_management_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS backup_management
+    query: (CASE WHEN backup_management->'enabled' = 'false' THEN '0' ELSE '1' END) AS backup_management_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS backup_management
     summary: "PMM Server Backup Management feature enabled"
     data:
       - metric_name: "pmm_server_backup_management_enabled"
@@ -51,18 +43,26 @@ telemetry:
   - id: PMMServerAccessControlEnabled
     source: PMMDB_SELECT
     query: (CASE WHEN access_control->'enabled' = 'true' THEN '1' ELSE '0' END) AS access_control_enabled FROM settings s, jsonb_extract_path(s.settings, 'access_control') AS access_control
-    summary: "PMM Server Access Control feature enabled/disabled"
+    summary: "PMM Server Access Control feature enabled"
     data:
       - metric_name: "pmm_server_access_control_enabled"
         column: "access_control_enabled"
 
-  - id: PMMServerUpdatesDisabled
+  - id: PMMServerUpdatesEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN updates->'disabled' = 'true' THEN '1' ELSE '0' END) AS updates_disabled FROM settings s, jsonb_extract_path(s.settings, 'updates') AS updates
-    summary: "PMM Server Check Updates feature disabled"
+    query: (CASE WHEN updates->'enabled' = 'true' THEN '1' ELSE '0' END) AS updates_enabled FROM settings s, jsonb_extract_path(s.settings, 'updates') AS updates
+    summary: "PMM Server Check Updates feature enabled"
     data:
-      - metric_name: "pmm_server_updates_disabled"
-        column: "updates_disabled"
+      - metric_name: "pmm_server_updates_enabled"
+        column: "updates_enabled"
+
+  - id: PMMAzureMonitoringEnabled
+    source: PMMDB_SELECT
+    query: (CASE WHEN azure->'enabled' = 'true' THEN '1' ELSE '0' END) AS azure_enabled FROM settings s, jsonb_extract_path(s.settings, 'azure') AS azure
+    summary: "PMM Azure monitoring feature enabled"
+    data:
+      - metric_name: "pmm_server_azure_enabled"
+        column: "azure_enabled"
 
   - id: PMMServerFirstServiceAdded
     source: PMMDB_SELECT
@@ -728,7 +728,7 @@ telemetry:
 
   - id: AdvisorsChecksDisabled
     source: PMMDB_SELECT
-    query: settings->'sass'->'disabled_stt_checks' as disabled_checks from settings;
+    query: settings->'sass'->'disabled_advisors' as disabled_checks from settings;
     summary: "Advisor - Checks that are disabled on the PMM instance"
     transform:
       type: JSON
@@ -911,7 +911,6 @@ telemetry:
       from dumps
       where created_at BETWEEN NOW() - INTERVAL '24 HOURS' AND NOW()
       group by status, services_count, timerange, ignore_load, export_qan;
-
     transform:
       type: JSON
       metric: pmm_dumps_performed
@@ -956,7 +955,14 @@ telemetry:
     summary: "Use of HA feature"
     data:
       - metric_name: "pmm_server_ha_enable"
-        column: "PERCONA_TEST_HA_ENABLE"
+        column: "PMM_TEST_HA_ENABLE"
+
+  - id: PMMServerBuiltinDatabaseDisabled
+    source: ENV_VARS
+    summary: "Use of external PMM database"
+    data:
+      - metric_name: "pmm_server_builtin_postgres_disable"
+        column: "PMM_DISABLE_BUILTIN_POSTGRES"
 
   - id: PMMServerHAUseOfDBs
     source: ENV_VARS

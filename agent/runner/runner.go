@@ -33,7 +33,7 @@ import (
 	"github.com/percona/pmm/agent/runner/actions"
 	"github.com/percona/pmm/agent/runner/jobs"
 	agenterrors "github.com/percona/pmm/agent/utils/errors"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 const (
@@ -50,8 +50,8 @@ type Runner struct {
 	actions chan actions.Action
 	jobs    chan jobs.Job
 
-	actionsMessages chan agentpb.AgentRequestPayload
-	jobsMessages    chan agentpb.AgentResponsePayload
+	actionsMessages chan agentv1.AgentRequestPayload
+	jobsMessages    chan agentv1.AgentResponsePayload
 
 	wg sync.WaitGroup
 
@@ -100,8 +100,8 @@ func New(totalCapacity, tokenCapacity uint16) *Runner {
 		jobs:            make(chan jobs.Job, bufferSize),
 		cancels:         make(map[string]context.CancelFunc),
 		running:         make(map[string]struct{}),
-		jobsMessages:    make(chan agentpb.AgentResponsePayload),
-		actionsMessages: make(chan agentpb.AgentRequestPayload),
+		jobsMessages:    make(chan agentv1.AgentResponsePayload),
+		actionsMessages: make(chan agentv1.AgentRequestPayload),
 		tokenCapacity:   tokenCapacity,
 		gSem:            semaphore.NewWeighted(int64(totalCapacity)),
 		lSems:           make(map[string]*entry),
@@ -210,12 +210,12 @@ func (r *Runner) StartJob(job jobs.Job) error {
 }
 
 // JobsMessages returns channel with Jobs messages.
-func (r *Runner) JobsMessages() <-chan agentpb.AgentResponsePayload {
+func (r *Runner) JobsMessages() <-chan agentv1.AgentResponsePayload {
 	return r.jobsMessages
 }
 
 // ActionsResults return chanel with Actions results payload.
-func (r *Runner) ActionsResults() <-chan agentpb.AgentRequestPayload {
+func (r *Runner) ActionsResults() <-chan agentv1.AgentRequestPayload {
 	return r.actionsMessages
 }
 
@@ -286,11 +286,11 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 		l.Debug("Acquiring tokens for a job.")
 		if err := r.acquire(ctx, token); err != nil {
 			l.Errorf("Failed to acquire token for a job: %v", err)
-			r.sendJobsMessage(&agentpb.JobResult{
+			r.sendJobsMessage(&agentv1.JobResult{
 				JobId:     job.ID(),
 				Timestamp: timestamppb.Now(),
-				Result: &agentpb.JobResult_Error_{
-					Error: &agentpb.JobResult_Error{
+				Result: &agentv1.JobResult_Error_{
+					Error: &agentv1.JobResult_Error{
 						Message: err.Error(),
 					},
 				},
@@ -316,11 +316,11 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 
 		err := job.Run(nCtx, r.sendJobsMessage)
 		if err != nil {
-			r.sendJobsMessage(&agentpb.JobResult{
+			r.sendJobsMessage(&agentv1.JobResult{
 				JobId:     job.ID(),
 				Timestamp: timestamppb.Now(),
-				Result: &agentpb.JobResult_Error_{
-					Error: &agentpb.JobResult_Error{
+				Result: &agentv1.JobResult_Error_{
+					Error: &agentv1.JobResult_Error{
 						Message: err.Error(),
 					},
 				},
@@ -357,7 +357,7 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 		l.Debug("Acquiring tokens for an action.")
 		if err := r.acquire(ctx, instanceID); err != nil {
 			l.Errorf("Failed to acquire token for an action: %v", err)
-			r.sendActionsMessage(&agentpb.ActionResultRequest{
+			r.sendActionsMessage(&agentv1.ActionResultRequest{
 				ActionId: actionID,
 				Done:     true,
 				Error:    err.Error(),
@@ -386,7 +386,7 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 			l.Warnf("Action terminated with error: %+v", err)
 			l.Debugf("Action produced output: %s", string(output))
 		}
-		r.sendActionsMessage(&agentpb.ActionResultRequest{
+		r.sendActionsMessage(&agentv1.ActionResultRequest{
 			ActionId: actionID,
 			Done:     true,
 			Output:   output,
@@ -396,11 +396,11 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 	go pprof.Do(ctx, pprof.Labels("actionID", actionID, "type", actionType), run)
 }
 
-func (r *Runner) sendJobsMessage(payload agentpb.AgentResponsePayload) {
+func (r *Runner) sendJobsMessage(payload agentv1.AgentResponsePayload) {
 	r.jobsMessages <- payload
 }
 
-func (r *Runner) sendActionsMessage(payload agentpb.AgentRequestPayload) {
+func (r *Runner) sendActionsMessage(payload agentv1.AgentRequestPayload) {
 	r.actionsMessages <- payload
 }
 

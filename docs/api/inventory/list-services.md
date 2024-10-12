@@ -1,7 +1,7 @@
 ---
 title: List Services
 slug: listservices
-category: 626de009b977e3003179f7dd
+category: 66aca9bf17142b005ad4e9fa
 ---
 
 ## List Services
@@ -16,7 +16,7 @@ curl --insecure -X POST \
 	--url https://127.0.0.1/v1/inventory/Services/List \
   --data '
 {
-  "node_id": "/node_id/XXXXX",
+  "node_id": "7d07a712-7fb9-4265-8a7d-a0db8aa35762",
   "service_type": "MYSQL_SERVICE"
 }'
 ```

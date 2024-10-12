@@ -60,7 +60,7 @@ type Service struct {
 // New creates a new instance of the dump service..
 func New(db *reform.DB) *Service {
 	return &Service{
-		l:  logrus.WithField("component", "management/backup/backup"),
+		l:  logrus.WithField("component", "services/dump"),
 		db: db,
 	}
 }
@@ -108,7 +108,7 @@ func (s *Service) StartDump(params *Params) (string, error) {
 	pmmDumpCmd := exec.CommandContext(ctx, //nolint:gosec
 		pmmDumpBin,
 		"export",
-		"--pmm-url=http://127.0.0.1",
+		"--pmm-url=http://127.0.0.1:8080",
 		fmt.Sprintf("--dump-path=%s", getDumpFilePath(dump.ID)))
 
 	if params.APIKey != "" {

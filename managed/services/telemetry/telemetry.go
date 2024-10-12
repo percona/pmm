@@ -32,15 +32,13 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/serverpb"
+	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/platform"
 )
 
 const (
-	distributionInfoFilePath = "/srv/pmm-distribution"
-	osInfoFilePath           = "/proc/version"
-	sendChSize               = 10
+	sendChSize = 10
 )
 
 // Service reports telemetry.
@@ -53,7 +51,7 @@ type Service struct {
 	dsRegistry          DataSourceLocator
 	pmmVersion          string
 	os                  string
-	sDistributionMethod serverpb.DistributionMethod
+	sDistributionMethod serverv1.DistributionMethod
 	tDistributionMethod pmmv1.DistributionMethod
 	sendCh              chan *pmmv1.ServerMetric
 	dataSourcesMap      map[DataSourceName]DataSource
@@ -69,7 +67,9 @@ var (
 )
 
 // NewService creates a new service.
-func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string, config ServiceConfig, extensions map[ExtensionType]Extension) (*Service, error) {
+func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
+	dus distributionUtilService, config ServiceConfig, extensions map[ExtensionType]Extension,
+) (*Service, error) {
 	if config.SaasHostname == "" {
 		return nil, errors.New("empty host")
 	}
@@ -80,7 +80,6 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 	if err != nil {
 		return nil, err
 	}
-	dus := newDistributionUtilServiceImpl(distributionInfoFilePath, osInfoFilePath, l)
 	s := &Service{
 		db:           db,
 		l:            l,
@@ -94,7 +93,7 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 		extensions:   extensions,
 	}
 
-	s.sDistributionMethod, s.tDistributionMethod, s.os = dus.getDistributionMethodAndOS()
+	s.sDistributionMethod, s.tDistributionMethod, s.os = dus.GetDistributionMethodAndOS()
 	s.dataSourcesMap = s.locateDataSources(config.telemetry)
 
 	return s, nil
@@ -128,7 +127,7 @@ func (s *Service) Run(ctx context.Context) {
 			s.l.Debugf("Failed to retrieve settings: %s.", err)
 			return
 		}
-		if settings.Telemetry.Disabled {
+		if !settings.IsTelemetryEnabled() {
 			s.l.Info("Disabled via settings.")
 			return
 		}
@@ -162,7 +161,7 @@ func (s *Service) Run(ctx context.Context) {
 }
 
 // DistributionMethod returns PMM Server distribution method where this pmm-managed runs.
-func (s *Service) DistributionMethod() serverpb.DistributionMethod {
+func (s *Service) DistributionMethod() serverv1.DistributionMethod {
 	return s.sDistributionMethod
 }
 
@@ -360,7 +359,7 @@ func (s *Service) makeMetric(ctx context.Context) (*pmmv1.ServerMetric, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to decode UUID %s", serverIDToUse)
 	}
-	_, distMethod, _ := s.dus.getDistributionMethodAndOS()
+	_, distMethod, _ := s.dus.GetDistributionMethodAndOS()
 
 	eventID := uuid.New()
 	return &pmmv1.ServerMetric{

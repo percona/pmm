@@ -1,0 +1,5 @@
+{
+  "experimental": true,
+  "max-concurrent-downloads": 9,
+  "max-concurrent-uploads": 15
+}

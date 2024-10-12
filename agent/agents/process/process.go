@@ -22,12 +22,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
 	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/agent/utils/templates"
-	"github.com/percona/pmm/api/inventorypb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/utils/pdeathsig"
 )
 
@@ -53,12 +54,14 @@ const (
 // implements its own logic, and then switches to then next state via "go toXXX()". "go" statement is used
 // only to avoid stack overflow; there are no extra goroutines for states.
 type Process struct {
-	params  *Params
-	l       *logrus.Entry
-	pl      *processLogger
-	changes chan inventorypb.AgentStatus
-	backoff *backoff.Backoff
-	ctxDone chan struct{}
+	params      *Params
+	l           *logrus.Entry
+	pl          *processLogger
+	changes     chan inventoryv1.AgentStatus
+	backoff     *backoff.Backoff
+	ctxDone     chan struct{}
+	err         error
+	initialized chan bool
 
 	// recreated on each restart
 	cmd     *exec.Cmd
@@ -71,7 +74,7 @@ type Params struct {
 	Path             string
 	Args             []string
 	Env              []string
-	Type             inventorypb.AgentType
+	Type             inventoryv1.AgentType
 	TemplateRenderer *templates.TemplateRenderer
 	TemplateParams   map[string]interface{}
 }
@@ -88,13 +91,24 @@ func (p *Params) String() string {
 // New creates new process.
 func New(params *Params, redactWords []string, l *logrus.Entry) *Process {
 	return &Process{
-		params:  params,
-		l:       l,
-		pl:      newProcessLogger(l, keepLogLines, redactWords),
-		changes: make(chan inventorypb.AgentStatus, 10),
-		backoff: backoff.New(backoffMinDelay, backoffMaxDelay),
-		ctxDone: make(chan struct{}),
+		params:      params,
+		l:           l,
+		pl:          newProcessLogger(l, keepLogLines, redactWords),
+		changes:     make(chan inventoryv1.AgentStatus, 10),
+		backoff:     backoff.New(backoffMinDelay, backoffMaxDelay),
+		ctxDone:     make(chan struct{}),
+		initialized: make(chan bool, 1),
 	}
+}
+
+// IsInitialized returns a chan of bool. True can be received if the process is initialized.
+func (p *Process) IsInitialized() <-chan bool {
+	return p.initialized
+}
+
+// GetError returns the error thrown when initializing the process.
+func (p *Process) GetError() error {
+	return p.err
 }
 
 // Run starts process and runs until ctx is canceled.
@@ -107,10 +121,10 @@ func (p *Process) Run(ctx context.Context) {
 }
 
 // STARTING -> RUNNING.
-// STARTING -> WAITING.
+// STARTING -> FAILING.
 func (p *Process) toStarting() {
 	p.l.Tracef("Process: starting.")
-	p.changes <- inventorypb.AgentStatus_STARTING
+	p.changes <- inventoryv1.AgentStatus_AGENT_STATUS_STARTING
 
 	p.cmd = exec.Command(p.params.Path, p.params.Args...) //nolint:gosec
 	p.cmd.Stdout = p.pl
@@ -128,7 +142,7 @@ func (p *Process) toStarting() {
 
 	if err := p.cmd.Start(); err != nil {
 		p.l.Warnf("Process: failed to start: %s.", err)
-		go p.toWaiting()
+		go p.toFailing(err)
 		return
 	}
 
@@ -142,10 +156,11 @@ func (p *Process) toStarting() {
 	defer t.Stop()
 	select {
 	case <-t.C:
+		p.initialized <- true
 		go p.toRunning()
 	case <-p.cmdDone:
 		p.l.Warnf("Process: exited early: %s.", p.cmd.ProcessState)
-		go p.toWaiting()
+		go p.toFailing(errors.New("exited early"))
 	}
 }
 
@@ -153,7 +168,7 @@ func (p *Process) toStarting() {
 // RUNNING -> WAITING.
 func (p *Process) toRunning() {
 	p.l.Tracef("Process: running.")
-	p.changes <- inventorypb.AgentStatus_RUNNING
+	p.changes <- inventoryv1.AgentStatus_AGENT_STATUS_RUNNING
 
 	p.backoff.Reset()
 
@@ -172,7 +187,7 @@ func (p *Process) toWaiting() {
 	delay := p.backoff.Delay()
 
 	p.l.Infof("Process: waiting %s.", delay)
-	p.changes <- inventorypb.AgentStatus_WAITING
+	p.changes <- inventoryv1.AgentStatus_AGENT_STATUS_WAITING
 
 	t := time.NewTimer(delay)
 	defer t.Stop()
@@ -192,10 +207,20 @@ func (p *Process) toWaiting() {
 	}
 }
 
+// FAILING -> DONE.
+func (p *Process) toFailing(err error) {
+	p.l.Tracef("Process: failing")
+	p.changes <- inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR
+	p.l.Infof("Process: exited: %s.", p.cmd.ProcessState)
+	go p.toDone()
+	p.err = err
+	p.initialized <- false
+}
+
 // STOPPING -> DONE.
 func (p *Process) toStopping() {
 	p.l.Tracef("Process: stopping (sending SIGTERM)...")
-	p.changes <- inventorypb.AgentStatus_STOPPING
+	p.changes <- inventoryv1.AgentStatus_AGENT_STATUS_STOPPING
 
 	if err := p.cmd.Process.Signal(unix.SIGTERM); err != nil {
 		p.l.Errorf("Process: failed to send SIGTERM: %s.", err)
@@ -220,13 +245,13 @@ func (p *Process) toStopping() {
 
 func (p *Process) toDone() {
 	p.l.Trace("Process: done.")
-	p.changes <- inventorypb.AgentStatus_DONE
+	p.changes <- inventoryv1.AgentStatus_AGENT_STATUS_DONE
 
 	close(p.changes)
 }
 
 // Changes returns channel that should be read until it is closed.
-func (p *Process) Changes() <-chan inventorypb.AgentStatus {
+func (p *Process) Changes() <-chan inventoryv1.AgentStatus {
 	return p.changes
 }
 

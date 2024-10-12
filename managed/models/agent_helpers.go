@@ -169,7 +169,7 @@ func checkUniqueAgentID(q *reform.Querier, id string) error {
 		return errors.WithStack(err)
 	}
 
-	return status.Errorf(codes.AlreadyExists, "Agent with ID %q already exists.", id)
+	return status.Errorf(codes.AlreadyExists, "Agent with ID %s already exists.", id)
 }
 
 // AgentFilters represents filters for agents list.
@@ -229,7 +229,8 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 
 	agents := make([]*Agent, len(structs))
 	for i, s := range structs {
-		agents[i] = s.(*Agent) //nolint:forcetypeassert
+		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
+		agents[i] = &decryptedAgent
 	}
 
 	return agents, nil
@@ -245,12 +246,13 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 	err := q.Reload(agent)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return nil, status.Errorf(codes.NotFound, "Agent with ID %q not found.", id)
+			return nil, status.Errorf(codes.NotFound, "Agent with ID %s not found.", id)
 		}
 		return nil, errors.WithStack(err)
 	}
+	decryptedAgent := DecryptAgent(*agent)
 
-	return agent, nil
+	return &decryptedAgent, nil
 }
 
 // FindAgentsByIDs finds Agents by IDs.
@@ -272,7 +274,8 @@ func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 
 	res := make([]*Agent, len(structs))
 	for i, s := range structs {
-		res[i] = s.(*Agent) //nolint:forcetypeassert
+		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
+		res[i] = &decryptedAgent
 	}
 	return res, nil
 }
@@ -323,7 +326,8 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 
 	res := make([]*Agent, len(structs))
 	for i, s := range structs {
-		res[i] = s.(*Agent) //nolint:forcetypeassert
+		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
+		res[i] = &decryptedAgent
 	}
 
 	if len(res) == 0 {
@@ -350,8 +354,8 @@ func FindPMMAgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, err
 
 	res := make([]*Agent, 0, len(structs))
 	for _, str := range structs {
-		row := str.(*Agent) //nolint:forcetypeassert
-		res = append(res, row)
+		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
+		res = append(res, &decryptedAgent)
 	}
 
 	return res, nil
@@ -395,8 +399,8 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	}
 	res := make([]*Agent, 0, len(pmmAgentRecords))
 	for _, str := range pmmAgentRecords {
-		row := str.(*Agent) //nolint:forcetypeassert
-		res = append(res, row)
+		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
+		res = append(res, &decryptedAgent)
 	}
 
 	return res, nil
@@ -477,7 +481,8 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 
 	res := make([]*Agent, len(allAgents))
 	for i, s := range allAgents {
-		res[i] = s.(*Agent) //nolint:forcetypeassert
+		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
+		res[i] = &decryptedAgent
 	}
 	return res, nil
 }
@@ -598,7 +603,7 @@ func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabe
 
 // CreatePMMAgent creates PMMAgent.
 func CreatePMMAgent(q *reform.Querier, runsOnNodeID string, customLabels map[string]string) (*Agent, error) {
-	id := "/agent_id/" + uuid.New().String()
+	id := uuid.New().String()
 	return createPMMAgentWithID(q, id, runsOnNodeID, customLabels)
 }
 
@@ -614,7 +619,7 @@ func CreateNodeExporter(q *reform.Querier,
 ) (*Agent, error) {
 	// TODO merge into CreateAgent
 
-	id := "/agent_id/" + uuid.New().String()
+	id := uuid.New().String()
 	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
 	}
@@ -641,11 +646,14 @@ func CreateNodeExporter(q *reform.Querier,
 	if err := row.SetCustomLabels(customLabels); err != nil {
 		return nil, err
 	}
-	if err := q.Insert(row); err != nil {
+
+	encryptedAgent := EncryptAgent(*row)
+	if err := q.Insert(&encryptedAgent); err != nil {
 		return nil, errors.WithStack(err)
 	}
+	agent := DecryptAgent(encryptedAgent)
 
-	return row, nil
+	return &agent, nil
 }
 
 // CreateExternalExporterParams params for add external exporter.
@@ -668,7 +676,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 	}
 	var pmmAgentID *string
 	runsOnNodeID := pointer.ToString(params.RunsOnNodeID)
-	id := "/agent_id/" + uuid.New().String()
+	id := uuid.New().String()
 	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
 	}
@@ -725,11 +733,14 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}
-	if err := q.Insert(row); err != nil {
+
+	encryptedAgent := EncryptAgent(*row)
+	if err := q.Insert(&encryptedAgent); err != nil {
 		return nil, errors.WithStack(err)
 	}
+	agent := DecryptAgent(encryptedAgent)
 
-	return row, nil
+	return &agent, nil
 }
 
 // CreateAgentParams params for add common exporter.
@@ -843,7 +854,7 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 
 // CreateAgent creates Agent with given type.
 func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentParams) (*Agent, error) { //nolint:unparam
-	id := "/agent_id/" + uuid.New().String()
+	id := uuid.New().String()
 	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
 	}
@@ -912,23 +923,24 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		DisabledCollectors:             params.DisableCollectors,
 		LogLevel:                       pointer.ToStringOrNil(params.LogLevel),
 	}
-
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}
-	if err := q.Insert(row); err != nil {
+
+	encryptedAgent := EncryptAgent(*row)
+	if err := q.Insert(&encryptedAgent); err != nil {
 		return nil, errors.WithStack(err)
 	}
+	agent := DecryptAgent(encryptedAgent)
 
-	return row, nil
+	return &agent, nil
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 type ChangeCommonAgentParams struct {
-	Disabled           *bool // true - disable, false - enable, nil - do not change
-	CustomLabels       map[string]string
-	RemoveCustomLabels bool
-	DisablePushMetrics *bool
+	Enabled            *bool              // true - enable, false - disable, nil - no change
+	CustomLabels       *map[string]string // empty map - remove all custom labels, non-empty - change, nil - no change
+	EnablePushMetrics  *bool
 	MetricsResolutions ChangeMetricsResolutionsParams
 }
 
@@ -946,15 +958,12 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 		return nil, err
 	}
 
-	if params.Disabled != nil {
-		if *params.Disabled {
-			row.Disabled = true
-		} else {
-			row.Disabled = false
-		}
+	if params.Enabled != nil {
+		row.Disabled = !(*params.Enabled)
 	}
-	if params.DisablePushMetrics != nil {
-		row.PushMetrics = !(*params.DisablePushMetrics)
+
+	if params.EnablePushMetrics != nil {
+		row.PushMetrics = *params.EnablePushMetrics
 		if row.AgentType == ExternalExporterType {
 			if err := updateExternalExporterParams(q, row); err != nil {
 				return nil, errors.Wrap(err, "failed to update External exporterParams for PushMetrics")
@@ -962,14 +971,15 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 		}
 	}
 
-	if params.RemoveCustomLabels {
-		if err = row.SetCustomLabels(nil); err != nil {
-			return nil, err
-		}
-	}
-	if len(params.CustomLabels) != 0 {
-		if err = row.SetCustomLabels(params.CustomLabels); err != nil {
-			return nil, err
+	if params.CustomLabels != nil {
+		if len(*params.CustomLabels) == 0 {
+			if err = row.SetCustomLabels(nil); err != nil {
+				return nil, err
+			}
+		} else {
+			if err = row.SetCustomLabels(*params.CustomLabels); err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -1016,7 +1026,7 @@ func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) 
 	if len(structs) != 0 {
 		switch mode {
 		case RemoveRestrict:
-			return nil, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %q has agents.", id)
+			return nil, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %s has agents.", id)
 		case RemoveCascade:
 			for _, str := range structs {
 				agentID := str.(*Agent).AgentID //nolint:forcetypeassert

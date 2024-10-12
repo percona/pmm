@@ -124,14 +124,14 @@ func FindArtifactsByIDs(q *reform.Querier, ids []string) (map[string]*Artifact, 
 // FindArtifactByID returns artifact by given ID if found, ErrNotFound if not.
 func FindArtifactByID(q *reform.Querier, id string) (*Artifact, error) {
 	if id == "" {
-		return nil, errors.New("provided artifact id is empty")
+		return nil, errors.New("provided backup artifact id is empty")
 	}
 
 	artifact := &Artifact{ID: id}
 	err := q.Reload(artifact)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return nil, errors.Wrapf(ErrNotFound, "artifact by id '%s'", id)
+			return nil, errors.Wrapf(ErrNotFound, "artifact with id '%s'", id)
 		}
 		return nil, errors.WithStack(err)
 	}
@@ -220,7 +220,7 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 		return nil, err
 	}
 
-	id := "/artifact_id/" + uuid.New().String()
+	id := uuid.New().String()
 	_, err := FindArtifactByID(q, id)
 	switch {
 	case err == nil:

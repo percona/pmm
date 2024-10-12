@@ -1,0 +1,259 @@
+syntax = "proto3";
+
+package backup.v1;
+
+import "backup/v1/artifacts.proto";
+import "backup/v1/common.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "inventory/v1/services.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+
+message StartBackupRequest {
+  // Service identifier.
+  string service_id = 1 [(validate.rules).string.min_len = 1];
+  // Machine-readable location ID.
+  string location_id = 2 [(validate.rules).string.min_len = 1];
+  // If empty then name is auto-generated.
+  string name = 3;
+  // Human-readable description.
+  string description = 4;
+  // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
+  google.protobuf.Duration retry_interval = 5;
+  // How many times to retry a failed backup before giving up.
+  uint32 retries = 6;
+  // DataModel represents the data model used for the backup.
+  DataModel data_model = 7;
+  // Folder on storage for artifact.
+  string folder = 8;
+}
+
+message StartBackupResponse {
+  // Unique identifier.
+  string artifact_id = 1;
+}
+
+message ListArtifactCompatibleServicesRequest {
+  // Artifact id used to determine restore compatibility.
+  string artifact_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message ListArtifactCompatibleServicesResponse {
+  repeated inventory.v1.MySQLService mysql = 1;
+  repeated inventory.v1.MongoDBService mongodb = 2;
+}
+
+// ScheduledBackup represents scheduled task for backup.
+message ScheduledBackup {
+  // Machine-readable ID.
+  string scheduled_backup_id = 1;
+  // Machine-readable service ID.
+  string service_id = 2;
+  // Service name.
+  string service_name = 3;
+  // Machine-readable location ID.
+  string location_id = 4;
+  // Location name.
+  string location_name = 5;
+  // Folder on storage for artifact.
+  string folder = 6;
+  // How often backup will be run in cron format.
+  string cron_expression = 7;
+  // First backup wouldn't happen before this time.
+  google.protobuf.Timestamp start_time = 8;
+  // Artifact name.
+  string name = 9;
+  // Description.
+  string description = 10;
+  // If scheduling is enabled.
+  bool enabled = 11;
+  // How many times to retry a failed backup before giving up.
+  uint32 retries = 12;
+  // Delay between each retry. Should have a suffix in JSON: 2s, 1m, 1h.
+  google.protobuf.Duration retry_interval = 13;
+  // Backup data model (physical or logical).
+  DataModel data_model = 14;
+  // Backup mode.
+  BackupMode mode = 15;
+  // Database vendor e.g. PostgreSQL, MongoDB, MySQL.
+  string vendor = 16;
+  // Last run.
+  google.protobuf.Timestamp last_run = 17;
+  // Next run.
+  google.protobuf.Timestamp next_run = 18;
+  // How many artifacts keep. 0 - unlimited.
+  uint32 retention = 19;
+}
+
+message ScheduleBackupRequest {
+  // Service identifier where backup should be performed.
+  string service_id = 1 [(validate.rules).string.min_len = 1];
+  // Machine-readable location ID.
+  string location_id = 2 [(validate.rules).string.min_len = 1];
+  // How often backup should be run in cron format.
+  // Folder on storage for artifact.
+  string folder = 3;
+  string cron_expression = 4 [(validate.rules).string.min_len = 1];
+  // First backup wouldn't happen before this time.
+  google.protobuf.Timestamp start_time = 5;
+  // Name of backup.
+  string name = 6;
+  // Human-readable description.
+  string description = 7;
+  // If scheduling is enabled.
+  bool enabled = 8;
+  // How many times to retry a failed backup before giving up.
+  uint32 retries = 9;
+  // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
+  google.protobuf.Duration retry_interval = 10;
+  // Backup mode.
+  BackupMode mode = 11;
+  // Backup data model (physical or logical).
+  DataModel data_model = 12;
+  // How many artifacts keep. 0 - unlimited.
+  uint32 retention = 13;
+}
+
+message ScheduleBackupResponse {
+  string scheduled_backup_id = 1;
+}
+
+message ListScheduledBackupsRequest {}
+
+message ListScheduledBackupsResponse {
+  repeated ScheduledBackup scheduled_backups = 1;
+}
+
+message ChangeScheduledBackupRequest {
+  string scheduled_backup_id = 1 [(validate.rules).string.min_len = 1];
+  optional bool enabled = 2;
+  // How often backup should be run in cron format.
+  optional string cron_expression = 3;
+  // First backup wouldn't happen before this time.
+  google.protobuf.Timestamp start_time = 4;
+  // Name of backup.
+  optional string name = 5;
+  // Human-readable description.
+  optional string description = 6;
+  // How many times to retry a failed backup before giving up.
+  optional uint32 retries = 7;
+  // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
+  google.protobuf.Duration retry_interval = 8;
+  // How many artifacts keep. 0 - unlimited.
+  optional uint32 retention = 9;
+}
+
+message ChangeScheduledBackupResponse {}
+
+message RemoveScheduledBackupRequest {
+  string scheduled_backup_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message RemoveScheduledBackupResponse {}
+
+message GetLogsRequest {
+  string artifact_id = 1 [(validate.rules).string.min_len = 1];
+  uint32 offset = 2;
+  uint32 limit = 3;
+}
+
+message GetLogsResponse {
+  repeated LogChunk logs = 1;
+  bool end = 2;
+}
+
+// Backups service handles backup operations to DB.
+service BackupService {
+  // StartBackup request backup specified service to location.
+  rpc StartBackup(StartBackupRequest) returns (StartBackupResponse) {
+    option (google.api.http) = {
+      post: "/v1/backups:start"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start a Backup"
+      description: "Could return the Error message in the details containing specific ErrorCode indicating failure reason:\nERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service\nERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud\nERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup"
+    };
+  }
+  // ListArtifactCompatibleServices lists compatible services for restoring a backup.
+  rpc ListArtifactCompatibleServices(ListArtifactCompatibleServicesRequest) returns (ListArtifactCompatibleServicesResponse) {
+    option (google.api.http) = {get: "/v1/backups/{artifact_id}/compatible-services"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Compatible Services"
+      description: "List services that are compatible with the backup artifact."
+    };
+  }
+  // ScheduleBackup schedules repeated backup.
+  rpc ScheduleBackup(ScheduleBackupRequest) returns (ScheduleBackupResponse) {
+    option (google.api.http) = {
+      post: "/v1/backups:schedule"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Schedule a Backup"
+      description: "Schedule a backup to run at a specified time."
+    };
+  }
+  // ListScheduledBackups returns all scheduled backups.
+  rpc ListScheduledBackups(ListScheduledBackupsRequest) returns (ListScheduledBackupsResponse) {
+    option (google.api.http) = {get: "/v1/backups/scheduled"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Scheduled Backups"
+      description: "List all scheduled backups."
+    };
+  }
+  // ChangeScheduledBackup changes existing scheduled backup.
+  rpc ChangeScheduledBackup(ChangeScheduledBackupRequest) returns (ChangeScheduledBackupResponse) {
+    option (google.api.http) = {
+      put: "/v1/backups:changeScheduled"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change a Scheduled Backup"
+      description: "Change a scheduled backup."
+    };
+  }
+  // RemoveScheduledBackup removes existing scheduled backup.
+  rpc RemoveScheduledBackup(RemoveScheduledBackupRequest) returns (RemoveScheduledBackupResponse) {
+    option (google.api.http) = {delete: "/v1/backups/{scheduled_backup_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Remove a Scheduled Backup"
+      description: "Remove a scheduled backup."
+    };
+  }
+  // GetLogs returns logs from the underlying tools for a backup/restore job.
+  rpc GetLogs(GetLogsRequest) returns (GetLogsResponse) {
+    option (google.api.http) = {get: "/v1/backups/{artifact_id}/logs"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Logs"
+      description: "Get logs from the underlying tools for a backup/restore job."
+    };
+  }
+  // ListArtifacts returns a list of all backup artifacts.
+  rpc ListArtifacts(ListArtifactsRequest) returns (ListArtifactsResponse) {
+    option (google.api.http) = {get: "/v1/backups/artifacts"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List artifacts"
+      description: "Return a list of backup artifacts."
+    };
+  }
+  // DeleteArtifact deletes specified artifact.
+  rpc DeleteArtifact(DeleteArtifactRequest) returns (DeleteArtifactResponse) {
+    option (google.api.http) = {delete: "/v1/backups/artifacts/{artifact_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Delete Artifact"
+      description: "Deletes an artifact."
+    };
+  }
+
+  // ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location
+  rpc ListPitrTimeranges(ListPitrTimerangesRequest) returns (ListPitrTimerangesResponse) {
+    option (google.api.http) = {get: "/v1/backups/artifacts/{artifact_id}/pitr-timeranges"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List PITR Timeranges"
+      description: "Return a list of available MongoDB point-in-time-recovery timeranges."
+    };
+  }
+}

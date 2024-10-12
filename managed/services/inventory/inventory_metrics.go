@@ -24,7 +24,7 @@ import (
 	prom "github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
 )
@@ -134,7 +134,7 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) ([]Metric, error
 				}
 				runsOnNodeID = pointer.GetString(agent.RunsOnNodeID)
 			} else {
-				metricValue = float64(inventorypb.AgentStatus_value[agent.Status])
+				metricValue = float64(inventoryv1.AgentStatus_value[agent.Status])
 				runsOnNodeID = getRunsOnNodeIDByPMMAgentID(dbAgents, pmmAgentID)
 			}
 

@@ -39,11 +39,9 @@ make release
 %install
 install -d %{buildroot}%{_datadir}/%{name}
 install -d %{buildroot}%{_datadir}/%{name}/panels/pmm-app
-install -d %{buildroot}%{_datadir}/%{name}/setup-page
 
 cp -a ./panels %{buildroot}%{_datadir}/%{name}
 cp -a ./pmm-app/dist %{buildroot}%{_datadir}/%{name}/panels/pmm-app
-cp -ra ./setup-page/build/* %{buildroot}%{_datadir}/%{name}/setup-page
 echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 
 
@@ -54,8 +52,11 @@ echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 
 
 %changelog
-* Wed Mar 20 2024 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-22
+* Sat Oct 12 2024 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-23
 - PMM-12899 Use module and build cache
+
+* Tue Jul 23 2024 Nurlan Moldomurov <nurlan.moldomurov@percona.com> - 3.0.0-22
+- PMM-13053 Remove /setup page
 
 * Wed Nov 29 2023 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-21
 - PMM-12693 Run Grafana as non-root user

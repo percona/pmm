@@ -1,11 +1,28 @@
-version: v1
-breaking:
-  use:
-    - FILE
+version: v2
+modules:
+  - path: .
+deps:
+  - buf.build/envoyproxy/protoc-gen-validate
+  - buf.build/googleapis/googleapis
+  - buf.build/grpc-ecosystem/grpc-gateway
 lint:
   use:
     - DEFAULT
-deps:
-  - buf.build/googleapis/googleapis
-  - buf.build/grpc-ecosystem/grpc-gateway
-  - buf.build/envoyproxy/protoc-gen-validate
+  except:
+    - FIELD_NOT_REQUIRED
+    - PACKAGE_NO_IMPORT_CYCLE
+  ignore_only:
+    PACKAGE_VERSION_SUFFIX:
+      - common/common.proto
+      - common/metrics_resolutions.proto
+    RPC_REQUEST_STANDARD_NAME:
+      - agent/v1/agent.proto
+    RPC_RESPONSE_STANDARD_NAME:
+      - agent/v1/agent.proto
+  disallow_comment_ignores: true
+breaking:
+  use:
+    - FILE
+  except:
+    - EXTENSION_NO_DELETE
+    - FIELD_SAME_DEFAULT

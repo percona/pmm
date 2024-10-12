@@ -1,6 +1,6 @@
 # This Dockerfile is used only for API tests.
 
-FROM golang:1.22
+FROM golang:1.23
 
 RUN export GOPATH=$(go env GOPATH) && \
     mkdir -p $GOPATH/src/github.com/percona/pmm
@@ -8,4 +8,5 @@ RUN export GOPATH=$(go env GOPATH) && \
 COPY . $GOPATH/src/github.com/percona/pmm/
 WORKDIR $GOPATH/src/github.com/percona/pmm/api-tests/
 
-CMD make init run-race
+CMD ["make", "init", "run-race"]
+

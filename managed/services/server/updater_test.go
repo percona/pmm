@@ -20,6 +20,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -66,7 +67,7 @@ func TestUpdater(t *testing.T) {
 				args: args{
 					currentVersion: "3.0.0",
 					results: []result{
-						{Name: "3.0.0"},
+						{Version: "3.0.0"},
 					},
 				},
 				want: &versionInfo{
@@ -79,14 +80,14 @@ func TestUpdater(t *testing.T) {
 				args: args{
 					currentVersion: "3.0.0",
 					results: []result{
-						{Name: "3.2.0"},
-						{Name: "3.1.0"},
-						{Name: "3.0.0"},
+						{Version: "3.2.0"},
+						{Version: "3.1.0"},
+						{Version: "3.0.0"},
 					},
 				},
 				want: &versionInfo{
 					Version:     "3.2.0",
-					DockerImage: "3.2.0",
+					DockerImage: "percona/pmm-server:3.2.0",
 				},
 			},
 			{
@@ -94,13 +95,18 @@ func TestUpdater(t *testing.T) {
 				args: args{
 					currentVersion: "3.0.0",
 					results: []result{
-						{Name: "3.0.0"},
-						{Name: "3.0.1", TagLastPushed: time.Date(2024, 3, 20, 15, 48, 7, 145620000, time.UTC)},
+						{Version: "3.0.0"},
+						{
+							Version: "3.0.1",
+							ImageInfo: imageInfo{
+								ImageReleaseTimestamp: time.Date(2024, 3, 20, 15, 48, 7, 145620000, time.UTC),
+							},
+						},
 					},
 				},
 				want: &versionInfo{
 					Version:     "3.0.1",
-					DockerImage: "3.0.1",
+					DockerImage: "percona/pmm-server:3.0.1",
 					BuildTime:   pointer.To(time.Date(2024, 3, 20, 15, 48, 7, 145620000, time.UTC)),
 				},
 			},
@@ -109,13 +115,13 @@ func TestUpdater(t *testing.T) {
 				args: args{
 					currentVersion: "3.0.0",
 					results: []result{
-						{Name: "4.0.0"},
-						{Name: "3.0.0"},
+						{Version: "4.0.0"},
+						{Version: "3.0.0"},
 					},
 				},
 				want: &versionInfo{
 					Version:     "4.0.0",
-					DockerImage: "4.0.0",
+					DockerImage: "percona/pmm-server:4.0.0",
 				},
 			},
 			{
@@ -123,14 +129,14 @@ func TestUpdater(t *testing.T) {
 				args: args{
 					currentVersion: "3.0.0",
 					results: []result{
-						{Name: "4.0.0"},
-						{Name: "3.0.0"},
-						{Name: "4.0.0-rc"},
+						{Version: "4.0.0"},
+						{Version: "3.0.0"},
+						{Version: "4.0.0-rc"},
 					},
 				},
 				want: &versionInfo{
 					Version:     "4.0.0",
-					DockerImage: "4.0.0",
+					DockerImage: "percona/pmm-server:4.0.0",
 				},
 			},
 			{
@@ -138,15 +144,15 @@ func TestUpdater(t *testing.T) {
 				args: args{
 					currentVersion: "3.3.0",
 					results: []result{
-						{Name: "4.1.0"},
-						{Name: "4.0.0"},
-						{Name: "3.0.0"},
-						{Name: "5.1.0"},
+						{Version: "4.1.0"},
+						{Version: "4.0.0"},
+						{Version: "3.0.0"},
+						{Version: "5.1.0"},
 					},
 				},
 				want: &versionInfo{
 					Version:     "4.1.0",
-					DockerImage: "4.1.0",
+					DockerImage: "percona/pmm-server:4.1.0",
 				},
 			},
 			{
@@ -154,15 +160,15 @@ func TestUpdater(t *testing.T) {
 				args: args{
 					currentVersion: "3.0.0",
 					results: []result{
-						{Name: "4.1.0"},
-						{Name: "4.0.0"},
-						{Name: "3.0.0"},
-						{Name: "3.1.0"},
+						{Version: "4.1.0"},
+						{Version: "4.0.0"},
+						{Version: "3.0.0"},
+						{Version: "3.1.0"},
 					},
 				},
 				want: &versionInfo{
 					Version:     "3.1.0",
-					DockerImage: "3.1.0",
+					DockerImage: "percona/pmm-server:3.1.0",
 				},
 			},
 			{
@@ -170,14 +176,14 @@ func TestUpdater(t *testing.T) {
 				args: args{
 					currentVersion: "3.0.0",
 					results: []result{
-						{Name: "3.0.0"},
-						{Name: "3.1.0"},
-						{Name: "invalid"},
+						{Version: "3.0.0"},
+						{Version: "3.1.0"},
+						{Version: "invalid"},
 					},
 				},
 				want: &versionInfo{
 					Version:     "3.1.0",
-					DockerImage: "3.1.0",
+					DockerImage: "percona/pmm-server:3.1.0",
 				},
 			},
 			{
@@ -185,8 +191,8 @@ func TestUpdater(t *testing.T) {
 				args: args{
 					currentVersion: "3.0.0",
 					results: []result{
-						{Name: "3.0.0"},
-						{Name: "3.1"},
+						{Version: "3.0.0"},
+						{Version: "3.1"},
 					},
 				},
 				want: &versionInfo{
@@ -199,14 +205,14 @@ func TestUpdater(t *testing.T) {
 				args: args{
 					currentVersion: "3.0.0",
 					results: []result{
-						{Name: "3.0.0"},
-						{Name: "3.1.0-rc"},
-						{Name: "3.1.0-rc757"},
+						{Version: "3.0.0"},
+						{Version: "3.1.0-rc"},
+						{Version: "3.1.0-rc757"},
 					},
 				},
 				want: &versionInfo{
 					Version:     "3.1.0-rc757",
-					DockerImage: "3.1.0-rc757",
+					DockerImage: "percona/pmm-server:3.1.0-rc757",
 				},
 			},
 			{
@@ -214,15 +220,15 @@ func TestUpdater(t *testing.T) {
 				args: args{
 					currentVersion: "3.0.0",
 					results: []result{
-						{Name: "3.0.0"},
-						{Name: "3.1.0"},
-						{Name: "3.1.0-rc"},
-						{Name: "3.1.0-rc757"},
+						{Version: "3.0.0"},
+						{Version: "3.1.0"},
+						{Version: "3.1.0-rc"},
+						{Version: "3.1.0-rc757"},
 					},
 				},
 				want: &versionInfo{
 					Version:     "3.1.0",
-					DockerImage: "3.1.0",
+					DockerImage: "percona/pmm-server:3.1.0",
 				},
 			},
 		}
@@ -233,7 +239,7 @@ func TestUpdater(t *testing.T) {
 				u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
 				parsed, err := version.Parse(tt.args.currentVersion)
 				require.NoError(t, err)
-				next := u.next(*parsed, tt.args.results)
+				_, next := u.next(*parsed, tt.args.results)
 				require.NoError(t, err)
 				assert.Equal(t, tt.want.Version, next.Version.String())
 				assert.Equal(t, tt.want.DockerImage, next.DockerImage)
@@ -245,14 +251,29 @@ func TestUpdater(t *testing.T) {
 		}
 	})
 
+	t.Run("TestSortedVersionList", func(t *testing.T) {
+		versions := version.DockerVersionsInfo{
+			{Version: *version.MustParse("3.0.0")},
+			{Version: *version.MustParse("3.1.0")},
+			{Version: *version.MustParse("3.0.1")},
+			{Version: *version.MustParse("3.0.0-rc")},
+		}
+
+		sort.Sort(versions)
+		assert.Equal(t, "3.0.0-rc", versions[0].Version.String())
+		assert.Equal(t, "3.0.0", versions[1].Version.String())
+		assert.Equal(t, "3.0.1", versions[2].Version.String())
+		assert.Equal(t, "3.1.0", versions[3].Version.String())
+	})
+
 	t.Run("TestLatest", func(t *testing.T) {
 		version.Version = "2.41.0"
 		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
-		latest, err := u.latest(context.Background())
+		_, latest, err := u.latest(context.Background())
 		require.NoError(t, err)
 		assert.NotNil(t, latest)
 		assert.True(t, strings.HasPrefix(latest.Version.String(), "2.") || strings.HasPrefix(latest.Version.String(), "3."),
-			"latest version of PMM 2 should have prefix 2.")
+			"latest version of PMM should have either a '2.' or '3.' prefix")
 	})
 
 	t.Run("TestParseFile", func(t *testing.T) {
@@ -265,7 +286,7 @@ func TestUpdater(t *testing.T) {
 		require.NoError(t, err)
 
 		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
-		latest, err := u.latest(context.Background())
+		_, latest, err := u.latest(context.Background())
 		require.NoError(t, err)
 		assert.Equal(t, "2.41.1", latest.Version.String())
 		assert.Equal(t, "2.41.1", latest.DockerImage)

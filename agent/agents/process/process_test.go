@@ -29,14 +29,14 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/sys/unix"
 
-	"github.com/percona/pmm/api/inventorypb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 // assertStates checks expected statuses in the same order.
-func assertStates(t *testing.T, sa *Process, expected ...inventorypb.AgentStatus) {
+func assertStates(t *testing.T, sa *Process, expected ...inventoryv1.AgentStatus) {
 	t.Helper()
 
-	actual := make([]inventorypb.AgentStatus, len(expected))
+	actual := make([]inventoryv1.AgentStatus, len(expected))
 	for i := range expected {
 		actual[i] = <-sa.Changes()
 	}
@@ -74,41 +74,28 @@ func TestProcess(t *testing.T) {
 		p := New(&Params{Path: "sleep", Args: []string{"100500"}}, nil, l)
 		go p.Run(ctx)
 
-		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_RUNNING)
+		assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_STARTING, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING)
 		cancel()
-		assertStates(t, p, inventorypb.AgentStatus_STOPPING, inventorypb.AgentStatus_DONE, inventorypb.AgentStatus_AGENT_STATUS_INVALID)
+		assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_STOPPING, inventoryv1.AgentStatus_AGENT_STATUS_DONE, inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED)
 	})
 
 	t.Run("FailedToStart", func(t *testing.T) {
-		ctx, cancel, l := setup(t)
+		ctx, _, l := setup(t)
 		p := New(&Params{Path: "no_such_command"}, nil, l)
 		go p.Run(ctx)
 
-		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING)
-		cancel()
-		assertStates(t, p, inventorypb.AgentStatus_DONE, inventorypb.AgentStatus_AGENT_STATUS_INVALID)
+		assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_STARTING, inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR,
+			inventoryv1.AgentStatus_AGENT_STATUS_DONE, inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED)
 	})
 
 	t.Run("ExitedEarly", func(t *testing.T) {
 		sleep := strconv.FormatFloat(runningT.Seconds()-0.5, 'f', -1, 64)
-		ctx, cancel, l := setup(t)
+		ctx, _, l := setup(t)
 		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l)
 		go p.Run(ctx)
 
-		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING)
-		cancel()
-		assertStates(t, p, inventorypb.AgentStatus_DONE, inventorypb.AgentStatus_AGENT_STATUS_INVALID)
-	})
-
-	t.Run("CancelStarting", func(t *testing.T) {
-		sleep := strconv.FormatFloat(runningT.Seconds()-0.5, 'f', -1, 64)
-		ctx, cancel, l := setup(t)
-		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l)
-		go p.Run(ctx)
-
-		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING, inventorypb.AgentStatus_STARTING)
-		cancel()
-		assertStates(t, p, inventorypb.AgentStatus_WAITING, inventorypb.AgentStatus_DONE, inventorypb.AgentStatus_AGENT_STATUS_INVALID)
+		assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_STARTING, inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR,
+			inventoryv1.AgentStatus_AGENT_STATUS_DONE, inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED)
 	})
 
 	t.Run("Exited", func(t *testing.T) {
@@ -117,9 +104,9 @@ func TestProcess(t *testing.T) {
 		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l)
 		go p.Run(ctx)
 
-		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_RUNNING, inventorypb.AgentStatus_WAITING)
+		assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_STARTING, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, inventoryv1.AgentStatus_AGENT_STATUS_WAITING)
 		cancel()
-		assertStates(t, p, inventorypb.AgentStatus_DONE, inventorypb.AgentStatus_AGENT_STATUS_INVALID)
+		assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_DONE, inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED)
 	})
 
 	t.Run("Killed", func(t *testing.T) {
@@ -136,9 +123,9 @@ func TestProcess(t *testing.T) {
 		p := New(&Params{Path: f.Name()}, nil, l)
 		go p.Run(ctx)
 
-		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_RUNNING)
+		assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_STARTING, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING)
 		cancel()
-		assertStates(t, p, inventorypb.AgentStatus_STOPPING, inventorypb.AgentStatus_DONE, inventorypb.AgentStatus_AGENT_STATUS_INVALID)
+		assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_STOPPING, inventoryv1.AgentStatus_AGENT_STATUS_DONE, inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED)
 	})
 
 	t.Run("KillChild", func(t *testing.T) {

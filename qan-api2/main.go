@@ -49,11 +49,12 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
 	aservice "github.com/percona/pmm/qan-api2/services/analytics"
 	rservice "github.com/percona/pmm/qan-api2/services/receiver"
 	"github.com/percona/pmm/qan-api2/utils/interceptors"
+	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
@@ -92,16 +93,12 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 	)
 
 	aserv := aservice.NewService(rm, mm)
-	qanpb.RegisterCollectorServer(grpcServer, rservice.NewService(mbm))
-	qanpb.RegisterProfileServer(grpcServer, aserv)
-	qanpb.RegisterObjectDetailsServer(grpcServer, aserv)
-	qanpb.RegisterMetricsNamesServer(grpcServer, aserv)
-	qanpb.RegisterFiltersServer(grpcServer, aserv)
+	qanpb.RegisterCollectorServiceServer(grpcServer, rservice.NewService(mbm))
+	qanpb.RegisterQANServiceServer(grpcServer, aserv)
 	reflection.Register(grpcServer)
 
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
 		l.Debug("Reflection and channelz are enabled.")
-		reflection.Register(grpcServer)
 		channelz.RegisterChannelzServiceToServer(grpcServer)
 
 		l.Debug("RPC response latency histogram enabled.")
@@ -141,7 +138,7 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 	marshaller := &grpc_gateway.JSONPb{
 		MarshalOptions: protojson.MarshalOptions{ //nolint:exhaustivestruct
 			UseEnumNumbers:  false,
-			EmitUnpopulated: false,
+			EmitUnpopulated: true,
 			UseProtoNames:   true,
 			Indent:          "  ",
 		},
@@ -152,15 +149,12 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 
 	proxyMux := grpc_gateway.NewServeMux(
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
-	)
+		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler))
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
 	type registrar func(context.Context, *grpc_gateway.ServeMux, string, []grpc.DialOption) error
 	for _, r := range []registrar{
-		qanpb.RegisterObjectDetailsHandlerFromEndpoint,
-		qanpb.RegisterProfileHandlerFromEndpoint,
-		qanpb.RegisterMetricsNamesHandlerFromEndpoint,
-		qanpb.RegisterFiltersHandlerFromEndpoint,
+		qanpb.RegisterQANServiceHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, grpcBindF, opts); err != nil {
 			l.Panic(err)
