@@ -21,7 +21,7 @@ type MetricsModeFlags struct {
 	MetricsMode MetricsMode `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"` //nolint:lll
 }
 
-// MetricsMode is a structure for metrics mode flag
+// MetricsMode is a structure for metrics mode flag.
 type MetricsMode string
 
 // EnumValue returns pointer to string representation of LogLevel.
