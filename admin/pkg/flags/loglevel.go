@@ -32,6 +32,7 @@ type LogLevelNoFatalFlags struct {
 	LogLevel LogLevel `name:"log-level" enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [${enum}]. Default: ${default}"`
 }
 
+// LogLevel is a structure for log level flag.
 type LogLevel string
 
 // EnumValue returns pointer to string representation of LogLevel.
@@ -39,6 +40,7 @@ func (l LogLevel) EnumValue() *string {
 	return pointer.To(convertEnum("LOG_LEVEL", string(l)))
 }
 
+// convertEnum converts flag value to value supported by API.
 func convertEnum(prefix string, value string) string {
 	return fmt.Sprintf("%s_%s", prefix, strings.ToUpper(value))
 }

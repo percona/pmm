@@ -14,10 +14,12 @@
 
 package flags
 
+// CommentsParsingFlags contains flags for comments parsing.
 type CommentsParsingFlags struct {
 	CommentsParsing string `enum:"on,off" default:"off" help:"Enable/disable parsing comments from queries. One of: [${enum}]. Default: ${default}"`
 }
 
+// CommentsParsingEnabled returns true if comments parsing is enabled.
 func (c CommentsParsingFlags) CommentsParsingEnabled() bool {
 	return c.CommentsParsing == "on"
 }
