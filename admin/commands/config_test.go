@@ -21,7 +21,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/admin/cli/flags"
+	"github.com/percona/pmm/admin/pkg/flags"
 )
 
 func TestConfigCommandArgs(t *testing.T) {

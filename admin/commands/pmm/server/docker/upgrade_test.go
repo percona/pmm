@@ -28,7 +28,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/admin/cli/flags"
+	"github.com/percona/pmm/admin/pkg/flags"
 )
 
 func TestUpgradeCmd(t *testing.T) {
