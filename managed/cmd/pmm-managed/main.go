@@ -849,8 +849,7 @@ func main() { //nolint:maintidx,cyclop
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
 	serviceInfoBroker := agents.NewServiceInfoBroker(agentsRegistry)
 
-	dus := distribution.NewService(distributionInfoFilePath, osInfoFilePath, l)
-	updater := server.NewUpdater(*watchtowerHostF, dus, gRPCMessageMaxSize)
+	updater := server.NewUpdater(*watchtowerHostF, gRPCMessageMaxSize)
 
 	logs := server.NewLogs(version.FullInfo(), updater, vmParams)
 
@@ -897,6 +896,7 @@ func main() { //nolint:maintidx,cyclop
 		telemetry.UIEventsExtension: uieventsService,
 	}
 
+	dus := distribution.NewService(distributionInfoFilePath, osInfoFilePath, l)
 	telemetry, err := telemetry.NewService(db, platformClient, version.Version, dus, cfg.Config.Services.Telemetry, telemetryExtensions)
 	if err != nil {
 		l.Fatalf("Could not create telemetry service: %s", err)

@@ -35,7 +35,6 @@ import (
 	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
 
-	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/version"
 )
 
@@ -56,7 +55,6 @@ var fileName = "/etc/pmm-server-update-version.json"
 type Updater struct {
 	l                  *logrus.Entry
 	watchtowerHost     *url.URL
-	dus                *distribution.Service
 	gRPCMessageMaxSize uint32
 
 	performM sync.Mutex
@@ -72,11 +70,10 @@ type Updater struct {
 }
 
 // NewUpdater creates a new Updater service.
-func NewUpdater(watchtowerHost *url.URL, dus *distribution.Service, gRPCMessageMaxSize uint32) *Updater {
+func NewUpdater(watchtowerHost *url.URL, gRPCMessageMaxSize uint32) *Updater {
 	u := &Updater{
 		l:                  logrus.WithField("service", "updater"),
 		watchtowerHost:     watchtowerHost,
-		dus:                dus,
 		gRPCMessageMaxSize: gRPCMessageMaxSize,
 		releaseNotes:       make(map[string]string),
 	}
