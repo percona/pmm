@@ -174,18 +174,17 @@ func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 		return grpcstatus.Errorf(codes.FailedPrecondition, "failed to check watchtower host")
 	}
 
-	fileInfo, err := os.Stat(envfilePath)
-	if os.IsExist(err) && fileInfo != nil {
-		err := up.updateEnvironmentVariables(envfilePath, newImageName)
+	if _, e := os.Stat(envfilePath); e == nil {
+		err := up.updatePodmanEnvironmentVariables(envfilePath, newImageName)
 		if err != nil {
 			up.running = false
 			up.l.WithError(err).Error("Failed to update environment variables file")
 			return errors.Wrap(err, "failed to update environment variables file")
 		}
-	} else if err != nil {
+	} else if !os.IsNotExist(e) {
 		up.running = false
-		up.l.WithError(err).Error("Failed to check file")
-		return errors.Wrap(err, "failed to check file")
+		up.l.WithError(e).Error("Failed to check environment variables file")
+		return errors.Wrap(e, "failed to check environment variables file")
 	}
 
 	if err := up.sendRequestToWatchtower(ctx, newImageName); err != nil {
@@ -490,7 +489,7 @@ func (up *Updater) checkWatchtowerHost() error {
 	return nil
 }
 
-func (up *Updater) updateEnvironmentVariables(filename string, name string) error {
+func (up *Updater) updatePodmanEnvironmentVariables(filename string, name string) error {
 	if len(strings.Split(name, "/")) < 3 {
 		name = "docker.io/" + name
 	}
