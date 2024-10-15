@@ -28,9 +28,9 @@ COPY gitCommit /tmp/gitCommit
 COPY pmm-client.tar.gz /tmp/
 
 RUN install -T -p -m 644 /opt/ansible/ansible.cfg /etc/ansible/ansible.cfg && \
-    ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm-docker/main.yml && \
-    ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm-docker/update.yml && \
-    ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm/post-build-actions.yml && \
+    install -T -p -m 644 /opt/ansible/hosts /etc/ansible/hosts && \
+    ansible-playbook -vvv /opt/ansible/pmm-docker/main.yml && \
+    ansible-playbook -vvv /opt/ansible/pmm/post-build.yml && \
     sed -i '/^assumeyes/d' /etc/dnf/dnf.conf
 
 LABEL org.opencontainers.image.created ${BUILD_DATE}

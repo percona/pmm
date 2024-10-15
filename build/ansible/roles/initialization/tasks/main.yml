@@ -1,12 +1,12 @@
 ---
 # This role contains tasks executed during initialization of PMM Server
-- name: detect /srv/pmm-distribution
+- name: Read /srv/pmm-distribution
   slurp:
     path: /srv/pmm-distribution
   register: pmm_distribution
   ignore_errors: True
 
-- name: detect AMI
+- name: Detect AMI
   set_fact:
     is_ami: "{{ pmm_distribution['content'] | b64decode | trim == 'ami' }}"
   when: pmm_distribution['failed'] == false
@@ -35,7 +35,7 @@
 - name: Setting current PMM version
   set_fact:
     pmm_current_version: "{{ current_version_file['content'] | b64decode | trim }}"
-  when: current_version_file['failed'] != true
+  when: current_version_file['failed'] == false
 
 - name: Setting current PMM image version
   set_fact:
@@ -51,7 +51,7 @@
 
 - name: Print PMM distribution
   debug:
-    msg: "PMM distribution: {{ pmm_distribution }}, Is AMI: {{ is_ami }}"
+    msg: "PMM distribution: {{ pmm_distribution.content | b64decode }}, Is AMI: {{ is_ami }}"
 
 - name: Print current PMM and image versions
   debug:
@@ -66,7 +66,7 @@
     msg: "Need upgrade: {{ need_upgrade }}"
 
 - name: Perform upgrade & init tasks
-  block:
+  block: # when need_initialization or need_upgrade
   - name: Enable maintenance mode before upgrade
     copy:
       src: maintenance.html
@@ -77,6 +77,12 @@
 
   - name: Create grafana DB
     block:
+      - name: Wait until postgres is up
+        wait_for:
+          host: 127.0.0.1
+          port: 5432
+          timeout: 150
+            
       - name: Create grafana database in postgres
         postgresql_db:
           name: grafana
@@ -99,7 +105,7 @@
     include_role:
       name: dashboards
 
-  - name: Copy file with image version
+  - name: Copy the upgrade image version file
     copy:
       src: /usr/share/percona-dashboards/VERSION
       dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
@@ -128,9 +134,9 @@
       method: GET
     retries: 20
     delay: 5
-    ignore_errors: yes
+    ignore_errors: true
 
-  - name: init admin password on AMI
+  - name: Init admin password on AMI
     include_role:
       name: init-admin-password-ami
     when: need_initialization and is_ami

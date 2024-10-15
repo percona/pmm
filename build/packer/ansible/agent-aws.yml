@@ -41,6 +41,8 @@
           - docker-ce
           - docker-ce-cli
           - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
         state: latest
 
     - name: Enable Docker service
@@ -67,8 +69,9 @@
           - gcc
           - make
           - perl
-            #- p7zip
+          - bc
           - nodejs
+          - chromium
         state: latest
 
     - name: Install Java17
@@ -94,11 +97,11 @@
     - name: Install bats
       shell: "npm install -g bats"
     
-    - name: Install docker-compose
-      get_url:
-        url: "https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-linux-{{ ansible_architecture }}"
-        dest: /usr/local/bin/docker-compose
-        mode: "u+x,g+x,o+x"
+    # - name: Install docker-compose
+    #   get_url:
+    #     url: "https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-linux-{{ ansible_architecture }}"
+    #     dest: /usr/local/bin/docker-compose
+    #     mode: "u+x,g+x,o+x"
 
     - name: Install kubectl
       get_url:
@@ -111,11 +114,6 @@
         url: "https://github.com/lacework/lacework-vulnerability-scanner/releases/latest/download/lw-scanner-linux-{{ ansible_architecture_alt }}"
         dest: /usr/local/bin/lw-scanner
         mode: "u+x,g+x,o+x"
-
-    - name: Install chromium
-      yum:
-        name: chromium
-        state: latest
 
     - name: Install doctl client for digital ocean
       get_url:
