@@ -80,7 +80,7 @@
     group: pmm
     owner: pmm
   loop:
-    - /run/nginx.pid
+    # - /run/nginx.pid
     - /srv/logs/nginx.log
 
 - name: Check nginx configuration
