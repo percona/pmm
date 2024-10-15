@@ -75,14 +75,14 @@
       group: pmm
       mode: 0644
 
+  - name: Wait until postgres is up
+    wait_for:
+      host: 127.0.0.1
+      port: 5432
+      timeout: 150
+
   - name: Create grafana DB
-    block:
-      - name: Wait until postgres is up
-        wait_for:
-          host: 127.0.0.1
-          port: 5432
-          timeout: 150
-            
+    block:            
       - name: Create grafana database in postgres
         postgresql_db:
           name: grafana
