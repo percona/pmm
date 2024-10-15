@@ -3,7 +3,11 @@
 
 - name: Detect AMI distribution
   set_fact:
-    is_ami: "{{ lookup('file', '/srv/pmm-distribution', errors='ignore') | trim == 'ami' }}"
+    pmm_distribution: "{{ lookup('file', '/srv/pmm-distribution', errors='ignore') | default('none', true) }}"
+
+- name: Set is_ami fact
+  set_fact:
+    is_ami: "{{ pmm_distribution | trim == 'ami' }}"
 
 - name: Get current PMM version (aka 'update from')
   set_fact:
