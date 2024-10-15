@@ -1,4 +1,6 @@
 ---
+# TODO: Remove as this playbook does not seem to be used anywhere. 
+
 - hosts: all
   become: yes
   gather_facts: yes
