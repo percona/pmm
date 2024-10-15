@@ -1,13 +1,4 @@
 ---
-# We already have nginx package in epel repo
-- name: Add Nginx repository
-  yum_repository:
-    name: nginx
-    description: nginx repo
-    baseurl: http://nginx.org/packages/rhel/9/$basearch/
-    gpgcheck: no
-    enabled: no
-
 - name: Create directories for nginx
   file:
     path: "{{ item }}"
