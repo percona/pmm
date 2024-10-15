@@ -72,6 +72,14 @@
     group: admin
     mode: '0644'
 
+- name: Copy watchtower environment file for service to user-specific directory
+  template:
+    src: watchtower.env
+    dest: /home/admin/.config/systemd/user/
+    owner: admin
+    group: admin
+    mode: '0644'
+
 - name: Copy watchtower systemd service file to user-specific directory
   template:
     src: watchtower.service
