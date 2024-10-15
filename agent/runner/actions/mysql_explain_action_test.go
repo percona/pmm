@@ -149,16 +149,16 @@ func TestMySQLExplain(t *testing.T) {
 		require.Len(t, actual, 2)
 
 		// Check some columns names
-		assert.Contains(t, "id", actual[0])
-		assert.Contains(t, "select_type", actual[0])
-		assert.Contains(t, "table", actual[0])
-		assert.Contains(t, "type", actual[0])
-		assert.Contains(t, "possible_keys", actual[0])
-		assert.Contains(t, "key", actual[0])
-		assert.Contains(t, "key_len", actual[0])
-		assert.Contains(t, "ref", actual[0])
-		assert.Contains(t, "rows", actual[0])
-		assert.Contains(t, "Extra", actual[0])
+		assert.Contains(t, actual[0], "id")
+		assert.Contains(t, actual[0], "select_type")
+		assert.Contains(t, actual[0], "table")
+		assert.Contains(t, actual[0], "type")
+		assert.Contains(t, actual[0], "possible_keys")
+		assert.Contains(t, actual[0], "key")
+		assert.Contains(t, actual[0], "key_len")
+		assert.Contains(t, actual[0], "ref")
+		assert.Contains(t, actual[0], "rows")
+		assert.Contains(t, actual[0], "Extra")
 
 		// Checks some stable values
 		assert.Equal(t, 1, actual[1][0])        // id
