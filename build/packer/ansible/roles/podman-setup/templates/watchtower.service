@@ -12,7 +12,7 @@ EnvironmentFile=/home/admin/.config/systemd/user/watchtower.env
 
 ExecStart=/usr/bin/podman run --rm --replace=true --name %N \
     -v ${XDG_RUNTIME_DIR}/podman/podman.sock:/var/run/docker.sock \
-    --env-file=/home/admin/.config/systemd/user/pmm-server.env \
+    --env-file=/home/admin/.config/systemd/user/watchtower.env \
     --net pmm_default \
     --cap-add=net_admin,net_raw \
     docker.io/perconalab/watchtower
