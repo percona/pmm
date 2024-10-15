@@ -15,15 +15,15 @@
 
 package version
 
-// versions list.
+// Versions list.
 var (
-	V3_0_0 = MustParse("3.0.0") //nolint:revive
+	V3_0_0 = MustParse("3.0.0") //nolint:revive,stylecheck
 )
 
 // FeatureVersion represents a minimum version feature being supported.
 type FeatureVersion *Parsed
 
-// features list.
+// Features list.
 var (
 	NodeExporterNewTLSConfigVersion FeatureVersion = V3_0_0
 )
