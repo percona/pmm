@@ -260,6 +260,15 @@ func testProfiler(t *testing.T, url string) {
 			want["maxScansToExplodeReached"] = false
 		}
 
+		switch mongoDBVersion {
+		case "6.0":
+			want["planCacheKey"] = "4FA12547"
+			want["queryHash"] = "4FA12547"
+		case "7.0":
+			want["planCacheKey"] = "0F06B42F"
+			want["queryHash"] = "0F06B42F"
+		}
+
 		explainM := make(map[string]interface{})
 		err = json.Unmarshal(res, &explainM)
 		assert.Nil(t, err)

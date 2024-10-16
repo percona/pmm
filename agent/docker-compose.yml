@@ -82,14 +82,9 @@ services:
   mongo_repl:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:4.2}
     container_name: pmm-agent_mongorepl
-    command: >
-      bash -c "
-        mkdir /tmp/mongodb1 /tmp/mongodb2
-        mongod --fork --logpath=/dev/null --profile=2 --replSet=rs0 --noauth --bind_ip=0.0.0.0 --dbpath=/tmp/mongodb1 --port=27020
-        mongod --fork --logpath=/dev/null --profile=2 --replSet=rs0 --noauth --bind_ip=0.0.0.0 --dbpath=/tmp/mongodb2 --port=27021
-        mongo --port 27020 --eval \"rs.initiate( { _id : 'rs0', members: [{ _id: 0, host: 'localhost:27020' }, { _id: 1, host: 'localhost:27021', priority: 0 }]})\"
-        tail -f /dev/null
-      "
+    volumes:
+      - ./testscripts/:/scripts
+    command: /scripts/mongo_repl.sh
     ports:
       - "127.0.0.1:27020:27020"
       - "127.0.0.1:27021:27021"
@@ -97,18 +92,12 @@ services:
   mongo_repl_with_ssl:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:4.2}
     container_name: pmm-agent_mongorepl_with_ssl
-    command: >
-      bash -c "
-        mkdir /tmp/mongodb1 /tmp/mongodb2
-        mongod --fork --logpath=/dev/null --profile=2 --replSet=rs0 --sslMode=requireSSL --sslPEMKeyFile=/etc/ssl/certificates/server.pem --sslCAFile=/etc/ssl/certificates/ca.crt --sslClusterFile=/etc/ssl/certificates/client.pem --bind_ip=0.0.0.0 --dbpath=/tmp/mongodb1 --port=27022
-        mongod --fork --logpath=/dev/null --profile=2 --replSet=rs0 --sslMode=requireSSL --sslPEMKeyFile=/etc/ssl/certificates/server.pem --sslCAFile=/etc/ssl/certificates/ca.crt --sslClusterFile=/etc/ssl/certificates/client.pem --bind_ip=0.0.0.0 --dbpath=/tmp/mongodb2 --port=27023
-        mongo --port 27022 --ssl --sslCAFile=/etc/ssl/certificates/ca.crt --sslPEMKeyFile=/etc/ssl/certificates/client.pem --sslAllowInvalidHostnames --eval \"rs.initiate( { _id : 'rs0', members: [{ _id: 0, host: 'localhost:27022' }, { _id: 1, host: 'localhost:27023', priority: 0 }]})\"
-        tail -f /dev/null
-      "
+    command: /scripts/mongo_repl_with_ssl.sh
     ports:
       - "127.0.0.1:27022:27022"
       - "127.0.0.1:27023:27023"
     volumes:
+      - ./testscripts/:/scripts
       - ${PWD}/utils/tests/testdata/mongodb:/etc/ssl/certificates
 
   postgres:
