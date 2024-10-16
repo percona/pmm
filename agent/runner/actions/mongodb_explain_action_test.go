@@ -289,22 +289,19 @@ func TestMongoDBExplain(t *testing.T) {
 		fmt.Printf("MongoDB version: %s\n", mongoDBVersion)
 
 		switch mongoDBVersion {
-		case "4.4":
+		case "4.4", "4.2":
 			want["plannerVersion"] = map[string]interface{}{"$numberInt": "1"}
-		case "5.0":
+		case "5.0", "6.0", "7.0":
 			want["maxIndexedAndSolutionsReached"] = false
 			want["maxIndexedOrSolutionsReached"] = false
 			want["maxScansToExplodeReached"] = false
+		}
+
+		switch mongoDBVersion {
 		case "6.0":
-			want["maxIndexedAndSolutionsReached"] = false
-			want["maxIndexedOrSolutionsReached"] = false
-			want["maxScansToExplodeReached"] = false
 			want["planCacheKey"] = "88A125C6"
 			want["queryHash"] = "88A125C6"
 		case "7.0":
-			want["maxIndexedAndSolutionsReached"] = false
-			want["maxIndexedOrSolutionsReached"] = false
-			want["maxScansToExplodeReached"] = false
 			want["planCacheKey"] = "0F06B42F"
 			want["queryHash"] = "0F06B42F"
 		}
