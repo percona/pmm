@@ -727,21 +727,21 @@ message AgentMessage {
     StateChangedRequest state_changed = 3;
     QANCollectRequest qan_collect = 4;
     ActionResultRequest action_result = 5;
-    JobResult job_result = 6;
-    JobProgress job_progress = 7;
+    JobResult job_result = 16;
+    JobProgress job_progress = 17;
     // responses from agent
-    Pong pong = 20;
-    SetStateResponse set_state = 21;
-    StartActionResponse start_action = 22;
-    StopActionResponse stop_action = 23;
-    CheckConnectionResponse check_connection = 24;
-    StartJobResponse start_job = 25;
-    StopJobResponse stop_job = 26;
-    JobStatusResponse job_status = 27;
-    GetVersionsResponse get_versions = 28;
-    PBMSwitchPITRResponse pbm_switch_pitr = 29;
-    AgentLogsResponse agent_logs = 30;
-    ServiceInfoResponse service_info = 31;
+    Pong pong = 8;
+    SetStateResponse set_state = 9;
+    StartActionResponse start_action = 10;
+    StopActionResponse stop_action = 11;
+    CheckConnectionResponse check_connection = 12;
+    StartJobResponse start_job = 13;
+    StopJobResponse stop_job = 14;
+    JobStatusResponse job_status = 15;
+    GetVersionsResponse get_versions = 18;
+    PBMSwitchPITRResponse pbm_switch_pitr = 19;
+    AgentLogsResponse agent_logs = 21;
+    ServiceInfoResponse service_info = 22;
   }
 }
 
@@ -760,18 +760,18 @@ message ServerMessage {
     QANCollectResponse qan_collect = 4;
     ActionResultResponse action_result = 5;
     // requests from server
-    Ping ping = 20;
-    SetStateRequest set_state = 21;
-    StartActionRequest start_action = 22;
-    StopActionRequest stop_action = 23;
-    CheckConnectionRequest check_connection = 24;
-    StartJobRequest start_job = 25;
-    StopJobRequest stop_job = 26;
-    JobStatusRequest job_status = 27;
-    GetVersionsRequest get_versions = 28;
-    PBMSwitchPITRRequest pbm_switch_pitr = 29;
-    AgentLogsRequest agent_logs = 30;
-    ServiceInfoRequest service_info = 31;
+    Ping ping = 8;
+    SetStateRequest set_state = 9;
+    StartActionRequest start_action = 10;
+    StopActionRequest stop_action = 11;
+    CheckConnectionRequest check_connection = 12;
+    StartJobRequest start_job = 13;
+    StopJobRequest stop_job = 14;
+    JobStatusRequest job_status = 15;
+    GetVersionsRequest get_versions = 16;
+    PBMSwitchPITRRequest pbm_switch_pitr = 17;
+    AgentLogsRequest agent_logs = 19;
+    ServiceInfoRequest service_info = 20;
   }
 }
 

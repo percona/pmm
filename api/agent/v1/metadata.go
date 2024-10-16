@@ -18,6 +18,7 @@ package agentv1
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -83,8 +84,10 @@ func ReceiveAgentConnectMetadata(stream grpc.ServerStream) (*AgentConnectMetadat
 		}
 	}
 
+	// TODO: remove once v2 hits end-of-support
+	agentID, _ := strings.CutPrefix(getValue(md, mdAgentID), "/agent_id/")
 	return &AgentConnectMetadata{
-		ID:          getValue(md, mdAgentID),
+		ID:          agentID,
 		Version:     getValue(md, mdAgentVersion),
 		MetricsPort: uint16(mp),
 	}, nil
