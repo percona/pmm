@@ -1,8 +1,12 @@
 #!/bin/bash
 set -o errexit
 
-git submodule update --init --jobs 10
-git submodule status
+pmm_source="sources/pmm/src/github.com/percona/pmm"
+if [ -d "$pmm_source" ] && [ -z $(ls -A "$pmm_source") ]; then
+    git submodule update --init --jobs 10
+    git submodule status
+fi
+unset pmm_source
 
 if [ -s ci.yml ]; then
     if [ -f /home/ec2-user/venv/bin/activate ]; then
