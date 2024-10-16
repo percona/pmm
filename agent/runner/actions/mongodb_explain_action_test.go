@@ -282,9 +282,30 @@ func TestMongoDBExplain(t *testing.T) {
 			"parsedQuery": map[string]interface{}{
 				"k": map[string]interface{}{"$lte": map[string]interface{}{"$numberInt": "1"}},
 			},
-			"plannerVersion": map[string]interface{}{"$numberInt": "1"},
-			"rejectedPlans":  []interface{}{},
-			"winningPlan":    map[string]interface{}{"stage": "EOF"},
+			"rejectedPlans": []interface{}{},
+			"winningPlan":   map[string]interface{}{"stage": "EOF"},
+		}
+		mongoDBVersion := tests.MongoDBVersion(t, client)
+
+		switch mongoDBVersion {
+		case "4.4":
+			want["plannerVersion"] = map[string]interface{}{"$numberInt": "1"}
+		case "5.0":
+			want["maxIndexedAndSolutionsReached"] = false
+			want["maxIndexedOrSolutionsReached"] = false
+			want["maxScansToExplodeReached"] = false
+		case "6.0":
+			want["maxIndexedAndSolutionsReached"] = false
+			want["maxIndexedOrSolutionsReached"] = false
+			want["maxScansToExplodeReached"] = false
+			want["planCacheKey"] = "88A125C6"
+			want["queryHash"] = "88A125C6"
+		case "7.0":
+			want["maxIndexedAndSolutionsReached"] = false
+			want["maxIndexedOrSolutionsReached"] = false
+			want["maxScansToExplodeReached"] = false
+			want["planCacheKey"] = "0F06B42F"
+			want["queryHash"] = "0F06B42F"
 		}
 
 		explainM := make(map[string]interface{})

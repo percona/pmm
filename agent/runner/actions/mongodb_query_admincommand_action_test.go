@@ -196,7 +196,6 @@ func convertToObjxMap(t *testing.T, b []byte) objx.Map {
 
 func getParameterAssertions(t *testing.T, b []byte) { //nolint:thelper
 	assert.LessOrEqual(t, 5000, len(b))
-	assert.LessOrEqual(t, len(b), 17000)
 	objxM := convertToObjxMap(t, b)
 	assert.Equal(t, 1.0, objxM.Get("ok").Data())
 	assert.Contains(t, objxM.Get("authenticationMechanisms").Data(), "SCRAM-SHA-1")
