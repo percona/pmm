@@ -221,6 +221,7 @@ func testProfiler(t *testing.T, url string) {
 			Dsn:   tests.GetTestMongoDBDSN(t),
 			Query: findBucket.Common.Example,
 		}
+		client := tests.OpenTestMongoDB(t, params.Dsn)
 
 		ex, err := actions.NewMongoDBExplainAction(id, 5*time.Second, params, os.TempDir())
 		require.NoError(t, err)
@@ -238,8 +239,25 @@ func testProfiler(t *testing.T, url string) {
 					"$eq": "value_00\ufffd",
 				},
 			},
-			"plannerVersion": map[string]interface{}{"$numberInt": "1"},
-			"rejectedPlans":  []interface{}{},
+			"rejectedPlans": []interface{}{},
+		}
+		mongoDBVersion := tests.MongoDBVersion(t, client)
+
+		switch mongoDBVersion {
+		case "4.4":
+			want["plannerVersion"] = map[string]interface{}{"$numberInt": "1"}
+		case "5.0":
+			want["maxIndexedAndSolutionsReached"] = false
+			want["maxIndexedOrSolutionsReached"] = false
+			want["maxScansToExplodeReached"] = false
+		case "6.0":
+			want["maxIndexedAndSolutionsReached"] = false
+			want["maxIndexedOrSolutionsReached"] = false
+			want["maxScansToExplodeReached"] = false
+		case "7.0":
+			want["maxIndexedAndSolutionsReached"] = false
+			want["maxIndexedOrSolutionsReached"] = false
+			want["maxScansToExplodeReached"] = false
 		}
 
 		explainM := make(map[string]interface{})
