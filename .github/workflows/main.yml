@@ -16,6 +16,9 @@ jobs:
     name: Checks
     runs-on: ubuntu-22.04
 
+    env:
+      PMM_ENCRYPTION_KEY_PATH: pmm-encryption.key
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -68,7 +71,7 @@ jobs:
       - name: Update API compatibility descriptors
         run: |
           # log if descriptors changed, useful for "update descriptors" PRs
-          make descriptors
+          make -C api descriptors
           git diff --text
 
       - name: Run check-license

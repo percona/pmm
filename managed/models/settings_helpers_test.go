@@ -37,6 +37,7 @@ func TestSettings(t *testing.T) {
 	t.Run("Defaults", func(t *testing.T) {
 		actual, err := models.GetSettings(sqlDB)
 		require.NoError(t, err)
+		require.NotEmpty(t, actual.EncryptedItems)
 		expected := &models.Settings{
 			MetricsResolutions: models.MetricsResolutions{
 				HR: 5 * time.Second,
@@ -52,7 +53,8 @@ func TestSettings(t *testing.T) {
 					FrequentInterval: 4 * time.Hour,
 				},
 			},
-			DefaultRoleID: 1,
+			DefaultRoleID:  1,
+			EncryptedItems: actual.EncryptedItems,
 		}
 		assert.Equal(t, expected, actual)
 	})

@@ -17,8 +17,10 @@ package management
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/AlekSi/pointer"
+	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -26,6 +28,7 @@ import (
 
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/version"
 )
 
 // ListAgents returns a filtered list of Agents.
@@ -127,9 +130,9 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 		Disabled:                       agent.Disabled,
 		DisabledCollectors:             agent.DisabledCollectors,
 		IsConnected:                    s.r.IsConnected(agent.AgentID),
-		IsAgentPasswordSet:             agent.AgentPassword != nil,
-		IsAwsSecretKeySet:              agent.AWSSecretKey != nil,
-		IsPasswordSet:                  agent.Password != nil,
+		IsAgentPasswordSet:             pointer.GetString(agent.AgentPassword) != "",
+		IsAwsSecretKeySet:              pointer.GetString(agent.AWSSecretKey) != "",
+		IsPasswordSet:                  pointer.GetString(agent.Password) != "",
 		ListenPort:                     uint32(pointer.GetUint16(agent.ListenPort)),
 		LogLevel:                       pointer.GetString(agent.LogLevel),
 		MaxQueryLength:                 agent.MaxQueryLength,
@@ -206,4 +209,81 @@ func (s *ManagementService) validateListAgentRequest(req *managementv1.ListAgent
 	}
 
 	return nil
+}
+
+// ListAgentVersions returns a list of agents with their update recommendations (update severity).
+func (s *ManagementService) ListAgentVersions(ctx context.Context, _ *managementv1.ListAgentVersionsRequest) (*managementv1.ListAgentVersionsResponse, error) {
+	var versions []*managementv1.AgentVersions
+
+	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		var err error
+		agentType := models.PMMAgentType
+
+		agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{AgentType: &agentType})
+		if err != nil {
+			return err
+		}
+
+		nodes, err := models.FindNodes(s.db.Querier, models.NodeFilters{})
+		if err != nil {
+			return err
+		}
+
+		nodeNames := make(map[string]*string, len(nodes))
+		for _, node := range nodes {
+			nodeNames[node.NodeID] = pointer.ToString(node.NodeName)
+		}
+
+		serverVersion, err := version.Parse(version.PMMVersion)
+		if err != nil {
+			return errors.Wrap(err, fmt.Sprintf("could not parse the server version: %s", version.PMMVersion))
+		}
+
+		for _, agent := range agents {
+			if agent.Disabled {
+				continue
+			}
+			nodeName, ok := nodeNames[pointer.GetString(agent.RunsOnNodeID)]
+			if !ok {
+				s.l.Warnf("node not found for agent %s", agent.AgentID)
+				continue
+			}
+
+			agentVersion, err := version.Parse(pointer.GetString(agent.Version))
+			if err != nil {
+				// We don't want to fail the whole request if we can't parse the agent version.
+				s.l.Warnf(errors.Wrap(err, fmt.Sprintf("could not parse the client version %s for agent %s", pointer.GetString(agent.Version), agent.AgentID)).Error())
+				continue
+			}
+
+			var severity managementv1.UpdateSeverity
+			switch {
+			case agentVersion.Major < serverVersion.Major:
+				severity = managementv1.UpdateSeverity_UPDATE_SEVERITY_CRITICAL
+			case agentVersion.Less(serverVersion):
+				severity = managementv1.UpdateSeverity_UPDATE_SEVERITY_REQUIRED
+			case serverVersion.Less(agentVersion):
+				severity = managementv1.UpdateSeverity_UPDATE_SEVERITY_UNSUPPORTED
+			default:
+				severity = managementv1.UpdateSeverity_UPDATE_SEVERITY_UP_TO_DATE
+			}
+
+			versions = append(versions, &managementv1.AgentVersions{
+				AgentId:  agent.AgentID,
+				Version:  pointer.GetString(agent.Version),
+				NodeName: pointer.GetString(nodeName),
+				Severity: severity,
+			})
+		}
+
+		return nil
+	})
+
+	if errTX != nil {
+		return nil, errTX
+	}
+
+	return &managementv1.ListAgentVersionsResponse{
+		AgentVersions: versions,
+	}, nil
 }

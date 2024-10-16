@@ -5,8 +5,7 @@ SOURCE=
 
 if [ -f /var/lib/cloud/data/status.json ]; then
     SOURCE=$(
-        cat /var/lib/cloud/data/status.json 2>/dev/null \
-            | python -c 'import json, sys; print json.load(sys.stdin)["v1"]["datasource"];' 2>/dev/null
+         cat /var/lib/cloud/data/status.json 2>/dev/null | jq -r '.v1.datasource'  2>/dev/null
     )
 fi
 

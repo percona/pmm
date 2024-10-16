@@ -998,6 +998,10 @@ func (m *DockerVersionInfo) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for ReleaseNotesUrl
+
+	// no validation rules for ReleaseNotesText
+
 	if len(errors) > 0 {
 		return DockerVersionInfoMultiError(errors)
 	}
@@ -1270,6 +1274,273 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CheckUpdatesResponseValidationError{}
+
+// Validate checks the field values on ListChangeLogsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListChangeLogsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListChangeLogsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListChangeLogsRequestMultiError, or nil if none found.
+func (m *ListChangeLogsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListChangeLogsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ListChangeLogsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListChangeLogsRequestMultiError is an error wrapping multiple validation
+// errors returned by ListChangeLogsRequest.ValidateAll() if the designated
+// constraints aren't met.
+type ListChangeLogsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListChangeLogsRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListChangeLogsRequestMultiError) AllErrors() []error { return m }
+
+// ListChangeLogsRequestValidationError is the validation error returned by
+// ListChangeLogsRequest.Validate if the designated constraints aren't met.
+type ListChangeLogsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListChangeLogsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListChangeLogsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListChangeLogsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListChangeLogsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListChangeLogsRequestValidationError) ErrorName() string {
+	return "ListChangeLogsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListChangeLogsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListChangeLogsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListChangeLogsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListChangeLogsRequestValidationError{}
+
+// Validate checks the field values on ListChangeLogsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListChangeLogsResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListChangeLogsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListChangeLogsResponseMultiError, or nil if none found.
+func (m *ListChangeLogsResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListChangeLogsResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetUpdates() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListChangeLogsResponseValidationError{
+						field:  fmt.Sprintf("Updates[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListChangeLogsResponseValidationError{
+						field:  fmt.Sprintf("Updates[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListChangeLogsResponseValidationError{
+					field:  fmt.Sprintf("Updates[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if all {
+		switch v := interface{}(m.GetLastCheck()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ListChangeLogsResponseValidationError{
+					field:  "LastCheck",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ListChangeLogsResponseValidationError{
+					field:  "LastCheck",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetLastCheck()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ListChangeLogsResponseValidationError{
+				field:  "LastCheck",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return ListChangeLogsResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListChangeLogsResponseMultiError is an error wrapping multiple validation
+// errors returned by ListChangeLogsResponse.ValidateAll() if the designated
+// constraints aren't met.
+type ListChangeLogsResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListChangeLogsResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListChangeLogsResponseMultiError) AllErrors() []error { return m }
+
+// ListChangeLogsResponseValidationError is the validation error returned by
+// ListChangeLogsResponse.Validate if the designated constraints aren't met.
+type ListChangeLogsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListChangeLogsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListChangeLogsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListChangeLogsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListChangeLogsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListChangeLogsResponseValidationError) ErrorName() string {
+	return "ListChangeLogsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListChangeLogsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListChangeLogsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListChangeLogsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListChangeLogsResponseValidationError{}
 
 // Validate checks the field values on StartUpdateRequest with the rules
 // defined in the proto definition for this message. If any rules are
@@ -2900,218 +3171,3 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ChangeSettingsResponseValidationError{}
-
-// Validate checks the field values on AWSInstanceCheckRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AWSInstanceCheckRequest) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AWSInstanceCheckRequest with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AWSInstanceCheckRequestMultiError, or nil if none found.
-func (m *AWSInstanceCheckRequest) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AWSInstanceCheckRequest) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if utf8.RuneCountInString(m.GetInstanceId()) < 1 {
-		err := AWSInstanceCheckRequestValidationError{
-			field:  "InstanceId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if len(errors) > 0 {
-		return AWSInstanceCheckRequestMultiError(errors)
-	}
-
-	return nil
-}
-
-// AWSInstanceCheckRequestMultiError is an error wrapping multiple validation
-// errors returned by AWSInstanceCheckRequest.ValidateAll() if the designated
-// constraints aren't met.
-type AWSInstanceCheckRequestMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AWSInstanceCheckRequestMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AWSInstanceCheckRequestMultiError) AllErrors() []error { return m }
-
-// AWSInstanceCheckRequestValidationError is the validation error returned by
-// AWSInstanceCheckRequest.Validate if the designated constraints aren't met.
-type AWSInstanceCheckRequestValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AWSInstanceCheckRequestValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AWSInstanceCheckRequestValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AWSInstanceCheckRequestValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AWSInstanceCheckRequestValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AWSInstanceCheckRequestValidationError) ErrorName() string {
-	return "AWSInstanceCheckRequestValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AWSInstanceCheckRequestValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAWSInstanceCheckRequest.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AWSInstanceCheckRequestValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AWSInstanceCheckRequestValidationError{}
-
-// Validate checks the field values on AWSInstanceCheckResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AWSInstanceCheckResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AWSInstanceCheckResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AWSInstanceCheckResponseMultiError, or nil if none found.
-func (m *AWSInstanceCheckResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AWSInstanceCheckResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if len(errors) > 0 {
-		return AWSInstanceCheckResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// AWSInstanceCheckResponseMultiError is an error wrapping multiple validation
-// errors returned by AWSInstanceCheckResponse.ValidateAll() if the designated
-// constraints aren't met.
-type AWSInstanceCheckResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AWSInstanceCheckResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AWSInstanceCheckResponseMultiError) AllErrors() []error { return m }
-
-// AWSInstanceCheckResponseValidationError is the validation error returned by
-// AWSInstanceCheckResponse.Validate if the designated constraints aren't met.
-type AWSInstanceCheckResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AWSInstanceCheckResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AWSInstanceCheckResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AWSInstanceCheckResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AWSInstanceCheckResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AWSInstanceCheckResponseValidationError) ErrorName() string {
-	return "AWSInstanceCheckResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AWSInstanceCheckResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAWSInstanceCheckResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AWSInstanceCheckResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AWSInstanceCheckResponseValidationError{}

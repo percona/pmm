@@ -610,6 +610,12 @@ type CheckUpdatesOKBodyLatest struct {
 	// Release date.
 	// Format: date-time
 	Timestamp strfmt.DateTime `json:"timestamp,omitempty"`
+
+	// Release notes URL for the version (if available).
+	ReleaseNotesURL string `json:"release_notes_url,omitempty"`
+
+	// Release notes text for the version (if available).
+	ReleaseNotesText string `json:"release_notes_text,omitempty"`
 }
 
 // Validate validates this check updates OK body latest

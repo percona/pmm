@@ -142,6 +142,14 @@ service ManagementService {
       description: "Lists Agents with filter."
     };
   }
+  // ListAgentVersions returns a list of PMM Agent versions and their update severity.
+  rpc ListAgentVersions(ListAgentVersionsRequest) returns (ListAgentVersionsResponse) {
+    option (google.api.http) = {get: "/v1/management/agents/versions"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Agent Versions"
+      description: "Lists Agent versions and their update severity."
+    };
+  }
   // RegisterNode registers a new Node and a pmm-agent.
   rpc RegisterNode(RegisterNodeRequest) returns (RegisterNodeResponse) {
     option (google.api.http) = {
@@ -177,31 +185,31 @@ service ManagementService {
       description: "Gets a single Node by ID."
     };
   }
-  // AddExternal adds external service and adds external exporter.
-  // It automatically adds a service to inventory, which is running on provided "node_id",
-  // then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
-
-  // AddMySQL adds MySQL Service and starts several Agents.
+  // MySQL: adds MySQL Service and starts several Agents.
   // It automatically adds a service to inventory, which is running on provided "node_id",
   // then adds "mysqld_exporter", and "qan_mysql_perfschema" agents
   // with provided "pmm_agent_id" and other parameters.
 
-  // AddMongoDB adds MongoDB Service and starts several Agents.
+  // MongoDB: adds MongoDB Service and starts several Agents.
   // It automatically adds a service to inventory, which is running on provided "node_id",
   // then adds "mongodb_exporter", and "qan_mongodb_profiler" agents
   // with provided "pmm_agent_id" and other parameters.
 
-  // AddPostgreSQL adds PostgreSQL Service and starts postgres exporter.
+  // PostgreSQL: adds PostgreSQL Service and starts postgres exporter.
   // It automatically adds a service to inventory, which is running on provided "node_id",
   // then adds "postgres_exporter" with provided "pmm_agent_id" and other parameters.
 
-  // AddHAProxy adds HAProxy service and adds external exporter.
+  // HAProxy: adds HAProxy service and adds external exporter.
   // It automatically adds a service to inventory, which is running on provided "node_id",
   // then adds an "external exporter" agent to inventory.
 
-  // AddProxySQL adds ProxySQL Service and starts several Agents.
+  // ProxySQL: adds ProxySQL Service and starts several Agents.
   // It automatically adds a service to inventory, which is running on provided "node_id",
   // then adds "proxysql_exporter" with provided "pmm_agent_id" and other parameters.
+
+  // External: adds external service and adds external exporter.
+  // It automatically adds a service to inventory, which is running on provided "node_id",
+  // then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
 
   // AddService adds a Service and starts several Agents.
   rpc AddService(AddServiceRequest) returns (AddServiceResponse) {

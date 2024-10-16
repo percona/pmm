@@ -43,6 +43,7 @@ import (
 
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/version"
 )
@@ -58,7 +59,6 @@ type Server struct {
 	templatesService     templatesService
 	supervisord          supervisordService
 	telemetryService     telemetryService
-	awsInstanceChecker   *AWSInstanceChecker
 	grafanaClient        grafanaClient
 	haService            haService
 	updater              *Updater
@@ -91,9 +91,9 @@ type Params struct {
 	VMAlertExternalRules vmAlertExternalRules
 	Supervisord          supervisordService
 	TelemetryService     telemetryService
-	AwsInstanceChecker   *AWSInstanceChecker
 	GrafanaClient        grafanaClient
 	Updater              *Updater
+	Dus                  *distribution.Service
 }
 
 // NewServer returns new server for Server service.
@@ -114,7 +114,6 @@ func NewServer(params *Params) (*Server, error) {
 		vmalertExternalRules: params.VMAlertExternalRules,
 		supervisord:          params.Supervisord,
 		telemetryService:     params.TelemetryService,
-		awsInstanceChecker:   params.AwsInstanceChecker,
 		grafanaClient:        params.GrafanaClient,
 		updater:              params.Updater,
 		l:                    logrus.WithField("component", "server"),
@@ -270,8 +269,10 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 			Timestamp:   timestamppb.New(*v.Installed.BuildTime),
 		},
 		Latest: &serverv1.DockerVersionInfo{
-			Version: v.Latest.Version.String(),
-			Tag:     v.Latest.DockerImage,
+			Version:          v.Latest.Version.String(),
+			Tag:              v.Latest.DockerImage,
+			ReleaseNotesUrl:  v.Latest.ReleaseNotesURL,
+			ReleaseNotesText: v.Latest.ReleaseNotesText,
 		},
 		UpdateAvailable: v.Latest.DockerImage != "",
 		LatestNewsUrl:   v.LatestNewsURL,
@@ -296,6 +297,30 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 	return res, nil
 }
 
+// ListChangeLogs lists PMM versions between currently installed version and the latest one.
+func (s *Server) ListChangeLogs(ctx context.Context, req *serverv1.ListChangeLogsRequest) (*serverv1.ListChangeLogsResponse, error) {
+	versions, err := s.updater.ListUpdates(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Unavailable, "failed to list available updates")
+	}
+
+	updates := make([]*serverv1.DockerVersionInfo, 0, len(versions))
+	for _, v := range versions {
+		updates = append(updates, &serverv1.DockerVersionInfo{
+			Version:          v.Version.String(),
+			Tag:              v.DockerImage,
+			ReleaseNotesText: v.ReleaseNotesText,
+			ReleaseNotesUrl:  v.ReleaseNotesURL,
+		})
+	}
+	res := &serverv1.ListChangeLogsResponse{
+		Updates:   updates,
+		LastCheck: timestamppb.Now(),
+	}
+
+	return res, nil
+}
+
 // StartUpdate starts PMM Server update.
 func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateRequest) (*serverv1.StartUpdateResponse, error) {
 	s.envRW.RLock()
@@ -308,7 +333,7 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateReque
 
 	newImage := req.GetNewImage()
 	if newImage == "" {
-		latest, err := s.updater.latest(ctx)
+		_, latest, err := s.updater.latest(ctx)
 		if err != nil {
 			s.l.WithError(err).Error("Failed to get latest version")
 			newImage = defaultLatestPMMImage
@@ -575,7 +600,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		// absent value means "do not change"
 		if req.SshKey != nil {
 			if err = s.writeSSHKey(pointer.GetString(req.SshKey)); err != nil {
-				return errors.WithStack(err)
+				s.l.Error(errors.WithStack(err))
+				return status.Errorf(codes.Internal, err.Error())
 			}
 		}
 
@@ -666,6 +692,11 @@ func (s *Server) writeSSHKey(sshKey string) error {
 	s.sshKeyM.Lock()
 	defer s.sshKeyM.Unlock()
 
+	distributionMethod := s.telemetryService.DistributionMethod()
+	if distributionMethod != serverv1.DistributionMethod_DISTRIBUTION_METHOD_AMI && distributionMethod != serverv1.DistributionMethod_DISTRIBUTION_METHOD_OVF {
+		return errors.New("SSH key can be set only on AMI and OVF distributions")
+	}
+
 	username := "pmm"
 	usr, err := user.Lookup(username)
 	if err != nil {
@@ -676,33 +707,11 @@ func (s *Server) writeSSHKey(sshKey string) error {
 		return errors.WithStack(err)
 	}
 
-	uid, err := strconv.Atoi(usr.Uid)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	gid, err := strconv.Atoi(usr.Gid)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	if err = os.Chown(sshDirPath, uid, gid); err != nil {
-		return errors.WithStack(err)
-	}
 	keysPath := path.Join(sshDirPath, "authorized_keys")
 	if err = os.WriteFile(keysPath, []byte(sshKey), 0o600); err != nil {
 		return errors.WithStack(err)
 	}
-	if err = os.Chown(keysPath, uid, gid); err != nil {
-		return errors.WithStack(err)
-	}
 	return nil
-}
-
-// AWSInstanceCheck checks AWS EC2 instance ID.
-func (s *Server) AWSInstanceCheck(ctx context.Context, req *serverv1.AWSInstanceCheckRequest) (*serverv1.AWSInstanceCheckResponse, error) { //nolint:revive
-	if err := s.awsInstanceChecker.check(req.InstanceId); err != nil {
-		return nil, err
-	}
-	return &serverv1.AWSInstanceCheckResponse{}, nil
 }
 
 // isAgentsStateUpdateNeeded - checks metrics resolution changes,
