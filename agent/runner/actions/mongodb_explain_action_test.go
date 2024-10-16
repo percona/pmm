@@ -343,8 +343,7 @@ func TestNewMongoDBExplain(t *testing.T) {
 			in: "distinct.json",
 		},
 		{
-			in:         "aggregate.json",
-			minVersion: "3.4.0",
+			in: "aggregate.json",
 		},
 		{
 			in: "count.json",
@@ -353,17 +352,7 @@ func TestNewMongoDBExplain(t *testing.T) {
 			in: "find_and_modify.json",
 		},
 	}
-	mongoDBVersion := tests.MongoDBVersion(t, client)
 	for _, tf := range testFiles {
-		// Not all MongoDB versions allow explaining all commands
-		if tf.minVersion != "" {
-			c, err := lessThan(tf.minVersion, mongoDBVersion)
-			require.NoError(t, err)
-			if c {
-				continue
-			}
-		}
-
 		t.Run(tf.in, func(t *testing.T) {
 			query, err := os.ReadFile(filepath.Join("testdata/", filepath.Clean(tf.in)))
 			assert.NoError(t, err)
