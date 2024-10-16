@@ -28,15 +28,17 @@ jobs:
     strategy:
       matrix:
         images:
-          - { mysql: 'mysql:5.6', mongo: 'mongo:4.2', postgres: 'postgres:13', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
-          - { mysql: 'mysql:5.7', mongo: 'mongo:4.4', postgres: 'postgres:14', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
-          - { mysql: 'mysql:8.0', mongo: 'mongo:4.4', postgres: 'postgres:15', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
-          - { mysql: 'mysql:8.0', mongo: 'mongo:4.4', postgres: 'postgres:16', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mysql:5.6', mongo: 'mongo:4.4', postgres: 'postgres:13', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mysql:5.7', mongo: 'mongo:5.0', postgres: 'postgres:14', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mysql:8.0', mongo: 'mongo:6.0', postgres: 'postgres:15', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mysql:8.0', mongo: 'mongo:7.0', postgres: 'postgres:16', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mysql:latest', mongo: 'mongo:latest', postgres: 'postgres:latest', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
 
           # Percona + latest PMM Server release
           - { mysql: 'percona:5.6', mongo: 'percona/percona-server-mongodb:4.2', postgres: 'perconalab/percona-distribution-postgresql:14', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
           - { mysql: 'percona:5.7', mongo: 'percona/percona-server-mongodb:4.4', postgres: 'perconalab/percona-distribution-postgresql:15', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
           - { mysql: 'percona:8.0', mongo: 'percona/percona-server-mongodb:4.4', postgres: 'perconalab/percona-distribution-postgresql:16', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'percona:latest', mongo: 'percona/percona-server-mongodb:latest', postgres: 'perconalab/percona-distribution-postgresql:latest', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
 
           # MariaDB (only 3 latest GA versions)
           #   + older supported MongoDB versions
@@ -46,9 +48,9 @@ jobs:
           # - MYSQL_IMAGE=mariadb:10.0
           # - MYSQL_IMAGE=mariadb:10.1
 
-          - { mysql: 'mariadb:10.2', mongo: 'mongo:4.4',                          postgres: 'postgres:10', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
-          - { mysql: 'mariadb:10.3', mongo: 'percona/percona-server-mongodb:4.4', postgres: 'postgres:11', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
-          - { mysql: 'mariadb:10.4',                                              postgres: 'postgres:12', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mariadb:11.2', mongo: 'mongo:4.4',                          postgres: 'postgres:10', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mariadb:11.4', mongo: 'percona/percona-server-mongodb:4.4', postgres: 'postgres:11', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mariadb:11.5',                                              postgres: 'postgres:12', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
 
     continue-on-error: true
 

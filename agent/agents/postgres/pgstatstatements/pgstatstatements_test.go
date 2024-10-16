@@ -413,7 +413,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				Queryid:             actual.Common.Queryid,
 				Fingerprint:         fingerprint,
 				Database:            "pmm-agent",
-				Tables:              tables,
+				Tables:              []string{tableName},
 				Comments:            map[string]string{"controller": "test"},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",
