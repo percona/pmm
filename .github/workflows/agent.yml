@@ -123,3 +123,4 @@ jobs:
           echo "--- GO Environment ---"
           go env | sort
           git status
+          docker compose logs

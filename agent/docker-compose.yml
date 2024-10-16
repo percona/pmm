@@ -83,7 +83,7 @@ services:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     container_name: pmm-agent_mongorepl
     environment:
-      - VERSION=${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
+      - MONGO_IMAGE=${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     volumes:
       - ./testscripts/:/scripts
     command: /scripts/mongo_repl.sh
@@ -96,7 +96,7 @@ services:
     container_name: pmm-agent_mongorepl_with_ssl
     command: /scripts/mongo_repl_with_ssl.sh
     environment:
-      - VERSION=${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
+      - MONGO_IMAGE=${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     ports:
       - "127.0.0.1:27022:27022"
       - "127.0.0.1:27023:27023"
