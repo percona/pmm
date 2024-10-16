@@ -50,10 +50,7 @@ services:
   mongo:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     container_name: pmm-agent_mongo
-    platform: linux/amd64
-    command:
-      - --profile 2
-      - -bind_ip=0.0.0.0
+    command: --profile=2 -bind_ip=0.0.0.0
     ports:
       - "127.0.0.1:27017:27017"
     environment:
@@ -63,7 +60,6 @@ services:
   mongo_with_ssl:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     container_name: pmm-agent_mongo_with_ssl
-    platform: linux/amd64
     command:
       - --profile=2
       - --sslMode=requireSSL
@@ -79,17 +75,13 @@ services:
   mongonoauth:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     container_name: pmm-agent_mongonoauth
-    platform: linux/amd64
-    command:
-      - --profile 2
-      - -bind_ip=0.0.0.0
+    command: --profile=2 -bind_ip=0.0.0.0 --noauth
     ports:
       - "127.0.0.1:27019:27017"
 
   mongo_repl:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     container_name: pmm-agent_mongorepl
-    platform: linux/amd64
     environment:
       - MONGO_IMAGE=${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     volumes:
@@ -102,7 +94,6 @@ services:
   mongo_repl_with_ssl:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     container_name: pmm-agent_mongorepl_with_ssl
-    platform: linux/amd64
     command: /scripts/mongo_repl_with_ssl.sh
     environment:
       - MONGO_IMAGE=${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
@@ -116,7 +107,6 @@ services:
   postgres:
     image: ${POSTGRES_IMAGE:-postgres:11}
     container_name: pmm-agent_postgres
-    platform: linux/amd64
     command: >
       -c shared_preload_libraries='${PG_PRELOADED_LIBS:-pg_stat_statements}'
       -c track_activity_query_size=2048
