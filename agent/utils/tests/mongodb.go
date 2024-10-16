@@ -36,7 +36,7 @@ func GetTestMongoDBDSN(tb testing.TB) string {
 	if testing.Short() {
 		tb.Skip("-short flag is passed, skipping test with real database.")
 	}
-	return "mongodb://root:root-password@127.0.0.1:27017/admin"
+	return "mongodb://root:root-password@localhost:27017/admin"
 }
 
 // GetTestMongoDBReplicatedDSN returns DNS for replicated MongoDB test database.
@@ -45,7 +45,7 @@ func GetTestMongoDBReplicatedDSN(tb testing.TB) string {
 	if testing.Short() {
 		tb.Skip("-short flag is passed, skipping test with real database.")
 	}
-	return "mongodb://127.0.0.1:27020,127.0.0.1:27021/admin?replicaSet=rs0"
+	return "mongodb://localhost:27020,127.0.0.1:27021/admin?replicaSet=rs0"
 }
 
 // GetTestMongoDBWithSSLDSN returns DNS template and files for MongoDB test database with ssl.
