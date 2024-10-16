@@ -16,6 +16,8 @@ package tests
 
 import (
 	"context"
+	"fmt"
+	"github.com/percona/pmm/version"
 	"os"
 	"path/filepath"
 	"testing"
@@ -131,5 +133,9 @@ func MongoDBVersion(tb testing.TB, client *mongo.Client) string {
 	if err := res.Decode(&bi); err != nil {
 		tb.Fatalf("Cannot decode buildInfo response: %s", err)
 	}
-	return bi.Version
+	parsed, err := version.Parse(bi.Version)
+	if err != nil {
+		tb.Fatalf("Cannot parse version: %s", err)
+	}
+	return fmt.Sprintf("%d.%d", parsed.Major, parsed.Minor)
 }

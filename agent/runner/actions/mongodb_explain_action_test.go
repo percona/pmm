@@ -282,9 +282,28 @@ func TestMongoDBExplain(t *testing.T) {
 			"parsedQuery": map[string]interface{}{
 				"k": map[string]interface{}{"$lte": map[string]interface{}{"$numberInt": "1"}},
 			},
-			"plannerVersion": map[string]interface{}{"$numberInt": "1"},
-			"rejectedPlans":  []interface{}{},
-			"winningPlan":    map[string]interface{}{"stage": "EOF"},
+			"rejectedPlans": []interface{}{},
+			"winningPlan":   map[string]interface{}{"stage": "EOF"},
+		}
+		mongoDBVersion := tests.MongoDBVersion(t, client)
+		fmt.Printf("MongoDB version: %s\n", mongoDBVersion)
+
+		switch mongoDBVersion {
+		case "4.4", "4.2":
+			want["plannerVersion"] = map[string]interface{}{"$numberInt": "1"}
+		case "5.0", "6.0", "7.0":
+			want["maxIndexedAndSolutionsReached"] = false
+			want["maxIndexedOrSolutionsReached"] = false
+			want["maxScansToExplodeReached"] = false
+		}
+
+		switch mongoDBVersion {
+		case "6.0":
+			want["planCacheKey"] = "88A125C6"
+			want["queryHash"] = "88A125C6"
+		case "7.0":
+			want["planCacheKey"] = "0F06B42F"
+			want["queryHash"] = "0F06B42F"
 		}
 
 		explainM := make(map[string]interface{})
@@ -321,8 +340,7 @@ func TestNewMongoDBExplain(t *testing.T) {
 			in: "distinct.json",
 		},
 		{
-			in:         "aggregate.json",
-			minVersion: "3.4.0",
+			in: "aggregate.json",
 		},
 		{
 			in: "count.json",
@@ -331,17 +349,7 @@ func TestNewMongoDBExplain(t *testing.T) {
 			in: "find_and_modify.json",
 		},
 	}
-	mongoDBVersion := tests.MongoDBVersion(t, client)
 	for _, tf := range testFiles {
-		// Not all MongoDB versions allow explaining all commands
-		if tf.minVersion != "" {
-			c, err := lessThan(tf.minVersion, mongoDBVersion)
-			require.NoError(t, err)
-			if c {
-				continue
-			}
-		}
-
 		t.Run(tf.in, func(t *testing.T) {
 			query, err := os.ReadFile(filepath.Join("testdata/", filepath.Clean(tf.in)))
 			assert.NoError(t, err)
