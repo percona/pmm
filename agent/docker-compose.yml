@@ -48,7 +48,7 @@ services:
       - ./testdata/mysql:/mysql
 
   mongo:
-    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:4.2}
+    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     container_name: pmm-agent_mongo
     command: --profile 2
     ports:
@@ -58,7 +58,7 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=root-password
 
   mongo_with_ssl:
-    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:4.2}
+    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     container_name: pmm-agent_mongo_with_ssl
     command:
       - --profile=2
@@ -73,15 +73,17 @@ services:
       - ${PWD}/utils/tests/testdata/mongodb:/etc/ssl/certificates
 
   mongonoauth:
-    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:4.2}
+    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     container_name: pmm-agent_mongonoauth
     command: --profile 2
     ports:
       - "127.0.0.1:27019:27017"
 
   mongo_repl:
-    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:4.2}
+    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     container_name: pmm-agent_mongorepl
+    environment:
+      - VERSION=${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     volumes:
       - ./testscripts/:/scripts
     command: /scripts/mongo_repl.sh
@@ -90,9 +92,11 @@ services:
       - "127.0.0.1:27021:27021"
 
   mongo_repl_with_ssl:
-    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:4.2}
+    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     container_name: pmm-agent_mongorepl_with_ssl
     command: /scripts/mongo_repl_with_ssl.sh
+    environment:
+      - VERSION=${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     ports:
       - "127.0.0.1:27022:27022"
       - "127.0.0.1:27023:27023"
