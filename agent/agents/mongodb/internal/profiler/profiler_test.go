@@ -69,11 +69,11 @@ func TestProfiler(t *testing.T) {
 	tempDir := t.TempDir()
 	sslDSN, err := templates.RenderDSN(sslDSNTemplate, files, tempDir)
 	require.NoError(t, err)
-	for _, url := range []string{
-		"mongodb://root:root-password@127.0.0.1:27017/admin",
-		sslDSN,
+	for name, url := range map[string]string{
+		"normal": tests.GetTestMongoDBDSN(t),
+		"ssl":    sslDSN,
 	} {
-		t.Run(url, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			testProfiler(t, url)
 		})
 	}
