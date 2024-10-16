@@ -59,8 +59,44 @@ type ListAgentsOK struct {
 	Payload *ListAgentsOKBody
 }
 
+// IsSuccess returns true when this list agents Ok response has a 2xx status code
+func (o *ListAgentsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list agents Ok response has a 3xx status code
+func (o *ListAgentsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list agents Ok response has a 4xx status code
+func (o *ListAgentsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list agents Ok response has a 5xx status code
+func (o *ListAgentsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list agents Ok response a status code equal to that given
+func (o *ListAgentsOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the list agents Ok response
+func (o *ListAgentsOK) Code() int {
+	return 200
+}
+
 func (o *ListAgentsOK) Error() string {
-	return fmt.Sprintf("[GET /v1/inventory/agents][%d] listAgentsOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/inventory/agents][%d] listAgentsOk %s", 200, payload)
+}
+
+func (o *ListAgentsOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/inventory/agents][%d] listAgentsOk %s", 200, payload)
 }
 
 func (o *ListAgentsOK) GetPayload() *ListAgentsOKBody {
@@ -96,13 +132,44 @@ type ListAgentsDefault struct {
 	Payload *ListAgentsDefaultBody
 }
 
+// IsSuccess returns true when this list agents default response has a 2xx status code
+func (o *ListAgentsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list agents default response has a 3xx status code
+func (o *ListAgentsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list agents default response has a 4xx status code
+func (o *ListAgentsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list agents default response has a 5xx status code
+func (o *ListAgentsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list agents default response a status code equal to that given
+func (o *ListAgentsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the list agents default response
 func (o *ListAgentsDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *ListAgentsDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/inventory/agents][%d] ListAgents default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/inventory/agents][%d] ListAgents default %s", o._statusCode, payload)
+}
+
+func (o *ListAgentsDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/inventory/agents][%d] ListAgents default %s", o._statusCode, payload)
 }
 
 func (o *ListAgentsDefault) GetPayload() *ListAgentsDefaultBody {
@@ -192,6 +259,11 @@ func (o *ListAgentsDefaultBody) ContextValidate(ctx context.Context, formats str
 func (o *ListAgentsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListAgents default" + "." + "details" + "." + strconv.Itoa(i))
@@ -231,6 +303,80 @@ swagger:model ListAgentsDefaultBodyDetailsItems0
 type ListAgentsDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// list agents default body details items0
+	ListAgentsDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *ListAgentsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv ListAgentsDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.ListAgentsDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o ListAgentsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.ListAgentsDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.ListAgentsDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this list agents default body details items0
@@ -845,6 +991,11 @@ func (o *ListAgentsOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 func (o *ListAgentsOKBody) contextValidatePMMAgent(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.PMMAgent); i++ {
 		if o.PMMAgent[i] != nil {
+
+			if swag.IsZero(o.PMMAgent[i]) { // not required
+				return nil
+			}
+
 			if err := o.PMMAgent[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "pmm_agent" + "." + strconv.Itoa(i))
@@ -862,6 +1013,11 @@ func (o *ListAgentsOKBody) contextValidatePMMAgent(ctx context.Context, formats 
 func (o *ListAgentsOKBody) contextValidateVMAgent(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.VMAgent); i++ {
 		if o.VMAgent[i] != nil {
+
+			if swag.IsZero(o.VMAgent[i]) { // not required
+				return nil
+			}
+
 			if err := o.VMAgent[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "vm_agent" + "." + strconv.Itoa(i))
@@ -879,6 +1035,11 @@ func (o *ListAgentsOKBody) contextValidateVMAgent(ctx context.Context, formats s
 func (o *ListAgentsOKBody) contextValidateNodeExporter(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.NodeExporter); i++ {
 		if o.NodeExporter[i] != nil {
+
+			if swag.IsZero(o.NodeExporter[i]) { // not required
+				return nil
+			}
+
 			if err := o.NodeExporter[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "node_exporter" + "." + strconv.Itoa(i))
@@ -896,6 +1057,11 @@ func (o *ListAgentsOKBody) contextValidateNodeExporter(ctx context.Context, form
 func (o *ListAgentsOKBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.MysqldExporter); i++ {
 		if o.MysqldExporter[i] != nil {
+
+			if swag.IsZero(o.MysqldExporter[i]) { // not required
+				return nil
+			}
+
 			if err := o.MysqldExporter[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "mysqld_exporter" + "." + strconv.Itoa(i))
@@ -913,6 +1079,11 @@ func (o *ListAgentsOKBody) contextValidateMysqldExporter(ctx context.Context, fo
 func (o *ListAgentsOKBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.MongodbExporter); i++ {
 		if o.MongodbExporter[i] != nil {
+
+			if swag.IsZero(o.MongodbExporter[i]) { // not required
+				return nil
+			}
+
 			if err := o.MongodbExporter[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "mongodb_exporter" + "." + strconv.Itoa(i))
@@ -930,6 +1101,11 @@ func (o *ListAgentsOKBody) contextValidateMongodbExporter(ctx context.Context, f
 func (o *ListAgentsOKBody) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.PostgresExporter); i++ {
 		if o.PostgresExporter[i] != nil {
+
+			if swag.IsZero(o.PostgresExporter[i]) { // not required
+				return nil
+			}
+
 			if err := o.PostgresExporter[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "postgres_exporter" + "." + strconv.Itoa(i))
@@ -947,6 +1123,11 @@ func (o *ListAgentsOKBody) contextValidatePostgresExporter(ctx context.Context, 
 func (o *ListAgentsOKBody) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.ProxysqlExporter); i++ {
 		if o.ProxysqlExporter[i] != nil {
+
+			if swag.IsZero(o.ProxysqlExporter[i]) { // not required
+				return nil
+			}
+
 			if err := o.ProxysqlExporter[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "proxysql_exporter" + "." + strconv.Itoa(i))
@@ -964,6 +1145,11 @@ func (o *ListAgentsOKBody) contextValidateProxysqlExporter(ctx context.Context, 
 func (o *ListAgentsOKBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.QANMysqlPerfschemaAgent); i++ {
 		if o.QANMysqlPerfschemaAgent[i] != nil {
+
+			if swag.IsZero(o.QANMysqlPerfschemaAgent[i]) { // not required
+				return nil
+			}
+
 			if err := o.QANMysqlPerfschemaAgent[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "qan_mysql_perfschema_agent" + "." + strconv.Itoa(i))
@@ -981,6 +1167,11 @@ func (o *ListAgentsOKBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Co
 func (o *ListAgentsOKBody) contextValidateQANMysqlSlowlogAgent(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.QANMysqlSlowlogAgent); i++ {
 		if o.QANMysqlSlowlogAgent[i] != nil {
+
+			if swag.IsZero(o.QANMysqlSlowlogAgent[i]) { // not required
+				return nil
+			}
+
 			if err := o.QANMysqlSlowlogAgent[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "qan_mysql_slowlog_agent" + "." + strconv.Itoa(i))
@@ -998,6 +1189,11 @@ func (o *ListAgentsOKBody) contextValidateQANMysqlSlowlogAgent(ctx context.Conte
 func (o *ListAgentsOKBody) contextValidateQANMongodbProfilerAgent(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.QANMongodbProfilerAgent); i++ {
 		if o.QANMongodbProfilerAgent[i] != nil {
+
+			if swag.IsZero(o.QANMongodbProfilerAgent[i]) { // not required
+				return nil
+			}
+
 			if err := o.QANMongodbProfilerAgent[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "qan_mongodb_profiler_agent" + "." + strconv.Itoa(i))
@@ -1015,6 +1211,11 @@ func (o *ListAgentsOKBody) contextValidateQANMongodbProfilerAgent(ctx context.Co
 func (o *ListAgentsOKBody) contextValidateQANPostgresqlPgstatementsAgent(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.QANPostgresqlPgstatementsAgent); i++ {
 		if o.QANPostgresqlPgstatementsAgent[i] != nil {
+
+			if swag.IsZero(o.QANPostgresqlPgstatementsAgent[i]) { // not required
+				return nil
+			}
+
 			if err := o.QANPostgresqlPgstatementsAgent[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "qan_postgresql_pgstatements_agent" + "." + strconv.Itoa(i))
@@ -1032,6 +1233,11 @@ func (o *ListAgentsOKBody) contextValidateQANPostgresqlPgstatementsAgent(ctx con
 func (o *ListAgentsOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.QANPostgresqlPgstatmonitorAgent); i++ {
 		if o.QANPostgresqlPgstatmonitorAgent[i] != nil {
+
+			if swag.IsZero(o.QANPostgresqlPgstatmonitorAgent[i]) { // not required
+				return nil
+			}
+
 			if err := o.QANPostgresqlPgstatmonitorAgent[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + strconv.Itoa(i))
@@ -1049,6 +1255,11 @@ func (o *ListAgentsOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx co
 func (o *ListAgentsOKBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.ExternalExporter); i++ {
 		if o.ExternalExporter[i] != nil {
+
+			if swag.IsZero(o.ExternalExporter[i]) { // not required
+				return nil
+			}
+
 			if err := o.ExternalExporter[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "external_exporter" + "." + strconv.Itoa(i))
@@ -1066,6 +1277,11 @@ func (o *ListAgentsOKBody) contextValidateExternalExporter(ctx context.Context, 
 func (o *ListAgentsOKBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.RDSExporter); i++ {
 		if o.RDSExporter[i] != nil {
+
+			if swag.IsZero(o.RDSExporter[i]) { // not required
+				return nil
+			}
+
 			if err := o.RDSExporter[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "rds_exporter" + "." + strconv.Itoa(i))
@@ -1083,6 +1299,11 @@ func (o *ListAgentsOKBody) contextValidateRDSExporter(ctx context.Context, forma
 func (o *ListAgentsOKBody) contextValidateAzureDatabaseExporter(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.AzureDatabaseExporter); i++ {
 		if o.AzureDatabaseExporter[i] != nil {
+
+			if swag.IsZero(o.AzureDatabaseExporter[i]) { // not required
+				return nil
+			}
+
 			if err := o.AzureDatabaseExporter[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "azure_database_exporter" + "." + strconv.Itoa(i))
@@ -1150,7 +1371,7 @@ type ListAgentsOKBodyAzureDatabaseExporterItems0 struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -1165,7 +1386,7 @@ type ListAgentsOKBodyAzureDatabaseExporterItems0 struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// metrics resolutions
@@ -1343,6 +1564,11 @@ func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) ContextValidate(ctx contex
 
 func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("metrics_resolutions")
@@ -1508,6 +1734,11 @@ func (o *ListAgentsOKBodyExternalExporterItems0) ContextValidate(ctx context.Con
 
 func (o *ListAgentsOKBodyExternalExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("metrics_resolutions")
@@ -1626,7 +1857,7 @@ type ListAgentsOKBodyMongodbExporterItems0 struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -1648,7 +1879,7 @@ type ListAgentsOKBodyMongodbExporterItems0 struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Optionally expose the exporter process on all public interfaces
@@ -1829,6 +2060,11 @@ func (o *ListAgentsOKBodyMongodbExporterItems0) ContextValidate(ctx context.Cont
 
 func (o *ListAgentsOKBodyMongodbExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("metrics_resolutions")
@@ -1964,7 +2200,7 @@ type ListAgentsOKBodyMysqldExporterItems0 struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -1979,7 +2215,7 @@ type ListAgentsOKBodyMysqldExporterItems0 struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Optionally expose the exporter process on all public interfaces
@@ -2160,6 +2396,11 @@ func (o *ListAgentsOKBodyMysqldExporterItems0) ContextValidate(ctx context.Conte
 
 func (o *ListAgentsOKBodyMysqldExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("metrics_resolutions")
@@ -2266,7 +2507,7 @@ type ListAgentsOKBodyNodeExporterItems0 struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -2278,7 +2519,7 @@ type ListAgentsOKBodyNodeExporterItems0 struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Optionally expose the exporter process on all public interfaces
@@ -2459,6 +2700,11 @@ func (o *ListAgentsOKBodyNodeExporterItems0) ContextValidate(ctx context.Context
 
 func (o *ListAgentsOKBodyNodeExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("metrics_resolutions")
@@ -2626,7 +2872,7 @@ type ListAgentsOKBodyPostgresExporterItems0 struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -2638,7 +2884,7 @@ type ListAgentsOKBodyPostgresExporterItems0 struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Limit of databases for auto-discovery.
@@ -2825,6 +3071,11 @@ func (o *ListAgentsOKBodyPostgresExporterItems0) ContextValidate(ctx context.Con
 
 func (o *ListAgentsOKBodyPostgresExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("metrics_resolutions")
@@ -2943,7 +3194,7 @@ type ListAgentsOKBodyProxysqlExporterItems0 struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -2955,7 +3206,7 @@ type ListAgentsOKBodyProxysqlExporterItems0 struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Optionally expose the exporter process on all public interfaces
@@ -3136,6 +3387,11 @@ func (o *ListAgentsOKBodyProxysqlExporterItems0) ContextValidate(ctx context.Con
 
 func (o *ListAgentsOKBodyProxysqlExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("metrics_resolutions")
@@ -3251,7 +3507,7 @@ type ListAgentsOKBodyQANMongodbProfilerAgentItems0 struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -3260,7 +3516,7 @@ type ListAgentsOKBodyQANMongodbProfilerAgentItems0 struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -3475,7 +3731,7 @@ type ListAgentsOKBodyQANMysqlPerfschemaAgentItems0 struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -3484,7 +3740,7 @@ type ListAgentsOKBodyQANMysqlPerfschemaAgentItems0 struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -3702,7 +3958,7 @@ type ListAgentsOKBodyQANMysqlSlowlogAgentItems0 struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// mod tidy
@@ -3711,7 +3967,7 @@ type ListAgentsOKBodyQANMysqlSlowlogAgentItems0 struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -3914,7 +4170,7 @@ type ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0 struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -3923,7 +4179,7 @@ type ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0 struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -4129,7 +4385,7 @@ type ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0 struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -4138,7 +4394,7 @@ type ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0 struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -4329,7 +4585,7 @@ type ListAgentsOKBodyRDSExporterItems0 struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -4350,7 +4606,7 @@ type ListAgentsOKBodyRDSExporterItems0 struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Limit of databases for auto-discovery.
@@ -4531,6 +4787,11 @@ func (o *ListAgentsOKBodyRDSExporterItems0) ContextValidate(ctx context.Context,
 
 func (o *ListAgentsOKBodyRDSExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("metrics_resolutions")
@@ -4627,7 +4888,7 @@ type ListAgentsOKBodyVMAgentItems0 struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
