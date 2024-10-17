@@ -1094,6 +1094,18 @@ type GetMetricsOKBodySparklineItems0 struct {
 	// Total number of shared blocks written by the statement.
 	MSharedBlksWrittenSumPerSec float32 `json:"m_shared_blks_written_sum_per_sec,omitempty"`
 
+	// Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+	MSharedBlkReadTimeSumPerSec float32 `json:"m_shared_blk_read_time_sum_per_sec,omitempty"`
+
+	// Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+	MSharedBlkWriteTimeSumPerSec float32 `json:"m_shared_blk_write_time_sum_per_sec,omitempty"`
+
+	// Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+	MLocalBlkReadTimeSumPerSec float32 `json:"m_local_blk_read_time_sum_per_sec,omitempty"`
+
+	// Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+	MLocalBlkWriteTimeSumPerSec float32 `json:"m_local_blk_write_time_sum_per_sec,omitempty"`
+
 	// Total number of local block cache hits by the statement.
 	MLocalBlksHitSumPerSec float32 `json:"m_local_blks_hit_sum_per_sec,omitempty"`
 
@@ -1117,18 +1129,6 @@ type GetMetricsOKBodySparklineItems0 struct {
 
 	// Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
 	MBlkWriteTimeSumPerSec float32 `json:"m_blk_write_time_sum_per_sec,omitempty"`
-
-	// Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-	MSharedBlkReadTimeSumPerSec float32 `json:"m_shared_blk_read_time_sum_per_sec,omitempty"`
-
-	// Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-	MSharedBlkWriteTimeSumPerSec float32 `json:"m_shared_blk_write_time_sum_per_sec,omitempty"`
-
-	// Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-	MLocalBlkReadTimeSumPerSec float32 `json:"m_local_blk_read_time_sum_per_sec,omitempty"`
-
-	// Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-	MLocalBlkWriteTimeSumPerSec float32 `json:"m_local_blk_write_time_sum_per_sec,omitempty"`
 
 	// Total time user spent in query.
 	MCPUUserTimeSumPerSec float32 `json:"m_cpu_user_time_sum_per_sec,omitempty"`

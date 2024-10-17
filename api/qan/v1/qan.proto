@@ -1,25 +1,14 @@
 syntax = "proto3";
 
-package qan.v1beta1;
-
-option go_package = "api/qanpb;qanpb";
-
-// ExampleFormat is format of query example: real or query without values.
-//
-// Deprecated: is not used, should not be used, should be removed.
-enum ExampleFormat {
-  EXAMPLE_FORMAT_INVALID = 0 [deprecated = true];
-  EXAMPLE = 1 [deprecated = true];
-  FINGERPRINT = 2 [deprecated = true];
-}
+package qan.v1;
 
 // ExampleType is a type of query example selected for this query class in given period of time.
 enum ExampleType {
-  EXAMPLE_TYPE_INVALID = 0;
-  RANDOM = 1;
-  SLOWEST = 2;
-  FASTEST = 3;
-  WITH_ERROR = 4;
+  EXAMPLE_TYPE_UNSPECIFIED = 0;
+  EXAMPLE_TYPE_RANDOM = 1;
+  EXAMPLE_TYPE_SLOWEST = 2;
+  EXAMPLE_TYPE_FASTEST = 3;
+  EXAMPLE_TYPE_WITH_ERROR = 4;
 }
 
 // Point contains values that represents abscissa (time) and ordinate (volume etc.)
@@ -32,144 +21,152 @@ message Point {
   // Time of point in format RFC3339.
   string timestamp = 3;
   // load is query_time / time_range.
-  float load = 53;
+  float load = 4;
   // number of queries in bucket.
-  float num_queries_per_sec = 4;
+  float num_queries_per_sec = 5;
   // number of queries with errors.
-  float num_queries_with_errors_per_sec = 54;
+  float num_queries_with_errors_per_sec = 6;
   // number of queries with warnings.
-  float num_queries_with_warnings_per_sec = 55;
+  float num_queries_with_warnings_per_sec = 7;
   // The statement execution time in seconds.
-  float m_query_time_sum_per_sec = 5;
+  float m_query_time_sum_per_sec = 8;
   // The time to acquire locks in seconds.
-  float m_lock_time_sum_per_sec = 6;
+  float m_lock_time_sum_per_sec = 9;
   // The number of rows sent to the client.
-  float m_rows_sent_sum_per_sec = 7;
+  float m_rows_sent_sum_per_sec = 10;
   // Number of rows scanned - SELECT.
-  float m_rows_examined_sum_per_sec = 8;
+  float m_rows_examined_sum_per_sec = 11;
   // Number of rows changed - UPDATE, DELETE, INSERT.
-  float m_rows_affected_sum_per_sec = 9;
+  float m_rows_affected_sum_per_sec = 12;
   // The number of rows read from tables.
-  float m_rows_read_sum_per_sec = 10;
+  float m_rows_read_sum_per_sec = 13;
   // The number of merge passes that the sort algorithm has had to do.
-  float m_merge_passes_sum_per_sec = 11;
+  float m_merge_passes_sum_per_sec = 14;
   // Counts the number of page read operations scheduled.
-  float m_innodb_io_r_ops_sum_per_sec = 12;
+  float m_innodb_io_r_ops_sum_per_sec = 15;
   // Similar to innodb_IO_r_ops, but the unit is bytes.
-  float m_innodb_io_r_bytes_sum_per_sec = 13;
+  float m_innodb_io_r_bytes_sum_per_sec = 16;
   // Shows how long (in seconds) it took InnoDB to actually read the data from storage.
-  float m_innodb_io_r_wait_sum_per_sec = 14;
+  float m_innodb_io_r_wait_sum_per_sec = 17;
   // Shows how long (in seconds) the query waited for row locks.
-  float m_innodb_rec_lock_wait_sum_per_sec = 15;
+  float m_innodb_rec_lock_wait_sum_per_sec = 18;
   // Shows how long (in seconds) the query spent either waiting to enter the InnoDB queue or inside that queue waiting for execution.
-  float m_innodb_queue_wait_sum_per_sec = 16;
+  float m_innodb_queue_wait_sum_per_sec = 19;
   // Counts approximately the number of unique pages the query accessed.
-  float m_innodb_pages_distinct_sum_per_sec = 17;
+  float m_innodb_pages_distinct_sum_per_sec = 20;
   // Shows how long the query is.
-  float m_query_length_sum_per_sec = 18;
+  float m_query_length_sum_per_sec = 21;
   // The number of bytes sent to all clients.
-  float m_bytes_sent_sum_per_sec = 19;
+  float m_bytes_sent_sum_per_sec = 22;
   // Number of temporary tables created on memory for the query.
-  float m_tmp_tables_sum_per_sec = 20;
+  float m_tmp_tables_sum_per_sec = 23;
   // Number of temporary tables created on disk for the query.
-  float m_tmp_disk_tables_sum_per_sec = 21;
+  float m_tmp_disk_tables_sum_per_sec = 24;
   // Total Size in bytes for all temporary tables used in the query.
-  float m_tmp_table_sizes_sum_per_sec = 22;
+  float m_tmp_table_sizes_sum_per_sec = 25;
+
   //
   // Boolean metrics:
   // - *_sum_per_sec - how many times this matric was true.
   //
+
   // Query Cache hits.
-  float m_qc_hit_sum_per_sec = 23;
+  float m_qc_hit_sum_per_sec = 30;
   // The query performed a full table scan.
-  float m_full_scan_sum_per_sec = 24;
+  float m_full_scan_sum_per_sec = 31;
   // The query performed a full join (a join without indexes).
-  float m_full_join_sum_per_sec = 25;
+  float m_full_join_sum_per_sec = 32;
   // The query created an implicit internal temporary table.
-  float m_tmp_table_sum_per_sec = 26;
+  float m_tmp_table_sum_per_sec = 33;
   // The querys temporary table was stored on disk.
-  float m_tmp_table_on_disk_sum_per_sec = 27;
+  float m_tmp_table_on_disk_sum_per_sec = 34;
   // The query used a filesort.
-  float m_filesort_sum_per_sec = 28;
+  float m_filesort_sum_per_sec = 35;
   // The filesort was performed on disk.
-  float m_filesort_on_disk_sum_per_sec = 29;
+  float m_filesort_on_disk_sum_per_sec = 36;
   // The number of joins that used a range search on a reference table.
-  float m_select_full_range_join_sum_per_sec = 30;
+  float m_select_full_range_join_sum_per_sec = 37;
   // The number of joins that used ranges on the first table.
-  float m_select_range_sum_per_sec = 31;
+  float m_select_range_sum_per_sec = 38;
   // The number of joins without keys that check for key usage after each row.
-  float m_select_range_check_sum_per_sec = 32;
+  float m_select_range_check_sum_per_sec = 39;
   // The number of sorts that were done using ranges.
-  float m_sort_range_sum_per_sec = 33;
+  float m_sort_range_sum_per_sec = 40;
   // The number of sorted rows.
-  float m_sort_rows_sum_per_sec = 34;
+  float m_sort_rows_sum_per_sec = 41;
   // The number of sorts that were done by scanning the table.
-  float m_sort_scan_sum_per_sec = 35;
+  float m_sort_scan_sum_per_sec = 42;
   // The number of queries without index.
-  float m_no_index_used_sum_per_sec = 36;
+  float m_no_index_used_sum_per_sec = 43;
   // The number of queries without good index.
-  float m_no_good_index_used_sum_per_sec = 37;
+  float m_no_good_index_used_sum_per_sec = 44;
+
   //
   // MongoDB metrics.
   //
+
   // The number of returned documents.
-  float m_docs_returned_sum_per_sec = 38;
+  float m_docs_returned_sum_per_sec = 50;
   // The response length of the query result in bytes.
-  float m_response_length_sum_per_sec = 39;
+  float m_response_length_sum_per_sec = 51;
   // The number of scanned documents.
-  float m_docs_scanned_sum_per_sec = 40;
+  float m_docs_scanned_sum_per_sec = 52;
+
   //
   // PostgreSQL metrics.
   //
+
   // Total number of shared block cache hits by the statement.
-  float m_shared_blks_hit_sum_per_sec = 41;
+  float m_shared_blks_hit_sum_per_sec = 60;
   // Total number of shared blocks read by the statement.
-  float m_shared_blks_read_sum_per_sec = 42;
+  float m_shared_blks_read_sum_per_sec = 61;
   // Total number of shared blocks dirtied by the statement.
-  float m_shared_blks_dirtied_sum_per_sec = 43;
+  float m_shared_blks_dirtied_sum_per_sec = 62;
   // Total number of shared blocks written by the statement.
-  float m_shared_blks_written_sum_per_sec = 44;
+  float m_shared_blks_written_sum_per_sec = 63;
+  // Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_shared_blk_read_time_sum_per_sec = 64;
+  // Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_shared_blk_write_time_sum_per_sec = 65;
+  // Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_local_blk_read_time_sum_per_sec = 66;
+  // Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_local_blk_write_time_sum_per_sec = 67;
   // Total number of local block cache hits by the statement.
-  float m_local_blks_hit_sum_per_sec = 45;
+  float m_local_blks_hit_sum_per_sec = 68;
   // Total number of local blocks read by the statement.
-  float m_local_blks_read_sum_per_sec = 46;
+  float m_local_blks_read_sum_per_sec = 69;
   // Total number of local blocks dirtied by the statement.
-  float m_local_blks_dirtied_sum_per_sec = 47;
+  float m_local_blks_dirtied_sum_per_sec = 70;
   // Total number of local blocks written by the statement.
-  float m_local_blks_written_sum_per_sec = 48;
+  float m_local_blks_written_sum_per_sec = 71;
   // Total number of temp blocks read by the statement.
-  float m_temp_blks_read_sum_per_sec = 49;
+  float m_temp_blks_read_sum_per_sec = 72;
   // Total number of temp blocks written by the statement.
-  float m_temp_blks_written_sum_per_sec = 50;
+  float m_temp_blks_written_sum_per_sec = 73;
   // Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-  float m_blk_read_time_sum_per_sec = 51 [deprecated = true];
+  float m_blk_read_time_sum_per_sec = 74;
   // Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-  float m_blk_write_time_sum_per_sec = 52 [deprecated = true];
-  // Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-  float m_shared_blk_read_time_sum_per_sec = 63;
-  // Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-  float m_shared_blk_write_time_sum_per_sec = 64;
-  // Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-  float m_local_blk_read_time_sum_per_sec = 65;
-  // Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-  float m_local_blk_write_time_sum_per_sec = 66;
+  float m_blk_write_time_sum_per_sec = 75;
   // Total time user spent in query.
-  float m_cpu_user_time_sum_per_sec = 56;
+  float m_cpu_user_time_sum_per_sec = 76;
   // Total time system spent in query.
-  float m_cpu_sys_time_sum_per_sec = 57;
+  float m_cpu_sys_time_sum_per_sec = 77;
+
   //
   // pg_stat_monitor 0.9 metrics
   //
+
   // Total number of planned calls.
-  float m_plans_calls_sum_per_sec = 58;
+  float m_plans_calls_sum_per_sec = 80;
   // Total number of WAL (Write-ahead logging) records.
-  float m_wal_records_sum_per_sec = 59;
+  float m_wal_records_sum_per_sec = 81;
   // Total number of FPI (full page images) in WAL (Write-ahead logging) records.
-  float m_wal_fpi_sum_per_sec = 60;
+  float m_wal_fpi_sum_per_sec = 82;
   // Total bytes of WAL (Write-ahead logging) records.
-  float m_wal_bytes_sum_per_sec = 61;
+  float m_wal_bytes_sum_per_sec = 83;
   // Plan time in per seconds.
-  float m_plan_time_sum_per_sec = 62;
+  float m_plan_time_sum_per_sec = 84;
 }
 
 // MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
