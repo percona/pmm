@@ -14,6 +14,8 @@
 
 package perfschema
 
+import "gopkg.in/reform.v1/parse"
+
 //go:generate ../../../../bin/reform
 
 // eventsStatementsSummaryByDigest represents a row in performance_schema.events_statements_summary_by_digest table.
@@ -120,4 +122,21 @@ type setupInstruments struct {
 	Name    string  `reform:"NAME"`
 	Enabled string  `reform:"ENABLED"`
 	Timed   *string `reform:"TIMED"` // nullable in 8.0
+}
+
+// eventsStatementsHistoryView represents events_statements_history view or table in SQL database.
+var eventsStatementsHistoryLongView = &eventsStatementsHistoryViewType{
+	s: parse.StructInfo{
+		Type:      "eventsStatementsHistory",
+		SQLSchema: "performance_schema",
+		SQLName:   "events_statements_history_long",
+		Fields: []parse.FieldInfo{
+			{Name: "SQLText", Type: "*string", Column: "SQL_TEXT"},
+			{Name: "Digest", Type: "*string", Column: "DIGEST"},
+			{Name: "DigestText", Type: "*string", Column: "DIGEST_TEXT"},
+			{Name: "CurrentSchema", Type: "*string", Column: "CURRENT_SCHEMA"},
+		},
+		PKFieldIndex: -1,
+	},
+	z: new(eventsStatementsHistory).Values(),
 }

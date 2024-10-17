@@ -290,10 +290,16 @@ func TestMongoDBExplain(t *testing.T) {
 		switch {
 		case mongoDBVersion.Major < 5:
 			want["plannerVersion"] = map[string]interface{}{"$numberInt": "1"}
-		default:
+		case mongoDBVersion.Major < 8:
 			want["maxIndexedAndSolutionsReached"] = false
 			want["maxIndexedOrSolutionsReached"] = false
 			want["maxScansToExplodeReached"] = false
+		case mongoDBVersion.Major == 8:
+			want["maxIndexedAndSolutionsReached"] = false
+			want["maxIndexedOrSolutionsReached"] = false
+			want["maxScansToExplodeReached"] = false
+			want["optimizationTimeMillis"] = map[string]interface{}{"$numberInt": "0"}
+			want["winningPlan"] = map[string]interface{}{"stage": "EOF", "isCached": false}
 		}
 
 		explainM := make(map[string]interface{})
