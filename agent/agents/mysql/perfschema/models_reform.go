@@ -349,6 +349,23 @@ var eventsStatementsHistoryView = &eventsStatementsHistoryViewType{
 	z: new(eventsStatementsHistory).Values(),
 }
 
+// eventsStatementsHistoryView represents events_statements_history view or table in SQL database.
+var eventsStatementsHistoryLongView = &eventsStatementsHistoryViewType{
+	s: parse.StructInfo{
+		Type:      "eventsStatementsHistory",
+		SQLSchema: "performance_schema",
+		SQLName:   "events_statements_history_long",
+		Fields: []parse.FieldInfo{
+			{Name: "SQLText", Type: "*string", Column: "SQL_TEXT"},
+			{Name: "Digest", Type: "*string", Column: "DIGEST"},
+			{Name: "DigestText", Type: "*string", Column: "DIGEST_TEXT"},
+			{Name: "CurrentSchema", Type: "*string", Column: "CURRENT_SCHEMA"},
+		},
+		PKFieldIndex: -1,
+	},
+	z: new(eventsStatementsHistory).Values(),
+}
+
 // String returns a string representation of this struct or record.
 func (s eventsStatementsHistory) String() string {
 	res := make([]string, 4)
