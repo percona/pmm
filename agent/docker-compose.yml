@@ -50,7 +50,7 @@ services:
   mongo:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     container_name: pmm-agent_mongo
-    command: --profile=2 -bind_ip=0.0.0.0
+    command: --profile=2
     ports:
       - "127.0.0.1:27017:27017"
     environment:
