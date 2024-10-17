@@ -300,6 +300,7 @@ func TestMongoDBExplain(t *testing.T) {
 			want["maxScansToExplodeReached"] = false
 			want["optimizationTimeMillis"] = map[string]interface{}{"$numberInt": "0"}
 			want["winningPlan"] = map[string]interface{}{"stage": "EOF", "isCached": false}
+			want["prunedSimilarIndexes"] = false
 		}
 
 		explainM := make(map[string]interface{})

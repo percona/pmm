@@ -49,9 +49,9 @@ jobs:
           # - MYSQL_IMAGE=mariadb:10.0
           # - MYSQL_IMAGE=mariadb:10.1
 
-          - { mysql: 'mariadb:11.2', mongo: 'mongo:4.4',                          postgres: 'postgres:10', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
-          - { mysql: 'mariadb:11.4', mongo: 'percona/percona-server-mongodb:4.4', postgres: 'postgres:11', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
-          - { mysql: 'mariadb:11.5',                                              postgres: 'postgres:12', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mariadb:11.2', mongo: 'mongo:4.4',                          postgres: 'postgres:12', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mariadb:11.4', mongo: 'percona/percona-server-mongodb:4.4', postgres: 'perconalab/percona-distribution-postgresql:13', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mariadb:11.5',                                              postgres: 'postgres:13', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
 
     continue-on-error: true
 
