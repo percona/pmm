@@ -201,6 +201,15 @@ func setup(t *testing.T, sp *setupParams) *PerfSchema {
 
 // filter removes buckets for queries that are not expected by tests.
 func filter(mb []*agentv1.MetricsBucket) []*agentv1.MetricsBucket {
+	filterList := map[string]struct{}{
+		"ANALYZE TABLE `city`":                            {}, // OpenTestMySQL
+		"SHOW GLOBAL VARIABLES WHERE `Variable_name` = ?": {}, // MySQLVersion
+		"SHOW VARIABLES LIKE ?":                           {}, // MariaDBVersion
+		"SELECT `id` FROM `city` LIMIT ?":                 {}, // waitForFixtures
+		"SELECT ID FROM `city` LIMIT ?":                   {}, // waitForFixtures for MariaDB
+		"SELECT COUNT ( * ) FROM `city`":                  {}, // actions tests
+		"CREATE TABLE IF NOT EXISTS `t1` ( `col1` CHARACTER (?) ) CHARACTER SET `utf8mb4` COLLATE `utf8mb4_general_ci`": {}, // tests for invalid characters
+	}
 	res := make([]*agentv1.MetricsBucket, 0, len(mb))
 	for _, b := range mb {
 		switch {
@@ -215,23 +224,12 @@ func filter(mb []*agentv1.MetricsBucket) []*agentv1.MetricsBucket {
 			continue
 		case strings.Contains(b.Common.Example, "/* pmm-agent-tests:waitForFixtures */"):
 			continue
-		}
-
-		switch {
-		case b.Common.Fingerprint == "ANALYZE TABLE `city`": // OpenTestMySQL
-			continue
-		case b.Common.Fingerprint == "SHOW GLOBAL VARIABLES WHERE `Variable_name` = ?": // MySQLVersion
-			continue
-		case b.Common.Fingerprint == "SELECT `id` FROM `city` LIMIT ?": // waitForFixtures
-			continue
-		case b.Common.Fingerprint == "SELECT ID FROM `city` LIMIT ?": // waitForFixtures for MariaDB
-			continue
-		case b.Common.Fingerprint == "SELECT COUNT ( * ) FROM `city`": // actions tests
-			continue
-		case b.Common.Fingerprint == "CREATE TABLE IF NOT EXISTS `t1` ( `col1` CHARACTER (?) ) CHARACTER SET `utf8mb4` COLLATE `utf8mb4_general_ci`": // tests for invalid characters
-			continue
-
+		case strings.Contains(b.Common.Example, "/* events_statements_history */"):
 		case strings.HasPrefix(b.Common.Fingerprint, "SELECT @@`slow_query_log"): // slowlog
+			continue
+		case strings.HasPrefix(b.Common.Fingerprint, "TRUNCATE"): // OpenTestMySQL
+		}
+		if _, ok := filterList[b.Common.Fingerprint]; ok {
 			continue
 		}
 
@@ -433,9 +431,9 @@ func TestPerfSchema(t *testing.T) {
 
 		require.NoError(t, m.refreshHistoryCache())
 		var example string
-		switch mySQLVersion.String() {
+		switch {
 		// Perf schema truncates queries with non-utf8 characters.
-		case "8.0":
+		case (mySQLVendor == version.PerconaVendor || mySQLVendor == version.OracleVendor) && mySQLVersion.Float() >= 8.0:
 			example = "SELECT /* t1 controller='test' */ * FROM t1 where col1='Bu"
 		default:
 			example = "SELECT /* t1 controller='test' */ * FROM t1 where col1=..."

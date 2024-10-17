@@ -16,7 +16,6 @@ package tests
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -120,7 +119,7 @@ func OpenTestMongoDB(tb testing.TB, dsn string) *mongo.Client {
 }
 
 // MongoDBVersion returns Mongo DB version.
-func MongoDBVersion(tb testing.TB, client *mongo.Client) string {
+func MongoDBVersion(tb testing.TB, client *mongo.Client) *version.Parsed {
 	tb.Helper()
 
 	res := client.Database("admin").RunCommand(context.Background(), primitive.M{"buildInfo": 1})
@@ -137,5 +136,5 @@ func MongoDBVersion(tb testing.TB, client *mongo.Client) string {
 	if err != nil {
 		tb.Fatalf("Cannot parse version: %s", err)
 	}
-	return fmt.Sprintf("%d.%d", parsed.Major, parsed.Minor)
+	return parsed
 }

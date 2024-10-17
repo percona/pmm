@@ -243,18 +243,10 @@ func testProfiler(t *testing.T, url string) {
 		}
 		mongoDBVersion := tests.MongoDBVersion(t, client)
 
-		switch mongoDBVersion {
-		case "4.4":
+		switch {
+		case mongoDBVersion.Major < 5:
 			want["plannerVersion"] = map[string]interface{}{"$numberInt": "1"}
-		case "5.0":
-			want["maxIndexedAndSolutionsReached"] = false
-			want["maxIndexedOrSolutionsReached"] = false
-			want["maxScansToExplodeReached"] = false
-		case "6.0":
-			want["maxIndexedAndSolutionsReached"] = false
-			want["maxIndexedOrSolutionsReached"] = false
-			want["maxScansToExplodeReached"] = false
-		case "7.0":
+		default:
 			want["maxIndexedAndSolutionsReached"] = false
 			want["maxIndexedOrSolutionsReached"] = false
 			want["maxScansToExplodeReached"] = false
@@ -269,8 +261,7 @@ func testProfiler(t *testing.T, url string) {
 		assert.NotEmpty(t, queryPlanner)
 
 		// Remove fields that are not present in all versions
-		switch mongoDBVersion {
-		case "6.0", "7.0":
+		if mongoDBVersion.Major >= 6 {
 			delete(queryPlanner, "planCacheKey")
 			delete(queryPlanner, "queryHash")
 		}
