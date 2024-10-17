@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -217,6 +218,13 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 	var m map[string]interface{}
 	if err = json.Unmarshal(b, &m); err != nil {
 		return nil, err
+	}
+
+	// Check if explain_result is base64 encoded and decode it
+	if explainResult, ok := m["explain_result"].(string); ok {
+		if decoded, err := base64.StdEncoding.DecodeString(explainResult); err == nil {
+			m["explain_result"] = string(decoded)
+		}
 	}
 
 	// https://dev.mysql.com/doc/refman/8.0/en/explain-extended.html

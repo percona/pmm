@@ -286,7 +286,6 @@ func TestMongoDBExplain(t *testing.T) {
 			"winningPlan":   map[string]interface{}{"stage": "EOF"},
 		}
 		mongoDBVersion := tests.MongoDBVersion(t, client)
-		fmt.Printf("MongoDB version: %s\n", mongoDBVersion)
 
 		switch {
 		case mongoDBVersion.Major < 5:
