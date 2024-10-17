@@ -16,8 +16,8 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 var addAgentQANPostgreSQLPgStatMonitorAgentResultT = commands.ParseTemplate(`
@@ -36,7 +36,7 @@ Query examples       : {{ .Agent.QueryExamplesDisabled }}
 `)
 
 type addAgentQANPostgreSQLPgStatMonitorAgentResult struct {
-	Agent *agents.AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent `json:"qan_postgresql_pgstatmonitor_agent"`
+	Agent *agents.AddAgentOKBodyQANPostgresqlPgstatmonitorAgent `json:"qan_postgresql_pgstatmonitor_agent"`
 }
 
 func (res *addAgentQANPostgreSQLPgStatMonitorAgentResult) Result() {}
@@ -94,29 +94,31 @@ func (cmd *AddAgentQANPostgreSQLPgStatMonitorAgentCommand) RunCmd() (commands.Re
 		disableCommentsParsing = false
 	}
 
-	params := &agents.AddQANPostgreSQLPgStatMonitorAgentParams{
-		Body: agents.AddQANPostgreSQLPgStatMonitorAgentBody{
-			PMMAgentID:             cmd.PMMAgentID,
-			ServiceID:              cmd.ServiceID,
-			Username:               cmd.Username,
-			Password:               cmd.Password,
-			CustomLabels:           customLabels,
-			SkipConnectionCheck:    cmd.SkipConnectionCheck,
-			DisableCommentsParsing: disableCommentsParsing,
-			MaxQueryLength:         cmd.MaxQueryLength,
-			DisableQueryExamples:   cmd.QueryExamplesDisabled,
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			QANPostgresqlPgstatmonitorAgent: &agents.AddAgentParamsBodyQANPostgresqlPgstatmonitorAgent{
+				PMMAgentID:             cmd.PMMAgentID,
+				ServiceID:              cmd.ServiceID,
+				Username:               cmd.Username,
+				Password:               cmd.Password,
+				CustomLabels:           customLabels,
+				SkipConnectionCheck:    cmd.SkipConnectionCheck,
+				DisableCommentsParsing: disableCommentsParsing,
+				MaxQueryLength:         cmd.MaxQueryLength,
+				DisableQueryExamples:   cmd.QueryExamplesDisabled,
 
-			TLS:           cmd.TLS,
-			TLSSkipVerify: cmd.TLSSkipVerify,
-			TLSCa:         tlsCa,
-			TLSCert:       tlsCert,
-			TLSKey:        tlsKey,
-			LogLevel:      &cmd.LogLevel,
+				TLS:           cmd.TLS,
+				TLSSkipVerify: cmd.TLSSkipVerify,
+				TLSCa:         tlsCa,
+				TLSCert:       tlsCert,
+				TLSKey:        tlsKey,
+				LogLevel:      &cmd.LogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddQANPostgreSQLPgStatMonitorAgent(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

@@ -1,0 +1,44 @@
+---
+# This role installs pmm-client.
+- name: Get the image version
+  slurp:
+    src: /usr/share/percona-dashboards/VERSION
+  register: image_version_file
+
+- name: Set the PMM image version
+  set_fact:
+    pmm_image_version: "{{ image_version_file['content'] | b64decode | trim }}"
+
+- name: Create a temporary directory
+  file:
+    path: /tmp/pmm-client
+    state: directory
+
+- name: Unpack the tarball
+  unarchive:
+    src: /tmp/pmm-client.tar.gz
+    dest: /tmp/pmm-client
+    remote_src: true
+    extra_opts: [--strip-components=1]
+
+- name: Install the client
+  command: env PMM_USER=pmm PMM_GROUP=pmm /tmp/pmm-client/install_tarball
+
+- name: Remove the tarball
+  file:
+    path: /tmp/pmm-client.tar.gz
+    state: absent
+
+- name: Remove the temporary directory
+  file:
+    path: /tmp/pmm-client
+    state: absent
+
+- name: Create symlinks to the binaries
+  file:
+    src: /usr/local/percona/pmm/bin/{{ item }}
+    dest: /usr/sbin/{{ item }}
+    state: link
+  loop:
+    - pmm-admin
+    - pmm-agent

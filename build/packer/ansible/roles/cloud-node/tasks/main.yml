@@ -1,0 +1,182 @@
+---
+# Common things for all cloud images
+- name: Packages                   | Add EPEL repository for EL9
+  when:
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+  yum:
+    name: epel-release
+    state: installed
+
+- name: Packages                   | Install OS tools for EL9
+  when:
+    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+  yum:
+    name:
+      - screen
+      - yum-utils
+      - cloud-init
+      - firewalld
+      - python3-libselinux
+      - python3-firewall
+
+- name: Firewalld                  | Start EL9
+  when:
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+    - ansible_os_family == 'RedHat'
+  service:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: Add firewalld rule        | EL9
+  when:
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+  firewalld: port={{ item }} permanent=true state=enabled immediate=yes
+  with_items:
+    - 80/tcp
+    - 443/tcp
+
+- name: cleanup cache              | Cleanup cache
+  file: path={{ item }} state=absent
+  with_items:
+    - /var/lib/cloud/sem
+    - /var/lib/cloud/data
+    - /var/lib/cloud/instance
+    - /var/lib/cloud/instances
+    - /var/log/cloud-init.log
+    - /var/log/cloud-init-output.log
+
+- name: create dir                 | Create getty@.service.d directory
+  file:
+    path: /etc/systemd/system/getty@.service.d
+    state: directory
+
+- name: cloud-init                 | Disable console cleanup
+  copy:
+    content: |
+      [Service]
+      TTYVTDisallocate=no
+    dest: /etc/systemd/system/getty@.service.d/nodisallocate.conf
+    mode: 0644
+
+- name: root password              | Set root password
+  when: ansible_virtualization_type == "virtualbox"
+  user:
+    name: root
+    password: "$6$J7pGg2a7vuRTbTV5$vORqkiAKdkyomU3iYwr/SPn.yLIkGsl5ludEx5DUvGVASSTquTjOldHt/nUWrFRnJeZyzt6CIOjAcugbcfGtN1"
+
+- name: root password              | Set root password
+  when: ansible_virtualization_type == "virtualbox"
+  command: chage -d 0 root
+  changed_when: False
+
+- name: root password              | Disable root password
+  when: ansible_virtualization_type != "virtualbox"
+  command: passwd --delete root
+  changed_when: False
+
+- name: root password              | Disable root password
+  when: ansible_virtualization_type != "virtualbox"
+  command: passwd --lock root
+  changed_when: False
+
+- name: chronyd                    | Fix start-up sequence
+  replace:
+    dest: /usr/lib/systemd/system/chronyd.service
+    regexp: "After="
+    replace: 'Before=cloud-config.target\nAfter=network-online.target '
+
+- name: disable root user          | Disable root user
+  copy:
+    content: |
+      no_ssh_fingerprints: true
+      disable_root: true
+    dest: /etc/cloud/cloud.cfg.d/00_disable-root.cfg
+    mode: 0644
+
+- name: add user                   | Add admin user
+  when: create_admin == "true"
+  user:
+    name: admin
+    comment: Cloud User
+    groups: wheel,adm,systemd-journal
+    shell: /bin/bash
+
+- name: add user                   | Add sudo for admin user
+  when: create_admin == "true"
+  copy:
+    content: |
+      admin ALL=(ALL) NOPASSWD: ALL
+    dest: /etc/sudoers.d/90-admin-user
+    mode: 0440
+
+- name: change cloud user for OVF EL9      | Change cloud user
+  when:
+    - create_admin == "true"
+    - ansible_virtualization_type == "virtualbox"
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+  replace:
+    dest: /etc/cloud/cloud.cfg
+    regexp: "name: cloud-user"
+    replace: "name: admin"
+
+- name: change cloud user for AMI EL9      | Change cloud user
+  when:
+    - create_admin == "true"
+    - ansible_virtualization_type != "virtualbox"
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+  replace:
+    dest: /etc/cloud/cloud.cfg.d/00_ol-default-user.cfg
+    regexp: "name: ec2-user"
+    replace: "name: admin"
+
+- name: cloud-init configuration   | stat /etc/waagent.conf
+  stat: path=/etc/waagent.conf
+  register: waagent_conf
+
+- name: cloud-init configuration   | Enable cloud-init for Azure
+  when: waagent_conf.stat.exists
+  replace:
+    dest: /etc/waagent.conf
+    regexp: "Provisioning.UseCloudInit=n"
+    replace: "Provisioning.UseCloudInit=y"
+
+- name: Azure tweaks
+  when: waagent_conf.stat.exists
+  replace:
+    dest: /usr/lib/python2.7/site-packages/azurelinuxagent/pa/deprovision/default.py
+    regexp: "warnings, actions, deluser=deluser"
+    replace: "warnings, actions, include_once=False, deluser=deluser"
+
+- name: PMM URL file               | Add script which show PMM URL
+  copy:
+    src: show-url
+    dest: /opt/show-url
+    mode: 0755
+
+- name: PMM URL Service            | Add Service for script which show PMM URL
+  copy:
+    src: banner.service
+    dest: /etc/systemd/system/banner.service
+    mode: 0755
+
+- name: Enable PMM URL Service     | Enable PMM URL Service
+  systemd:
+    name: banner
+    state: started
+    enabled: yes
+
+- name: PMM IP in Log              | Add PMM IP in Log file
+  lineinfile:
+    line: 'IP: \4'
+    path: /etc/issue
+    create: yes
+
+- import_tasks: security.yml
+- import_tasks: ovf.yml
+- import_tasks: ami.yml

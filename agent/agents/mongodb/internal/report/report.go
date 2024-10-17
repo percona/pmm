@@ -19,13 +19,13 @@ import (
 	"sort"
 	"time"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 type Report struct {
 	StartTs time.Time                // Start time of interval, UTC
 	EndTs   time.Time                // Stop time of interval, UTC
-	Buckets []*agentpb.MetricsBucket // per-class metrics
+	Buckets []*agentv1.MetricsBucket // per-class metrics
 }
 
 func MakeReport(ctx context.Context, startTime, endTime time.Time, result *Result) *Report {
@@ -47,10 +47,10 @@ func MakeReport(ctx context.Context, startTime, endTime time.Time, result *Resul
 // Data for an interval from slow log or performance schema (pfs) parser,
 // passed to MakeReport() which transforms into a qan.Report{}.
 type Result struct {
-	Buckets []*agentpb.MetricsBucket
+	Buckets []*agentv1.MetricsBucket
 }
 
-type ByQueryTime []*agentpb.MetricsBucket
+type ByQueryTime []*agentv1.MetricsBucket
 
 func (a ByQueryTime) Len() int      { return len(a) }
 func (a ByQueryTime) Swap(i, j int) { a[i], a[j] = a[j], a[i] }

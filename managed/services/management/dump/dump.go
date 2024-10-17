@@ -36,7 +36,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	dumpv1beta1 "github.com/percona/pmm/api/managementpb/dump"
+	dumpv1beta1 "github.com/percona/pmm/api/dump/v1beta1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/dump"
 	"github.com/percona/pmm/managed/services/grafana"
@@ -50,7 +50,7 @@ type Service struct {
 	dumpService   dumpService
 	grafanaClient *grafana.Client
 
-	dumpv1beta1.UnimplementedDumpsServer
+	dumpv1beta1.UnimplementedDumpServiceServer
 }
 
 // New creates a new instance of the Service with the provided dependencies.
@@ -76,7 +76,7 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 	// pmm-dump supports user/pass authentication, API token or cookie.
 	var token, cookie, user, password string
 	if len(authHeader) != 0 {
-		// If auth header type is `Basic` try to extract user and password.
+		// If auth header type is `Basic`, try to extract the user and password.
 		if basic, ok := strings.CutPrefix(authHeader[0], "Basic"); ok {
 			decodedBasic, err := base64.StdEncoding.DecodeString(strings.TrimSpace(basic))
 			if err != nil {
@@ -90,7 +90,7 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 			user, password = s[0], s[1]
 		}
 
-		// If auth header type is `Basic` try to extract token.
+		// If auth header type is `Bearer`, try to extract the token.
 		if bearer, ok := strings.CutPrefix(authHeader[0], "Bearer"); ok {
 			token = strings.TrimSpace(bearer)
 		}
@@ -100,7 +100,8 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 	if len(cookieHeader) != 0 {
 		cookies := strings.Split(cookieHeader[0], ";")
 		for _, c := range cookies {
-			if auth, ok := strings.CutPrefix(strings.TrimSpace(c), "grafana_session="); ok {
+			// The name of the cookie is defined in `./build/ansible/roles/grafana/files/grafana.ini`.
+			if auth, ok := strings.CutPrefix(strings.TrimSpace(c), "pmm_session="); ok {
 				cookie = auth
 			}
 		}
@@ -174,7 +175,7 @@ func (s *Service) DeleteDump(_ context.Context, req *dumpv1beta1.DeleteDumpReque
 }
 
 // GetDumpLogs retrieves dump logs based on the provided context and request.
-func (s *Service) GetDumpLogs(_ context.Context, req *dumpv1beta1.GetLogsRequest) (*dumpv1beta1.GetLogsResponse, error) {
+func (s *Service) GetDumpLogs(_ context.Context, req *dumpv1beta1.GetDumpLogsRequest) (*dumpv1beta1.GetDumpLogsResponse, error) {
 	filter := models.DumpLogsFilter{
 		DumpID: req.DumpId,
 		Offset: int(req.Offset),
@@ -188,7 +189,7 @@ func (s *Service) GetDumpLogs(_ context.Context, req *dumpv1beta1.GetLogsRequest
 		return nil, err
 	}
 
-	res := &dumpv1beta1.GetLogsResponse{
+	res := &dumpv1beta1.GetDumpLogsResponse{
 		Logs: make([]*dumpv1beta1.LogChunk, 0, len(dumpLogs)),
 	}
 	for _, log := range dumpLogs {
@@ -310,6 +311,6 @@ func convertDumpStatus(status models.DumpStatus) (dumpv1beta1.DumpStatus, error)
 	case models.DumpStatusInProgress:
 		return dumpv1beta1.DumpStatus_DUMP_STATUS_IN_PROGRESS, nil
 	default:
-		return dumpv1beta1.DumpStatus_DUMP_STATUS_INVALID, errors.Errorf("invalid status '%s'", status)
+		return dumpv1beta1.DumpStatus_DUMP_STATUS_UNSPECIFIED, errors.Errorf("invalid status '%s'", status)
 	}
 }

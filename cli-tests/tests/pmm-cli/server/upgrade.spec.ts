@@ -4,7 +4,7 @@ import { verifyPmmServerProperties } from '@helpers/customAssertions';
 import { runOldPmmServer } from '@helpers/containers';
 
 const defaultAdminPassword = 'admin';
-const defaultServImage = 'percona/pmm-server:2';
+const defaultServImage = 'perconalab/pmm-server:3-dev-latest';
 const defaultVolumeName = 'pmm-data';
 
 test.describe.configure({ mode: 'parallel' });

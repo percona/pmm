@@ -23,8 +23,8 @@ import (
 	"github.com/prometheus/common/model"
 	"gopkg.in/yaml.v3"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
@@ -66,7 +66,7 @@ func mergeLabels(node *models.Node, agent *models.Agent) (model.LabelSet, error)
 }
 
 // rdsExporterConfig returns desired configuration of rds_exporter process.
-func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMode, pmmAgentVersion *version.Parsed) (*agentpb.SetStateRequest_AgentProcess, error) {
+func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMode, pmmAgentVersion *version.Parsed) (*agentv1.SetStateRequest_AgentProcess, error) {
 	config := rdsExporterConfigFile{
 		Instances: make([]rdsInstance, 0, len(pairs)),
 	}
@@ -124,8 +124,8 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMo
 		return nil, errors.WithStack(err)
 	}
 
-	return &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_RDS_EXPORTER,
+	return &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_RDS_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,

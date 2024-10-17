@@ -31,6 +31,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/alecthomas/kingpin/v2"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
@@ -47,13 +48,13 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/encoding/protojson"
-	"gopkg.in/alecthomas/kingpin.v2"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
 	aservice "github.com/percona/pmm/qan-api2/services/analytics"
 	rservice "github.com/percona/pmm/qan-api2/services/receiver"
 	"github.com/percona/pmm/qan-api2/utils/interceptors"
+	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
@@ -61,7 +62,7 @@ import (
 
 const (
 	shutdownTimeout = 3 * time.Second
-	defaultDsnF     = "clickhouse://%s?database=%s&block_size=%s&pool_size=%s"
+	defaultDsnF     = "clickhouse://%s/%s"
 	maxIdleConns    = 5
 	maxOpenConns    = 10
 )
@@ -92,16 +93,12 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 	)
 
 	aserv := aservice.NewService(rm, mm)
-	qanpb.RegisterCollectorServer(grpcServer, rservice.NewService(mbm))
-	qanpb.RegisterProfileServer(grpcServer, aserv)
-	qanpb.RegisterObjectDetailsServer(grpcServer, aserv)
-	qanpb.RegisterMetricsNamesServer(grpcServer, aserv)
-	qanpb.RegisterFiltersServer(grpcServer, aserv)
+	qanpb.RegisterCollectorServiceServer(grpcServer, rservice.NewService(mbm))
+	qanpb.RegisterQANServiceServer(grpcServer, aserv)
 	reflection.Register(grpcServer)
 
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
 		l.Debug("Reflection and channelz are enabled.")
-		reflection.Register(grpcServer)
 		channelz.RegisterChannelzServiceToServer(grpcServer)
 
 		l.Debug("RPC response latency histogram enabled.")
@@ -141,7 +138,7 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 	marshaller := &grpc_gateway.JSONPb{
 		MarshalOptions: protojson.MarshalOptions{ //nolint:exhaustivestruct
 			UseEnumNumbers:  false,
-			EmitUnpopulated: false,
+			EmitUnpopulated: true,
 			UseProtoNames:   true,
 			Indent:          "  ",
 		},
@@ -152,15 +149,12 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 
 	proxyMux := grpc_gateway.NewServeMux(
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
-	)
+		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler))
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
 	type registrar func(context.Context, *grpc_gateway.ServeMux, string, []grpc.DialOption) error
 	for _, r := range []registrar{
-		qanpb.RegisterObjectDetailsHandlerFromEndpoint,
-		qanpb.RegisterProfileHandlerFromEndpoint,
-		qanpb.RegisterMetricsNamesHandlerFromEndpoint,
-		qanpb.RegisterFiltersHandlerFromEndpoint,
+		qanpb.RegisterQANServiceHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, grpcBindF, opts); err != nil {
 			l.Panic(err)
@@ -262,12 +256,8 @@ func main() {
 	debugBindF := kingpin.Flag("listen-debug-addr", "Debug server listen address").Default("127.0.0.1:9933").String()
 	dataRetentionF := kingpin.Flag("data-retention", "QAN data Retention (in days)").Default("30").Uint()
 	dsnF := kingpin.Flag("dsn", "ClickHouse database DSN. Can be override with database/host/port options").Default(defaultDsnF).String()
-	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE").String()
-	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PERCONA_TEST_PMM_CLICKHOUSE_ADDR").String()
-	clickhouseBlockSizeF := kingpin.Flag("clickhouse-block-size", "Number of rows that can be load from table in one cycle").
-		Default("10000").Envar("PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE").String()
-	clickhousePoolSizeF := kingpin.Flag("clickhouse-pool-size", "Controls how much queries can be run simultaneously").
-		Default("2").Envar("PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE").String()
+	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PMM_CLICKHOUSE_DATABASE").String()
+	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
 
 	debugF := kingpin.Flag("debug", "Enable debug logging").Bool()
 	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug)").Bool()
@@ -295,7 +285,7 @@ func main() {
 
 	var dsn string
 	if *dsnF == defaultDsnF {
-		dsn = fmt.Sprintf(defaultDsnF, *clickhouseAddrF, *clickHouseDatabaseF, *clickhouseBlockSizeF, *clickhousePoolSizeF)
+		dsn = fmt.Sprintf(defaultDsnF, *clickhouseAddrF, *clickHouseDatabaseF)
 	} else {
 		dsn = *dsnF
 	}

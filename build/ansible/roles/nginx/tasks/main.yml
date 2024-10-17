@@ -1,0 +1,105 @@
+---
+# We already have nginx package in epel repo
+- name: Add Nginx repository
+  yum_repository:
+    name: nginx
+    description: nginx repo
+    baseurl: http://nginx.org/packages/rhel/9/$basearch/
+    gpgcheck: no
+    enabled: no
+
+- name: Create directories for nginx
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: pmm
+    group: pmm
+  loop:
+    - /usr/share/pmm-server/static/
+    - /etc/nginx/conf.d/
+    - /etc/nginx/ssl/
+
+- name: Install nginx
+  yum:
+    name: nginx
+    state: installed
+    exclude:
+      - logrotate-*
+
+- name: Add ssl-related files and scripts
+  copy:
+    src: "ssl/{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { src: ca-certs.pem, dest: /etc/nginx/ssl/ca-certs.pem, mode: "0644" }
+    - { src: certificate.conf, dest: /etc/nginx/ssl/certificate.conf, mode: "0644" }
+    - { src: dhparam.pem, dest: /etc/nginx/ssl/dhparam.pem, mode: "0644" }
+    - { src: generate-ssl-certificate, dest: /var/lib/cloud/scripts/per-boot/generate-ssl-certificate, mode: "0755" }
+    - { src: upgrade-certificate, dest: /var/lib/cloud/scripts/per-boot/upgrade-certificate, mode: "0755" }
+
+- name: Copy nginx configs
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/nginx/{{ item }}"
+    mode: 0644
+  loop:
+    - "nginx.conf"
+    - "conf.d/pmm-ssl.conf"
+    - "conf.d/pmm.conf"
+
+- name: Check if the user-provided certificate exists
+  stat:
+    path: /srv/nginx/certificate.crt
+  register: certificate_file
+
+- name: Generate SSL certificates
+  when: not certificate_file.stat.exists
+  command: /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
+
+- name: Find the default nginx config files
+  find:
+    paths: /etc/nginx
+    patterns: "*.default"
+  register: default_config
+
+- name: Remove the default nginx config files
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ default_config.files | map(attribute='path') | list }}"
+  when: default_config.files | length > 0
+
+- name: Change ownership of nginx dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+    group: pmm
+    owner: pmm
+    recurse: yes
+  loop:
+    - /var/lib/nginx
+    - /etc/nginx
+    - /srv/nginx
+
+- name: Change ownership of nginx files
+  file:
+    path: "{{ item }}"
+    state: touch
+    group: pmm
+    owner: pmm
+  loop:
+    - /run/nginx.pid
+    - /srv/logs/nginx.log
+
+- name: Check nginx configuration
+  command: nginx -t
+  changed_when: false
+
+- name: Copy local-rss.xml file
+  copy:
+    src: local-rss.xml
+    dest: /usr/share/pmm-server/static/
+    group: pmm
+    owner: pmm
+    mode: 0644

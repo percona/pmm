@@ -38,10 +38,10 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/helpers"
-	agents_info "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
-	"github.com/percona/pmm/api/inventorypb/types"
-	"github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	agents_info "github.com/percona/pmm/api/agentlocal/v1/json/client/agent_local_service"
+	"github.com/percona/pmm/api/inventory/v1/types"
+	"github.com/percona/pmm/api/server/v1/json/client"
+	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 	"github.com/percona/pmm/version"
 )
 
@@ -166,7 +166,7 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 // addServerData adds logs.zip from PMM Server to zip file.
 func addServerData(ctx context.Context, zipW *zip.Writer, usePprof bool) {
 	var buf bytes.Buffer
-	_, err := client.Default.Server.Logs(&server.LogsParams{Context: ctx, Pprof: &usePprof}, &buf)
+	_, err := client.Default.ServerService.Logs(&server.LogsParams{Context: ctx, Pprof: &usePprof}, &buf)
 	if err != nil {
 		logrus.Errorf("%s", err)
 		return
