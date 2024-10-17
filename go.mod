@@ -66,8 +66,8 @@ require (
 	github.com/pkg/sftp v1.13.6
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2
 	github.com/prometheus/alertmanager v0.27.0
-	github.com/prometheus/client_golang v1.19.1
-	github.com/prometheus/common v0.55.0
+	github.com/prometheus/client_golang v1.20.4
+	github.com/prometheus/common v0.60.0
 	github.com/ramr/go-reaper v0.2.1
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.9.3
@@ -209,7 +209,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.17.7 // indirect
+	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
@@ -256,7 +256,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.28.0 // indirect
 	golang.org/x/mod v0.21.0 // indirect
 	golang.org/x/net v0.30.0 // indirect
-	golang.org/x/oauth2 v0.22.0 // indirect
+	golang.org/x/oauth2 v0.23.0 // indirect
 	golang.org/x/term v0.25.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gotest.tools/v3 v3.3.0 // indirect
