@@ -58,7 +58,7 @@
         name: pmm-managed
         state: absent
 
-    - name: Stop supervisord service for docker
+    - name: Stop supervisord service
       command: supervisorctl shutdown
       become: true
       become_user: pmm
@@ -106,7 +106,7 @@
     # This is due to the way OverlayFS and kernel works. More info https://github.com/moby/moby/issues/25409
     # This step ensures the directory is empty on startup and the contents are recreated.
     # This is not an issue if the folder is in a volume or mounted from the host OS.
-    - name: Recreate /srv/victoriametrics folder
+    - name: Recreate '/srv/victoriametrics' directory
       file:
         state: "{{ item }}"
         path: /srv/victoriametrics
