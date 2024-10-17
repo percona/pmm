@@ -35,6 +35,7 @@ import (
 func TestUpdater(t *testing.T) {
 	gRPCMessageMaxSize := uint32(100 * 1024 * 1024)
 	watchtowerURL, _ := url.Parse("http://watchtower:8080")
+	const tmpDistributionFile = "/tmp/distribution"
 
 	t.Run("TestNextVersion", func(t *testing.T) {
 		type args struct {
@@ -291,5 +292,27 @@ func TestUpdater(t *testing.T) {
 		assert.Equal(t, "2.41.1", latest.Version.String())
 		assert.Equal(t, "2.41.1", latest.DockerImage)
 		assert.Equal(t, time.Date(2024, 3, 20, 15, 48, 7, 145620000, time.UTC), latest.BuildTime)
+	})
+
+	t.Run("TestUpdateEnvFile", func(t *testing.T) {
+		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
+		tmpFile := filepath.Join(os.TempDir(), "pmm-service.env")
+		content := `PMM_WATCHTOWER_HOST=http://watchtower:8080
+PMM_WATCHTOWER_TOKEN=123
+PMM_SERVER_UPDATE_VERSION=docker.io/perconalab/pmm-server:3-dev-container
+PMM_IMAGE=docker.io/perconalab/pmm-server:3-dev-latest
+PMM_DISTRIBUTION_METHOD=ami`
+		err := os.WriteFile(tmpFile, []byte(content), 0o644)
+		require.NoError(t, err)
+
+		err = u.updatePodmanEnvironmentVariables(tmpFile, "perconalab/pmm-server:3-dev-container")
+		require.NoError(t, err)
+		newContent, err := os.ReadFile(tmpFile)
+		require.NoError(t, err)
+		assert.Equal(t, `PMM_WATCHTOWER_HOST=http://watchtower:8080
+PMM_WATCHTOWER_TOKEN=123
+PMM_SERVER_UPDATE_VERSION=docker.io/perconalab/pmm-server:3-dev-container
+PMM_IMAGE=docker.io/perconalab/pmm-server:3-dev-container
+PMM_DISTRIBUTION_METHOD=ami`, string(newContent))
 	})
 }
