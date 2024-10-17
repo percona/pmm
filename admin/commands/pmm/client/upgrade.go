@@ -23,16 +23,16 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/client"
 	"github.com/percona/pmm/admin/pkg/client/tarball"
 	"github.com/percona/pmm/admin/pkg/common"
+	"github.com/percona/pmm/admin/pkg/flags"
 )
 
 // UpgradeCommand is used by Kong for CLI flags and commands.
 type UpgradeCommand struct {
-	Distribution string `enum:"autodetect,package-manager,tarball,docker" default:"autodetect" help:"Type of PMM Client distribution. One of: autodetect,package-manager,tarball,docker"` //nolint:lll
+	Distribution string `enum:"autodetect,package-manager,tarball,docker" default:"autodetect" help:"Type of PMM Client distribution. One of: [${enum}]. Default: ${default}"` //nolint:lll
 	Version      string `name:"use-version" help:"PMM Client version to upgrade to (default: latest)"`
 
 	InstallPath  string `group:"Tarball flags" default:"/usr/local/percona/pmm" help:"Path where PMM Client is installed"`

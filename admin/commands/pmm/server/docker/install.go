@@ -28,11 +28,11 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/commands/pmm/common"
 	"github.com/percona/pmm/admin/pkg/bubbles/progress"
 	"github.com/percona/pmm/admin/pkg/docker"
+	"github.com/percona/pmm/admin/pkg/flags"
 )
 
 const defaultGrafanaAdminPassword = "admin"
