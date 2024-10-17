@@ -24,7 +24,7 @@ enum ActionType {
 
 message GetActionRequest {
   // Unique Action ID.
-  string action_id = 1 [(validate.rules).string.min_len = 1];
+  string action_id = 1 [(validate.rules).string.uuid = true];
 }
 
 message GetActionResponse {
@@ -44,7 +44,7 @@ message StartMySQLExplainActionParams {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validate.rules).string.uuid = true];
 
   // Query ID of query.
   string query_id = 4;
@@ -65,7 +65,7 @@ message StartMySQLExplainJSONActionParams {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validate.rules).string.uuid = true];
 
   // Query ID of query.
   string query_id = 4;
@@ -86,7 +86,7 @@ message StartMySQLExplainTraditionalJSONActionParams {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validate.rules).string.uuid = true];
   // Query ID of query.
   string query_id = 4;
   // Array of placeholder values
@@ -106,7 +106,7 @@ message StartMySQLShowCreateTableActionParams {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validate.rules).string.uuid = true];
   // Table name. Required. May additionally contain a database name.
   string table_name = 3 [(validate.rules).string.min_len = 1];
   // Database name. Required if not given in the table_name field.
@@ -124,7 +124,7 @@ message StartMySQLShowTableStatusActionParams {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validate.rules).string.uuid = true];
   // Table name. Required. May additionally contain a database name.
   string table_name = 3 [(validate.rules).string.min_len = 1];
   // Database name. Required if not given in the table_name field.
@@ -142,7 +142,7 @@ message StartMySQLShowIndexActionParams {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validate.rules).string.uuid = true];
   // Table name. Required. May additionally contain a database name.
   string table_name = 3 [(validate.rules).string.min_len = 1];
   // Database name. Required if not given in the table_name field.
@@ -160,7 +160,7 @@ message StartPostgreSQLShowCreateTableActionParams {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validate.rules).string.uuid = true];
   // Table name. Required. May additionally contain a database name.
   string table_name = 3 [(validate.rules).string.min_len = 1];
   // Database name. Required if not given in the table_name field.
@@ -178,7 +178,7 @@ message StartPostgreSQLShowIndexActionParams {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validate.rules).string.uuid = true];
   // Table name. Required. May additionally contain a database name.
   string table_name = 3 [(validate.rules).string.min_len = 1];
   // Database name. Required if not given in the table_name field.
@@ -196,7 +196,7 @@ message StartMongoDBExplainActionParams {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validate.rules).string.uuid = true];
   // Query. Required.
   string query = 3 [(validate.rules).string.min_len = 1];
 }
@@ -272,7 +272,7 @@ message StartPTSummaryActionResponse {
 
 message CancelActionRequest {
   // Unique Action ID. Required.
-  string action_id = 1 [(validate.rules).string.min_len = 1];
+  string action_id = 1 [(validate.rules).string.uuid = true];
 }
 
 message CancelActionResponse {}

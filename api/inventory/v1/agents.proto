@@ -771,7 +771,7 @@ message ChangeAgentResponse {
 
 message AddPMMAgentParams {
   // Node identifier where this instance runs.
-  string runs_on_node_id = 1 [(validate.rules).string.min_len = 1];
+  string runs_on_node_id = 1 [(validate.rules).string.uuid = true];
   // Custom user-assigned labels.
   map<string, string> custom_labels = 2;
 }
@@ -810,7 +810,7 @@ message AddMySQLdExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validate.rules).string.uuid = true];
   // MySQL username for scraping metrics.
   string username = 3 [(validate.rules).string.min_len = 1];
   // MySQL password for scraping metrics.
@@ -862,7 +862,7 @@ message AddMongoDBExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validate.rules).string.uuid = true];
   // MongoDB username for scraping metrics.
   string username = 3;
   // MongoDB password for scraping metrics.
@@ -921,7 +921,7 @@ message AddPostgresExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validate.rules).string.uuid = true];
   // PostgreSQL username for scraping metrics.
   string username = 3 [(validate.rules).string.min_len = 1];
   // PostgreSQL password for scraping metrics.
@@ -973,7 +973,7 @@ message AddProxySQLExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validate.rules).string.uuid = true];
   // ProxySQL username for scraping metrics.
   string username = 3 [(validate.rules).string.min_len = 1];
   // ProxySQL password for scraping metrics.
@@ -1015,7 +1015,7 @@ message AddQANMySQLPerfSchemaAgentParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validate.rules).string.uuid = true];
   // MySQL username for getting performance data.
   string username = 3 [(validate.rules).string.min_len = 1];
   // MySQL password for getting performance data.
@@ -1061,7 +1061,7 @@ message AddQANMySQLSlowlogAgentParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validate.rules).string.uuid = true];
   // MySQL username for getting slowlog data.
   string username = 3 [(validate.rules).string.min_len = 1];
   // MySQL password for getting slowlog data.
@@ -1110,7 +1110,7 @@ message AddQANMongoDBProfilerAgentParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validate.rules).string.uuid = true];
   // MongoDB username for getting profile data.
   string username = 3;
   // MongoDB password for getting profile data.
@@ -1158,7 +1158,7 @@ message AddQANPostgreSQLPgStatementsAgentParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validate.rules).string.uuid = true];
   // PostgreSQL username for getting pg stat statements data.
   string username = 3 [(validate.rules).string.min_len = 1];
   // PostgreSQL password for getting pg stat statements data.
@@ -1202,7 +1202,7 @@ message AddQANPostgreSQLPgStatMonitorAgentParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validate.rules).string.uuid = true];
   // PostgreSQL username for getting pg stat monitor data.
   string username = 3 [(validate.rules).string.min_len = 1];
   // PostgreSQL password for getting pg stat monitor data.
@@ -1248,7 +1248,7 @@ message AddRDSExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Node identifier.
-  string node_id = 2 [(validate.rules).string.min_len = 1];
+  string node_id = 2 [(validate.rules).string.uuid = true];
   // AWS Access Key.
   string aws_access_key = 3;
   // AWS Secret Key.
@@ -1282,7 +1282,7 @@ message ChangeRDSExporterParams {
 
 message AddExternalExporterParams {
   // The node identifier where this instance is run.
-  string runs_on_node_id = 1 [(validate.rules).string.min_len = 1];
+  string runs_on_node_id = 1 [(validate.rules).string.uuid = true];
   // Service identifier.
   string service_id = 2;
   // HTTP basic auth username for collecting metrics.
@@ -1321,7 +1321,7 @@ message AddAzureDatabaseExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Node identifier.
-  string node_id = 2 [(validate.rules).string.min_len = 1];
+  string node_id = 2 [(validate.rules).string.uuid = true];
   // Azure client ID
   string azure_client_id = 3;
   // Azure client secret

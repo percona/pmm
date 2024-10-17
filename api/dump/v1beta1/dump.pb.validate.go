@@ -35,6 +35,9 @@ var (
 	_ = sort.Sort
 )
 
+// define the regex for a UUID once up-front
+var _dump_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
 // Validate checks the field values on Dump with the rules defined in the proto
 // definition for this message. If any rules are violated, the first error
 // encountered is returned, or nil if there are no violations.
@@ -984,10 +987,11 @@ func (m *GetDumpLogsRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetDumpId()) < 1 {
-		err := GetDumpLogsRequestValidationError{
+	if err := m._validateUuid(m.GetDumpId()); err != nil {
+		err = GetDumpLogsRequestValidationError{
 			field:  "DumpId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -1001,6 +1005,14 @@ func (m *GetDumpLogsRequest) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetDumpLogsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetDumpLogsRequest) _validateUuid(uuid string) error {
+	if matched := _dump_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
