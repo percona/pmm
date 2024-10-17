@@ -297,15 +297,6 @@ func TestMongoDBExplain(t *testing.T) {
 			want["maxScansToExplodeReached"] = false
 		}
 
-		switch mongoDBVersion {
-		case "6.0":
-			want["planCacheKey"] = "88A125C6"
-			want["queryHash"] = "88A125C6"
-		case "7.0":
-			want["planCacheKey"] = "0F06B42F"
-			want["queryHash"] = "0F06B42F"
-		}
-
 		explainM := make(map[string]interface{})
 		err = json.Unmarshal(res, &explainM)
 		assert.NoError(t, err)

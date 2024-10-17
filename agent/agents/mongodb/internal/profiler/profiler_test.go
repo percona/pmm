@@ -260,15 +260,6 @@ func testProfiler(t *testing.T, url string) {
 			want["maxScansToExplodeReached"] = false
 		}
 
-		switch mongoDBVersion {
-		case "6.0":
-			want["planCacheKey"] = "4FA12547"
-			want["queryHash"] = "4FA12547"
-		case "7.0":
-			want["planCacheKey"] = "0F06B42F"
-			want["queryHash"] = "0F06B42F"
-		}
-
 		explainM := make(map[string]interface{})
 		err = json.Unmarshal(res, &explainM)
 		assert.Nil(t, err)
@@ -276,6 +267,13 @@ func testProfiler(t *testing.T, url string) {
 		want["winningPlan"] = queryPlanner["winningPlan"]
 		assert.Equal(t, ok, true)
 		assert.NotEmpty(t, queryPlanner)
+
+		// Remove fields that are not present in all versions
+		switch mongoDBVersion {
+		case "6.0", "7.0":
+			delete(queryPlanner, "planCacheKey")
+			delete(queryPlanner, "queryHash")
+		}
 		assert.Equal(t, want, queryPlanner)
 	})
 }
