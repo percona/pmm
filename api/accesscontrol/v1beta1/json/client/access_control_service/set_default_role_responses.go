@@ -7,6 +7,7 @@ package access_control_service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -57,8 +58,44 @@ type SetDefaultRoleOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this set default role Ok response has a 2xx status code
+func (o *SetDefaultRoleOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this set default role Ok response has a 3xx status code
+func (o *SetDefaultRoleOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this set default role Ok response has a 4xx status code
+func (o *SetDefaultRoleOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this set default role Ok response has a 5xx status code
+func (o *SetDefaultRoleOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this set default role Ok response a status code equal to that given
+func (o *SetDefaultRoleOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the set default role Ok response
+func (o *SetDefaultRoleOK) Code() int {
+	return 200
+}
+
 func (o *SetDefaultRoleOK) Error() string {
-	return fmt.Sprintf("[POST /v1/accesscontrol/roles:setDefault][%d] setDefaultRoleOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/accesscontrol/roles:setDefault][%d] setDefaultRoleOk %s", 200, payload)
+}
+
+func (o *SetDefaultRoleOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/accesscontrol/roles:setDefault][%d] setDefaultRoleOk %s", 200, payload)
 }
 
 func (o *SetDefaultRoleOK) GetPayload() interface{} {
@@ -92,13 +129,44 @@ type SetDefaultRoleDefault struct {
 	Payload *SetDefaultRoleDefaultBody
 }
 
+// IsSuccess returns true when this set default role default response has a 2xx status code
+func (o *SetDefaultRoleDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this set default role default response has a 3xx status code
+func (o *SetDefaultRoleDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this set default role default response has a 4xx status code
+func (o *SetDefaultRoleDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this set default role default response has a 5xx status code
+func (o *SetDefaultRoleDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this set default role default response a status code equal to that given
+func (o *SetDefaultRoleDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the set default role default response
 func (o *SetDefaultRoleDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *SetDefaultRoleDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/accesscontrol/roles:setDefault][%d] SetDefaultRole default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/accesscontrol/roles:setDefault][%d] SetDefaultRole default %s", o._statusCode, payload)
+}
+
+func (o *SetDefaultRoleDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/accesscontrol/roles:setDefault][%d] SetDefaultRole default %s", o._statusCode, payload)
 }
 
 func (o *SetDefaultRoleDefault) GetPayload() *SetDefaultRoleDefaultBody {
@@ -225,6 +293,11 @@ func (o *SetDefaultRoleDefaultBody) ContextValidate(ctx context.Context, formats
 func (o *SetDefaultRoleDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("SetDefaultRole default" + "." + "details" + "." + strconv.Itoa(i))
@@ -264,6 +337,80 @@ swagger:model SetDefaultRoleDefaultBodyDetailsItems0
 type SetDefaultRoleDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// set default role default body details items0
+	SetDefaultRoleDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *SetDefaultRoleDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv SetDefaultRoleDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.SetDefaultRoleDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o SetDefaultRoleDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.SetDefaultRoleDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.SetDefaultRoleDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this set default role default body details items0

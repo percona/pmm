@@ -7,6 +7,7 @@ package qan_service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -57,8 +58,44 @@ type GetQueryPlanOK struct {
 	Payload *GetQueryPlanOKBody
 }
 
+// IsSuccess returns true when this get query plan Ok response has a 2xx status code
+func (o *GetQueryPlanOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get query plan Ok response has a 3xx status code
+func (o *GetQueryPlanOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get query plan Ok response has a 4xx status code
+func (o *GetQueryPlanOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get query plan Ok response has a 5xx status code
+func (o *GetQueryPlanOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get query plan Ok response a status code equal to that given
+func (o *GetQueryPlanOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get query plan Ok response
+func (o *GetQueryPlanOK) Code() int {
+	return 200
+}
+
 func (o *GetQueryPlanOK) Error() string {
-	return fmt.Sprintf("[GET /v1/qan/query/{queryid}/plan][%d] getQueryPlanOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/qan/query/{queryid}/plan][%d] getQueryPlanOk %s", 200, payload)
+}
+
+func (o *GetQueryPlanOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/qan/query/{queryid}/plan][%d] getQueryPlanOk %s", 200, payload)
 }
 
 func (o *GetQueryPlanOK) GetPayload() *GetQueryPlanOKBody {
@@ -94,13 +131,44 @@ type GetQueryPlanDefault struct {
 	Payload *GetQueryPlanDefaultBody
 }
 
+// IsSuccess returns true when this get query plan default response has a 2xx status code
+func (o *GetQueryPlanDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get query plan default response has a 3xx status code
+func (o *GetQueryPlanDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get query plan default response has a 4xx status code
+func (o *GetQueryPlanDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get query plan default response has a 5xx status code
+func (o *GetQueryPlanDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get query plan default response a status code equal to that given
+func (o *GetQueryPlanDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the get query plan default response
 func (o *GetQueryPlanDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *GetQueryPlanDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/qan/query/{queryid}/plan][%d] GetQueryPlan default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/qan/query/{queryid}/plan][%d] GetQueryPlan default %s", o._statusCode, payload)
+}
+
+func (o *GetQueryPlanDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/qan/query/{queryid}/plan][%d] GetQueryPlan default %s", o._statusCode, payload)
 }
 
 func (o *GetQueryPlanDefault) GetPayload() *GetQueryPlanDefaultBody {
@@ -190,6 +258,11 @@ func (o *GetQueryPlanDefaultBody) ContextValidate(ctx context.Context, formats s
 func (o *GetQueryPlanDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetQueryPlan default" + "." + "details" + "." + strconv.Itoa(i))
@@ -229,6 +302,80 @@ swagger:model GetQueryPlanDefaultBodyDetailsItems0
 type GetQueryPlanDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// get query plan default body details items0
+	GetQueryPlanDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *GetQueryPlanDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv GetQueryPlanDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.GetQueryPlanDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o GetQueryPlanDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.GetQueryPlanDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.GetQueryPlanDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this get query plan default body details items0

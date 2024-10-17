@@ -7,6 +7,7 @@ package server_service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -57,8 +58,44 @@ type StartUpdateOK struct {
 	Payload *StartUpdateOKBody
 }
 
+// IsSuccess returns true when this start update Ok response has a 2xx status code
+func (o *StartUpdateOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this start update Ok response has a 3xx status code
+func (o *StartUpdateOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this start update Ok response has a 4xx status code
+func (o *StartUpdateOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this start update Ok response has a 5xx status code
+func (o *StartUpdateOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this start update Ok response a status code equal to that given
+func (o *StartUpdateOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the start update Ok response
+func (o *StartUpdateOK) Code() int {
+	return 200
+}
+
 func (o *StartUpdateOK) Error() string {
-	return fmt.Sprintf("[POST /v1/server/updates:start][%d] startUpdateOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/server/updates:start][%d] startUpdateOk %s", 200, payload)
+}
+
+func (o *StartUpdateOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/server/updates:start][%d] startUpdateOk %s", 200, payload)
 }
 
 func (o *StartUpdateOK) GetPayload() *StartUpdateOKBody {
@@ -94,13 +131,44 @@ type StartUpdateDefault struct {
 	Payload *StartUpdateDefaultBody
 }
 
+// IsSuccess returns true when this start update default response has a 2xx status code
+func (o *StartUpdateDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this start update default response has a 3xx status code
+func (o *StartUpdateDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this start update default response has a 4xx status code
+func (o *StartUpdateDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this start update default response has a 5xx status code
+func (o *StartUpdateDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this start update default response a status code equal to that given
+func (o *StartUpdateDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the start update default response
 func (o *StartUpdateDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *StartUpdateDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/server/updates:start][%d] StartUpdate default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/server/updates:start][%d] StartUpdate default %s", o._statusCode, payload)
+}
+
+func (o *StartUpdateDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/server/updates:start][%d] StartUpdate default %s", o._statusCode, payload)
 }
 
 func (o *StartUpdateDefault) GetPayload() *StartUpdateDefaultBody {
@@ -227,6 +295,11 @@ func (o *StartUpdateDefaultBody) ContextValidate(ctx context.Context, formats st
 func (o *StartUpdateDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("StartUpdate default" + "." + "details" + "." + strconv.Itoa(i))
@@ -377,6 +450,134 @@ type StartUpdateDefaultBodyDetailsItems0 struct {
 	// Schemes other than `http`, `https` (or the empty scheme) might be
 	// used with implementation specific semantics.
 	AtType string `json:"@type,omitempty"`
+
+	// start update default body details items0
+	StartUpdateDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *StartUpdateDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// A URL/resource name that uniquely identifies the type of the serialized
+		// protocol buffer message. This string must contain at least
+		// one "/" character. The last segment of the URL's path must represent
+		// the fully qualified name of the type (as in
+		// `path/google.protobuf.Duration`). The name should be in a canonical form
+		// (e.g., leading "." is not accepted).
+		//
+		// In practice, teams usually precompile into the binary all types that they
+		// expect it to use in the context of Any. However, for URLs which use the
+		// scheme `http`, `https`, or no scheme, one can optionally set up a type
+		// server that maps type URLs to message definitions as follows:
+		//
+		// * If no scheme is provided, `https` is assumed.
+		// * An HTTP GET on the URL must yield a [google.protobuf.Type][]
+		//   value in binary format, or produce an error.
+		// * Applications are allowed to cache lookup results based on the
+		//   URL, or have them precompiled into a binary to avoid any
+		//   lookup. Therefore, binary compatibility needs to be preserved
+		//   on changes to types. (Use versioned type names to manage
+		//   breaking changes.)
+		//
+		// Note: this functionality is not currently available in the official
+		// protobuf release, and it is not used for type URLs beginning with
+		// type.googleapis.com. As of May 2023, there are no widely used type server
+		// implementations and no plans to implement one.
+		//
+		// Schemes other than `http`, `https` (or the empty scheme) might be
+		// used with implementation specific semantics.
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv StartUpdateDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.StartUpdateDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o StartUpdateDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// A URL/resource name that uniquely identifies the type of the serialized
+		// protocol buffer message. This string must contain at least
+		// one "/" character. The last segment of the URL's path must represent
+		// the fully qualified name of the type (as in
+		// `path/google.protobuf.Duration`). The name should be in a canonical form
+		// (e.g., leading "." is not accepted).
+		//
+		// In practice, teams usually precompile into the binary all types that they
+		// expect it to use in the context of Any. However, for URLs which use the
+		// scheme `http`, `https`, or no scheme, one can optionally set up a type
+		// server that maps type URLs to message definitions as follows:
+		//
+		// * If no scheme is provided, `https` is assumed.
+		// * An HTTP GET on the URL must yield a [google.protobuf.Type][]
+		//   value in binary format, or produce an error.
+		// * Applications are allowed to cache lookup results based on the
+		//   URL, or have them precompiled into a binary to avoid any
+		//   lookup. Therefore, binary compatibility needs to be preserved
+		//   on changes to types. (Use versioned type names to manage
+		//   breaking changes.)
+		//
+		// Note: this functionality is not currently available in the official
+		// protobuf release, and it is not used for type URLs beginning with
+		// type.googleapis.com. As of May 2023, there are no widely used type server
+		// implementations and no plans to implement one.
+		//
+		// Schemes other than `http`, `https` (or the empty scheme) might be
+		// used with implementation specific semantics.
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.StartUpdateDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.StartUpdateDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this start update default body details items0
