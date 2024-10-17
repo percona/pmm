@@ -1671,14 +1671,20 @@ type MetricsBucket_PostgreSQL struct {
 	MTempBlksReadSum    float32 `protobuf:"fixed32,20,opt,name=m_temp_blks_read_sum,json=mTempBlksReadSum,proto3" json:"m_temp_blks_read_sum,omitempty"`
 	MTempBlksWrittenCnt float32 `protobuf:"fixed32,21,opt,name=m_temp_blks_written_cnt,json=mTempBlksWrittenCnt,proto3" json:"m_temp_blks_written_cnt,omitempty"`
 	// Total number of temp blocks written by the statement.
-	MTempBlksWrittenSum float32 `protobuf:"fixed32,22,opt,name=m_temp_blks_written_sum,json=mTempBlksWrittenSum,proto3" json:"m_temp_blks_written_sum,omitempty"`
-	MBlkReadTimeCnt     float32 `protobuf:"fixed32,23,opt,name=m_blk_read_time_cnt,json=mBlkReadTimeCnt,proto3" json:"m_blk_read_time_cnt,omitempty"`
-	// Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-	MBlkReadTimeSum  float32 `protobuf:"fixed32,24,opt,name=m_blk_read_time_sum,json=mBlkReadTimeSum,proto3" json:"m_blk_read_time_sum,omitempty"`
-	MBlkWriteTimeCnt float32 `protobuf:"fixed32,25,opt,name=m_blk_write_time_cnt,json=mBlkWriteTimeCnt,proto3" json:"m_blk_write_time_cnt,omitempty"`
-	// Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-	MBlkWriteTimeSum float32 `protobuf:"fixed32,26,opt,name=m_blk_write_time_sum,json=mBlkWriteTimeSum,proto3" json:"m_blk_write_time_sum,omitempty"`
-	MCpuUserTimeCnt  float32 `protobuf:"fixed32,27,opt,name=m_cpu_user_time_cnt,json=mCpuUserTimeCnt,proto3" json:"m_cpu_user_time_cnt,omitempty"`
+	MTempBlksWrittenSum   float32 `protobuf:"fixed32,22,opt,name=m_temp_blks_written_sum,json=mTempBlksWrittenSum,proto3" json:"m_temp_blks_written_sum,omitempty"`
+	MSharedBlkReadTimeCnt float32 `protobuf:"fixed32,23,opt,name=m_shared_blk_read_time_cnt,json=mSharedBlkReadTimeCnt,proto3" json:"m_shared_blk_read_time_cnt,omitempty"`
+	// Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+	MSharedBlkReadTimeSum  float32 `protobuf:"fixed32,24,opt,name=m_shared_blk_read_time_sum,json=mSharedBlkReadTimeSum,proto3" json:"m_shared_blk_read_time_sum,omitempty"`
+	MSharedBlkWriteTimeCnt float32 `protobuf:"fixed32,25,opt,name=m_shared_blk_write_time_cnt,json=mSharedBlkWriteTimeCnt,proto3" json:"m_shared_blk_write_time_cnt,omitempty"`
+	// Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+	MSharedBlkWriteTimeSum float32 `protobuf:"fixed32,26,opt,name=m_shared_blk_write_time_sum,json=mSharedBlkWriteTimeSum,proto3" json:"m_shared_blk_write_time_sum,omitempty"`
+	MLocalBlkReadTimeCnt   float32 `protobuf:"fixed32,50,opt,name=m_local_blk_read_time_cnt,json=mLocalBlkReadTimeCnt,proto3" json:"m_local_blk_read_time_cnt,omitempty"`
+	// Total time the statement spent reading local blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+	MLocalBlkReadTimeSum  float32 `protobuf:"fixed32,51,opt,name=m_local_blk_read_time_sum,json=mLocalBlkReadTimeSum,proto3" json:"m_local_blk_read_time_sum,omitempty"`
+	MLocalBlkWriteTimeCnt float32 `protobuf:"fixed32,52,opt,name=m_local_blk_write_time_cnt,json=mLocalBlkWriteTimeCnt,proto3" json:"m_local_blk_write_time_cnt,omitempty"`
+	// Total time the statement spent writing local blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+	MLocalBlkWriteTimeSum float32 `protobuf:"fixed32,53,opt,name=m_local_blk_write_time_sum,json=mLocalBlkWriteTimeSum,proto3" json:"m_local_blk_write_time_sum,omitempty"`
+	MCpuUserTimeCnt       float32 `protobuf:"fixed32,27,opt,name=m_cpu_user_time_cnt,json=mCpuUserTimeCnt,proto3" json:"m_cpu_user_time_cnt,omitempty"`
 	// Total time user spent in query.
 	MCpuUserTimeSum float32 `protobuf:"fixed32,28,opt,name=m_cpu_user_time_sum,json=mCpuUserTimeSum,proto3" json:"m_cpu_user_time_sum,omitempty"`
 	MCpuSysTimeCnt  float32 `protobuf:"fixed32,29,opt,name=m_cpu_sys_time_cnt,json=mCpuSysTimeCnt,proto3" json:"m_cpu_sys_time_cnt,omitempty"`
@@ -1903,30 +1909,58 @@ func (x *MetricsBucket_PostgreSQL) GetMTempBlksWrittenSum() float32 {
 	return 0
 }
 
-func (x *MetricsBucket_PostgreSQL) GetMBlkReadTimeCnt() float32 {
+func (x *MetricsBucket_PostgreSQL) GetMSharedBlkReadTimeCnt() float32 {
 	if x != nil {
-		return x.MBlkReadTimeCnt
+		return x.MSharedBlkReadTimeCnt
 	}
 	return 0
 }
 
-func (x *MetricsBucket_PostgreSQL) GetMBlkReadTimeSum() float32 {
+func (x *MetricsBucket_PostgreSQL) GetMSharedBlkReadTimeSum() float32 {
 	if x != nil {
-		return x.MBlkReadTimeSum
+		return x.MSharedBlkReadTimeSum
 	}
 	return 0
 }
 
-func (x *MetricsBucket_PostgreSQL) GetMBlkWriteTimeCnt() float32 {
+func (x *MetricsBucket_PostgreSQL) GetMSharedBlkWriteTimeCnt() float32 {
 	if x != nil {
-		return x.MBlkWriteTimeCnt
+		return x.MSharedBlkWriteTimeCnt
 	}
 	return 0
 }
 
-func (x *MetricsBucket_PostgreSQL) GetMBlkWriteTimeSum() float32 {
+func (x *MetricsBucket_PostgreSQL) GetMSharedBlkWriteTimeSum() float32 {
 	if x != nil {
-		return x.MBlkWriteTimeSum
+		return x.MSharedBlkWriteTimeSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket_PostgreSQL) GetMLocalBlkReadTimeCnt() float32 {
+	if x != nil {
+		return x.MLocalBlkReadTimeCnt
+	}
+	return 0
+}
+
+func (x *MetricsBucket_PostgreSQL) GetMLocalBlkReadTimeSum() float32 {
+	if x != nil {
+		return x.MLocalBlkReadTimeSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket_PostgreSQL) GetMLocalBlkWriteTimeCnt() float32 {
+	if x != nil {
+		return x.MLocalBlkWriteTimeCnt
+	}
+	return 0
+}
+
+func (x *MetricsBucket_PostgreSQL) GetMLocalBlkWriteTimeSum() float32 {
+	if x != nil {
+		return x.MLocalBlkWriteTimeSum
 	}
 	return 0
 }
