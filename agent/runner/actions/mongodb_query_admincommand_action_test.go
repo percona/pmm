@@ -249,7 +249,7 @@ func getCmdLineOptsAssertionsWithAuth(t *testing.T, b []byte) { //nolint:thelper
 	assert.Equal(t, "enabled", security.Get("authorization").String())
 
 	argv := objxM.Get("argv").InterSlice()
-	for _, v := range []interface{}{"mongod", "--profile", "2", "--auth"} {
+	for _, v := range []interface{}{"mongod", "--profile=2", "--auth"} {
 		assert.Contains(t, argv, v)
 	}
 }
