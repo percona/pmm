@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
-	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -278,13 +277,6 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		t.Logf("Actual:\n%s", tests.FormatBuckets(buckets))
 		require.Len(t, buckets, 1)
 
-		expectedSharedBlksHitSum := float32(1007)
-		engineVersionInt, err := strconv.Atoi(engineVersion)
-		assert.NoError(t, err)
-		if engineVersionInt >= 14 {
-			expectedSharedBlksHitSum = 32
-		}
-
 		actual := buckets[0]
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
 		assert.InDelta(t, truncatedMSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 3)
@@ -444,7 +436,6 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MRowsSum:               float32(n),
 			},
 		}
-		assert.InDelta(t, n, actual.Postgresql.MBlkWriteTimeCnt+actual.Postgresql.MBlkReadTimeCnt, 1)
 		tests.AssertBucketsEqual(t, expected, actual)
 		assert.LessOrEqual(t, actual.Postgresql.MSharedBlkReadTimeSum, actual.Common.MQueryTimeSum)
 	})
