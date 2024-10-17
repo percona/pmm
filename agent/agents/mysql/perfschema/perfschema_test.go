@@ -224,7 +224,7 @@ func filter(mb []*agentv1.MetricsBucket) []*agentv1.MetricsBucket {
 			continue
 		case strings.Contains(b.Common.Example, "/* pmm-agent-tests:waitForFixtures */"):
 			continue
-		case strings.Contains(b.Common.Example, "/* events_statements_history */"):
+		case strings.Contains(b.Common.Fingerprint, "/* events_statements_history */"):
 			continue
 		case strings.HasPrefix(b.Common.Fingerprint, "SELECT @@`slow_query_log"): // slowlog
 			continue
