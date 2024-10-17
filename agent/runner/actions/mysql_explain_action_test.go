@@ -165,9 +165,9 @@ func TestMySQLExplain(t *testing.T) {
 		assert.Contains(t, actual[0], "Extra")
 
 		// Checks some stable values
-		assert.Equal(t, actual[1][0], "1")      // id
-		assert.Equal(t, actual[1][1], "SIMPLE") // select_type
-		assert.Equal(t, actual[1][2], "city")   // table
+		assert.Equal(t, float64(1), actual[1][0]) // id
+		assert.Equal(t, "SIMPLE", actual[1][1])   // select_type
+		assert.Equal(t, "city", actual[1][2])     // table
 	})
 
 	t.Run("Error", func(t *testing.T) {
