@@ -43,6 +43,16 @@
                   "type": "string",
                   "x-order": 0
                 },
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where this Action is running / was run.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "output": {
+                  "description": "Current Action output; may be partial if Action is still running.",
+                  "type": "string",
+                  "x-order": 2
+                },
                 "done": {
                   "description": "True if Action is finished.",
                   "type": "boolean",
@@ -52,16 +62,6 @@
                   "description": "Error message if Action failed.",
                   "type": "string",
                   "x-order": 4
-                },
-                "output": {
-                  "description": "Current Action output; may be partial if Action is still running.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where this Action is running / was run.",
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -76,6 +76,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -86,13 +90,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -142,6 +142,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -152,13 +156,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -182,15 +182,15 @@
             "schema": {
               "type": "object",
               "properties": {
-                "node_id": {
-                  "description": "Node ID for this Action.",
-                  "type": "string",
-                  "x-order": 1
-                },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
+                },
+                "node_id": {
+                  "description": "Node ID for this Action.",
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -225,6 +225,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -235,13 +239,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -265,6 +265,238 @@
             "schema": {
               "type": "object",
               "properties": {
+                "mysql_explain": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to run this Action.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service ID for this Action. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "query_id": {
+                      "description": "Query ID of query.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "placeholders": {
+                      "type": "array",
+                      "title": "Array of placeholder values",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 3
+                    },
+                    "database": {
+                      "description": "Database name. Required if it can't be deduced from the query ID.",
+                      "type": "string",
+                      "x-order": 4
+                    }
+                  },
+                  "x-order": 0
+                },
+                "mysql_explain_json": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to run this Action.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service ID for this Action. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "query_id": {
+                      "description": "Query ID of query.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "placeholders": {
+                      "type": "array",
+                      "title": "Array of placeholder values",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 3
+                    },
+                    "database": {
+                      "description": "Database name. Required if it can't be deduced from the query ID.",
+                      "type": "string",
+                      "x-order": 4
+                    }
+                  },
+                  "x-order": 1
+                },
+                "mysql_explain_traditional_json": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to run this Action.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service ID for this Action. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "query_id": {
+                      "description": "Query ID of query.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "placeholders": {
+                      "type": "array",
+                      "title": "Array of placeholder values",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 3
+                    },
+                    "database": {
+                      "description": "Database name. Required if it can't be deduced from the query ID.",
+                      "type": "string",
+                      "x-order": 4
+                    }
+                  },
+                  "x-order": 2
+                },
+                "mysql_show_index": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to run this Action.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service ID for this Action. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "table_name": {
+                      "description": "Table name. Required. May additionally contain a database name.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "database": {
+                      "description": "Database name. Required if not given in the table_name field.",
+                      "type": "string",
+                      "x-order": 3
+                    }
+                  },
+                  "x-order": 3
+                },
+                "mysql_show_create_table": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to run this Action.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service ID for this Action. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "table_name": {
+                      "description": "Table name. Required. May additionally contain a database name.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "database": {
+                      "description": "Database name. Required if not given in the table_name field.",
+                      "type": "string",
+                      "x-order": 3
+                    }
+                  },
+                  "x-order": 4
+                },
+                "mysql_show_table_status": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to run this Action.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service ID for this Action. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "table_name": {
+                      "description": "Table name. Required. May additionally contain a database name.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "database": {
+                      "description": "Database name. Required if not given in the table_name field.",
+                      "type": "string",
+                      "x-order": 3
+                    }
+                  },
+                  "x-order": 5
+                },
+                "postgres_show_create_table": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to run this Action.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service ID for this Action. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "table_name": {
+                      "description": "Table name. Required. May additionally contain a database name.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "database": {
+                      "description": "Database name. Required if not given in the table_name field.",
+                      "type": "string",
+                      "x-order": 3
+                    }
+                  },
+                  "x-order": 6
+                },
+                "postgres_show_index": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to run this Action.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service ID for this Action. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "table_name": {
+                      "description": "Table name. Required. May additionally contain a database name.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "database": {
+                      "description": "Database name. Required if not given in the table_name field.",
+                      "type": "string",
+                      "x-order": 3
+                    }
+                  },
+                  "x-order": 7
+                },
                 "mongodb_explain": {
                   "type": "object",
                   "properties": {
@@ -273,250 +505,18 @@
                       "type": "string",
                       "x-order": 0
                     },
+                    "service_id": {
+                      "description": "Service ID for this Action. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
                     "query": {
                       "description": "Query. Required.",
                       "type": "string",
                       "x-order": 2
-                    },
-                    "service_id": {
-                      "description": "Service ID for this Action. Required.",
-                      "type": "string",
-                      "x-order": 1
                     }
                   },
                   "x-order": 8
-                },
-                "mysql_explain": {
-                  "type": "object",
-                  "properties": {
-                    "database": {
-                      "description": "Database name. Required if it can't be deduced from the query ID.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "placeholders": {
-                      "type": "array",
-                      "title": "Array of placeholder values",
-                      "items": {
-                        "type": "string"
-                      },
-                      "x-order": 3
-                    },
-                    "pmm_agent_id": {
-                      "description": "pmm-agent ID where to run this Action.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "query_id": {
-                      "description": "Query ID of query.",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "service_id": {
-                      "description": "Service ID for this Action. Required.",
-                      "type": "string",
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 0
-                },
-                "mysql_explain_json": {
-                  "type": "object",
-                  "properties": {
-                    "database": {
-                      "description": "Database name. Required if it can't be deduced from the query ID.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "placeholders": {
-                      "type": "array",
-                      "title": "Array of placeholder values",
-                      "items": {
-                        "type": "string"
-                      },
-                      "x-order": 3
-                    },
-                    "pmm_agent_id": {
-                      "description": "pmm-agent ID where to run this Action.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "query_id": {
-                      "description": "Query ID of query.",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "service_id": {
-                      "description": "Service ID for this Action. Required.",
-                      "type": "string",
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 1
-                },
-                "mysql_explain_traditional_json": {
-                  "type": "object",
-                  "properties": {
-                    "database": {
-                      "description": "Database name. Required if it can't be deduced from the query ID.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "placeholders": {
-                      "type": "array",
-                      "title": "Array of placeholder values",
-                      "items": {
-                        "type": "string"
-                      },
-                      "x-order": 3
-                    },
-                    "pmm_agent_id": {
-                      "description": "pmm-agent ID where to run this Action.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "query_id": {
-                      "description": "Query ID of query.",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "service_id": {
-                      "description": "Service ID for this Action. Required.",
-                      "type": "string",
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 2
-                },
-                "mysql_show_create_table": {
-                  "type": "object",
-                  "properties": {
-                    "database": {
-                      "description": "Database name. Required if not given in the table_name field.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "pmm_agent_id": {
-                      "description": "pmm-agent ID where to run this Action.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "service_id": {
-                      "description": "Service ID for this Action. Required.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "table_name": {
-                      "description": "Table name. Required. May additionally contain a database name.",
-                      "type": "string",
-                      "x-order": 2
-                    }
-                  },
-                  "x-order": 4
-                },
-                "mysql_show_index": {
-                  "type": "object",
-                  "properties": {
-                    "database": {
-                      "description": "Database name. Required if not given in the table_name field.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "pmm_agent_id": {
-                      "description": "pmm-agent ID where to run this Action.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "service_id": {
-                      "description": "Service ID for this Action. Required.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "table_name": {
-                      "description": "Table name. Required. May additionally contain a database name.",
-                      "type": "string",
-                      "x-order": 2
-                    }
-                  },
-                  "x-order": 3
-                },
-                "mysql_show_table_status": {
-                  "type": "object",
-                  "properties": {
-                    "database": {
-                      "description": "Database name. Required if not given in the table_name field.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "pmm_agent_id": {
-                      "description": "pmm-agent ID where to run this Action.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "service_id": {
-                      "description": "Service ID for this Action. Required.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "table_name": {
-                      "description": "Table name. Required. May additionally contain a database name.",
-                      "type": "string",
-                      "x-order": 2
-                    }
-                  },
-                  "x-order": 5
-                },
-                "postgres_show_create_table": {
-                  "type": "object",
-                  "properties": {
-                    "database": {
-                      "description": "Database name. Required if not given in the table_name field.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "pmm_agent_id": {
-                      "description": "pmm-agent ID where to run this Action.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "service_id": {
-                      "description": "Service ID for this Action. Required.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "table_name": {
-                      "description": "Table name. Required. May additionally contain a database name.",
-                      "type": "string",
-                      "x-order": 2
-                    }
-                  },
-                  "x-order": 6
-                },
-                "postgres_show_index": {
-                  "type": "object",
-                  "properties": {
-                    "database": {
-                      "description": "Database name. Required if not given in the table_name field.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "pmm_agent_id": {
-                      "description": "pmm-agent ID where to run this Action.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "service_id": {
-                      "description": "Service ID for this Action. Required.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "table_name": {
-                      "description": "Table name. Required. May additionally contain a database name.",
-                      "type": "string",
-                      "x-order": 2
-                    }
-                  },
-                  "x-order": 7
                 },
                 "pt_mongodb_summary": {
                   "type": "object",
@@ -579,22 +579,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "mongodb_explain": {
-                  "type": "object",
-                  "properties": {
-                    "action_id": {
-                      "description": "Unique Action ID.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "pmm_agent_id": {
-                      "description": "pmm-agent ID where to this Action was started.",
-                      "type": "string",
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 8
-                },
                 "mysql_explain": {
                   "type": "object",
                   "properties": {
@@ -643,22 +627,6 @@
                   },
                   "x-order": 2
                 },
-                "mysql_show_create_table": {
-                  "type": "object",
-                  "properties": {
-                    "action_id": {
-                      "description": "Unique Action ID.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "pmm_agent_id": {
-                      "description": "pmm-agent ID where to this Action was started.",
-                      "type": "string",
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 4
-                },
                 "mysql_show_index": {
                   "type": "object",
                   "properties": {
@@ -674,6 +642,22 @@
                     }
                   },
                   "x-order": 3
+                },
+                "mysql_show_create_table": {
+                  "type": "object",
+                  "properties": {
+                    "action_id": {
+                      "description": "Unique Action ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to this Action was started.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 4
                 },
                 "mysql_show_table_status": {
                   "type": "object",
@@ -722,6 +706,22 @@
                     }
                   },
                   "x-order": 7
+                },
+                "mongodb_explain": {
+                  "type": "object",
+                  "properties": {
+                    "action_id": {
+                      "description": "Unique Action ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "pmm-agent ID where to this Action was started.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 8
                 },
                 "pt_mongodb_summary": {
                   "type": "object",
@@ -787,6 +787,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -797,13 +801,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }

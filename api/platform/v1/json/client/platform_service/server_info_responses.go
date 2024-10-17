@@ -7,6 +7,7 @@ package platform_service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -57,8 +58,44 @@ type ServerInfoOK struct {
 	Payload *ServerInfoOKBody
 }
 
+// IsSuccess returns true when this server info Ok response has a 2xx status code
+func (o *ServerInfoOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this server info Ok response has a 3xx status code
+func (o *ServerInfoOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this server info Ok response has a 4xx status code
+func (o *ServerInfoOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this server info Ok response has a 5xx status code
+func (o *ServerInfoOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this server info Ok response a status code equal to that given
+func (o *ServerInfoOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the server info Ok response
+func (o *ServerInfoOK) Code() int {
+	return 200
+}
+
 func (o *ServerInfoOK) Error() string {
-	return fmt.Sprintf("[GET /v1/platform/server][%d] serverInfoOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/platform/server][%d] serverInfoOk %s", 200, payload)
+}
+
+func (o *ServerInfoOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/platform/server][%d] serverInfoOk %s", 200, payload)
 }
 
 func (o *ServerInfoOK) GetPayload() *ServerInfoOKBody {
@@ -94,13 +131,44 @@ type ServerInfoDefault struct {
 	Payload *ServerInfoDefaultBody
 }
 
+// IsSuccess returns true when this server info default response has a 2xx status code
+func (o *ServerInfoDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this server info default response has a 3xx status code
+func (o *ServerInfoDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this server info default response has a 4xx status code
+func (o *ServerInfoDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this server info default response has a 5xx status code
+func (o *ServerInfoDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this server info default response a status code equal to that given
+func (o *ServerInfoDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the server info default response
 func (o *ServerInfoDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *ServerInfoDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/platform/server][%d] ServerInfo default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/platform/server][%d] ServerInfo default %s", o._statusCode, payload)
+}
+
+func (o *ServerInfoDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/platform/server][%d] ServerInfo default %s", o._statusCode, payload)
 }
 
 func (o *ServerInfoDefault) GetPayload() *ServerInfoDefaultBody {
@@ -190,6 +258,11 @@ func (o *ServerInfoDefaultBody) ContextValidate(ctx context.Context, formats str
 func (o *ServerInfoDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ServerInfo default" + "." + "details" + "." + strconv.Itoa(i))
@@ -229,6 +302,80 @@ swagger:model ServerInfoDefaultBodyDetailsItems0
 type ServerInfoDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// server info default body details items0
+	ServerInfoDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *ServerInfoDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv ServerInfoDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.ServerInfoDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o ServerInfoDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.ServerInfoDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.ServerInfoDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this server info default body details items0

@@ -7,6 +7,7 @@ package server_service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -58,8 +59,44 @@ type CheckUpdatesOK struct {
 	Payload *CheckUpdatesOKBody
 }
 
+// IsSuccess returns true when this check updates Ok response has a 2xx status code
+func (o *CheckUpdatesOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this check updates Ok response has a 3xx status code
+func (o *CheckUpdatesOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this check updates Ok response has a 4xx status code
+func (o *CheckUpdatesOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this check updates Ok response has a 5xx status code
+func (o *CheckUpdatesOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this check updates Ok response a status code equal to that given
+func (o *CheckUpdatesOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the check updates Ok response
+func (o *CheckUpdatesOK) Code() int {
+	return 200
+}
+
 func (o *CheckUpdatesOK) Error() string {
-	return fmt.Sprintf("[GET /v1/server/updates][%d] checkUpdatesOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/server/updates][%d] checkUpdatesOk %s", 200, payload)
+}
+
+func (o *CheckUpdatesOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/server/updates][%d] checkUpdatesOk %s", 200, payload)
 }
 
 func (o *CheckUpdatesOK) GetPayload() *CheckUpdatesOKBody {
@@ -95,13 +132,44 @@ type CheckUpdatesDefault struct {
 	Payload *CheckUpdatesDefaultBody
 }
 
+// IsSuccess returns true when this check updates default response has a 2xx status code
+func (o *CheckUpdatesDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this check updates default response has a 3xx status code
+func (o *CheckUpdatesDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this check updates default response has a 4xx status code
+func (o *CheckUpdatesDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this check updates default response has a 5xx status code
+func (o *CheckUpdatesDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this check updates default response a status code equal to that given
+func (o *CheckUpdatesDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the check updates default response
 func (o *CheckUpdatesDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *CheckUpdatesDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/server/updates][%d] CheckUpdates default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/server/updates][%d] CheckUpdates default %s", o._statusCode, payload)
+}
+
+func (o *CheckUpdatesDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/server/updates][%d] CheckUpdates default %s", o._statusCode, payload)
 }
 
 func (o *CheckUpdatesDefault) GetPayload() *CheckUpdatesDefaultBody {
@@ -191,6 +259,11 @@ func (o *CheckUpdatesDefaultBody) ContextValidate(ctx context.Context, formats s
 func (o *CheckUpdatesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("CheckUpdates default" + "." + "details" + "." + strconv.Itoa(i))
@@ -341,6 +414,134 @@ type CheckUpdatesDefaultBodyDetailsItems0 struct {
 	// Schemes other than `http`, `https` (or the empty scheme) might be
 	// used with implementation specific semantics.
 	AtType string `json:"@type,omitempty"`
+
+	// check updates default body details items0
+	CheckUpdatesDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *CheckUpdatesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// A URL/resource name that uniquely identifies the type of the serialized
+		// protocol buffer message. This string must contain at least
+		// one "/" character. The last segment of the URL's path must represent
+		// the fully qualified name of the type (as in
+		// `path/google.protobuf.Duration`). The name should be in a canonical form
+		// (e.g., leading "." is not accepted).
+		//
+		// In practice, teams usually precompile into the binary all types that they
+		// expect it to use in the context of Any. However, for URLs which use the
+		// scheme `http`, `https`, or no scheme, one can optionally set up a type
+		// server that maps type URLs to message definitions as follows:
+		//
+		// * If no scheme is provided, `https` is assumed.
+		// * An HTTP GET on the URL must yield a [google.protobuf.Type][]
+		//   value in binary format, or produce an error.
+		// * Applications are allowed to cache lookup results based on the
+		//   URL, or have them precompiled into a binary to avoid any
+		//   lookup. Therefore, binary compatibility needs to be preserved
+		//   on changes to types. (Use versioned type names to manage
+		//   breaking changes.)
+		//
+		// Note: this functionality is not currently available in the official
+		// protobuf release, and it is not used for type URLs beginning with
+		// type.googleapis.com. As of May 2023, there are no widely used type server
+		// implementations and no plans to implement one.
+		//
+		// Schemes other than `http`, `https` (or the empty scheme) might be
+		// used with implementation specific semantics.
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv CheckUpdatesDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.CheckUpdatesDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o CheckUpdatesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// A URL/resource name that uniquely identifies the type of the serialized
+		// protocol buffer message. This string must contain at least
+		// one "/" character. The last segment of the URL's path must represent
+		// the fully qualified name of the type (as in
+		// `path/google.protobuf.Duration`). The name should be in a canonical form
+		// (e.g., leading "." is not accepted).
+		//
+		// In practice, teams usually precompile into the binary all types that they
+		// expect it to use in the context of Any. However, for URLs which use the
+		// scheme `http`, `https`, or no scheme, one can optionally set up a type
+		// server that maps type URLs to message definitions as follows:
+		//
+		// * If no scheme is provided, `https` is assumed.
+		// * An HTTP GET on the URL must yield a [google.protobuf.Type][]
+		//   value in binary format, or produce an error.
+		// * Applications are allowed to cache lookup results based on the
+		//   URL, or have them precompiled into a binary to avoid any
+		//   lookup. Therefore, binary compatibility needs to be preserved
+		//   on changes to types. (Use versioned type names to manage
+		//   breaking changes.)
+		//
+		// Note: this functionality is not currently available in the official
+		// protobuf release, and it is not used for type URLs beginning with
+		// type.googleapis.com. As of May 2023, there are no widely used type server
+		// implementations and no plans to implement one.
+		//
+		// Schemes other than `http`, `https` (or the empty scheme) might be
+		// used with implementation specific semantics.
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.CheckUpdatesDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.CheckUpdatesDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this check updates default body details items0
@@ -485,6 +686,11 @@ func (o *CheckUpdatesOKBody) ContextValidate(ctx context.Context, formats strfmt
 
 func (o *CheckUpdatesOKBody) contextValidateInstalled(ctx context.Context, formats strfmt.Registry) error {
 	if o.Installed != nil {
+
+		if swag.IsZero(o.Installed) { // not required
+			return nil
+		}
+
 		if err := o.Installed.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("checkUpdatesOk" + "." + "installed")
@@ -500,6 +706,11 @@ func (o *CheckUpdatesOKBody) contextValidateInstalled(ctx context.Context, forma
 
 func (o *CheckUpdatesOKBody) contextValidateLatest(ctx context.Context, formats strfmt.Registry) error {
 	if o.Latest != nil {
+
+		if swag.IsZero(o.Latest) { // not required
+			return nil
+		}
+
 		if err := o.Latest.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("checkUpdatesOk" + "." + "latest")
