@@ -14,9 +14,17 @@ import { Messages } from './Updates.messages';
 import { Page } from 'components/page';
 import { useSettings } from 'hooks/api/useSettings';
 import { PMM_SETTINGS_URL } from 'constants';
+import { useUpdates } from 'contexts/updates';
+import { UpdateStatus } from 'types/updates.types';
+import { Navigate } from 'react-router-dom';
 
 export const Updates: FC = () => {
   const { data: settings } = useSettings();
+  const { status } = useUpdates();
+
+  if (status === UpdateStatus.UpdateClients) {
+    return <Navigate to="/updates/clients" />;
+  }
 
   return (
     <Page title={Messages.title}>
