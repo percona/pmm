@@ -81,15 +81,6 @@
     include_role:
       name: dashboards
 
-  - name: Make versions the same after upgrade
-    copy:
-      src: /usr/share/percona-dashboards/VERSION
-      dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
-      owner: pmm
-      group: pmm
-      mode: 0644
-      remote_src: yes
-
   - name: Create a backup directory
     file:
       path: /srv/backup
