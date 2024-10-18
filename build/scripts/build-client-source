@@ -53,7 +53,7 @@ prepare_vmagent_tarball() {
     if [ -f "${tarball}" ]; then
         echo ${tarball} already exists, skipping download
     else
-        wget https://github.com/VictoriaMetrics/VictoriaMetrics/archive/${commit_hash}.tar.gz -O ${tarball}
+        curl -fsSL -o ${tarball} https://github.com/VictoriaMetrics/VictoriaMetrics/archive/${commit_hash}.tar.gz
     fi
 }
 
