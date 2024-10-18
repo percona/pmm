@@ -1,4 +1,13 @@
 ---
+- name: Stop grafana
+  shell: "supervisorctl {{ item }} grafana"
+  become: true
+  become_user: pmm
+  become_method: su
+  loop:
+    - stop
+    - remove
+
 - name: Get plugin list
   find:
     paths: /usr/share/percona-dashboards/panels/
@@ -26,12 +35,19 @@
     mode: 0775
     recurse: yes
 
+- name: Make versions the same after upgrade
+  copy:
+    src: /usr/share/percona-dashboards/VERSION
+    dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
+    owner: pmm
+    group: pmm
+    mode: 0644
+    remote_src: yes    
+
 - name: Restart grafana with new plugins
   shell: "supervisorctl {{ item }} grafana"
   become: true
   become_user: pmm
   become_method: su
   loop:
-    - stop
-    - remove
     - add
