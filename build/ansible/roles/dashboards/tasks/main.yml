@@ -1,4 +1,12 @@
 ---
+- name: Stop grafana
+  shell: "supervisorctl {{ item }} grafana"
+  become: true
+  become_user: pmm
+  become_method: su
+  loop:
+    - stop
+
 - name: Get plugin list
   find:
     paths: /usr/share/percona-dashboards/panels/
@@ -32,6 +40,5 @@
   become_user: pmm
   become_method: su
   loop:
-    - stop
     - remove
     - add
