@@ -75,6 +75,32 @@ func TestAuthWebConfig(t *testing.T) {
 
 		require.Equal(t, expected.Env, actual.Env)
 		require.Equal(t, expected.TextFiles, actual.TextFiles)
+		require.Contains(t, actual.Args, "--web.config={{ .TextFiles.webConfigPlaceholder }}")
+	})
+
+	t.Run("v3.0.0", func(t *testing.T) {
+		t.Parallel()
+
+		node := &models.Node{}
+		exporter := &models.Agent{
+			AgentID:   "agent-id",
+			AgentType: models.NodeExporterType,
+		}
+		agentVersion := version.MustParse("3.0.0")
+
+		actual, err := nodeExporterConfig(node, exporter, agentVersion)
+		require.NoError(t, err, "Unable to build node exporter config")
+
+		expected := &agentv1.SetStateRequest_AgentProcess{
+			Env: []string(nil),
+			TextFiles: map[string]string{
+				"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-id\n",
+			},
+		}
+
+		require.Equal(t, expected.Env, actual.Env)
+		require.Equal(t, expected.TextFiles, actual.TextFiles)
+		require.Contains(t, actual.Args, "--web.config.file={{ .TextFiles.webConfigPlaceholder }}")
 	})
 }
 
