@@ -34,19 +34,20 @@
                   "items": {
                     "type": "object",
                     "properties": {
-                      "created_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 5
-                      },
                       "dump_id": {
                         "type": "string",
                         "x-order": 0
                       },
-                      "end_time": {
+                      "status": {
                         "type": "string",
-                        "format": "date-time",
-                        "x-order": 4
+                        "default": "DUMP_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "DUMP_STATUS_UNSPECIFIED",
+                          "DUMP_STATUS_IN_PROGRESS",
+                          "DUMP_STATUS_SUCCESS",
+                          "DUMP_STATUS_ERROR"
+                        ],
+                        "x-order": 1
                       },
                       "service_names": {
                         "type": "array",
@@ -60,16 +61,15 @@
                         "format": "date-time",
                         "x-order": 3
                       },
-                      "status": {
+                      "end_time": {
                         "type": "string",
-                        "default": "DUMP_STATUS_UNSPECIFIED",
-                        "enum": [
-                          "DUMP_STATUS_UNSPECIFIED",
-                          "DUMP_STATUS_IN_PROGRESS",
-                          "DUMP_STATUS_SUCCESS",
-                          "DUMP_STATUS_ERROR"
-                        ],
-                        "x-order": 1
+                        "format": "date-time",
+                        "x-order": 4
+                      },
+                      "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 5
                       }
                     }
                   },
@@ -88,6 +88,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -98,13 +102,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -146,10 +146,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "end": {
-                  "type": "boolean",
-                  "x-order": 1
-                },
                 "logs": {
                   "type": "array",
                   "items": {
@@ -168,6 +164,10 @@
                     }
                   },
                   "x-order": 0
+                },
+                "end": {
+                  "type": "boolean",
+                  "x-order": 1
                 }
               }
             }
@@ -182,6 +182,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -192,13 +196,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -250,6 +250,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -260,13 +264,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -290,6 +290,18 @@
             "schema": {
               "type": "object",
               "properties": {
+                "service_names": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
+                },
+                "start_time": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 1
+                },
                 "end_time": {
                   "type": "string",
                   "format": "date-time",
@@ -302,18 +314,6 @@
                 "ignore_load": {
                   "type": "boolean",
                   "x-order": 4
-                },
-                "service_names": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 0
-                },
-                "start_time": {
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 1
                 }
               }
             }
@@ -342,6 +342,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -352,13 +356,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -396,17 +396,17 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "directory": {
+                    "user": {
                       "type": "string",
-                      "x-order": 3
+                      "x-order": 1
                     },
                     "password": {
                       "type": "string",
                       "x-order": 2
                     },
-                    "user": {
+                    "directory": {
                       "type": "string",
-                      "x-order": 1
+                      "x-order": 3
                     }
                   },
                   "x-order": 1
@@ -432,6 +432,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -442,13 +446,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }

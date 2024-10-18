@@ -41,6 +41,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -53,13 +57,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -141,6 +141,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -153,13 +157,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -185,74 +185,15 @@
                   "description": "Settings represents PMM Server settings.",
                   "type": "object",
                   "properties": {
-                    "advisor_enabled": {
-                      "description": "True if Advisor is enabled.",
+                    "updates_enabled": {
+                      "description": "True if updates are enabled.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 0
                     },
-                    "advisor_run_intervals": {
-                      "description": "AdvisorRunIntervals represents intervals between each run of Advisor checks.",
-                      "type": "object",
-                      "properties": {
-                        "frequent_interval": {
-                          "description": "Interval for frequent check runs.",
-                          "type": "string",
-                          "x-order": 2
-                        },
-                        "rare_interval": {
-                          "description": "Interval for rare check runs.",
-                          "type": "string",
-                          "x-order": 1
-                        },
-                        "standard_interval": {
-                          "description": "Standard check interval.",
-                          "type": "string",
-                          "x-order": 0
-                        }
-                      },
-                      "x-order": 10
-                    },
-                    "alerting_enabled": {
-                      "description": "True if Alerting is enabled.",
+                    "telemetry_enabled": {
+                      "description": "True if telemetry is enabled.",
                       "type": "boolean",
-                      "x-order": 8
-                    },
-                    "aws_partitions": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "x-order": 5
-                    },
-                    "azurediscover_enabled": {
-                      "description": "True if Azure Discover is enabled.",
-                      "type": "boolean",
-                      "x-order": 12
-                    },
-                    "backup_management_enabled": {
-                      "description": "True if Backup Management is enabled.",
-                      "type": "boolean",
-                      "x-order": 11
-                    },
-                    "connected_to_platform": {
-                      "type": "boolean",
-                      "title": "True if the PMM instance is connected to Platform",
-                      "x-order": 13
-                    },
-                    "data_retention": {
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "default_role_id": {
-                      "description": "Default Access Control role ID for new users.",
-                      "type": "integer",
-                      "format": "int64",
-                      "x-order": 16
-                    },
-                    "enable_access_control": {
-                      "description": "True if Access Control is enabled.",
-                      "type": "boolean",
-                      "x-order": 15
+                      "x-order": 1
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -263,37 +204,90 @@
                           "type": "string",
                           "x-order": 0
                         },
-                        "lr": {
-                          "description": "Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                          "type": "string",
-                          "x-order": 2
-                        },
                         "mr": {
                           "description": "Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
                           "type": "string",
                           "x-order": 1
+                        },
+                        "lr": {
+                          "description": "Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
+                          "type": "string",
+                          "x-order": 2
                         }
                       },
                       "x-order": 2
+                    },
+                    "data_retention": {
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "ssh_key": {
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "aws_partitions": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
+                    "advisor_enabled": {
+                      "description": "True if Advisor is enabled.",
+                      "type": "boolean",
+                      "x-order": 6
                     },
                     "platform_email": {
                       "description": "Percona Platform user's email, if this PMM instance is linked to the Platform.",
                       "type": "string",
                       "x-order": 7
                     },
+                    "alerting_enabled": {
+                      "description": "True if Alerting is enabled.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
                     "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
                       "x-order": 9
                     },
-                    "ssh_key": {
-                      "type": "string",
-                      "x-order": 4
+                    "advisor_run_intervals": {
+                      "description": "AdvisorRunIntervals represents intervals between each run of Advisor checks.",
+                      "type": "object",
+                      "properties": {
+                        "standard_interval": {
+                          "description": "Standard check interval.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "rare_interval": {
+                          "description": "Interval for rare check runs.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "frequent_interval": {
+                          "description": "Interval for frequent check runs.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 10
                     },
-                    "telemetry_enabled": {
-                      "description": "True if telemetry is enabled.",
+                    "backup_management_enabled": {
+                      "description": "True if Backup Management is enabled.",
                       "type": "boolean",
-                      "x-order": 1
+                      "x-order": 11
+                    },
+                    "azurediscover_enabled": {
+                      "description": "True if Azure Discover is enabled.",
+                      "type": "boolean",
+                      "x-order": 12
+                    },
+                    "connected_to_platform": {
+                      "type": "boolean",
+                      "title": "True if the PMM instance is connected to Platform",
+                      "x-order": 13
                     },
                     "telemetry_summaries": {
                       "type": "array",
@@ -303,10 +297,16 @@
                       },
                       "x-order": 14
                     },
-                    "updates_enabled": {
-                      "description": "True if updates are enabled.",
+                    "enable_access_control": {
+                      "description": "True if Access Control is enabled.",
                       "type": "boolean",
-                      "x-order": 0
+                      "x-order": 15
+                    },
+                    "default_role_id": {
+                      "description": "Default Access Control role ID for new users.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -324,6 +324,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -336,13 +340,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -364,27 +364,47 @@
             "schema": {
               "type": "object",
               "properties": {
-                "advisor_run_intervals": {
-                  "description": "AdvisorRunIntervals represents intervals between each run of Advisor checks.",
+                "enable_updates": {
+                  "type": "boolean",
+                  "x-nullable": true,
+                  "x-order": 0
+                },
+                "enable_telemetry": {
+                  "type": "boolean",
+                  "x-nullable": true,
+                  "x-order": 1
+                },
+                "metrics_resolutions": {
+                  "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
                   "type": "object",
                   "properties": {
-                    "frequent_interval": {
-                      "description": "Interval for frequent check runs.",
+                    "hr": {
+                      "description": "High resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
                       "type": "string",
-                      "x-order": 2
+                      "x-order": 0
                     },
-                    "rare_interval": {
-                      "description": "Interval for rare check runs.",
+                    "mr": {
+                      "description": "Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "standard_interval": {
-                      "description": "Standard check interval.",
+                    "lr": {
+                      "description": "Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
                       "type": "string",
-                      "x-order": 0
+                      "x-order": 2
                     }
                   },
-                  "x-order": 9
+                  "x-order": 2
+                },
+                "data_retention": {
+                  "description": "A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
+                  "type": "string",
+                  "x-order": 3
+                },
+                "ssh_key": {
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 4
                 },
                 "aws_partitions": {
                   "description": "A wrapper for a string array. This type allows to distinguish between an empty array and a null value.",
@@ -401,17 +421,6 @@
                   "x-nullable": true,
                   "x-order": 5
                 },
-                "data_retention": {
-                  "description": "A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
-                  "type": "string",
-                  "x-order": 3
-                },
-                "enable_access_control": {
-                  "type": "boolean",
-                  "title": "Enable Access Control",
-                  "x-nullable": true,
-                  "x-order": 12
-                },
                 "enable_advisor": {
                   "description": "Enable Advisor.",
                   "type": "boolean",
@@ -423,6 +432,34 @@
                   "type": "boolean",
                   "x-nullable": true,
                   "x-order": 7
+                },
+                "pmm_public_address": {
+                  "description": "PMM Server public address.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 8
+                },
+                "advisor_run_intervals": {
+                  "description": "AdvisorRunIntervals represents intervals between each run of Advisor checks.",
+                  "type": "object",
+                  "properties": {
+                    "standard_interval": {
+                      "description": "Standard check interval.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "rare_interval": {
+                      "description": "Interval for rare check runs.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "frequent_interval": {
+                      "description": "Interval for frequent check runs.",
+                      "type": "string",
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 9
                 },
                 "enable_azurediscover": {
                   "description": "Enable Azure Discover.",
@@ -436,48 +473,11 @@
                   "x-nullable": true,
                   "x-order": 11
                 },
-                "enable_telemetry": {
+                "enable_access_control": {
                   "type": "boolean",
+                  "title": "Enable Access Control",
                   "x-nullable": true,
-                  "x-order": 1
-                },
-                "enable_updates": {
-                  "type": "boolean",
-                  "x-nullable": true,
-                  "x-order": 0
-                },
-                "metrics_resolutions": {
-                  "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
-                  "type": "object",
-                  "properties": {
-                    "hr": {
-                      "description": "High resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "lr": {
-                      "description": "Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "mr": {
-                      "description": "Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                      "type": "string",
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 2
-                },
-                "pmm_public_address": {
-                  "description": "PMM Server public address.",
-                  "type": "string",
-                  "x-nullable": true,
-                  "x-order": 8
-                },
-                "ssh_key": {
-                  "type": "string",
-                  "x-nullable": true,
-                  "x-order": 4
+                  "x-order": 12
                 }
               }
             }
@@ -493,74 +493,15 @@
                   "description": "Settings represents PMM Server settings.",
                   "type": "object",
                   "properties": {
-                    "advisor_enabled": {
-                      "description": "True if Advisor is enabled.",
+                    "updates_enabled": {
+                      "description": "True if updates are enabled.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 0
                     },
-                    "advisor_run_intervals": {
-                      "description": "AdvisorRunIntervals represents intervals between each run of Advisor checks.",
-                      "type": "object",
-                      "properties": {
-                        "frequent_interval": {
-                          "description": "Interval for frequent check runs.",
-                          "type": "string",
-                          "x-order": 2
-                        },
-                        "rare_interval": {
-                          "description": "Interval for rare check runs.",
-                          "type": "string",
-                          "x-order": 1
-                        },
-                        "standard_interval": {
-                          "description": "Standard check interval.",
-                          "type": "string",
-                          "x-order": 0
-                        }
-                      },
-                      "x-order": 10
-                    },
-                    "alerting_enabled": {
-                      "description": "True if Alerting is enabled.",
+                    "telemetry_enabled": {
+                      "description": "True if telemetry is enabled.",
                       "type": "boolean",
-                      "x-order": 8
-                    },
-                    "aws_partitions": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "x-order": 5
-                    },
-                    "azurediscover_enabled": {
-                      "description": "True if Azure Discover is enabled.",
-                      "type": "boolean",
-                      "x-order": 12
-                    },
-                    "backup_management_enabled": {
-                      "description": "True if Backup Management is enabled.",
-                      "type": "boolean",
-                      "x-order": 11
-                    },
-                    "connected_to_platform": {
-                      "type": "boolean",
-                      "title": "True if the PMM instance is connected to Platform",
-                      "x-order": 13
-                    },
-                    "data_retention": {
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "default_role_id": {
-                      "description": "Default Access Control role ID for new users.",
-                      "type": "integer",
-                      "format": "int64",
-                      "x-order": 16
-                    },
-                    "enable_access_control": {
-                      "description": "True if Access Control is enabled.",
-                      "type": "boolean",
-                      "x-order": 15
+                      "x-order": 1
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -571,37 +512,90 @@
                           "type": "string",
                           "x-order": 0
                         },
-                        "lr": {
-                          "description": "Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                          "type": "string",
-                          "x-order": 2
-                        },
                         "mr": {
                           "description": "Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
                           "type": "string",
                           "x-order": 1
+                        },
+                        "lr": {
+                          "description": "Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
+                          "type": "string",
+                          "x-order": 2
                         }
                       },
                       "x-order": 2
+                    },
+                    "data_retention": {
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "ssh_key": {
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "aws_partitions": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
+                    "advisor_enabled": {
+                      "description": "True if Advisor is enabled.",
+                      "type": "boolean",
+                      "x-order": 6
                     },
                     "platform_email": {
                       "description": "Percona Platform user's email, if this PMM instance is linked to the Platform.",
                       "type": "string",
                       "x-order": 7
                     },
+                    "alerting_enabled": {
+                      "description": "True if Alerting is enabled.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
                     "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
                       "x-order": 9
                     },
-                    "ssh_key": {
-                      "type": "string",
-                      "x-order": 4
+                    "advisor_run_intervals": {
+                      "description": "AdvisorRunIntervals represents intervals between each run of Advisor checks.",
+                      "type": "object",
+                      "properties": {
+                        "standard_interval": {
+                          "description": "Standard check interval.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "rare_interval": {
+                          "description": "Interval for rare check runs.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "frequent_interval": {
+                          "description": "Interval for frequent check runs.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 10
                     },
-                    "telemetry_enabled": {
-                      "description": "True if telemetry is enabled.",
+                    "backup_management_enabled": {
+                      "description": "True if Backup Management is enabled.",
                       "type": "boolean",
-                      "x-order": 1
+                      "x-order": 11
+                    },
+                    "azurediscover_enabled": {
+                      "description": "True if Azure Discover is enabled.",
+                      "type": "boolean",
+                      "x-order": 12
+                    },
+                    "connected_to_platform": {
+                      "type": "boolean",
+                      "title": "True if the PMM instance is connected to Platform",
+                      "x-order": 13
                     },
                     "telemetry_summaries": {
                       "type": "array",
@@ -611,10 +605,16 @@
                       },
                       "x-order": 14
                     },
-                    "updates_enabled": {
-                      "description": "True if updates are enabled.",
+                    "enable_access_control": {
+                      "description": "True if Access Control is enabled.",
                       "type": "boolean",
-                      "x-order": 0
+                      "x-order": 15
+                    },
+                    "default_role_id": {
+                      "description": "Default Access Control role ID for new users.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -632,6 +632,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -644,13 +648,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -690,6 +690,11 @@
                   "description": "VersionInfo describes component version, or PMM Server as a whole.",
                   "type": "object",
                   "properties": {
+                    "version": {
+                      "description": "User-visible version.",
+                      "type": "string",
+                      "x-order": 0
+                    },
                     "full_version": {
                       "description": "Full version for debugging.",
                       "type": "string",
@@ -700,33 +705,17 @@
                       "type": "string",
                       "format": "date-time",
                       "x-order": 2
-                    },
-                    "version": {
-                      "description": "User-visible version.",
-                      "type": "string",
-                      "x-order": 0
                     }
                   },
                   "x-order": 0
                 },
-                "last_check": {
-                  "description": "Last check time.",
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 4
-                },
                 "latest": {
                   "type": "object",
                   "properties": {
-                    "release_notes_text": {
-                      "description": "Release notes text for the version (if available).",
+                    "version": {
+                      "description": "PMM Version.",
                       "type": "string",
-                      "x-order": 4
-                    },
-                    "release_notes_url": {
-                      "description": "Release notes URL for the version (if available).",
-                      "type": "string",
-                      "x-order": 3
+                      "x-order": 0
                     },
                     "tag": {
                       "description": "Docker image tag.",
@@ -739,23 +728,34 @@
                       "format": "date-time",
                       "x-order": 2
                     },
-                    "version": {
-                      "description": "PMM Version.",
+                    "release_notes_url": {
+                      "description": "Release notes URL for the version (if available).",
                       "type": "string",
-                      "x-order": 0
+                      "x-order": 3
+                    },
+                    "release_notes_text": {
+                      "description": "Release notes text for the version (if available).",
+                      "type": "string",
+                      "x-order": 4
                     }
                   },
                   "x-order": 1
+                },
+                "update_available": {
+                  "description": "True if there is a PMM Server update available.",
+                  "type": "boolean",
+                  "x-order": 2
                 },
                 "latest_news_url": {
                   "description": "Latest available PMM Server release announcement URL.",
                   "type": "string",
                   "x-order": 3
                 },
-                "update_available": {
-                  "description": "True if there is a PMM Server update available.",
-                  "type": "boolean",
-                  "x-order": 2
+                "last_check": {
+                  "description": "Last check time.",
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 4
                 }
               }
             }
@@ -770,6 +770,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -782,13 +786,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -810,27 +810,16 @@
             "schema": {
               "type": "object",
               "properties": {
-                "last_check": {
-                  "description": "Last check time.",
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 1
-                },
                 "updates": {
                   "description": "List of available updates.",
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "release_notes_text": {
-                        "description": "Release notes text for the version (if available).",
+                      "version": {
+                        "description": "PMM Version.",
                         "type": "string",
-                        "x-order": 4
-                      },
-                      "release_notes_url": {
-                        "description": "Release notes URL for the version (if available).",
-                        "type": "string",
-                        "x-order": 3
+                        "x-order": 0
                       },
                       "tag": {
                         "description": "Docker image tag.",
@@ -843,14 +832,25 @@
                         "format": "date-time",
                         "x-order": 2
                       },
-                      "version": {
-                        "description": "PMM Version.",
+                      "release_notes_url": {
+                        "description": "Release notes URL for the version (if available).",
                         "type": "string",
-                        "x-order": 0
+                        "x-order": 3
+                      },
+                      "release_notes_text": {
+                        "description": "Release notes text for the version (if available).",
+                        "type": "string",
+                        "x-order": 4
                       }
                     }
                   },
                   "x-order": 0
+                },
+                "last_check": {
+                  "description": "Last check time.",
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 1
                 }
               }
             }
@@ -865,6 +865,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -877,13 +881,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -928,11 +928,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "done": {
-                  "description": "True when update is done.",
-                  "type": "boolean",
-                  "x-order": 2
-                },
                 "log_lines": {
                   "description": "Progress log lines.",
                   "type": "array",
@@ -946,6 +941,11 @@
                   "type": "integer",
                   "format": "int64",
                   "x-order": 1
+                },
+                "done": {
+                  "description": "True when update is done.",
+                  "type": "boolean",
+                  "x-order": 2
                 }
               }
             }
@@ -960,6 +960,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -972,13 +976,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -1040,6 +1040,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -1052,13 +1056,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -1088,6 +1088,57 @@
             "schema": {
               "type": "object",
               "properties": {
+                "version": {
+                  "description": "PMM Server version.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "server": {
+                  "description": "VersionInfo describes component version, or PMM Server as a whole.",
+                  "type": "object",
+                  "properties": {
+                    "version": {
+                      "description": "User-visible version.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "full_version": {
+                      "description": "Full version for debugging.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "timestamp": {
+                      "description": "Build or release date.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 1
+                },
+                "managed": {
+                  "description": "VersionInfo describes component version, or PMM Server as a whole.",
+                  "type": "object",
+                  "properties": {
+                    "version": {
+                      "description": "User-visible version.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "full_version": {
+                      "description": "Full version for debugging.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "timestamp": {
+                      "description": "Build or release date.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 2
+                },
                 "distribution_method": {
                   "description": "DistributionMethod defines PMM Server distribution method: Docker image, OVF/OVA, or AMI.",
                   "type": "string",
@@ -1101,57 +1152,6 @@
                     "DISTRIBUTION_METHOD_DO"
                   ],
                   "x-order": 3
-                },
-                "managed": {
-                  "description": "VersionInfo describes component version, or PMM Server as a whole.",
-                  "type": "object",
-                  "properties": {
-                    "full_version": {
-                      "description": "Full version for debugging.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "timestamp": {
-                      "description": "Build or release date.",
-                      "type": "string",
-                      "format": "date-time",
-                      "x-order": 2
-                    },
-                    "version": {
-                      "description": "User-visible version.",
-                      "type": "string",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 2
-                },
-                "server": {
-                  "description": "VersionInfo describes component version, or PMM Server as a whole.",
-                  "type": "object",
-                  "properties": {
-                    "full_version": {
-                      "description": "Full version for debugging.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "timestamp": {
-                      "description": "Build or release date.",
-                      "type": "string",
-                      "format": "date-time",
-                      "x-order": 2
-                    },
-                    "version": {
-                      "description": "User-visible version.",
-                      "type": "string",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 1
-                },
-                "version": {
-                  "description": "PMM Server version.",
-                  "type": "string",
-                  "x-order": 0
                 }
               }
             }
@@ -1166,6 +1166,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -1178,13 +1182,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
