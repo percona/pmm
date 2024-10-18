@@ -5,7 +5,7 @@ export const formatVersion = ({
   version,
   timestamp,
   tag,
-}: LatestInfo & CurrentInfo) => {
+}: Partial<LatestInfo & CurrentInfo>) => {
   const text =
     ` ${version}` + (timestamp ? `, ${formatTimestamp(timestamp)}` : '');
 
