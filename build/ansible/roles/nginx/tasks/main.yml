@@ -73,14 +73,14 @@
     - /etc/nginx
     - /srv/nginx
 
-- name: Change ownership of nginx files
+- name: Provision a few nginx files
   file:
     path: "{{ item }}"
     state: touch
     group: pmm
     owner: pmm
   loop:
-    # - /run/nginx.pid
+    - /run/nginx.pid
     - /srv/logs/nginx.log
 
 - name: Check nginx configuration
