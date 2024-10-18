@@ -35,6 +35,9 @@ var (
 	_ = sort.Sort
 )
 
+// define the regex for a UUID once up-front
+var _services_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
 // Validate checks the field values on MySQLService with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -1400,10 +1403,11 @@ func (m *GetServiceRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := GetServiceRequestValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = GetServiceRequestValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -1413,6 +1417,14 @@ func (m *GetServiceRequest) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetServiceRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetServiceRequest) _validateUuid(uuid string) error {
+	if matched := _services_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -2583,10 +2595,11 @@ func (m *AddMySQLServiceParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
-		err := AddMySQLServiceParamsValidationError{
+	if err := m._validateUuid(m.GetNodeId()); err != nil {
+		err = AddMySQLServiceParamsValidationError{
 			field:  "NodeId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -2610,6 +2623,14 @@ func (m *AddMySQLServiceParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddMySQLServiceParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddMySQLServiceParams) _validateUuid(uuid string) error {
+	if matched := _services_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -2721,10 +2742,11 @@ func (m *AddMongoDBServiceParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
-		err := AddMongoDBServiceParamsValidationError{
+	if err := m._validateUuid(m.GetNodeId()); err != nil {
+		err = AddMongoDBServiceParamsValidationError{
 			field:  "NodeId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -2748,6 +2770,14 @@ func (m *AddMongoDBServiceParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddMongoDBServiceParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddMongoDBServiceParams) _validateUuid(uuid string) error {
+	if matched := _services_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -2859,10 +2889,11 @@ func (m *AddPostgreSQLServiceParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
-		err := AddPostgreSQLServiceParamsValidationError{
+	if err := m._validateUuid(m.GetNodeId()); err != nil {
+		err = AddPostgreSQLServiceParamsValidationError{
 			field:  "NodeId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -2888,6 +2919,14 @@ func (m *AddPostgreSQLServiceParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddPostgreSQLServiceParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddPostgreSQLServiceParams) _validateUuid(uuid string) error {
+	if matched := _services_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -2999,10 +3038,11 @@ func (m *AddProxySQLServiceParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
-		err := AddProxySQLServiceParamsValidationError{
+	if err := m._validateUuid(m.GetNodeId()); err != nil {
+		err = AddProxySQLServiceParamsValidationError{
 			field:  "NodeId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -3026,6 +3066,14 @@ func (m *AddProxySQLServiceParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddProxySQLServiceParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddProxySQLServiceParams) _validateUuid(uuid string) error {
+	if matched := _services_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -3137,10 +3185,11 @@ func (m *AddHAProxyServiceParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
-		err := AddHAProxyServiceParamsValidationError{
+	if err := m._validateUuid(m.GetNodeId()); err != nil {
+		err = AddHAProxyServiceParamsValidationError{
 			field:  "NodeId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -3158,6 +3207,14 @@ func (m *AddHAProxyServiceParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddHAProxyServiceParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddHAProxyServiceParams) _validateUuid(uuid string) error {
+	if matched := _services_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -3269,10 +3326,11 @@ func (m *AddExternalServiceParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
-		err := AddExternalServiceParamsValidationError{
+	if err := m._validateUuid(m.GetNodeId()); err != nil {
+		err = AddExternalServiceParamsValidationError{
 			field:  "NodeId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -3292,6 +3350,14 @@ func (m *AddExternalServiceParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddExternalServiceParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddExternalServiceParams) _validateUuid(uuid string) error {
+	if matched := _services_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -3392,10 +3458,11 @@ func (m *RemoveServiceRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := RemoveServiceRequestValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = RemoveServiceRequestValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -3407,6 +3474,14 @@ func (m *RemoveServiceRequest) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return RemoveServiceRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *RemoveServiceRequest) _validateUuid(uuid string) error {
+	if matched := _services_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -3609,10 +3684,11 @@ func (m *ChangeServiceRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := ChangeServiceRequestValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = ChangeServiceRequestValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -3669,6 +3745,14 @@ func (m *ChangeServiceRequest) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return ChangeServiceRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *ChangeServiceRequest) _validateUuid(uuid string) error {
+	if matched := _services_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
