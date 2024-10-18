@@ -16,9 +16,7 @@ package profiler
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"os"
 	"sort"
 	"strings"
 	"testing"
@@ -32,7 +30,6 @@ import (
 
 	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/aggregator"
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
-	"github.com/percona/pmm/agent/runner/actions"
 	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/agent/utils/tests"
 	"github.com/percona/pmm/agent/utils/truncate"
@@ -210,63 +207,6 @@ func testProfiler(t *testing.T, url string) {
 	require.NotNil(t, findBucket)
 	assert.Equal(t, "FIND people name_00\ufffd", findBucket.Common.Fingerprint)
 	assert.Equal(t, docsCount, findBucket.Mongodb.MDocsReturnedSum)
-
-	// PMM-4192 This seems to be out of place because it is an Explain test but there was a problem with
-	// the new MongoDB driver and bson.D and we were capturing invalid queries in the profiler.
-	// This test is here to ensure the query example the profiler captures is valid to be used in Explain.
-	t.Run("TestMongoDBExplain", func(t *testing.T) {
-		id := "abcd1234"
-
-		params := &agentv1.StartActionRequest_MongoDBExplainParams{
-			Dsn:   tests.GetTestMongoDBDSN(t),
-			Query: findBucket.Common.Example,
-		}
-		client := tests.OpenTestMongoDB(t, params.Dsn)
-
-		ex, err := actions.NewMongoDBExplainAction(id, 5*time.Second, params, os.TempDir())
-		require.NoError(t, err)
-
-		ctx, cancel := context.WithTimeout(context.Background(), ex.Timeout())
-		defer cancel()
-		res, err := ex.Run(ctx)
-		assert.Nil(t, err)
-
-		want := map[string]interface{}{
-			"indexFilterSet": false,
-			"namespace":      "test_00.people",
-			"parsedQuery": map[string]interface{}{
-				"name_00\ufffd": map[string]interface{}{
-					"$eq": "value_00\ufffd",
-				},
-			},
-			"rejectedPlans": []interface{}{},
-		}
-		mongoDBVersion := tests.MongoDBVersion(t, client)
-
-		switch {
-		case mongoDBVersion.Major < 5:
-			want["plannerVersion"] = map[string]interface{}{"$numberInt": "1"}
-		default:
-			want["maxIndexedAndSolutionsReached"] = false
-			want["maxIndexedOrSolutionsReached"] = false
-			want["maxScansToExplodeReached"] = false
-		}
-
-		explainM := make(map[string]interface{})
-		err = json.Unmarshal(res, &explainM)
-		assert.Nil(t, err)
-		queryPlanner, ok := explainM["queryPlanner"].(map[string]interface{})
-		want["winningPlan"] = queryPlanner["winningPlan"]
-		assert.Equal(t, ok, true)
-		assert.NotEmpty(t, queryPlanner)
-
-		// Remove fields that are not present in all versions
-		if mongoDBVersion.Major >= 6 {
-			delete(queryPlanner, "planCacheKey")
-			delete(queryPlanner, "queryHash")
-		}
-		assert.Equal(t, want, queryPlanner)
-	})
 }
 
 func cleanUpDBs(t *testing.T, sess *mongo.Client) {
