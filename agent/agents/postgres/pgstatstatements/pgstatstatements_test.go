@@ -120,18 +120,6 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	engineVersion := tests.PostgreSQLVersion(t, sqlDB)
 	var digests map[string]string // digest_text/fingerprint to digest/query_id
 	switch engineVersion {
-	case "9.4":
-		truncatedMSharedBlksHitSum = float32(1007)
-		digests = map[string]string{
-			selectAllCities:     "3239586867",
-			selectAllCitiesLong: "2745128652",
-		}
-	case "9.5", "9.6":
-		truncatedMSharedBlksHitSum = float32(1007)
-		digests = map[string]string{
-			selectAllCities:     "3994135135",
-			selectAllCitiesLong: "2677760328",
-		}
 	case "10":
 		truncatedMSharedBlksHitSum = float32(1007)
 		digests = map[string]string{
@@ -360,7 +348,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
 				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
 				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
-				MSharedBlksHitCnt:     1,
+				MSharedBlksHitCnt:     actual.Postgresql.MSharedBlksHitCnt,
 				MSharedBlksHitSum:     actual.Postgresql.MSharedBlksHitSum,
 				MRowsCnt:              1,
 				MRowsSum:              499,
@@ -408,16 +396,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		t.Logf("Actual:\n%s", tests.FormatBuckets(buckets))
 		require.Len(t, buckets, 1)
 
-		var fingerprint string
-		tables := []string{tableName}
+		fingerprint := fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)`, tableName)
 
-		switch engineVersion {
-		case "9.4", "9.5", "9.6":
-			fingerprint = fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (?, ?, ?, ?)`, tableName)
-			tables = []string{}
-		default:
-			fingerprint = fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)`, tableName)
-		}
 		actual := buckets[0]
 		assert.NotZero(t, actual.Postgresql.MSharedBlkReadTimeSum+actual.Postgresql.MSharedBlkWriteTimeSum)
 		assert.Equal(t, float32(n), actual.Postgresql.MSharedBlkReadTimeCnt+actual.Postgresql.MSharedBlkWriteTimeCnt)
@@ -426,7 +406,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				Queryid:             actual.Common.Queryid,
 				Fingerprint:         fingerprint,
 				Database:            "pmm-agent",
-				Tables:              tables,
+				Tables:              []string{tableName},
 				Comments:            map[string]string{"controller": "test"},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",

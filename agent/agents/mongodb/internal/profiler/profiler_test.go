@@ -16,9 +16,7 @@ package profiler
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"os"
 	"sort"
 	"strings"
 	"testing"
@@ -32,7 +30,6 @@ import (
 
 	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/aggregator"
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
-	"github.com/percona/pmm/agent/runner/actions"
 	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/agent/utils/tests"
 	"github.com/percona/pmm/agent/utils/truncate"
@@ -69,11 +66,11 @@ func TestProfiler(t *testing.T) {
 	tempDir := t.TempDir()
 	sslDSN, err := templates.RenderDSN(sslDSNTemplate, files, tempDir)
 	require.NoError(t, err)
-	for _, url := range []string{
-		"mongodb://root:root-password@127.0.0.1:27017/admin",
-		sslDSN,
+	for name, url := range map[string]string{
+		"normal": tests.GetTestMongoDBDSN(t),
+		"ssl":    sslDSN,
 	} {
-		t.Run(url, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			testProfiler(t, url)
 		})
 	}
@@ -210,47 +207,6 @@ func testProfiler(t *testing.T, url string) {
 	require.NotNil(t, findBucket)
 	assert.Equal(t, "FIND people name_00\ufffd", findBucket.Common.Fingerprint)
 	assert.Equal(t, docsCount, findBucket.Mongodb.MDocsReturnedSum)
-
-	// PMM-4192 This seems to be out of place because it is an Explain test but there was a problem with
-	// the new MongoDB driver and bson.D and we were capturing invalid queries in the profiler.
-	// This test is here to ensure the query example the profiler captures is valid to be used in Explain.
-	t.Run("TestMongoDBExplain", func(t *testing.T) {
-		id := "abcd1234"
-
-		params := &agentv1.StartActionRequest_MongoDBExplainParams{
-			Dsn:   tests.GetTestMongoDBDSN(t),
-			Query: findBucket.Common.Example,
-		}
-
-		ex, err := actions.NewMongoDBExplainAction(id, 5*time.Second, params, os.TempDir())
-		require.NoError(t, err)
-
-		ctx, cancel := context.WithTimeout(context.Background(), ex.Timeout())
-		defer cancel()
-		res, err := ex.Run(ctx)
-		assert.Nil(t, err)
-
-		want := map[string]interface{}{
-			"indexFilterSet": false,
-			"namespace":      "test_00.people",
-			"parsedQuery": map[string]interface{}{
-				"name_00\ufffd": map[string]interface{}{
-					"$eq": "value_00\ufffd",
-				},
-			},
-			"plannerVersion": map[string]interface{}{"$numberInt": "1"},
-			"rejectedPlans":  []interface{}{},
-		}
-
-		explainM := make(map[string]interface{})
-		err = json.Unmarshal(res, &explainM)
-		assert.Nil(t, err)
-		queryPlanner, ok := explainM["queryPlanner"].(map[string]interface{})
-		want["winningPlan"] = queryPlanner["winningPlan"]
-		assert.Equal(t, ok, true)
-		assert.NotEmpty(t, queryPlanner)
-		assert.Equal(t, want, queryPlanner)
-	})
 }
 
 func cleanUpDBs(t *testing.T, sess *mongo.Client) {

@@ -102,7 +102,11 @@ func TestMySQLExplain(t *testing.T) {
 
 		var table map[string]interface{}
 		if mySQLVendor == version.MariaDBVendor {
-			table = m.Get("query_block.read_sorted_file.filesort.table").MSI()
+			if mySQLVersion.Float() >= 11 {
+				table = m.Get("query_block.nested_loop[0].read_sorted_file.filesort.table").MSI()
+			} else {
+				table = m.Get("query_block.read_sorted_file.filesort.table").MSI()
+			}
 		} else {
 			table = m.Get("query_block.ordering_operation.table").MSI()
 		}
