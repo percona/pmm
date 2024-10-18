@@ -37,16 +37,6 @@ type AddCommonFlags struct {
 	AddPortFlag        uint16 `name:"port" placeholder:"PORT" help:"Service port number (overrides positional argument)"`
 }
 
-// AddLogLevelFatalFlags contains log level flag with "fatal" option.
-type AddLogLevelFatalFlags struct {
-	AddLogLevel string `name:"log-level" enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
-}
-
-// AddLogLevelNoFatalFlags contains log level flag without "fatal" option.
-type AddLogLevelNoFatalFlags struct {
-	AddLogLevel string `name:"log-level" enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [debug, info, warn, error]"`
-}
-
 type connectionGetter interface {
 	GetServiceName() string
 	GetAddress() string
