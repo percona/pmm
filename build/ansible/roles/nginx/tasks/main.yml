@@ -70,6 +70,7 @@
     recurse: yes
   loop:
     - /var/lib/nginx
+    - /var/log/nginx
     - /etc/nginx
     - /srv/nginx
 
@@ -80,7 +81,7 @@
     group: pmm
     owner: pmm
   loop:
-    - /run/nginx.pid
+    - /tmp/nginx.pid
     - /srv/logs/nginx.log
 
 - name: Check nginx configuration
