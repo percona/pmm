@@ -7,6 +7,7 @@
     kubectl_version: "1.29.2"
     doctl_version: "1.105.0"
     node_version: "18.x"
+    goreleaser_version: "2.3.2" # https://github.com/goreleaser/goreleaser/releases
 
   tasks:
     - name: Detect vm architecture
@@ -97,11 +98,12 @@
     - name: Install bats
       shell: "npm install -g bats"
     
-    # - name: Install docker-compose
-    #   get_url:
-    #     url: "https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-linux-{{ ansible_architecture }}"
-    #     dest: /usr/local/bin/docker-compose
-    #     mode: "u+x,g+x,o+x"
+    # TODO: remove once we refactor percona/pmm-qa and percona-lab/qa-integration
+    - name: Install docker-compose
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-linux-{{ ansible_architecture }}"
+        dest: /usr/local/bin/docker-compose
+        mode: "u+x,g+x,o+x"
 
     - name: Install kubectl
       get_url:
@@ -126,6 +128,11 @@
         dest: /usr/local/bin
         remote_src: yes
         mode: "u+x,g+x,o+x"
+
+    - name: Install goreleaser
+      yum:
+        name: https://github.com/goreleaser/goreleaser/releases/download/v{{ goreleaser_version }}/goreleaser-{{ goreleaser_version }}-1.{{ ansible_architecture }}.rpm
+        state: present
 
     - name: Instal yq
       get_url:
@@ -197,6 +204,7 @@
         - rockylinux:8
         - oraclelinux:9
         - public.ecr.aws/e7j3v3n0/rpmbuild:3
+        - public.ecr.aws/e7j3v3n0/rpmbuild:2
 
     - name: Turn off swap
       sysctl:
