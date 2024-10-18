@@ -138,5 +138,5 @@ var eventsStatementsHistoryLongView = &eventsStatementsHistoryViewType{
 		},
 		PKFieldIndex: -1,
 	},
-	z: new(eventsStatementsHistory).Values(),
+	z: (&eventsStatementsHistory{}).Values(),
 }
