@@ -105,3 +105,12 @@
         owner: pmm
         group: pmm
         mode: 0775
+
+    # nginx needs to be able to write to /var/lib/nginx, but it's owned by root.
+    - name: Change ownership of nginx dirs
+      file:
+        path: /var/lib/nginx
+        state: directory
+        group: pmm
+        owner: pmm
+        recurse: yes
