@@ -1,78 +1,84 @@
 #!/bin/bash -e
-
-# Define global variables
-NO_UPDATE=0
-UPDATE_ONLY=0
-NO_CLIENT=0
-NO_CLIENT_DOCKER=0
-NO_SERVER_RPM=0
-NO_SERVER_DOCKER=0
-START_TIME=$(date +%s)
-LOG_FILE="/tmp/build.log"
-BASE_NAME=$(basename $0)
-USAGE="Usage: $BASE_NAME [--no-update | --update-only] [--no-client] [--no-client-docker] [--no-server-rpm] [--log-file <path>] [--help | -h]"
-
-while test "$#" -gt 0; do
-  case "$1" in
-    --update-only)
-      UPDATE_ONLY=1; NO_UPDATE=0
-      ;;
-    --no-update)
-      NO_UPDATE=1
-      ;;
-    --no-client)
-      NO_CLIENT=1; NO_CLIENT_DOCKER=1
-      ;;
-    --no-client-docker)
-      NO_CLIENT_DOCKER=1
-      ;;
-    --no-server-rpm)
-      if [ "$NO_SERVER_DOCKER" -eq 1 ]; then
-        echo "Cannot disable both server RPM and server Docker"
-        exit 1
-      fi
-      NO_SERVER_RPM=1
-      ;;
-    --no-server-docker)
-      if [ "$NO_SERVER_RPM" -eq 1 ]; then
-        echo "Cannot disable both server RPM and server Docker"
-        exit 1
-      fi
-      NO_SERVER_DOCKER=1
-      ;;
-    --log-file)
-      shift
-      if [ -z "$1" ]; then
-        echo "Missing argument for --log-file"
-        exit 1
-      fi
-      LOG_FILE="$1"
-      ;;
-    --help | -h)
-      shift
-      usage
-      exit 0
-      ;;
-    *)
-      echo "Unknown argument: $1"
-      usage
-      exit 1
-      ;;
-  esac
-  shift
-done
+set -o errexit
+set -o nounset
 
 usage() {
   cat <<-EOF
-Usage: $BASE_NAME [--no-update | --update-only] [--no-client] [--no-client-docker] [--no-server-rpm] [--log-file <path>] [--help | -h]
+Usage: $BASE_NAME [--no-update | --update-only] [--no-client] [--no-client-docker] [--no-server-rpm] [--no-server-docker] [--log-file <path>] [--help | -h]
 --no-update              Do not fetch the latest changes from the repo
 --update-only            Only fetch the latest changes from the repo
---no-client              Do not (re)build PMM client
---no-client-docker       Do not (re)build PMM Client docker image
---no-server-rpm          Do not (re)build Server RPM packages
+--no-client              Do not build PMM Client
+--client-docker          Build PMM Client docker image
+--no-server-rpm          Do not build Server RPM packages
+--no-server-docker       Do not build PMM Server docker image
 --log-file <path>        Save build logs to a file located at <path>
 --help | -h              Display help
 EOF
+}
+
+parse-params() {
+  # Define global variables
+  NO_UPDATE=0
+  UPDATE_ONLY=0
+  NO_CLIENT=0
+  NO_CLIENT_DOCKER=1
+  NO_SERVER_RPM=0
+  NO_SERVER_DOCKER=0
+  START_TIME=$(date +%s)
+  LOG_FILE="$(dirname $0)/build.log"
+  BASE_NAME=$(basename $0)
+  SUBMODULES=pmm-submodules
+  PATH_TO_SCRIPTS="sources/pmm/src/github.com/percona/pmm/build/scripts"
+
+  while test "$#" -gt 0; do
+    case "$1" in
+      --update-only)
+        UPDATE_ONLY=1; NO_UPDATE=0
+        ;;
+      --no-update)
+        NO_UPDATE=1
+        ;;
+      --no-client)
+        NO_CLIENT=1; NO_CLIENT_DOCKER=1
+        ;;
+      --client-docker)
+        NO_CLIENT_DOCKER=0
+        ;;
+      --no-server-rpm)
+        if [ "$NO_SERVER_DOCKER" -eq 1 ]; then
+          echo "Error: cannot disable both server RPM and server Docker"
+          exit 1
+        fi
+        NO_SERVER_RPM=1
+        ;;
+      --no-server-docker)
+        if [ "$NO_SERVER_RPM" -eq 1 ]; then
+          echo "Error: cannot disable both server RPM and server Docker"
+          exit 1
+        fi
+        NO_SERVER_DOCKER=1
+        ;;
+      --log-file)
+        shift
+        if [ -z "$1" ]; then
+          echo "Missing argument for --log-file"
+          exit 1
+        fi
+        LOG_FILE="$1"
+        ;;
+      --help | -h)
+        shift
+        usage
+        exit 0
+        ;;
+      *)
+        echo "Unknown argument: $1"
+        usage
+        exit 1
+        ;;
+    esac
+    shift
+  done
 }
 
 needs-to-pull() {
@@ -95,7 +101,7 @@ rewind() {
   local BRANCH="$2"
 
   cd "$DIR" > /dev/null
-  CURRENT=$(git branch --show-current)
+  local CURRENT=$(git branch --show-current)
   git fetch
 
   if [ "$CURRENT" != "$BRANCH" ]; then
@@ -130,14 +136,17 @@ check-files() {
 update() {
   local DEPS=
   local CURDIR="$PWD"
-  local DIR=pmm-submodules
 
   # Thouroughly verify the presence of known files, otherwise bail out
-  if check-files "."; then # pwd is pmm-submodules
-    DIR="."
-  elif [ -d "$DIR" ]; then # pwd is outside pmm-submodules
-    if ! check-files "$DIR"; then
-      echo "Fatal: could not locate known files in ${PWD}/${DIR}"
+  if [ ! -d "$SUBMODULES" ] ; then # pwd must outside of pmm-submodules
+    echo "Warn: the current working directory must be outside of pmm-submodules"
+    echo "cd .."
+    cd .. > /dev/null
+  fi
+
+  if [ -d "$SUBMODULES" ]; then # pwd is outside pmm-submodules
+    if ! check-files "$SUBMODULES"; then
+      echo "Fatal: could not locate known files in ${PWD}/${SUBMODULES}"
       exit 1
     fi
   else
@@ -145,7 +154,7 @@ update() {
     exit 1
   fi
 
-  cd "$DIR"
+  cd "$SUBMODULES"
 
   # Join the dependencies from ci-default.yml and ci.yml
   DEPS=$(yq -o=json eval-all '. as $item ireduce ({}; . *d $item )' ci-default.yml ci.yml | jq '.deps')
@@ -186,13 +195,17 @@ get_branch_name() {
 }
 
 build_with_logs() {
+  local CURDIR="$PWD"
   local script="$PATH_TO_SCRIPTS/$1"
   local start_time
   local end_time
   local script_name="$1"
 
+  cd "$SUBMODULES" > /dev/null
+
   if [ ! -f "$script" ]; then
     echo "Fatal: script $script does not exist"
+    cd "$CURDIR" > /dev/null
     exit 1
   fi
 
@@ -209,43 +222,82 @@ build_with_logs() {
   echo ---
   echo "Execution time (in sec) for $script_name: $((end_time - start_time))" | tee -a $LOG_FILE
   echo ---
+
+  cd "$CURDIR" > /dev/null
 }
 
 purge_files() {
+  local CURDIR=$PWD
   local tmp_files
+
+  cd "$SUBMODULES" > /dev/null
   # Remove stale files and directories
   if [ -d tmp ]; then
     echo "Removing stale files and directories..."
+
     if [ -d "tmp/pmm-server" ]; then
       tmp_files=$(find tmp/pmm-server | grep -v "RPMS" | grep -Ev "^tmp/pmm-server$" || :)
-      tmp_files=($tmp_files)
-      for f in "${tmp_files[@]}"; do
-        rm -rf "$f"
-      done
+      if [ -n "$tmp_files" ]; then
+        tmp_files=( $tmp_files )
+        for f in "${tmp_files[@]}"; do
+          rm -rf "$f"
+        done
+      fi
     fi
+
     if [ -d "tmp/source/pmm" ]; then
       rm -rf tmp/source/pmm
     fi
   fi
+
   if [ -f "$LOG_FILE" ]; then
     echo "Removing the log file..."
     rm -f $LOG_FILE
   fi
+
+  cd "$CURDIR"
 }
 
 init() {
-  PATH_TO_SCRIPTS="sources/pmm/src/github.com/percona/pmm/build/scripts"
-  "${PATH_TO_SCRIPTS}/build-submodules"
+  local CURDIR="$PWD"
+
   export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:3
 
+  if [ -d "$SUBMODULES" ]; then
+    cd "$SUBMODULES" > /dev/null
+  fi
+
+  pmm_commit=$(git submodule status | grep 'sources/pmm/src' | awk -F ' ' '{print $1}')
+  pmm_branch=$(git config -f .gitmodules submodule.pmm.branch)
+  pmm_url=$(git config -f .gitmodules submodule.pmm.url)
+  pmm_qa_branch=$(git config -f .gitmodules submodule.pmm-qa.branch)
+  pmm_qa_commit=$(git submodule status | grep 'pmm-qa' | awk -F ' ' '{print $1}')
+  pmm_ui_tests_branch=$(git config -f .gitmodules submodule.pmm-ui-tests.branch)
+  pmm_ui_tests_commit=$(git submodule status | grep 'pmm-ui-tests' | awk -F ' ' '{print $1}')
+  fb_commit_sha=$(git rev-parse HEAD)
+
+  echo $fb_commit_sha > fbCommitSha
+  echo $pmm_commit > apiCommitSha
+  echo $pmm_branch > apiBranch
+  echo $pmm_url > apiURL
+  echo $pmm_qa_branch > pmmQABranch
+  echo $pmm_qa_commit > pmmQACommitSha
+  echo $pmm_ui_tests_branch > pmmUITestBranch
+  echo $pmm_ui_tests_commit > pmmUITestsCommitSha
+
   # Create cache directories. Read more in the section about `rpmbuild`.
-  test -d "${root_dir}/go-path" || mkdir -p "go-path"
-  test -d "${root_dir}/go-build" || mkdir -p "go-build"
-  test -d "${root_dir}/yarn-cache" || mkdir -p "yarn-cache"
-  test -d "${root_dir}/yum-cache" || mkdir -p "yum-cache"
+  test -d "go-path" || mkdir -p "go-path"
+  test -d "go-build" || mkdir -p "go-build"
+  test -d "yarn-cache" || mkdir -p "yarn-cache"
+  test -d "yum-cache" || mkdir -p "yum-cache"
+
+  cd "$CURDIR" > /dev/null
 }
 
 cleanup() {
+  local CURDIR="$PWD"
+  cd "$SUBMODULES" > /dev/null
+
   # Clean up temporary files
   rm -f apiBranch \
     apiCommitSha \
@@ -254,13 +306,15 @@ cleanup() {
     pmmQABranch \
     pmmQACommitSha \
     pmmUITestBranch \
-    pmmUITestsCommitSha
+    pmmUITestsCommitSha || :
+
+  cd "$CURDIR" > /dev/null
 }
 
 main() {
   if [ "$NO_UPDATE" -eq 0 ]; then
     MD5SUM=$(md5sum $(dirname $0)/build.sh)
-    
+
     # Update submodules and PR branches
     update
 
@@ -274,6 +328,7 @@ main() {
   fi
 
   init
+
   purge_files
 
   if [ "$NO_CLIENT" -eq 0 ]; then
@@ -300,7 +355,6 @@ main() {
   # Building PMM CLient locally (non-CI, i.e. non-Jenkins)
   # total time: 6m26s - build from scratch, no initial cache
   # total time: 2m49s - subsequent build, using cache from prior builds
-
 
   # Building PMM CLient in a CI environment, i.e. Jenkins running on AWS
   # total time: 8m45s - build from scratch, no initial cache
@@ -335,9 +389,11 @@ main() {
   cleanup
 }
 
-# Local reference test environment
+# Reference test environment
 # CPU: 4 cores
-# RAM: 16GB
+# RAM: 16 GB
 # OS: Ubuntu 22.04.1 LTS
+
+parse-params "$@"
 
 main

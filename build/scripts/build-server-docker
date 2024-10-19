@@ -34,10 +34,11 @@ main() {
       DOCKER_TAG=perconalab/pmm-server-fb:${full_pmm_version}
   fi
 
-  IMAGE_VERSION=$(echo "$DOCKER_TAG" | cut -d ':' -f2)
+  local IMAGE_VERSION=$(echo "$DOCKER_TAG" | cut -d ':' -f2)
+  local BUILD_DATE=$(date -u +'%F %T%z' | sed 's@^.\{22\}@&:@')
 
   docker buildx build \
-      --build-arg BUILD_DATE="$(date --rfc-3339=seconds)" \
+      --build-arg BUILD_DATE="$BUILD_DATE" \
       --build-arg VERSION="$IMAGE_VERSION" \
       --progress plain \
       -f ${docker_root}/${docker_file} \
