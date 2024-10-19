@@ -81,6 +81,7 @@ main() {
     mkdir -p ${source_dir}/ $(dirname ${source_tarball}) || :
     echo "PMM_SUBMODULES_COMMIT=$(git rev-parse --short HEAD)" > ${client_properties}
     prepare_vmagent_tarball
+    prepare_nomad_tarball
     prepare_tarball pmm-submodules
     prepare_tarball pmm
     prepare_tarball mongodb_exporter
