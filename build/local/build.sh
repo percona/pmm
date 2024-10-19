@@ -50,19 +50,30 @@ while test "$#" -gt 0; do
       ;;
     --help | -h)
       shift
-      echo "$USAGE"
-      echo
+      usage
       exit 0
       ;;
     *)
       echo "Unknown argument: $1"
-      echo "$USAGE"
-      echo
+      usage
       exit 1
       ;;
   esac
   shift
 done
+
+usage() {
+  cat <<-EOF
+Usage: $BASE_NAME [--no-update | --update-only] [--no-client] [--no-client-docker] [--no-server-rpm] [--log-file <path>] [--help | -h]
+--no-update              Do not fetch the latest changes from the repo
+--update-only            Only fetch the latest changes from the repo
+--no-client              Do not (re)build PMM client
+--no-client-docker       Do not (re)build PMM Client docker image
+--no-server-rpm          Do not (re)build Server RPM packages
+--log-file <path>        Save build logs to a file located at <path>
+--help | -h              Display help
+EOF
+}
 
 needs-to-pull() {
   local UPSTREAM=${1:-'@{u}'}
@@ -83,7 +94,7 @@ rewind() {
   local DIR="$1"
   local BRANCH="$2"
 
-  cd "$DIR"
+  cd "$DIR" > /dev/null
   CURRENT=$(git branch --show-current)
   git fetch
 
@@ -96,10 +107,10 @@ rewind() {
     git pull origin
     echo "Submodule has pulled from upstream"
     git logs -n 2
-    cd - >/dev/null
+    cd - > /dev/null
     git add "$DIR"
   else
-    cd - >/dev/null
+    cd - > /dev/null
     echo "Submodule is up-to-date with upstream"
   fi
 }
@@ -223,25 +234,8 @@ purge_files() {
 }
 
 init() {
-  # Define global variables
-  pmm_commit=$(git submodule status | grep 'sources/pmm/src' | awk -F ' ' '{print $1}')
-  echo $pmm_commit > apiCommitSha
-  pmm_branch=$(get_branch_name pmm)
-  echo $pmm_branch > apiBranch
-  pmm_url=$(git config -f .gitmodules submodule.pmm.url)
-  echo $pmm_url > apiURL
-  pmm_qa_branch=$(get_branch_name pmm-qa)
-  echo $pmm_qa_branch > pmmQABranch
-  pmm_qa_commit=$(git submodule status | grep 'pmm-qa' | awk -F ' ' '{print $1}')
-  echo $pmm_qa_commit > pmmQACommitSha
-  pmm_ui_tests_branch=$(get_branch_name pmm-ui-tests)
-  echo $pmm_ui_tests_branch > pmmUITestBranch
-  pmm_ui_tests_commit=$(git submodule status | grep 'pmm-ui-tests' | awk -F ' ' '{print $1}')
-  echo $pmm_ui_tests_commit > pmmUITestsCommitSha
-  fb_commit_sha=$(git rev-parse HEAD)
-  echo $fb_commit_sha > fbCommitSha
-
   PATH_TO_SCRIPTS="sources/pmm/src/github.com/percona/pmm/build/scripts"
+  "${PATH_TO_SCRIPTS}/build-submodules"
   export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:3
 
   # Create cache directories. Read more in the section about `rpmbuild`.
@@ -290,10 +284,10 @@ main() {
     build_with_logs build-client-binary
 
     # Building client source rpm takes 13s (caching does not apply)
-    build_with_logs build-client-srpm
+    # build_with_logs build-client-srpm
 
     # Building client rpm takes 1m40s
-    build_with_logs build-client-rpm
+    # build_with_logs build-client-rpm
   fi
 
   # Building client docker image takes 17s
@@ -327,7 +321,7 @@ main() {
   fi
 
   if [ "$NO_SERVER_DOCKER" -eq 0 ]; then
-    export DOCKER_TAG=local/pmm-server:${GIT_COMMIT}
+    export DOCKER_TAG=percona/pmm-server:${GIT_COMMIT}
     export DOCKERFILE=Dockerfile.el9
     build_with_logs build-server-docker
   fi
