@@ -113,6 +113,7 @@ main() {
 
     echo ${pmm_version} > ${binary_dir}/VERSION
 
+    copy_component "nomad" "pkg/linux_amd64/nomad" "nomad"
     copy_component "pmm" "build/packages/rpm/client" "rpm"
     copy_component "pmm" "build/packages/config" "config"
     copy_component "pmm" "build/packages/deb" "debian"
