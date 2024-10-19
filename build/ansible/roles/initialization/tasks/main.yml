@@ -58,7 +58,7 @@
       timeout: 150
 
   - name: Create grafana DB
-    block:            
+    block:
       - name: Create grafana database in postgres
         postgresql_db:
           name: grafana
