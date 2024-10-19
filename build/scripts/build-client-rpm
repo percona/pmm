@@ -25,14 +25,13 @@ main() {
 
         export pmm_version=$pmm_version
         export pmm_release=$pmm_release
-        export sudo_path=\$$(command -v sudo)
         mkdir -p /tmp/pmm
         cd /home/builder/results
         /home/builder/bin/build-client-packages \
             --builddir=/tmp/pmm \
             --build_rpm=1
 
-        \$sudo_path chown -R $(id -u):$(id -g) /home/builder/results/rpm
+        sudo_path chown -R $(id -u):$(id -g) /home/builder/results/rpm
     "
 }
 

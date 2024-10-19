@@ -27,6 +27,10 @@ gobuild_component() {
     local archive=$(ls ${source_dir} | grep -e "${parent_component}-\w*\.tar\.gz" | head -n1)
     local build_command
 
+    if [ "$(uname -o)" = "Darwin" ]; then
+      local GOARCH=$(uname -m)
+    fi
+
     if [ -d "${root_dir}/go-build" ]; then
         volume_mounts+=" -v ${root_dir}/go-build:/home/builder/.cache/go-build"
     fi
