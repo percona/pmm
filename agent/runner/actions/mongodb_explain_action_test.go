@@ -282,9 +282,25 @@ func TestMongoDBExplain(t *testing.T) {
 			"parsedQuery": map[string]interface{}{
 				"k": map[string]interface{}{"$lte": map[string]interface{}{"$numberInt": "1"}},
 			},
-			"plannerVersion": map[string]interface{}{"$numberInt": "1"},
-			"rejectedPlans":  []interface{}{},
-			"winningPlan":    map[string]interface{}{"stage": "EOF"},
+			"rejectedPlans": []interface{}{},
+			"winningPlan":   map[string]interface{}{"stage": "EOF"},
+		}
+		mongoDBVersion := tests.MongoDBVersion(t, client)
+
+		switch {
+		case mongoDBVersion.Major < 5:
+			want["plannerVersion"] = map[string]interface{}{"$numberInt": "1"}
+		case mongoDBVersion.Major < 8:
+			want["maxIndexedAndSolutionsReached"] = false
+			want["maxIndexedOrSolutionsReached"] = false
+			want["maxScansToExplodeReached"] = false
+		case mongoDBVersion.Major == 8:
+			want["maxIndexedAndSolutionsReached"] = false
+			want["maxIndexedOrSolutionsReached"] = false
+			want["maxScansToExplodeReached"] = false
+			want["optimizationTimeMillis"] = map[string]interface{}{"$numberInt": "0"}
+			want["winningPlan"] = map[string]interface{}{"stage": "EOF", "isCached": false}
+			want["prunedSimilarIndexes"] = false
 		}
 
 		explainM := make(map[string]interface{})
@@ -321,8 +337,7 @@ func TestNewMongoDBExplain(t *testing.T) {
 			in: "distinct.json",
 		},
 		{
-			in:         "aggregate.json",
-			minVersion: "3.4.0",
+			in: "aggregate.json",
 		},
 		{
 			in: "count.json",
@@ -331,17 +346,7 @@ func TestNewMongoDBExplain(t *testing.T) {
 			in: "find_and_modify.json",
 		},
 	}
-	mongoDBVersion := tests.MongoDBVersion(t, client)
 	for _, tf := range testFiles {
-		// Not all MongoDB versions allow explaining all commands
-		if tf.minVersion != "" {
-			c, err := lessThan(tf.minVersion, mongoDBVersion)
-			require.NoError(t, err)
-			if c {
-				continue
-			}
-		}
-
 		t.Run(tf.in, func(t *testing.T) {
 			query, err := os.ReadFile(filepath.Join("testdata/", filepath.Clean(tf.in)))
 			assert.NoError(t, err)

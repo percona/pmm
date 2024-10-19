@@ -7,6 +7,7 @@ package backup_service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -57,8 +58,44 @@ type DeleteArtifactOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this delete artifact Ok response has a 2xx status code
+func (o *DeleteArtifactOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this delete artifact Ok response has a 3xx status code
+func (o *DeleteArtifactOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete artifact Ok response has a 4xx status code
+func (o *DeleteArtifactOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this delete artifact Ok response has a 5xx status code
+func (o *DeleteArtifactOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete artifact Ok response a status code equal to that given
+func (o *DeleteArtifactOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the delete artifact Ok response
+func (o *DeleteArtifactOK) Code() int {
+	return 200
+}
+
 func (o *DeleteArtifactOK) Error() string {
-	return fmt.Sprintf("[DELETE /v1/backups/artifacts/{artifact_id}][%d] deleteArtifactOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[DELETE /v1/backups/artifacts/{artifact_id}][%d] deleteArtifactOk %s", 200, payload)
+}
+
+func (o *DeleteArtifactOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[DELETE /v1/backups/artifacts/{artifact_id}][%d] deleteArtifactOk %s", 200, payload)
 }
 
 func (o *DeleteArtifactOK) GetPayload() interface{} {
@@ -92,13 +129,44 @@ type DeleteArtifactDefault struct {
 	Payload *DeleteArtifactDefaultBody
 }
 
+// IsSuccess returns true when this delete artifact default response has a 2xx status code
+func (o *DeleteArtifactDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this delete artifact default response has a 3xx status code
+func (o *DeleteArtifactDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this delete artifact default response has a 4xx status code
+func (o *DeleteArtifactDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this delete artifact default response has a 5xx status code
+func (o *DeleteArtifactDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this delete artifact default response a status code equal to that given
+func (o *DeleteArtifactDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the delete artifact default response
 func (o *DeleteArtifactDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *DeleteArtifactDefault) Error() string {
-	return fmt.Sprintf("[DELETE /v1/backups/artifacts/{artifact_id}][%d] DeleteArtifact default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[DELETE /v1/backups/artifacts/{artifact_id}][%d] DeleteArtifact default %s", o._statusCode, payload)
+}
+
+func (o *DeleteArtifactDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[DELETE /v1/backups/artifacts/{artifact_id}][%d] DeleteArtifact default %s", o._statusCode, payload)
 }
 
 func (o *DeleteArtifactDefault) GetPayload() *DeleteArtifactDefaultBody {
@@ -188,6 +256,11 @@ func (o *DeleteArtifactDefaultBody) ContextValidate(ctx context.Context, formats
 func (o *DeleteArtifactDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("DeleteArtifact default" + "." + "details" + "." + strconv.Itoa(i))
@@ -227,6 +300,80 @@ swagger:model DeleteArtifactDefaultBodyDetailsItems0
 type DeleteArtifactDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// delete artifact default body details items0
+	DeleteArtifactDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *DeleteArtifactDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv DeleteArtifactDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.DeleteArtifactDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o DeleteArtifactDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.DeleteArtifactDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.DeleteArtifactDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this delete artifact default body details items0

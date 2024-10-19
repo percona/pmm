@@ -59,8 +59,44 @@ type GetNodeOK struct {
 	Payload *GetNodeOKBody
 }
 
+// IsSuccess returns true when this get node Ok response has a 2xx status code
+func (o *GetNodeOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get node Ok response has a 3xx status code
+func (o *GetNodeOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get node Ok response has a 4xx status code
+func (o *GetNodeOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get node Ok response has a 5xx status code
+func (o *GetNodeOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get node Ok response a status code equal to that given
+func (o *GetNodeOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get node Ok response
+func (o *GetNodeOK) Code() int {
+	return 200
+}
+
 func (o *GetNodeOK) Error() string {
-	return fmt.Sprintf("[GET /v1/management/nodes/{node_id}][%d] getNodeOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/management/nodes/{node_id}][%d] getNodeOk %s", 200, payload)
+}
+
+func (o *GetNodeOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/management/nodes/{node_id}][%d] getNodeOk %s", 200, payload)
 }
 
 func (o *GetNodeOK) GetPayload() *GetNodeOKBody {
@@ -96,13 +132,44 @@ type GetNodeDefault struct {
 	Payload *GetNodeDefaultBody
 }
 
+// IsSuccess returns true when this get node default response has a 2xx status code
+func (o *GetNodeDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get node default response has a 3xx status code
+func (o *GetNodeDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get node default response has a 4xx status code
+func (o *GetNodeDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get node default response has a 5xx status code
+func (o *GetNodeDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get node default response a status code equal to that given
+func (o *GetNodeDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the get node default response
 func (o *GetNodeDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *GetNodeDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/management/nodes/{node_id}][%d] GetNode default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/management/nodes/{node_id}][%d] GetNode default %s", o._statusCode, payload)
+}
+
+func (o *GetNodeDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/management/nodes/{node_id}][%d] GetNode default %s", o._statusCode, payload)
 }
 
 func (o *GetNodeDefault) GetPayload() *GetNodeDefaultBody {
@@ -192,6 +259,11 @@ func (o *GetNodeDefaultBody) ContextValidate(ctx context.Context, formats strfmt
 func (o *GetNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetNode default" + "." + "details" + "." + strconv.Itoa(i))
@@ -231,6 +303,80 @@ swagger:model GetNodeDefaultBodyDetailsItems0
 type GetNodeDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// get node default body details items0
+	GetNodeDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *GetNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv GetNodeDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.GetNodeDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o GetNodeDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.GetNodeDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.GetNodeDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this get node default body details items0
@@ -319,6 +465,11 @@ func (o *GetNodeOKBody) ContextValidate(ctx context.Context, formats strfmt.Regi
 
 func (o *GetNodeOKBody) contextValidateNode(ctx context.Context, formats strfmt.Registry) error {
 	if o.Node != nil {
+
+		if swag.IsZero(o.Node) { // not required
+			return nil
+		}
+
 		if err := o.Node.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getNodeOk" + "." + "node")
@@ -405,7 +556,7 @@ type GetNodeOKBodyNode struct {
 	//  - STATUS_UP: The node is up.
 	//  - STATUS_DOWN: The node is down.
 	//  - STATUS_UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).
-	// Enum: [STATUS_UNSPECIFIED STATUS_UP STATUS_DOWN STATUS_UNKNOWN]
+	// Enum: ["STATUS_UNSPECIFIED","STATUS_UP","STATUS_DOWN","STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// List of agents related to this node.
@@ -590,6 +741,11 @@ func (o *GetNodeOKBodyNode) ContextValidate(ctx context.Context, formats strfmt.
 func (o *GetNodeOKBodyNode) contextValidateAgents(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Agents); i++ {
 		if o.Agents[i] != nil {
+
+			if swag.IsZero(o.Agents[i]) { // not required
+				return nil
+			}
+
 			if err := o.Agents[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getNodeOk" + "." + "node" + "." + "agents" + "." + strconv.Itoa(i))
@@ -607,6 +763,11 @@ func (o *GetNodeOKBodyNode) contextValidateAgents(ctx context.Context, formats s
 func (o *GetNodeOKBodyNode) contextValidateServices(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Services); i++ {
 		if o.Services[i] != nil {
+
+			if swag.IsZero(o.Services[i]) { // not required
+				return nil
+			}
+
 			if err := o.Services[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getNodeOk" + "." + "node" + "." + "services" + "." + strconv.Itoa(i))

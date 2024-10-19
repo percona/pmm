@@ -59,8 +59,44 @@ type AddServiceOK struct {
 	Payload *AddServiceOKBody
 }
 
+// IsSuccess returns true when this add service Ok response has a 2xx status code
+func (o *AddServiceOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add service Ok response has a 3xx status code
+func (o *AddServiceOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add service Ok response has a 4xx status code
+func (o *AddServiceOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add service Ok response has a 5xx status code
+func (o *AddServiceOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add service Ok response a status code equal to that given
+func (o *AddServiceOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the add service Ok response
+func (o *AddServiceOK) Code() int {
+	return 200
+}
+
 func (o *AddServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/services][%d] addServiceOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/management/services][%d] addServiceOk %s", 200, payload)
+}
+
+func (o *AddServiceOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/management/services][%d] addServiceOk %s", 200, payload)
 }
 
 func (o *AddServiceOK) GetPayload() *AddServiceOKBody {
@@ -96,13 +132,44 @@ type AddServiceDefault struct {
 	Payload *AddServiceDefaultBody
 }
 
+// IsSuccess returns true when this add service default response has a 2xx status code
+func (o *AddServiceDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add service default response has a 3xx status code
+func (o *AddServiceDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add service default response has a 4xx status code
+func (o *AddServiceDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add service default response has a 5xx status code
+func (o *AddServiceDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add service default response a status code equal to that given
+func (o *AddServiceDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the add service default response
 func (o *AddServiceDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *AddServiceDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/services][%d] AddService default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/management/services][%d] AddService default %s", o._statusCode, payload)
+}
+
+func (o *AddServiceDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/management/services][%d] AddService default %s", o._statusCode, payload)
 }
 
 func (o *AddServiceDefault) GetPayload() *AddServiceDefaultBody {
@@ -358,6 +425,11 @@ func (o *AddServiceBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 
 func (o *AddServiceBody) contextValidateExternal(ctx context.Context, formats strfmt.Registry) error {
 	if o.External != nil {
+
+		if swag.IsZero(o.External) { // not required
+			return nil
+		}
+
 		if err := o.External.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "external")
@@ -373,6 +445,11 @@ func (o *AddServiceBody) contextValidateExternal(ctx context.Context, formats st
 
 func (o *AddServiceBody) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
 	if o.Haproxy != nil {
+
+		if swag.IsZero(o.Haproxy) { // not required
+			return nil
+		}
+
 		if err := o.Haproxy.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "haproxy")
@@ -388,6 +465,11 @@ func (o *AddServiceBody) contextValidateHaproxy(ctx context.Context, formats str
 
 func (o *AddServiceBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
 	if o.Mongodb != nil {
+
+		if swag.IsZero(o.Mongodb) { // not required
+			return nil
+		}
+
 		if err := o.Mongodb.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mongodb")
@@ -403,6 +485,11 @@ func (o *AddServiceBody) contextValidateMongodb(ctx context.Context, formats str
 
 func (o *AddServiceBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
 	if o.Mysql != nil {
+
+		if swag.IsZero(o.Mysql) { // not required
+			return nil
+		}
+
 		if err := o.Mysql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mysql")
@@ -418,6 +505,11 @@ func (o *AddServiceBody) contextValidateMysql(ctx context.Context, formats strfm
 
 func (o *AddServiceBody) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
 	if o.Postgresql != nil {
+
+		if swag.IsZero(o.Postgresql) { // not required
+			return nil
+		}
+
 		if err := o.Postgresql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "postgresql")
@@ -433,6 +525,11 @@ func (o *AddServiceBody) contextValidatePostgresql(ctx context.Context, formats 
 
 func (o *AddServiceBody) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
 	if o.Proxysql != nil {
+
+		if swag.IsZero(o.Proxysql) { // not required
+			return nil
+		}
+
 		if err := o.Proxysql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "proxysql")
@@ -448,6 +545,11 @@ func (o *AddServiceBody) contextValidateProxysql(ctx context.Context, formats st
 
 func (o *AddServiceBody) contextValidateRDS(ctx context.Context, formats strfmt.Registry) error {
 	if o.RDS != nil {
+
+		if swag.IsZero(o.RDS) { // not required
+			return nil
+		}
+
 		if err := o.RDS.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "rds")
@@ -551,6 +653,11 @@ func (o *AddServiceDefaultBody) ContextValidate(ctx context.Context, formats str
 func (o *AddServiceDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddService default" + "." + "details" + "." + strconv.Itoa(i))
@@ -590,6 +697,80 @@ swagger:model AddServiceDefaultBodyDetailsItems0
 type AddServiceDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// add service default body details items0
+	AddServiceDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *AddServiceDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv AddServiceDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.AddServiceDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o AddServiceDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.AddServiceDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.AddServiceDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this add service default body details items0
@@ -858,6 +1039,11 @@ func (o *AddServiceOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 
 func (o *AddServiceOKBody) contextValidateExternal(ctx context.Context, formats strfmt.Registry) error {
 	if o.External != nil {
+
+		if swag.IsZero(o.External) { // not required
+			return nil
+		}
+
 		if err := o.External.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "external")
@@ -873,6 +1059,11 @@ func (o *AddServiceOKBody) contextValidateExternal(ctx context.Context, formats 
 
 func (o *AddServiceOKBody) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
 	if o.Haproxy != nil {
+
+		if swag.IsZero(o.Haproxy) { // not required
+			return nil
+		}
+
 		if err := o.Haproxy.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "haproxy")
@@ -888,6 +1079,11 @@ func (o *AddServiceOKBody) contextValidateHaproxy(ctx context.Context, formats s
 
 func (o *AddServiceOKBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
 	if o.Mongodb != nil {
+
+		if swag.IsZero(o.Mongodb) { // not required
+			return nil
+		}
+
 		if err := o.Mongodb.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb")
@@ -903,6 +1099,11 @@ func (o *AddServiceOKBody) contextValidateMongodb(ctx context.Context, formats s
 
 func (o *AddServiceOKBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
 	if o.Mysql != nil {
+
+		if swag.IsZero(o.Mysql) { // not required
+			return nil
+		}
+
 		if err := o.Mysql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mysql")
@@ -918,6 +1119,11 @@ func (o *AddServiceOKBody) contextValidateMysql(ctx context.Context, formats str
 
 func (o *AddServiceOKBody) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
 	if o.Postgresql != nil {
+
+		if swag.IsZero(o.Postgresql) { // not required
+			return nil
+		}
+
 		if err := o.Postgresql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql")
@@ -933,6 +1139,11 @@ func (o *AddServiceOKBody) contextValidatePostgresql(ctx context.Context, format
 
 func (o *AddServiceOKBody) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
 	if o.Proxysql != nil {
+
+		if swag.IsZero(o.Proxysql) { // not required
+			return nil
+		}
+
 		if err := o.Proxysql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "proxysql")
@@ -948,6 +1159,11 @@ func (o *AddServiceOKBody) contextValidateProxysql(ctx context.Context, formats 
 
 func (o *AddServiceOKBody) contextValidateRDS(ctx context.Context, formats strfmt.Registry) error {
 	if o.RDS != nil {
+
+		if swag.IsZero(o.RDS) { // not required
+			return nil
+		}
+
 		if err := o.RDS.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds")
@@ -1067,6 +1283,11 @@ func (o *AddServiceOKBodyExternal) ContextValidate(ctx context.Context, formats 
 
 func (o *AddServiceOKBodyExternal) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.ExternalExporter != nil {
+
+		if swag.IsZero(o.ExternalExporter) { // not required
+			return nil
+		}
+
 		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "external" + "." + "external_exporter")
@@ -1082,6 +1303,11 @@ func (o *AddServiceOKBodyExternal) contextValidateExternalExporter(ctx context.C
 
 func (o *AddServiceOKBodyExternal) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
 	if o.Service != nil {
+
+		if swag.IsZero(o.Service) { // not required
+			return nil
+		}
+
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "external" + "." + "service")
@@ -1204,6 +1430,11 @@ func (o *AddServiceOKBodyExternalExternalExporter) ContextValidate(ctx context.C
 
 func (o *AddServiceOKBodyExternalExternalExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "external" + "." + "external_exporter" + "." + "metrics_resolutions")
@@ -1424,6 +1655,11 @@ func (o *AddServiceOKBodyHaproxy) ContextValidate(ctx context.Context, formats s
 
 func (o *AddServiceOKBodyHaproxy) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.ExternalExporter != nil {
+
+		if swag.IsZero(o.ExternalExporter) { // not required
+			return nil
+		}
+
 		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "haproxy" + "." + "external_exporter")
@@ -1439,6 +1675,11 @@ func (o *AddServiceOKBodyHaproxy) contextValidateExternalExporter(ctx context.Co
 
 func (o *AddServiceOKBodyHaproxy) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
 	if o.Service != nil {
+
+		if swag.IsZero(o.Service) { // not required
+			return nil
+		}
+
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "haproxy" + "." + "service")
@@ -1561,6 +1802,11 @@ func (o *AddServiceOKBodyHaproxyExternalExporter) ContextValidate(ctx context.Co
 
 func (o *AddServiceOKBodyHaproxyExternalExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "haproxy" + "." + "external_exporter" + "." + "metrics_resolutions")
@@ -1808,6 +2054,11 @@ func (o *AddServiceOKBodyMongodb) ContextValidate(ctx context.Context, formats s
 
 func (o *AddServiceOKBodyMongodb) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.MongodbExporter != nil {
+
+		if swag.IsZero(o.MongodbExporter) { // not required
+			return nil
+		}
+
 		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "mongodb_exporter")
@@ -1823,6 +2074,11 @@ func (o *AddServiceOKBodyMongodb) contextValidateMongodbExporter(ctx context.Con
 
 func (o *AddServiceOKBodyMongodb) contextValidateQANMongodbProfiler(ctx context.Context, formats strfmt.Registry) error {
 	if o.QANMongodbProfiler != nil {
+
+		if swag.IsZero(o.QANMongodbProfiler) { // not required
+			return nil
+		}
+
 		if err := o.QANMongodbProfiler.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "qan_mongodb_profiler")
@@ -1838,6 +2094,11 @@ func (o *AddServiceOKBodyMongodb) contextValidateQANMongodbProfiler(ctx context.
 
 func (o *AddServiceOKBodyMongodb) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
 	if o.Service != nil {
+
+		if swag.IsZero(o.Service) { // not required
+			return nil
+		}
+
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "service")
@@ -1913,7 +2174,7 @@ type AddServiceOKBodyMongodbMongodbExporter struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -1935,7 +2196,7 @@ type AddServiceOKBodyMongodbMongodbExporter struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Optionally expose the exporter process on all public interfaces
@@ -2116,6 +2377,11 @@ func (o *AddServiceOKBodyMongodbMongodbExporter) ContextValidate(ctx context.Con
 
 func (o *AddServiceOKBodyMongodbMongodbExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
@@ -2231,7 +2497,7 @@ type AddServiceOKBodyMongodbQANMongodbProfiler struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -2240,7 +2506,7 @@ type AddServiceOKBodyMongodbQANMongodbProfiler struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -2620,6 +2886,11 @@ func (o *AddServiceOKBodyMysql) ContextValidate(ctx context.Context, formats str
 
 func (o *AddServiceOKBodyMysql) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.MysqldExporter != nil {
+
+		if swag.IsZero(o.MysqldExporter) { // not required
+			return nil
+		}
+
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "mysqld_exporter")
@@ -2635,6 +2906,11 @@ func (o *AddServiceOKBodyMysql) contextValidateMysqldExporter(ctx context.Contex
 
 func (o *AddServiceOKBodyMysql) contextValidateQANMysqlPerfschema(ctx context.Context, formats strfmt.Registry) error {
 	if o.QANMysqlPerfschema != nil {
+
+		if swag.IsZero(o.QANMysqlPerfschema) { // not required
+			return nil
+		}
+
 		if err := o.QANMysqlPerfschema.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "qan_mysql_perfschema")
@@ -2650,6 +2926,11 @@ func (o *AddServiceOKBodyMysql) contextValidateQANMysqlPerfschema(ctx context.Co
 
 func (o *AddServiceOKBodyMysql) contextValidateQANMysqlSlowlog(ctx context.Context, formats strfmt.Registry) error {
 	if o.QANMysqlSlowlog != nil {
+
+		if swag.IsZero(o.QANMysqlSlowlog) { // not required
+			return nil
+		}
+
 		if err := o.QANMysqlSlowlog.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "qan_mysql_slowlog")
@@ -2665,6 +2946,11 @@ func (o *AddServiceOKBodyMysql) contextValidateQANMysqlSlowlog(ctx context.Conte
 
 func (o *AddServiceOKBodyMysql) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
 	if o.Service != nil {
+
+		if swag.IsZero(o.Service) { // not required
+			return nil
+		}
+
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "service")
@@ -2757,7 +3043,7 @@ type AddServiceOKBodyMysqlMysqldExporter struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -2772,7 +3058,7 @@ type AddServiceOKBodyMysqlMysqldExporter struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Optionally expose the exporter process on all public interfaces
@@ -2953,6 +3239,11 @@ func (o *AddServiceOKBodyMysqlMysqldExporter) ContextValidate(ctx context.Contex
 
 func (o *AddServiceOKBodyMysqlMysqldExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
@@ -3083,7 +3374,7 @@ type AddServiceOKBodyMysqlQANMysqlPerfschema struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -3092,7 +3383,7 @@ type AddServiceOKBodyMysqlQANMysqlPerfschema struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -3310,7 +3601,7 @@ type AddServiceOKBodyMysqlQANMysqlSlowlog struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// mod tidy
@@ -3319,7 +3610,7 @@ type AddServiceOKBodyMysqlQANMysqlSlowlog struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -3699,6 +3990,11 @@ func (o *AddServiceOKBodyPostgresql) ContextValidate(ctx context.Context, format
 
 func (o *AddServiceOKBodyPostgresql) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.PostgresExporter != nil {
+
+		if swag.IsZero(o.PostgresExporter) { // not required
+			return nil
+		}
+
 		if err := o.PostgresExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "postgres_exporter")
@@ -3714,6 +4010,11 @@ func (o *AddServiceOKBodyPostgresql) contextValidatePostgresExporter(ctx context
 
 func (o *AddServiceOKBodyPostgresql) contextValidateQANPostgresqlPgstatementsAgent(ctx context.Context, formats strfmt.Registry) error {
 	if o.QANPostgresqlPgstatementsAgent != nil {
+
+		if swag.IsZero(o.QANPostgresqlPgstatementsAgent) { // not required
+			return nil
+		}
+
 		if err := o.QANPostgresqlPgstatementsAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "qan_postgresql_pgstatements_agent")
@@ -3729,6 +4030,11 @@ func (o *AddServiceOKBodyPostgresql) contextValidateQANPostgresqlPgstatementsAge
 
 func (o *AddServiceOKBodyPostgresql) contextValidateQANPostgresqlPgstatmonitorAgent(ctx context.Context, formats strfmt.Registry) error {
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
+
+		if swag.IsZero(o.QANPostgresqlPgstatmonitorAgent) { // not required
+			return nil
+		}
+
 		if err := o.QANPostgresqlPgstatmonitorAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "qan_postgresql_pgstatmonitor_agent")
@@ -3744,6 +4050,11 @@ func (o *AddServiceOKBodyPostgresql) contextValidateQANPostgresqlPgstatmonitorAg
 
 func (o *AddServiceOKBodyPostgresql) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
 	if o.Service != nil {
+
+		if swag.IsZero(o.Service) { // not required
+			return nil
+		}
+
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "service")
@@ -3819,7 +4130,7 @@ type AddServiceOKBodyPostgresqlPostgresExporter struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -3831,7 +4142,7 @@ type AddServiceOKBodyPostgresqlPostgresExporter struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Limit of databases for auto-discovery.
@@ -4018,6 +4329,11 @@ func (o *AddServiceOKBodyPostgresqlPostgresExporter) ContextValidate(ctx context
 
 func (o *AddServiceOKBodyPostgresqlPostgresExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "postgres_exporter" + "." + "metrics_resolutions")
@@ -4136,7 +4452,7 @@ type AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgent struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -4145,7 +4461,7 @@ type AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgent struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -4351,7 +4667,7 @@ type AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgent struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -4360,7 +4676,7 @@ type AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgent struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -4683,6 +4999,11 @@ func (o *AddServiceOKBodyProxysql) ContextValidate(ctx context.Context, formats 
 
 func (o *AddServiceOKBodyProxysql) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.ProxysqlExporter != nil {
+
+		if swag.IsZero(o.ProxysqlExporter) { // not required
+			return nil
+		}
+
 		if err := o.ProxysqlExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "proxysql" + "." + "proxysql_exporter")
@@ -4698,6 +5019,11 @@ func (o *AddServiceOKBodyProxysql) contextValidateProxysqlExporter(ctx context.C
 
 func (o *AddServiceOKBodyProxysql) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
 	if o.Service != nil {
+
+		if swag.IsZero(o.Service) { // not required
+			return nil
+		}
+
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "proxysql" + "." + "service")
@@ -4773,7 +5099,7 @@ type AddServiceOKBodyProxysqlProxysqlExporter struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -4785,7 +5111,7 @@ type AddServiceOKBodyProxysqlProxysqlExporter struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Optionally expose the exporter process on all public interfaces
@@ -4966,6 +5292,11 @@ func (o *AddServiceOKBodyProxysqlProxysqlExporter) ContextValidate(ctx context.C
 
 func (o *AddServiceOKBodyProxysqlProxysqlExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "proxysql" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
@@ -5378,6 +5709,11 @@ func (o *AddServiceOKBodyRDS) ContextValidate(ctx context.Context, formats strfm
 
 func (o *AddServiceOKBodyRDS) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
 	if o.Mysql != nil {
+
+		if swag.IsZero(o.Mysql) { // not required
+			return nil
+		}
+
 		if err := o.Mysql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "mysql")
@@ -5393,6 +5729,11 @@ func (o *AddServiceOKBodyRDS) contextValidateMysql(ctx context.Context, formats 
 
 func (o *AddServiceOKBodyRDS) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.MysqldExporter != nil {
+
+		if swag.IsZero(o.MysqldExporter) { // not required
+			return nil
+		}
+
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "mysqld_exporter")
@@ -5408,6 +5749,11 @@ func (o *AddServiceOKBodyRDS) contextValidateMysqldExporter(ctx context.Context,
 
 func (o *AddServiceOKBodyRDS) contextValidateNode(ctx context.Context, formats strfmt.Registry) error {
 	if o.Node != nil {
+
+		if swag.IsZero(o.Node) { // not required
+			return nil
+		}
+
 		if err := o.Node.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "node")
@@ -5423,6 +5769,11 @@ func (o *AddServiceOKBodyRDS) contextValidateNode(ctx context.Context, formats s
 
 func (o *AddServiceOKBodyRDS) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
 	if o.Postgresql != nil {
+
+		if swag.IsZero(o.Postgresql) { // not required
+			return nil
+		}
+
 		if err := o.Postgresql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql")
@@ -5438,6 +5789,11 @@ func (o *AddServiceOKBodyRDS) contextValidatePostgresql(ctx context.Context, for
 
 func (o *AddServiceOKBodyRDS) contextValidatePostgresqlExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.PostgresqlExporter != nil {
+
+		if swag.IsZero(o.PostgresqlExporter) { // not required
+			return nil
+		}
+
 		if err := o.PostgresqlExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql_exporter")
@@ -5453,6 +5809,11 @@ func (o *AddServiceOKBodyRDS) contextValidatePostgresqlExporter(ctx context.Cont
 
 func (o *AddServiceOKBodyRDS) contextValidateQANMysqlPerfschema(ctx context.Context, formats strfmt.Registry) error {
 	if o.QANMysqlPerfschema != nil {
+
+		if swag.IsZero(o.QANMysqlPerfschema) { // not required
+			return nil
+		}
+
 		if err := o.QANMysqlPerfschema.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "qan_mysql_perfschema")
@@ -5468,6 +5829,11 @@ func (o *AddServiceOKBodyRDS) contextValidateQANMysqlPerfschema(ctx context.Cont
 
 func (o *AddServiceOKBodyRDS) contextValidateQANPostgresqlPgstatements(ctx context.Context, formats strfmt.Registry) error {
 	if o.QANPostgresqlPgstatements != nil {
+
+		if swag.IsZero(o.QANPostgresqlPgstatements) { // not required
+			return nil
+		}
+
 		if err := o.QANPostgresqlPgstatements.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "qan_postgresql_pgstatements")
@@ -5483,6 +5849,11 @@ func (o *AddServiceOKBodyRDS) contextValidateQANPostgresqlPgstatements(ctx conte
 
 func (o *AddServiceOKBodyRDS) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.RDSExporter != nil {
+
+		if swag.IsZero(o.RDSExporter) { // not required
+			return nil
+		}
+
 		if err := o.RDSExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "rds_exporter")
@@ -5645,7 +6016,7 @@ type AddServiceOKBodyRDSMysqldExporter struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -5660,7 +6031,7 @@ type AddServiceOKBodyRDSMysqldExporter struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Optionally expose the exporter process on all public interfaces
@@ -5841,6 +6212,11 @@ func (o *AddServiceOKBodyRDSMysqldExporter) ContextValidate(ctx context.Context,
 
 func (o *AddServiceOKBodyRDSMysqldExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
@@ -6090,7 +6466,7 @@ type AddServiceOKBodyRDSPostgresqlExporter struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -6102,7 +6478,7 @@ type AddServiceOKBodyRDSPostgresqlExporter struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Limit of databases for auto-discovery.
@@ -6289,6 +6665,11 @@ func (o *AddServiceOKBodyRDSPostgresqlExporter) ContextValidate(ctx context.Cont
 
 func (o *AddServiceOKBodyRDSPostgresqlExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql_exporter" + "." + "metrics_resolutions")
@@ -6419,7 +6800,7 @@ type AddServiceOKBodyRDSQANMysqlPerfschema struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -6428,7 +6809,7 @@ type AddServiceOKBodyRDSQANMysqlPerfschema struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -6631,7 +7012,7 @@ type AddServiceOKBodyRDSQANPostgresqlPgstatements struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -6640,7 +7021,7 @@ type AddServiceOKBodyRDSQANPostgresqlPgstatements struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -6831,7 +7212,7 @@ type AddServiceOKBodyRDSRDSExporter struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -6852,7 +7233,7 @@ type AddServiceOKBodyRDSRDSExporter struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Limit of databases for auto-discovery.
@@ -7033,6 +7414,11 @@ func (o *AddServiceOKBodyRDSRDSExporter) ContextValidate(ctx context.Context, fo
 
 func (o *AddServiceOKBodyRDSRDSExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "rds_exporter" + "." + "metrics_resolutions")
@@ -7166,7 +7552,7 @@ type AddServiceParamsBodyExternal struct {
 	// it can be pull, push or auto mode chosen by server.
 	//
 	//  - METRICS_MODE_UNSPECIFIED: Auto
-	// Enum: [METRICS_MODE_UNSPECIFIED METRICS_MODE_PULL METRICS_MODE_PUSH]
+	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
 
 	// Skip connection check.
@@ -7274,6 +7660,11 @@ func (o *AddServiceParamsBodyExternal) ContextValidate(ctx context.Context, form
 
 func (o *AddServiceParamsBodyExternal) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
 	if o.AddNode != nil {
+
+		if swag.IsZero(o.AddNode) { // not required
+			return nil
+		}
+
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "external" + "." + "add_node")
@@ -7311,7 +7702,7 @@ swagger:model AddServiceParamsBodyExternalAddNode
 */
 type AddServiceParamsBodyExternalAddNode struct {
 	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_UNSPECIFIED NODE_TYPE_GENERIC_NODE NODE_TYPE_CONTAINER_NODE NODE_TYPE_REMOTE_NODE NODE_TYPE_REMOTE_RDS_NODE NODE_TYPE_REMOTE_AZURE_DATABASE_NODE]
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
@@ -7484,7 +7875,7 @@ type AddServiceParamsBodyHaproxy struct {
 	// it can be pull, push or auto mode chosen by server.
 	//
 	//  - METRICS_MODE_UNSPECIFIED: Auto
-	// Enum: [METRICS_MODE_UNSPECIFIED METRICS_MODE_PULL METRICS_MODE_PUSH]
+	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
 
 	// Skip connection check.
@@ -7592,6 +7983,11 @@ func (o *AddServiceParamsBodyHaproxy) ContextValidate(ctx context.Context, forma
 
 func (o *AddServiceParamsBodyHaproxy) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
 	if o.AddNode != nil {
+
+		if swag.IsZero(o.AddNode) { // not required
+			return nil
+		}
+
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "haproxy" + "." + "add_node")
@@ -7629,7 +8025,7 @@ swagger:model AddServiceParamsBodyHaproxyAddNode
 */
 type AddServiceParamsBodyHaproxyAddNode struct {
 	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_UNSPECIFIED NODE_TYPE_GENERIC_NODE NODE_TYPE_CONTAINER_NODE NODE_TYPE_REMOTE_NODE NODE_TYPE_REMOTE_RDS_NODE NODE_TYPE_REMOTE_AZURE_DATABASE_NODE]
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
@@ -7828,7 +8224,7 @@ type AddServiceParamsBodyMongodb struct {
 	// it can be pull, push or auto mode chosen by server.
 	//
 	//  - METRICS_MODE_UNSPECIFIED: Auto
-	// Enum: [METRICS_MODE_UNSPECIFIED METRICS_MODE_PULL METRICS_MODE_PUSH]
+	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
 
 	// List of collector names to disable in this exporter.
@@ -7858,7 +8254,7 @@ type AddServiceParamsBodyMongodb struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Optionally expose the exporter process on all public interfaces
@@ -8024,6 +8420,11 @@ func (o *AddServiceParamsBodyMongodb) ContextValidate(ctx context.Context, forma
 
 func (o *AddServiceParamsBodyMongodb) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
 	if o.AddNode != nil {
+
+		if swag.IsZero(o.AddNode) { // not required
+			return nil
+		}
+
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mongodb" + "." + "add_node")
@@ -8061,7 +8462,7 @@ swagger:model AddServiceParamsBodyMongodbAddNode
 */
 type AddServiceParamsBodyMongodbAddNode struct {
 	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_UNSPECIFIED NODE_TYPE_GENERIC_NODE NODE_TYPE_CONTAINER_NODE NODE_TYPE_REMOTE_NODE NODE_TYPE_REMOTE_RDS_NODE NODE_TYPE_REMOTE_AZURE_DATABASE_NODE]
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
@@ -8279,7 +8680,7 @@ type AddServiceParamsBodyMysql struct {
 	// it can be pull, push or auto mode chosen by server.
 	//
 	//  - METRICS_MODE_UNSPECIFIED: Auto
-	// Enum: [METRICS_MODE_UNSPECIFIED METRICS_MODE_PULL METRICS_MODE_PUSH]
+	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
 
 	// List of collector names to disable in this exporter.
@@ -8291,7 +8692,7 @@ type AddServiceParamsBodyMysql struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Optionally expose the exporter process on all public interfaces
@@ -8457,6 +8858,11 @@ func (o *AddServiceParamsBodyMysql) ContextValidate(ctx context.Context, formats
 
 func (o *AddServiceParamsBodyMysql) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
 	if o.AddNode != nil {
+
+		if swag.IsZero(o.AddNode) { // not required
+			return nil
+		}
+
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mysql" + "." + "add_node")
@@ -8494,7 +8900,7 @@ swagger:model AddServiceParamsBodyMysqlAddNode
 */
 type AddServiceParamsBodyMysqlAddNode struct {
 	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_UNSPECIFIED NODE_TYPE_GENERIC_NODE NODE_TYPE_CONTAINER_NODE NODE_TYPE_REMOTE_NODE NODE_TYPE_REMOTE_RDS_NODE NODE_TYPE_REMOTE_AZURE_DATABASE_NODE]
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
@@ -8696,7 +9102,7 @@ type AddServiceParamsBodyPostgresql struct {
 	// it can be pull, push or auto mode chosen by server.
 	//
 	//  - METRICS_MODE_UNSPECIFIED: Auto
-	// Enum: [METRICS_MODE_UNSPECIFIED METRICS_MODE_PULL METRICS_MODE_PUSH]
+	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
 
 	// List of collector names to disable in this exporter.
@@ -8717,7 +9123,7 @@ type AddServiceParamsBodyPostgresql struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Limit for auto discovery.
@@ -8889,6 +9295,11 @@ func (o *AddServiceParamsBodyPostgresql) ContextValidate(ctx context.Context, fo
 
 func (o *AddServiceParamsBodyPostgresql) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
 	if o.AddNode != nil {
+
+		if swag.IsZero(o.AddNode) { // not required
+			return nil
+		}
+
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "postgresql" + "." + "add_node")
@@ -8926,7 +9337,7 @@ swagger:model AddServiceParamsBodyPostgresqlAddNode
 */
 type AddServiceParamsBodyPostgresqlAddNode struct {
 	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_UNSPECIFIED NODE_TYPE_GENERIC_NODE NODE_TYPE_CONTAINER_NODE NODE_TYPE_REMOTE_NODE NODE_TYPE_REMOTE_RDS_NODE NODE_TYPE_REMOTE_AZURE_DATABASE_NODE]
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
@@ -9110,7 +9521,7 @@ type AddServiceParamsBodyProxysql struct {
 	// it can be pull, push or auto mode chosen by server.
 	//
 	//  - METRICS_MODE_UNSPECIFIED: Auto
-	// Enum: [METRICS_MODE_UNSPECIFIED METRICS_MODE_PULL METRICS_MODE_PUSH]
+	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
 
 	// List of collector names to disable in this exporter.
@@ -9122,7 +9533,7 @@ type AddServiceParamsBodyProxysql struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Optionally expose the exporter process on all public interfaces
@@ -9288,6 +9699,11 @@ func (o *AddServiceParamsBodyProxysql) ContextValidate(ctx context.Context, form
 
 func (o *AddServiceParamsBodyProxysql) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
 	if o.AddNode != nil {
+
+		if swag.IsZero(o.AddNode) { // not required
+			return nil
+		}
+
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "proxysql" + "." + "add_node")
@@ -9325,7 +9741,7 @@ swagger:model AddServiceParamsBodyProxysqlAddNode
 */
 type AddServiceParamsBodyProxysqlAddNode struct {
 	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_UNSPECIFIED NODE_TYPE_GENERIC_NODE NODE_TYPE_CONTAINER_NODE NODE_TYPE_REMOTE_NODE NODE_TYPE_REMOTE_RDS_NODE NODE_TYPE_REMOTE_AZURE_DATABASE_NODE]
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
@@ -9471,7 +9887,7 @@ type AddServiceParamsBodyRDS struct {
 	Port int64 `json:"port,omitempty"`
 
 	// DiscoverRDSEngine describes supported RDS instance engines.
-	// Enum: [DISCOVER_RDS_ENGINE_UNSPECIFIED DISCOVER_RDS_ENGINE_MYSQL DISCOVER_RDS_ENGINE_POSTGRESQL]
+	// Enum: ["DISCOVER_RDS_ENGINE_UNSPECIFIED","DISCOVER_RDS_ENGINE_MYSQL","DISCOVER_RDS_ENGINE_POSTGRESQL"]
 	Engine *string `json:"engine,omitempty"`
 
 	// Unique across all Nodes user-defined name. Defaults to AWS instance ID.
@@ -9537,7 +9953,7 @@ type AddServiceParamsBodyRDS struct {
 	// it can be pull, push or auto mode chosen by server.
 	//
 	//  - METRICS_MODE_UNSPECIFIED: Auto
-	// Enum: [METRICS_MODE_UNSPECIFIED METRICS_MODE_PULL METRICS_MODE_PUSH]
+	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
 
 	// If true, add qan-pgstatements

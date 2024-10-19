@@ -7,6 +7,7 @@ package server_service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -58,8 +59,42 @@ type LogsOK struct {
 	Payload io.Writer
 }
 
+// IsSuccess returns true when this logs Ok response has a 2xx status code
+func (o *LogsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this logs Ok response has a 3xx status code
+func (o *LogsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this logs Ok response has a 4xx status code
+func (o *LogsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this logs Ok response has a 5xx status code
+func (o *LogsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this logs Ok response a status code equal to that given
+func (o *LogsOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the logs Ok response
+func (o *LogsOK) Code() int {
+	return 200
+}
+
 func (o *LogsOK) Error() string {
-	return fmt.Sprintf("[GET /v1/server/logs.zip][%d] logsOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/server/logs.zip][%d] logsOk", 200)
+}
+
+func (o *LogsOK) String() string {
+	return fmt.Sprintf("[GET /v1/server/logs.zip][%d] logsOk", 200)
 }
 
 func (o *LogsOK) GetPayload() io.Writer {
@@ -93,13 +128,44 @@ type LogsDefault struct {
 	Payload *LogsDefaultBody
 }
 
+// IsSuccess returns true when this logs default response has a 2xx status code
+func (o *LogsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this logs default response has a 3xx status code
+func (o *LogsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this logs default response has a 4xx status code
+func (o *LogsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this logs default response has a 5xx status code
+func (o *LogsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this logs default response a status code equal to that given
+func (o *LogsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the logs default response
 func (o *LogsDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *LogsDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/server/logs.zip][%d] Logs default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/server/logs.zip][%d] Logs default %s", o._statusCode, payload)
+}
+
+func (o *LogsDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/server/logs.zip][%d] Logs default %s", o._statusCode, payload)
 }
 
 func (o *LogsDefault) GetPayload() *LogsDefaultBody {
