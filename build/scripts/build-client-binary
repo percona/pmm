@@ -37,6 +37,8 @@ gobuild_component() {
         build_command="cd /tmp/go/src/${extract_path} && make release"
     elif [ ${component} = 'percona-toolkit' ]; then
         build_command="cd /tmp/go/src/${extract_path}/${component_path} && go build -o \${binary_dir}/${result_file} ."
+    elif [ ${component} = 'nomad' ]; then
+        build_command="cd /tmp/go/src/${extract_path} && TARGETS=linux_amd64 make release"
     else
         build_command="go build -o \${binary_dir}/${result_file} ./src/${extract_path}/${component_path}"
     fi

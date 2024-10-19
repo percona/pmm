@@ -81,6 +81,8 @@ for FILE in $( ls ${PWD}/bin ); do
         ${INSTALL_COMMAND} -m 0755 ${PWD}/bin/${FILE} "${PMM_DIR}"/bin
     elif [ "x${FILE}" = "xpt-summary" ] || [ "x${FILE}" = "xpt-mysql-summary" ] || [ "x${FILE}" = "xpt-pg-summary" ] || [ "x${FILE}" = "xpt-mongodb-summary" ]; then
         ${INSTALL_COMMAND} -m 0755 ${PWD}/bin/"${FILE}" "${PMM_DIR}"/tools
+    elif [ "x${FILE}" = "xnomad" ]; then
+        ${INSTALL_COMMAND} -m 0755 ${PWD}/pkg/linux_amd64/"${FILE}" "${PMM_DIR}"/tools
     else
         ${INSTALL_COMMAND} -m 0755 ${PWD}/bin/"${FILE}" "${PMM_DIR}"/exporters
     fi
