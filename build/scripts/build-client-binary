@@ -113,7 +113,6 @@ main() {
 
     echo ${pmm_version} > ${binary_dir}/VERSION
 
-    copy_component "nomad" "pkg/linux_amd64/nomad" "nomad"
     copy_component "pmm" "build/packages/rpm/client" "rpm"
     copy_component "pmm" "build/packages/config" "config"
     copy_component "pmm" "build/packages/deb" "debian"
@@ -130,6 +129,8 @@ main() {
     copy_component "percona-toolkit" "bin/pt-mysql-summary"
     gobuild_component "percona-toolkit" "" "github.com/percona/percona-toolkit" "src/go/pt-mongodb-summary"
     gobuild_component "percona-toolkit" "" "github.com/percona/percona-toolkit" "src/go/pt-pg-summary"
+
+    cp -r ${tmp_dir}/go/src/github.com/hashicorp/nomad/pkg/linux_amd64/nomad ${binary_dir}/nomad
 
     rm -rf ${binary_tarball}
     mkdir -p $(dirname ${binary_tarball}) || :
