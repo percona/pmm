@@ -130,7 +130,7 @@ main() {
     gobuild_component "percona-toolkit" "" "github.com/percona/percona-toolkit" "src/go/pt-mongodb-summary"
     gobuild_component "percona-toolkit" "" "github.com/percona/percona-toolkit" "src/go/pt-pg-summary"
 
-    cp -r ${tmp_dir}/go/src/github.com/hashicorp/nomad/pkg/linux_amd64/nomad ${binary_dir}/nomad
+    cp -r ${tmp_dir}/go/src/github.com/hashicorp/nomad/pkg/linux_amd64/nomad ${binary_dir}/bin/nomad
 
     rm -rf ${binary_tarball}
     mkdir -p $(dirname ${binary_tarball}) || :
