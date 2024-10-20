@@ -670,6 +670,7 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 	if cfg.Server.WithoutTLS {
 		templateParams["server_url"] = fmt.Sprintf("http://%s", cfg.Server.Address)
 	}
+	templateParams["server_host"] = cfg.Server.URL().Host
 	templateParams["server_password"] = cfg.Server.Password
 	templateParams["server_username"] = cfg.Server.Username
 	templateParams["tmp_dir"] = cfg.Paths.TempDir
@@ -695,7 +696,8 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		processParams.Path = "sleep"
 	case inventoryv1.AgentType_AGENT_TYPE_VM_AGENT:
 		processParams.Path = cfg.Paths.VMAgent
-	case inventoryv1.AgentType_AGENT_TYPE_NOMAD:
+	case inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT:
+		templateParams["nomad_data_dir"] = cfg.Paths.NomadDataDir
 		processParams.Path = cfg.Paths.Nomad
 	default:
 		return nil, errors.Errorf("unhandled agent type %[1]s (%[1]d).", agentProcess.Type) //nolint:revive

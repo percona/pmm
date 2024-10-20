@@ -39,6 +39,7 @@ import (
 const (
 	pathBaseDefault = "/usr/local/percona/pmm"
 	agentTmpPath    = "tmp" // temporary directory to keep exporters' config files, relative to pathBase
+	agentDataPath   = "data"
 	agentPrefix     = "/agent_id/"
 )
 
@@ -103,7 +104,8 @@ type Paths struct {
 	VMAgent string `yaml:"vmagent"`
 	Nomad   string `yaml:"nomad"`
 
-	TempDir string `yaml:"tempdir"`
+	TempDir      string `yaml:"tempdir"`
+	NomadDataDir string `yaml:"nomad_data_dir"`
 
 	PTSummary        string `yaml:"pt_summary"`
 	PTPGSummary      string `yaml:"pt_pg_summary"`
@@ -255,6 +257,11 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 		if cfg.Paths.TempDir == "" {
 			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, agentTmpPath)
 			l.Infof("Temporary directory is not configured and will be set to %s", cfg.Paths.TempDir)
+		}
+
+		if cfg.Paths.NomadDataDir == "" {
+			cfg.Paths.NomadDataDir = filepath.Join(cfg.Paths.PathsBase, agentDataPath, "nomad")
+			l.Infof("Nomad data directory is not configured and will be set to %s", cfg.Paths.NomadDataDir)
 		}
 
 		if !filepath.IsAbs(cfg.Paths.TempDir) {

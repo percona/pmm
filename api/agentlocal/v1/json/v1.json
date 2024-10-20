@@ -176,7 +176,7 @@
                           "AGENT_TYPE_EXTERNAL_EXPORTER",
                           "AGENT_TYPE_RDS_EXPORTER",
                           "AGENT_TYPE_AZURE_DATABASE_EXPORTER",
-                          "AGENT_TYPE_NOMAD"
+                          "AGENT_TYPE_NOMAD_AGENT"
                         ],
                         "x-order": 1
                       },
@@ -372,7 +372,7 @@
                           "AGENT_TYPE_EXTERNAL_EXPORTER",
                           "AGENT_TYPE_RDS_EXPORTER",
                           "AGENT_TYPE_AZURE_DATABASE_EXPORTER",
-                          "AGENT_TYPE_NOMAD"
+                          "AGENT_TYPE_NOMAD_AGENT"
                         ],
                         "x-order": 1
                       },
