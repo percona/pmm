@@ -364,6 +364,7 @@ main() {
   # total time: ??? - subsequent build, using cache from prior builds
 
   export RPM_EPOCH=1
+  export FORCE_REBUILD=1 # Don't use S3 cache
   if [ "$NO_SERVER_RPM" -eq 0 ]; then
     build_with_logs build-server-rpm percona-dashboards grafana-dashboards
     build_with_logs build-server-rpm pmm-managed pmm
