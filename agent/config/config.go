@@ -231,6 +231,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 			&cfg.Paths.PTPGSummary:      "tools/pt-pg-summary",
 			&cfg.Paths.PTMongoDBSummary: "tools/pt-mongodb-summary",
 			&cfg.Paths.PTMySQLSummary:   "tools/pt-mysql-summary",
+			&cfg.Paths.Nomad:            "tools/nomad",
 		} {
 			if *sp == "" {
 				*sp = v
@@ -396,6 +397,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PATHS_PT_MONGODB_SUMMARY").StringVar(&cfg.Paths.PTMongoDBSummary)
 	app.Flag("paths-pt-mysql-summary", "Path to pt my sql summary to use [PMM_AGENT_PATHS_PT_MYSQL_SUMMARY]").
 		Envar("PMM_AGENT_PATHS_PT_MYSQL_SUMMARY").StringVar(&cfg.Paths.PTMySQLSummary)
+	app.Flag("paths-nomad", "Path to nomad to use [PMM_AGENT_PATHS_NOMAD]").
+		Envar("PMM_AGENT_PATHS_NOMAD").StringVar(&cfg.Paths.Nomad)
 	app.Flag("paths-tempdir", "Temporary directory for exporters [PMM_AGENT_PATHS_TEMPDIR]").
 		Envar("PMM_AGENT_PATHS_TEMPDIR").StringVar(&cfg.Paths.TempDir)
 	// no flag for SlowLogFilePrefix - it is only for development and testing
