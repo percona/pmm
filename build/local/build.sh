@@ -267,6 +267,8 @@ init() {
     cd "$SUBMODULES" > /dev/null
   fi
 
+  GIT_COMMIT=$(git rev-parse HEAD | head -c 8)
+
   pmm_commit=$(git submodule status | grep 'sources/pmm/src' | awk -F ' ' '{print $1}')
   pmm_branch=$(git config -f .gitmodules submodule.pmm.branch)
   pmm_url=$(git config -f .gitmodules submodule.pmm.url)
@@ -313,6 +315,7 @@ cleanup() {
 
 main() {
   if [ "$NO_UPDATE" -eq 0 ]; then
+    local UPDATED_SCRIPT="$SUBMODULES/$PATH_TO_SCRIPTS/build/local/build.sh"
     MD5SUM=$(md5sum $(dirname $0)/build.sh)
 
     # Update submodules and PR branches
@@ -320,9 +323,10 @@ main() {
 
     test "$UPDATE_ONLY" -eq 1 && return
 
-    if [ "$MD5SUM" != "$(md5sum $(dirname $0)/build.sh)" ]; then
-      echo "The updated version of this script has been fetched from the repository, exiting..."
-      echo "Please run it again, i.e. '/bin/bash $(dirname $0)/build.sh --no-update'"
+    if [ -f "$UPDATED_SCRIPT" ] && [ "$MD5SUM" != "$(md5sum $UPDATED_SCRIPT)" ]; then
+      echo "The local copy of this script differs from the one fetched from the repo." 
+      echo "Apparently, that version is newer. We will halt to give you the change to run a fresh version."
+      echo "You can copy it over and run it again, i.e. '/bin/bash $(dirname $0)/build.sh --no-update'"
       return
     fi
   fi
@@ -346,7 +350,6 @@ main() {
   fi
 
   # Building client docker image takes 17s
-  GIT_COMMIT=$(git rev-parse HEAD | head -c 8)
   export DOCKER_CLIENT_TAG=local/pmm-client:${GIT_COMMIT}
   if [ "$NO_CLIENT_DOCKER" -eq 0 ]; then
     build_with_logs build-client-docker
