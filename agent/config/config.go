@@ -101,6 +101,7 @@ type Paths struct {
 	AzureExporter    string `yaml:"azure_exporter"`
 
 	VMAgent string `yaml:"vmagent"`
+	Nomad   string `yaml:"nomad"`
 
 	TempDir string `yaml:"tempdir"`
 
@@ -260,17 +261,17 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 			l.Debugf("Temporary directory is configured as %s", cfg.Paths.TempDir)
 		}
 
-		if !filepath.IsAbs(cfg.Paths.PTSummary) {
-			cfg.Paths.PTSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTSummary)
-		}
-		if !filepath.IsAbs(cfg.Paths.PTPGSummary) {
-			cfg.Paths.PTPGSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTPGSummary)
-		}
-		if !filepath.IsAbs(cfg.Paths.PTMongoDBSummary) {
-			cfg.Paths.PTMongoDBSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTMongoDBSummary)
-		}
-		if !filepath.IsAbs(cfg.Paths.PTMySQLSummary) {
-			cfg.Paths.PTMySQLSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTMySQLSummary)
+		for _, sp := range []*string{
+			&cfg.Paths.PTSummary,
+			&cfg.Paths.PTPGSummary,
+			&cfg.Paths.PTMongoDBSummary,
+			&cfg.Paths.PTMySQLSummary,
+			&cfg.Paths.Nomad,
+		} {
+			if !filepath.IsAbs(*sp) {
+				*sp = filepath.Join(cfg.Paths.PathsBase, *sp)
+				l.Infof("Using %s", *sp)
+			}
 		}
 
 		for _, sp := range []*string{
