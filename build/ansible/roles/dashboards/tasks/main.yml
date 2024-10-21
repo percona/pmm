@@ -1,5 +1,5 @@
 ---
-- name: Stop grafana
+- name: Stop and remove Grafana from Supervisor
   shell: "supervisorctl {{ item }} grafana"
   become: true
   become_user: pmm
