@@ -206,12 +206,6 @@
         - public.ecr.aws/e7j3v3n0/rpmbuild:3
         - public.ecr.aws/e7j3v3n0/rpmbuild:2
 
-    - name: Add an SSH key
-      authorized_key:
-        user: ec2-user
-        state: present
-        key: https://github.com/ademidoff.keys
-
     - name: Turn off swap
       sysctl:
         name: vm.swappiness
