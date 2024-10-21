@@ -692,95 +692,119 @@
                               "format": "float",
                               "x-order": 46
                             },
+                            "m_shared_blk_read_time_sum_per_sec": {
+                              "description": "Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 47
+                            },
+                            "m_shared_blk_write_time_sum_per_sec": {
+                              "description": "Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 48
+                            },
+                            "m_local_blk_read_time_sum_per_sec": {
+                              "description": "Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 49
+                            },
+                            "m_local_blk_write_time_sum_per_sec": {
+                              "description": "Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 50
+                            },
                             "m_local_blks_hit_sum_per_sec": {
                               "description": "Total number of local block cache hits by the statement.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 47
+                              "x-order": 51
                             },
                             "m_local_blks_read_sum_per_sec": {
                               "description": "Total number of local blocks read by the statement.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 48
+                              "x-order": 52
                             },
                             "m_local_blks_dirtied_sum_per_sec": {
                               "description": "Total number of local blocks dirtied by the statement.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 49
+                              "x-order": 53
                             },
                             "m_local_blks_written_sum_per_sec": {
                               "description": "Total number of local blocks written by the statement.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 50
+                              "x-order": 54
                             },
                             "m_temp_blks_read_sum_per_sec": {
                               "description": "Total number of temp blocks read by the statement.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 51
+                              "x-order": 55
                             },
                             "m_temp_blks_written_sum_per_sec": {
                               "description": "Total number of temp blocks written by the statement.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 52
+                              "x-order": 56
                             },
                             "m_blk_read_time_sum_per_sec": {
                               "description": "Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                               "type": "number",
                               "format": "float",
-                              "x-order": 53
+                              "x-order": 57
                             },
                             "m_blk_write_time_sum_per_sec": {
                               "description": "Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                               "type": "number",
                               "format": "float",
-                              "x-order": 54
+                              "x-order": 58
                             },
                             "m_cpu_user_time_sum_per_sec": {
                               "description": "Total time user spent in query.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 55
+                              "x-order": 59
                             },
                             "m_cpu_sys_time_sum_per_sec": {
                               "description": "Total time system spent in query.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 56
+                              "x-order": 60
                             },
                             "m_plans_calls_sum_per_sec": {
                               "description": "Total number of planned calls.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 57
+                              "x-order": 61
                             },
                             "m_wal_records_sum_per_sec": {
                               "description": "Total number of WAL (Write-ahead logging) records.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 58
+                              "x-order": 62
                             },
                             "m_wal_fpi_sum_per_sec": {
                               "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 59
+                              "x-order": 63
                             },
                             "m_wal_bytes_sum_per_sec": {
                               "description": "Total bytes of WAL (Write-ahead logging) records.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 60
+                              "x-order": 64
                             },
                             "m_plan_time_sum_per_sec": {
                               "description": "Plan time in per seconds.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 61
+                              "x-order": 65
                             }
                           }
                         },
@@ -1982,95 +2006,119 @@
                         "format": "float",
                         "x-order": 46
                       },
+                      "m_shared_blk_read_time_sum_per_sec": {
+                        "description": "Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 47
+                      },
+                      "m_shared_blk_write_time_sum_per_sec": {
+                        "description": "Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 48
+                      },
+                      "m_local_blk_read_time_sum_per_sec": {
+                        "description": "Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 49
+                      },
+                      "m_local_blk_write_time_sum_per_sec": {
+                        "description": "Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 50
+                      },
                       "m_local_blks_hit_sum_per_sec": {
                         "description": "Total number of local block cache hits by the statement.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 47
+                        "x-order": 51
                       },
                       "m_local_blks_read_sum_per_sec": {
                         "description": "Total number of local blocks read by the statement.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 48
+                        "x-order": 52
                       },
                       "m_local_blks_dirtied_sum_per_sec": {
                         "description": "Total number of local blocks dirtied by the statement.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 49
+                        "x-order": 53
                       },
                       "m_local_blks_written_sum_per_sec": {
                         "description": "Total number of local blocks written by the statement.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 50
+                        "x-order": 54
                       },
                       "m_temp_blks_read_sum_per_sec": {
                         "description": "Total number of temp blocks read by the statement.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 51
+                        "x-order": 55
                       },
                       "m_temp_blks_written_sum_per_sec": {
                         "description": "Total number of temp blocks written by the statement.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 52
+                        "x-order": 56
                       },
                       "m_blk_read_time_sum_per_sec": {
                         "description": "Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                         "type": "number",
                         "format": "float",
-                        "x-order": 53
+                        "x-order": 57
                       },
                       "m_blk_write_time_sum_per_sec": {
                         "description": "Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                         "type": "number",
                         "format": "float",
-                        "x-order": 54
+                        "x-order": 58
                       },
                       "m_cpu_user_time_sum_per_sec": {
                         "description": "Total time user spent in query.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 55
+                        "x-order": 59
                       },
                       "m_cpu_sys_time_sum_per_sec": {
                         "description": "Total time system spent in query.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 56
+                        "x-order": 60
                       },
                       "m_plans_calls_sum_per_sec": {
                         "description": "Total number of planned calls.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 57
+                        "x-order": 61
                       },
                       "m_wal_records_sum_per_sec": {
                         "description": "Total number of WAL (Write-ahead logging) records.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 58
+                        "x-order": 62
                       },
                       "m_wal_fpi_sum_per_sec": {
                         "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 59
+                        "x-order": 63
                       },
                       "m_wal_bytes_sum_per_sec": {
                         "description": "Total bytes of WAL (Write-ahead logging) records.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 60
+                        "x-order": 64
                       },
                       "m_plan_time_sum_per_sec": {
                         "description": "Plan time in per seconds.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 61
+                        "x-order": 65
                       }
                     }
                   },

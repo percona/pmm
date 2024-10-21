@@ -40,11 +40,9 @@ digraph packages {
 	"/agents/supervisor" -> "/config";
 	"/agents/supervisor" -> "/tailog";
 	"/agents/supervisor.test" -> "/agents/supervisor";
-	"/client" -> "/client/cache";
 	"/client" -> "/client/channel";
 	"/client" -> "/config";
 	"/client" -> "/connectionuptime";
-	"/client" -> "/models";
 	"/client" -> "/runner";
 	"/client" -> "/runner/actions";
 	"/client" -> "/runner/jobs";
