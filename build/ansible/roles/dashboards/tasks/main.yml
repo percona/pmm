@@ -35,7 +35,7 @@
     mode: 0775
     recurse: yes
 
-- name: Make versions the same after upgrade
+- name: Synchronize Percona Dashboards version file after upgrade
   copy:
     src: /usr/share/percona-dashboards/VERSION
     dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
@@ -44,7 +44,7 @@
     mode: 0644
     remote_src: yes    
 
-- name: Restart grafana with new plugins
+- name: Restart Grafana service with new plugins 
   shell: "supervisorctl {{ item }} grafana"
   become: true
   become_user: pmm

@@ -1,5 +1,5 @@
 ---
-- name: Create directories for nginx
+- name: Create required directories for Nginx
   file:
     path: "{{ item }}"
     state: directory
@@ -74,7 +74,7 @@
     - /etc/nginx
     - /srv/nginx
 
-- name: Provision a few nginx files
+- name: Provision empty Nginx configuration files
   file:
     path: "{{ item }}"
     state: touch

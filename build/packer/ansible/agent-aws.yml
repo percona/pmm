@@ -129,12 +129,12 @@
         remote_src: yes
         mode: "u+x,g+x,o+x"
 
-    - name: Install goreleaser
+    - name: Install Goreleaser
       yum:
         name: https://github.com/goreleaser/goreleaser/releases/download/v{{ goreleaser_version }}/goreleaser-{{ goreleaser_version }}-1.{{ ansible_architecture }}.rpm
         state: present
 
-    - name: Instal yq
+    - name: install latest YQ (YAML processor) 
       get_url:
         url: https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
         dest: /usr/bin/yq
