@@ -40,7 +40,7 @@ func (res *removeServiceResult) String() string {
 
 // RemoveCommand is used by Kong for CLI flags and commands.
 type RemoveCommand struct {
-	ServiceType string `arg:"" enum:"${serviceTypesEnum}" help:"Service type, one of: ${serviceTypesEnum}"`
+	ServiceType string `arg:"" enum:"${serviceTypesEnum}" help:"Service type, one of: ${enum}"`
 	ServiceName string `arg:"" default:"" help:"Service name"`
 	ServiceID   string `help:"Service ID"`
 }

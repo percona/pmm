@@ -17,9 +17,9 @@ package client
 import (
 	"context"
 
-	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/client/tarball"
+	"github.com/percona/pmm/admin/pkg/flags"
 )
 
 // InstallCommand is used by Kong for CLI flags and commands.
