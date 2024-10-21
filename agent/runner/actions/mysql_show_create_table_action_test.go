@@ -57,7 +57,7 @@ func TestMySQLShowCreateTable(t *testing.T) {
 
 		var expected string
 		switch {
-		case mySQLVersion.String() == "8.0":
+		case (mySQLVendor == version.PerconaVendor || mySQLVendor == version.OracleVendor) && mySQLVersion.Float() >= 8.0:
 			// https://dev.mysql.com/doc/relnotes/mysql/8.0/en/news-8-0-19.html
 			// Display width specification for integer data types was deprecated in MySQL 8.0.17,
 			// and now statements that include data type definitions in their output no longer

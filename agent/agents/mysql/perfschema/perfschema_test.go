@@ -201,6 +201,15 @@ func setup(t *testing.T, sp *setupParams) *PerfSchema {
 
 // filter removes buckets for queries that are not expected by tests.
 func filter(mb []*agentv1.MetricsBucket) []*agentv1.MetricsBucket {
+	filterList := map[string]struct{}{
+		"ANALYZE TABLE `city`":                            {}, // OpenTestMySQL
+		"SHOW GLOBAL VARIABLES WHERE `Variable_name` = ?": {}, // MySQLVersion
+		"SHOW VARIABLES LIKE ?":                           {}, // MariaDBVersion
+		"SELECT `id` FROM `city` LIMIT ?":                 {}, // waitForFixtures
+		"SELECT ID FROM `city` LIMIT ?":                   {}, // waitForFixtures for MariaDB
+		"SELECT COUNT ( * ) FROM `city`":                  {}, // actions tests
+		"CREATE TABLE IF NOT EXISTS `t1` ( `col1` CHARACTER (?) ) CHARACTER SET `utf8mb4` COLLATE `utf8mb4_general_ci`": {}, // tests for invalid characters
+	}
 	res := make([]*agentv1.MetricsBucket, 0, len(mb))
 	for _, b := range mb {
 		switch {
@@ -215,23 +224,14 @@ func filter(mb []*agentv1.MetricsBucket) []*agentv1.MetricsBucket {
 			continue
 		case strings.Contains(b.Common.Example, "/* pmm-agent-tests:waitForFixtures */"):
 			continue
-		}
-
-		switch {
-		case b.Common.Fingerprint == "ANALYZE TABLE `city`": // OpenTestMySQL
+		case strings.Contains(b.Common.Fingerprint, "events_statements_history"):
 			continue
-		case b.Common.Fingerprint == "SHOW GLOBAL VARIABLES WHERE `Variable_name` = ?": // MySQLVersion
-			continue
-		case b.Common.Fingerprint == "SELECT `id` FROM `city` LIMIT ?": // waitForFixtures
-			continue
-		case b.Common.Fingerprint == "SELECT ID FROM `city` LIMIT ?": // waitForFixtures for MariaDB
-			continue
-		case b.Common.Fingerprint == "SELECT COUNT ( * ) FROM `city`": // actions tests
-			continue
-		case b.Common.Fingerprint == "CREATE TABLE IF NOT EXISTS `t1` ( `col1` CHARACTER (?) ) CHARACTER SET `utf8mb4` COLLATE `utf8mb4_general_ci`": // tests for invalid characters
-			continue
-
 		case strings.HasPrefix(b.Common.Fingerprint, "SELECT @@`slow_query_log"): // slowlog
+			continue
+		case strings.HasPrefix(b.Common.Fingerprint, "TRUNCATE"): // OpenTestMySQL
+			continue
+		}
+		if _, ok := filterList[b.Common.Fingerprint]; ok {
 			continue
 		}
 
@@ -246,7 +246,7 @@ func TestPerfSchema(t *testing.T) {
 	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	updateQuery := fmt.Sprintf("UPDATE /* %s */ ", queryTag)
-	_, err := db.Exec(updateQuery + "performance_schema.setup_consumers SET ENABLED='YES' WHERE NAME='events_statements_history'")
+	_, err := db.Exec(updateQuery + "performance_schema.setup_consumers SET ENABLED='YES'")
 	require.NoError(t, err, "failed to enable events_statements_history consumer")
 
 	structs, err := db.SelectAllFrom(setupConsumersView, "ORDER BY NAME")
@@ -259,6 +259,7 @@ func TestPerfSchema(t *testing.T) {
 	var rowsExamined float32
 	ctx := context.Background()
 	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(ctx, db.WithTag("pmm-agent-tests:MySQLVersion"))
+	t.Logf("MySQL version: %s, vendor: %s", mySQLVersion, mySQLVendor)
 	var digests map[string]string // digest_text/fingerprint to digest/query_id
 	switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
 	case "5.6-oracle":
@@ -283,7 +284,7 @@ func TestPerfSchema(t *testing.T) {
 			"SELECT * FROM `city`": "9c799bdb2460f79b3423b77cd10403da",
 		}
 
-	case "8.0-oracle", "8.0-percona":
+	case "8.0-oracle", "8.0-percona", "8.4-oracle", "9.0-oracle", "9.1-oracle":
 		digests = map[string]string{
 			"SELECT `sleep` (?)":   "0b1b1c39d4ee2dda7df2a532d0a23406d86bd34e2cd7f22e3f7e9dedadff9b69",
 			"SELECT * FROM `city`": "950bdc225cf73c9096ba499351ed4376f4526abad3d8ceabc168b6b28cfc9eab",
@@ -306,6 +307,24 @@ func TestPerfSchema(t *testing.T) {
 		digests = map[string]string{
 			"SELECT `sleep` (?)":   "0a01e0e8325cdd1db9a0746270ab8ce9",
 			"SELECT * FROM `city`": "a65e76b1643273fa3206b11c4f4d8739",
+		}
+
+	case "11.2-mariadb":
+		digests = map[string]string{
+			"SELECT `sleep` (?)":   "ffbde6c4dfda8dff9a4fefd7e8ed648f",
+			"SELECT * FROM `city`": "d0f2ac0577a44d383c5c0480a420caeb",
+		}
+
+	case "11.4-mariadb":
+		digests = map[string]string{
+			"SELECT `sleep` (?)":   "860792b8f3d058489b287e30ccf3beae",
+			"SELECT * FROM `city`": "457a868ea48e4571327914f2831d62f5",
+		}
+
+	case "11.5-mariadb":
+		digests = map[string]string{
+			"SELECT `sleep` (?)":   "860792b8f3d058489b287e30ccf3beae",
+			"SELECT * FROM `city`": "457a868ea48e4571327914f2831d62f5",
 		}
 
 	default:
@@ -433,9 +452,9 @@ func TestPerfSchema(t *testing.T) {
 
 		require.NoError(t, m.refreshHistoryCache())
 		var example string
-		switch mySQLVersion.String() {
+		switch {
 		// Perf schema truncates queries with non-utf8 characters.
-		case "8.0":
+		case (mySQLVendor == version.PerconaVendor || mySQLVendor == version.OracleVendor) && mySQLVersion.Float() >= 8.0:
 			example = "SELECT /* t1 controller='test' */ * FROM t1 where col1='Bu"
 		default:
 			example = "SELECT /* t1 controller='test' */ * FROM t1 where col1=..."
