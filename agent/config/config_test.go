@@ -116,6 +116,7 @@ func TestGet(t *testing.T) {
 				AzureExporter:    "/usr/local/percona/pmm/exporters/azure_exporter",
 				VMAgent:          "/usr/local/percona/pmm/exporters/vmagent",
 				TempDir:          "/usr/local/percona/pmm/tmp",
+				NomadDataDir:     "/usr/local/percona/pmm/data/nomad",
 				PTSummary:        "/usr/local/percona/pmm/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm/tools/pt-pg-summary",
 				PTMySQLSummary:   "/usr/local/percona/pmm/tools/pt-mysql-summary",
@@ -177,6 +178,7 @@ func TestGet(t *testing.T) {
 				AzureExporter:    "/usr/local/percona/pmm/exporters/azure_exporter",
 				VMAgent:          "/usr/local/percona/pmm/exporters/vmagent",
 				TempDir:          "/usr/local/percona/pmm/tmp",
+				NomadDataDir:     "/usr/local/percona/pmm/data/nomad",
 				PTSummary:        "/usr/local/percona/pmm/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm/tools/pt-mongodb-summary",
@@ -237,6 +239,7 @@ func TestGet(t *testing.T) {
 				AzureExporter:    "/usr/local/percona/pmm/exporters/azure_exporter",
 				VMAgent:          "/usr/local/percona/pmm/exporters/vmagent",
 				TempDir:          "/foo/bar/tmp",
+				NomadDataDir:     "/usr/local/percona/pmm/data/nomad",
 				PTSummary:        "/usr/local/percona/pmm/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm/tools/pt-pg-summary",
 				PTMySQLSummary:   "/usr/local/percona/pmm/tools/pt-mysql-summary",
@@ -305,6 +308,7 @@ func TestGet(t *testing.T) {
 				AzureExporter:    "/base/azure_exporter",   // default value
 				VMAgent:          "/base/vmagent",          // default value
 				TempDir:          "/usr/local/percona/pmm/tmp",
+				NomadDataDir:     "/usr/local/percona/pmm/data/nomad",
 				PTSummary:        "/usr/local/percona/pmm/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm/tools/pt-mongodb-summary",
@@ -371,6 +375,7 @@ func TestGet(t *testing.T) {
 				AzureExporter:    "/base/exporters/azure_exporter",     // default value
 				VMAgent:          "/base/exporters/vmagent",            // default value
 				TempDir:          "/base/tmp",
+				NomadDataDir:     "/base/data/nomad",
 				PTSummary:        "/base/tools/pt-summary",
 				PTPGSummary:      "/base/tools/pt-pg-summary",
 				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
@@ -435,6 +440,7 @@ func TestGet(t *testing.T) {
 				AzureExporter:    "/foo/exporters/azure_exporter",    // default value
 				VMAgent:          "/foo/exporters/vmagent",           // default value
 				TempDir:          "/foo/tmp",
+				NomadDataDir:     "/base/data/nomad",
 				PTSummary:        "/base/tools/pt-summary",
 				PTPGSummary:      "/base/tools/pt-pg-summary",
 				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
@@ -484,6 +490,7 @@ func TestGet(t *testing.T) {
 				AzureExporter:    "/usr/local/percona/pmm/exporters/azure_exporter",
 				VMAgent:          "/usr/local/percona/pmm/exporters/vmagent",
 				TempDir:          "/usr/local/percona/pmm/tmp",
+				NomadDataDir:     "/usr/local/percona/pmm/data/nomad",
 				PTSummary:        "/usr/local/percona/pmm/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm/tools/pt-mongodb-summary",

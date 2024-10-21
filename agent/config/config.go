@@ -406,6 +406,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PATHS_PT_MYSQL_SUMMARY").StringVar(&cfg.Paths.PTMySQLSummary)
 	app.Flag("paths-nomad", "Path to nomad to use [PMM_AGENT_PATHS_NOMAD]").
 		Envar("PMM_AGENT_PATHS_NOMAD").StringVar(&cfg.Paths.Nomad)
+	app.Flag("paths-nomad-data-dir", "Nomad data directory [PMM_AGENT_PATHS_NOMAD_DATA_DIR]").
+		Envar("PMM_AGENT_PATHS_NOMAD_DATA_DIR").StringVar(&cfg.Paths.NomadDataDir)
 	app.Flag("paths-tempdir", "Temporary directory for exporters [PMM_AGENT_PATHS_TEMPDIR]").
 		Envar("PMM_AGENT_PATHS_TEMPDIR").StringVar(&cfg.Paths.TempDir)
 	// no flag for SlowLogFilePrefix - it is only for development and testing
