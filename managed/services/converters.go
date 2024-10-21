@@ -18,6 +18,7 @@ package services
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
@@ -521,10 +522,10 @@ func SpecifyLogLevel(variant, minLogLevel inventoryv1.LogLevel) string {
 
 	// downgrade instead of return API error
 	if variant < minLogLevel {
-		return minLogLevel.String()
+		variant = minLogLevel
 	}
 
-	return variant.String()
+	return strings.ToLower(strings.TrimPrefix(variant.String(), "LOG_LEVEL_"))
 }
 
 // nodeTypes maps protobuf types to their string types.
