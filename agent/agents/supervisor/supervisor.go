@@ -665,15 +665,6 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 	templateParams := map[string]interface{}{
 		"listen_port": port,
 	}
-	templateParams["server_insecure"] = cfg.Server.InsecureTLS
-	templateParams["server_url"] = fmt.Sprintf("https://%s", cfg.Server.Address)
-	if cfg.Server.WithoutTLS {
-		templateParams["server_url"] = fmt.Sprintf("http://%s", cfg.Server.Address)
-	}
-	templateParams["server_host"] = cfg.Server.URL().Host
-	templateParams["server_password"] = cfg.Server.Password
-	templateParams["server_username"] = cfg.Server.Username
-	templateParams["tmp_dir"] = cfg.Paths.TempDir
 	switch agentProcess.Type {
 	case inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER:
 		templateParams["paths_base"] = cfg.Paths.PathsBase
@@ -695,8 +686,17 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 	case type_TEST_SLEEP:
 		processParams.Path = "sleep"
 	case inventoryv1.AgentType_AGENT_TYPE_VM_AGENT:
+		templateParams["server_insecure"] = cfg.Server.InsecureTLS
+		templateParams["server_url"] = fmt.Sprintf("https://%s", cfg.Server.Address)
+		if cfg.Server.WithoutTLS {
+			templateParams["server_url"] = fmt.Sprintf("http://%s", cfg.Server.Address)
+		}
+		templateParams["server_password"] = cfg.Server.Password
+		templateParams["server_username"] = cfg.Server.Username
+		templateParams["tmp_dir"] = cfg.Paths.TempDir
 		processParams.Path = cfg.Paths.VMAgent
 	case inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT:
+		templateParams["server_host"] = cfg.Server.URL().Host
 		templateParams["nomad_data_dir"] = cfg.Paths.NomadDataDir
 		processParams.Path = cfg.Paths.Nomad
 	default:
