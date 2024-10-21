@@ -171,11 +171,6 @@ func TestFiles(t *testing.T) {
 	files := l.files(ctx, nil, maxLogReadLines)
 	actual := make([]string, 0, len(files))
 	for _, f := range files {
-		// present only after update
-		if f.Name == "pmm-update-perform.log" {
-			continue
-		}
-
 		if f.Name == "prometheus.base.yml" {
 			assert.EqualError(t, f.Err, "open /srv/prometheus/prometheus.base.yml: no such file or directory")
 			continue
@@ -226,12 +221,8 @@ func TestZip(t *testing.T) {
 
 	actual := make([]string, 0, len(r.File))
 	for _, f := range r.File {
-		// present only after update
-		if f.Name == "pmm-update-perform.log" {
-			continue
-		}
-
-		// skip with dynamic IDs now @TODO use regex to match ~ "client/pmm-agent/NODE_EXPORTER 297b465c-a767-4bc5-809d-d394a83c7086.log"
+		// skip with dynamic IDs now
+		// TODO: use regex to match ~ "client/pmm-agent/NODE_EXPORTER 297b465c-a767-4bc5-809d-d394a83c7086.log"
 		if strings.Contains(f.Name, "client/pmm-agent/") && f.Name != "client/pmm-agent/pmm-agent.log" {
 			continue
 		}

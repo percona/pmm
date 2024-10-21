@@ -1,6 +1,6 @@
 ---
-# This playbook contains tasks executed during initialization PMM Server
-- hosts: localhost
+# This playbook gets executed by pmm-update-perform-init
+- hosts: all
   become: true
   become_method: su
   become_user: pmm

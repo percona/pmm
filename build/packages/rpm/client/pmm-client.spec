@@ -22,7 +22,7 @@ Requires(postun): systemd
 
 AutoReq:        no
 Conflicts:      pmm-client
-Obsoletes:	pmm2-client < 3.0.0
+Obsoletes:      pmm2-client < 3.0.0
 
 %description
 Percona Monitoring and Management (PMM) is an open-source platform for managing and monitoring MySQL and MongoDB
