@@ -51,7 +51,7 @@
       group: pmm
       mode: 0644
 
-  - name: Wait until postgres is up
+  - name: Wait for PostgreSQL to become responsive
     wait_for:
       host: 127.0.0.1
       port: 5432
