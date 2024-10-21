@@ -40,32 +40,15 @@
                         "type": "string",
                         "x-order": 0
                       },
-                      "created_at": {
-                        "description": "Artifact creation time.",
+                      "name": {
                         "type": "string",
-                        "format": "date-time",
-                        "x-order": 9
+                        "title": "Artifact name",
+                        "x-order": 1
                       },
-                      "data_model": {
-                        "description": "DataModel is a model used for performing a backup.",
+                      "vendor": {
+                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
                         "type": "string",
-                        "default": "DATA_MODEL_UNSPECIFIED",
-                        "enum": [
-                          "DATA_MODEL_UNSPECIFIED",
-                          "DATA_MODEL_PHYSICAL",
-                          "DATA_MODEL_LOGICAL"
-                        ],
-                        "x-order": 7
-                      },
-                      "folder": {
-                        "description": "Folder to store artifact on a storage.",
-                        "type": "string",
-                        "x-order": 12
-                      },
-                      "is_sharded_cluster": {
-                        "description": "Source database setup type.",
-                        "type": "boolean",
-                        "x-order": 11
+                        "x-order": 2
                       },
                       "location_id": {
                         "description": "Machine-readable location ID.",
@@ -77,71 +60,6 @@
                         "type": "string",
                         "x-order": 4
                       },
-                      "metadata_list": {
-                        "description": "List of artifact metadata.",
-                        "type": "array",
-                        "items": {
-                          "description": "Metadata contains extra artifact data like files it consists of, tool specific data, etc.",
-                          "type": "object",
-                          "properties": {
-                            "file_list": {
-                              "description": "List of files backup consists of.",
-                              "type": "array",
-                              "items": {
-                                "description": "File represents file or folder on a storage.",
-                                "type": "object",
-                                "properties": {
-                                  "is_directory": {
-                                    "type": "boolean",
-                                    "x-order": 1
-                                  },
-                                  "name": {
-                                    "type": "string",
-                                    "x-order": 0
-                                  }
-                                }
-                              },
-                              "x-order": 0
-                            },
-                            "pbm_metadata": {
-                              "description": "PbmMetadata contains additional data for pbm cli tools.",
-                              "type": "object",
-                              "properties": {
-                                "name": {
-                                  "description": "Name of backup in backup tool representation.",
-                                  "type": "string",
-                                  "x-order": 0
-                                }
-                              },
-                              "x-order": 2
-                            },
-                            "restore_to": {
-                              "description": "Exact time DB can be restored to.",
-                              "type": "string",
-                              "format": "date-time",
-                              "x-order": 1
-                            }
-                          }
-                        },
-                        "x-order": 13
-                      },
-                      "mode": {
-                        "description": "BackupMode specifies backup mode.",
-                        "type": "string",
-                        "default": "BACKUP_MODE_UNSPECIFIED",
-                        "enum": [
-                          "BACKUP_MODE_UNSPECIFIED",
-                          "BACKUP_MODE_SNAPSHOT",
-                          "BACKUP_MODE_INCREMENTAL",
-                          "BACKUP_MODE_PITR"
-                        ],
-                        "x-order": 10
-                      },
-                      "name": {
-                        "type": "string",
-                        "title": "Artifact name",
-                        "x-order": 1
-                      },
                       "service_id": {
                         "description": "Machine-readable service ID.",
                         "type": "string",
@@ -151,6 +69,17 @@
                         "description": "Service name.",
                         "type": "string",
                         "x-order": 6
+                      },
+                      "data_model": {
+                        "description": "DataModel is a model used for performing a backup.",
+                        "type": "string",
+                        "default": "DATA_MODEL_UNSPECIFIED",
+                        "enum": [
+                          "DATA_MODEL_UNSPECIFIED",
+                          "DATA_MODEL_PHYSICAL",
+                          "DATA_MODEL_LOGICAL"
+                        ],
+                        "x-order": 7
                       },
                       "status": {
                         "description": "BackupStatus shows the current status of execution of backup.",
@@ -169,10 +98,81 @@
                         ],
                         "x-order": 8
                       },
-                      "vendor": {
-                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
+                      "created_at": {
+                        "description": "Artifact creation time.",
                         "type": "string",
-                        "x-order": 2
+                        "format": "date-time",
+                        "x-order": 9
+                      },
+                      "mode": {
+                        "description": "BackupMode specifies backup mode.",
+                        "type": "string",
+                        "default": "BACKUP_MODE_UNSPECIFIED",
+                        "enum": [
+                          "BACKUP_MODE_UNSPECIFIED",
+                          "BACKUP_MODE_SNAPSHOT",
+                          "BACKUP_MODE_INCREMENTAL",
+                          "BACKUP_MODE_PITR"
+                        ],
+                        "x-order": 10
+                      },
+                      "is_sharded_cluster": {
+                        "description": "Source database setup type.",
+                        "type": "boolean",
+                        "x-order": 11
+                      },
+                      "folder": {
+                        "description": "Folder to store artifact on a storage.",
+                        "type": "string",
+                        "x-order": 12
+                      },
+                      "metadata_list": {
+                        "description": "List of artifact metadata.",
+                        "type": "array",
+                        "items": {
+                          "description": "Metadata contains extra artifact data like files it consists of, tool specific data, etc.",
+                          "type": "object",
+                          "properties": {
+                            "file_list": {
+                              "description": "List of files backup consists of.",
+                              "type": "array",
+                              "items": {
+                                "description": "File represents file or folder on a storage.",
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "x-order": 0
+                                  },
+                                  "is_directory": {
+                                    "type": "boolean",
+                                    "x-order": 1
+                                  }
+                                }
+                              },
+                              "x-order": 0
+                            },
+                            "restore_to": {
+                              "description": "Exact time DB can be restored to.",
+                              "type": "string",
+                              "format": "date-time",
+                              "x-order": 1
+                            },
+                            "pbm_metadata": {
+                              "description": "PbmMetadata contains additional data for pbm cli tools.",
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "description": "Name of backup in backup tool representation.",
+                                  "type": "string",
+                                  "x-order": 0
+                                }
+                              },
+                              "x-order": 2
+                            }
+                          }
+                        },
+                        "x-order": 13
                       }
                     }
                   },
@@ -191,6 +191,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -201,13 +205,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -255,6 +255,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -265,13 +269,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -307,17 +307,17 @@
                   "items": {
                     "type": "object",
                     "properties": {
-                      "end_timestamp": {
-                        "description": "end_timestamp is the time of the last event in the PITR chunk.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 1
-                      },
                       "start_timestamp": {
                         "description": "start_timestamp is the time of the first event in the PITR chunk.",
                         "type": "string",
                         "format": "date-time",
                         "x-order": 0
+                      },
+                      "end_timestamp": {
+                        "description": "end_timestamp is the time of the last event in the PITR chunk.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 1
                       }
                     }
                   },
@@ -336,6 +336,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -346,13 +350,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -380,6 +380,16 @@
                     "description": "Location represents single Backup Location.",
                     "type": "object",
                     "properties": {
+                      "location_id": {
+                        "description": "Machine-readable ID.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "name": {
+                        "type": "string",
+                        "title": "Location name",
+                        "x-order": 1
+                      },
                       "description": {
                         "type": "string",
                         "title": "Short description",
@@ -396,35 +406,25 @@
                         },
                         "x-order": 3
                       },
-                      "location_id": {
-                        "description": "Machine-readable ID.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "name": {
-                        "type": "string",
-                        "title": "Location name",
-                        "x-order": 1
-                      },
                       "s3_config": {
                         "description": "S3LocationConfig represents S3 bucket configuration.",
                         "type": "object",
                         "properties": {
-                          "access_key": {
-                            "type": "string",
-                            "x-order": 1
-                          },
-                          "bucket_name": {
-                            "type": "string",
-                            "x-order": 3
-                          },
                           "endpoint": {
                             "type": "string",
                             "x-order": 0
                           },
+                          "access_key": {
+                            "type": "string",
+                            "x-order": 1
+                          },
                           "secret_key": {
                             "type": "string",
                             "x-order": 2
+                          },
+                          "bucket_name": {
+                            "type": "string",
+                            "x-order": 3
                           }
                         },
                         "x-order": 4
@@ -446,6 +446,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -456,13 +460,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -484,6 +484,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "name": {
+                  "type": "string",
+                  "title": "Location name",
+                  "x-order": 0
+                },
                 "description": {
                   "type": "string",
                   "x-order": 1
@@ -499,30 +504,25 @@
                   },
                   "x-order": 2
                 },
-                "name": {
-                  "type": "string",
-                  "title": "Location name",
-                  "x-order": 0
-                },
                 "s3_config": {
                   "description": "S3LocationConfig represents S3 bucket configuration.",
                   "type": "object",
                   "properties": {
-                    "access_key": {
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "bucket_name": {
-                      "type": "string",
-                      "x-order": 3
-                    },
                     "endpoint": {
                       "type": "string",
                       "x-order": 0
                     },
+                    "access_key": {
+                      "type": "string",
+                      "x-order": 1
+                    },
                     "secret_key": {
                       "type": "string",
                       "x-order": 2
+                    },
+                    "bucket_name": {
+                      "type": "string",
+                      "x-order": 3
                     }
                   },
                   "x-order": 3
@@ -555,6 +555,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -565,13 +569,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -602,6 +602,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "name": {
+                  "type": "string",
+                  "title": "Location name",
+                  "x-order": 0
+                },
                 "description": {
                   "type": "string",
                   "x-order": 1
@@ -617,30 +622,25 @@
                   },
                   "x-order": 2
                 },
-                "name": {
-                  "type": "string",
-                  "title": "Location name",
-                  "x-order": 0
-                },
                 "s3_config": {
                   "description": "S3LocationConfig represents S3 bucket configuration.",
                   "type": "object",
                   "properties": {
-                    "access_key": {
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "bucket_name": {
-                      "type": "string",
-                      "x-order": 3
-                    },
                     "endpoint": {
                       "type": "string",
                       "x-order": 0
                     },
+                    "access_key": {
+                      "type": "string",
+                      "x-order": 1
+                    },
                     "secret_key": {
                       "type": "string",
                       "x-order": 2
+                    },
+                    "bucket_name": {
+                      "type": "string",
+                      "x-order": 3
                     }
                   },
                   "x-order": 3
@@ -666,6 +666,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -676,13 +680,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -728,6 +728,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -738,13 +742,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -783,21 +783,21 @@
                   "description": "S3LocationConfig represents S3 bucket configuration.",
                   "type": "object",
                   "properties": {
-                    "access_key": {
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "bucket_name": {
-                      "type": "string",
-                      "x-order": 3
-                    },
                     "endpoint": {
                       "type": "string",
                       "x-order": 0
                     },
+                    "access_key": {
+                      "type": "string",
+                      "x-order": 1
+                    },
                     "secret_key": {
                       "type": "string",
                       "x-order": 2
+                    },
+                    "bucket_name": {
+                      "type": "string",
+                      "x-order": 3
                     }
                   },
                   "x-order": 1
@@ -823,6 +823,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -833,13 +837,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -867,27 +867,25 @@
                     "description": "RestoreHistoryItem represents single backup restore item.",
                     "type": "object",
                     "properties": {
+                      "restore_id": {
+                        "description": "Machine-readable restore id.",
+                        "type": "string",
+                        "x-order": 0
+                      },
                       "artifact_id": {
                         "description": "ID of the artifact used for restore.",
                         "type": "string",
                         "x-order": 1
                       },
-                      "data_model": {
-                        "description": "DataModel is a model used for performing a backup.",
+                      "name": {
+                        "description": "Artifact name used for restore.",
                         "type": "string",
-                        "default": "DATA_MODEL_UNSPECIFIED",
-                        "enum": [
-                          "DATA_MODEL_UNSPECIFIED",
-                          "DATA_MODEL_PHYSICAL",
-                          "DATA_MODEL_LOGICAL"
-                        ],
-                        "x-order": 8
+                        "x-order": 2
                       },
-                      "finished_at": {
-                        "description": "Restore finish time.",
+                      "vendor": {
+                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
                         "type": "string",
-                        "format": "date-time",
-                        "x-order": 11
+                        "x-order": 3
                       },
                       "location_id": {
                         "description": "Machine-readable location ID.",
@@ -899,22 +897,6 @@
                         "type": "string",
                         "x-order": 5
                       },
-                      "name": {
-                        "description": "Artifact name used for restore.",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "pitr_timestamp": {
-                        "description": "PITR timestamp is filled for PITR restores, empty otherwise.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 12
-                      },
-                      "restore_id": {
-                        "description": "Machine-readable restore id.",
-                        "type": "string",
-                        "x-order": 0
-                      },
                       "service_id": {
                         "description": "Machine-readable service ID.",
                         "type": "string",
@@ -925,11 +907,16 @@
                         "type": "string",
                         "x-order": 7
                       },
-                      "started_at": {
-                        "description": "Restore start time.",
+                      "data_model": {
+                        "description": "DataModel is a model used for performing a backup.",
                         "type": "string",
-                        "format": "date-time",
-                        "x-order": 10
+                        "default": "DATA_MODEL_UNSPECIFIED",
+                        "enum": [
+                          "DATA_MODEL_UNSPECIFIED",
+                          "DATA_MODEL_PHYSICAL",
+                          "DATA_MODEL_LOGICAL"
+                        ],
+                        "x-order": 8
                       },
                       "status": {
                         "description": "RestoreStatus shows the current status of execution of restore.",
@@ -943,10 +930,23 @@
                         ],
                         "x-order": 9
                       },
-                      "vendor": {
-                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
+                      "started_at": {
+                        "description": "Restore start time.",
                         "type": "string",
-                        "x-order": 3
+                        "format": "date-time",
+                        "x-order": 10
+                      },
+                      "finished_at": {
+                        "description": "Restore finish time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 11
+                      },
+                      "pitr_timestamp": {
+                        "description": "PITR timestamp is filled for PITR restores, empty otherwise.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 12
                       }
                     }
                   },
@@ -965,6 +965,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -975,13 +979,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -1023,10 +1023,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "end": {
-                  "type": "boolean",
-                  "x-order": 1
-                },
                 "logs": {
                   "type": "array",
                   "items": {
@@ -1045,6 +1041,10 @@
                     }
                   },
                   "x-order": 0
+                },
+                "end": {
+                  "type": "boolean",
+                  "x-order": 1
                 }
               }
             }
@@ -1059,6 +1059,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -1069,13 +1073,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -1099,6 +1099,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "service_id": {
+                  "description": "Service identifier where backup should be restored.",
+                  "type": "string",
+                  "x-order": 0
+                },
                 "artifact_id": {
                   "description": "Artifact id to restore.",
                   "type": "string",
@@ -1109,11 +1114,6 @@
                   "format": "date-time",
                   "title": "Timestamp of PITR to restore to",
                   "x-order": 2
-                },
-                "service_id": {
-                  "description": "Service identifier where backup should be restored.",
-                  "type": "string",
-                  "x-order": 0
                 }
               }
             }
@@ -1143,6 +1143,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -1153,13 +1157,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -1187,93 +1187,6 @@
                     "description": "ScheduledBackup represents scheduled task for backup.",
                     "type": "object",
                     "properties": {
-                      "cron_expression": {
-                        "description": "How often backup will be run in cron format.",
-                        "type": "string",
-                        "x-order": 6
-                      },
-                      "data_model": {
-                        "description": "DataModel is a model used for performing a backup.",
-                        "type": "string",
-                        "default": "DATA_MODEL_UNSPECIFIED",
-                        "enum": [
-                          "DATA_MODEL_UNSPECIFIED",
-                          "DATA_MODEL_PHYSICAL",
-                          "DATA_MODEL_LOGICAL"
-                        ],
-                        "x-order": 13
-                      },
-                      "description": {
-                        "description": "Description.",
-                        "type": "string",
-                        "x-order": 9
-                      },
-                      "enabled": {
-                        "description": "If scheduling is enabled.",
-                        "type": "boolean",
-                        "x-order": 10
-                      },
-                      "folder": {
-                        "description": "Folder on storage for artifact.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "last_run": {
-                        "description": "Last run.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 16
-                      },
-                      "location_id": {
-                        "description": "Machine-readable location ID.",
-                        "type": "string",
-                        "x-order": 3
-                      },
-                      "location_name": {
-                        "description": "Location name.",
-                        "type": "string",
-                        "x-order": 4
-                      },
-                      "mode": {
-                        "description": "BackupMode specifies backup mode.",
-                        "type": "string",
-                        "default": "BACKUP_MODE_UNSPECIFIED",
-                        "enum": [
-                          "BACKUP_MODE_UNSPECIFIED",
-                          "BACKUP_MODE_SNAPSHOT",
-                          "BACKUP_MODE_INCREMENTAL",
-                          "BACKUP_MODE_PITR"
-                        ],
-                        "x-order": 14
-                      },
-                      "name": {
-                        "description": "Artifact name.",
-                        "type": "string",
-                        "x-order": 8
-                      },
-                      "next_run": {
-                        "description": "Next run.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 17
-                      },
-                      "retention": {
-                        "description": "How many artifacts keep. 0 - unlimited.",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 18
-                      },
-                      "retries": {
-                        "description": "How many times to retry a failed backup before giving up.",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 11
-                      },
-                      "retry_interval": {
-                        "description": "Delay between each retry. Should have a suffix in JSON: 2s, 1m, 1h.",
-                        "type": "string",
-                        "x-order": 12
-                      },
                       "scheduled_backup_id": {
                         "description": "Machine-readable ID.",
                         "type": "string",
@@ -1289,16 +1202,103 @@
                         "type": "string",
                         "x-order": 2
                       },
+                      "location_id": {
+                        "description": "Machine-readable location ID.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "location_name": {
+                        "description": "Location name.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "folder": {
+                        "description": "Folder on storage for artifact.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "cron_expression": {
+                        "description": "How often backup will be run in cron format.",
+                        "type": "string",
+                        "x-order": 6
+                      },
                       "start_time": {
                         "description": "First backup wouldn't happen before this time.",
                         "type": "string",
                         "format": "date-time",
                         "x-order": 7
                       },
+                      "name": {
+                        "description": "Artifact name.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "description": {
+                        "description": "Description.",
+                        "type": "string",
+                        "x-order": 9
+                      },
+                      "enabled": {
+                        "description": "If scheduling is enabled.",
+                        "type": "boolean",
+                        "x-order": 10
+                      },
+                      "retries": {
+                        "description": "How many times to retry a failed backup before giving up.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 11
+                      },
+                      "retry_interval": {
+                        "description": "Delay between each retry. Should have a suffix in JSON: 2s, 1m, 1h.",
+                        "type": "string",
+                        "x-order": 12
+                      },
+                      "data_model": {
+                        "description": "DataModel is a model used for performing a backup.",
+                        "type": "string",
+                        "default": "DATA_MODEL_UNSPECIFIED",
+                        "enum": [
+                          "DATA_MODEL_UNSPECIFIED",
+                          "DATA_MODEL_PHYSICAL",
+                          "DATA_MODEL_LOGICAL"
+                        ],
+                        "x-order": 13
+                      },
+                      "mode": {
+                        "description": "BackupMode specifies backup mode.",
+                        "type": "string",
+                        "default": "BACKUP_MODE_UNSPECIFIED",
+                        "enum": [
+                          "BACKUP_MODE_UNSPECIFIED",
+                          "BACKUP_MODE_SNAPSHOT",
+                          "BACKUP_MODE_INCREMENTAL",
+                          "BACKUP_MODE_PITR"
+                        ],
+                        "x-order": 14
+                      },
                       "vendor": {
                         "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
                         "type": "string",
                         "x-order": 15
+                      },
+                      "last_run": {
+                        "description": "Last run.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 16
+                      },
+                      "next_run": {
+                        "description": "Next run.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 17
+                      },
+                      "retention": {
+                        "description": "How many artifacts keep. 0 - unlimited.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 18
                       }
                     }
                   },
@@ -1317,6 +1317,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -1327,13 +1331,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -1364,120 +1364,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "mongodb": {
-                  "type": "array",
-                  "items": {
-                    "description": "MongoDBService represents a generic MongoDB instance.",
-                    "type": "object",
-                    "properties": {
-                      "address": {
-                        "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
-                        "type": "string",
-                        "x-order": 3
-                      },
-                      "cluster": {
-                        "description": "Cluster name.",
-                        "type": "string",
-                        "x-order": 7
-                      },
-                      "custom_labels": {
-                        "description": "Custom user-assigned labels.",
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        },
-                        "x-order": 9
-                      },
-                      "environment": {
-                        "description": "Environment name.",
-                        "type": "string",
-                        "x-order": 6
-                      },
-                      "node_id": {
-                        "description": "Node identifier where this instance runs.",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "port": {
-                        "description": "Access port.\nPort is required when the address present.",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 4
-                      },
-                      "replication_set": {
-                        "description": "Replication set name.",
-                        "type": "string",
-                        "x-order": 8
-                      },
-                      "service_id": {
-                        "description": "Unique randomly generated instance identifier.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "service_name": {
-                        "description": "Unique across all Services user-defined name.",
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "socket": {
-                        "description": "Access unix socket.\nAddress (and port) or socket is required.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "version": {
-                        "description": "MongoDB version.",
-                        "type": "string",
-                        "x-order": 10
-                      }
-                    }
-                  },
-                  "x-order": 1
-                },
                 "mysql": {
                   "type": "array",
                   "items": {
                     "description": "MySQLService represents a generic MySQL instance.",
                     "type": "object",
                     "properties": {
-                      "address": {
-                        "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
-                        "type": "string",
-                        "x-order": 3
-                      },
-                      "cluster": {
-                        "description": "Cluster name.",
-                        "type": "string",
-                        "x-order": 7
-                      },
-                      "custom_labels": {
-                        "description": "Custom user-assigned labels.",
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        },
-                        "x-order": 9
-                      },
-                      "environment": {
-                        "description": "Environment name.",
-                        "type": "string",
-                        "x-order": 6
-                      },
-                      "node_id": {
-                        "description": "Node identifier where this instance runs.",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "port": {
-                        "description": "Access port.\nPort is required when the address present.",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 4
-                      },
-                      "replication_set": {
-                        "description": "Replication set name.",
-                        "type": "string",
-                        "x-order": 8
-                      },
                       "service_id": {
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string",
@@ -1488,10 +1380,49 @@
                         "type": "string",
                         "x-order": 1
                       },
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "address": {
+                        "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "port": {
+                        "description": "Access port.\nPort is required when the address present.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 4
+                      },
                       "socket": {
                         "description": "Access unix socket.\nAddress (and port) or socket is required.",
                         "type": "string",
                         "x-order": 5
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "cluster": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "replication_set": {
+                        "description": "Replication set name.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 9
                       },
                       "version": {
                         "description": "MySQL version.",
@@ -1501,6 +1432,75 @@
                     }
                   },
                   "x-order": 0
+                },
+                "mongodb": {
+                  "type": "array",
+                  "items": {
+                    "description": "MongoDBService represents a generic MongoDB instance.",
+                    "type": "object",
+                    "properties": {
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "Unique across all Services user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "address": {
+                        "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "port": {
+                        "description": "Access port.\nPort is required when the address present.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 4
+                      },
+                      "socket": {
+                        "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "cluster": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "replication_set": {
+                        "description": "Replication set name.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
+                      "version": {
+                        "description": "MongoDB version.",
+                        "type": "string",
+                        "x-order": 10
+                      }
+                    }
+                  },
+                  "x-order": 1
                 }
               }
             }
@@ -1515,6 +1515,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -1525,13 +1529,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -1573,10 +1573,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "end": {
-                  "type": "boolean",
-                  "x-order": 1
-                },
                 "logs": {
                   "type": "array",
                   "items": {
@@ -1595,6 +1591,10 @@
                     }
                   },
                   "x-order": 0
+                },
+                "end": {
+                  "type": "boolean",
+                  "x-order": 1
                 }
               }
             }
@@ -1609,6 +1609,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -1619,13 +1623,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -1666,6 +1666,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -1676,13 +1680,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -1706,22 +1706,26 @@
             "schema": {
               "type": "object",
               "properties": {
+                "scheduled_backup_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "enabled": {
+                  "type": "boolean",
+                  "x-nullable": true,
+                  "x-order": 1
+                },
                 "cron_expression": {
                   "description": "How often backup should be run in cron format.",
                   "type": "string",
                   "x-nullable": true,
                   "x-order": 2
                 },
-                "description": {
-                  "description": "Human-readable description.",
+                "start_time": {
+                  "description": "First backup wouldn't happen before this time.",
                   "type": "string",
-                  "x-nullable": true,
-                  "x-order": 5
-                },
-                "enabled": {
-                  "type": "boolean",
-                  "x-nullable": true,
-                  "x-order": 1
+                  "format": "date-time",
+                  "x-order": 3
                 },
                 "name": {
                   "description": "Name of backup.",
@@ -1729,12 +1733,11 @@
                   "x-nullable": true,
                   "x-order": 4
                 },
-                "retention": {
-                  "description": "How many artifacts keep. 0 - unlimited.",
-                  "type": "integer",
-                  "format": "int64",
+                "description": {
+                  "description": "Human-readable description.",
+                  "type": "string",
                   "x-nullable": true,
-                  "x-order": 8
+                  "x-order": 5
                 },
                 "retries": {
                   "description": "How many times to retry a failed backup before giving up.",
@@ -1748,15 +1751,12 @@
                   "type": "string",
                   "x-order": 7
                 },
-                "scheduled_backup_id": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "start_time": {
-                  "description": "First backup wouldn't happen before this time.",
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 3
+                "retention": {
+                  "description": "How many artifacts keep. 0 - unlimited.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-nullable": true,
+                  "x-order": 8
                 }
               }
             }
@@ -1779,6 +1779,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -1789,13 +1793,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -1819,20 +1819,35 @@
             "schema": {
               "type": "object",
               "properties": {
+                "service_id": {
+                  "description": "Service identifier where backup should be performed.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "location_id": {
+                  "description": "Machine-readable location ID.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "folder": {
+                  "description": "How often backup should be run in cron format.\nFolder on storage for artifact.",
+                  "type": "string",
+                  "x-order": 2
+                },
                 "cron_expression": {
                   "type": "string",
                   "x-order": 3
                 },
-                "data_model": {
-                  "description": "DataModel is a model used for performing a backup.",
+                "start_time": {
+                  "description": "First backup wouldn't happen before this time.",
                   "type": "string",
-                  "default": "DATA_MODEL_UNSPECIFIED",
-                  "enum": [
-                    "DATA_MODEL_UNSPECIFIED",
-                    "DATA_MODEL_PHYSICAL",
-                    "DATA_MODEL_LOGICAL"
-                  ],
-                  "x-order": 11
+                  "format": "date-time",
+                  "x-order": 4
+                },
+                "name": {
+                  "description": "Name of backup.",
+                  "type": "string",
+                  "x-order": 5
                 },
                 "description": {
                   "description": "Human-readable description.",
@@ -1844,15 +1859,16 @@
                   "type": "boolean",
                   "x-order": 7
                 },
-                "folder": {
-                  "description": "How often backup should be run in cron format.\nFolder on storage for artifact.",
-                  "type": "string",
-                  "x-order": 2
+                "retries": {
+                  "description": "How many times to retry a failed backup before giving up.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 8
                 },
-                "location_id": {
-                  "description": "Machine-readable location ID.",
+                "retry_interval": {
+                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
                   "type": "string",
-                  "x-order": 1
+                  "x-order": 9
                 },
                 "mode": {
                   "description": "BackupMode specifies backup mode.",
@@ -1866,38 +1882,22 @@
                   ],
                   "x-order": 10
                 },
-                "name": {
-                  "description": "Name of backup.",
+                "data_model": {
+                  "description": "DataModel is a model used for performing a backup.",
                   "type": "string",
-                  "x-order": 5
+                  "default": "DATA_MODEL_UNSPECIFIED",
+                  "enum": [
+                    "DATA_MODEL_UNSPECIFIED",
+                    "DATA_MODEL_PHYSICAL",
+                    "DATA_MODEL_LOGICAL"
+                  ],
+                  "x-order": 11
                 },
                 "retention": {
                   "description": "How many artifacts keep. 0 - unlimited.",
                   "type": "integer",
                   "format": "int64",
                   "x-order": 12
-                },
-                "retries": {
-                  "description": "How many times to retry a failed backup before giving up.",
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 8
-                },
-                "retry_interval": {
-                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
-                  "type": "string",
-                  "x-order": 9
-                },
-                "service_id": {
-                  "description": "Service identifier where backup should be performed.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "start_time": {
-                  "description": "First backup wouldn't happen before this time.",
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 4
                 }
               }
             }
@@ -1926,6 +1926,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -1936,13 +1940,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -1966,26 +1966,10 @@
             "schema": {
               "type": "object",
               "properties": {
-                "data_model": {
-                  "description": "DataModel is a model used for performing a backup.",
+                "service_id": {
+                  "description": "Service identifier.",
                   "type": "string",
-                  "default": "DATA_MODEL_UNSPECIFIED",
-                  "enum": [
-                    "DATA_MODEL_UNSPECIFIED",
-                    "DATA_MODEL_PHYSICAL",
-                    "DATA_MODEL_LOGICAL"
-                  ],
-                  "x-order": 6
-                },
-                "description": {
-                  "description": "Human-readable description.",
-                  "type": "string",
-                  "x-order": 3
-                },
-                "folder": {
-                  "description": "Folder on storage for artifact.",
-                  "type": "string",
-                  "x-order": 7
+                  "x-order": 0
                 },
                 "location_id": {
                   "description": "Machine-readable location ID.",
@@ -1997,21 +1981,37 @@
                   "type": "string",
                   "x-order": 2
                 },
-                "retries": {
-                  "description": "How many times to retry a failed backup before giving up.",
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 5
+                "description": {
+                  "description": "Human-readable description.",
+                  "type": "string",
+                  "x-order": 3
                 },
                 "retry_interval": {
                   "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
                   "type": "string",
                   "x-order": 4
                 },
-                "service_id": {
-                  "description": "Service identifier.",
+                "retries": {
+                  "description": "How many times to retry a failed backup before giving up.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 5
+                },
+                "data_model": {
+                  "description": "DataModel is a model used for performing a backup.",
                   "type": "string",
-                  "x-order": 0
+                  "default": "DATA_MODEL_UNSPECIFIED",
+                  "enum": [
+                    "DATA_MODEL_UNSPECIFIED",
+                    "DATA_MODEL_PHYSICAL",
+                    "DATA_MODEL_LOGICAL"
+                  ],
+                  "x-order": 6
+                },
+                "folder": {
+                  "description": "Folder on storage for artifact.",
+                  "type": "string",
+                  "x-order": 7
                 }
               }
             }
@@ -2041,6 +2041,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -2051,13 +2055,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }

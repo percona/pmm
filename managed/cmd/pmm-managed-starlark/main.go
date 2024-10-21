@@ -23,13 +23,13 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/starlark"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/resolve"
 	"golang.org/x/sys/unix"
-	"gopkg.in/alecthomas/kingpin.v2"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/services/checks"

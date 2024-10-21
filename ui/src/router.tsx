@@ -1,6 +1,7 @@
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { Main } from 'components/main/Main';
 import { Updates } from 'pages/updates';
+import { UpdateClients } from 'pages/update-clients/UpdateClients';
 
 const router = createBrowserRouter(
   [
@@ -15,6 +16,10 @@ const router = createBrowserRouter(
         {
           path: 'updates',
           element: <Updates />,
+        },
+        {
+          path: 'updates/clients',
+          element: <UpdateClients />,
         },
       ],
     },

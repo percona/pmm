@@ -30,68 +30,25 @@
             "schema": {
               "type": "object",
               "properties": {
-                "custom_labels": {
-                  "description": "All custom labels to add or remove (with empty values) to default labels from template.",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "x-order": 7
-                },
-                "filters": {
-                  "description": "Filters.",
-                  "type": "array",
-                  "items": {
-                    "description": "Filter represents a single filter condition.",
-                    "type": "object",
-                    "properties": {
-                      "label": {
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "regexp": {
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "type": {
-                        "description": "FilterType represents filter matching type.",
-                        "type": "string",
-                        "default": "FILTER_TYPE_UNSPECIFIED",
-                        "enum": [
-                          "FILTER_TYPE_UNSPECIFIED",
-                          "FILTER_TYPE_MATCH",
-                          "FILTER_TYPE_MISMATCH"
-                        ],
-                        "x-order": 0
-                      }
-                    }
-                  },
-                  "x-order": 8
-                },
-                "folder_uid": {
-                  "description": "Folder UID.",
+                "template_name": {
+                  "description": "Template name.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 0
                 },
-                "for": {
-                  "description": "Rule duration. Should be set.",
+                "name": {
+                  "description": "Rule name.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 1
                 },
                 "group": {
                   "description": "Rule group name.",
                   "type": "string",
                   "x-order": 2
                 },
-                "interval": {
+                "folder_uid": {
+                  "description": "Folder UID.",
                   "type": "string",
-                  "title": "Evaluation Interval",
-                  "x-order": 9
-                },
-                "name": {
-                  "description": "Rule name.",
-                  "type": "string",
-                  "x-order": 1
+                  "x-order": 3
                 },
                 "params": {
                   "description": "Rule parameters. All template parameters should be set.",
@@ -100,26 +57,10 @@
                     "description": "ParamValue represents a single rule parameter value.",
                     "type": "object",
                     "properties": {
-                      "bool": {
-                        "description": "Bool value.",
-                        "type": "boolean",
-                        "x-order": 2
-                      },
-                      "float": {
-                        "description": "Float value.",
-                        "type": "number",
-                        "format": "double",
-                        "x-order": 3
-                      },
                       "name": {
                         "description": "Machine-readable name (ID) that is used in expression.",
                         "type": "string",
                         "x-order": 0
-                      },
-                      "string": {
-                        "description": "String value.",
-                        "type": "string",
-                        "x-order": 4
                       },
                       "type": {
                         "description": "ParamType represents template parameter type.",
@@ -132,10 +73,31 @@
                           "PARAM_TYPE_STRING"
                         ],
                         "x-order": 1
+                      },
+                      "bool": {
+                        "description": "Bool value.",
+                        "type": "boolean",
+                        "x-order": 2
+                      },
+                      "float": {
+                        "description": "Float value.",
+                        "type": "number",
+                        "format": "double",
+                        "x-order": 3
+                      },
+                      "string": {
+                        "description": "String value.",
+                        "type": "string",
+                        "x-order": 4
                       }
                     }
                   },
                   "x-order": 4
+                },
+                "for": {
+                  "description": "Rule duration. Should be set.",
+                  "type": "string",
+                  "x-order": 5
                 },
                 "severity": {
                   "description": "Severity represents severity level of the check result or alert.",
@@ -154,10 +116,48 @@
                   ],
                   "x-order": 6
                 },
-                "template_name": {
-                  "description": "Template name.",
+                "custom_labels": {
+                  "description": "All custom labels to add or remove (with empty values) to default labels from template.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 7
+                },
+                "filters": {
+                  "description": "Filters.",
+                  "type": "array",
+                  "items": {
+                    "description": "Filter represents a single filter condition.",
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "description": "FilterType represents filter matching type.",
+                        "type": "string",
+                        "default": "FILTER_TYPE_UNSPECIFIED",
+                        "enum": [
+                          "FILTER_TYPE_UNSPECIFIED",
+                          "FILTER_TYPE_MATCH",
+                          "FILTER_TYPE_MISMATCH"
+                        ],
+                        "x-order": 0
+                      },
+                      "label": {
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "regexp": {
+                        "type": "string",
+                        "x-order": 2
+                      }
+                    }
+                  },
+                  "x-order": 8
+                },
+                "interval": {
                   "type": "string",
-                  "x-order": 0
+                  "title": "Evaluation Interval",
+                  "x-order": 9
                 }
               }
             }
@@ -180,6 +180,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -190,13 +194,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -239,6 +239,18 @@
             "schema": {
               "type": "object",
               "properties": {
+                "total_items": {
+                  "description": "Total number of results.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "total_pages": {
+                  "description": "Total number of pages.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
                 "templates": {
                   "description": "Alerting templates.",
                   "type": "array",
@@ -246,42 +258,20 @@
                     "description": "Template represents Alert Template that is used to create Alert Rule.",
                     "type": "object",
                     "properties": {
-                      "annotations": {
-                        "description": "Annotations.",
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        },
-                        "x-order": 7
-                      },
-                      "created_at": {
-                        "description": "Template creation time. Empty for built-in and SaaS templates.",
+                      "name": {
+                        "description": "Machine-readable name (ID).",
                         "type": "string",
-                        "format": "date-time",
-                        "x-order": 9
+                        "x-order": 0
+                      },
+                      "summary": {
+                        "description": "Short human-readable summary.",
+                        "type": "string",
+                        "x-order": 1
                       },
                       "expr": {
                         "description": "PromQL query expression with templating parameters.",
                         "type": "string",
                         "x-order": 2
-                      },
-                      "for": {
-                        "description": "Default duration value.",
-                        "type": "string",
-                        "x-order": 4
-                      },
-                      "labels": {
-                        "description": "Labels.",
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        },
-                        "x-order": 6
-                      },
-                      "name": {
-                        "description": "Machine-readable name (ID).",
-                        "type": "string",
-                        "x-order": 0
                       },
                       "params": {
                         "description": "Query parameters definitions.",
@@ -290,6 +280,39 @@
                           "description": "ParamDefinition represents a single query parameter.",
                           "type": "object",
                           "properties": {
+                            "name": {
+                              "description": "Machine-readable name (ID) that is used in expression.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "summary": {
+                              "description": "Short human-readable parameter summary.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "unit": {
+                              "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_UNSPECIFIED: Invalid, unknown or absent.\n - PARAM_UNIT_PERCENTAGE: %\n - PARAM_UNIT_SECONDS: s",
+                              "type": "string",
+                              "default": "PARAM_UNIT_UNSPECIFIED",
+                              "enum": [
+                                "PARAM_UNIT_UNSPECIFIED",
+                                "PARAM_UNIT_PERCENTAGE",
+                                "PARAM_UNIT_SECONDS"
+                              ],
+                              "x-order": 2
+                            },
+                            "type": {
+                              "description": "ParamType represents template parameter type.",
+                              "type": "string",
+                              "default": "PARAM_TYPE_UNSPECIFIED",
+                              "enum": [
+                                "PARAM_TYPE_UNSPECIFIED",
+                                "PARAM_TYPE_BOOL",
+                                "PARAM_TYPE_FLOAT",
+                                "PARAM_TYPE_STRING"
+                              ],
+                              "x-order": 3
+                            },
                             "bool": {
                               "description": "BoolParamDefinition represents boolean parameter's default value.",
                               "type": "object",
@@ -313,27 +336,22 @@
                                   "x-nullable": true,
                                   "x-order": 0
                                 },
-                                "max": {
-                                  "description": "Maximum valid value (inclusive).",
-                                  "type": "number",
-                                  "format": "double",
-                                  "x-nullable": true,
-                                  "x-order": 2
-                                },
                                 "min": {
                                   "description": "Minimum valid value (inclusive).",
                                   "type": "number",
                                   "format": "double",
                                   "x-nullable": true,
                                   "x-order": 1
+                                },
+                                "max": {
+                                  "description": "Maximum valid value (inclusive).",
+                                  "type": "number",
+                                  "format": "double",
+                                  "x-nullable": true,
+                                  "x-order": 2
                                 }
                               },
                               "x-order": 5
-                            },
-                            "name": {
-                              "description": "Machine-readable name (ID) that is used in expression.",
-                              "type": "string",
-                              "x-order": 0
                             },
                             "string": {
                               "description": "StringParamDefinition represents string parameter's default value.",
@@ -347,38 +365,15 @@
                                 }
                               },
                               "x-order": 6
-                            },
-                            "summary": {
-                              "description": "Short human-readable parameter summary.",
-                              "type": "string",
-                              "x-order": 1
-                            },
-                            "type": {
-                              "description": "ParamType represents template parameter type.",
-                              "type": "string",
-                              "default": "PARAM_TYPE_UNSPECIFIED",
-                              "enum": [
-                                "PARAM_TYPE_UNSPECIFIED",
-                                "PARAM_TYPE_BOOL",
-                                "PARAM_TYPE_FLOAT",
-                                "PARAM_TYPE_STRING"
-                              ],
-                              "x-order": 3
-                            },
-                            "unit": {
-                              "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_UNSPECIFIED: Invalid, unknown or absent.\n - PARAM_UNIT_PERCENTAGE: %\n - PARAM_UNIT_SECONDS: s",
-                              "type": "string",
-                              "default": "PARAM_UNIT_UNSPECIFIED",
-                              "enum": [
-                                "PARAM_UNIT_UNSPECIFIED",
-                                "PARAM_UNIT_PERCENTAGE",
-                                "PARAM_UNIT_SECONDS"
-                              ],
-                              "x-order": 2
                             }
                           }
                         },
                         "x-order": 3
+                      },
+                      "for": {
+                        "description": "Default duration value.",
+                        "type": "string",
+                        "x-order": 4
                       },
                       "severity": {
                         "description": "Severity represents severity level of the check result or alert.",
@@ -397,6 +392,22 @@
                         ],
                         "x-order": 5
                       },
+                      "labels": {
+                        "description": "Labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 6
+                      },
+                      "annotations": {
+                        "description": "Annotations.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 7
+                      },
                       "source": {
                         "description": "TemplateSource defines template source.\n\n - TEMPLATE_SOURCE_BUILT_IN: Template that is shipped with PMM Server releases.\n - TEMPLATE_SOURCE_SAAS: Template that is downloaded from check.percona.com.\n - TEMPLATE_SOURCE_USER_FILE: Templated loaded from user-suplied file.\n - TEMPLATE_SOURCE_USER_API: Templated created via API.",
                         "type": "string",
@@ -410,10 +421,11 @@
                         ],
                         "x-order": 8
                       },
-                      "summary": {
-                        "description": "Short human-readable summary.",
+                      "created_at": {
+                        "description": "Template creation time. Empty for built-in and SaaS templates.",
                         "type": "string",
-                        "x-order": 1
+                        "format": "date-time",
+                        "x-order": 9
                       },
                       "yaml": {
                         "description": "YAML template file content. Empty for built-in and SaaS templates.",
@@ -423,18 +435,6 @@
                     }
                   },
                   "x-order": 2
-                },
-                "total_items": {
-                  "description": "Total number of results.",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "total_pages": {
-                  "description": "Total number of pages.",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
                 }
               }
             }
@@ -449,6 +449,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -459,13 +463,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -512,6 +512,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -522,13 +526,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -584,6 +584,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -594,13 +598,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -638,6 +638,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -648,13 +652,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
