@@ -22,6 +22,7 @@ import "fmt"
 const (
 	AgentTypePMMAgent                        = "AGENT_TYPE_PMM_AGENT"
 	AgentTypeVMAgent                         = "AGENT_TYPE_VM_AGENT"
+	AgentTypeNomadAgent                      = "AGENT_TYPE_NOMAD_AGENT"
 	AgentTypeNodeExporter                    = "AGENT_TYPE_NODE_EXPORTER"
 	AgentTypeMySQLdExporter                  = "AGENT_TYPE_MYSQLD_EXPORTER"
 	AgentTypeMongoDBExporter                 = "AGENT_TYPE_MONGODB_EXPORTER"
@@ -41,6 +42,7 @@ var agentTypeNames = map[string]string{
 	// no invalid
 	AgentTypePMMAgent:                        "pmm_agent",
 	AgentTypeVMAgent:                         "vmagent",
+	AgentTypeNomadAgent:                      "nomad_agent",
 	AgentTypeNodeExporter:                    "node_exporter",
 	AgentTypeMySQLdExporter:                  "mysqld_exporter",
 	AgentTypeMongoDBExporter:                 "mongodb_exporter",

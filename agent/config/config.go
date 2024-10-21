@@ -39,6 +39,7 @@ import (
 const (
 	pathBaseDefault = "/usr/local/percona/pmm"
 	agentTmpPath    = "tmp" // temporary directory to keep exporters' config files, relative to pathBase
+	agentDataPath   = "data"
 	agentPrefix     = "/agent_id/"
 )
 
@@ -101,8 +102,10 @@ type Paths struct {
 	AzureExporter    string `yaml:"azure_exporter"`
 
 	VMAgent string `yaml:"vmagent"`
+	Nomad   string `yaml:"nomad"`
 
-	TempDir string `yaml:"tempdir"`
+	TempDir      string `yaml:"tempdir"`
+	NomadDataDir string `yaml:"nomad_data_dir"`
 
 	PTSummary        string `yaml:"pt_summary"`
 	PTPGSummary      string `yaml:"pt_pg_summary"`
@@ -230,6 +233,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 			&cfg.Paths.PTPGSummary:      "tools/pt-pg-summary",
 			&cfg.Paths.PTMongoDBSummary: "tools/pt-mongodb-summary",
 			&cfg.Paths.PTMySQLSummary:   "tools/pt-mysql-summary",
+			&cfg.Paths.Nomad:            "tools/nomad",
 		} {
 			if *sp == "" {
 				*sp = v
@@ -255,22 +259,27 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 			l.Infof("Temporary directory is not configured and will be set to %s", cfg.Paths.TempDir)
 		}
 
+		if cfg.Paths.NomadDataDir == "" {
+			cfg.Paths.NomadDataDir = filepath.Join(cfg.Paths.PathsBase, agentDataPath, "nomad")
+			l.Infof("Nomad data directory will default to %s", cfg.Paths.NomadDataDir)
+		}
+
 		if !filepath.IsAbs(cfg.Paths.TempDir) {
 			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.TempDir)
 			l.Debugf("Temporary directory is configured as %s", cfg.Paths.TempDir)
 		}
 
-		if !filepath.IsAbs(cfg.Paths.PTSummary) {
-			cfg.Paths.PTSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTSummary)
-		}
-		if !filepath.IsAbs(cfg.Paths.PTPGSummary) {
-			cfg.Paths.PTPGSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTPGSummary)
-		}
-		if !filepath.IsAbs(cfg.Paths.PTMongoDBSummary) {
-			cfg.Paths.PTMongoDBSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTMongoDBSummary)
-		}
-		if !filepath.IsAbs(cfg.Paths.PTMySQLSummary) {
-			cfg.Paths.PTMySQLSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTMySQLSummary)
+		for _, sp := range []*string{
+			&cfg.Paths.PTSummary,
+			&cfg.Paths.PTPGSummary,
+			&cfg.Paths.PTMongoDBSummary,
+			&cfg.Paths.PTMySQLSummary,
+			&cfg.Paths.Nomad,
+		} {
+			if !filepath.IsAbs(*sp) {
+				*sp = filepath.Join(cfg.Paths.PathsBase, *sp)
+				l.Infof("Using %s", *sp)
+			}
 		}
 
 		for _, sp := range []*string{
@@ -395,6 +404,10 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PATHS_PT_MONGODB_SUMMARY").StringVar(&cfg.Paths.PTMongoDBSummary)
 	app.Flag("paths-pt-mysql-summary", "Path to pt my sql summary to use [PMM_AGENT_PATHS_PT_MYSQL_SUMMARY]").
 		Envar("PMM_AGENT_PATHS_PT_MYSQL_SUMMARY").StringVar(&cfg.Paths.PTMySQLSummary)
+	app.Flag("paths-nomad", "Path to nomad binary. Can be overridden using [PMM_AGENT_PATHS_NOMAD]").
+		Envar("PMM_AGENT_PATHS_NOMAD").StringVar(&cfg.Paths.Nomad)
+	app.Flag("paths-nomad-data-dir", "Nomad data directory [PMM_AGENT_PATHS_NOMAD_DATA_DIR]").
+		Envar("PMM_AGENT_PATHS_NOMAD_DATA_DIR").StringVar(&cfg.Paths.NomadDataDir)
 	app.Flag("paths-tempdir", "Temporary directory for exporters [PMM_AGENT_PATHS_TEMPDIR]").
 		Envar("PMM_AGENT_PATHS_TEMPDIR").StringVar(&cfg.Paths.TempDir)
 	// no flag for SlowLogFilePrefix - it is only for development and testing
