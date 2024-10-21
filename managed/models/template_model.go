@@ -19,7 +19,7 @@ import (
 	"database/sql/driver"
 	"time"
 
-	"github.com/percona-platform/saas/pkg/common"
+	"github.com/percona/saas/pkg/common"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
