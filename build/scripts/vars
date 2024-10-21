@@ -2,8 +2,8 @@ bin_dir=$(cd $(dirname $0); pwd -P)
 # TODO: refactor to pass ${WORKSPACE} as ROOT_DIR from either Jenkins or, if relevant, from GH actions
 # NOTE: in most cases, this evaluates to Jenkins ${WORKSPACE} directory when called from pipelines
 # Example: /home/ec2-user/workspace/ol9-build-server/, see how it's used in ol9-build-server.groovy
-root_dir_tmp=$(cd $(dirname $0)/../../../../../../../..; pwd -P)
-root_dir=${ROOT_DIR:-$root_dir_tmp}
+root_dir=$(cd $(dirname $0)/../../../../../../../..; pwd -P)
+root_dir=${ROOT_DIR:-$root_dir}
 tmp_dir=${root_dir}/tmp
 
 # In VERSION file we can have numeric value like '2.0.0' as well as
@@ -19,11 +19,7 @@ full_pmm_version=${pmm_base_version}-${pmm_branch}-$(git rev-parse --short HEAD)
 # Replace '/' with '-' to prevent sed from failing on dependabot-authored PRs
 full_pmm_version=${full_pmm_version//\//-}
 
-# TODO Maybe it makes sense to use variable from job here
-if [[ ${pmm_branch} =~ release-* || \
-      ${pmm_branch} =~ pmm-3.* || \
-      ${pmm_branch} == v3 || \
-      ${pmm_branch} == "main" ]]; then
+if [[ "${pmm_branch}" =~ ^pmm-3.|^v3$|^main$ ]]; then
     full_pmm_version=${pmm_base_version}
 fi
 
@@ -42,7 +38,7 @@ unset new_pmm_version
 unset new_pmm_release
 echo -e "\n\n\n>>> full_pmm_version=${full_pmm_version} pmm_version=${pmm_version} pmm_release=${pmm_release}\n\n\n"
 
-rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-public.ecr.aws/e7j3v3n0/rpmbuild:2}
+rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-public.ecr.aws/e7j3v3n0/rpmbuild:3}
 rpms_dir=${root_dir}/tmp/pmm-server/RPMS
 rpmbuild_dir=${root_dir}/sources/pmm/src/github.com/percona/pmm/build/packages/rpm/server
 rpmbuild_dist=${RPMBUILD_DIST:-"el9"}
