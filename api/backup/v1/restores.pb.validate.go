@@ -35,6 +35,9 @@ var (
 	_ = sort.Sort
 )
 
+// define the regex for a UUID once up-front
+var _restores_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
 // Validate checks the field values on RestoreHistoryItem with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -504,10 +507,11 @@ func (m *RestoreServiceGetLogsRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetRestoreId()) < 1 {
-		err := RestoreServiceGetLogsRequestValidationError{
+	if err := m._validateUuid(m.GetRestoreId()); err != nil {
+		err = RestoreServiceGetLogsRequestValidationError{
 			field:  "RestoreId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -521,6 +525,14 @@ func (m *RestoreServiceGetLogsRequest) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return RestoreServiceGetLogsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *RestoreServiceGetLogsRequest) _validateUuid(uuid string) error {
+	if matched := _restores_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -761,10 +773,11 @@ func (m *RestoreBackupRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := RestoreBackupRequestValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = RestoreBackupRequestValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -772,10 +785,11 @@ func (m *RestoreBackupRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetArtifactId()) < 1 {
-		err := RestoreBackupRequestValidationError{
+	if err := m._validateUuid(m.GetArtifactId()); err != nil {
+		err = RestoreBackupRequestValidationError{
 			field:  "ArtifactId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -814,6 +828,14 @@ func (m *RestoreBackupRequest) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return RestoreBackupRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *RestoreBackupRequest) _validateUuid(uuid string) error {
+	if matched := _restores_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
