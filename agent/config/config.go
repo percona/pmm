@@ -269,33 +269,33 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 			l.Debugf("Temporary directory is configured as %s", cfg.Paths.TempDir)
 		}
 
-		for _, sp := range []*string{
-			&cfg.Paths.PTSummary,
-			&cfg.Paths.PTPGSummary,
-			&cfg.Paths.PTMongoDBSummary,
-			&cfg.Paths.PTMySQLSummary,
-			&cfg.Paths.Nomad,
+		for n, sp := range map[string]*string{
+			"Percona Toolkit pt-summary":         &cfg.Paths.PTSummary,
+			"Percona Toolkit pt-pg-summary":      &cfg.Paths.PTPGSummary,
+			"Percona Toolkit pt-mongodb-summary": &cfg.Paths.PTMongoDBSummary,
+			"Percona Toolkit pt-mysql-summary":   &cfg.Paths.PTMySQLSummary,
+			"Nomad binary":                       &cfg.Paths.Nomad,
 		} {
 			if !filepath.IsAbs(*sp) {
 				*sp = filepath.Join(cfg.Paths.PathsBase, *sp)
-				l.Infof("Using %s", *sp)
+				l.Infof("Using %s as a path to %s", *sp, n)
 			}
 		}
 
-		for _, sp := range []*string{
-			&cfg.Paths.NodeExporter,
-			&cfg.Paths.MySQLdExporter,
-			&cfg.Paths.MongoDBExporter,
-			&cfg.Paths.PostgresExporter,
-			&cfg.Paths.ProxySQLExporter,
-			&cfg.Paths.RDSExporter,
-			&cfg.Paths.AzureExporter,
-			&cfg.Paths.VMAgent,
+		for n, sp := range map[string]*string{
+			"node_exporter":     &cfg.Paths.NodeExporter,
+			"mysqld_exporter":   &cfg.Paths.MySQLdExporter,
+			"mongodb_exporter":  &cfg.Paths.MongoDBExporter,
+			"postgres_exporter": &cfg.Paths.PostgresExporter,
+			"proxysql_exporter": &cfg.Paths.ProxySQLExporter,
+			"rds_exporter":      &cfg.Paths.RDSExporter,
+			"azure_exporter":    &cfg.Paths.AzureExporter,
+			"vmagent":           &cfg.Paths.VMAgent,
 		} {
 			if cfg.Paths.ExportersBase != "" && !filepath.IsAbs(*sp) {
 				*sp = filepath.Join(cfg.Paths.ExportersBase, *sp)
 			}
-			l.Infof("Using %s", *sp)
+			l.Infof("Using %s as a path to %s", *sp, n)
 		}
 
 		if cfg.Server.Address != "" {
