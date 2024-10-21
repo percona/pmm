@@ -128,7 +128,7 @@
       method: GET
     retries: 20
     delay: 5
-    ignore_errors: yes
+    ignore_errors: true
 
   - name: init admin password on AMI
     include_role:
@@ -139,4 +139,9 @@
     file:
       state: absent
       path: /usr/share/pmm-server/maintenance/maintenance.html
+
+  - name: Remove the file provisioned by 'getStatus'
+    file:
+      state: absent
+      path: /srv/pmm-update.json      
   when: need_initialization or need_upgrade
