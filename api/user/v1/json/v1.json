@@ -34,6 +34,11 @@
                   "items": {
                     "type": "object",
                     "properties": {
+                      "user_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 0
+                      },
                       "role_ids": {
                         "description": "List of role IDs assigned to the user.",
                         "type": "array",
@@ -42,11 +47,6 @@
                           "format": "int64"
                         },
                         "x-order": 1
-                      },
-                      "user_id": {
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 0
                       }
                     }
                   },
@@ -65,6 +65,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -75,13 +79,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -103,26 +103,26 @@
             "schema": {
               "type": "object",
               "properties": {
-                "alerting_tour_completed": {
-                  "type": "boolean",
-                  "title": "Alerting Tour",
-                  "x-order": 2
+                "user_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "title": "User ID",
+                  "x-order": 0
                 },
                 "product_tour_completed": {
                   "type": "boolean",
                   "title": "Product Tour",
                   "x-order": 1
                 },
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-order": 2
+                },
                 "snoozed_pmm_version": {
                   "type": "string",
                   "title": "Snoozed PMM version update",
                   "x-order": 3
-                },
-                "user_id": {
-                  "type": "integer",
-                  "format": "int64",
-                  "title": "User ID",
-                  "x-order": 0
                 }
               }
             }
@@ -137,6 +137,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -147,13 +151,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -175,17 +175,17 @@
             "schema": {
               "type": "object",
               "properties": {
-                "alerting_tour_completed": {
-                  "type": "boolean",
-                  "title": "Alerting Tour",
-                  "x-nullable": true,
-                  "x-order": 1
-                },
                 "product_tour_completed": {
                   "type": "boolean",
                   "title": "Product Tour",
                   "x-nullable": true,
                   "x-order": 0
+                },
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-nullable": true,
+                  "x-order": 1
                 },
                 "snoozed_pmm_version": {
                   "type": "string",
@@ -203,26 +203,26 @@
             "schema": {
               "type": "object",
               "properties": {
-                "alerting_tour_completed": {
-                  "type": "boolean",
-                  "title": "Alerting Tour",
-                  "x-order": 2
+                "user_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "title": "User ID",
+                  "x-order": 0
                 },
                 "product_tour_completed": {
                   "type": "boolean",
                   "title": "Product Tour",
                   "x-order": 1
                 },
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-order": 2
+                },
                 "snoozed_pmm_version": {
                   "type": "string",
                   "title": "Snooze update alert for a PMM version",
                   "x-order": 3
-                },
-                "user_id": {
-                  "type": "integer",
-                  "format": "int64",
-                  "title": "User ID",
-                  "x-order": 0
                 }
               }
             }
@@ -237,6 +237,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -247,13 +251,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }

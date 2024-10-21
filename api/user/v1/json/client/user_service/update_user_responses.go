@@ -7,6 +7,7 @@ package user_service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -57,8 +58,44 @@ type UpdateUserOK struct {
 	Payload *UpdateUserOKBody
 }
 
+// IsSuccess returns true when this update user Ok response has a 2xx status code
+func (o *UpdateUserOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this update user Ok response has a 3xx status code
+func (o *UpdateUserOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update user Ok response has a 4xx status code
+func (o *UpdateUserOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this update user Ok response has a 5xx status code
+func (o *UpdateUserOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update user Ok response a status code equal to that given
+func (o *UpdateUserOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the update user Ok response
+func (o *UpdateUserOK) Code() int {
+	return 200
+}
+
 func (o *UpdateUserOK) Error() string {
-	return fmt.Sprintf("[PUT /v1/users/me][%d] updateUserOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PUT /v1/users/me][%d] updateUserOk %s", 200, payload)
+}
+
+func (o *UpdateUserOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PUT /v1/users/me][%d] updateUserOk %s", 200, payload)
 }
 
 func (o *UpdateUserOK) GetPayload() *UpdateUserOKBody {
@@ -94,13 +131,44 @@ type UpdateUserDefault struct {
 	Payload *UpdateUserDefaultBody
 }
 
+// IsSuccess returns true when this update user default response has a 2xx status code
+func (o *UpdateUserDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this update user default response has a 3xx status code
+func (o *UpdateUserDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this update user default response has a 4xx status code
+func (o *UpdateUserDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this update user default response has a 5xx status code
+func (o *UpdateUserDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this update user default response a status code equal to that given
+func (o *UpdateUserDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the update user default response
 func (o *UpdateUserDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *UpdateUserDefault) Error() string {
-	return fmt.Sprintf("[PUT /v1/users/me][%d] UpdateUser default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PUT /v1/users/me][%d] UpdateUser default %s", o._statusCode, payload)
+}
+
+func (o *UpdateUserDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PUT /v1/users/me][%d] UpdateUser default %s", o._statusCode, payload)
 }
 
 func (o *UpdateUserDefault) GetPayload() *UpdateUserDefaultBody {
@@ -233,6 +301,11 @@ func (o *UpdateUserDefaultBody) ContextValidate(ctx context.Context, formats str
 func (o *UpdateUserDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("UpdateUser default" + "." + "details" + "." + strconv.Itoa(i))
@@ -272,6 +345,80 @@ swagger:model UpdateUserDefaultBodyDetailsItems0
 type UpdateUserDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// update user default body details items0
+	UpdateUserDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *UpdateUserDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv UpdateUserDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.UpdateUserDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o UpdateUserDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.UpdateUserDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.UpdateUserDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this update user default body details items0
