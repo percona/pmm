@@ -261,7 +261,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 
 		if cfg.Paths.NomadDataDir == "" {
 			cfg.Paths.NomadDataDir = filepath.Join(cfg.Paths.PathsBase, agentDataPath, "nomad")
-			l.Infof("Nomad data directory is not configured and will be set to %s", cfg.Paths.NomadDataDir)
+			l.Infof("Nomad data directory will default to %s", cfg.Paths.NomadDataDir)
 		}
 
 		if !filepath.IsAbs(cfg.Paths.TempDir) {
@@ -404,7 +404,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PATHS_PT_MONGODB_SUMMARY").StringVar(&cfg.Paths.PTMongoDBSummary)
 	app.Flag("paths-pt-mysql-summary", "Path to pt my sql summary to use [PMM_AGENT_PATHS_PT_MYSQL_SUMMARY]").
 		Envar("PMM_AGENT_PATHS_PT_MYSQL_SUMMARY").StringVar(&cfg.Paths.PTMySQLSummary)
-	app.Flag("paths-nomad", "Path to nomad to use [PMM_AGENT_PATHS_NOMAD]").
+	app.Flag("paths-nomad", "Path to nomad binary. Can be overridden using [PMM_AGENT_PATHS_NOMAD]").
 		Envar("PMM_AGENT_PATHS_NOMAD").StringVar(&cfg.Paths.Nomad)
 	app.Flag("paths-nomad-data-dir", "Nomad data directory [PMM_AGENT_PATHS_NOMAD_DATA_DIR]").
 		Envar("PMM_AGENT_PATHS_NOMAD_DATA_DIR").StringVar(&cfg.Paths.NomadDataDir)

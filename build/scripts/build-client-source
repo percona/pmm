@@ -72,7 +72,7 @@ prepare_nomad_tarball() {
     if [ -f "${tarball}" ]; then
         echo ${tarball} already exists, skipping download
     else
-        wget https://github.com/hashicorp/nomad/archive/${commit_hash}.tar.gz -O ${tarball}
+        curl -o ${tarball} -fSsL https://github.com/hashicorp/nomad/archive/${commit_hash}.tar.gz
     fi
 }
 
