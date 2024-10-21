@@ -19,6 +19,7 @@ package encryption
 import (
 	"encoding/base64"
 	"os"
+	"runtime"
 	"slices"
 
 	"github.com/pkg/errors"
@@ -43,7 +44,11 @@ func New(keyPath string) *Encryption {
 	if customKeyPath != "" {
 		e.Path = customKeyPath
 	} else {
-		e.Path = keyPath
+		if runtime.GOOS == "darwin" { // for development on macOS
+			e.Path = "./encryption.key"
+		} else {
+			e.Path = keyPath
+		}
 	}
 
 	bytes, err := os.ReadFile(e.Path)
